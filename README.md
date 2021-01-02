@@ -11,7 +11,7 @@
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?)](https://github.com/prettier/prettier)
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-[//]: https://www.mirotalk.com
+# https://mirotalk.herokuapp.com/
 
 Powered by `WebRTC` using google STUN and [numb](http://numb.viagenie.ca/) TURN infrastructure. `mirotalk` provides video quality and latency simply not available with traditional technology.
 
@@ -61,7 +61,7 @@ npm start
 
 - Open `http://localhost:3000` in browser
 - If you want to use a client on another computer/network, make sure you publish your server on an HTTPS connection.
-  You can use a service like [ngrok](https://ngrok.com/) for that. (`ngrok http 3000`)
+  You can use a service like [ngrok](https://ngrok.com/) (`ngrok http 3000`) Or deploy it on ['heroku'](https://www.heroku.com/).
 
 ## Contributing
 
