@@ -47,7 +47,7 @@ cd mirotalk
 - Copy .env.template to .env `cp .env.template .env`
 - Create an account on http://numb.viagenie.ca
 - Get your Account USERNAME and PASSWORD
-- Fill your credentials in the `.env` file
+- Fill in your credentials in the `.env` file
 
 `Ngrok`
 
