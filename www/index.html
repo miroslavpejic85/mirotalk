@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- https://developers.google.com/gtagjs/devguide/snippet#google-analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "GA_MEASUREMENT_ID");
+    </script>
+    -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <meta
+      name="keywords"
+      content="webrtc, webrtc stun, webrtc turn, video meeting, video chat, multi video chat, peer to peer, p2p, zoom"
+    />
+    <!-- https://ogp.me -->
+    <meta property="og:type" content="app-webrtc" />
+    <meta property="og:site_name" content="mirotalk" />
+    <meta property="og:title" content="Click the link to join this call" />
+    <meta
+      property="og:description"
+      content="mirotalk - A free WebRTC browser-based video call."
+    />
+    <meta property="og:image" content="/images/mirotalk.png" />
+    <!-- <meta property="og:url" content="https://www.mirotalk.com"> -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/images/favicon.png"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://kit.fontawesome.com/d2f1016e6f.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="https://cdn.rawgit.com/muaz-khan/DetectRTC/master/DetectRTC.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+  </head>
+
+  <body onload="initPeer()">
+    <div id="buttons">
+      <!-- https://fontawesome.com/icons?d=gallery -->
+      <button
+        title="copy room"
+        id="copybtn"
+        class="fas fa-users"
+        onclick="copyRoomURL()"
+      ></button>
+      <button
+        title="microphone"
+        id="mutebtn"
+        class="fas fa-microphone"
+      ></button>
+      <button title="camera" id="videomutebtn" class="fas fa-video"></button>
+      <button
+        title="swap camera"
+        id="swapcamerabtn"
+        class="fas fa-sync-alt"
+      ></button>
+      <button
+        title="screen"
+        id="screensharebtn"
+        class="fas fa-desktop"
+      ></button>
+      <button
+        title="end call"
+        id="endcall"
+        class="fas fa-phone-slash"
+        onclick="leaveRoom()"
+      ></button>
+    </div>
+    <!-- 
+		the <video> and <audio> tags are all added and removed dynamically
+		in 'onAddStream', 'setup_local_media', and 'removePeer'/'disconnect'
+		--></body>
+</html>

@@ -1,0 +1,175 @@
+@import url("https://fonts.googleapis.com/css?family=Fira+Sans:600|Heebo:400,500,700&display=swap");
+
+/*Fade in page on load*/
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@-moz-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+* {
+  outline: none;
+}
+html,
+body {
+  background: #000000;
+  background-image: url("/images/loader.gif");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  margin: 0;
+  padding: 0;
+  opacity: 0; /* make things invisible upon start */
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 0.3s;
+  -moz-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+  overflow: hidden;
+}
+video {
+  width: 100%;
+  height: auto;
+  height: 100%;
+  object-fit: contain;
+  /*border:  1px solid rgb(255, 255, 255);*/
+}
+video:fullscreen {
+  object-fit: contain;
+}
+.video {
+  float: left;
+  width: 25vw;
+  height: 50vh;
+  overflow: hidden;
+  position: relative;
+}
+.video.one {
+  width: 100vw;
+  height: 100vh;
+}
+.video.two {
+  width: 50vw;
+  height: 100vh;
+}
+.video.three {
+  width: 33.33vw;
+  height: 100vh;
+}
+.video.four {
+  width: 50vw;
+  height: 50vh;
+}
+.video.six {
+  width: 33.33vw;
+  height: 50vh;
+}
+#myVideo.mirror {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+}
+.fa-microphone-slash,
+.fa-video-slash {
+  color: #e74c3c !important;
+}
+
+#logo {
+  width: 48px;
+  margin-right: 0.5rem;
+}
+#logo svg {
+  width: 100%;
+}
+#buttons button {
+  border: none;
+  font-size: 1.5rem;
+  transition: all 0.3s ease-in-out;
+  background: white;
+  /*background: transparent;*/
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 5px;
+}
+
+button:focus {
+  outline: none;
+}
+button:hover {
+  color: rgb(8, 189, 89);
+}
+
+#buttons {
+  position: absolute;
+  left: calc(3vw - 2px);
+  top: 50%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);
+  z-index: 999;
+  border-radius: 20px;
+  /*background: #ffffff;*/
+  background: transparent;
+  box-shadow: 5px 5px 10px #0500ff, -5px -5px 10px #da05f3;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  grid-gap: 0.2rem;
+  width: 40px;
+}
+
+#copybtn,
+#mutebtn,
+#videomutebtn,
+#swapcamerabtn,
+#screensharebtn,
+#endcall {
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 960px) {
+  /*960-300*/
+  .video {
+    float: left;
+    width: 50vw;
+    height: 25vh;
+    overflow: hidden;
+  }
+  .video.two {
+    width: 100vw;
+    height: 50vh;
+  }
+  .video.three {
+    width: 100vw;
+    height: 33.33vh;
+  }
+  .video.six {
+    width: 50vw;
+    height: 33.33vh;
+  }
+}
