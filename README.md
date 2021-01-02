@@ -1,6 +1,6 @@
 # mirotalk
 
-`A free WebRTC browser-based video call and screen sharing`
+🚀 `A free WebRTC browser-based video call and screen sharing` 🚀
 
 [//]: https://img.shields.io/badge/<LABEL>-<MESSAGE>-<COLOR>
 
@@ -13,7 +13,7 @@
 
 # https://mirotalk.herokuapp.com/
 
-Powered by `WebRTC` using google STUN and [numb](http://numb.viagenie.ca/) TURN infrastructure. `mirotalk` provides video quality and latency simply not available with traditional technology.
+Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn. `mirotalk` provides video quality and latency not available with traditional technology.
 
 [//]: #![webrtc](www/images/webrtc.png)
 
@@ -23,7 +23,7 @@ Powered by `WebRTC` using google STUN and [numb](http://numb.viagenie.ca/) TURN 
 
 ## Features
 
-- RoomUrl Sharing
+- RoomUrl Sharing (just click and share URL to your friends)
 - WebCam (front - rear)
 - Audio
 - Screen Sharing
@@ -42,10 +42,18 @@ cd mirotalk
 
 ## Set up credentials
 
+`Turn`
+
 - Copy .env.template to .env `cp .env.template .env`
 - Create an account on http://numb.viagenie.ca
 - Get your Account USERNAME and PASSWORD
-- Fill in your credentials in the `.env` file
+- Fill your credentials in the `.env` file
+
+`Ngrok`
+
+- Get started for free https://ngrok.com/
+- Fill in your authtoken in the `.env` file
+- Enable it, if you want to expose the server using the https tunel
 
 ## Install dependencies
 
@@ -61,7 +69,7 @@ npm start
 
 - Open http://localhost:80 in browser
 - If you want to use a client on another computer/network, make sure you publish your server on an HTTPS connection.
-  You can use a service like [ngrok](https://ngrok.com/) (`ngrok http 80`) Or deploy it on [heroku](https://www.heroku.com/).
+  You can use a service like [ngrok](https://ngrok.com/) Or deploy it on [heroku](https://www.heroku.com/).
 
 ## Contributing
 
