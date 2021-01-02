@@ -59,9 +59,9 @@ npm install
 npm start
 ```
 
-- Open `http://localhost:3000` in browser
+- Open http://localhost:80 in browser
 - If you want to use a client on another computer/network, make sure you publish your server on an HTTPS connection.
-  You can use a service like [ngrok](https://ngrok.com/) (`ngrok http 3000`) Or deploy it on ['heroku'](https://www.heroku.com/).
+  You can use a service like [ngrok](https://ngrok.com/) (`ngrok http 80`) Or deploy it on ['heroku'](https://www.heroku.com/).
 
 ## Contributing
 
