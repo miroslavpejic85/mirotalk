@@ -8,8 +8,6 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 ███████ ███████ ██   ██   ████   ███████ ██   ██                                           
 */
 
-const PORT = 3000;
-
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
@@ -20,6 +18,12 @@ const { Server } = require("socket.io");
 const io = new Server().listen(server);
 const ngrok = require("ngrok");
 
+var ngrokEnabled = process.env.NGROK_ENABLED;
+var ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
+var turnUrls = process.env.TURN_URLS;
+var turnUsername = process.env.TURN_USERNAME;
+var turnCredential = process.env.TURN_PASSWORD;
+
 // use all static files from the www folder
 app.use(express.static(path.join(__dirname, "www")));
 
@@ -28,7 +32,7 @@ app.use(express.static(path.join(__dirname, "www")));
 // =====================================================
 async function ngrokstart() {
   try {
-    await ngrok.authtoken(process.env.NGROK_AUTH_TOKEN);
+    await ngrok.authtoken(ngrokAuthToken);
     await ngrok.connect(PORT);
     const api = ngrok.getApi();
     let data = await api.get("api/tunnels");
@@ -52,15 +56,16 @@ async function ngrokstart() {
 var ice_servers = [
   { urls: "stun:stun.l.google.com:19302" },
   {
-    urls: process.env.TURN_URLS,
-    username: process.env.TURN_USERNAME,
-    credential: process.env.TURN_PASSWORD,
+    urls: turnUrls,
+    username: turnUsername,
+    credential: turnCredential,
   },
 ];
 
 // =====================================================
 // Start Local Server with ngrok https tunel
 // =====================================================
+var PORT = process.env.PORT || 80;
 server.listen(PORT, null, function () {
   console.log(
     `%c
@@ -76,7 +81,7 @@ server.listen(PORT, null, function () {
     "font-family:monospace"
   );
 
-  if (process.env.NGROK_ENABLED == "true") {
+  if (ngrokEnabled == "true") {
     ngrokstart();
   }
   // init settings

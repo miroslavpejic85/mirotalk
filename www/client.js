@@ -10,7 +10,7 @@
 // config var
 // =====================================================
 const loaderGif = "/images/loader.gif";
-var signaling_server_port = 3000;
+var signaling_server_port = 80;
 var signaling_server = getserverURL();
 var room_id = getRoomId();
 var peerInfo = getPeerInfo();
@@ -47,11 +47,7 @@ function getPeerInfo() {
 function getserverURL() {
   const protocol =
     "http" + (location.hostname == "localhost" ? "" : "s") + "://";
-  return (
-    protocol +
-    location.hostname +
-    (location.hostname == "localhost" ? ":" + signaling_server_port : "")
-  );
+  return protocol + location.hostname;
 }
 
 // =====================================================
