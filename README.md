@@ -79,7 +79,7 @@ npm start
 - Open https://mirotalk.herokuapp.com/
 - Allow to use the camera and microphone
 - Click the first button to copy the url and then share it
-- Wait someone to join for video conference  
+- Wait someone to join for video conference
 
 ## Contributing
 

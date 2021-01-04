@@ -461,6 +461,11 @@ const resizeVideos = () => {
 // active - disactive screen sharing
 // =====================================================
 function toggleScreenSharing() {
+  if (!peerConnection) {
+    userLog("info", "Can't Toggle screen sharing, no peer connection detected");
+    return;
+  }
+
   const screenShareBtn = document.getElementById("screensharebtn");
   const videoMuteBtn = document.getElementById("videomutebtn");
   let screenMediaPromise;
@@ -529,6 +534,11 @@ function toggleScreenSharing() {
 // swapCamer front(user) - rear(environment)
 // =====================================================
 const swapCamera = () => {
+  if (!peerConnection) {
+    userLog("info", "Can't Swap the Camera, no peer connection detected");
+    return;
+  }
+
   camera = camera == "user" ? "environment" : "user";
   if (camera == "user") use_video = true;
   else use_video = { facingMode: { exact: camera } };
@@ -537,12 +547,10 @@ const swapCamera = () => {
   navigator.mediaDevices
     .getUserMedia({ video: use_video })
     .then((camStream) => {
-      if (peerConnection) {
-        var sender = peerConnection
-          .getSenders()
-          .find((s) => (s.track ? s.track.kind === "video" : false));
-        sender.replaceTrack(camStream.getVideoTracks()[0]);
-      }
+      var sender = peerConnection
+        .getSenders()
+        .find((s) => (s.track ? s.track.kind === "video" : false));
+      sender.replaceTrack(camStream.getVideoTracks()[0]);
       camStream.getVideoTracks()[0].enabled = true;
 
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
