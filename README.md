@@ -15,7 +15,7 @@ Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn.
 
 [//]: #![webrtc](www/images/webrtc.png)
 
-![browsers](www/images/browser.png)
+![browsers](www/images/browsers.png)
 
 # https://mirotalk.herokuapp.com/
 
