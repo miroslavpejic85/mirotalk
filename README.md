@@ -2,6 +2,8 @@
 
 🚀 `A free WebRTC browser-based video call and screen sharing` 🚀
 
+<br>
+
 [//]: https://img.shields.io/badge/<LABEL>-<MESSAGE>-<COLOR>
 
 [![Author](https://img.shields.io/badge/Author-miro-brightgreen.svg)](https://www.linkedin.com/in/miroslav-pejic-976a07101/)
@@ -13,11 +15,13 @@
 
 Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn. `mirotalk` provides video quality and latency not available with traditional technology.
 
+Open the app in one of following **supported browser**
+
 [//]: #![webrtc](www/images/webrtc.png)
 
 ![browsers](www/images/browsers.png)
 
-# https://mirotalk.herokuapp.com/
+## https://mirotalk.herokuapp.com/
 
 <br>
 
