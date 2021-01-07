@@ -344,66 +344,7 @@ function setup_local_media(callback, errorback) {
 
       localMediaStream = stream;
 
-      // =====================================================
-      // audio mute-unmute button click event
-      // =====================================================
-      document.getElementById("mutebtn").addEventListener("click", (e) => {
-        localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
-          .enabled;
-        e.target.className =
-          "fas fa-microphone" +
-          (localMediaStream.getAudioTracks()[0].enabled ? "" : "-slash");
-      });
-      // =====================================================
-      // video hide-show button click event
-      // =====================================================
-      document.getElementById("videomutebtn").addEventListener("click", (e) => {
-        // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
-        localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
-          .enabled;
-        e.target.className =
-          "fas fa-video" +
-          (localMediaStream.getVideoTracks()[0].enabled ? "" : "-slash");
-      });
-      // =====================================================
-      // check if can swap or not cam, if yes show the button else hide it
-      // =====================================================
-      navigator.mediaDevices.enumerateDevices().then((devices) => {
-        const videoInput = devices.filter(
-          (device) => device.kind === "videoinput"
-        );
-        if (videoInput.length > 1) {
-          // =====================================================
-          // swap camera front-rear button click event
-          // =====================================================
-          document
-            .getElementById("swapcamerabtn")
-            .addEventListener("click", (e) => {
-              swapCamera();
-            });
-        } else {
-          document.getElementById("swapcamerabtn").style.display = "none";
-        }
-      });
-      // =====================================================
-      // check if can share a screen, if yes show button else hide it
-      // =====================================================
-      if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
-        // =====================================================
-        // share-screen on-off button click event
-        // =====================================================
-        document
-          .getElementById("screensharebtn")
-          .addEventListener("click", (e) => {
-            toggleScreenSharing();
-          });
-      } else {
-        document.getElementById("screensharebtn").style.display = "none";
-      }
-      // =====================================================
-      // set button opacity 1 means no opacity, you can change if like (0.5) ..
-      // =====================================================
-      document.getElementById("buttons").style.opacity = "1";
+      manageButtons();
 
       // =====================================================
       // setup localMedia
@@ -445,6 +386,72 @@ function setup_local_media(callback, errorback) {
       if (errorback) errorback();
     });
 } // end [setup_local_stream]
+
+// =====================================================
+// buttons
+// =====================================================
+function manageButtons() {
+  // =====================================================
+  // audio mute-unmute button click event
+  // =====================================================
+  document.getElementById("mutebtn").addEventListener("click", (e) => {
+    localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
+      .enabled;
+    e.target.className =
+      "fas fa-microphone" +
+      (localMediaStream.getAudioTracks()[0].enabled ? "" : "-slash");
+  });
+
+  // =====================================================
+  // video hide-show button click event
+  // =====================================================
+  document.getElementById("videomutebtn").addEventListener("click", (e) => {
+    // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
+    localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
+      .enabled;
+    e.target.className =
+      "fas fa-video" +
+      (localMediaStream.getVideoTracks()[0].enabled ? "" : "-slash");
+  });
+
+  // =====================================================
+  // check if can swap or not cam, if yes show the button else hide it
+  // =====================================================
+  navigator.mediaDevices.enumerateDevices().then((devices) => {
+    const videoInput = devices.filter((device) => device.kind === "videoinput");
+    if (videoInput.length > 1) {
+      // =====================================================
+      // swap camera front-rear button click event
+      // =====================================================
+      document
+        .getElementById("swapcamerabtn")
+        .addEventListener("click", (e) => {
+          swapCamera();
+        });
+    } else {
+      document.getElementById("swapcamerabtn").style.display = "none";
+    }
+  });
+
+  // =====================================================
+  // check if can share a screen, if yes show button else hide it
+  // =====================================================
+  if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
+    // =====================================================
+    // share-screen on-off button click event
+    // =====================================================
+    document.getElementById("screensharebtn").addEventListener("click", (e) => {
+      toggleScreenSharing();
+    });
+  } else {
+    document.getElementById("screensharebtn").style.display = "none";
+  }
+
+  // =====================================================
+  // set button opacity 1 means no opacity, you can change if like (0.5) ..
+  // =====================================================
+  document.getElementById("buttons").style.opacity = "1";
+}
 
 // =====================================================
 // resize Videos frames
@@ -547,6 +554,7 @@ const swapCamera = () => {
   navigator.mediaDevices
     .getUserMedia({ video: use_video })
     .then((camStream) => {
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
       var sender = peerConnection
         .getSenders()
         .find((s) => (s.track ? s.track.kind === "video" : false));
