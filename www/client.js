@@ -45,9 +45,12 @@ function getPeerInfo() {
 // signaling Server URL
 // =====================================================
 function getserverURL() {
-  const protocol =
-    "http" + (location.hostname == "localhost" ? "" : "s") + "://";
-  return protocol + location.hostname;
+  return (
+    "http" +
+    (location.hostname == "localhost" ? "" : "s") +
+    "://" +
+    location.hostname
+  );
 }
 
 // =====================================================
@@ -180,7 +183,7 @@ function initPeer() {
       document.body.appendChild(videoWrap);
 
       // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(remoteMedia, remoteMediaStream); // event.stream
+      attachMediaStream(remoteMedia, remoteMediaStream);
       remoteMedia.poster = null;
       resizeVideos();
     };
@@ -219,7 +222,7 @@ function initPeer() {
           console.error("[Error] sending offer", e);
         });
     } // end if offer true
-  });
+  }); // end addPeer
 
   /**
    * Peers exchange session descriptions which contains information
@@ -309,7 +312,7 @@ function initPeer() {
     delete peers[peer_id];
     delete peerMediaElements[config.peer_id];
   });
-} // end [init]
+} // end [initPeer]
 
 // =====================================================
 // Local media stuff
@@ -329,12 +332,12 @@ function setup_local_media(callback, errorback) {
     console.log("DEPRECATED, attachMediaStream will soon be removed.");
     element.srcObject = stream;
   };
-  //
+
   const constraints = {
     video: use_video,
     audio: use_audio,
   };
-  //
+
   navigator.mediaDevices
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
     .getUserMedia(constraints)
@@ -370,7 +373,7 @@ function setup_local_media(callback, errorback) {
       });
 
       // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(localMedia, localMediaStream); // stream
+      attachMediaStream(localMedia, localMediaStream);
       localMedia.poster = null;
       resizeVideos();
 
@@ -387,9 +390,7 @@ function setup_local_media(callback, errorback) {
     });
 } // end [setup_local_stream]
 
-// =====================================================
-// buttons
-// =====================================================
+// buttons click event
 function manageButtons() {
   // =====================================================
   // audio mute-unmute button click event
@@ -420,9 +421,7 @@ function manageButtons() {
   navigator.mediaDevices.enumerateDevices().then((devices) => {
     const videoInput = devices.filter((device) => device.kind === "videoinput");
     if (videoInput.length > 1) {
-      // =====================================================
       // swap camera front-rear button click event
-      // =====================================================
       document
         .getElementById("swapcamerabtn")
         .addEventListener("click", (e) => {
@@ -437,9 +436,7 @@ function manageButtons() {
   // check if can share a screen, if yes show button else hide it
   // =====================================================
   if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
-    // =====================================================
     // share-screen on-off button click event
-    // =====================================================
     document.getElementById("screensharebtn").addEventListener("click", (e) => {
       toggleScreenSharing();
     });
@@ -480,7 +477,9 @@ function toggleScreenSharing() {
   if (!is_screen_streaming) {
     if (navigator.getDisplayMedia) {
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
-      screenMediaPromise = navigator.getDisplayMedia({ video: true });
+      screenMediaPromise = navigator.getDisplayMedia({
+        video: true,
+      });
     } else if (navigator.mediaDevices.getDisplayMedia) {
       screenMediaPromise = navigator.mediaDevices.getDisplayMedia({
         video: true,
@@ -540,7 +539,7 @@ function toggleScreenSharing() {
 // =====================================================
 // swapCamer front(user) - rear(environment)
 // =====================================================
-const swapCamera = () => {
+function swapCamera() {
   if (!peerConnection) {
     userLog("info", "Can't Swap the Camera, no peer connection detected");
     return;
@@ -568,7 +567,7 @@ const swapCamera = () => {
       ]);
       localMediaStream = newStream;
       // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(document.getElementById("myVideo"), localMediaStream); // newStream
+      attachMediaStream(document.getElementById("myVideo"), localMediaStream);
 
       document.getElementById("myVideo").classList.toggle("mirror");
     })
@@ -576,7 +575,7 @@ const swapCamera = () => {
       console.log("[Error] to swaping camera", e);
       userLog("error", "Error to swaping the camera");
     });
-};
+}
 
 // =====================================================
 // copy RoomID url to clipboard and share it
