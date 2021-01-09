@@ -142,12 +142,12 @@ button:hover {
   width: 40px;
 }
 
-#copybtn,
-#mutebtn,
-#videomutebtn,
-#swapcamerabtn,
-#screensharebtn,
-#endcall {
+#copyBtn,
+#audioBtn,
+#videoBtn,
+#swapCameraBtn,
+#screenShareBtn,
+#endCallBtn {
   font-size: 2rem;
   cursor: pointer;
 }

@@ -390,23 +390,46 @@ function setup_local_media(callback, errorback) {
     });
 } // end [setup_local_stream]
 
-// buttons click event
+// =====================================================
+// WebRTC buttons
+// =====================================================
 function manageButtons() {
-  // =====================================================
-  // audio mute-unmute button click event
-  // =====================================================
-  document.getElementById("mutebtn").addEventListener("click", (e) => {
+  copyBtn();
+  audioBtn();
+  videoBtn();
+  swapCameraBtn();
+  screenShareBtn();
+  endCallBtn();
+  buttonsOpacity();
+}
+
+// =====================================================
+// copy Room URL button click event
+// =====================================================
+function copyBtn() {
+  document.getElementById("copyBtn").addEventListener("click", (e) => {
+    copyRoomURL();
+  });
+}
+
+// =====================================================
+// audio mute-unmute button click event
+// =====================================================
+function audioBtn() {
+  document.getElementById("audioBtn").addEventListener("click", (e) => {
     localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
       .enabled;
     e.target.className =
       "fas fa-microphone" +
       (localMediaStream.getAudioTracks()[0].enabled ? "" : "-slash");
   });
+}
 
-  // =====================================================
-  // video hide-show button click event
-  // =====================================================
-  document.getElementById("videomutebtn").addEventListener("click", (e) => {
+// =====================================================
+// video hide-show button click event
+// =====================================================
+function videoBtn() {
+  document.getElementById("videoBtn").addEventListener("click", (e) => {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
     localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
       .enabled;
@@ -414,39 +437,54 @@ function manageButtons() {
       "fas fa-video" +
       (localMediaStream.getVideoTracks()[0].enabled ? "" : "-slash");
   });
+}
 
-  // =====================================================
-  // check if can swap or not cam, if yes show the button else hide it
-  // =====================================================
+// =====================================================
+// check if can swap or not cam, if yes show the button else hide it
+// =====================================================
+function swapCameraBtn() {
   navigator.mediaDevices.enumerateDevices().then((devices) => {
     const videoInput = devices.filter((device) => device.kind === "videoinput");
     if (videoInput.length > 1) {
       // swap camera front-rear button click event
       document
-        .getElementById("swapcamerabtn")
+        .getElementById("swapCameraBtn")
         .addEventListener("click", (e) => {
           swapCamera();
         });
     } else {
-      document.getElementById("swapcamerabtn").style.display = "none";
+      document.getElementById("swapCameraBtn").style.display = "none";
     }
   });
+}
 
-  // =====================================================
-  // check if can share a screen, if yes show button else hide it
-  // =====================================================
+// =====================================================
+// check if can share a screen, if yes show button else hide it
+// =====================================================
+function screenShareBtn() {
   if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
     // share-screen on-off button click event
-    document.getElementById("screensharebtn").addEventListener("click", (e) => {
+    document.getElementById("screenShareBtn").addEventListener("click", (e) => {
       toggleScreenSharing();
     });
   } else {
-    document.getElementById("screensharebtn").style.display = "none";
+    document.getElementById("screenShareBtn").style.display = "none";
   }
+}
 
-  // =====================================================
-  // set button opacity 1 means no opacity, you can change if like (0.5) ..
-  // =====================================================
+// =====================================================
+// end call button click event
+// =====================================================
+function endCallBtn() {
+  document.getElementById("endCallBtn").addEventListener("click", (e) => {
+    leaveRoom();
+  });
+}
+
+// =====================================================
+// set button opacity 1 means no opacity, you can change if like (0.5) ..
+// =====================================================
+function buttonsOpacity() {
   document.getElementById("buttons").style.opacity = "1";
 }
 
@@ -470,8 +508,6 @@ function toggleScreenSharing() {
     return;
   }
 
-  const screenShareBtn = document.getElementById("screensharebtn");
-  const videoMuteBtn = document.getElementById("videomutebtn");
   let screenMediaPromise;
 
   if (!is_screen_streaming) {
@@ -494,7 +530,7 @@ function toggleScreenSharing() {
     }
   } else {
     screenMediaPromise = navigator.mediaDevices.getUserMedia({ video: true });
-    videoMuteBtn.className = "fas fa-video"; // make sure to enable video
+    document.getElementById("videoBtn").className = "fas fa-video"; // make sure to enable video
   }
   screenMediaPromise
     .then((screenStream) => {
@@ -518,13 +554,13 @@ function toggleScreenSharing() {
       attachMediaStream(document.getElementById("myVideo"), localMediaStream); // newstream
 
       document.getElementById("myVideo").classList.toggle("mirror");
-      screenShareBtn.classList.toggle("active");
+      document.getElementById("screenShareBtn").classList.toggle("active");
 
       var videoBtnDState = document
-        .getElementById("videomutebtn")
+        .getElementById("videoBtn")
         .getAttribute("disabled");
       videoBtnDState = videoBtnDState === null ? false : true;
-      document.getElementById("videomutebtn").disabled = !videoBtnDState;
+      document.getElementById("videoBtn").disabled = !videoBtnDState;
 
       screenStream.getVideoTracks()[0].onended = function () {
         if (is_screen_streaming) toggleScreenSharing();

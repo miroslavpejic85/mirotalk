@@ -57,33 +57,27 @@
   <body onload="initPeer()">
     <div id="buttons">
       <!-- https://fontawesome.com/icons?d=gallery -->
-      <button
-        title="copy room"
-        id="copybtn"
-        class="fas fa-users"
-        onclick="copyRoomURL()"
-      ></button>
+      <button title="copy room" id="copyBtn" class="fas fa-users"></button>
       <button
         title="microphone"
-        id="mutebtn"
+        id="audioBtn"
         class="fas fa-microphone"
       ></button>
-      <button title="camera" id="videomutebtn" class="fas fa-video"></button>
+      <button title="camera" id="videoBtn" class="fas fa-video"></button>
       <button
         title="swap camera"
-        id="swapcamerabtn"
+        id="swapCameraBtn"
         class="fas fa-sync-alt"
       ></button>
       <button
         title="screen"
-        id="screensharebtn"
+        id="screenShareBtn"
         class="fas fa-desktop"
       ></button>
       <button
         title="end call"
-        id="endcall"
+        id="endCallBtn"
         class="fas fa-phone-slash"
-        onclick="leaveRoom()"
       ></button>
     </div>
     <!-- 
