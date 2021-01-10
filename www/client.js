@@ -508,18 +508,18 @@ function toggleScreenSharing() {
     return;
   }
 
+  const constraints = {
+    video: true,
+  };
+
   let screenMediaPromise;
 
   if (!is_screen_streaming) {
     if (navigator.getDisplayMedia) {
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
-      screenMediaPromise = navigator.getDisplayMedia({
-        video: true,
-      });
+      screenMediaPromise = navigator.getDisplayMedia(constraints);
     } else if (navigator.mediaDevices.getDisplayMedia) {
-      screenMediaPromise = navigator.mediaDevices.getDisplayMedia({
-        video: true,
-      });
+      screenMediaPromise = navigator.mediaDevices.getDisplayMedia(constraints);
     } else {
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
       screenMediaPromise = navigator.mediaDevices.getUserMedia({
@@ -529,7 +529,7 @@ function toggleScreenSharing() {
       });
     }
   } else {
-    screenMediaPromise = navigator.mediaDevices.getUserMedia({ video: true });
+    screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
     document.getElementById("videoBtn").className = "fas fa-video"; // make sure to enable video
   }
   screenMediaPromise
@@ -556,12 +556,9 @@ function toggleScreenSharing() {
 
       document.getElementById("myVideo").classList.toggle("mirror");
       document.getElementById("screenShareBtn").classList.toggle("active");
-
-      var videoBtnDState = document
-        .getElementById("videoBtn")
-        .getAttribute("disabled");
-      videoBtnDState = videoBtnDState === null ? false : true;
-      document.getElementById("videoBtn").disabled = !videoBtnDState;
+      document.getElementById("screenShareBtn").className = is_screen_streaming
+        ? "fas fa-stop-circle"
+        : "fas fa-desktop";
 
       screenStream.getVideoTracks()[0].onended = function () {
         if (is_screen_streaming) toggleScreenSharing();
