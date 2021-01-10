@@ -491,13 +491,13 @@ function buttonsOpacity() {
 // =====================================================
 // resize Videos frames
 // =====================================================
-const resizeVideos = () => {
+function resizeVideos() {
   const numToString = ["", "one", "two", "three", "four", "five", "six"];
   const videos = document.querySelectorAll(".video");
   document.querySelectorAll(".video").forEach((v) => {
     v.className = "video " + numToString[videos.length];
   });
-};
+}
 
 // =====================================================
 // active - disactive screen sharing
@@ -540,6 +540,7 @@ function toggleScreenSharing() {
       var sender = peerConnection
         .getSenders()
         .find((s) => (s.track ? s.track.kind === "video" : false));
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
       sender.replaceTrack(screenStream.getVideoTracks()[0]);
       screenStream.getVideoTracks()[0].enabled = true;
 
@@ -593,6 +594,7 @@ function swapCamera() {
       var sender = peerConnection
         .getSenders()
         .find((s) => (s.track ? s.track.kind === "video" : false));
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
       sender.replaceTrack(camStream.getVideoTracks()[0]);
       camStream.getVideoTracks()[0].enabled = true;
 

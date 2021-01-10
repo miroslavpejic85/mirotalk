@@ -173,3 +173,8 @@ button:hover {
     height: 33.33vh;
   }
 }
+
+.swal2-title,
+.swal2-content {
+  color: white !important;
+}
