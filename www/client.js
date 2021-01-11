@@ -84,11 +84,11 @@ function initPeer() {
 
   signalingSocket.on("connect", function () {
     console.log("Connected to signaling server");
-    setup_local_media(function () {
+    setupLocalMedia(function () {
       /* once the user has given us access to their
        * microphone/camcorder, join the channel
        * and start peering up */
-      joinChannel(room_id, peerInfo);
+      joinToChannel(room_id, peerInfo);
     });
   });
 
@@ -109,7 +109,7 @@ function initPeer() {
   });
 
   // join to chennel and send some peer info
-  function joinChannel(channel, peerInfo) {
+  function joinToChannel(channel, peerInfo) {
     console.log("join to channel", channel);
     signalingSocket.emit("join", {
       channel: channel,
@@ -317,7 +317,7 @@ function initPeer() {
 // =====================================================
 // Local media stuff
 // =====================================================
-function setup_local_media(callback, errorback) {
+function setupLocalMedia(callback, errorback) {
   /* ie, if we've already been initialized do nothing */
   if (localMediaStream != null) {
     if (callback) callback();
@@ -394,20 +394,20 @@ function setup_local_media(callback, errorback) {
 // WebRTC buttons
 // =====================================================
 function manageButtons() {
-  copyBtn();
+  copyRoomBtn();
   audioBtn();
   videoBtn();
   swapCameraBtn();
   screenShareBtn();
-  endCallBtn();
+  leaveRoomBtn();
   buttonsOpacity();
 }
 
 // =====================================================
 // copy Room URL button click event
 // =====================================================
-function copyBtn() {
-  document.getElementById("copyBtn").addEventListener("click", (e) => {
+function copyRoomBtn() {
+  document.getElementById("copyRoomBtn").addEventListener("click", (e) => {
     copyRoomURL();
   });
 }
@@ -475,8 +475,8 @@ function screenShareBtn() {
 // =====================================================
 // end call button click event
 // =====================================================
-function endCallBtn() {
-  document.getElementById("endCallBtn").addEventListener("click", (e) => {
+function leaveRoomBtn() {
+  document.getElementById("leaveRoomBtn").addEventListener("click", (e) => {
     leaveRoom();
   });
 }

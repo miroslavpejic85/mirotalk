@@ -142,12 +142,12 @@ button:hover {
   width: 40px;
 }
 
-#copyBtn,
+#copyRoomBtn,
 #audioBtn,
 #videoBtn,
 #swapCameraBtn,
 #screenShareBtn,
-#endCallBtn {
+#leaveRoomBtn {
   font-size: 2rem;
   cursor: pointer;
 }
