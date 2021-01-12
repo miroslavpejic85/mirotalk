@@ -312,6 +312,11 @@ function initPeer() {
     delete peers[peer_id];
     delete peerMediaElements[config.peer_id];
   });
+
+  // show messages
+  signalingSocket.on("onMessage", function (config) {
+    showMessage(config.msg);
+  });
 } // end [initPeer]
 
 // =====================================================
@@ -399,6 +404,7 @@ function manageButtons() {
   videoBtn();
   swapCameraBtn();
   screenShareBtn();
+  sendMsgBtn();
   leaveRoomBtn();
   buttonsOpacity();
 }
@@ -473,6 +479,15 @@ function screenShareBtn() {
 }
 
 // =====================================================
+// send message button click event
+// =====================================================
+function sendMsgBtn() {
+  document.getElementById("sendMsgBtn").addEventListener("click", (e) => {
+    sendMessage();
+  });
+}
+
+// =====================================================
 // end call button click event
 // =====================================================
 function leaveRoomBtn() {
@@ -496,6 +511,47 @@ function resizeVideos() {
   const videos = document.querySelectorAll(".video");
   document.querySelectorAll(".video").forEach((v) => {
     v.className = "video " + numToString[videos.length];
+  });
+}
+
+// =====================================================
+// send message to peers
+// =====================================================
+function sendMessage() {
+  if (!peerConnection) {
+    userLog("info", "Can't Send msg, no peer connection detected");
+    return;
+  }
+  Swal.fire({
+    background: "black",
+    position: "center",
+    title: "Send Message",
+    input: "text",
+    showDenyButton: true,
+    confirmButtonText: `Send`,
+    denyButtonText: `Cancel`,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let msg = result.value;
+      // Send message over signaling server
+      signalingSocket.emit("msg", {
+        peers: peers,
+        msg: msg,
+      });
+    }
+  });
+}
+
+// =====================================================
+// Called when a message is recieved over the dataChannel
+// =====================================================
+function showMessage(msg) {
+  Swal.fire({
+    background: "black",
+    position: "center",
+    icon: "success",
+    title: "New message",
+    text: msg,
   });
 }
 

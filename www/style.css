@@ -147,13 +147,13 @@ button:hover {
 #videoBtn,
 #swapCameraBtn,
 #screenShareBtn,
+#sendMsgBtn,
 #leaveRoomBtn {
   font-size: 2rem;
   cursor: pointer;
 }
 
 @media only screen and (max-width: 960px) {
-  /*960-300*/
   .video {
     float: left;
     width: 50vw;
@@ -178,3 +178,8 @@ button:hover {
 .swal2-content {
   color: white !important;
 }
+/* 
+.swal2-popup {
+  font-size: 0.8rem !important;
+}
+*/

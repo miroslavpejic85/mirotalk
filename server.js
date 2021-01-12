@@ -223,4 +223,22 @@ io.sockets.on("connect", (socket) => {
       });
     }
   });
+
+  // =====================================================
+  // handle peer message
+  // =====================================================
+  socket.on("msg", (config) => {
+    let peers = config.peers;
+    let msg = config.msg;
+
+    console.log("[" + socket.id + "] emit onMessage", {
+      msg: msg,
+    });
+
+    for (peer_id in peers) {
+      sockets[peer_id].emit("onMessage", {
+        msg: msg,
+      });
+    }
+  });
 }); // end [sockets.on-connect]
