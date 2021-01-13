@@ -29,13 +29,13 @@ Open the app in one of following **supported browser**
 
 ## Features
 
-* RoomUrl Sharing (just click and share URL to your friends)
-* WebCam (front - rear)
-* Audio
-* Screen Sharing
-* Send Message
-* No download required, entirely browser based
-* Direct peer to peer connection ensures lowest latency
+- RoomUrl Sharing (just click and share URL to your friends)
+- WebCam (front - rear)
+- Audio
+- Screen Sharing
+- Send Message
+- No download required, entirely browser based
+- Direct peer to peer connection ensures lowest latency
 
 ## Quick start
 
@@ -49,19 +49,19 @@ cd mirotalk
 
 ## Set up credentials
 
-* Copy .env.template to .env `cp .env.template .env`
+- Copy .env.template to .env `cp .env.template .env`
 
 `Turn`
 
-* Create an account on http://numb.viagenie.ca
-* Get your Account USERNAME and PASSWORD
-* Fill in your credentials in the `.env` file
+- Create an account on http://numb.viagenie.ca
+- Get your Account USERNAME and PASSWORD
+- Fill in your credentials in the `.env` file
 
 `Ngrok`
 
-* Get started for free https://ngrok.com/
-* Fill in your authtoken in the `.env` file
-* Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunel, starting it from your local pc.
+- Get started for free https://ngrok.com/
+- Fill in your authtoken in the `.env` file
+- Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunel, starting it from your local pc.
 
 ## Install dependencies
 
@@ -75,16 +75,16 @@ npm install
 npm start
 ```
 
-* Open http://localhost:80 in browser
-* If you want to use a client on another computer/network, make sure you publish your server on an HTTPS connection.
+- Open http://localhost:80 in browser
+- If you want to use a client on another computer/network, make sure you publish your server on an HTTPS connection.
   You can use a service like [ngrok](https://ngrok.com/) Or deploy it on [heroku](https://www.heroku.com/).
 
 ## Demo
 
-* Open https://mirotalk.herokuapp.com/
-* Allow to use the camera and microphone
-* Click the first button to copy the url and then share it
-* Wait someone to join for video conference
+- Open https://mirotalk.herokuapp.com/
+- Allow to use the camera and microphone
+- Click the first button to copy the url and then share it
+- Wait someone to join for video conference
 
 ## Contributing
 

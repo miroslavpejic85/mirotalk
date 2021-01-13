@@ -58,6 +58,7 @@ function getserverURL() {
 // =====================================================
 function getRoomId() {
   let roomId = location.pathname.substring(1);
+  // if not specified room name, create one random
   if (roomId == "") {
     roomId = Math.random().toString(36).substr(2, 10);
     const newurl = signaling_server + "/" + roomId;
@@ -530,14 +531,22 @@ function sendMessage() {
     showDenyButton: true,
     confirmButtonText: `Send`,
     denyButtonText: `Cancel`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
   }).then((result) => {
     if (result.isConfirmed) {
       let msg = result.value;
-      // Send message over signaling server
-      signalingSocket.emit("msg", {
-        peers: peers,
-        msg: msg,
-      });
+      if (msg) {
+        // Send message over signaling server
+        signalingSocket.emit("msg", {
+          peers: peers,
+          msg: msg,
+        });
+      }
     }
   });
 }
@@ -552,6 +561,12 @@ function showMessage(msg) {
     icon: "success",
     title: "New message",
     text: msg,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
   });
 }
 
@@ -686,8 +701,13 @@ function copyRoomURL() {
     position: "center",
     icon: "success",
     title: "RoomURL copied to clipboard",
-    showConfirmButton: false,
-    timer: 1500,
+    text: ROOM_URL,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
   });
   document.body.removeChild(tmpInput);
 }
@@ -704,6 +724,12 @@ function leaveRoom() {
     showDenyButton: true,
     confirmButtonText: `Yes`,
     denyButtonText: `No`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
   }).then((result) => {
     /* Read more about isConfirmed, isDenied below */
     if (result.isConfirmed) {
@@ -724,6 +750,12 @@ function userLog(type, message) {
         icon: "error",
         title: "Oops...",
         text: message,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
       });
       break;
     case "info":
@@ -733,6 +765,12 @@ function userLog(type, message) {
         icon: "info",
         title: "Info",
         text: message,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
       });
       break;
     // ......
