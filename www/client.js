@@ -729,19 +729,19 @@ function about() {
   Swal.fire({
     background: "black",
     position: "center",
-    title: 'Made with ❤️',
-    text: 'https://github.com/miroslavpejic85/mirotalk',
+    title: "Made with ❤️",
+    text: "https://github.com/miroslavpejic85/mirotalk",
     imageUrl: loaderGif,
     imageWidth: 320,
     imageHeight: 240,
-    imageAlt: 'Custom image',
+    imageAlt: "Custom image",
     showClass: {
-      popup: 'animate__animated animate__fadeInDown'
+      popup: "animate__animated animate__fadeInDown",
     },
     hideClass: {
-      popup: 'animate__animated animate__fadeOutUp'
-    }
-  })
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  });
 }
 
 // =====================================================
