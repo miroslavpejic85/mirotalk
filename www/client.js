@@ -705,13 +705,13 @@ function copyRoomURL() {
   tmpInput.setSelectionRange(0, 99999); /* For mobile devices */
   document.execCommand("copy");
   // https://sweetalert2.github.io
-  console.log("Copied to clipboard RoomID ", ROOM_URL);
+  console.log("Copied to clipboard Join Link ", ROOM_URL);
   Swal.fire({
     background: "black",
     position: "center",
     icon: "success",
-    title: "RoomURL copied to clipboard",
-    text: ROOM_URL,
+    title: "Copied to clipboard",
+    text: "Join link: " + ROOM_URL,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
@@ -729,12 +729,14 @@ function about() {
   Swal.fire({
     background: "black",
     position: "center",
-    title: "Made with ❤️",
-    text: "https://github.com/miroslavpejic85/mirotalk",
+    title: "<strong>Made with ❤️</strong>",
     imageUrl: loaderGif,
     imageWidth: 320,
     imageHeight: 240,
     imageAlt: "Custom image",
+    html:
+      "<b>Open Source</b> project on" +
+      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"> GitHub</a> ',
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
