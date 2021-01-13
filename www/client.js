@@ -406,6 +406,7 @@ function manageButtons() {
   swapCameraBtn();
   screenShareBtn();
   sendMsgBtn();
+  aboutBtn();
   leaveRoomBtn();
   buttonsOpacity();
 }
@@ -485,6 +486,15 @@ function screenShareBtn() {
 function sendMsgBtn() {
   document.getElementById("sendMsgBtn").addEventListener("click", (e) => {
     sendMessage();
+  });
+}
+
+// =====================================================
+// about button click event
+// =====================================================
+function aboutBtn() {
+  document.getElementById("aboutBtn").addEventListener("click", (e) => {
+    about();
   });
 }
 
@@ -710,6 +720,28 @@ function copyRoomURL() {
     },
   });
   document.body.removeChild(tmpInput);
+}
+
+// =====================================================
+// about info
+// =====================================================
+function about() {
+  Swal.fire({
+    background: "black",
+    position: "center",
+    title: 'Made with ❤️',
+    text: 'https://github.com/miroslavpejic85/mirotalk',
+    imageUrl: loaderGif,
+    imageWidth: 320,
+    imageHeight: 240,
+    imageAlt: 'Custom image',
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown'
+    },
+    hideClass: {
+      popup: 'animate__animated animate__fadeOutUp'
+    }
+  })
 }
 
 // =====================================================

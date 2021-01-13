@@ -148,6 +148,7 @@ button:hover {
 #swapCameraBtn,
 #screenShareBtn,
 #sendMsgBtn,
+#aboutBtn,
 #leaveRoomBtn {
   font-size: 2rem;
   cursor: pointer;
