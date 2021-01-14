@@ -556,13 +556,7 @@ function sendMessage() {
   }).then((result) => {
     if (result.isConfirmed) {
       let msg = result.value;
-      if (msg) {
-        // Send message over signaling server
-        signalingSocket.emit("msg", {
-          peers: peers,
-          msg: msg,
-        });
-      }
+      emitMsg(msg);
     }
   });
 }
@@ -580,16 +574,33 @@ function showMessage(msg) {
     input: "textarea",
     inputLabel: "New Message",
     inputValue: msg,
-    inputAttributes: {
-      "aria-label": "Type your message here",
-    },
+    showDenyButton: true,
+    confirmButtonText: `Reply`,
+    denyButtonText: `Cancel`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
     hideClass: {
       popup: "animate__animated animate__fadeOutUp",
     },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let msg = result.value;
+      emitMsg(msg);
+    }
   });
+}
+
+// =====================================================
+// Send message over signaling server
+// =====================================================
+function emitMsg(msg) {
+  if (msg) {
+    signalingSocket.emit("msg", {
+      peers: peers,
+      msg: msg,
+    });
+  }
 }
 
 // =====================================================
