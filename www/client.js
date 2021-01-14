@@ -629,14 +629,16 @@ function toggleScreenSharing() {
     .then((screenStream) => {
       is_screen_streaming = !is_screen_streaming;
 
-      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-      var sender = peerConnection
-        .getSenders()
-        .find((s) => (s.track ? s.track.kind === "video" : false));
-      // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-      sender.replaceTrack(screenStream.getVideoTracks()[0]);
-      screenStream.getVideoTracks()[0].enabled = true;
+      for (peer_id in peers) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+        var sender = peers[peer_id]
+          .getSenders()
+          .find((s) => (s.track ? s.track.kind === "video" : false));
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+        sender.replaceTrack(screenStream.getVideoTracks()[0]);
+      }
 
+      screenStream.getVideoTracks()[0].enabled = true;
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
       const newStream = new MediaStream([
         screenStream.getVideoTracks()[0],
@@ -680,20 +682,23 @@ function swapCamera() {
   navigator.mediaDevices
     .getUserMedia({ video: use_video })
     .then((camStream) => {
-      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-      var sender = peerConnection
-        .getSenders()
-        .find((s) => (s.track ? s.track.kind === "video" : false));
-      // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-      sender.replaceTrack(camStream.getVideoTracks()[0]);
-      camStream.getVideoTracks()[0].enabled = true;
+      for (peer_id in peers) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+        var sender = peers[peer_id]
+          .getSenders()
+          .find((s) => (s.track ? s.track.kind === "video" : false));
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+        sender.replaceTrack(camStream.getVideoTracks()[0]);
+      }
 
+      camStream.getVideoTracks()[0].enabled = true;
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
       const newStream = new MediaStream([
         camStream.getVideoTracks()[0],
         localMediaStream.getAudioTracks()[0],
       ]);
       localMediaStream = newStream;
+
       // attachMediaStream is a part of the adapter.js library
       attachMediaStream(document.getElementById("myVideo"), localMediaStream);
 
