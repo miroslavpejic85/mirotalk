@@ -536,8 +536,14 @@ function sendMessage() {
   Swal.fire({
     background: "black",
     position: "center",
-    title: "Send Message",
-    input: "text",
+    // title: "Send Message",
+    // input: "text",
+    input: "textarea",
+    inputLabel: "Send Message",
+    inputPlaceholder: "Type your message here...",
+    inputAttributes: {
+      "aria-label": "Type your message here",
+    },
     showDenyButton: true,
     confirmButtonText: `Send`,
     denyButtonText: `Cancel`,
@@ -569,8 +575,14 @@ function showMessage(msg) {
     background: "black",
     position: "center",
     icon: "success",
-    title: "New message",
-    text: msg,
+    // title: "New message",
+    // text: msg,
+    input: "textarea",
+    inputLabel: "New Message",
+    inputValue: msg,
+    inputAttributes: {
+      "aria-label": "Type your message here",
+    },
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
@@ -718,6 +730,7 @@ function copyRoomURL() {
     hideClass: {
       popup: "animate__animated animate__fadeOutUp",
     },
+    timer: 4000,
   });
   document.body.removeChild(tmpInput);
 }
