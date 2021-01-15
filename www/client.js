@@ -529,7 +529,7 @@ function resizeVideos() {
 // send message to peers
 // =====================================================
 function sendMessage() {
-  if (!peerConnection) {
+  if (Object.keys(peers).length === 0) {
     userLog("info", "Can't Send msg, no peer connection detected");
     return;
   }
@@ -546,7 +546,7 @@ function sendMessage() {
     },
     showDenyButton: true,
     confirmButtonText: `Send`,
-    denyButtonText: `Cancel`,
+    denyButtonText: `Close`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
@@ -576,7 +576,7 @@ function showMessage(msg) {
     inputValue: msg,
     showDenyButton: true,
     confirmButtonText: `Reply`,
-    denyButtonText: `Cancel`,
+    denyButtonText: `Close`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
@@ -607,7 +607,7 @@ function emitMsg(msg) {
 // active - disactive screen sharing
 // =====================================================
 function toggleScreenSharing() {
-  if (!peerConnection) {
+  if (Object.keys(peers).length === 0) {
     userLog("info", "Can't Toggle screen sharing, no peer connection detected");
     return;
   }
@@ -680,7 +680,7 @@ function toggleScreenSharing() {
 // swapCamer front(user) - rear(environment)
 // =====================================================
 function swapCamera() {
-  if (!peerConnection) {
+  if (Object.keys(peers).length === 0) {
     userLog("info", "Can't Swap the Camera, no peer connection detected");
     return;
   }
