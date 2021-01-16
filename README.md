@@ -49,7 +49,11 @@ cd mirotalk
 
 ## Set up credentials
 
-- Copy .env.template to .env `cp .env.template .env`
+- Copy .env.template to .env
+
+```bash
+cp .env.template .env
+```
 
 `Turn`
 
