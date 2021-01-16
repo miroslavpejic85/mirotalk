@@ -10,21 +10,21 @@
 // config var
 // =====================================================
 const loaderGif = "/images/loader.gif";
-var signaling_server_port = 80;
-var signaling_server = getserverURL();
-var room_id = getRoomId();
+var signalingServerPort = 80;
+var signalingServer = getserverURL();
+var roomId = getRoomId();
 var peerInfo = getPeerInfo();
 var peerConnection = null;
-var use_audio = true;
-var use_video = true;
+var useAudio = true;
+var useVideo = true;
 var camera = "user";
-var is_screen_streaming = false;
+var isScreenStreaming = false;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
 var remoteMediaStream = null; // friends microphone / webcam
 var peers = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 var peerMediaElements = {}; // keep track of our <video> tags, indexed by peer_id
-var ice_servers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
+var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
 
 // =====================================================
 // get info using DetecRTC
@@ -61,7 +61,7 @@ function getRoomId() {
   // if not specified room name, create one random
   if (roomId == "") {
     roomId = Math.random().toString(36).substr(2, 10);
-    const newurl = signaling_server + "/" + roomId;
+    const newurl = signalingServer + "/" + roomId;
     window.history.pushState({ url: newurl }, roomId, newurl);
   }
   return roomId;
@@ -81,7 +81,7 @@ function initPeer() {
 
   // peer ready for WebRTC! :)
   console.log("Connecting to signaling server");
-  signalingSocket = io(signaling_server);
+  signalingSocket = io(signalingServer);
 
   signalingSocket.on("connect", function () {
     console.log("Connected to signaling server");
@@ -89,7 +89,7 @@ function initPeer() {
       /* once the user has given us access to their
        * microphone/camcorder, join the channel
        * and start peering up */
-      joinToChannel(room_id, peerInfo);
+      joinToChannel(roomId, peerInfo);
     });
   });
 
@@ -136,12 +136,12 @@ function initPeer() {
       return;
     }
 
-    if (config.iceServers) ice_servers = config.iceServers;
-    console.log("iceServers", ice_servers[0]);
+    if (config.iceServers) iceServers = config.iceServers;
+    console.log("iceServers", iceServers[0]);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
     peerConnection = new RTCPeerConnection(
-      { iceServers: ice_servers },
+      { iceServers: iceServers },
       {
         optional: [
           { DtlsSrtpKeyAgreement: true }, // is required for Chrome and Firefox to interoperate.
@@ -340,8 +340,8 @@ function setupLocalMedia(callback, errorback) {
   };
 
   const constraints = {
-    video: use_video,
-    audio: use_audio,
+    video: useVideo,
+    audio: useAudio,
   };
 
   navigator.mediaDevices
@@ -559,8 +559,6 @@ function sendMessage() {
   Swal.fire({
     background: "black",
     position: "center",
-    // title: "Send Message",
-    // input: "text",
     input: "textarea",
     inputLabel: "Send Message",
     inputPlaceholder: "Type your message here...",
@@ -592,8 +590,6 @@ function showMessage(msg) {
     background: "black",
     position: "center",
     icon: "success",
-    // title: "New message",
-    // text: msg,
     input: "textarea",
     inputLabel: "New Message",
     inputValue: msg,
@@ -641,7 +637,7 @@ function toggleScreenSharing() {
 
   let screenMediaPromise;
 
-  if (!is_screen_streaming) {
+  if (!isScreenStreaming) {
     if (navigator.getDisplayMedia) {
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
       screenMediaPromise = navigator.getDisplayMedia(constraints);
@@ -661,7 +657,7 @@ function toggleScreenSharing() {
   }
   screenMediaPromise
     .then((screenStream) => {
-      is_screen_streaming = !is_screen_streaming;
+      isScreenStreaming = !isScreenStreaming;
 
       for (peer_id in peers) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
@@ -685,12 +681,12 @@ function toggleScreenSharing() {
 
       document.getElementById("myVideo").classList.toggle("mirror");
       document.getElementById("screenShareBtn").classList.toggle("active");
-      document.getElementById("screenShareBtn").className = is_screen_streaming
+      document.getElementById("screenShareBtn").className = isScreenStreaming
         ? "fas fa-stop-circle"
         : "fas fa-desktop";
 
       screenStream.getVideoTracks()[0].onended = function () {
-        if (is_screen_streaming) toggleScreenSharing();
+        if (isScreenStreaming) toggleScreenSharing();
       };
     })
     .catch((e) => {
@@ -725,12 +721,12 @@ function swapCamera() {
   }
 
   camera = camera == "user" ? "environment" : "user";
-  if (camera == "user") use_video = true;
-  else use_video = { facingMode: { exact: camera } };
+  if (camera == "user") useVideo = true;
+  else useVideo = { facingMode: { exact: camera } };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
   navigator.mediaDevices
-    .getUserMedia({ video: use_video })
+    .getUserMedia({ video: useVideo })
     .then((camStream) => {
       for (peer_id in peers) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
@@ -771,7 +767,6 @@ function copyRoomURL() {
   tmpInput.select();
   tmpInput.setSelectionRange(0, 99999); /* For mobile devices */
   document.execCommand("copy");
-  // https://sweetalert2.github.io
   console.log("Copied to clipboard Join Link ", ROOM_URL);
   Swal.fire({
     background: "black",
@@ -818,7 +813,6 @@ function about() {
 // Leave the Room and create a new one
 // =====================================================
 function leaveRoom() {
-  // https://sweetalert2.github.io
   Swal.fire({
     background: "black",
     position: "center",
@@ -844,6 +838,7 @@ function leaveRoom() {
 // Basic user logging: https://sweetalert2.github.io
 // =====================================================
 function userLog(type, message) {
+  // https://sweetalert2.github.io
   switch (type) {
     case "error":
       Swal.fire({

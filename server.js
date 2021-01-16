@@ -30,7 +30,7 @@ app.use(express.static(path.join(__dirname, "www")));
 // =====================================================
 // expose server to external with https tunnel using ngrok
 // =====================================================
-async function ngrokstart() {
+async function ngrokStart() {
   try {
     await ngrok.authtoken(ngrokAuthToken);
     await ngrok.connect(PORT);
@@ -44,7 +44,7 @@ async function ngrokstart() {
     console.log("ngrok-tunnel", { https: tunelHttps });
     // https://www.iditect.com/how-to/55122741.html
   } catch (e) {
-    console.error("[Error] ngrokstart", e);
+    console.error("[Error] ngrokStart", e);
   }
 }
 
@@ -53,7 +53,7 @@ async function ngrokstart() {
  * Also see: https://gist.github.com/zziuni/3741933 or https://www.twilio.com/docs/stun-turn
  * Check the functionality of STUN/TURN servers: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
-var ice_servers = [
+var iceServers = [
   { urls: "stun:stun.l.google.com:19302" },
   {
     urls: turnUrls,
@@ -82,12 +82,12 @@ server.listen(PORT, null, function () {
   );
 
   if (ngrokEnabled == "true") {
-    ngrokstart();
+    ngrokStart();
   }
   // init settings
   console.log("settings", {
     http: "http://localhost:" + PORT,
-    iceServers: ice_servers,
+    iceServers: iceServers,
   });
 });
 
@@ -150,13 +150,13 @@ io.sockets.on("connect", (socket) => {
       channels[channel][id].emit("addPeer", {
         peer_id: socket.id,
         should_create_offer: false,
-        iceServers: ice_servers,
+        iceServers: iceServers,
       });
       // offer true
       socket.emit("addPeer", {
         peer_id: id,
         should_create_offer: true,
-        iceServers: ice_servers,
+        iceServers: iceServers,
       });
       console.log("[" + socket.id + "] emit add Peer [" + id + "]");
     }
