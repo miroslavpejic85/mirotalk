@@ -25,7 +25,7 @@ Open the app in one of following **supported browser**
 
 <br>
 
-![mirotalk](www/images/mirotalk.gif)
+![mirotalk](www/images/mtdemo.gif)
 
 ## Features
 
