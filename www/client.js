@@ -36,8 +36,8 @@ function getPeerInfo() {
     isMobileDevice: DetectRTC.isMobileDevice,
     osName: DetectRTC.osName,
     osVersion: DetectRTC.osVersion,
-    browser_name: DetectRTC.browser.name,
-    browser_version: DetectRTC.browser.version,
+    browserName: DetectRTC.browser.name,
+    browserVersion: DetectRTC.browser.version,
   }; // https://github.com/muaz-khan/DetectRTC
 }
 
@@ -405,6 +405,7 @@ function manageButtons() {
   videoBtn();
   swapCameraBtn();
   screenShareBtn();
+  fullScreenBtn();
   sendMsgBtn();
   aboutBtn();
   leaveRoomBtn();
@@ -477,6 +478,28 @@ function screenShareBtn() {
     });
   } else {
     document.getElementById("screenShareBtn").style.display = "none";
+  }
+}
+
+// =====================================================
+// full screen Button click event
+// =====================================================
+function fullScreenBtn() {
+  if (DetectRTC.browser.name != "Safari") {
+    // detect Esc full screen mode
+    document.addEventListener("fullscreenchange", function (e) {
+      var fullscreenElement = document.fullscreenElement;
+      if (!fullscreenElement) {
+        document.getElementById("fullScreenBtn").className =
+          "fas fa-expand-alt";
+      }
+    });
+
+    document.getElementById("fullScreenBtn").addEventListener("click", (e) => {
+      toggleFullScreen();
+    });
+  } else {
+    document.getElementById("fullScreenBtn").style.display = "none";
   }
 }
 
@@ -674,6 +697,22 @@ function toggleScreenSharing() {
       console.error("[Error] Unable to share the screen", e);
       userLog("error", "Unable to share the screen");
     });
+}
+
+// =====================================================
+// enter - esc on full screen mode
+// =====================================================
+function toggleFullScreen() {
+  // https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    document.getElementById("fullScreenBtn").className = "fas fa-compress-alt";
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+      document.getElementById("fullScreenBtn").className = "fas fa-expand-alt";
+    }
+  }
 }
 
 // =====================================================
