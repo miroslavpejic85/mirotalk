@@ -40,8 +40,8 @@ async function ngrokStart() {
     //console.log(data);
     const pu0 = data.tunnels[0].public_url;
     const pu1 = data.tunnels[1].public_url;
-    const tunelHttps = pu0.startsWith("https") ? pu0 : pu1;
-    console.log("ngrok-tunnel", { https: tunelHttps });
+    const tunnelHttps = pu0.startsWith("https") ? pu0 : pu1;
+    console.log("ngrok-tunnel", { https: tunnelHttps });
     // https://www.iditect.com/how-to/55122741.html
   } catch (e) {
     console.error("[Error] ngrokStart", e);
@@ -63,7 +63,7 @@ var iceServers = [
 ];
 
 // =====================================================
-// Start Local Server with ngrok https tunel
+// Start Local Server with ngrok https tunnel
 // =====================================================
 var PORT = process.env.PORT || 80;
 server.listen(PORT, null, function () {
