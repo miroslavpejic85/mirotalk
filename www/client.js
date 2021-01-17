@@ -10,6 +10,7 @@
 // config var
 // =====================================================
 const loaderGif = "/images/loader.gif";
+const notifyBySound = true; // turn on-off sound notifications
 var signalingServerPort = 80;
 var signalingServer = getserverURL();
 var roomId = getRoomId();
@@ -151,6 +152,7 @@ function initPeer() {
     );
     // collect peer connections
     peers[peer_id] = peerConnection;
+    playSound("addPeer");
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
     peers[peer_id].onicecandidate = function (event) {
@@ -312,6 +314,7 @@ function initPeer() {
 
     delete peers[peer_id];
     delete peerMediaElements[config.peer_id];
+    playSound("removePeer");
   });
 
   // show messages
@@ -586,6 +589,9 @@ function sendMessage() {
 // Called when a message is recieved over the dataChannel
 // =====================================================
 function showMessage(msg) {
+  playSound("newMessage");
+
+  console.log("Receive msg", { msg: msg });
   Swal.fire({
     background: "black",
     position: "center",
@@ -619,6 +625,7 @@ function emitMsg(msg) {
       peers: peers,
       msg: msg,
     });
+    console.log("Send msg", { msg: msg });
   }
 }
 
@@ -838,7 +845,6 @@ function leaveRoom() {
 // Basic user logging: https://sweetalert2.github.io
 // =====================================================
 function userLog(type, message) {
-  // https://sweetalert2.github.io
   switch (type) {
     case "error":
       Swal.fire({
@@ -873,5 +879,38 @@ function userLog(type, message) {
     // ......
     default:
       alert(message);
+  }
+}
+
+// =====================================================
+// Sound notifications
+// =====================================================
+async function playSound(state) {
+  if (!notifyBySound) return;
+
+  let file_audio = "";
+  switch (state) {
+    case "addPeer":
+      file_audio = "audio/add_peer.mp3";
+      break;
+    case "removePeer":
+      file_audio = "audio/remove_peer.mp3";
+      break;
+    case "newMessage":
+      file_audio = "audio/new_message.mp3";
+      break;
+    // ...
+    default:
+      console.log("no file audio");
+  }
+  if (file_audio != "") {
+    audioToPlay = new Audio(file_audio);
+    try {
+      await audioToPlay.play();
+    } catch (e) {
+      // console.error("Cannot play sound", e);
+      // Automatic playback failed. [Safari]
+      return;
+    }
   }
 }
