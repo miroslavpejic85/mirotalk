@@ -65,7 +65,7 @@ cp .env.template .env
 
 - Get started for free https://ngrok.com/
 - Fill in your authtoken in the `.env` file
-- Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunel, starting it from your local pc.
+- Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunnel, starting it from your local pc.
 
 ## Install dependencies
 
