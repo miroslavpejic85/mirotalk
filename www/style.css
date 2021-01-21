@@ -121,6 +121,7 @@ button:focus {
 }
 button:hover {
   color: rgb(8, 189, 89);
+  cursor: pointer;
 }
 
 #buttons {

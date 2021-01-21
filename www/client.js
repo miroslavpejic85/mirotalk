@@ -400,25 +400,35 @@ function setupLocalMedia(callback, errorback) {
 } // end [setup_local_stream]
 
 // =====================================================
+// check if there is peers
+// =====================================================
+function noPeers() {
+  if (Object.keys(peers).length === 0) {
+    return true;
+  }
+  return false;
+}
+
+// =====================================================
 // WebRTC buttons
 // =====================================================
 function manageButtons() {
-  copyRoomBtn();
-  audioBtn();
-  videoBtn();
-  swapCameraBtn();
-  screenShareBtn();
-  fullScreenBtn();
-  sendMsgBtn();
-  aboutBtn();
-  leaveRoomBtn();
-  buttonsOpacity();
+  setCopyRoomBtn();
+  setAudioBtn();
+  setVideoBtn();
+  setSwapCameraBtn();
+  setScreenShareBtn();
+  setFullScreenBtn();
+  setSendMsgBtn();
+  setAboutBtn();
+  setLeaveRoomBtn();
+  setButtonsOpacity();
 }
 
 // =====================================================
 // copy Room URL button click event
 // =====================================================
-function copyRoomBtn() {
+function setCopyRoomBtn() {
   document.getElementById("copyRoomBtn").addEventListener("click", (e) => {
     copyRoomURL();
   });
@@ -427,7 +437,7 @@ function copyRoomBtn() {
 // =====================================================
 // audio mute-unmute button click event
 // =====================================================
-function audioBtn() {
+function setAudioBtn() {
   document.getElementById("audioBtn").addEventListener("click", (e) => {
     localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
       .enabled;
@@ -440,7 +450,7 @@ function audioBtn() {
 // =====================================================
 // video hide-show button click event
 // =====================================================
-function videoBtn() {
+function setVideoBtn() {
   document.getElementById("videoBtn").addEventListener("click", (e) => {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
     localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
@@ -454,7 +464,7 @@ function videoBtn() {
 // =====================================================
 // check if can swap or not cam, if yes show the button else hide it
 // =====================================================
-function swapCameraBtn() {
+function setSwapCameraBtn() {
   navigator.mediaDevices.enumerateDevices().then((devices) => {
     const videoInput = devices.filter((device) => device.kind === "videoinput");
     if (videoInput.length > 1) {
@@ -473,7 +483,7 @@ function swapCameraBtn() {
 // =====================================================
 // check if can share a screen, if yes show button else hide it
 // =====================================================
-function screenShareBtn() {
+function setScreenShareBtn() {
   if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
     // share-screen on-off button click event
     document.getElementById("screenShareBtn").addEventListener("click", (e) => {
@@ -487,7 +497,7 @@ function screenShareBtn() {
 // =====================================================
 // full screen Button click event
 // =====================================================
-function fullScreenBtn() {
+function setFullScreenBtn() {
   if (DetectRTC.browser.name != "Safari") {
     // detect Esc full screen mode
     document.addEventListener("fullscreenchange", function (e) {
@@ -509,7 +519,7 @@ function fullScreenBtn() {
 // =====================================================
 // send message button click event
 // =====================================================
-function sendMsgBtn() {
+function setSendMsgBtn() {
   document.getElementById("sendMsgBtn").addEventListener("click", (e) => {
     sendMessage();
   });
@@ -518,7 +528,7 @@ function sendMsgBtn() {
 // =====================================================
 // about button click event
 // =====================================================
-function aboutBtn() {
+function setAboutBtn() {
   document.getElementById("aboutBtn").addEventListener("click", (e) => {
     about();
   });
@@ -527,7 +537,7 @@ function aboutBtn() {
 // =====================================================
 // end call button click event
 // =====================================================
-function leaveRoomBtn() {
+function setLeaveRoomBtn() {
   document.getElementById("leaveRoomBtn").addEventListener("click", (e) => {
     leaveRoom();
   });
@@ -536,7 +546,7 @@ function leaveRoomBtn() {
 // =====================================================
 // set button opacity 1 means no opacity, you can change if like (0.5) ..
 // =====================================================
-function buttonsOpacity() {
+function setButtonsOpacity() {
   document.getElementById("buttons").style.opacity = "1";
 }
 
@@ -555,7 +565,7 @@ function resizeVideos() {
 // send message to peers
 // =====================================================
 function sendMessage() {
-  if (Object.keys(peers).length === 0) {
+  if (noPeers()) {
     userLog("info", "Can't Send msg, no peer connection detected");
     return;
   }
@@ -633,7 +643,7 @@ function emitMsg(msg) {
 // active - disactive screen sharing
 // =====================================================
 function toggleScreenSharing() {
-  if (Object.keys(peers).length === 0) {
+  if (noPeers()) {
     userLog("info", "Can't Toggle screen sharing, no peer connection detected");
     return;
   }
@@ -722,7 +732,7 @@ function toggleFullScreen() {
 // swapCamer front(user) - rear(environment)
 // =====================================================
 function swapCamera() {
-  if (Object.keys(peers).length === 0) {
+  if (noPeers()) {
     userLog("info", "Can't Swap the Camera, no peer connection detected");
     return;
   }
@@ -909,7 +919,7 @@ async function playSound(state) {
       await audioToPlay.play();
     } catch (e) {
       // console.error("Cannot play sound", e);
-      // Automatic playback failed. [Safari]
+      // Automatic playback failed.
       return;
     }
   }
