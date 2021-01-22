@@ -111,7 +111,6 @@ video:fullscreen {
   transition: all 0.3s ease-in-out;
   background: white;
   /*background: transparent;*/
-  cursor: pointer;
   padding: 4px;
   border-radius: 5px;
 }
@@ -121,7 +120,6 @@ button:focus {
 }
 button:hover {
   color: rgb(8, 189, 89);
-  cursor: pointer;
 }
 
 #buttons {
@@ -153,7 +151,6 @@ button:hover {
 #aboutBtn,
 #leaveRoomBtn {
   font-size: 2rem;
-  cursor: pointer;
 }
 
 @media only screen and (max-width: 960px) {
