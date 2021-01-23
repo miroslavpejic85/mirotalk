@@ -80,7 +80,16 @@
         id="fullScreenBtn"
         class="fas fa-expand-alt"
       ></button>
-      <button title="send msg" id="sendMsgBtn" class="fas fa-comment"></button>
+      <button
+        title="send msg"
+        id="sendMsgBtn"
+        class="fas fa-paper-plane"
+      ></button>
+      <button
+        title="chat room"
+        id="chatRoomBtn"
+        class="fas fa-comment"
+      ></button>
       <button title="about" id="aboutBtn" class="fas fa-question"></button>
       <button
         title="leave room"
@@ -88,6 +97,68 @@
         class="fas fa-phone-slash"
       ></button>
     </div>
+
+    <!-- Start chat room -->
+    <section id="msgerDraggable" class="msger-draggable">
+      <section id="msger" class="msger">
+        <header id="msgerHeader" class="msger-header">
+          <div class="msger-header-title">
+            <i class="fas fa-comment-alt"></i> mirotalkChat
+          </div>
+          <div id="msgerHeaderHide" class="msger-header-hide">
+            <span><i class="fas fa-times"></i></span>
+          </div>
+        </header>
+
+        <main id="msgerChat" class="msger-chat">
+          <div class="msg left-msg">
+            <div
+              class="msg-img"
+              style="background-image: url('/images/friend.png')"
+            ></div>
+
+            <div class="msg-bubble">
+              <div class="msg-info">
+                <div class="msg-info-name">Friends Name</div>
+                <div class="msg-info-time">00:00</div>
+              </div>
+              <!-- https://getemoji.com -->
+              <div class="msg-text">Hi, welcome to mirotalkChat! 😄</div>
+            </div>
+          </div>
+
+          <div class="msg right-msg">
+            <div
+              class="msg-img"
+              style="background-image: url('/images/programmer.png')"
+            ></div>
+
+            <div class="msg-bubble">
+              <div class="msg-info">
+                <div class="msg-info-name">Your Name</div>
+                <div class="msg-info-time">00:00</div>
+              </div>
+
+              <div class="msg-text">Your message example</div>
+            </div>
+          </div>
+        </main>
+
+        <form class="msger-inputarea">
+          <input
+            id="msgerInput"
+            class="msger-input"
+            type="text"
+            placeholder="Enter your message..."
+          />
+          <button id="msgerSendBtn" type="submit" class="msger-send-btn">
+            Send
+          </button>
+        </form>
+      </section>
+    </section>
+    <!-- End chat room -->
+
     <!-- 
 		the <video> and <audio> tags are all added and removed dynamically
 		in 'onAddStream', 'setupLocalMedia', and 'removePeer'/'disconnect'

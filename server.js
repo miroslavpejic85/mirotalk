@@ -229,15 +229,20 @@ io.sockets.on("connect", (socket) => {
   // =====================================================
   socket.on("msg", (config) => {
     let peers = config.peers;
+    let name = config.name;
     let msg = config.msg;
+    let type = config.type;
 
     console.log("[" + socket.id + "] emit onMessage", {
+      name: name,
       msg: msg,
     });
 
     for (peer_id in peers) {
       sockets[peer_id].emit("onMessage", {
+        name: name,
         msg: msg,
+        type: type,
       });
     }
   });

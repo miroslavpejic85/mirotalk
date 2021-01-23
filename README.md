@@ -34,6 +34,9 @@ Open the app in one of following **supported browser**
 - Audio
 - Screen Sharing
 - Send Message
+- Chat Room
+- Full Screen Mode
+- Right click on Video elements for more options
 - No download required, entirely browser based
 - Direct peer to peer connection ensures lowest latency
 
