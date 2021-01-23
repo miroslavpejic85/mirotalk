@@ -429,7 +429,7 @@ function manageButtons() {
 // copy Room URL button click event
 // =====================================================
 function setCopyRoomBtn() {
-  document.getElementById("copyRoomBtn").addEventListener("click", (e) => {
+  get("copyRoomBtn").addEventListener("click", (e) => {
     copyRoomURL();
   });
 }
@@ -438,7 +438,7 @@ function setCopyRoomBtn() {
 // audio mute-unmute button click event
 // =====================================================
 function setAudioBtn() {
-  document.getElementById("audioBtn").addEventListener("click", (e) => {
+  get("audioBtn").addEventListener("click", (e) => {
     localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
       .enabled;
     e.target.className =
@@ -451,7 +451,7 @@ function setAudioBtn() {
 // video hide-show button click event
 // =====================================================
 function setVideoBtn() {
-  document.getElementById("videoBtn").addEventListener("click", (e) => {
+  get("videoBtn").addEventListener("click", (e) => {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
     localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
       .enabled;
@@ -475,7 +475,7 @@ function setSwapCameraBtn() {
           swapCamera();
         });
     } else {
-      document.getElementById("swapCameraBtn").style.display = "none";
+      get("swapCameraBtn").style.display = "none";
     }
   });
 }
@@ -486,11 +486,11 @@ function setSwapCameraBtn() {
 function setScreenShareBtn() {
   if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
     // share-screen on-off button click event
-    document.getElementById("screenShareBtn").addEventListener("click", (e) => {
+    get("screenShareBtn").addEventListener("click", (e) => {
       toggleScreenSharing();
     });
   } else {
-    document.getElementById("screenShareBtn").style.display = "none";
+    get("screenShareBtn").style.display = "none";
   }
 }
 
@@ -503,16 +503,15 @@ function setFullScreenBtn() {
     document.addEventListener("fullscreenchange", function (e) {
       var fullscreenElement = document.fullscreenElement;
       if (!fullscreenElement) {
-        document.getElementById("fullScreenBtn").className =
-          "fas fa-expand-alt";
+        get("fullScreenBtn").className = "fas fa-expand-alt";
       }
     });
 
-    document.getElementById("fullScreenBtn").addEventListener("click", (e) => {
+    get("fullScreenBtn").addEventListener("click", (e) => {
       toggleFullScreen();
     });
   } else {
-    document.getElementById("fullScreenBtn").style.display = "none";
+    get("fullScreenBtn").style.display = "none";
   }
 }
 
@@ -520,7 +519,7 @@ function setFullScreenBtn() {
 // send message button click event
 // =====================================================
 function setSendMsgBtn() {
-  document.getElementById("sendMsgBtn").addEventListener("click", (e) => {
+  get("sendMsgBtn").addEventListener("click", (e) => {
     sendMessage();
   });
 }
@@ -529,7 +528,7 @@ function setSendMsgBtn() {
 // about button click event
 // =====================================================
 function setAboutBtn() {
-  document.getElementById("aboutBtn").addEventListener("click", (e) => {
+  get("aboutBtn").addEventListener("click", (e) => {
     about();
   });
 }
@@ -538,7 +537,7 @@ function setAboutBtn() {
 // end call button click event
 // =====================================================
 function setLeaveRoomBtn() {
-  document.getElementById("leaveRoomBtn").addEventListener("click", (e) => {
+  get("leaveRoomBtn").addEventListener("click", (e) => {
     leaveRoom();
   });
 }
@@ -547,7 +546,7 @@ function setLeaveRoomBtn() {
 // set button opacity 1 means no opacity, you can change if like (0.5) ..
 // =====================================================
 function setButtonsOpacity() {
-  document.getElementById("buttons").style.opacity = "1";
+  get("buttons").style.opacity = "1";
 }
 
 // =====================================================
@@ -674,7 +673,7 @@ function toggleScreenSharing() {
     }
   } else {
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
-    document.getElementById("videoBtn").className = "fas fa-video"; // make sure to enable video
+    get("videoBtn").className = "fas fa-video"; // make sure to enable video
   }
   screenMediaPromise
     .then((screenStream) => {
@@ -698,11 +697,11 @@ function toggleScreenSharing() {
       localMediaStream = newStream;
 
       // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(document.getElementById("myVideo"), localMediaStream); // newstream
+      attachMediaStream(get("myVideo"), localMediaStream); // newstream
 
-      document.getElementById("myVideo").classList.toggle("mirror");
-      document.getElementById("screenShareBtn").classList.toggle("active");
-      document.getElementById("screenShareBtn").className = isScreenStreaming
+      get("myVideo").classList.toggle("mirror");
+      get("screenShareBtn").classList.toggle("active");
+      get("screenShareBtn").className = isScreenStreaming
         ? "fas fa-stop-circle"
         : "fas fa-desktop";
 
@@ -723,11 +722,11 @@ function toggleFullScreen() {
   // https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
-    document.getElementById("fullScreenBtn").className = "fas fa-compress-alt";
+    get("fullScreenBtn").className = "fas fa-compress-alt";
   } else {
     if (document.exitFullscreen) {
       document.exitFullscreen();
-      document.getElementById("fullScreenBtn").className = "fas fa-expand-alt";
+      get("fullScreenBtn").className = "fas fa-expand-alt";
     }
   }
 }
@@ -767,9 +766,9 @@ function swapCamera() {
       localMediaStream = newStream;
 
       // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(document.getElementById("myVideo"), localMediaStream);
+      attachMediaStream(get("myVideo"), localMediaStream);
 
-      document.getElementById("myVideo").classList.toggle("mirror");
+      get("myVideo").classList.toggle("mirror");
     })
     .catch((e) => {
       console.log("[Error] to swaping camera", e);
@@ -927,4 +926,8 @@ async function playSound(state) {
       return;
     }
   }
+}
+// utils
+function get(id) {
+  return document.getElementById(id);
 }
