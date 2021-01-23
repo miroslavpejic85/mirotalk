@@ -1099,3 +1099,4 @@ function formatDate(date) {
   const m = "0" + date.getMinutes();
   return `${h.slice(-2)}:${m.slice(-2)}`;
 }
+
