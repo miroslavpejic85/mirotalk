@@ -572,7 +572,7 @@ function sendMessage() {
   Swal.fire({
     background: "black",
     position: "center",
-    input: "textarea",
+    input: "text",
     inputLabel: "Send Message",
     inputPlaceholder: "Type your message here...",
     inputAttributes: {
@@ -606,9 +606,13 @@ function showMessage(msg) {
     background: "black",
     position: "center",
     icon: "success",
-    input: "textarea",
-    inputLabel: "New Message",
-    inputValue: msg,
+    title: "New Message",
+    text: msg,
+    input: "text",
+    inputPlaceholder: "Type your message here...",
+    inputAttributes: {
+      "aria-label": "Type your message here",
+    },
     showDenyButton: true,
     confirmButtonText: `Reply`,
     denyButtonText: `Close`,
