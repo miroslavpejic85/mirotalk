@@ -10,8 +10,8 @@
 // config var
 // =====================================================
 const loaderGif = "/images/loader.gif";
-const myChatAvatar = "/images/programmer.png";
-const friendChatAvatar = "/images/friend.png";
+const myChatAvatar = "/images/programmer.svg";
+const friendChatAvatar = "/images/friend.svg";
 const notifyBySound = true; // turn on-off sound notifications
 
 var myChatName = null;
