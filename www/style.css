@@ -113,8 +113,17 @@ body {
   cursor: move;
 }
 
-.msger-header-options:hover {
+.msger-header-options {
   cursor: pointer;
+}
+
+.msger-header-options button {
+  border: none;
+  font-size: 1.4rem;
+  transition: all 0.3s ease-in-out;
+  background: rgb(0, 0, 0);
+  color: #fff;
+  border-radius: 5px;
 }
 
 .msger-chat {
@@ -209,12 +218,11 @@ body {
   margin-left: 10px;
   background: rgb(0, 0, 0);
   color: #fff;
-  cursor: pointer;
   transition: background 0.23s;
 }
 
 #msgerSendBtn:hover {
-  background: rgb(0, 180, 50);
+  color: rgb(0, 180, 50);
 }
 
 .msger-chat {
