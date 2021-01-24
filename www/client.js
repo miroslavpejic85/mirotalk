@@ -548,8 +548,12 @@ function setSendMsgBtn() {
 // chat room button click event
 // =====================================================
 function setChatRoomBtn() {
+  // adapt chatBox for mobile
+  setChatBoxMobile();
+
   // make chat room draggable
   dragElement(get("msgerDraggable"));
+
   // open-hide chat room
   get("chatRoomBtn").addEventListener("click", (e) => {
     if (noPeers()) {
@@ -616,6 +620,16 @@ function setLeaveRoomBtn() {
 // =====================================================
 function setButtonsOpacity() {
   get("buttons").style.opacity = "1";
+}
+
+// =====================================================
+// chat box on full screen mode for mobile
+// =====================================================
+function setChatBoxMobile() {
+  if(DetectRTC.isMobileDevice) {
+    document.documentElement.style.setProperty("--msger-height", "98vh");
+    document.documentElement.style.setProperty("--msger-width", "98vw");
+  }
 }
 
 // =====================================================

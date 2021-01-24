@@ -32,6 +32,10 @@
   --msger-bg: black; /* transparent; */
   --left-msg-bg: #da05f3;
   --right-msg-bg: #579ffb;
+  --msger-top: 3px;
+  --msger-left: 3px;
+  --msger-height: 732px;
+  --msger-width: 412px;
 }
 
 * {
@@ -68,6 +72,10 @@ body {
   display: none;
   position: absolute;
   z-index: 9;
+  top: var(--msger-top);
+  left: var(--msger-left);
+  height: var(--msger-height);
+  width: var(--msger-width);
   /* background-color: #000000; */
   background: var(--msger-bg);
   text-align: center;
@@ -85,13 +93,14 @@ body {
   box-shadow: 5px 5px 10px #0500ff, -5px -5px 10px #da05f3;
 }
 
-/* https://mediag.com/blog/popular-screen-resolutions-designing-for-all/ */
 .msger {
   display: flex;
   flex-flow: column wrap;
   justify-content: space-between;
-  width: 412px;
-  height: 732px;
+  top: var(--msger-top);
+  left: var(--msger-left);
+  height: var(--msger-height);
+  width: var(--msger-width);
   background: var(--msger-bg);
 }
 
