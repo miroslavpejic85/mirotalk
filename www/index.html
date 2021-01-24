@@ -105,8 +105,9 @@
           <div class="msger-header-title">
             <i class="fas fa-comment-alt"></i> mirotalkChat
           </div>
-          <div id="msgerHeaderHide" class="msger-header-hide">
-            <span><i class="fas fa-times"></i></span>
+          <div>
+            <button id="msgerTheme" class="fas fa-ghost"></button>
+            <button id="msgerClose" class="fas fa-times"></button>
           </div>
         </header>
 
@@ -151,9 +152,11 @@
             type="text"
             placeholder="Enter your message..."
           />
-          <button id="msgerSendBtn" type="submit" class="msger-send-btn">
-            Send
-          </button>
+          <button
+            title="send"
+            id="msgerSendBtn"
+            class="fas fa-paper-plane"
+          ></button>
         </form>
       </section>
     </section>

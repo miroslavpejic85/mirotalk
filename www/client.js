@@ -13,6 +13,7 @@ const loaderGif = "/images/loader.gif";
 const myChatAvatar = "/images/programmer.png";
 const friendChatAvatar = "/images/friend.png";
 const notifyBySound = true; // turn on-off sound notifications
+
 var myChatName = null;
 var signalingServerPort = 80;
 var signalingServer = getserverURL();
@@ -547,9 +548,9 @@ function setSendMsgBtn() {
 // chat room button click event
 // =====================================================
 function setChatRoomBtn() {
-  // Make chat room draggable
+  // make chat room draggable
   dragElement(get("msgerDraggable"));
-
+  // open-hide chat room
   get("chatRoomBtn").addEventListener("click", (e) => {
     if (noPeers()) {
       userLog("info", "Can't Open Chat Room, no peer connection detected");
@@ -563,7 +564,23 @@ function setChatRoomBtn() {
       isChatBoxVisible = false;
     }
   });
-
+  // ghost theme + undo
+  get("msgerTheme").addEventListener("click", (e) => {
+    if (e.target.className == "fas fa-ghost") {
+      e.target.className = "fas fa-undo";
+      document.documentElement.style.setProperty('--msger-bg', 'transparent');
+    } else {
+      e.target.className = "fas fa-ghost";
+      document.documentElement.style.setProperty('--msger-bg', 'black');
+    }
+  });
+  // close chat room
+  get("msgerClose").addEventListener("click", (e) => {
+    get("msgerDraggable").style.display = "none";
+    get("chatRoomBtn").className = "fas fa-comment";
+    isChatBoxVisible = false;
+  });
+  // chat send msg
   get("msgerSendBtn").addEventListener("click", (e) => {
     e.preventDefault(); // prevent refresh page
     const msg = get("msgerInput").value;
@@ -573,12 +590,6 @@ function setChatRoomBtn() {
     appendMessage(myChatName, myChatAvatar, "right", msg);
 
     get("msgerInput").value = "";
-  });
-
-  get("msgerHeaderHide").addEventListener("click", (e) => {
-    get("msgerDraggable").style.display = "none";
-    get("chatRoomBtn").className = "fas fa-comment";
-    isChatBoxVisible = false;
   });
 }
 
@@ -1099,4 +1110,3 @@ function formatDate(date) {
   const m = "0" + date.getMinutes();
   return `${h.slice(-2)}:${m.slice(-2)}`;
 }
-
