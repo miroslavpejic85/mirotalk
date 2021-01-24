@@ -568,10 +568,10 @@ function setChatRoomBtn() {
   get("msgerTheme").addEventListener("click", (e) => {
     if (e.target.className == "fas fa-ghost") {
       e.target.className = "fas fa-undo";
-      document.documentElement.style.setProperty('--msger-bg', 'transparent');
+      document.documentElement.style.setProperty("--msger-bg", "transparent");
     } else {
       e.target.className = "fas fa-ghost";
-      document.documentElement.style.setProperty('--msger-bg', 'black');
+      document.documentElement.style.setProperty("--msger-bg", "black");
     }
   });
   // close chat room
