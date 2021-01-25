@@ -162,7 +162,6 @@ body {
   max-width: 450px;
   padding: 15px;
   border-radius: 15px;
-  background: var(--left-msg-bg);
 }
 .msg-info {
   display: flex;
@@ -179,7 +178,9 @@ body {
 }
 
 .left-msg .msg-bubble {
+  background: var(--left-msg-bg);
   border-bottom-left-radius: 0;
+  color: #fff;
 }
 
 .right-msg {
@@ -187,8 +188,8 @@ body {
 }
 .right-msg .msg-bubble {
   background: var(--right-msg-bg);
-  color: #fff;
   border-bottom-right-radius: 0;
+  color: #fff;
 }
 .right-msg .msg-img {
   margin: 0 0 0 10px;
