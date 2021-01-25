@@ -568,10 +568,12 @@ function setChatRoomBtn() {
       isChatBoxVisible = false;
     }
   });
+
   // hide - show left buttons
   get("msgerButtons").addEventListener("click", (e) => {
     checkLeftButtons();
   });
+
   // ghost theme + undo
   get("msgerTheme").addEventListener("click", (e) => {
     if (e.target.className == "fas fa-ghost") {
@@ -582,6 +584,7 @@ function setChatRoomBtn() {
       document.documentElement.style.setProperty("--msger-bg", "black");
     }
   });
+
   // close chat room - show left button if hide
   get("msgerClose").addEventListener("click", (e) => {
     get("msgerDraggable").style.display = "none";
@@ -592,6 +595,7 @@ function setChatRoomBtn() {
       isButtonsVisible = true;
     }
   });
+
   // chat send msg
   get("msgerSendBtn").addEventListener("click", (e) => {
     e.preventDefault(); // prevent refresh page
