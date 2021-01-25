@@ -559,10 +559,11 @@ function setChatRoomBtn() {
       userLog("info", "Can't Open Chat Room, no peer connection detected");
       return;
     }
-    e.target.className = "fas fa-comment" + (isChatBoxVisible ? "" : "-slash");
     if (!isChatBoxVisible) {
+      e.target.className = "fas fa-comment-slash";
       showChatRoom();
     } else {
+      e.target.className = "fas fa-comment";
       get("msgerDraggable").style.display = "none";
       isChatBoxVisible = false;
     }
@@ -588,6 +589,7 @@ function setChatRoomBtn() {
     isChatBoxVisible = false;
     if (!isButtonsVisible) {
       get("buttons").style.display = "flex";
+      isButtonsVisible = true;
     }
   });
   // chat send msg
