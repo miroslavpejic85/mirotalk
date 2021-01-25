@@ -585,6 +585,11 @@ function setChatRoomBtn() {
     }
   });
 
+  // clean chat messages
+  get("msgerClean").addEventListener("click", (e) => {
+    cleanMessages();
+  });
+
   // close chat room - show left button if hide
   get("msgerClose").addEventListener("click", (e) => {
     get("msgerDraggable").style.display = "none";
@@ -797,6 +802,37 @@ function appendMessage(name, img, side, text) {
   `;
   get("msgerChat").insertAdjacentHTML("beforeend", msgHTML);
   get("msgerChat").scrollTop += 500;
+}
+
+// =====================================================
+// clean chat message
+// =====================================================
+function cleanMessages() {
+  Swal.fire({
+    background: "black",
+    position: "center",
+    title: "Clean up chat Messages?",
+    icon: "warning",
+    showDenyButton: true,
+    confirmButtonText: `Yes`,
+    denyButtonText: `No`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    // clean message
+    if (result.isConfirmed) {
+      var msgerChat = get("msgerChat");
+      var msgs = msgerChat.firstChild;
+      while (msgs) {
+        msgerChat.removeChild(msgs);
+        msgs = msgerChat.firstChild;
+      }
+    }
+  });
 }
 
 // =====================================================
