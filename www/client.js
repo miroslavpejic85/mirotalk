@@ -13,6 +13,7 @@ const loaderGif = "/images/loader.gif";
 const myChatAvatar = "/images/programmer.svg";
 const friendChatAvatar = "/images/friend.svg";
 const notifyBySound = true; // turn on-off sound notifications
+const isMobileDevice = DetectRTC.isMobileDevice;
 
 var myChatName = null;
 var signalingServerPort = 80;
@@ -25,6 +26,7 @@ var useVideo = true;
 var camera = "user";
 var isScreenStreaming = false;
 var isChatBoxVisible = false;
+var isButtonsVisible = true;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
 var remoteMediaStream = null; // friends microphone / webcam
@@ -565,6 +567,10 @@ function setChatRoomBtn() {
       isChatBoxVisible = false;
     }
   });
+  // hide - show left buttons
+  get("msgerButtons").addEventListener("click", (e) => {
+    checkLeftButtons();
+  });
   // ghost theme + undo
   get("msgerTheme").addEventListener("click", (e) => {
     if (e.target.className == "fas fa-ghost") {
@@ -575,11 +581,14 @@ function setChatRoomBtn() {
       document.documentElement.style.setProperty("--msger-bg", "black");
     }
   });
-  // close chat room
+  // close chat room - show left button if hide
   get("msgerClose").addEventListener("click", (e) => {
     get("msgerDraggable").style.display = "none";
     get("chatRoomBtn").className = "fas fa-comment";
     isChatBoxVisible = false;
+    if (!isButtonsVisible) {
+      get("buttons").style.display = "flex";
+    }
   });
   // chat send msg
   get("msgerSendBtn").addEventListener("click", (e) => {
@@ -623,7 +632,7 @@ function setButtonsOpacity() {
 // chat box on full screen mode for mobile
 // =====================================================
 function setChatBoxMobile() {
-  if (DetectRTC.isMobileDevice) {
+  if (isMobileDevice) {
     document.documentElement.style.setProperty("--msger-height", "98vh");
     document.documentElement.style.setProperty("--msger-width", "98vw");
   } else {
@@ -731,14 +740,36 @@ function showChatRoom() {
           return "Please write your chat name.";
         }
         myChatName = value;
-        get("msgerDraggable").style.display = "flex";
-        isChatBoxVisible = true;
+        showMsgerDraggable();
       },
     });
   } else {
     // chat name already set just open chat room
-    get("msgerDraggable").style.display = "flex";
-    isChatBoxVisible = true;
+    showMsgerDraggable();
+  }
+}
+
+// =====================================================
+// show msger draggable
+// =====================================================
+function showMsgerDraggable() {
+  get("msgerDraggable").style.display = "flex";
+  isChatBoxVisible = true;
+  if (isMobileDevice) {
+    checkLeftButtons();
+  }
+}
+
+// =====================================================
+// hide - show left buttons
+// =====================================================
+function checkLeftButtons() {
+  if (!isButtonsVisible) {
+    get("buttons").style.display = "flex";
+    isButtonsVisible = true;
+  } else {
+    get("buttons").style.display = "none";
+    isButtonsVisible = false;
   }
 }
 
