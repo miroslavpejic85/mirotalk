@@ -560,12 +560,11 @@ function setChatRoomBtn() {
       return;
     }
     if (!isChatBoxVisible) {
-      e.target.className = "fas fa-comment-slash";
       showChatRoom();
     } else {
-      e.target.className = "fas fa-comment";
       get("msgerDraggable").style.display = "none";
       isChatBoxVisible = false;
+      e.target.className = "fas fa-comment";
     }
   });
 
@@ -647,8 +646,54 @@ function setChatBoxMobile() {
     document.documentElement.style.setProperty("--msger-height", "98vh");
     document.documentElement.style.setProperty("--msger-width", "98vw");
   } else {
-    // make chat room draggable for desktop https://jqueryui.com/draggable/
-    $("#msgerDraggable").draggable();
+    // make chat room draggable for desktop
+    dragElement(get("msgerDraggable"));
+    // $("#msgerDraggable").draggable(); https://jqueryui.com/draggable/ can't select chat room texts...
+  }
+}
+
+// =====================================================
+// drag char room element
+// =====================================================
+function dragElement(elmnt) {
+  // https://www.w3schools.com/howto/howto_js_draggable.asp
+  var pos1 = 0,
+    pos2 = 0,
+    pos3 = 0,
+    pos4 = 0;
+  if (get("msgerHeader")) {
+    /* if present, the header is where you move the DIV from:*/
+    get("msgerHeader").onmousedown = dragMouseDown;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+    elmnt.onmousedown = dragMouseDown;
+  }
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+    elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+  }
+  function closeDragElement() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
   }
 }
 
@@ -764,6 +809,7 @@ function showChatRoom() {
 // show msger draggable
 // =====================================================
 function showMsgerDraggable() {
+  get("chatRoomBtn").className = "fas fa-comment-slash";
   get("msgerDraggable").style.display = "flex";
   isChatBoxVisible = true;
   if (isMobileDevice) {
@@ -788,6 +834,7 @@ function checkLeftButtons() {
 // append Message to msger chat room
 // =====================================================
 function appendMessage(name, img, side, text) {
+  let ctext = urlify(text);
   const msgHTML = `
 	<div class="msg ${side}-msg">
 		<div class="msg-img" style="background-image: url(${img})"></div>
@@ -796,12 +843,28 @@ function appendMessage(name, img, side, text) {
 			<div class="msg-info-name">${name}</div>
 			<div class="msg-info-time">${formatDate(new Date())}</div>
 		</div>
-		<div class="msg-text">${text}</div>
+		<div class="msg-text">${ctext}</div>
 		</div>
 	</div>
   `;
   get("msgerChat").insertAdjacentHTML("beforeend", msgHTML);
   get("msgerChat").scrollTop += 500;
+}
+
+// =====================================================
+// detect url from text make it clickable
+// =====================================================
+function urlify(text) {
+  var urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, function (url) {
+    return (
+      '<a href="' +
+      url +
+      '" target="_blank" style="color:white;">' +
+      url +
+      "</a>"
+    );
+  });
 }
 
 // =====================================================

@@ -76,9 +76,8 @@ body {
   left: var(--msger-left);
   height: var(--msger-height);
   width: var(--msger-width);
-  /* background-color: #000000; */
   background: var(--msger-bg);
-  text-align: center;
+  /* text-align: justify; */
   -webkit-animation: fadeIn ease-in 1;
   -moz-animation: fadeIn ease-in 1;
   animation: fadeIn ease-in 1;
@@ -132,13 +131,13 @@ body {
   padding: 10px;
 }
 .msger-chat::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 .msger-chat::-webkit-scrollbar-track {
-  background: #ddd;
+  background: transparent;
 }
 .msger-chat::-webkit-scrollbar-thumb {
-  background: #bdbdbd;
+  background: black;
 }
 .msg {
   display: flex;
@@ -156,10 +155,10 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  border-radius: 50%;
+  /* border-radius: 50%; */
 }
 .msg-bubble {
-  max-width: 450px;
+  max-width: 300px;
   padding: 15px;
   border-radius: 15px;
 }
@@ -198,7 +197,6 @@ body {
 .msger-inputarea {
   display: flex;
   padding: 10px;
-  /* background: rgb(2, 2, 2); */
   background: var(--msger-bg);
 }
 
