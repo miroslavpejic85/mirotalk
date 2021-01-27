@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css?family=Fira+Sans:600|Heebo:400,500,700&display=swap");
+
 /*Fade in page on load*/
 @-webkit-keyframes fadeIn {
   from {
@@ -116,7 +118,7 @@ body {
 
 .msger-header-options button {
   border: none;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   transition: all 0.3s ease-in-out;
   background: rgb(0, 0, 0);
   color: #fff;
