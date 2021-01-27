@@ -17,7 +17,7 @@ const isMobileDevice = DetectRTC.isMobileDevice;
 
 var myChatName = null;
 var signalingServerPort = 80;
-var signalingServer = getserverURL();
+var signalingServer = getServerUrl();
 var roomId = getRoomId();
 var peerInfo = getPeerInfo();
 var peerConnection = null;
@@ -25,7 +25,7 @@ var useAudio = true;
 var useVideo = true;
 var camera = "user";
 var isScreenStreaming = false;
-var isChatBoxVisible = false;
+var isChatRoomVisible = false;
 var isButtonsVisible = true;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
@@ -52,7 +52,7 @@ function getPeerInfo() {
 // =====================================================
 // signaling Server URL
 // =====================================================
-function getserverURL() {
+function getServerUrl() {
   return (
     "http" +
     (location.hostname == "localhost" ? "" : "s") +
@@ -333,7 +333,7 @@ function initPeer() {
         showMessage(config.msg);
         break;
       case "chat":
-        if (!isChatBoxVisible) {
+        if (!isChatRoomVisible) {
           showChatRoom();
           get("chatRoomBtn").className = "fas fa-comment-slash";
         }
@@ -444,7 +444,6 @@ function manageButtons() {
   setChatRoomBtn();
   setAboutBtn();
   setLeaveRoomBtn();
-  setButtonsOpacity();
 }
 
 // =====================================================
@@ -452,7 +451,7 @@ function manageButtons() {
 // =====================================================
 function setCopyRoomBtn() {
   get("copyRoomBtn").addEventListener("click", (e) => {
-    copyRoomURL();
+    copyRoomUrl();
   });
 }
 
@@ -559,11 +558,11 @@ function setChatRoomBtn() {
       userLog("info", "Can't Open Chat Room, no peer connection detected");
       return;
     }
-    if (!isChatBoxVisible) {
+    if (!isChatRoomVisible) {
       showChatRoom();
     } else {
       get("msgerDraggable").style.display = "none";
-      isChatBoxVisible = false;
+      isChatRoomVisible = false;
       e.target.className = "fas fa-comment";
     }
   });
@@ -593,7 +592,7 @@ function setChatRoomBtn() {
   get("msgerClose").addEventListener("click", (e) => {
     get("msgerDraggable").style.display = "none";
     get("chatRoomBtn").className = "fas fa-comment";
-    isChatBoxVisible = false;
+    isChatRoomVisible = false;
     if (!isButtonsVisible) {
       get("buttons").style.display = "flex";
       isButtonsVisible = true;
@@ -603,6 +602,7 @@ function setChatRoomBtn() {
   // chat send msg
   get("msgerSendBtn").addEventListener("click", (e) => {
     e.preventDefault(); // prevent refresh page
+
     const msg = get("msgerInput").value;
     if (!msg) return; // empity msg
 
@@ -618,7 +618,7 @@ function setChatRoomBtn() {
 // =====================================================
 function setAboutBtn() {
   get("aboutBtn").addEventListener("click", (e) => {
-    about();
+    getAbout();
   });
 }
 
@@ -629,13 +629,6 @@ function setLeaveRoomBtn() {
   get("leaveRoomBtn").addEventListener("click", (e) => {
     leaveRoom();
   });
-}
-
-// =====================================================
-// set button opacity 1 means no opacity, you can change if like (0.5) ..
-// =====================================================
-function setButtonsOpacity() {
-  get("buttons").style.opacity = "1";
 }
 
 // =====================================================
@@ -811,7 +804,7 @@ function showChatRoom() {
 function showMsgerDraggable() {
   get("chatRoomBtn").className = "fas fa-comment-slash";
   get("msgerDraggable").style.display = "flex";
-  isChatBoxVisible = true;
+  isChatRoomVisible = true;
   if (isMobileDevice) {
     checkLeftButtons();
   }
@@ -834,14 +827,14 @@ function checkLeftButtons() {
 // append Message to msger chat room
 // =====================================================
 function appendMessage(name, img, side, text) {
-  let ctext = urlify(text);
+  let ctext = detectUrl(text);
   const msgHTML = `
 	<div class="msg ${side}-msg">
 		<div class="msg-img" style="background-image: url(${img})"></div>
 		<div class="msg-bubble">
 		<div class="msg-info">
 			<div class="msg-info-name">${name}</div>
-			<div class="msg-info-time">${formatDate(new Date())}</div>
+			<div class="msg-info-time">${getFormatDate(new Date())}</div>
 		</div>
 		<div class="msg-text">${ctext}</div>
 		</div>
@@ -854,7 +847,7 @@ function appendMessage(name, img, side, text) {
 // =====================================================
 // detect url from text make it clickable
 // =====================================================
-function urlify(text) {
+function detectUrl(text) {
   var urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.replace(urlRegex, function (url) {
     return (
@@ -1053,7 +1046,7 @@ function swapCamera() {
 // =====================================================
 // copy RoomID url to clipboard and share it
 // =====================================================
-function copyRoomURL() {
+function copyRoomUrl() {
   var tmpInput = document.createElement("input");
   ROOM_URL = window.location.href;
   document.body.appendChild(tmpInput);
@@ -1082,7 +1075,7 @@ function copyRoomURL() {
 // =====================================================
 // about info
 // =====================================================
-function about() {
+function getAbout() {
   Swal.fire({
     background: "black",
     position: "center",
@@ -1207,7 +1200,7 @@ function get(id) {
   return document.getElementById(id);
 }
 // date now
-function formatDate(date) {
+function getFormatDate(date) {
   const h = "0" + date.getHours();
   const m = "0" + date.getMinutes();
   return `${h.slice(-2)}:${m.slice(-2)}`;
