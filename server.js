@@ -34,13 +34,13 @@ async function ngrokStart() {
   try {
     await ngrok.authtoken(ngrokAuthToken);
     await ngrok.connect(PORT);
-    const api = ngrok.getApi();
+    let api = ngrok.getApi();
     let data = await api.get("api/tunnels");
     data = JSON.parse(data);
     //console.log(data);
-    const pu0 = data.tunnels[0].public_url;
-    const pu1 = data.tunnels[1].public_url;
-    const tunnelHttps = pu0.startsWith("https") ? pu0 : pu1;
+    let pu0 = data.tunnels[0].public_url;
+    let pu1 = data.tunnels[1].public_url;
+    let tunnelHttps = pu0.startsWith("https") ? pu0 : pu1;
     console.log("ngrok-tunnel", { https: tunnelHttps });
     // https://www.iditect.com/how-to/55122741.html
   } catch (e) {
@@ -88,6 +88,10 @@ server.listen(PORT, null, function () {
   console.log("settings", {
     http: "http://localhost:" + PORT,
     iceServers: iceServers,
+    ngrok: {
+      ngrok_enabled: ngrokEnabled,
+      ngrok_token: ngrokAuthToken,
+    },
   });
 });
 

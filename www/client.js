@@ -776,7 +776,7 @@ function showChatRoom() {
       background: "black",
       position: "center",
       icon: "info",
-      title: "Enter your chat name",
+      title: "Enter a name for chat",
       input: "text",
       showClass: {
         popup: "animate__animated animate__fadeInDown",
@@ -786,7 +786,7 @@ function showChatRoom() {
       },
       inputValidator: (value) => {
         if (!value) {
-          return "Please write your chat name.";
+          return "Please enter a name for chat";
         }
         myChatName = value;
         showMsgerDraggable();
