@@ -284,7 +284,7 @@ video:fullscreen {
 
 #buttons {
   position: absolute;
-  left: calc(3vw - 2px);
+  left: 20px;
   top: 50%;
   -ms-transform: translate(0%, -50%);
   transform: translate(0%, -50%);
