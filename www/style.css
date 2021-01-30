@@ -27,13 +27,27 @@
 }
 
 :root {
-  --msger-bg: black; /* transparent; */
-  --left-msg-bg: #da05f3;
-  --right-msg-bg: #579ffb;
+  /* common */
   --msger-top: 3px;
   --msger-left: 3px;
   --msger-height: 732px;
   --msger-width: 412px;
+
+  /* neon theme default */
+  --body-bg: black;
+  --msger-bg: black;
+  --left-msg-bg: #da05f3;
+  --right-msg-bg: #579ffb;
+  --box-shadow: 5px 5px 10px #0500ff, -5px -5px 10px #da05f3;
+
+  /* dark theme
+  --body-bg: #16171b;
+  --msger-bg: #16171b;
+  --left-msg-bg: #222328;
+  --right-msg-bg: #0a0b0c;
+  --box-shadow: 5px 5px 10px #0a0b0c, -5px -5px 10px #222328; 
+  */
+
 }
 
 * {
@@ -43,7 +57,7 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  background: #000000;
+  background: var(--body-bg);
   background-image: url("/images/loader.gif");
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -87,7 +101,7 @@ body {
   animation-duration: 1s;
   overflow: hidden;
   border-radius: 5px;
-  box-shadow: 5px 5px 10px #0500ff, -5px -5px 10px #da05f3;
+  box-shadow: var(--box-shadow);
 }
 
 .msger {
@@ -149,7 +163,6 @@ body {
   width: 50px;
   height: 50px;
   margin-right: 10px;
-  background: var(--msger-bg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -223,16 +236,14 @@ body {
 }
 
 .msger-chat {
-  /* background-color: black; */
   background: var(--msger-bg);
 }
 
 video {
-  width: 100%;
-  height: auto;
-  height: 100%;
+  width: 99.5%;
+  height: 99.5%;
   object-fit: contain;
-  /*border:  1px solid rgb(255, 255, 255);*/
+  border: 1px solid rgb(118 118 118);
 }
 video:fullscreen {
   object-fit: contain;
@@ -290,9 +301,8 @@ video:fullscreen {
   transform: translate(0%, -50%);
   z-index: 999;
   border-radius: 20px;
-  /*background: #ffffff;*/
   background: transparent;
-  box-shadow: 5px 5px 10px #0500ff, -5px -5px 10px #da05f3;
+  box-shadow: var(--box-shadow);
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -337,6 +347,7 @@ button:hover {
 #sendMsgBtn,
 #chatRoomBtn,
 #aboutBtn,
+#themeBtn,
 #leaveRoomBtn {
   font-size: 2rem;
 }

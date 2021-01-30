@@ -15,6 +15,8 @@ const friendChatAvatar = "/images/friend.svg";
 const notifyBySound = true; // turn on-off sound notifications
 const isMobileDevice = DetectRTC.isMobileDevice;
 
+var mirotalkTheme = "neon"; // neon - dark ...
+var swalBackground = "black"; // #16171b
 var myChatName = null;
 var signalingServerPort = 80;
 var signalingServer = getServerUrl();
@@ -79,6 +81,9 @@ function getRoomId() {
 // get started
 // =====================================================
 function initPeer() {
+  // set mirotalk theme
+  setTheme(mirotalkTheme);
+
   /* https://github.com/muaz-khan/DetectRTC
    * check if peer is done for WebRTC */
   if (DetectRTC.isWebRTCSupported === false) {
@@ -443,6 +448,7 @@ function manageButtons() {
   setSendMsgBtn();
   setChatRoomBtn();
   setAboutBtn();
+  setThemeBtn();
   setLeaveRoomBtn();
 }
 
@@ -579,7 +585,9 @@ function setChatRoomBtn() {
       document.documentElement.style.setProperty("--msger-bg", "transparent");
     } else {
       e.target.className = "fas fa-ghost";
-      document.documentElement.style.setProperty("--msger-bg", "black");
+      mirotalkTheme == "dark"
+        ? document.documentElement.style.setProperty("--msger-bg", "#16171b")
+        : document.documentElement.style.setProperty("--msger-bg", "black");
     }
   });
 
@@ -619,6 +627,15 @@ function setChatRoomBtn() {
 function setAboutBtn() {
   get("aboutBtn").addEventListener("click", (e) => {
     getAbout();
+  });
+}
+
+// =====================================================
+// theme button click event
+// =====================================================
+function setThemeBtn() {
+  get("themeBtn").addEventListener("click", (e) => {
+    getTheme();
   });
 }
 
@@ -710,7 +727,7 @@ function sendMessage() {
     return;
   }
   Swal.fire({
-    background: "black",
+    background: swalBackground,
     position: "center",
     input: "text",
     inputLabel: "Send Message",
@@ -740,7 +757,7 @@ function sendMessage() {
 // =====================================================
 function showMessage(msg) {
   Swal.fire({
-    background: "black",
+    background: swalBackground,
     position: "center",
     icon: "success",
     title: "New Message",
@@ -773,7 +790,7 @@ function showMessage(msg) {
 function showChatRoom() {
   if (!myChatName) {
     Swal.fire({
-      background: "black",
+      background: swalBackground,
       position: "center",
       icon: "info",
       title: "Enter a name for chat",
@@ -865,7 +882,7 @@ function detectUrl(text) {
 // =====================================================
 function cleanMessages() {
   Swal.fire({
-    background: "black",
+    background: swalBackground,
     position: "center",
     title: "Clean up chat Messages?",
     icon: "warning",
@@ -1056,7 +1073,7 @@ function copyRoomUrl() {
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", ROOM_URL);
   Swal.fire({
-    background: "black",
+    background: swalBackground,
     position: "center",
     icon: "success",
     title: "Copied to clipboard",
@@ -1077,7 +1094,7 @@ function copyRoomUrl() {
 // =====================================================
 function getAbout() {
   Swal.fire({
-    background: "black",
+    background: swalBackground,
     position: "center",
     title: "<strong>Made with ❤️</strong>",
     imageUrl: loaderGif,
@@ -1097,11 +1114,37 @@ function getAbout() {
 }
 
 // =====================================================
+// select theme and set it
+// =====================================================
+function getTheme() {
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    title: "Select mirotalk theme",
+    input: "select",
+    inputOptions: {
+      neon: "mirotalk-neon",
+      dark: "mirotalk-dark",
+    },
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+    showCancelButton: true,
+    inputValidator: (theme) => {
+      setTheme(theme);
+    },
+  });
+}
+
+// =====================================================
 // Leave the Room and create a new one
 // =====================================================
 function leaveRoom() {
   Swal.fire({
-    background: "black",
+    background: swalBackground,
     position: "center",
     title: "Leave this room?",
     showDenyButton: true,
@@ -1128,7 +1171,7 @@ function userLog(type, message) {
   switch (type) {
     case "error":
       Swal.fire({
-        background: "black",
+        background: swalBackground,
         position: "center",
         icon: "error",
         title: "Oops...",
@@ -1143,7 +1186,7 @@ function userLog(type, message) {
       break;
     case "info":
       Swal.fire({
-        background: "black",
+        background: swalBackground,
         position: "center",
         icon: "info",
         title: "Info",
@@ -1195,9 +1238,47 @@ async function playSound(state) {
   }
 }
 
+// =====================================================
+// set mirotalk theme neon-dark
+// =====================================================
+function setTheme(theme) {
+  mirotalkTheme = theme;
+  switch (mirotalkTheme) {
+    case "neon":
+      // neon theme
+      swalBackground = "black";
+      document.documentElement.style.setProperty("--body-bg", "black");
+      document.documentElement.style.setProperty("--msger-bg", "black");
+      document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
+      document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
+      document.documentElement.style.setProperty(
+        "--box-shadow",
+        "5px 5px 10px #0500ff, -5px -5px 10px #da05f3"
+      );
+      break;
+    case "dark":
+      // dark theme
+      swalBackground = "#16171b";
+      document.documentElement.style.setProperty("--body-bg", "#16171b");
+      document.documentElement.style.setProperty("--msger-bg", "#16171b");
+      document.documentElement.style.setProperty("--left-msg-bg", "#222328");
+      document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
+      document.documentElement.style.setProperty(
+        "--box-shadow",
+        "5px 5px 10px #0a0b0c, -5px -5px 10px #222328"
+      );
+      break;
+    default:
+      console.log("No theme found");
+  }
+}
+
 // utils
 function get(id) {
   return document.getElementById(id);
+}
+function getC(selector) {
+  return document.querySelector(selector);
 }
 // date now
 function getFormatDate(date) {
