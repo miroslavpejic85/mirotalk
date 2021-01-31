@@ -6,6 +6,8 @@
  ██████ ███████ ██ ███████ ██   ████    ██    
 */
 
+"use strict"; // https://www.w3schools.com/js/js_strict.asp
+
 // =====================================================
 // config var
 // =====================================================
@@ -110,11 +112,11 @@ function initPeer() {
     console.log("Disconnected from signaling server");
     /* Tear down all of our peer connections and remove all the
      * media divs when we disconnect */
-    for (peer_id in peerMediaElements) {
+    for (var peer_id in peerMediaElements) {
       document.body.removeChild(peerMediaElements[peer_id].parentNode);
       resizeVideos();
     }
-    for (peer_id in peers) {
+    for (var peer_id in peers) {
       peers[peer_id].close();
     }
 
@@ -363,11 +365,6 @@ function setupLocalMedia(callback, errorback) {
    * attach it to an <audio> or <video> tag if they give us access. */
   console.log("Requesting access to local audio / video inputs");
 
-  attachMediaStream = function (element, stream) {
-    console.log("DEPRECATED, attachMediaStream will soon be removed.");
-    element.srcObject = stream;
-  };
-
   const constraints = {
     video: useVideo,
     audio: useAudio,
@@ -424,6 +421,14 @@ function setupLocalMedia(callback, errorback) {
       if (errorback) errorback();
     });
 } // end [setup_local_stream]
+
+// =====================================================
+// attachMediaStream will soon be removed
+// =====================================================
+function attachMediaStream(element, stream) {
+  console.log("DEPRECATED, attachMediaStream will soon be removed.");
+  element.srcObject = stream;
+}
 
 // =====================================================
 // check if there is peers
@@ -962,8 +967,7 @@ function toggleScreenSharing() {
   screenMediaPromise
     .then((screenStream) => {
       isScreenStreaming = !isScreenStreaming;
-
-      for (peer_id in peers) {
+      for (var peer_id in peers) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
         var sender = peers[peer_id]
           .getSenders()
@@ -1032,7 +1036,7 @@ function swapCamera() {
   navigator.mediaDevices
     .getUserMedia({ video: useVideo })
     .then((camStream) => {
-      for (peer_id in peers) {
+      for (var peer_id in peers) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
         var sender = peers[peer_id]
           .getSenders()
@@ -1065,7 +1069,7 @@ function swapCamera() {
 // =====================================================
 function copyRoomUrl() {
   var tmpInput = document.createElement("input");
-  ROOM_URL = window.location.href;
+  let ROOM_URL = window.location.href;
   document.body.appendChild(tmpInput);
   tmpInput.value = ROOM_URL;
   tmpInput.select();
@@ -1227,7 +1231,7 @@ async function playSound(state) {
       console.log("no file audio");
   }
   if (file_audio != "") {
-    audioToPlay = new Audio(file_audio);
+    let audioToPlay = new Audio(file_audio);
     try {
       await audioToPlay.play();
     } catch (e) {

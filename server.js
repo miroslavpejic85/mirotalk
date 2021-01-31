@@ -8,6 +8,8 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 ███████ ███████ ██   ██   ████   ███████ ██   ██                                           
 */
 
+"use strict"; // https://www.w3schools.com/js/js_strict.asp
+
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
@@ -149,7 +151,7 @@ io.sockets.on("connect", (socket) => {
       channels[channel] = {};
     }
     //
-    for (id in channels[channel]) {
+    for (var id in channels[channel]) {
       // offer false
       channels[channel][id].emit("addPeer", {
         peer_id: socket.id,
@@ -181,7 +183,7 @@ io.sockets.on("connect", (socket) => {
     delete socket.channels[channel];
     delete channels[channel][socket.id];
 
-    for (id in channels[channel]) {
+    for (var id in channels[channel]) {
       channels[channel][id].emit("removePeer", { peer_id: socket.id });
       socket.emit("removePeer", { peer_id: id });
       console.log("[" + socket.id + "] emit remove Peer [" + id + "]");
@@ -242,7 +244,7 @@ io.sockets.on("connect", (socket) => {
       msg: msg,
     });
 
-    for (peer_id in peers) {
+    for (var peer_id in peers) {
       sockets[peer_id].emit("onMessage", {
         name: name,
         msg: msg,
