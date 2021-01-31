@@ -48,6 +48,8 @@
   --box-shadow: 5px 5px 10px #0a0b0c, -5px -5px 10px #222328; 
   */
 
+  /* https://developer.mozilla.org/it/docs/Web/CSS/object-fit */
+  --video-object-fit: cover;
 }
 
 * {
@@ -78,6 +80,71 @@ body {
   -moz-animation-duration: 0.3s;
   animation-duration: 0.3s;
   overflow: hidden;
+}
+
+#buttons {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  -ms-transform: translate(0%, -50%);
+  transform: translate(0%, -50%);
+  z-index: 999;
+  border-radius: 20px;
+  background: transparent;
+  box-shadow: var(--box-shadow);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  grid-gap: 0.3rem;
+  width: 40px;
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: hidden;
+}
+
+#buttons button {
+  border: none;
+  font-size: 1.5rem;
+  transition: all 0.3s ease-in-out;
+  background: white;
+  /*background: transparent;*/
+  padding: 4px;
+  border-radius: 5px;
+}
+
+button:focus {
+  outline: none;
+}
+button:hover {
+  color: rgb(8, 189, 89);
+}
+
+#copyRoomBtn,
+#audioBtn,
+#videoBtn,
+#swapCameraBtn,
+#screenShareBtn,
+#fullScreenBtn,
+#sendMsgBtn,
+#chatRoomBtn,
+#aboutBtn,
+#themeBtn,
+#leaveRoomBtn {
+  font-size: 2rem;
+  /* opacity: 0.6; */
+}
+
+.fa-microphone-slash,
+.fa-video-slash {
+  color: #e74c3c !important;
 }
 
 .msger-draggable {
@@ -239,11 +306,21 @@ body {
   background: var(--msger-bg);
 }
 
+#myVideo {
+  border-radius: 6px;
+}
+#myVideo.mirror {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
+}
+
 video {
-  width: 99.5%;
-  height: 99.5%;
-  object-fit: contain;
-  border: 1px solid rgb(118 118 118);
+  width: 99.6%;
+  height: 99.6%;
+  object-fit: var(--video-object-fit);
+  border: 0.1px solid rgb(79 79 79);
+  border-radius: 6px;
 }
 video:fullscreen {
   object-fit: contain;
@@ -262,94 +339,28 @@ video:fullscreen {
 .video.two {
   width: 50vw;
   height: 100vh;
+  --video-object-fit: contain;
 }
 .video.three {
-  width: 33.33vw;
-  height: 100vh;
+  /* width: 33.33vw;
+  height: 100vh; */
+  width: 50vw;
+  --video-object-fit: cover;
 }
 .video.four {
   width: 50vw;
   height: 50vh;
+  --video-object-fit: cover;
+}
+.video.five {
+  width: 33.33vw;
+  height: 50vh;
+  --video-object-fit: cover;
 }
 .video.six {
   width: 33.33vw;
   height: 50vh;
-}
-#myVideo.mirror {
-  transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
-  -moz-transform: rotateY(180deg);
-}
-.fa-microphone-slash,
-.fa-video-slash {
-  color: #e74c3c !important;
-}
-
-#logo {
-  width: 48px;
-  margin-right: 0.5rem;
-}
-#logo svg {
-  width: 100%;
-}
-
-#buttons {
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  -ms-transform: translate(0%, -50%);
-  transform: translate(0%, -50%);
-  z-index: 999;
-  border-radius: 20px;
-  background: transparent;
-  box-shadow: var(--box-shadow);
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  grid-gap: 0.2rem;
-  width: 40px;
-  -webkit-animation: fadeIn ease-in 1;
-  -moz-animation: fadeIn ease-in 1;
-  animation: fadeIn ease-in 1;
-  -webkit-animation-fill-mode: forwards;
-  -moz-animation-fill-mode: forwards;
-  animation-fill-mode: forwards;
-  -webkit-animation-duration: 1s;
-  -moz-animation-duration: 1s;
-  animation-duration: 1s;
-  overflow: hidden;
-}
-
-#buttons button {
-  border: none;
-  font-size: 1.5rem;
-  transition: all 0.3s ease-in-out;
-  background: white;
-  /*background: transparent;*/
-  padding: 4px;
-  border-radius: 5px;
-}
-
-button:focus {
-  outline: none;
-}
-button:hover {
-  color: rgb(8, 189, 89);
-}
-
-#copyRoomBtn,
-#audioBtn,
-#videoBtn,
-#swapCameraBtn,
-#screenShareBtn,
-#fullScreenBtn,
-#sendMsgBtn,
-#chatRoomBtn,
-#aboutBtn,
-#themeBtn,
-#leaveRoomBtn {
-  font-size: 2rem;
+  --video-object-fit: cover;
 }
 
 @media only screen and (max-width: 960px) {
@@ -362,14 +373,21 @@ button:hover {
   .video.two {
     width: 100vw;
     height: 50vh;
+    --video-object-fit: cover;
   }
   .video.three {
     width: 100vw;
     height: 33.33vh;
   }
+  .video.five {
+    width: 50vw;
+    height: 33.33vh;
+    --video-object-fit: cover;
+  }
   .video.six {
     width: 50vw;
     height: 33.33vh;
+    --video-object-fit: cover;
   }
 }
 
