@@ -1107,7 +1107,7 @@ function getAbout() {
     imageAlt: "Custom image",
     html:
       "<b>Open Source</b> project on" +
-      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"> GitHub</a> ',
+      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank" style="color:green;"> GitHub</a> ',
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
