@@ -94,6 +94,10 @@ npm start
 - Click the first button to copy the url and then share it
 - Wait someone to join for video conference
 
+## Credits
+
+Many Thanks to vasanthv (webrtc) and Sajad Hashemian (chat) from where I taked inspiration for this project. ❤️
+
 ## Contributing
 
 Pull Requests are welcome! :slightly_smiling_face:
