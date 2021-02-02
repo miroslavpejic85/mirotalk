@@ -272,6 +272,10 @@ button:hover {
   margin: 0 0 0 10px;
 }
 
+.msg-text {
+  overflow-wrap: break-word;
+}
+
 .msger-inputarea {
   display: flex;
   padding: 10px;
