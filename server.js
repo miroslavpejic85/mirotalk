@@ -174,7 +174,7 @@ io.sockets.on("connect", (socket) => {
   // =====================================================
   // remove peers
   // =====================================================
-  function removePeerFrom(channel) {
+  async function removePeerFrom(channel) {
     if (!(channel in socket.channels)) {
       console.log("[" + socket.id + "] [Warning] not in ", channel);
       return;

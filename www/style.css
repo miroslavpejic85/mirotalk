@@ -377,6 +377,7 @@ video:fullscreen {
   .video.three {
     width: 100vw;
     height: 33.33vh;
+    --video-object-fit: cover;
   }
   .video.five {
     width: 50vw;
