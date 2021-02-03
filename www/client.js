@@ -155,15 +155,15 @@ function initPeer() {
     console.log("iceServers", iceServers[0]);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
-    peerConnection = new RTCPeerConnection([
+    peerConnection = new RTCPeerConnection(
       { iceServers: iceServers },
       {
         optional: [
           { DtlsSrtpKeyAgreement: true }, // is required for Chrome and Firefox to interoperate.
           { RtpDataChannels: DetectRTC.isRtpDataChannelsSupported }, // is required if we want to make use of the DataChannels API on Firefox.
         ],
-      },
-    ]);
+      }
+    );
     // collect peer connections
     peers[peer_id] = peerConnection;
     playSound("addPeer");
