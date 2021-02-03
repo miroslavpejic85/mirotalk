@@ -205,7 +205,10 @@ function initPeer() {
       resizeVideos();
     };
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream
-    peers[peer_id].addStream(localMediaStream); // Add our local stream
+    // peers[peer_id].addStream(localMediaStream); // Add our local stream
+    localMediaStream.getTracks().forEach(function (track) {
+      peers[peer_id].addTrack(track, localMediaStream);
+    });
 
     /*
      * Only one side of the peer connection should create the
