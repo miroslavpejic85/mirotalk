@@ -38,6 +38,9 @@ var peers = {}; // keep track of our peer connections, indexed by peer_id == soc
 var peerMediaElements = {}; // keep track of our <video> tags, indexed by peer_id
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
 
+let startTime;
+let elapsedTime;
+
 // =====================================================
 // get info using DetecRTC
 // =====================================================
@@ -380,6 +383,8 @@ function setupLocalMedia(callback, errorback) {
       console.log("Access granted to audio/video");
       document.body.style.backgroundImage = "none";
 
+      startCountTime();
+
       localMediaStream = stream;
 
       manageButtons();
@@ -441,6 +446,38 @@ function noPeers() {
     return true;
   }
   return false;
+}
+
+// =====================================================
+// Count talk time
+// =====================================================
+function startCountTime() {
+  get("countTime").style.display = "inline";
+  startTime = Date.now();
+  setInterval(function printTime() {
+    elapsedTime = Date.now() - startTime;
+    get("countTime").innerHTML = getTimeToString(elapsedTime);
+  }, 1000);
+}
+
+// =====================================================
+// return time to string
+// =====================================================
+function getTimeToString(time) {
+  let diffInHrs = time / 3600000;
+  let hh = Math.floor(diffInHrs);
+
+  let diffInMin = (diffInHrs - hh) * 60;
+  let mm = Math.floor(diffInMin);
+
+  let diffInSec = (diffInMin - mm) * 60;
+  let ss = Math.floor(diffInSec);
+
+  let formattedHH = hh.toString().padStart(2, "0");
+  let formattedMM = mm.toString().padStart(2, "0");
+  let formattedSS = ss.toString().padStart(2, "0");
+
+  return `${formattedHH}:${formattedMM}:${formattedSS}`;
 }
 
 // =====================================================
@@ -613,6 +650,7 @@ function setChatRoomBtn() {
       get("buttons").style.display = "flex";
       isButtonsVisible = true;
     }
+    checkCountTime();
   });
 
   // chat send msg
@@ -829,6 +867,7 @@ function showChatRoom() {
 function showMsgerDraggable() {
   get("chatRoomBtn").className = "fas fa-comment-slash";
   get("msgerDraggable").style.display = "flex";
+  checkCountTime();
   isChatRoomVisible = true;
   if (isMobileDevice) {
     checkLeftButtons();
@@ -845,6 +884,19 @@ function checkLeftButtons() {
   } else {
     get("buttons").style.display = "none";
     isButtonsVisible = false;
+  }
+}
+
+// =====================================================
+// hide - show count time
+// =====================================================
+function checkCountTime() {
+  if (isMobileDevice) {
+    if (get("countTime").style.display == "none") {
+      get("countTime").style.display = "inline";
+      return;
+    }
+    get("countTime").style.display = "none";
   }
 }
 

@@ -404,3 +404,15 @@ video:fullscreen {
   font-size: 0.8rem !important;
 }
 */
+
+#countTime {
+  display: none;
+  width: 100%;
+  padding: 15px;
+  background-color: transparent;
+  position: fixed;
+  color: rgb(112, 112, 112);
+  text-align: center;
+  top: 0;
+  z-index: 8;
+}
