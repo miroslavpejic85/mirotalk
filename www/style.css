@@ -406,7 +406,8 @@ video:fullscreen {
 #countTime {
   display: none;
   width: 100%;
-  padding: 15px;
+  left: 15px;
+  padding: 5px;
   background-color: transparent;
   position: fixed;
   color: rgb(112, 112, 112);

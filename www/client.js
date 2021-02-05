@@ -1162,7 +1162,7 @@ function getAbout() {
     html:
       '<div id="about">' +
       "<b>Open Source</b> project on" +
-      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"> GitHub</a></div>' +
+      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"> GitHub</a>' +
       "</div>",
     showClass: {
       popup: "animate__animated animate__fadeInDown",
@@ -1186,13 +1186,15 @@ function getTheme() {
       neon: "mirotalk-neon",
       dark: "mirotalk-dark",
     },
+    showDenyButton: true,
+    confirmButtonText: `Apply`,
+    denyButtonText: `Cancel`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
     hideClass: {
       popup: "animate__animated animate__fadeOutUp",
     },
-    showCancelButton: true,
     inputValidator: (theme) => {
       setTheme(theme);
     },
