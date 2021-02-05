@@ -399,11 +399,9 @@ video:fullscreen {
 .swal2-content {
   color: white !important;
 }
-/* 
-.swal2-popup {
+/* .swal2-popup {
   font-size: 0.8rem !important;
-}
-*/
+}*/
 
 #countTime {
   display: none;
@@ -412,7 +410,7 @@ video:fullscreen {
   background-color: transparent;
   position: fixed;
   color: rgb(112, 112, 112);
-  text-align: center;
+  text-align: left;
   top: 0;
   z-index: 8;
 }

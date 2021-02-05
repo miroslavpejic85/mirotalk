@@ -383,9 +383,9 @@ function setupLocalMedia(callback, errorback) {
       console.log("Access granted to audio/video");
       document.body.style.backgroundImage = "none";
 
-      startCountTime();
-
       localMediaStream = stream;
+
+      startCountTime();
 
       manageButtons();
 
@@ -805,7 +805,6 @@ function showMessage(msg) {
   Swal.fire({
     background: swalBackground,
     position: "center",
-    icon: "success",
     title: "New Message",
     text: msg,
     input: "text",
@@ -1162,7 +1161,7 @@ function getAbout() {
     imageAlt: "Custom image",
     html:
       "<b>Open Source</b> project on" +
-      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank" style="color:green;"> GitHub</a> ',
+      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank" style="color: green;" style="text-decoration: none;"> GitHub</a>',
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
