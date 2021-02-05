@@ -927,11 +927,11 @@ function detectUrl(text) {
   var urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.replace(urlRegex, function (url) {
     return (
-      '<a href="' +
+      '<div id="chat-msg"><a href="' +
       url +
-      '" target="_blank" style="color:white;">' +
+      '" target="_blank">' +
       url +
-      "</a>"
+      "</a></div>"
     );
   });
 }
@@ -1160,8 +1160,10 @@ function getAbout() {
     imageHeight: 240,
     imageAlt: "Custom image",
     html:
+      '<div id="about">' +
       "<b>Open Source</b> project on" +
-      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank" style="color: green;" style="text-decoration: none;"> GitHub</a>',
+      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"> GitHub</a></div>' +
+      "</div>",
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
