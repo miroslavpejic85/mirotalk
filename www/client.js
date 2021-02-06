@@ -1253,6 +1253,7 @@ function userLog(type, message) {
           popup: "animate__animated animate__fadeOutUp",
         },
       });
+      playSound("error");
       break;
     case "info":
       Swal.fire({
@@ -1292,6 +1293,9 @@ async function playSound(state) {
     case "newMessage":
       file_audio = "audio/new_message.mp3";
       break;
+    case "error":
+      file_audio = "audio/error.mp3";
+      break;
     // ...
     default:
       console.log("no file audio");
@@ -1302,7 +1306,7 @@ async function playSound(state) {
       await audioToPlay.play();
     } catch (e) {
       // console.error("Cannot play sound", e);
-      // Automatic playback failed.
+      // Automatic playback failed. (safari)
       return;
     }
   }
