@@ -93,7 +93,7 @@ body {
   background: transparent;
   box-shadow: var(--box-shadow);
   padding: 15px;
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: space-around;
   grid-gap: 0.3rem;

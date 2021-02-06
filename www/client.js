@@ -30,7 +30,7 @@ var useVideo = true;
 var camera = "user";
 var isScreenStreaming = false;
 var isChatRoomVisible = false;
-var isButtonsVisible = true;
+var isButtonsVisible = false;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
 var remoteMediaStream = null; // friends microphone / webcam
@@ -495,6 +495,7 @@ function manageButtons() {
   setAboutBtn();
   setThemeBtn();
   setLeaveRoomBtn();
+  showLeftButtons();
 }
 
 // =====================================================
@@ -618,7 +619,7 @@ function setChatRoomBtn() {
     }
   });
 
-  // hide - show left buttons
+  // show left buttons
   get("msgerButtons").addEventListener("click", (e) => {
     checkLeftButtons();
   });
@@ -646,10 +647,7 @@ function setChatRoomBtn() {
     get("msgerDraggable").style.display = "none";
     get("chatRoomBtn").className = "fas fa-comment";
     isChatRoomVisible = false;
-    if (!isButtonsVisible) {
-      get("buttons").style.display = "flex";
-      isButtonsVisible = true;
-    }
+    showLeftButtons();
     checkCountTime();
   });
 
@@ -868,21 +866,31 @@ function showMsgerDraggable() {
   get("msgerDraggable").style.display = "flex";
   checkCountTime();
   isChatRoomVisible = true;
-  if (isMobileDevice) {
-    checkLeftButtons();
-  }
+}
+
+// =====================================================
+// show left buttons for 10 seconds on body mousemove
+// =====================================================
+function showLeftButtons() {
+  if (isButtonsVisible || isChatRoomVisible) return;
+  get("buttons").style.display = "flex";
+  isButtonsVisible = true;
+  setTimeout(function () {
+    get("buttons").style.display = "none";
+    isButtonsVisible = false;
+  }, 10000);
 }
 
 // =====================================================
 // hide - show left buttons
 // =====================================================
 function checkLeftButtons() {
-  if (!isButtonsVisible) {
-    get("buttons").style.display = "flex";
-    isButtonsVisible = true;
-  } else {
+  if (isButtonsVisible) {
     get("buttons").style.display = "none";
     isButtonsVisible = false;
+  } else {
+    get("buttons").style.display = "flex";
+    isButtonsVisible = true;
   }
 }
 
