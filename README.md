@@ -33,7 +33,7 @@ Open the app in one of following **supported browser**
 - WebCam (front - rear)
 - Audio
 - Screen Sharing
-- Send Message
+- Quick Message
 - Chat Room
 - Full Screen Mode
 - Change Theme

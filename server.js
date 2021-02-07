@@ -26,11 +26,11 @@ var turnUrls = process.env.TURN_URLS;
 var turnUsername = process.env.TURN_USERNAME;
 var turnCredential = process.env.TURN_PASSWORD;
 
-// use all static files from the www folder
+// Use all static files from the www folder
 app.use(express.static(path.join(__dirname, "www")));
 
 // =====================================================
-// expose server to external with https tunnel using ngrok
+// Expose server to external with https tunnel using ngrok
 // =====================================================
 async function ngrokStart() {
   try {
@@ -52,7 +52,7 @@ async function ngrokStart() {
 
 /*
  * You should probably use a different stun-turn server doing commercial stuff
- * Also see: https://gist.github.com/zziuni/3741933 or https://www.twilio.com/docs/stun-turn
+ * Also see: https://gist.github.com/zziuni/3741933 or https://www.twilio.com/docs/stun-turn or https://github.com/coturn/coturn
  * Check the functionality of STUN/TURN servers: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
 var iceServers = [
@@ -65,7 +65,7 @@ var iceServers = [
 ];
 
 // =====================================================
-// Start Local Server with ngrok https tunnel
+// Start Local Server with ngrok https tunnel (optional)
 // =====================================================
 var PORT = process.env.PORT || 80;
 server.listen(PORT, null, function () {
@@ -115,8 +115,9 @@ var sockets = {}; // collect sockets
  * information. After all of that happens, they'll finally be able to complete
  * the peer connection and will be in streaming audio/video between eachother.
  */
+
 // =====================================================
-// on peer connected
+// On peer connected
 // =====================================================
 io.sockets.on("connect", (socket) => {
   console.log("[" + socket.id + "] --> connection accepted");
@@ -125,7 +126,7 @@ io.sockets.on("connect", (socket) => {
   sockets[socket.id] = socket;
 
   // =====================================================
-  // on peer diconnected
+  // On peer diconnected
   // =====================================================
   socket.on("disconnect", () => {
     for (var channel in socket.channels) {
@@ -136,7 +137,7 @@ io.sockets.on("connect", (socket) => {
   });
 
   // =====================================================
-  // on peer join
+  // On peer join
   // =====================================================
   socket.on("join", (config) => {
     console.log("[" + socket.id + "] --> join ", config);
@@ -150,7 +151,7 @@ io.sockets.on("connect", (socket) => {
     if (!(channel in channels)) {
       channels[channel] = {};
     }
-    //
+
     for (var id in channels[channel]) {
       // offer false
       channels[channel][id].emit("addPeer", {
@@ -172,7 +173,7 @@ io.sockets.on("connect", (socket) => {
   });
 
   // =====================================================
-  // remove peers
+  // Remove peers
   // =====================================================
   async function removePeerFrom(channel) {
     if (!(channel in socket.channels)) {
@@ -191,7 +192,7 @@ io.sockets.on("connect", (socket) => {
   }
 
   // =====================================================
-  // relay ICE to peers
+  // Relay ICE to peers
   // =====================================================
   socket.on("relayICE", (config) => {
     let peer_id = config.peer_id;
@@ -211,7 +212,7 @@ io.sockets.on("connect", (socket) => {
   });
 
   // =====================================================
-  // relay SDP to peers
+  // Relay SDP to peers
   // =====================================================
   socket.on("relaySDP", (config) => {
     let peer_id = config.peer_id;
@@ -231,7 +232,7 @@ io.sockets.on("connect", (socket) => {
   });
 
   // =====================================================
-  // handle peer message
+  // Handle peers messages
   // =====================================================
   socket.on("msg", (config) => {
     let peers = config.peers;
