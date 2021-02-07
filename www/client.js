@@ -502,11 +502,25 @@ function manageButtons() {
 }
 
 // =====================================================
-// Copy room url button click event
+// Copy - share room url button click event
 // =====================================================
 function setCopyRoomBtn() {
-  get("copyRoomBtn").addEventListener("click", (e) => {
+  // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
+  get("copyRoomBtn").addEventListener("click", async (e) => {
     copyRoomUrl();
+
+    if (navigator.share) {
+      try {
+        // not add title and description to load metadata from url
+        await navigator.share({ url: window.location.href });
+        userLog("info", "Shared successfully!");
+      } catch (error) {
+        // This feature is available only in secure contexts (HTTPS),
+        // in some or all supporting browsers.
+        // console.error("navigator.share", error);
+        return;
+      }
+    }
   });
 }
 
