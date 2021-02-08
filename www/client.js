@@ -1182,10 +1182,10 @@ function getAbout() {
     background: swalBackground,
     position: "center",
     title: "<strong>Made with ❤️</strong>",
+    imageAlt: "mirotalk",
     imageUrl: loaderGif,
     imageWidth: 320,
     imageHeight: 240,
-    imageAlt: "Custom image",
     html:
       '<div id="about">' +
       "<b>Open Source</b> project on" +
@@ -1353,7 +1353,6 @@ function setTheme(theme) {
         "5px 5px 10px #0500ff, -5px -5px 10px #da05f3"
       );
       break;
-
     case "dark":
       // dark theme
       swalBackground = "transparent";
@@ -1369,12 +1368,15 @@ function setTheme(theme) {
         "5px 5px 10px #0a0b0c, -5px -5px 10px #222328"
       );
       break;
-
     case "ghost":
       // ghost theme
       swalBackground = "transparent";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "transparent");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-opc", "0.7");
+      document.documentElement.style.setProperty("--btns-left", "2px");
+      document.documentElement.style.setProperty("--box-shadow", "0px");
       document.documentElement.style.setProperty(
         "--left-msg-bg",
         "transparent"
@@ -1383,10 +1385,6 @@ function setTheme(theme) {
         "--right-msg-bg",
         "transparent"
       );
-      document.documentElement.style.setProperty("--btn-bg", "white");
-      document.documentElement.style.setProperty("--btn-opc", "0.7");
-      document.documentElement.style.setProperty("--btns-left", "2px");
-      document.documentElement.style.setProperty("--box-shadow", "0px");
       break;
     // ...
     default:
