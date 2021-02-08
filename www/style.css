@@ -39,6 +39,9 @@
   --left-msg-bg: #da05f3;
   --right-msg-bg: #579ffb;
   --box-shadow: 5px 5px 10px #0500ff, -5px -5px 10px #da05f3;
+  --btn-bg: white;
+  --btn-opc: 1;
+  --btns-left: 20px;
 
   /* dark theme
   --body-bg: #16171b;
@@ -46,6 +49,20 @@
   --left-msg-bg: #222328;
   --right-msg-bg: #0a0b0c;
   --box-shadow: 5px 5px 10px #0a0b0c, -5px -5px 10px #222328; 
+  --btn-bg: white;
+  --btn-opc: 1;
+  --btns-left: 20px;
+  */
+
+  /* ghost theme
+  --body-bg: #16171b;
+  --msger-bg: transparent;
+  --left-msg-bg: transparent;
+  --right-msg-bg: transparent;
+  --box-shadow: "0px"; 
+  --btn-bg: transparent;
+  --btn-opc: 0.7;
+  --btns-left: 2px;
   */
 
   /* https://developer.mozilla.org/it/docs/Web/CSS/object-fit */
@@ -84,7 +101,7 @@ body {
 
 #buttons {
   position: absolute;
-  left: 20px;
+  left: var(--btns-left);
   top: 50%;
   -ms-transform: translate(0%, -50%);
   transform: translate(0%, -50%);
@@ -114,8 +131,7 @@ body {
   border: none;
   font-size: 1.5rem;
   transition: all 0.3s ease-in-out;
-  background: white;
-  /*background: transparent;*/
+  background: var(--btn-bg);
   padding: 4px;
   border-radius: 5px;
 }
@@ -139,7 +155,7 @@ button:hover {
 #themeBtn,
 #leaveRoomBtn {
   font-size: 2rem;
-  /* opacity: 0.6; */
+  opacity: var(--btn-opc);
 }
 
 .fa-microphone-slash,

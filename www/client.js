@@ -17,8 +17,8 @@ const friendChatAvatar = "/images/friend.svg";
 const notifyBySound = true; // turn on-off sound notifications
 const isMobileDevice = DetectRTC.isMobileDevice;
 
-var mirotalkTheme = "neon"; // neon - dark ...
-var swalBackground = "black"; // #16171b
+var mirotalkTheme = "neon"; // neon - dark - ghost ...
+var swalBackground = "transparent"; // black - #16171b ...
 var myChatName = null;
 var signalingServerPort = 80;
 var signalingServer = getServerUrl();
@@ -643,6 +643,8 @@ function setChatRoomBtn() {
 
   // ghost theme + undo
   get("msgerTheme").addEventListener("click", (e) => {
+    if (mirotalkTheme == "ghost") return;
+
     if (e.target.className == "fas fa-ghost") {
       e.target.className = "fas fa-undo";
       document.documentElement.style.setProperty("--msger-bg", "transparent");
@@ -1210,6 +1212,7 @@ function getTheme() {
     inputOptions: {
       neon: "mirotalk-neon",
       dark: "mirotalk-dark",
+      ghost: "mirotalk-ghost",
     },
     showDenyButton: true,
     confirmButtonText: `Apply`,
@@ -1337,27 +1340,53 @@ function setTheme(theme) {
   switch (mirotalkTheme) {
     case "neon":
       // neon theme
-      swalBackground = "black";
+      swalBackground = "transparent";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
       document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
       document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-opc", "1");
+      document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
         "--box-shadow",
         "5px 5px 10px #0500ff, -5px -5px 10px #da05f3"
       );
       break;
+
     case "dark":
       // dark theme
-      swalBackground = "#16171b";
+      swalBackground = "transparent";
       document.documentElement.style.setProperty("--body-bg", "#16171b");
       document.documentElement.style.setProperty("--msger-bg", "#16171b");
       document.documentElement.style.setProperty("--left-msg-bg", "#222328");
       document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-opc", "1");
+      document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
         "--box-shadow",
         "5px 5px 10px #0a0b0c, -5px -5px 10px #222328"
       );
+      break;
+
+    case "ghost":
+      // ghost theme
+      swalBackground = "transparent";
+      document.documentElement.style.setProperty("--body-bg", "black");
+      document.documentElement.style.setProperty("--msger-bg", "transparent");
+      document.documentElement.style.setProperty(
+        "--left-msg-bg",
+        "transparent"
+      );
+      document.documentElement.style.setProperty(
+        "--right-msg-bg",
+        "transparent"
+      );
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-opc", "0.7");
+      document.documentElement.style.setProperty("--btns-left", "2px");
+      document.documentElement.style.setProperty("--box-shadow", "0px");
       break;
     // ...
     default:
