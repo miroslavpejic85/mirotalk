@@ -29,9 +29,9 @@ Open the app in one of following **supported browser**
 
 ## Features
 
-- RoomUrl Sharing (just click and share URL to your friends)
-- WebCam (front - rear)
-- Audio
+- Room Url Sharing (share to your friends, wait them to join)
+- WebCam Streaming (Front-Rear)
+- Audio Streaming
 - Screen Sharing
 - Quick Message
 - Chat Room
