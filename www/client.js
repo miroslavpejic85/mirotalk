@@ -370,6 +370,11 @@ function setupLocalMedia(callback, errorback) {
     return;
   }
 
+  // --------------------------------------------------------------------------------
+  // TODO: add possibility to select audio - video devices before to load local media
+  // getDevices();
+  // --------------------------------------------------------------------------------
+
   /* Ask user for permission to use the computers microphone and/or camera,
    * attach it to an <audio> or <video> tag if they give us access. */
   console.log("Requesting access to local audio / video inputs");
@@ -389,7 +394,6 @@ function setupLocalMedia(callback, errorback) {
       localMediaStream = stream;
 
       startCountTime();
-
       manageButtons();
 
       // =====================================================
@@ -432,6 +436,33 @@ function setupLocalMedia(callback, errorback) {
       if (errorback) errorback();
     });
 } // end [setup_local_stream]
+
+// =====================================================
+// TODO: Select audio - video devices
+// =====================================================
+function getDevices() {
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    console.log("enumerateDevices() not supported.");
+    return;
+  }
+  let myDevices = []; // List cameras and microphones.
+  navigator.mediaDevices
+    .enumerateDevices()
+    .then(function (devices) {
+      devices.forEach(function (device) {
+        myDevices.push({
+          deviceName: device.kind + ": " + device.label,
+          deviceId: device.deviceId,
+        });
+      });
+      console.log("Audio-Video-Devices", myDevices);
+      // ....
+    })
+    .catch(function (err) {
+      console.log(err.name + ": " + err.message);
+    });
+}
 
 // =====================================================
 // AttachMediaStream will soon be removed
@@ -1189,7 +1220,7 @@ function getAbout() {
     html:
       '<div id="about">' +
       "<b>Open Source</b> project on" +
-      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"> GitHub</a>' +
+      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><strong> GitHub </strong></a>' +
       "</div>",
     showClass: {
       popup: "animate__animated animate__fadeInDown",

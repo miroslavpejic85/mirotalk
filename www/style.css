@@ -433,7 +433,7 @@ video:fullscreen {
 }
 
 #about a {
-  color: green;
+  color: red;
   text-decoration: none;
 }
 #chat-msg a {
