@@ -41,6 +41,12 @@ var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServer
 var startTime;
 var elapsedTime;
 
+// devices audio video
+var audioInputSelect = null;
+var audioOutputSelect = null;
+var videoSelect = null;
+var selectors = null;
+
 // =====================================================
 // Get peer info using DetecRTC
 // =====================================================
@@ -96,6 +102,9 @@ function initPeer() {
     userLog("error", "This browser seems not supported WebRTC!");
     return;
   }
+
+  // setup audio video deovices
+  setupDevices();
 
   // peer ready for WebRTC! :)
   console.log("Connecting to signaling server");
@@ -361,6 +370,48 @@ function initPeer() {
 } // end [initPeer]
 
 // =====================================================
+// Setup audio - video devices
+// =====================================================
+function setupDevices() {
+  // audio - video select box
+  audioInputSelect = get("audioSource");
+  audioOutputSelect = get("audioOutput");
+  videoSelect = get("videoSource");
+
+  selectors = [audioInputSelect, audioOutputSelect, videoSelect];
+
+  audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
+
+  navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+
+  audioInputSelect.onchange = refreshLocalMedia;
+  audioOutputSelect.onchange = changeAudioDestination;
+  videoSelect.onchange = refreshLocalMedia;
+}
+
+// =====================================================
+// Refresh Local media audio video in - out
+// =====================================================
+function refreshLocalMedia() {
+  if (window.stream) {
+    window.stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
+  const audioSource = audioInputSelect.value;
+  const videoSource = videoSelect.value;
+  const constraints = {
+    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+    video: { deviceId: videoSource ? { exact: videoSource } : undefined },
+  };
+  navigator.mediaDevices
+    .getUserMedia(constraints)
+    .then(gotStream)
+    .then(gotDevices)
+    .catch(handleError);
+}
+
+// =====================================================
 // Local media stuff
 // =====================================================
 function setupLocalMedia(callback, errorback) {
@@ -370,18 +421,19 @@ function setupLocalMedia(callback, errorback) {
     return;
   }
 
-  // --------------------------------------------------------------------------------
-  // TODO: add possibility to select audio - video devices before to load local media
-  // getDevices();
-  // --------------------------------------------------------------------------------
+  if (window.stream) {
+    window.stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
 
   /* Ask user for permission to use the computers microphone and/or camera,
    * attach it to an <audio> or <video> tag if they give us access. */
   console.log("Requesting access to local audio / video inputs");
 
   const constraints = {
-    video: useVideo,
     audio: useAudio,
+    video: useVideo,
   };
 
   navigator.mediaDevices
@@ -424,6 +476,9 @@ function setupLocalMedia(callback, errorback) {
       localMedia.poster = null;
       resizeVideos();
 
+      // here i have access to audio - video can do it :P
+      setupDevices();
+
       if (callback) callback();
     })
     .catch((e) => {
@@ -438,7 +493,133 @@ function setupLocalMedia(callback, errorback) {
 } // end [setup_local_stream]
 
 // =====================================================
-// TODO: Select audio - video devices
+// get Devices and show to select box
+// =====================================================
+function gotDevices(deviceInfos) {
+  // https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
+  // Handles being called several times to update labels. Preserve values.
+  const values = selectors.map((select) => select.value);
+  selectors.forEach((select) => {
+    while (select.firstChild) {
+      select.removeChild(select.firstChild);
+    }
+  });
+  // check devices
+  for (let i = 0; i !== deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    // console.log("device-info ------> ", deviceInfo);
+    const option = document.createElement("option");
+    option.value = deviceInfo.deviceId;
+
+    if (deviceInfo.kind === "audioinput") {
+      // audio Input
+      option.text =
+        deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+      audioInputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "audiooutput") {
+      // audio Output
+      option.text =
+        deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+      audioOutputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "videoinput") {
+      // video Input
+      option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+      videoSelect.appendChild(option);
+    } else {
+      // something else
+      console.log("Some other kind of source/device: ", deviceInfo);
+    }
+  } // end for devices
+
+  selectors.forEach((select, selectorIndex) => {
+    if (
+      Array.prototype.slice
+        .call(select.childNodes)
+        .some((n) => n.value === values[selectorIndex])
+    ) {
+      select.value = values[selectorIndex];
+    }
+  });
+}
+
+// =====================================================
+// Attach audio output device to video element using device/sink ID.
+// =====================================================
+function attachSinkId(element, sinkId) {
+  if (typeof element.sinkId !== "undefined") {
+    element
+      .setSinkId(sinkId)
+      .then(() => {
+        console.log(`Success, audio output device attached: ${sinkId}`);
+      })
+      .catch((error) => {
+        let errorMessage = error;
+        if (error.name === "SecurityError") {
+          errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+        }
+        console.error(errorMessage);
+        // Jump back to first output device in the list as it's the default.
+        audioOutputSelect.selectedIndex = 0;
+      });
+  } else {
+    console.warn("Browser does not support output device selection.");
+  }
+}
+
+// =====================================================
+// Change audio output
+// =====================================================
+function changeAudioDestination() {
+  const audioDestination = audioOutputSelect.value;
+  attachSinkId(get("myVideo"), audioDestination);
+}
+
+// =====================================================
+// Got Stream append to local media
+// =====================================================
+function gotStream(stream) {
+  window.stream = stream; // make stream available to console
+
+  // refresh my video to peers
+  for (var peer_id in peers) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+    var sender = peers[peer_id]
+      .getSenders()
+      .find((s) => (s.track ? s.track.kind === "video" : false));
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+    sender.replaceTrack(stream.getVideoTracks()[0]);
+  }
+
+  stream.getVideoTracks()[0].enabled = true;
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
+  const newStream = new MediaStream([
+    stream.getVideoTracks()[0],
+    localMediaStream.getAudioTracks()[0],
+  ]);
+  localMediaStream = newStream;
+
+  // attachMediaStream is a part of the adapter.js library
+  attachMediaStream(get("myVideo"), localMediaStream);
+
+  get("myVideo").classList.toggle("mirror");
+
+  // Refresh button list in case labels have become available
+  return navigator.mediaDevices.enumerateDevices();
+}
+
+// =====================================================
+// Handle error
+// =====================================================
+function handleError(error) {
+  console.log(
+    "navigator.MediaDevices.getUserMedia error: ",
+    error.message,
+    error.name
+  );
+}
+
+// =====================================================
+// Extra not used, print audio - video devices
 // =====================================================
 function getDevices() {
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
@@ -452,12 +633,12 @@ function getDevices() {
     .then(function (devices) {
       devices.forEach(function (device) {
         myDevices.push({
-          deviceName: device.kind + ": " + device.label,
+          deviceKind: device.kind,
+          deviceName: device.label,
           deviceId: device.deviceId,
         });
       });
       console.log("Audio-Video-Devices", myDevices);
-      // ....
     })
     .catch(function (err) {
       console.log(err.name + ": " + err.message);
@@ -526,8 +707,9 @@ function manageButtons() {
   setFullScreenBtn();
   setSendMsgBtn();
   setChatRoomBtn();
-  setAboutBtn();
   setThemeBtn();
+  setDevicesBtn();
+  setAboutBtn();
   setLeaveRoomBtn();
   showLeftButtons();
 }
@@ -588,8 +770,8 @@ function setVideoBtn() {
 function setSwapCameraBtn() {
   navigator.mediaDevices.enumerateDevices().then((devices) => {
     const videoInput = devices.filter((device) => device.kind === "videoinput");
-    if (videoInput.length > 1) {
-      // swap camera front - rear button click event
+    if (videoInput.length > 1 && isMobileDevice) {
+      // swap camera front - rear button click event for mobile
       document
         .getElementById("swapCameraBtn")
         .addEventListener("click", (e) => {
@@ -716,20 +898,36 @@ function setChatRoomBtn() {
 }
 
 // =====================================================
-// About button click event
-// =====================================================
-function setAboutBtn() {
-  get("aboutBtn").addEventListener("click", (e) => {
-    getAbout();
-  });
-}
-
-// =====================================================
 // Theme button click event
 // =====================================================
 function setThemeBtn() {
   get("themeBtn").addEventListener("click", (e) => {
     getTheme();
+  });
+}
+
+// =====================================================
+// Devices button click event
+// =====================================================
+function setDevicesBtn() {
+  get("myDevicesBtn").addEventListener("click", (e) => {
+    hideShowDevices();
+  });
+  get("myDevicesCloseBtn").addEventListener("click", (e) => {
+    hideShowDevices();
+  });
+  if (!isMobileDevice) {
+    // make chat room draggable for desktop
+    dragElement(get("myDevices"), get("myDeviceHeader"));
+  }
+}
+
+// =====================================================
+// About button click event
+// =====================================================
+function setAboutBtn() {
+  get("aboutBtn").addEventListener("click", (e) => {
+    getAbout();
   });
 }
 
@@ -751,7 +949,7 @@ function setChatBoxMobile() {
     document.documentElement.style.setProperty("--msger-width", "98vw");
   } else {
     // make chat room draggable for desktop
-    dragElement(get("msgerDraggable"));
+    dragElement(get("msgerDraggable"), get("msgerHeader"));
     // $("#msgerDraggable").draggable(); https://jqueryui.com/draggable/ declined, can't select chat room texts...
   }
 }
@@ -759,15 +957,15 @@ function setChatBoxMobile() {
 // =====================================================
 // Make chat room draggable
 // =====================================================
-function dragElement(elmnt) {
+function dragElement(elmnt, dragObj) {
   // https://www.w3schools.com/howto/howto_js_draggable.asp
   var pos1 = 0,
     pos2 = 0,
     pos3 = 0,
     pos4 = 0;
-  if (get("msgerHeader")) {
+  if (dragObj) {
     // if present, the header is where you move the DIV from:
-    get("msgerHeader").onmousedown = dragMouseDown;
+    dragObj.onmousedown = dragMouseDown;
   } else {
     // otherwise, move the DIV from anywhere inside the DIV:
     elmnt.onmousedown = dragMouseDown;
@@ -955,6 +1153,22 @@ function checkCountTime() {
     }
     get("countTime").style.display = "none";
   }
+}
+
+// =====================================================
+// Hide - show devices div
+// =====================================================
+function hideShowDevices() {
+  if (noPeers()) {
+    userLog("info", "Can't setup devices, no peer connection detected");
+    return;
+  }
+  let md = get("myDevices");
+  if (md.style.display == "none") {
+    md.style.display = "block";
+    return;
+  }
+  md.style.display = "none";
 }
 
 // =====================================================

@@ -37,6 +37,7 @@ Open the app in one of following **supported browser**
 - Chat Room
 - Full Screen Mode
 - Change Theme
+- Select Audio Input-Output & Video source (beta)
 - Right click on Video elements for more options
 - No download required, entirely browser based
 - Direct peer to peer connection ensures lowest latency

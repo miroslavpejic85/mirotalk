@@ -100,6 +100,7 @@ body {
 }
 
 #buttons {
+  display: none;
   position: absolute;
   left: var(--btns-left);
   top: 50%;
@@ -110,7 +111,6 @@ body {
   background: transparent;
   box-shadow: var(--box-shadow);
   padding: 15px;
-  display: none;
   flex-direction: column;
   justify-content: space-around;
   grid-gap: 0.3rem;
@@ -151,8 +151,9 @@ button:hover {
 #fullScreenBtn,
 #sendMsgBtn,
 #chatRoomBtn,
-#aboutBtn,
 #themeBtn,
+#myDevicesBtn,
+#aboutBtn,
 #leaveRoomBtn {
   font-size: 2rem;
   opacity: var(--btn-opc);
@@ -438,4 +439,49 @@ video:fullscreen {
 }
 #chat-msg a {
   color: white;
+}
+
+/* devices */
+#myDevices {
+  display: none;
+  z-index: 9991;
+  /* center */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* gui */
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  margin: auto;
+  box-shadow: var(--box-shadow);
+  padding: 10px;
+  /* fade in */
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: hidden;
+}
+#myDeviceHeader {
+  cursor: move;
+}
+
+label {
+  width: 7em;
+  display: inline-block;
+  color: black;
+}
+
+select {
+  width: 25em;
+  height: 30px;
+  color: white;
+  background-color: #2b2b2b;
+  border-radius: 5px;
 }

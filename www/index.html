@@ -93,6 +93,7 @@
         class="fas fa-comment"
       ></button>
       <button title="theme" id="themeBtn" class="fas fa-palette"></button>
+      <button title="devices" id="myDevicesBtn" class="fas fa-cogs"></button>
       <button title="about" id="aboutBtn" class="fas fa-question"></button>
       <button
         title="leave room"
@@ -183,6 +184,33 @@
       </section>
     </section>
     <!-- End chat room -->
+
+    <section id="myDevices">
+      <header id="myDeviceHeader">
+        <button
+          title="close"
+          id="myDevicesCloseBtn"
+          class="fas fa-times"
+        ></button>
+      </header>
+      <main>
+        <br />
+        <div>
+          <label for="audioSource">Audio input:&nbsp;</label
+          ><select id="audioSource"></select>
+        </div>
+        <br />
+        <div>
+          <label for="audioOutput">Audio output:&nbsp;</label
+          ><select id="audioOutput"></select>
+        </div>
+        <br />
+        <div>
+          <label for="videoSource">Video source:&nbsp;</label
+          ><select id="videoSource"></select>
+        </div>
+      </main>
+    </section>
 
     <!-- 
 		the <video> and <audio> tags are all added and removed dynamically
