@@ -165,9 +165,9 @@ button:hover {
 }
 
 .msger-draggable {
+  z-index: 9;
   display: none;
   position: absolute;
-  z-index: 9;
   top: var(--msger-top);
   left: var(--msger-left);
   height: var(--msger-height);
@@ -472,13 +472,13 @@ video:fullscreen {
   cursor: move;
 }
 
-label {
+#myDevices label {
   width: 7em;
   display: inline-block;
   color: black;
 }
 
-select {
+#myDevices select {
   width: 25em;
   height: 30px;
   color: white;
