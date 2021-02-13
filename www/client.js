@@ -172,7 +172,6 @@ function initPeer() {
       {
         optional: [
           { DtlsSrtpKeyAgreement: true }, // is required for Chrome and Firefox to interoperate.
-          { RtpDataChannels: DetectRTC.isRtpDataChannelsSupported }, // is required if we want to make use of the DataChannels API on Firefox.
         ],
       }
     );
@@ -646,10 +645,10 @@ function getDevices() {
 }
 
 // =====================================================
-// AttachMediaStream will soon be removed
+// AttachMediaStream stream to element
 // =====================================================
 function attachMediaStream(element, stream) {
-  console.log("DEPRECATED, attachMediaStream will soon be removed.");
+  //console.log("DEPRECATED, attachMediaStream will soon be removed.");
   element.srcObject = stream;
 }
 
