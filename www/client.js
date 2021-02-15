@@ -46,6 +46,7 @@ var audioInputSelect = null;
 var audioOutputSelect = null;
 var videoSelect = null;
 var selectors = null;
+var videoChange = false;
 
 // =====================================================
 // Get peer info using DetecRTC
@@ -383,15 +384,23 @@ function setupDevices() {
 
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 
-  audioInputSelect.onchange = refreshLocalMedia;
-  audioOutputSelect.onchange = changeAudioDestination;
-  videoSelect.onchange = refreshLocalMedia;
+  audioInputSelect.addEventListener("change", (e) => {
+    refreshLocalMedia(false);
+  });
+  audioOutputSelect.addEventListener("change", (e) => {
+    changeAudioDestination();
+  });
+  videoSelect.addEventListener("change", (e) => {
+    refreshLocalMedia(true);
+  });
 }
 
 // =====================================================
 // Refresh Local media audio video in - out
 // =====================================================
-function refreshLocalMedia() {
+function refreshLocalMedia(change) {
+  videoChange = change;
+
   if (window.stream) {
     window.stream.getTracks().forEach((track) => {
       track.stop();
@@ -600,7 +609,9 @@ function gotStream(stream) {
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(get("myVideo"), localMediaStream);
 
-  get("myVideo").classList.toggle("mirror");
+  if (videoChange) {
+    get("myVideo").classList.toggle("mirror");
+  }
 
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
@@ -649,6 +660,7 @@ function getDevices() {
 // =====================================================
 function attachMediaStream(element, stream) {
   //console.log("DEPRECATED, attachMediaStream will soon be removed.");
+  console.log("Success, media stream attached");
   element.srcObject = stream;
 }
 
@@ -954,7 +966,7 @@ function setChatBoxMobile() {
 }
 
 // =====================================================
-// Make chat room draggable
+// Make chat room - devices draggable
 // =====================================================
 function dragElement(elmnt, dragObj) {
   // https://www.w3schools.com/howto/howto_js_draggable.asp
