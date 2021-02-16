@@ -1170,12 +1170,12 @@ function checkCountTime() {
 // Hide - show devices div
 // =====================================================
 function hideShowDevices() {
-  if (noPeers()) {
-    userLog("info", "Can't setup devices, no peer connection detected");
-    return;
-  }
   let md = get("myDevices");
   if (md.style.display == "none") {
+    if (noPeers()) {
+      userLog("info", "Can't setup devices, no peer connection detected");
+      return;
+    }
     md.style.display = "block";
     return;
   }
@@ -1272,9 +1272,14 @@ function emitMsg(name, msg, type) {
 // Active - disactive screen sharing
 // =====================================================
 function toggleScreenSharing() {
-  if (noPeers()) {
-    userLog("info", "Can't Toggle screen sharing, no peer connection detected");
-    return;
+  if (!isScreenStreaming) {
+    if (noPeers()) {
+      userLog(
+        "info",
+        "Can't Toggle screen sharing, no peer connection detected"
+      );
+      return;
+    }
   }
 
   const constraints = {
@@ -1445,7 +1450,7 @@ function getAbout() {
     html:
       '<div id="about">' +
       "<b>Open Source</b> project on" +
-      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><strong> GitHub </strong></a>' +
+      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h2><strong> GitHub </strong></h2></a>' +
       "</div>",
     showClass: {
       popup: "animate__animated animate__fadeInDown",

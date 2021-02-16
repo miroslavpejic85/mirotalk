@@ -435,7 +435,7 @@ video:fullscreen {
 
 #about a {
   color: red;
-  text-decoration: none;
+  /*text-decoration: none;*/
 }
 #chat-msg a {
   color: white;
