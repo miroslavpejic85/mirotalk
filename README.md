@@ -30,14 +30,14 @@ Open the app in one of following **supported browser**
 ## Features
 
 - Room Url Sharing (share to your friends, wait them to join)
-- WebCam Streaming (Front-Rear)
+- WebCam Streaming (Front - Rear)
 - Audio Streaming
 - Screen Sharing
 - Quick Message
 - Chat Room
 - Full Screen Mode
 - Change Theme
-- Select Audio Input-Output & Video source (beta)
+- Select Audio Input - Output && Video source
 - Right click on Video elements for more options
 - No download required, entirely browser based
 - Direct peer to peer connection ensures lowest latency
