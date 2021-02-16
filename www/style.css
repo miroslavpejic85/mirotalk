@@ -474,7 +474,7 @@ video:fullscreen {
 
 #myDevices label {
   width: 7em;
-  display: inline-block;
+  display: flex;
   color: black;
 }
 
