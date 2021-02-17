@@ -101,9 +101,6 @@ function initPeer() {
     return;
   }
 
-  // setup audio video deovices
-  setupDevices();
-
   // peer ready for WebRTC! :)
   console.log("Connecting to signaling server");
   signalingSocket = io(signalingServer);
@@ -369,7 +366,7 @@ function initPeer() {
 // =====================================================
 // Setup audio - video devices
 // =====================================================
-function setupDevices() {
+function setupAudioVideoDevices() {
   // audio - video select box
   audioInputSelect = get("audioSource");
   audioOutputSelect = get("audioOutput");
@@ -482,7 +479,7 @@ function setupLocalMedia(callback, errorback) {
       resizeVideos();
 
       // here i have access to audio - video can do it :P
-      setupDevices();
+      setupAudioVideoDevices();
 
       if (callback) callback();
     })
