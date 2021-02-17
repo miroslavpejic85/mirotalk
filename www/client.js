@@ -17,17 +17,24 @@ const friendChatAvatar = "/images/friend.svg";
 const notifyBySound = true; // turn on-off sound notifications
 const isMobileDevice = DetectRTC.isMobileDevice;
 
+var startTime;
+var elapsedTime;
 var mirotalkTheme = "neon"; // neon - dark - ghost ...
 var swalBackground = "transparent"; // black - #16171b ...
-var myChatName = null;
 var signalingServerPort = 80;
 var signalingServer = getServerUrl();
 var roomId = getRoomId();
 var peerInfo = getPeerInfo();
 var peerConnection = null;
+var myChatName = null;
 var useAudio = true;
 var useVideo = true;
 var camera = "user";
+var audioInputSelect = null;
+var audioOutputSelect = null;
+var videoSelect = null;
+var selectors = null;
+var videoChange = false;
 var isScreenStreaming = false;
 var isChatRoomVisible = false;
 var isButtonsVisible = false;
@@ -37,16 +44,6 @@ var remoteMediaStream = null; // friends microphone / webcam
 var peers = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 var peerMediaElements = {}; // keep track of our <video> tags, indexed by peer_id
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
-
-var startTime;
-var elapsedTime;
-
-// devices audio video
-var audioInputSelect = null;
-var audioOutputSelect = null;
-var videoSelect = null;
-var selectors = null;
-var videoChange = false;
 
 // =====================================================
 // Get peer info using DetecRTC
@@ -1447,11 +1444,7 @@ function getAbout() {
     imageUrl: loaderGif,
     imageWidth: 320,
     imageHeight: 240,
-    html:
-      '<div id="about">' +
-      "<b>Open Source</b> project on" +
-      '<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h2><strong> GitHub </strong></h2></a>' +
-      "</div>",
+    html: `<div id="about"><b>Open Source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h2><strong> GitHub </strong></h2></a></div>`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
