@@ -42,6 +42,13 @@ Open the app in one of following **supported browser**
 - No download required, entirely browser based
 - Direct peer to peer connection ensures lowest latency
 
+## Demo
+
+- Open https://mirotalk.herokuapp.com/
+- Allow to use the camera and microphone
+- Click the first button to copy the url and then share it
+- Wait someone to join for video conference
+
 ## Quick start
 
 - You will need to have [Node.js](https://nodejs.org/it/) installed, this project has been tested with Node version 12.X
@@ -87,13 +94,6 @@ npm start
 - Open http://localhost:80 in browser
 - If you want to use a client on another computer/network, make sure you publish your server on an HTTPS connection.
   You can use a service like [ngrok](https://ngrok.com/) Or deploy it on [heroku](https://www.heroku.com/).
-
-## Demo
-
-- Open https://mirotalk.herokuapp.com/
-- Allow to use the camera and microphone
-- Click the first button to copy the url and then share it
-- Wait someone to join for video conference
 
 ## Credits
 
