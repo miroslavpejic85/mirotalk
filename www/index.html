@@ -55,6 +55,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script
+      type="module"
+      src="https://unpkg.com/emoji-picker-element@1"
+    ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
   </head>
@@ -127,6 +131,11 @@
               class="fas fa-trash"
             ></button>
             <button
+              title="emoji"
+              id="msgerEmojiBtn"
+              class="fas fa-smile"
+            ></button>
+            <button
               id="msgerClose"
               title="close chat"
               class="fas fa-times"
@@ -184,6 +193,19 @@
       </section>
     </section>
     <!-- End chat room -->
+
+    <!-- https://github.com/nolanlawson/emoji-picker-element -->
+    <section id="msgerEmojiPicker">
+      <header id="msgerEmojiHeader">
+        <button
+          title="close"
+          id="msgerCloseEmojiBtn"
+          class="fas fa-times"
+        ></button>
+      </header>
+      <emoji-picker class="dark"></emoji-picker>
+      <!-- <emoji-picker class="light"></emoji-picker> -->
+    </section>
 
     <section id="myDevices">
       <header id="myDeviceHeader">

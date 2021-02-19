@@ -34,7 +34,7 @@ Open the app in one of following **supported browser**
 - Audio Streaming
 - Screen Sharing
 - Quick Message
-- Chat Room
+- Chat Room && Emoji Picker
 - Full Screen Mode
 - Change Theme
 - Select Audio Input - Output && Video source

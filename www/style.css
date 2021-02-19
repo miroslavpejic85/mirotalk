@@ -100,13 +100,13 @@ body {
 }
 
 #buttons {
+  z-index: 10;
   display: none;
   position: absolute;
   left: var(--btns-left);
   top: 50%;
   -ms-transform: translate(0%, -50%);
   transform: translate(0%, -50%);
-  z-index: 999;
   border-radius: 20px;
   background: transparent;
   box-shadow: var(--box-shadow);
@@ -312,8 +312,8 @@ button:hover {
   background: rgb(0, 0, 0);
 }
 
-#msgerSendBtn {
-  margin-left: 10px;
+#msgerSendBtn,
+#msgerEmojiBtn {
   background: rgb(0, 0, 0);
   color: #fff;
   transition: background 0.23s;
@@ -322,9 +322,45 @@ button:hover {
 #msgerSendBtn:hover {
   color: rgb(0, 180, 50);
 }
+#msgerEmojiBtn:hover {
+  color: rgb(0, 180, 50);
+}
 
 .msger-chat {
   background: var(--msger-bg);
+}
+
+/* emoji */
+#msgerEmojiPicker {
+  z-index: 11;
+  display: none;
+  /* center */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* fade in */
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: hidden;
+}
+
+#msgerEmojiHeader {
+  background: var(--msger-bg);
+  cursor: move;
+}
+
+emoji-picker {
+  --num-columns: 9;
+  --emoji-size: 2rem;
+  --background: var(--msger-bg);
 }
 
 #myVideo.mirror {
@@ -421,6 +457,7 @@ video:fullscreen {
 }*/
 
 #countTime {
+  z-index: 8;
   display: none;
   width: 100%;
   left: 15px;
@@ -430,7 +467,6 @@ video:fullscreen {
   color: rgb(112, 112, 112);
   text-align: left;
   top: 0;
-  z-index: 8;
 }
 
 #about a {
@@ -444,7 +480,7 @@ video:fullscreen {
 /* devices */
 #myDevices {
   display: none;
-  z-index: 9991;
+  z-index: 12;
   /* center */
   position: absolute;
   top: 50%;

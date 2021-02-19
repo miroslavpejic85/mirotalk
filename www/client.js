@@ -37,7 +37,9 @@ var selectors = null;
 var videoChange = false;
 var isScreenStreaming = false;
 var isChatRoomVisible = false;
+var isChatEmojiVisible = false;
 var isButtonsVisible = false;
+var isAudioVideoDevicesVisible = false;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
 var remoteMediaStream = null; // friends microphone / webcam
@@ -712,6 +714,7 @@ function manageButtons() {
   setFullScreenBtn();
   setSendMsgBtn();
   setChatRoomBtn();
+  setChatEmojiBtn();
   setThemeBtn();
   setDevicesBtn();
   setAboutBtn();
@@ -900,6 +903,35 @@ function setChatRoomBtn() {
 
     get("msgerInput").value = "";
   });
+}
+
+// =====================================================
+// Emoji piker chat room button click event
+// =====================================================
+function setChatEmojiBtn() {
+  if (isMobileDevice) {
+    // mobile already have it
+    get("msgerEmojiBtn").style.display = "none";
+  } else {
+    // make enoji piker draggable for desktop
+    dragElement(get("msgerEmojiPicker"), get("msgerEmojiHeader"));
+
+    get("msgerEmojiBtn").addEventListener("click", (e) => {
+      e.preventDefault(); // prevent refresh page
+      hideShowEmojiPiker();
+    });
+
+    get("msgerCloseEmojiBtn").addEventListener("click", (e) => {
+      e.preventDefault(); // prevent refresh page
+      hideShowEmojiPiker();
+    });
+
+    getS("emoji-picker").addEventListener("emoji-click", (e) => {
+      //console.log(e.detail);
+      //console.log(e.detail.emoji.unicode);
+      get("msgerInput").value += e.detail.emoji.unicode;
+    });
+  }
 }
 
 // =====================================================
@@ -1161,19 +1193,33 @@ function checkCountTime() {
 }
 
 // =====================================================
+// Hide - Show emoji picker div
+// =====================================================
+function hideShowEmojiPiker() {
+  if (!isChatEmojiVisible) {
+    get("msgerEmojiPicker").style.display = "block";
+    isChatEmojiVisible = true;
+    return;
+  }
+  get("msgerEmojiPicker").style.display = "none";
+  isChatEmojiVisible = false;
+}
+
+// =====================================================
 // Hide - show devices div
 // =====================================================
 function hideShowDevices() {
-  let md = get("myDevices");
-  if (md.style.display == "none") {
+  if (!isAudioVideoDevicesVisible) {
     if (noPeers()) {
       userLog("info", "Can't setup devices, no peer connection detected");
       return;
     }
-    md.style.display = "block";
+    get("myDevices").style.display = "block";
+    isAudioVideoDevicesVisible = true;
     return;
   }
-  md.style.display = "none";
+  get("myDevices").style.display = "none";
+  isAudioVideoDevicesVisible = false;
 }
 
 // =====================================================
@@ -1647,7 +1693,7 @@ function setTheme(theme) {
 function get(id) {
   return document.getElementById(id);
 }
-function getC(selector) {
+function getS(selector) {
   return document.querySelector(selector);
 }
 
