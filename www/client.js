@@ -906,24 +906,24 @@ function setChatRoomBtn() {
 }
 
 // =====================================================
-// Emoji piker chat room button click event
+// Emoji picker chat room button click event
 // =====================================================
 function setChatEmojiBtn() {
   if (isMobileDevice) {
     // mobile already have it
     get("msgerEmojiBtn").style.display = "none";
   } else {
-    // make enoji piker draggable for desktop
+    // make emoji picker draggable for desktop
     dragElement(get("msgerEmojiPicker"), get("msgerEmojiHeader"));
 
     get("msgerEmojiBtn").addEventListener("click", (e) => {
       e.preventDefault(); // prevent refresh page
-      hideShowEmojiPiker();
+      hideShowEmojiPicker();
     });
 
     get("msgerCloseEmojiBtn").addEventListener("click", (e) => {
       e.preventDefault(); // prevent refresh page
-      hideShowEmojiPiker();
+      hideShowEmojiPicker();
     });
 
     getS("emoji-picker").addEventListener("emoji-click", (e) => {
@@ -1195,7 +1195,7 @@ function checkCountTime() {
 // =====================================================
 // Hide - Show emoji picker div
 // =====================================================
-function hideShowEmojiPiker() {
+function hideShowEmojiPicker() {
   if (!isChatEmojiVisible) {
     get("msgerEmojiPicker").style.display = "block";
     isChatEmojiVisible = true;

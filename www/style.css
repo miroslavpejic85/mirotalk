@@ -334,6 +334,7 @@ button:hover {
 #msgerEmojiPicker {
   z-index: 11;
   display: none;
+  box-shadow: var(--box-shadow);
   /* center */
   position: absolute;
   top: 50%;
