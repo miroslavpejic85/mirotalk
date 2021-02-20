@@ -15,6 +15,7 @@ const loaderGif = "/images/loader.gif";
 const myChatAvatar = "/images/programmer.svg";
 const friendChatAvatar = "/images/friend.svg";
 const notifyBySound = true; // turn on-off sound notifications
+const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
 var startTime;
@@ -30,10 +31,6 @@ var myChatName = null;
 var useAudio = true;
 var useVideo = true;
 var camera = "user";
-var audioInputSelect = null;
-var audioOutputSelect = null;
-var videoSelect = null;
-var selectors = null;
 var videoChange = false;
 var isScreenStreaming = false;
 var isChatRoomVisible = false;
@@ -60,6 +57,95 @@ var map = {
   ":'(": "\uD83D\uDE22",
   ":+1:": "\uD83D\uDC4D",
 }; //...
+
+var countTime = null;
+// left buttons
+var leftButtons = null;
+var copyRoomBtn = null;
+var audioBtn = null;
+var videoBtn = null;
+var swapCameraBtn = null;
+var screenShareBtn = null;
+var fullScreenBtn = null;
+var sendMsgBtn = null;
+var chatRoomBtn = null;
+var themeBtn = null;
+var myDevicesBtn = null;
+var aboutBtn = null;
+var leaveRoomBtn = null;
+// chat room elements
+var msgerDraggable = null;
+var msgerHeader = null;
+var msgerButtons = null;
+var msgerTheme = null;
+var msgerClean = null;
+var msgerEmojiBtn = null;
+var msgerClose = null;
+var msgerChat = null;
+var msgerInput = null;
+var msgerSendBtn = null;
+// chat room emoji picker
+var msgerEmojiPicker = null;
+var msgerEmojiHeader = null;
+var msgerCloseEmojiBtn = null;
+var emojiPicker = null;
+// audio - video devices
+var myDevices = null;
+var myDeviceHeader = null;
+var myDevicesCloseBtn = null;
+var audioInputSelect = null;
+var audioOutputSelect = null;
+var videoSelect = null;
+var selectors = null;
+// my video element
+var myVideo = null;
+
+// =====================================================
+// Load all Html elements by ID
+// =====================================================
+function getHtmlElementsById() {
+  countTime = get("countTime");
+
+  // left buttons
+  copyRoomBtn = get("copyRoomBtn");
+  audioBtn = get("audioBtn");
+  videoBtn = get("videoBtn");
+  swapCameraBtn = get("swapCameraBtn");
+  screenShareBtn = get("screenShareBtn");
+  fullScreenBtn = get("fullScreenBtn");
+  sendMsgBtn = get("sendMsgBtn");
+  chatRoomBtn = get("chatRoomBtn");
+  themeBtn = get("themeBtn");
+  myDevicesBtn = get("myDevicesBtn");
+  aboutBtn = get("aboutBtn");
+  leaveRoomBtn = get("leaveRoomBtn");
+
+  // chat Room elements
+  msgerDraggable = get("msgerDraggable");
+  msgerHeader = get("msgerHeader");
+  msgerButtons = get("msgerButtons");
+  msgerTheme = get("msgerTheme");
+  msgerClean = get("msgerClean");
+  msgerEmojiBtn = get("msgerEmojiBtn");
+  msgerClose = get("msgerClose");
+  msgerChat = get("msgerChat");
+  msgerInput = get("msgerInput");
+  msgerSendBtn = get("msgerSendBtn");
+
+  // chat room emoji picker
+  msgerEmojiPicker = get("msgerEmojiPicker");
+  msgerEmojiHeader = get("msgerEmojiHeader");
+  msgerCloseEmojiBtn = get("msgerCloseEmojiBtn");
+  emojiPicker = getS("emoji-picker");
+
+  // audio - video devices elements
+  myDevices = get("myDevices");
+  myDeviceHeader = get("myDeviceHeader");
+  myDevicesCloseBtn = get("myDevicesCloseBtn");
+  audioInputSelect = get("audioSource");
+  audioOutputSelect = get("audioOutput");
+  videoSelect = get("videoSource");
+}
 
 // =====================================================
 // Get peer info using DetecRTC
@@ -111,11 +197,14 @@ function initPeer() {
 
   /* https://github.com/muaz-khan/DetectRTC
    * check if peer is done for WebRTC */
-  if (DetectRTC.isWebRTCSupported === false) {
+  if (!isWebRTCSupported) {
     console.error("isWebRTCSupported: false");
     userLog("error", "This browser seems not supported WebRTC!");
     return;
   }
+
+  // get all Html elements
+  getHtmlElementsById();
 
   // peer ready for WebRTC! :)
   console.log("Connecting to signaling server");
@@ -142,7 +231,6 @@ function initPeer() {
     for (var peer_id in peers) {
       peers[peer_id].close();
     }
-
     peers = {};
     peerMediaElements = {};
   });
@@ -370,7 +458,7 @@ function initPeer() {
       case "chat":
         if (!isChatRoomVisible) {
           showChatRoom();
-          get("chatRoomBtn").className = "fas fa-comment-slash";
+          chatRoomBtn.className = "fas fa-comment-slash";
         }
         playSound("newMessage");
         appendMessage(config.name, friendChatAvatar, "left", config.msg);
@@ -384,16 +472,9 @@ function initPeer() {
 // =====================================================
 function setupAudioVideoDevices() {
   // audio - video select box
-  audioInputSelect = get("audioSource");
-  audioOutputSelect = get("audioOutput");
-  videoSelect = get("videoSource");
-
   selectors = [audioInputSelect, audioOutputSelect, videoSelect];
-
   audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
-
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
-
   audioInputSelect.addEventListener("change", (e) => {
     refreshLocalMedia(false);
   });
@@ -464,7 +545,7 @@ function setupLocalMedia(callback, errorback) {
       localMediaStream = stream;
 
       startCountTime();
-      manageButtons();
+      manageLeftButtons();
 
       // =====================================================
       // Setup localMedia
@@ -483,6 +564,7 @@ function setupLocalMedia(callback, errorback) {
       localMedia.volume = 0;
       localMedia.controls = false;
       document.body.appendChild(videoWrap);
+      myVideo = get("myVideo");
 
       console.log("local-video-audio", {
         video: localMediaStream.getVideoTracks()[0].label,
@@ -589,7 +671,7 @@ function attachSinkId(element, sinkId) {
 // =====================================================
 function changeAudioDestination() {
   const audioDestination = audioOutputSelect.value;
-  attachSinkId(get("myVideo"), audioDestination);
+  attachSinkId(myVideo, audioDestination);
 }
 
 // =====================================================
@@ -617,10 +699,10 @@ function gotStream(stream) {
   localMediaStream = newStream;
 
   // attachMediaStream is a part of the adapter.js library
-  attachMediaStream(get("myVideo"), localMediaStream);
+  attachMediaStream(myVideo, localMediaStream);
 
   if (videoChange) {
-    get("myVideo").classList.toggle("mirror");
+    myVideo.classList.toggle("mirror");
   }
 
   // Refresh button list in case labels have become available
@@ -688,11 +770,11 @@ function noPeers() {
 // Count talk time
 // =====================================================
 function startCountTime() {
-  get("countTime").style.display = "inline";
+  countTime.style.display = "inline";
   startTime = Date.now();
   setInterval(function printTime() {
     elapsedTime = Date.now() - startTime;
-    get("countTime").innerHTML = getTimeToString(elapsedTime);
+    countTime.innerHTML = getTimeToString(elapsedTime);
   }, 1000);
 }
 
@@ -719,7 +801,9 @@ function getTimeToString(time) {
 // =====================================================
 // WebRTC left buttons
 // =====================================================
-function manageButtons() {
+function manageLeftButtons() {
+  leftButtons = get("leftButtons");
+
   setCopyRoomBtn();
   setAudioBtn();
   setVideoBtn();
@@ -741,7 +825,7 @@ function manageButtons() {
 // =====================================================
 function setCopyRoomBtn() {
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
-  get("copyRoomBtn").addEventListener("click", async (e) => {
+  copyRoomBtn.addEventListener("click", async (e) => {
     copyRoomUrl();
 
     if (navigator.share) {
@@ -763,7 +847,7 @@ function setCopyRoomBtn() {
 // Audio mute - unmute button click event
 // =====================================================
 function setAudioBtn() {
-  get("audioBtn").addEventListener("click", (e) => {
+  audioBtn.addEventListener("click", (e) => {
     localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
       .enabled;
     e.target.className =
@@ -776,7 +860,7 @@ function setAudioBtn() {
 // Video hide - show button click event
 // =====================================================
 function setVideoBtn() {
-  get("videoBtn").addEventListener("click", (e) => {
+  videoBtn.addEventListener("click", (e) => {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
     localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
       .enabled;
@@ -794,13 +878,11 @@ function setSwapCameraBtn() {
     const videoInput = devices.filter((device) => device.kind === "videoinput");
     if (videoInput.length > 1 && isMobileDevice) {
       // swap camera front - rear button click event for mobile
-      document
-        .getElementById("swapCameraBtn")
-        .addEventListener("click", (e) => {
-          swapCamera();
-        });
+      swapCameraBtn.addEventListener("click", (e) => {
+        swapCamera();
+      });
     } else {
-      get("swapCameraBtn").style.display = "none";
+      swapCameraBtn.style.display = "none";
     }
   });
 }
@@ -811,11 +893,11 @@ function setSwapCameraBtn() {
 function setScreenShareBtn() {
   if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
     // share screen on - off button click event
-    get("screenShareBtn").addEventListener("click", (e) => {
+    screenShareBtn.addEventListener("click", (e) => {
       toggleScreenSharing();
     });
   } else {
-    get("screenShareBtn").style.display = "none";
+    screenShareBtn.style.display = "none";
   }
 }
 
@@ -828,15 +910,15 @@ function setFullScreenBtn() {
     document.addEventListener("fullscreenchange", function (e) {
       var fullscreenElement = document.fullscreenElement;
       if (!fullscreenElement) {
-        get("fullScreenBtn").className = "fas fa-expand-alt";
+        fullScreenBtn.className = "fas fa-expand-alt";
       }
     });
 
-    get("fullScreenBtn").addEventListener("click", (e) => {
+    fullScreenBtn.addEventListener("click", (e) => {
       toggleFullScreen();
     });
   } else {
-    get("fullScreenBtn").style.display = "none";
+    fullScreenBtn.style.display = "none";
   }
 }
 
@@ -844,7 +926,7 @@ function setFullScreenBtn() {
 // Send quick message button click event
 // =====================================================
 function setSendMsgBtn() {
-  get("sendMsgBtn").addEventListener("click", (e) => {
+  sendMsgBtn.addEventListener("click", (e) => {
     sendMessage();
   });
 }
@@ -857,7 +939,7 @@ function setChatRoomBtn() {
   setChatBoxMobile();
 
   // open hide chat room
-  get("chatRoomBtn").addEventListener("click", (e) => {
+  chatRoomBtn.addEventListener("click", (e) => {
     if (noPeers()) {
       userLog("info", "Can't Open Chat Room, no peer connection detected");
       return;
@@ -865,19 +947,19 @@ function setChatRoomBtn() {
     if (!isChatRoomVisible) {
       showChatRoom();
     } else {
-      get("msgerDraggable").style.display = "none";
+      msgerDraggable.style.display = "none";
       isChatRoomVisible = false;
       e.target.className = "fas fa-comment";
     }
   });
 
   // show left buttons
-  get("msgerButtons").addEventListener("click", (e) => {
+  msgerButtons.addEventListener("click", (e) => {
     checkLeftButtons();
   });
 
   // ghost theme + undo
-  get("msgerTheme").addEventListener("click", (e) => {
+  msgerTheme.addEventListener("click", (e) => {
     if (mirotalkTheme == "ghost") return;
 
     if (e.target.className == "fas fa-ghost") {
@@ -892,21 +974,21 @@ function setChatRoomBtn() {
   });
 
   // clean chat messages
-  get("msgerClean").addEventListener("click", (e) => {
+  msgerClean.addEventListener("click", (e) => {
     cleanMessages();
   });
 
   // close chat room - show left button and time if hide
-  get("msgerClose").addEventListener("click", (e) => {
-    get("msgerDraggable").style.display = "none";
-    get("chatRoomBtn").className = "fas fa-comment";
+  msgerClose.addEventListener("click", (e) => {
+    msgerDraggable.style.display = "none";
+    chatRoomBtn.className = "fas fa-comment";
     isChatRoomVisible = false;
     showLeftButtons();
     checkCountTime();
   });
 
   // on input check 4emoji from map
-  get("msgerInput").oninput = function () {
+  msgerInput.oninput = function () {
     for (var i in map) {
       var regex = new RegExp(escapeSpecialChars(i), "gim");
       this.value = this.value.replace(regex, map[i]);
@@ -914,16 +996,16 @@ function setChatRoomBtn() {
   };
 
   // chat send msg
-  get("msgerSendBtn").addEventListener("click", (e) => {
+  msgerSendBtn.addEventListener("click", (e) => {
     e.preventDefault(); // prevent refresh page
 
-    const msg = get("msgerInput").value;
+    const msg = msgerInput.value;
     if (!msg) return; // empity msg
 
     emitMsg(myChatName, msg, "chat");
     appendMessage(myChatName, myChatAvatar, "right", msg);
 
-    get("msgerInput").value = "";
+    msgerInput.value = "";
   });
 }
 
@@ -938,25 +1020,25 @@ function escapeSpecialChars(regex) {
 function setChatEmojiBtn() {
   if (isMobileDevice) {
     // mobile already have it
-    get("msgerEmojiBtn").style.display = "none";
+    msgerEmojiBtn.style.display = "none";
   } else {
     // make emoji picker draggable for desktop
-    dragElement(get("msgerEmojiPicker"), get("msgerEmojiHeader"));
+    dragElement(msgerEmojiPicker, msgerEmojiHeader);
 
-    get("msgerEmojiBtn").addEventListener("click", (e) => {
+    msgerEmojiBtn.addEventListener("click", (e) => {
       e.preventDefault(); // prevent refresh page
       hideShowEmojiPicker();
     });
 
-    get("msgerCloseEmojiBtn").addEventListener("click", (e) => {
+    msgerCloseEmojiBtn.addEventListener("click", (e) => {
       e.preventDefault(); // prevent refresh page
       hideShowEmojiPicker();
     });
 
-    getS("emoji-picker").addEventListener("emoji-click", (e) => {
+    emojiPicker.addEventListener("emoji-click", (e) => {
       //console.log(e.detail);
       //console.log(e.detail.emoji.unicode);
-      get("msgerInput").value += e.detail.emoji.unicode;
+      msgerInput.value += e.detail.emoji.unicode;
     });
   }
 }
@@ -965,7 +1047,7 @@ function setChatEmojiBtn() {
 // Theme button click event
 // =====================================================
 function setThemeBtn() {
-  get("themeBtn").addEventListener("click", (e) => {
+  themeBtn.addEventListener("click", (e) => {
     getTheme();
   });
 }
@@ -974,15 +1056,15 @@ function setThemeBtn() {
 // Devices button click event
 // =====================================================
 function setDevicesBtn() {
-  get("myDevicesBtn").addEventListener("click", (e) => {
+  myDevicesBtn.addEventListener("click", (e) => {
     hideShowDevices();
   });
-  get("myDevicesCloseBtn").addEventListener("click", (e) => {
+  myDevicesCloseBtn.addEventListener("click", (e) => {
     hideShowDevices();
   });
   if (!isMobileDevice) {
     // make chat room draggable for desktop
-    dragElement(get("myDevices"), get("myDeviceHeader"));
+    dragElement(myDevices, myDeviceHeader);
   }
 }
 
@@ -990,7 +1072,7 @@ function setDevicesBtn() {
 // About button click event
 // =====================================================
 function setAboutBtn() {
-  get("aboutBtn").addEventListener("click", (e) => {
+  aboutBtn.addEventListener("click", (e) => {
     getAbout();
   });
 }
@@ -999,7 +1081,7 @@ function setAboutBtn() {
 // Leave room button click event
 // =====================================================
 function setLeaveRoomBtn() {
-  get("leaveRoomBtn").addEventListener("click", (e) => {
+  leaveRoomBtn.addEventListener("click", (e) => {
     leaveRoom();
   });
 }
@@ -1013,7 +1095,7 @@ function setChatBoxMobile() {
     document.documentElement.style.setProperty("--msger-width", "98vw");
   } else {
     // make chat room draggable for desktop
-    dragElement(get("msgerDraggable"), get("msgerHeader"));
+    dragElement(msgerDraggable, msgerHeader);
     // $("#msgerDraggable").draggable(); https://jqueryui.com/draggable/ declined, can't select chat room texts...
   }
 }
@@ -1174,8 +1256,8 @@ function showChatRoom() {
 // Show msger draggable
 // =====================================================
 function showMsgerDraggable() {
-  get("chatRoomBtn").className = "fas fa-comment-slash";
-  get("msgerDraggable").style.display = "flex";
+  chatRoomBtn.className = "fas fa-comment-slash";
+  msgerDraggable.style.display = "flex";
   checkCountTime();
   isChatRoomVisible = true;
 }
@@ -1185,10 +1267,10 @@ function showMsgerDraggable() {
 // =====================================================
 function showLeftButtons() {
   if (isButtonsVisible || isChatRoomVisible) return;
-  get("buttons").style.display = "flex";
+  leftButtons.style.display = "flex";
   isButtonsVisible = true;
   setTimeout(function () {
-    get("buttons").style.display = "none";
+    leftButtons.style.display = "none";
     isButtonsVisible = false;
   }, 10000);
 }
@@ -1198,12 +1280,12 @@ function showLeftButtons() {
 // =====================================================
 function checkLeftButtons() {
   if (isButtonsVisible) {
-    get("buttons").style.display = "none";
+    leftButtons.style.display = "none";
     isButtonsVisible = false;
-  } else {
-    get("buttons").style.display = "flex";
-    isButtonsVisible = true;
+    return;
   }
+  leftButtons.style.display = "flex";
+  isButtonsVisible = true;
 }
 
 // =====================================================
@@ -1211,11 +1293,11 @@ function checkLeftButtons() {
 // =====================================================
 function checkCountTime() {
   if (isMobileDevice) {
-    if (get("countTime").style.display == "none") {
-      get("countTime").style.display = "inline";
+    if (countTime.style.display == "none") {
+      countTime.style.display = "inline";
       return;
     }
-    get("countTime").style.display = "none";
+    countTime.style.display = "none";
   }
 }
 
@@ -1224,11 +1306,11 @@ function checkCountTime() {
 // =====================================================
 function hideShowEmojiPicker() {
   if (!isChatEmojiVisible) {
-    get("msgerEmojiPicker").style.display = "block";
+    msgerEmojiPicker.style.display = "block";
     isChatEmojiVisible = true;
     return;
   }
-  get("msgerEmojiPicker").style.display = "none";
+  msgerEmojiPicker.style.display = "none";
   isChatEmojiVisible = false;
 }
 
@@ -1241,11 +1323,11 @@ function hideShowDevices() {
       userLog("info", "Can't setup devices, no peer connection detected");
       return;
     }
-    get("myDevices").style.display = "block";
+    myDevices.style.display = "block";
     isAudioVideoDevicesVisible = true;
     return;
   }
-  get("myDevices").style.display = "none";
+  myDevices.style.display = "none";
   isAudioVideoDevicesVisible = false;
 }
 
@@ -1266,8 +1348,8 @@ function appendMessage(name, img, side, text) {
 		</div>
 	</div>
   `;
-  get("msgerChat").insertAdjacentHTML("beforeend", msgHTML);
-  get("msgerChat").scrollTop += 500;
+  msgerChat.insertAdjacentHTML("beforeend", msgHTML);
+  msgerChat.scrollTop += 500;
 }
 
 // =====================================================
@@ -1307,7 +1389,6 @@ function cleanMessages() {
   }).then((result) => {
     // clean message
     if (result.isConfirmed) {
-      var msgerChat = get("msgerChat");
       var msgs = msgerChat.firstChild;
       while (msgs) {
         msgerChat.removeChild(msgs);
@@ -1371,7 +1452,7 @@ function toggleScreenSharing() {
     }
   } else {
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
-    get("videoBtn").className = "fas fa-video"; // make sure to enable video
+    videoBtn.className = "fas fa-video"; // make sure to enable video
   }
   screenMediaPromise
     .then((screenStream) => {
@@ -1394,11 +1475,11 @@ function toggleScreenSharing() {
       localMediaStream = newStream;
 
       // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(get("myVideo"), localMediaStream); // newstream
+      attachMediaStream(myVideo, localMediaStream); // newstream
 
-      get("myVideo").classList.toggle("mirror");
-      get("screenShareBtn").classList.toggle("active");
-      get("screenShareBtn").className = isScreenStreaming
+      myVideo.classList.toggle("mirror");
+      screenShareBtn.classList.toggle("active");
+      screenShareBtn.className = isScreenStreaming
         ? "fas fa-stop-circle"
         : "fas fa-desktop";
 
@@ -1419,11 +1500,11 @@ function toggleFullScreen() {
   // https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
-    get("fullScreenBtn").className = "fas fa-compress-alt";
+    fullScreenBtn.className = "fas fa-compress-alt";
   } else {
     if (document.exitFullscreen) {
       document.exitFullscreen();
-      get("fullScreenBtn").className = "fas fa-expand-alt";
+      fullScreenBtn.className = "fas fa-expand-alt";
     }
   }
 }
@@ -1463,9 +1544,9 @@ function swapCamera() {
       localMediaStream = newStream;
 
       // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(get("myVideo"), localMediaStream);
+      attachMediaStream(myVideo, localMediaStream);
 
-      get("myVideo").classList.toggle("mirror");
+      myVideo.classList.toggle("mirror");
     })
     .catch((e) => {
       console.log("[Error] to swaping camera", e);

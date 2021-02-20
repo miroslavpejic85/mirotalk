@@ -99,7 +99,7 @@ body {
   overflow: hidden;
 }
 
-#buttons {
+#leftButtons {
   z-index: 10;
   display: none;
   position: absolute;
@@ -127,7 +127,7 @@ body {
   overflow: hidden;
 }
 
-#buttons button {
+#leftButtons button {
   border: none;
   font-size: 1.5rem;
   transition: all 0.3s ease-in-out;
