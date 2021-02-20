@@ -61,7 +61,7 @@ var map = {
 var countTime = null;
 // left buttons
 var leftButtons = null;
-var copyRoomBtn = null;
+var shareRoomBtn = null;
 var audioBtn = null;
 var videoBtn = null;
 var swapCameraBtn = null;
@@ -107,7 +107,7 @@ function getHtmlElementsById() {
   countTime = get("countTime");
 
   // left buttons
-  copyRoomBtn = get("copyRoomBtn");
+  shareRoomBtn = get("shareRoomBtn");
   audioBtn = get("audioBtn");
   videoBtn = get("videoBtn");
   swapCameraBtn = get("swapCameraBtn");
@@ -804,7 +804,7 @@ function getTimeToString(time) {
 function manageLeftButtons() {
   leftButtons = get("leftButtons");
 
-  setCopyRoomBtn();
+  setShareRoomBtn();
   setAudioBtn();
   setVideoBtn();
   setSwapCameraBtn();
@@ -823,9 +823,9 @@ function manageLeftButtons() {
 // =====================================================
 // Copy - share room url button click event
 // =====================================================
-function setCopyRoomBtn() {
+function setShareRoomBtn() {
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
-  copyRoomBtn.addEventListener("click", async (e) => {
+  shareRoomBtn.addEventListener("click", async (e) => {
     copyRoomUrl();
 
     if (navigator.share) {
