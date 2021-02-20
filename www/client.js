@@ -981,9 +981,10 @@ function setChatRoomBtn() {
   // close chat room - show left button and time if hide
   msgerClose.addEventListener("click", (e) => {
     msgerDraggable.style.display = "none";
+    msgerEmojiPicker.style.display = "none";
     chatRoomBtn.className = "fas fa-comment";
     isChatRoomVisible = false;
-    hideShowEmojiPicker();
+    isChatEmojiVisible = false;
     showLeftButtons();
     checkCountTime();
   });
