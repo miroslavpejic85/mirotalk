@@ -20,6 +20,10 @@ const { Server } = require("socket.io");
 const io = new Server().listen(server);
 const ngrok = require("ngrok");
 
+var PORT = process.env.PORT || 80;
+var channels = {}; // collect channels
+var sockets = {}; // collect sockets
+
 var ngrokEnabled = process.env.NGROK_ENABLED;
 var ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 var turnUrls = process.env.TURN_URLS;
@@ -29,9 +33,15 @@ var turnCredential = process.env.TURN_PASSWORD;
 // Use all static files from the www folder
 app.use(express.static(path.join(__dirname, "www")));
 
-// =====================================================
-// Expose server to external with https tunnel using ngrok
-// =====================================================
+// All URL patterns should served with the same file.
+app.get(["/", "/:room"], (req, res) =>
+  res.sendFile(path.join(__dirname, "www/index.html"))
+);
+
+/**
+ * Expose server to external with https tunnel using ngrok
+ * https://www.iditect.com/how-to/55122741.html
+ */
 async function ngrokStart() {
   try {
     await ngrok.authtoken(ngrokAuthToken);
@@ -44,16 +54,19 @@ async function ngrokStart() {
     let pu1 = data.tunnels[1].public_url;
     let tunnelHttps = pu0.startsWith("https") ? pu0 : pu1;
     console.log("ngrok-tunnel", { https: tunnelHttps });
-    // https://www.iditect.com/how-to/55122741.html
   } catch (e) {
     console.error("[Error] ngrokStart", e);
   }
 }
 
-/*
- * You should probably use a different stun-turn server doing commercial stuff
- * Also see: https://gist.github.com/zziuni/3741933 or https://www.twilio.com/docs/stun-turn or https://github.com/coturn/coturn
- * Check the functionality of STUN/TURN servers: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
+/**
+ * You should probably use a different stun-turn server
+ * doing commercial stuff, also see:
+ * https://gist.github.com/zziuni/3741933
+ * https://www.twilio.com/docs/stun-turn
+ * https://github.com/coturn/coturn
+ * Check the functionality of STUN/TURN servers:
+ * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
 var iceServers = [
   { urls: "stun:stun.l.google.com:19302" },
@@ -64,10 +77,9 @@ var iceServers = [
   },
 ];
 
-// =====================================================
-// Start Local Server with ngrok https tunnel (optional)
-// =====================================================
-var PORT = process.env.PORT || 80;
+/**
+ * Start Local Server with ngrok https tunnel (optional)
+ */
 server.listen(PORT, null, function () {
   console.log(
     `%c
@@ -97,14 +109,6 @@ server.listen(PORT, null, function () {
   });
 });
 
-// All URL patterns should served with the same file.
-app.get(["/", "/:room"], (req, res) =>
-  res.sendFile(path.join(__dirname, "www/index.html"))
-);
-
-var channels = {}; // collect channels
-var sockets = {}; // collect sockets
-
 /**
  * Users will connect to the signaling server, after which they'll issue a "join"
  * to join a particular channel. The signaling server keeps track of all sockets
@@ -114,20 +118,17 @@ var sockets = {}; // collect sockets
  * need to relay ICECandidate information to one another, as well as SessionDescription
  * information. After all of that happens, they'll finally be able to complete
  * the peer connection and will be in streaming audio/video between eachother.
+ * On peer connected
  */
-
-// =====================================================
-// On peer connected
-// =====================================================
 io.sockets.on("connect", (socket) => {
   console.log("[" + socket.id + "] --> connection accepted");
 
   socket.channels = {};
   sockets[socket.id] = socket;
 
-  // =====================================================
-  // On peer diconnected
-  // =====================================================
+  /**
+   * On peer diconnected
+   */
   socket.on("disconnect", () => {
     for (var channel in socket.channels) {
       removePeerFrom(channel);
@@ -136,9 +137,9 @@ io.sockets.on("connect", (socket) => {
     delete sockets[socket.id];
   });
 
-  // =====================================================
-  // On peer join
-  // =====================================================
+  /**
+   * On peer join
+   */
   socket.on("join", (config) => {
     console.log("[" + socket.id + "] --> join ", config);
     var channel = config.channel;
@@ -172,9 +173,10 @@ io.sockets.on("connect", (socket) => {
     socket.channels[channel] = channel;
   });
 
-  // =====================================================
-  // Remove peers
-  // =====================================================
+  /**
+   * Remove peers
+   * @param {*} channel
+   */
   async function removePeerFrom(channel) {
     if (!(channel in socket.channels)) {
       console.log("[" + socket.id + "] [Warning] not in ", channel);
@@ -191,9 +193,9 @@ io.sockets.on("connect", (socket) => {
     }
   }
 
-  // =====================================================
-  // Relay ICE to peers
-  // =====================================================
+  /**
+   * Relay ICE to peers
+   */
   socket.on("relayICE", (config) => {
     let peer_id = config.peer_id;
     let ice_candidate = config.ice_candidate;
@@ -211,9 +213,9 @@ io.sockets.on("connect", (socket) => {
     }
   });
 
-  // =====================================================
-  // Relay SDP to peers
-  // =====================================================
+  /**
+   * Relay SDP to peers
+   */
   socket.on("relaySDP", (config) => {
     let peer_id = config.peer_id;
     let session_description = config.session_description;
@@ -231,9 +233,9 @@ io.sockets.on("connect", (socket) => {
     }
   });
 
-  // =====================================================
-  // Handle peers messages
-  // =====================================================
+  /**
+   * Handle peers messages
+   */
   socket.on("msg", (config) => {
     let peers = config.peers;
     let name = config.name;

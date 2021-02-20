@@ -44,10 +44,10 @@ Open the app in one of following **supported browser**
 
 ## Demo
 
-- Open https://mirotalk.herokuapp.com/
-- Allow to use the camera and microphone
-- Click the first button to copy the url and then share it
-- Wait someone to join for video conference
+- `Open` https://mirotalk.herokuapp.com/
+- `Allow` to use the camera and microphone
+- `Click` the first button to copy the url and then share it
+- `Wait` someone to join for video conference
 
 ## Quick start
 
@@ -101,10 +101,7 @@ Many Thanks to vasanthv (webrtc) and Sajad Hashemian (chat) from where I taked i
 
 ## Contributing
 
-Pull Requests are welcome! :slightly_smiling_face:
-
-Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`.
-
-For communication we use Gitter Chat which can be found here:
-
-[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+- Pull Requests are welcome! :slightly_smiling_face:
+- Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`.
+- For communication we use Gitter Chat which can be found here:  
+  [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)

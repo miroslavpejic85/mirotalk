@@ -8,9 +8,6 @@
 
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
-// =====================================================
-// Const and var
-// =====================================================
 const loaderGif = "/images/loader.gif";
 const myChatAvatar = "/images/programmer.svg";
 const friendChatAvatar = "/images/friend.svg";
@@ -44,7 +41,6 @@ var peers = {}; // keep track of our peer connections, indexed by peer_id == soc
 var peerMediaElements = {}; // keep track of our <video> tags, indexed by peer_id
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
 
-// https://github.com/wooorm/gemoji/blob/main/support.md
 var map = {
   "<3": "\u2764\uFE0F",
   "</3": "\uD83D\uDC94",
@@ -56,7 +52,7 @@ var map = {
   ";p": "\uD83D\uDE1C",
   ":'(": "\uD83D\uDE22",
   ":+1:": "\uD83D\uDC4D",
-}; //...
+}; // https://github.com/wooorm/gemoji/blob/main/support.md
 
 var countTime = null;
 // left buttons
@@ -100,9 +96,9 @@ var selectors = null;
 // my video element
 var myVideo = null;
 
-// =====================================================
-// Load all Html elements by ID
-// =====================================================
+/**
+ * Load all Html elements by Id
+ */
 function getHtmlElementsById() {
   countTime = get("countTime");
 
@@ -147,9 +143,11 @@ function getHtmlElementsById() {
   videoSelect = get("videoSource");
 }
 
-// =====================================================
-// Get peer info using DetecRTC
-// =====================================================
+/**
+ * Get peer info using DetecRTC
+ * https://github.com/muaz-khan/DetectRTC
+ * @return Json peer info
+ */
 function getPeerInfo() {
   return {
     detectRTCversion: DetectRTC.version,
@@ -162,9 +160,10 @@ function getPeerInfo() {
   }; // https://github.com/muaz-khan/DetectRTC
 }
 
-// =====================================================
-// Signaling server url
-// =====================================================
+/**
+ * Get Signaling server url
+ * @return Signaling server Url
+ */
 function getServerUrl() {
   return (
     "http" +
@@ -174,9 +173,10 @@ function getServerUrl() {
   );
 }
 
-// =====================================================
-// Generate random room id
-// =====================================================
+/**
+ * Generate random Room id
+ * @return Room Id
+ */
 function getRoomId() {
   let roomId = location.pathname.substring(1);
   // if not specified room id, create one random
@@ -188,42 +188,45 @@ function getRoomId() {
   return roomId;
 }
 
-// =====================================================
-// get started
-// =====================================================
+/**
+ * Get started
+ */
 function initPeer() {
   // set mirotalk theme
   setTheme(mirotalkTheme);
 
-  /* https://github.com/muaz-khan/DetectRTC
-   * check if peer is done for WebRTC */
+  // check if peer is done for WebRTC
   if (!isWebRTCSupported) {
     console.error("isWebRTCSupported: false");
     userLog("error", "This browser seems not supported WebRTC!");
     return;
   }
 
-  // get all Html elements
+  // load all Html elements
   getHtmlElementsById();
 
   // peer ready for WebRTC! :)
   console.log("Connecting to signaling server");
   signalingSocket = io(signalingServer);
 
+  /**
+   * Once the user has given us access to their
+   * microphone/camcorder, join the channel
+   * and start peering up
+   */
   signalingSocket.on("connect", function () {
     console.log("Connected to signaling server");
     setupLocalMedia(function () {
-      /* once the user has given us access to their
-       * microphone/camcorder, join the channel
-       * and start peering up */
       joinToChannel(roomId, peerInfo);
     });
   });
 
+  /**
+   * Tear down all of our peer connections
+   * and remove all the media divs when we disconnect
+   */
   signalingSocket.on("disconnect", function () {
     console.log("Disconnected from signaling server");
-    /* Tear down all of our peer connections and remove all the
-     * media divs when we disconnect */
     for (var peer_id in peerMediaElements) {
       document.body.removeChild(peerMediaElements[peer_id].parentNode);
       resizeVideos();
@@ -235,7 +238,11 @@ function initPeer() {
     peerMediaElements = {};
   });
 
-  // join to chennel and send some peer info
+  /**
+   * join to chennel and send some peer info
+   * @param {*} channel
+   * @param {*} peerInfo
+   */
   function joinToChannel(channel, peerInfo) {
     console.log("join to channel", channel);
     signalingSocket.emit("join", {
@@ -244,16 +251,14 @@ function initPeer() {
     });
   }
 
-  /*
+  /**
    * When we join a group, our signaling server will send out 'addPeer' events to each pair
    * of users in the group (creating a fully-connected graph of users, ie if there are 6 people
    * in the channel you will connect directly to the other 5, so there will be a total of 15
    * connections in the network).
    */
   signalingSocket.on("addPeer", function (config) {
-    // console.log('-------------------------------')
     // console.log('addPeer', JSON.stringify(config))
-    // console.log('-------------------------------')
 
     var peer_id = config.peer_id;
     if (peer_id in peers) {
@@ -293,8 +298,10 @@ function initPeer() {
       }
     };
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onaddstream
-    // WebRTC: onaddstream is deprecated! Use peerConnection.ontrack instead.
+    /**
+     * WebRTC: onaddstream is deprecated! Use peerConnection.ontrack instead
+     * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onaddstream
+     */
     peers[peer_id].onaddstream = function (event) {
       console.log("onaddstream", event);
       remoteMediaStream = event.stream;
@@ -316,14 +323,16 @@ function initPeer() {
       resizeVideos();
     };
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream
-    // peers[peer_id].addStream(localMediaStream); // Add our local stream
+    /**
+     * Old: peers[peer_id].addStream(localMediaStream); // Add our local stream
+     * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream
+     */
     localMediaStream.getTracks().forEach(function (track) {
       //console.log("track -----------> ", track.kind);
       peers[peer_id].addTrack(track, localMediaStream);
     });
 
-    /*
+    /**
      * Only one side of the peer connection should create the
      * offer, the signaling server picks one to be the offerer.
      * The other user will get a 'sessionDescription' event and will
@@ -433,6 +442,7 @@ function initPeer() {
    */
   signalingSocket.on("removePeer", function (config) {
     console.log("Signaling server said to remove peer:", config);
+
     var peer_id = config.peer_id;
     if (peer_id in peerMediaElements) {
       document.body.removeChild(peerMediaElements[peer_id].parentNode);
@@ -467,9 +477,9 @@ function initPeer() {
   });
 } // end [initPeer]
 
-// =====================================================
-// Setup audio - video devices
-// =====================================================
+/**
+ * Setup local audio - video devices
+ */
 function setupAudioVideoDevices() {
   // audio - video select box
   selectors = [audioInputSelect, audioOutputSelect, videoSelect];
@@ -486,9 +496,10 @@ function setupAudioVideoDevices() {
   });
 }
 
-// =====================================================
-// Refresh Local media audio video in - out
-// =====================================================
+/**
+ * Refresh Local media audio video in - out
+ * @param {*} change boolean videoChange
+ */
 function refreshLocalMedia(change) {
   videoChange = change;
 
@@ -510,11 +521,13 @@ function refreshLocalMedia(change) {
     .catch(handleError);
 }
 
-// =====================================================
-// Local media stuff
-// =====================================================
+/**
+ * Local media stuff
+ * @param {*} callback
+ * @param {*} errorback
+ */
 function setupLocalMedia(callback, errorback) {
-  /* ie, if we've already been initialized do nothing */
+  // if we've already been initialized do nothing
   if (localMediaStream != null) {
     if (callback) callback();
     return;
@@ -526,8 +539,10 @@ function setupLocalMedia(callback, errorback) {
     });
   }
 
-  /* Ask user for permission to use the computers microphone and/or camera,
-   * attach it to an <audio> or <video> tag if they give us access. */
+  /**
+   * Ask user for permission to use the computers microphone and/or camera,
+   * attach it to an <audio> or <video> tag if they give us access.
+   */
   console.log("Requesting access to local audio / video inputs");
 
   const constraints = {
@@ -547,9 +562,7 @@ function setupLocalMedia(callback, errorback) {
       startCountTime();
       manageLeftButtons();
 
-      // =====================================================
       // Setup localMedia
-      // =====================================================
       const videoWrap = document.createElement("div");
       const localMedia = document.createElement("video");
       videoWrap.className = "video";
@@ -582,7 +595,7 @@ function setupLocalMedia(callback, errorback) {
       if (callback) callback();
     })
     .catch((e) => {
-      /* user denied access to a/v */
+      // user denied access to audio/video
       console.error("Access denied for audio/video", e);
       userLog(
         "error",
@@ -592,11 +605,12 @@ function setupLocalMedia(callback, errorback) {
     });
 } // end [setup_local_stream]
 
-// =====================================================
-// get Devices and show to select box
-// =====================================================
+/**
+ * Get audio-video Devices and show it to select box
+ * https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
+ * @param {*} deviceInfos
+ */
 function gotDevices(deviceInfos) {
-  // https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
   // Handles being called several times to update labels. Preserve values.
   const values = selectors.map((select) => select.value);
   selectors.forEach((select) => {
@@ -642,9 +656,11 @@ function gotDevices(deviceInfos) {
   });
 }
 
-// =====================================================
-// Attach audio output device to video element using device/sink ID.
-// =====================================================
+/**
+ * Attach audio output device to video element using device/sink ID.
+ * @param {*} element
+ * @param {*} sinkId
+ */
 function attachSinkId(element, sinkId) {
   if (typeof element.sinkId !== "undefined") {
     element
@@ -666,19 +682,21 @@ function attachSinkId(element, sinkId) {
   }
 }
 
-// =====================================================
-// Change audio output
-// =====================================================
+/**
+ * Change audio output
+ */
 function changeAudioDestination() {
   const audioDestination = audioOutputSelect.value;
   attachSinkId(myVideo, audioDestination);
 }
 
-// =====================================================
-// Got Stream append to local media
-// =====================================================
+/**
+ * Got Stream and append to local media
+ * @param {*} stream
+ */
 function gotStream(stream) {
-  window.stream = stream; // make stream available to console
+  // make stream available to console
+  window.stream = stream;
 
   // refresh my video to peers
   for (var peer_id in peers) {
@@ -709,9 +727,10 @@ function gotStream(stream) {
   return navigator.mediaDevices.enumerateDevices();
 }
 
-// =====================================================
-// Handle error
-// =====================================================
+/**
+ * Handle getUserMedia error
+ * @param {*} error
+ */
 function handleError(error) {
   console.log(
     "navigator.MediaDevices.getUserMedia error: ",
@@ -720,9 +739,10 @@ function handleError(error) {
   );
 }
 
-// =====================================================
-// Extra not used, print audio - video devices
-// =====================================================
+/**
+ * Extra function not used,
+ * print audio - video devices
+ */
 function getDevices() {
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
@@ -747,18 +767,20 @@ function getDevices() {
     });
 }
 
-// =====================================================
-// AttachMediaStream stream to element
-// =====================================================
+/**
+ * AttachMediaStream stream to element
+ * @param {*} element
+ * @param {*} stream
+ */
 function attachMediaStream(element, stream) {
   //console.log("DEPRECATED, attachMediaStream will soon be removed.");
   console.log("Success, media stream attached");
   element.srcObject = stream;
 }
 
-// =====================================================
-// Check if there is peers
-// =====================================================
+/**
+ * Check if there is peers connection
+ */
 function noPeers() {
   if (Object.keys(peers).length === 0) {
     return true;
@@ -766,9 +788,9 @@ function noPeers() {
   return false;
 }
 
-// =====================================================
-// Count talk time
-// =====================================================
+/**
+ * Start talk time
+ */
 function startCountTime() {
   countTime.style.display = "inline";
   startTime = Date.now();
@@ -778,9 +800,10 @@ function startCountTime() {
   }, 1000);
 }
 
-// =====================================================
-// Return time to string
-// =====================================================
+/**
+ * Return time to string
+ * @param {*} time
+ */
 function getTimeToString(time) {
   let diffInHrs = time / 3600000;
   let hh = Math.floor(diffInHrs);
@@ -798,9 +821,9 @@ function getTimeToString(time) {
   return `${formattedHH}:${formattedMM}:${formattedSS}`;
 }
 
-// =====================================================
-// WebRTC left buttons
-// =====================================================
+/**
+ * Handle WebRTC left buttons
+ */
 function manageLeftButtons() {
   leftButtons = get("leftButtons");
 
@@ -820,13 +843,13 @@ function manageLeftButtons() {
   showLeftButtons();
 }
 
-// =====================================================
-// Copy - share room url button click event
-// =====================================================
+/**
+ * Copy - share room url button click event
+ */
 function setShareRoomBtn() {
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
   shareRoomBtn.addEventListener("click", async (e) => {
-    copyRoomUrl();
+    shareRoomUrl();
 
     if (navigator.share) {
       try {
@@ -843,9 +866,9 @@ function setShareRoomBtn() {
   });
 }
 
-// =====================================================
-// Audio mute - unmute button click event
-// =====================================================
+/**
+ * Audio mute - unmute button click event
+ */
 function setAudioBtn() {
   audioBtn.addEventListener("click", (e) => {
     localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
@@ -856,9 +879,9 @@ function setAudioBtn() {
   });
 }
 
-// =====================================================
-// Video hide - show button click event
-// =====================================================
+/**
+ * Video hide - show button click event
+ */
 function setVideoBtn() {
   videoBtn.addEventListener("click", (e) => {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
@@ -870,9 +893,10 @@ function setVideoBtn() {
   });
 }
 
-// =====================================================
-// Check if can swap or not cam, if yes show the button else hide it
-// =====================================================
+/**
+ * Check if can swap or not cam,
+ * if yes show the button else hide it
+ */
 function setSwapCameraBtn() {
   navigator.mediaDevices.enumerateDevices().then((devices) => {
     const videoInput = devices.filter((device) => device.kind === "videoinput");
@@ -887,9 +911,10 @@ function setSwapCameraBtn() {
   });
 }
 
-// =====================================================
-// Check if can share a screen, if yes show button else hide it
-// =====================================================
+/**
+ * Check if can share a screen,
+ * if yes show button else hide it
+ */
 function setScreenShareBtn() {
   if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
     // share screen on - off button click event
@@ -901,9 +926,9 @@ function setScreenShareBtn() {
   }
 }
 
-// =====================================================
-// Full screen button click event
-// =====================================================
+/**
+ * Full screen button click event
+ */
 function setFullScreenBtn() {
   if (DetectRTC.browser.name != "Safari") {
     // detect esc from full screen mode
@@ -922,18 +947,18 @@ function setFullScreenBtn() {
   }
 }
 
-// =====================================================
-// Send quick message button click event
-// =====================================================
+/**
+ * Send quick message button click event
+ */
 function setSendMsgBtn() {
   sendMsgBtn.addEventListener("click", (e) => {
     sendMessage();
   });
 }
 
-// =====================================================
-// Chat room buttons click event
-// =====================================================
+/**
+ * Chat room buttons click event
+ */
 function setChatRoomBtn() {
   // adapt chat room for mobile
   setChatBoxMobile();
@@ -1011,14 +1036,17 @@ function setChatRoomBtn() {
   });
 }
 
-// Escape Special Chars
+/**
+ * Escape Special Chars
+ * @param {*} regex
+ */
 function escapeSpecialChars(regex) {
   return regex.replace(/([()[{*+.$^\\|?])/g, "\\$1");
 }
 
-// =====================================================
-// Emoji picker chat room button click event
-// =====================================================
+/**
+ * Emoji picker chat room button click event
+ */
 function setChatEmojiBtn() {
   if (isMobileDevice) {
     // mobile already have it
@@ -1028,12 +1056,14 @@ function setChatEmojiBtn() {
     dragElement(msgerEmojiPicker, msgerEmojiHeader);
 
     msgerEmojiBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // prevent refresh page
+      // prevent refresh page
+      e.preventDefault();
       hideShowEmojiPicker();
     });
 
     msgerCloseEmojiBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // prevent refresh page
+      // prevent refresh page
+      e.preventDefault();
       hideShowEmojiPicker();
     });
 
@@ -1045,18 +1075,18 @@ function setChatEmojiBtn() {
   }
 }
 
-// =====================================================
-// Theme button click event
-// =====================================================
+/**
+ * Mirotalk theme button click event
+ */
 function setThemeBtn() {
   themeBtn.addEventListener("click", (e) => {
     getTheme();
   });
 }
 
-// =====================================================
-// Devices button click event
-// =====================================================
+/**
+ * My devices button click event
+ */
 function setDevicesBtn() {
   myDevicesBtn.addEventListener("click", (e) => {
     hideShowDevices();
@@ -1070,27 +1100,27 @@ function setDevicesBtn() {
   }
 }
 
-// =====================================================
-// About button click event
-// =====================================================
+/**
+ * About button click event
+ */
 function setAboutBtn() {
   aboutBtn.addEventListener("click", (e) => {
     getAbout();
   });
 }
 
-// =====================================================
-// Leave room button click event
-// =====================================================
+/**
+ * Leave room button click event
+ */
 function setLeaveRoomBtn() {
   leaveRoomBtn.addEventListener("click", (e) => {
     leaveRoom();
   });
 }
 
-// =====================================================
-// Set the chat room on full screen mode for mobile
-// =====================================================
+/**
+ * Set the chat room on full screen mode for mobile
+ */
 function setChatBoxMobile() {
   if (isMobileDevice) {
     document.documentElement.style.setProperty("--msger-height", "98vh");
@@ -1098,15 +1128,19 @@ function setChatBoxMobile() {
   } else {
     // make chat room draggable for desktop
     dragElement(msgerDraggable, msgerHeader);
-    // $("#msgerDraggable").draggable(); https://jqueryui.com/draggable/ declined, can't select chat room texts...
+
+    // https://jqueryui.com/draggable/ declined, can't select chat room texts...
+    // $("#msgerDraggable").draggable();
   }
 }
 
-// =====================================================
-// Make chat room - devices draggable
-// =====================================================
+/**
+ * Make chat room - devices draggable
+ * https://www.w3schools.com/howto/howto_js_draggable.asp
+ * @param {*} elmnt
+ * @param {*} dragObj
+ */
 function dragElement(elmnt, dragObj) {
-  // https://www.w3schools.com/howto/howto_js_draggable.asp
   var pos1 = 0,
     pos2 = 0,
     pos3 = 0,
@@ -1147,9 +1181,9 @@ function dragElement(elmnt, dragObj) {
   }
 }
 
-// =====================================================
-// Resize video elements
-// =====================================================
+/**
+ * Resize video elements
+ */
 function resizeVideos() {
   const numToString = ["", "one", "two", "three", "four", "five", "six"];
   const videos = document.querySelectorAll(".video");
@@ -1158,9 +1192,10 @@ function resizeVideos() {
   });
 }
 
-// =====================================================
-// Send quick message to peers
-// =====================================================
+/**
+ * Send quick message to peers
+ * https://sweetalert2.github.io
+ */
 function sendMessage() {
   if (noPeers()) {
     userLog("info", "Can't Send msg, no peer connection detected");
@@ -1192,9 +1227,11 @@ function sendMessage() {
   });
 }
 
-// =====================================================
-// Called when a message is recieved over the dataChannel
-// =====================================================
+/**
+ * Called when a message is recieved over signaling server
+ * https://sweetalert2.github.io
+ * @param {*} msg
+ */
 function showMessage(msg) {
   Swal.fire({
     background: swalBackground,
@@ -1223,9 +1260,10 @@ function showMessage(msg) {
   });
 }
 
-// =====================================================
-// Chat room form
-// =====================================================
+/**
+ * Chat room form
+ * https://sweetalert2.github.io
+ */
 function showChatRoom() {
   if (!myChatName) {
     Swal.fire({
@@ -1254,9 +1292,9 @@ function showChatRoom() {
   }
 }
 
-// =====================================================
-// Show msger draggable
-// =====================================================
+/**
+ * Show msger draggable
+ */
 function showMsgerDraggable() {
   chatRoomBtn.className = "fas fa-comment-slash";
   msgerDraggable.style.display = "flex";
@@ -1264,9 +1302,9 @@ function showMsgerDraggable() {
   isChatRoomVisible = true;
 }
 
-// =====================================================
-// Show left buttons for 10 seconds on body mousemove
-// =====================================================
+/**
+ * Show left buttons for 10 seconds on body mousemove
+ */
 function showLeftButtons() {
   if (isButtonsVisible || isChatRoomVisible) return;
   leftButtons.style.display = "flex";
@@ -1277,9 +1315,9 @@ function showLeftButtons() {
   }, 10000);
 }
 
-// =====================================================
-// Hide - show left buttons
-// =====================================================
+/**
+ * Hide - show left buttons
+ */
 function checkLeftButtons() {
   if (isButtonsVisible) {
     leftButtons.style.display = "none";
@@ -1290,9 +1328,9 @@ function checkLeftButtons() {
   isButtonsVisible = true;
 }
 
-// =====================================================
-// Hide - show count time
-// =====================================================
+/**
+ * Hide - show count time
+ */
 function checkCountTime() {
   if (isMobileDevice) {
     if (countTime.style.display == "none") {
@@ -1303,9 +1341,9 @@ function checkCountTime() {
   }
 }
 
-// =====================================================
-// Hide - Show emoji picker div
-// =====================================================
+/**
+ * Hide - Show emoji picker div
+ */
 function hideShowEmojiPicker() {
   if (!isChatEmojiVisible) {
     msgerEmojiPicker.style.display = "block";
@@ -1316,9 +1354,9 @@ function hideShowEmojiPicker() {
   isChatEmojiVisible = false;
 }
 
-// =====================================================
-// Hide - show devices div
-// =====================================================
+/**
+ * Hide - show my devices div
+ */
 function hideShowDevices() {
   if (!isAudioVideoDevicesVisible) {
     if (noPeers()) {
@@ -1333,9 +1371,13 @@ function hideShowDevices() {
   isAudioVideoDevicesVisible = false;
 }
 
-// =====================================================
-// Append Message to msger chat room
-// =====================================================
+/**
+ * Append Message to msger chat room
+ * @param {*} name
+ * @param {*} img
+ * @param {*} side
+ * @param {*} text
+ */
 function appendMessage(name, img, side, text) {
   let ctext = detectUrl(text);
   const msgHTML = `
@@ -1354,9 +1396,10 @@ function appendMessage(name, img, side, text) {
   msgerChat.scrollTop += 500;
 }
 
-// =====================================================
-// Detect url from text and make it clickable
-// =====================================================
+/**
+ * Detect url from text and make it clickable
+ * @param {*} text
+ */
 function detectUrl(text) {
   var urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.replace(urlRegex, function (url) {
@@ -1370,9 +1413,10 @@ function detectUrl(text) {
   });
 }
 
-// =====================================================
-// Clean chat messages
-// =====================================================
+/**
+ * Clean chat messages
+ * https://sweetalert2.github.io
+ */
 function cleanMessages() {
   Swal.fire({
     background: swalBackground,
@@ -1400,9 +1444,12 @@ function cleanMessages() {
   });
 }
 
-// =====================================================
-// Send message over signaling server
-// =====================================================
+/**
+ * Send message over signaling server
+ * @param {*} name
+ * @param {*} msg
+ * @param {*} type
+ */
 function emitMsg(name, msg, type) {
   if (msg) {
     signalingSocket.emit("msg", {
@@ -1418,9 +1465,9 @@ function emitMsg(name, msg, type) {
   }
 }
 
-// =====================================================
-// Active - disactive screen sharing
-// =====================================================
+/**
+ * Enable - disable screen sharing
+ */
 function toggleScreenSharing() {
   if (!isScreenStreaming) {
     if (noPeers()) {
@@ -1454,7 +1501,8 @@ function toggleScreenSharing() {
     }
   } else {
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
-    videoBtn.className = "fas fa-video"; // make sure to enable video
+    // make sure to enable video
+    videoBtn.className = "fas fa-video";
   }
   screenMediaPromise
     .then((screenStream) => {
@@ -1495,11 +1543,11 @@ function toggleScreenSharing() {
     });
 }
 
-// =====================================================
-// Enter - esc on full screen mode
-// =====================================================
+/**
+ * Enter - esc on full screen mode
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
+ */
 function toggleFullScreen() {
-  // https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
     fullScreenBtn.className = "fas fa-compress-alt";
@@ -1511,9 +1559,9 @@ function toggleFullScreen() {
   }
 }
 
-// =====================================================
-// SwapCamer front (user) - rear (environment)
-// =====================================================
+/**
+ * SwapCamer front (user) - rear (environment)
+ */
 function swapCamera() {
   if (noPeers()) {
     userLog("info", "Can't Swap the Camera, no peer connection detected");
@@ -1556,16 +1604,18 @@ function swapCamera() {
     });
 }
 
-// =====================================================
-// Copy room url to clipboard and share it
-// =====================================================
-function copyRoomUrl() {
+/**
+ * Copy room url to clipboard and share it
+ * https://sweetalert2.github.io
+ */
+function shareRoomUrl() {
   var tmpInput = document.createElement("input");
   let ROOM_URL = window.location.href;
   document.body.appendChild(tmpInput);
   tmpInput.value = ROOM_URL;
   tmpInput.select();
-  tmpInput.setSelectionRange(0, 99999); /* For mobile devices */
+  // For mobile devices
+  tmpInput.setSelectionRange(0, 99999);
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", ROOM_URL);
   Swal.fire({
@@ -1585,9 +1635,10 @@ function copyRoomUrl() {
   document.body.removeChild(tmpInput);
 }
 
-// =====================================================
-// About info
-// =====================================================
+/**
+ * About info
+ * https://sweetalert2.github.io
+ */
 function getAbout() {
   Swal.fire({
     background: swalBackground,
@@ -1607,9 +1658,10 @@ function getAbout() {
   });
 }
 
-// =====================================================
-// Select theme and set it
-// =====================================================
+/**
+ * Change mirotalk UX theme
+ * https://sweetalert2.github.io
+ */
 function getTheme() {
   Swal.fire({
     background: swalBackground,
@@ -1636,9 +1688,10 @@ function getTheme() {
   });
 }
 
-// =====================================================
-// Leave the Room and create a new one
-// =====================================================
+/**
+ * Leave the Room and create a new one
+ * https://sweetalert2.github.io
+ */
 function leaveRoom() {
   Swal.fire({
     background: swalBackground,
@@ -1654,16 +1707,18 @@ function leaveRoom() {
       popup: "animate__animated animate__fadeOutUp",
     },
   }).then((result) => {
-    /* Read more about isConfirmed, isDenied below */
     if (result.isConfirmed) {
       window.location.href = "/";
     }
   });
 }
 
-// =====================================================
-// Basic user logging: https://sweetalert2.github.io
-// =====================================================
+/**
+ * Basic user logging
+ * https://sweetalert2.github.io
+ * @param {*} type
+ * @param {*} message
+ */
 function userLog(type, message) {
   switch (type) {
     case "error":
@@ -1703,9 +1758,11 @@ function userLog(type, message) {
   }
 }
 
-// =====================================================
-// Sound notifications
-// =====================================================
+/**
+ * Sound notifications
+ * https://sweetalert2.github.io
+ * @param {*} state
+ */
 async function playSound(state) {
   if (!notifyBySound) return;
 
@@ -1739,9 +1796,11 @@ async function playSound(state) {
   }
 }
 
-// =====================================================
-// Set mirotalk theme neon - dark - ...
-// =====================================================
+/**
+ * Set mirotalk theme neon - dark - ghost
+ * https://sweetalert2.github.io
+ * @param {*} theme
+ */
 function setTheme(theme) {
   mirotalkTheme = theme;
   switch (mirotalkTheme) {
@@ -1799,15 +1858,26 @@ function setTheme(theme) {
   }
 }
 
-// Utils
+/**
+ * Get Html element by Id
+ * @param {*} id
+ */
 function get(id) {
   return document.getElementById(id);
 }
+
+/**
+ * Get Html element by selector
+ * @param {*} selector
+ */
 function getS(selector) {
   return document.querySelector(selector);
 }
 
-// Date now
+/**
+ * Format data
+ * @param {*} date
+ */
 function getFormatDate(date) {
   const h = "0" + date.getHours();
   const m = "0" + date.getMinutes();
