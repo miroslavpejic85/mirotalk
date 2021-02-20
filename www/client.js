@@ -983,6 +983,7 @@ function setChatRoomBtn() {
     msgerDraggable.style.display = "none";
     chatRoomBtn.className = "fas fa-comment";
     isChatRoomVisible = false;
+    hideShowEmojiPicker();
     showLeftButtons();
     checkCountTime();
   });
