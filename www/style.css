@@ -522,3 +522,8 @@ video:fullscreen {
   background-color: #2b2b2b;
   border-radius: 5px;
 }
+
+#webRTCSeo {
+  /* just for SEO */
+  display: none;
+}
