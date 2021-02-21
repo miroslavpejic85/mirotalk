@@ -559,9 +559,6 @@ function setupLocalMedia(callback, errorback) {
 
       localMediaStream = stream;
 
-      startCountTime();
-      manageLeftButtons();
-
       // Setup localMedia
       const videoWrap = document.createElement("div");
       const localMedia = document.createElement("video");
@@ -589,7 +586,9 @@ function setupLocalMedia(callback, errorback) {
       localMedia.poster = null;
       resizeVideos();
 
-      // here i have access to audio - video can do it :P
+      startCountTime();
+      manageLeftButtons();
+      handleBodyOnMouseMove();
       setupAudioVideoDevices();
 
       if (callback) callback();
@@ -841,6 +840,15 @@ function manageLeftButtons() {
   setAboutBtn();
   setLeaveRoomBtn();
   showLeftButtons();
+}
+
+/**
+ * Handle left buttons show - hide on body mouse move
+ */
+function handleBodyOnMouseMove() {
+  document.body.addEventListener("mousemove", (e) => {
+    showLeftButtons();
+  });
 }
 
 /**
