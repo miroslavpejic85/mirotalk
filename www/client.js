@@ -191,6 +191,17 @@ function getRoomId() {
 }
 
 /**
+ * Check if there is peers connection
+ * @return true, false otherwise
+ */
+function noPeers() {
+  if (Object.keys(peers).length === 0) {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Get started
  */
 function initPeer() {
@@ -221,6 +232,19 @@ function initPeer() {
   });
 
   /**
+   * join to chennel and send some peer info
+   * @param {*} channel
+   * @param {*} peerInfo
+   */
+  function joinToChannel(channel, peerInfo) {
+    console.log("join to channel", channel);
+    signalingSocket.emit("join", {
+      channel: channel,
+      peerInfo: peerInfo,
+    });
+  }
+
+  /**
    * Tear down all of our peer connections
    * and remove all the media divs when we disconnect
    */
@@ -236,19 +260,6 @@ function initPeer() {
     peers = {};
     peerMediaElements = {};
   });
-
-  /**
-   * join to chennel and send some peer info
-   * @param {*} channel
-   * @param {*} peerInfo
-   */
-  function joinToChannel(channel, peerInfo) {
-    console.log("join to channel", channel);
-    signalingSocket.emit("join", {
-      channel: channel,
-      peerInfo: peerInfo,
-    });
-  }
 
   /**
    * When we join a group, our signaling server will send out 'addPeer' events to each pair
@@ -477,51 +488,69 @@ function initPeer() {
 } // end [initPeer]
 
 /**
- * Setup local audio - video devices
+ * Set mirotalk theme neon - dark - ghost
+ * https://sweetalert2.github.io
+ * @param {*} theme
  */
-function setupAudioVideoDevices() {
-  // audio - video select box
-  selectors = [audioInputSelect, audioOutputSelect, videoSelect];
-  audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
-  navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
-  audioInputSelect.addEventListener("change", (e) => {
-    refreshLocalMedia(false);
-  });
-  audioOutputSelect.addEventListener("change", (e) => {
-    changeAudioDestination();
-  });
-  videoSelect.addEventListener("change", (e) => {
-    refreshLocalMedia(true);
-  });
-}
-
-/**
- * Refresh Local media audio video in - out
- * @param {*} change boolean videoChange
- */
-function refreshLocalMedia(change) {
-  videoChange = change;
-
-  if (window.stream) {
-    window.stream.getTracks().forEach((track) => {
-      track.stop();
-    });
+function setTheme(theme) {
+  mirotalkTheme = theme;
+  switch (mirotalkTheme) {
+    case "neon":
+      // neon theme
+      swalBackground = "transparent";
+      document.documentElement.style.setProperty("--body-bg", "black");
+      document.documentElement.style.setProperty("--msger-bg", "black");
+      document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
+      document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-opc", "1");
+      document.documentElement.style.setProperty("--btns-left", "20px");
+      document.documentElement.style.setProperty(
+        "--box-shadow",
+        "5px 5px 10px #0500ff, -5px -5px 10px #da05f3"
+      );
+      break;
+    case "dark":
+      // dark theme
+      swalBackground = "transparent";
+      document.documentElement.style.setProperty("--body-bg", "#16171b");
+      document.documentElement.style.setProperty("--msger-bg", "#16171b");
+      document.documentElement.style.setProperty("--left-msg-bg", "#222328");
+      document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-opc", "1");
+      document.documentElement.style.setProperty("--btns-left", "20px");
+      document.documentElement.style.setProperty(
+        "--box-shadow",
+        "5px 5px 10px #0a0b0c, -5px -5px 10px #222328"
+      );
+      break;
+    case "ghost":
+      // ghost theme
+      swalBackground = "transparent";
+      document.documentElement.style.setProperty("--body-bg", "black");
+      document.documentElement.style.setProperty("--msger-bg", "transparent");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-opc", "0.7");
+      document.documentElement.style.setProperty("--btns-left", "2px");
+      document.documentElement.style.setProperty("--box-shadow", "0px");
+      document.documentElement.style.setProperty(
+        "--left-msg-bg",
+        "transparent"
+      );
+      document.documentElement.style.setProperty(
+        "--right-msg-bg",
+        "transparent"
+      );
+      break;
+    // ...
+    default:
+      console.log("No theme found");
   }
-  const audioSource = audioInputSelect.value;
-  const videoSource = videoSelect.value;
-  const constraints = {
-    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
-    video: { deviceId: videoSource ? { exact: videoSource } : undefined },
-  };
-  navigator.mediaDevices
-    .getUserMedia(constraints)
-    .then(gotStream)
-    .then(gotDevices)
-    .catch(handleError);
 }
 
 /**
- * Local media stuff
+ * Setup local media stuff
  * @param {*} callback
  * @param {*} errorback
  */
@@ -583,7 +612,6 @@ function setupLocalMedia(callback, errorback) {
       attachMediaStream(localMedia, localMediaStream);
       localMedia.poster = null;
       resizeVideos();
-
       getHtmlElementsById();
       startCountTime();
       manageLeftButtons();
@@ -604,186 +632,14 @@ function setupLocalMedia(callback, errorback) {
 } // end [setup_local_stream]
 
 /**
- * Get audio-video Devices and show it to select box
- * https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
- * @param {*} deviceInfos
+ * Resize video elements
  */
-function gotDevices(deviceInfos) {
-  // Handles being called several times to update labels. Preserve values.
-  const values = selectors.map((select) => select.value);
-  selectors.forEach((select) => {
-    while (select.firstChild) {
-      select.removeChild(select.firstChild);
-    }
+function resizeVideos() {
+  const numToString = ["", "one", "two", "three", "four", "five", "six"];
+  const videos = document.querySelectorAll(".video");
+  document.querySelectorAll(".video").forEach((v) => {
+    v.className = "video " + numToString[videos.length];
   });
-  // check devices
-  for (let i = 0; i !== deviceInfos.length; ++i) {
-    const deviceInfo = deviceInfos[i];
-    // console.log("device-info ------> ", deviceInfo);
-    const option = document.createElement("option");
-    option.value = deviceInfo.deviceId;
-
-    if (deviceInfo.kind === "audioinput") {
-      // audio Input
-      option.text =
-        deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
-      audioInputSelect.appendChild(option);
-    } else if (deviceInfo.kind === "audiooutput") {
-      // audio Output
-      option.text =
-        deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
-      audioOutputSelect.appendChild(option);
-    } else if (deviceInfo.kind === "videoinput") {
-      // video Input
-      option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
-      videoSelect.appendChild(option);
-    } else {
-      // something else
-      console.log("Some other kind of source/device: ", deviceInfo);
-    }
-  } // end for devices
-
-  selectors.forEach((select, selectorIndex) => {
-    if (
-      Array.prototype.slice
-        .call(select.childNodes)
-        .some((n) => n.value === values[selectorIndex])
-    ) {
-      select.value = values[selectorIndex];
-    }
-  });
-}
-
-/**
- * Attach audio output device to video element using device/sink ID.
- * @param {*} element
- * @param {*} sinkId
- */
-function attachSinkId(element, sinkId) {
-  if (typeof element.sinkId !== "undefined") {
-    element
-      .setSinkId(sinkId)
-      .then(() => {
-        console.log(`Success, audio output device attached: ${sinkId}`);
-      })
-      .catch((error) => {
-        let errorMessage = error;
-        if (error.name === "SecurityError") {
-          errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
-        }
-        console.error(errorMessage);
-        // Jump back to first output device in the list as it's the default.
-        audioOutputSelect.selectedIndex = 0;
-      });
-  } else {
-    console.warn("Browser does not support output device selection.");
-  }
-}
-
-/**
- * Change audio output
- */
-function changeAudioDestination() {
-  const audioDestination = audioOutputSelect.value;
-  attachSinkId(myVideo, audioDestination);
-}
-
-/**
- * Got Stream and append to local media
- * @param {*} stream
- */
-function gotStream(stream) {
-  // make stream available to console
-  window.stream = stream;
-
-  // refresh my video to peers
-  for (var peer_id in peers) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-    var sender = peers[peer_id]
-      .getSenders()
-      .find((s) => (s.track ? s.track.kind === "video" : false));
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-    sender.replaceTrack(stream.getVideoTracks()[0]);
-  }
-
-  stream.getVideoTracks()[0].enabled = true;
-  // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
-  const newStream = new MediaStream([
-    stream.getVideoTracks()[0],
-    localMediaStream.getAudioTracks()[0],
-  ]);
-  localMediaStream = newStream;
-
-  // attachMediaStream is a part of the adapter.js library
-  attachMediaStream(myVideo, localMediaStream);
-
-  if (videoChange) {
-    myVideo.classList.toggle("mirror");
-  }
-
-  // Refresh button list in case labels have become available
-  return navigator.mediaDevices.enumerateDevices();
-}
-
-/**
- * Handle getUserMedia error
- * @param {*} error
- */
-function handleError(error) {
-  console.log(
-    "navigator.MediaDevices.getUserMedia error: ",
-    error.message,
-    error.name
-  );
-}
-
-/**
- * Extra function not used, print audio - video devices
- */
-function getDevices() {
-  // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
-  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-    console.log("enumerateDevices() not supported.");
-    return;
-  }
-  // list cameras and microphones
-  let myDevices = [];
-  navigator.mediaDevices
-    .enumerateDevices()
-    .then(function (devices) {
-      devices.forEach(function (device) {
-        myDevices.push({
-          deviceKind: device.kind,
-          deviceName: device.label,
-          deviceId: device.deviceId,
-        });
-      });
-      console.log("Audio-Video-Devices", myDevices);
-    })
-    .catch(function (err) {
-      console.log(err.name + ": " + err.message);
-    });
-}
-
-/**
- * AttachMediaStream stream to element
- * @param {*} element
- * @param {*} stream
- */
-function attachMediaStream(element, stream) {
-  //console.log("DEPRECATED, attachMediaStream will soon be removed.");
-  console.log("Success, media stream attached");
-  element.srcObject = stream;
-}
-
-/**
- * Check if there is peers connection
- */
-function noPeers() {
-  if (Object.keys(peers).length === 0) {
-    return true;
-  }
-  return false;
 }
 
 /**
@@ -837,15 +693,6 @@ function manageLeftButtons() {
   setAboutBtn();
   setLeaveRoomBtn();
   showLeftButtons();
-}
-
-/**
- * Handle left buttons show - hide on body mouse move
- */
-function handleBodyOnMouseMove() {
-  document.body.addEventListener("mousemove", (e) => {
-    showLeftButtons();
-  });
 }
 
 /**
@@ -952,7 +799,7 @@ function setSendMsgBtn() {
  */
 function setChatRoomBtn() {
   // adapt chat room for mobile
-  setChatBoxMobile();
+  setChatRoomForMobile();
 
   // open hide chat room
   chatRoomBtn.addEventListener("click", (e) => {
@@ -996,11 +843,7 @@ function setChatRoomBtn() {
 
   // close chat room - show left button and time if hide
   msgerClose.addEventListener("click", (e) => {
-    msgerDraggable.style.display = "none";
-    msgerEmojiPicker.style.display = "none";
-    chatRoomBtn.className = "fas fa-comment";
-    isChatRoomVisible = false;
-    isChatEmojiVisible = false;
+    hideChatRoomAndEmojiPicker();
     showLeftButtons();
     checkCountTime();
   });
@@ -1015,24 +858,17 @@ function setChatRoomBtn() {
 
   // chat send msg
   msgerSendBtn.addEventListener("click", (e) => {
-    e.preventDefault(); // prevent refresh page
+    // prevent refresh page
+    e.preventDefault();
 
     const msg = msgerInput.value;
-    if (!msg) return; // empity msg
+    // empity msg
+    if (!msg) return;
 
     emitMsg(myChatName, msg, "chat");
     appendMessage(myChatName, myChatAvatar, "right", msg);
-
     msgerInput.value = "";
   });
-}
-
-/**
- * Escape Special Chars
- * @param {*} regex
- */
-function escapeSpecialChars(regex) {
-  return regex.replace(/([()[{*+.$^\\|?])/g, "\\$1");
 }
 
 /**
@@ -1080,10 +916,10 @@ function setThemeBtn() {
  */
 function setDevicesBtn() {
   myDevicesBtn.addEventListener("click", (e) => {
-    hideShowDevices();
+    hideShowAudioVideoDevices();
   });
   myDevicesCloseBtn.addEventListener("click", (e) => {
-    hideShowDevices();
+    hideShowAudioVideoDevices();
   });
   if (!isMobileDevice) {
     // make chat room draggable for desktop
@@ -1110,187 +946,195 @@ function setLeaveRoomBtn() {
 }
 
 /**
- * Set the chat room on full screen mode for mobile
+ * Handle left buttons show - hide on body mouse move
  */
-function setChatBoxMobile() {
-  if (isMobileDevice) {
-    document.documentElement.style.setProperty("--msger-height", "98vh");
-    document.documentElement.style.setProperty("--msger-width", "98vw");
-  } else {
-    // make chat room draggable for desktop
-    dragElement(msgerDraggable, msgerHeader);
-
-    // https://jqueryui.com/draggable/ declined, can't select chat room texts...
-    // $("#msgerDraggable").draggable();
-  }
-}
-
-/**
- * Make chat room - devices draggable
- * https://www.w3schools.com/howto/howto_js_draggable.asp
- * @param {*} elmnt
- * @param {*} dragObj
- */
-function dragElement(elmnt, dragObj) {
-  var pos1 = 0,
-    pos2 = 0,
-    pos3 = 0,
-    pos4 = 0;
-  if (dragObj) {
-    // if present, the header is where you move the DIV from:
-    dragObj.onmousedown = dragMouseDown;
-  } else {
-    // otherwise, move the DIV from anywhere inside the DIV:
-    elmnt.onmousedown = dragMouseDown;
-  }
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-  }
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    // set the element's new position:
-    elmnt.style.top = elmnt.offsetTop - pos2 + "px";
-    elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
-  }
-  function closeDragElement() {
-    // stop moving when mouse button is released:
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
-
-/**
- * Resize video elements
- */
-function resizeVideos() {
-  const numToString = ["", "one", "two", "three", "four", "five", "six"];
-  const videos = document.querySelectorAll(".video");
-  document.querySelectorAll(".video").forEach((v) => {
-    v.className = "video " + numToString[videos.length];
+function handleBodyOnMouseMove() {
+  document.body.addEventListener("mousemove", (e) => {
+    showLeftButtons();
   });
 }
 
 /**
- * Send quick message to peers
- * https://sweetalert2.github.io
+ * Setup local audio - video devices
  */
-function sendMessage() {
-  if (noPeers()) {
-    userLog("info", "Can't Send msg, no peer connection detected");
+function setupAudioVideoDevices() {
+  // audio - video select box
+  selectors = [audioInputSelect, audioOutputSelect, videoSelect];
+  audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
+  navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+  audioInputSelect.addEventListener("change", (e) => {
+    refreshLocalMedia(false);
+  });
+  audioOutputSelect.addEventListener("change", (e) => {
+    changeAudioDestination();
+  });
+  videoSelect.addEventListener("change", (e) => {
+    refreshLocalMedia(true);
+  });
+}
+
+/**
+ * Refresh Local media audio video in - out
+ * @param {*} change boolean videoChange
+ */
+function refreshLocalMedia(change) {
+  videoChange = change;
+
+  if (window.stream) {
+    window.stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
+  const audioSource = audioInputSelect.value;
+  const videoSource = videoSelect.value;
+  const constraints = {
+    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+    video: { deviceId: videoSource ? { exact: videoSource } : undefined },
+  };
+  navigator.mediaDevices
+    .getUserMedia(constraints)
+    .then(gotStream)
+    .then(gotDevices)
+    .catch(handleError);
+}
+
+/**
+ * Got Stream and append to local media
+ * @param {*} stream
+ */
+function gotStream(stream) {
+  // make stream available to console
+  window.stream = stream;
+
+  // refresh my video to peers
+  for (var peer_id in peers) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+    var sender = peers[peer_id]
+      .getSenders()
+      .find((s) => (s.track ? s.track.kind === "video" : false));
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+    sender.replaceTrack(stream.getVideoTracks()[0]);
+  }
+
+  stream.getVideoTracks()[0].enabled = true;
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
+  const newStream = new MediaStream([
+    stream.getVideoTracks()[0],
+    localMediaStream.getAudioTracks()[0],
+  ]);
+  localMediaStream = newStream;
+
+  // attachMediaStream is a part of the adapter.js library
+  attachMediaStream(myVideo, localMediaStream);
+
+  if (videoChange) {
+    myVideo.classList.toggle("mirror");
+  }
+
+  // Refresh button list in case labels have become available
+  return navigator.mediaDevices.enumerateDevices();
+}
+
+/**
+ * Get audio-video Devices and show it to select box
+ * https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
+ * @param {*} deviceInfos
+ */
+function gotDevices(deviceInfos) {
+  // Handles being called several times to update labels. Preserve values.
+  const values = selectors.map((select) => select.value);
+  selectors.forEach((select) => {
+    while (select.firstChild) {
+      select.removeChild(select.firstChild);
+    }
+  });
+  // check devices
+  for (let i = 0; i !== deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    // console.log("device-info ------> ", deviceInfo);
+    const option = document.createElement("option");
+    option.value = deviceInfo.deviceId;
+
+    if (deviceInfo.kind === "audioinput") {
+      // audio Input
+      option.text =
+        deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+      audioInputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "audiooutput") {
+      // audio Output
+      option.text =
+        deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+      audioOutputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "videoinput") {
+      // video Input
+      option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+      videoSelect.appendChild(option);
+    } else {
+      // something else
+      console.log("Some other kind of source/device: ", deviceInfo);
+    }
+  } // end for devices
+
+  selectors.forEach((select, selectorIndex) => {
+    if (
+      Array.prototype.slice
+        .call(select.childNodes)
+        .some((n) => n.value === values[selectorIndex])
+    ) {
+      select.value = values[selectorIndex];
+    }
+  });
+}
+
+/**
+ * Extra function not used, print audio - video devices
+ */
+function getDevices() {
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+    console.log("enumerateDevices() not supported.");
     return;
   }
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    input: "text",
-    inputLabel: "Send Message",
-    inputPlaceholder: "Type your message here...",
-    inputAttributes: {
-      "aria-label": "Type your message here",
-    },
-    showDenyButton: true,
-    confirmButtonText: `Send`,
-    denyButtonText: `Close`,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      let msg = result.value;
-      emitMsg("simple", msg, "simple");
-    }
-  });
-}
-
-/**
- * Called when a message is recieved over signaling server
- * https://sweetalert2.github.io
- * @param {*} msg
- */
-function showMessage(msg) {
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    title: "New Message",
-    text: msg,
-    input: "text",
-    inputPlaceholder: "Type your message here...",
-    inputAttributes: {
-      "aria-label": "Type your message here",
-    },
-    showDenyButton: true,
-    confirmButtonText: `Reply`,
-    denyButtonText: `Close`,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      let msg = result.value;
-      emitMsg("simple", msg, "simple");
-    }
-  });
-}
-
-/**
- * Chat room form
- * https://sweetalert2.github.io
- */
-function showChatRoom() {
-  if (!myChatName) {
-    Swal.fire({
-      background: swalBackground,
-      position: "center",
-      icon: "info",
-      title: "Enter a name for chat",
-      input: "text",
-      showClass: {
-        popup: "animate__animated animate__fadeInDown",
-      },
-      hideClass: {
-        popup: "animate__animated animate__fadeOutUp",
-      },
-      inputValidator: (value) => {
-        if (!value) {
-          return "Please enter a name for chat";
-        }
-        myChatName = value;
-        showMsgerDraggable();
-      },
+  // list cameras and microphones
+  let myDevices = [];
+  navigator.mediaDevices
+    .enumerateDevices()
+    .then(function (devices) {
+      devices.forEach(function (device) {
+        myDevices.push({
+          deviceKind: device.kind,
+          deviceName: device.label,
+          deviceId: device.deviceId,
+        });
+      });
+      console.log("Audio-Video-Devices", myDevices);
+    })
+    .catch(function (err) {
+      console.log(err.name + ": " + err.message);
     });
-  } else {
-    // chat name already set just open chat room
-    showMsgerDraggable();
-  }
 }
 
 /**
- * Show msger draggable
+ * Handle getUserMedia error
+ * @param {*} error
  */
-function showMsgerDraggable() {
-  chatRoomBtn.className = "fas fa-comment-slash";
-  msgerDraggable.style.display = "flex";
-  checkCountTime();
-  isChatRoomVisible = true;
+function handleError(error) {
+  console.log(
+    "navigator.MediaDevices.getUserMedia error: ",
+    error.message,
+    error.name
+  );
+}
+
+/**
+ * AttachMediaStream stream to element
+ * @param {*} element
+ * @param {*} stream
+ */
+function attachMediaStream(element, stream) {
+  //console.log("DEPRECATED, attachMediaStream will soon be removed.");
+  console.log("Success, media stream attached");
+  element.srcObject = stream;
 }
 
 /**
@@ -1307,153 +1151,104 @@ function showLeftButtons() {
 }
 
 /**
- * Hide - show left buttons
- */
-function checkLeftButtons() {
-  if (isButtonsVisible) {
-    leftButtons.style.display = "none";
-    isButtonsVisible = false;
-    return;
-  }
-  leftButtons.style.display = "flex";
-  isButtonsVisible = true;
-}
-
-/**
- * Hide - show count time
- */
-function checkCountTime() {
-  if (isMobileDevice) {
-    if (countTime.style.display == "none") {
-      countTime.style.display = "inline";
-      return;
-    }
-    countTime.style.display = "none";
-  }
-}
-
-/**
- * Hide - Show emoji picker div
- */
-function hideShowEmojiPicker() {
-  if (!isChatEmojiVisible) {
-    msgerEmojiPicker.style.display = "block";
-    isChatEmojiVisible = true;
-    return;
-  }
-  msgerEmojiPicker.style.display = "none";
-  isChatEmojiVisible = false;
-}
-
-/**
- * Hide - show my devices div
- */
-function hideShowDevices() {
-  if (!isAudioVideoDevicesVisible) {
-    if (noPeers()) {
-      userLog("info", "Can't setup devices, no peer connection detected");
-      return;
-    }
-    myDevices.style.display = "block";
-    isAudioVideoDevicesVisible = true;
-    return;
-  }
-  myDevices.style.display = "none";
-  isAudioVideoDevicesVisible = false;
-}
-
-/**
- * Append Message to msger chat room
- * @param {*} name
- * @param {*} img
- * @param {*} side
- * @param {*} text
- */
-function appendMessage(name, img, side, text) {
-  let ctext = detectUrl(text);
-  const msgHTML = `
-	<div class="msg ${side}-msg">
-		<div class="msg-img" style="background-image: url(${img})"></div>
-		<div class="msg-bubble">
-		<div class="msg-info">
-			<div class="msg-info-name">${name}</div>
-			<div class="msg-info-time">${getFormatDate(new Date())}</div>
-		</div>
-		<div class="msg-text">${ctext}</div>
-		</div>
-	</div>
-  `;
-  msgerChat.insertAdjacentHTML("beforeend", msgHTML);
-  msgerChat.scrollTop += 500;
-}
-
-/**
- * Detect url from text and make it clickable
- * @param {*} text
- */
-function detectUrl(text) {
-  var urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, function (url) {
-    return (
-      '<div id="chat-msg"><a href="' +
-      url +
-      '" target="_blank">' +
-      url +
-      "</a></div>"
-    );
-  });
-}
-
-/**
- * Clean chat messages
+ * Copy room url to clipboard and share it with navigator share if supported
+ * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
  * https://sweetalert2.github.io
  */
-function cleanMessages() {
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    title: "Clean up chat Messages?",
-    icon: "warning",
-    showDenyButton: true,
-    confirmButtonText: `Yes`,
-    denyButtonText: `No`,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-  }).then((result) => {
-    // clean message
-    if (result.isConfirmed) {
-      var msgs = msgerChat.firstChild;
-      while (msgs) {
-        msgerChat.removeChild(msgs);
-        msgs = msgerChat.firstChild;
-      }
+async function shareRoomUrl() {
+  // save Room Url to clipboard
+  var tmpInput = document.createElement("input");
+  let ROOM_URL = window.location.href;
+  document.body.appendChild(tmpInput);
+  tmpInput.value = ROOM_URL;
+  tmpInput.select();
+  // For mobile devices
+  tmpInput.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  console.log("Copied to clipboard Join Link ", ROOM_URL);
+  // navigator share
+  let isSupportedNavigatorShare = false;
+  let errorNavigatorShare = false;
+  // if supported
+  if (navigator.share) {
+    isSupportedNavigatorShare = true;
+    try {
+      // not add title and description to load metadata from url
+      await navigator.share({ url: window.location.href });
+      userLog("info", "Room Shared successfully!");
+    } catch (error) {
+      errorNavigatorShare = true;
+      // This feature is available only in secure contexts (HTTPS),
+      // in some or all supporting browsers and mobile devices
+      // console.error("navigator.share", error);
     }
-  });
+  }
+  // something wrong or not supported navigator.share
+  if (
+    !isSupportedNavigatorShare ||
+    (isSupportedNavigatorShare && errorNavigatorShare)
+  ) {
+    Swal.fire({
+      background: swalBackground,
+      position: "center",
+      icon: "success",
+      title: "Copied to clipboard",
+      text: "Join link: " + ROOM_URL,
+      showClass: {
+        popup: "animate__animated animate__fadeInDown",
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp",
+      },
+      timer: 4000,
+    });
+    document.body.removeChild(tmpInput);
+  }
 }
 
 /**
- * Send message over signaling server
- * @param {*} name
- * @param {*} msg
- * @param {*} type
+ * SwapCamer front (user) - rear (environment)
  */
-function emitMsg(name, msg, type) {
-  if (msg) {
-    signalingSocket.emit("msg", {
-      peers: peers,
-      name: name,
-      msg: msg,
-      type: type,
-    });
-    console.log("Send msg", {
-      name: name,
-      msg: msg,
-    });
+function swapCamera() {
+  if (noPeers()) {
+    userLog("info", "Can't Swap the Camera, no peer connection detected");
+    return;
   }
+
+  camera = camera == "user" ? "environment" : "user";
+  if (camera == "user") useVideo = true;
+  else useVideo = { facingMode: { exact: camera } };
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+  navigator.mediaDevices
+    .getUserMedia({ video: useVideo })
+    .then((camStream) => {
+      for (var peer_id in peers) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+        var sender = peers[peer_id]
+          .getSenders()
+          .find((s) => (s.track ? s.track.kind === "video" : false));
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+        sender.replaceTrack(camStream.getVideoTracks()[0]);
+      }
+
+      camStream.getVideoTracks()[0].enabled = true;
+      // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
+      const newStream = new MediaStream([
+        camStream.getVideoTracks()[0],
+        localMediaStream.getAudioTracks()[0],
+      ]);
+      localMediaStream = newStream;
+
+      // attachMediaStream is a part of the adapter.js library
+      attachMediaStream(myVideo, localMediaStream);
+
+      myVideo.classList.toggle("mirror");
+    })
+    .catch((e) => {
+      console.log("[Error] to swaping camera", e);
+      userLog("error", "Error to swaping the camera");
+    });
 }
 
 /**
@@ -1551,127 +1346,338 @@ function toggleFullScreen() {
 }
 
 /**
- * SwapCamer front (user) - rear (environment)
+ * Send quick message to peers
+ * https://sweetalert2.github.io
  */
-function swapCamera() {
+function sendMessage() {
   if (noPeers()) {
-    userLog("info", "Can't Swap the Camera, no peer connection detected");
+    userLog("info", "Can't Send msg, no peer connection detected");
     return;
   }
-
-  camera = camera == "user" ? "environment" : "user";
-  if (camera == "user") useVideo = true;
-  else useVideo = { facingMode: { exact: camera } };
-
-  // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-  navigator.mediaDevices
-    .getUserMedia({ video: useVideo })
-    .then((camStream) => {
-      for (var peer_id in peers) {
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-        var sender = peers[peer_id]
-          .getSenders()
-          .find((s) => (s.track ? s.track.kind === "video" : false));
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-        sender.replaceTrack(camStream.getVideoTracks()[0]);
-      }
-
-      camStream.getVideoTracks()[0].enabled = true;
-      // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
-      const newStream = new MediaStream([
-        camStream.getVideoTracks()[0],
-        localMediaStream.getAudioTracks()[0],
-      ]);
-      localMediaStream = newStream;
-
-      // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(myVideo, localMediaStream);
-
-      myVideo.classList.toggle("mirror");
-    })
-    .catch((e) => {
-      console.log("[Error] to swaping camera", e);
-      userLog("error", "Error to swaping the camera");
-    });
-}
-
-/**
- * Copy room url to clipboard and share it with navigator share if supported
- * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
- * https://sweetalert2.github.io
- */
-async function shareRoomUrl() {
-  // save Room Url to clipboard
-  var tmpInput = document.createElement("input");
-  let ROOM_URL = window.location.href;
-  document.body.appendChild(tmpInput);
-  tmpInput.value = ROOM_URL;
-  tmpInput.select();
-  // For mobile devices
-  tmpInput.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-  console.log("Copied to clipboard Join Link ", ROOM_URL);
-  // navigator share
-  let isSupportedNavigatorShare = false;
-  let errorNavigatorShare = false;
-  // if supported
-  if (navigator.share) {
-    isSupportedNavigatorShare = true;
-    try {
-      // not add title and description to load metadata from url
-      await navigator.share({ url: window.location.href });
-      userLog("info", "Room Shared successfully!");
-    } catch (error) {
-      errorNavigatorShare = true;
-      // This feature is available only in secure contexts (HTTPS),
-      // in some or all supporting browsers and mobile devices
-      // console.error("navigator.share", error);
-    }
-  }
-  // something wrong or not supported navigator.share
-  if (
-    !isSupportedNavigatorShare ||
-    (isSupportedNavigatorShare && errorNavigatorShare)
-  ) {
-    Swal.fire({
-      background: swalBackground,
-      position: "center",
-      icon: "success",
-      title: "Copied to clipboard",
-      text: "Join link: " + ROOM_URL,
-      showClass: {
-        popup: "animate__animated animate__fadeInDown",
-      },
-      hideClass: {
-        popup: "animate__animated animate__fadeOutUp",
-      },
-      timer: 4000,
-    });
-    document.body.removeChild(tmpInput);
-  }
-}
-
-/**
- * About info
- * https://sweetalert2.github.io
- */
-function getAbout() {
   Swal.fire({
     background: swalBackground,
     position: "center",
-    title: "<strong>WebRTC Made with ❤️</strong>",
-    imageAlt: "mirotalk",
-    imageUrl: loaderGif,
-    imageWidth: 320,
-    imageHeight: 240,
-    html: `<div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>`,
+    input: "text",
+    inputLabel: "Send Message",
+    inputPlaceholder: "Type your message here...",
+    inputAttributes: {
+      "aria-label": "Type your message here",
+    },
+    showDenyButton: true,
+    confirmButtonText: `Send`,
+    denyButtonText: `Close`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
     hideClass: {
       popup: "animate__animated animate__fadeOutUp",
     },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let msg = result.value;
+      emitMsg("simple", msg, "simple");
+    }
   });
+}
+
+/**
+ * Set the chat room on full screen mode for mobile
+ */
+function setChatRoomForMobile() {
+  if (isMobileDevice) {
+    document.documentElement.style.setProperty("--msger-height", "98vh");
+    document.documentElement.style.setProperty("--msger-width", "98vw");
+  } else {
+    // make chat room draggable for desktop
+    dragElement(msgerDraggable, msgerHeader);
+
+    // https://jqueryui.com/draggable/ declined, can't select chat room texts...
+    // $("#msgerDraggable").draggable();
+  }
+}
+
+/**
+ * Chat room form
+ * https://sweetalert2.github.io
+ */
+function showChatRoom() {
+  if (!myChatName) {
+    Swal.fire({
+      background: swalBackground,
+      position: "center",
+      icon: "info",
+      title: "Enter a name for chat",
+      input: "text",
+      showClass: {
+        popup: "animate__animated animate__fadeInDown",
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp",
+      },
+      inputValidator: (value) => {
+        if (!value) {
+          return "Please enter a name for chat";
+        }
+        myChatName = value;
+        showMsgerDraggable();
+      },
+    });
+  } else {
+    // chat name already set just open chat room
+    showMsgerDraggable();
+  }
+}
+
+/**
+ * Show msger draggable
+ */
+function showMsgerDraggable() {
+  chatRoomBtn.className = "fas fa-comment-slash";
+  msgerDraggable.style.display = "flex";
+  checkCountTime();
+  isChatRoomVisible = true;
+}
+
+/**
+ * Hide - show left buttons
+ */
+function checkLeftButtons() {
+  if (isButtonsVisible) {
+    leftButtons.style.display = "none";
+    isButtonsVisible = false;
+    return;
+  }
+  leftButtons.style.display = "flex";
+  isButtonsVisible = true;
+}
+
+/**
+ * Clean chat messages
+ * https://sweetalert2.github.io
+ */
+function cleanMessages() {
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    title: "Clean up chat Messages?",
+    icon: "warning",
+    showDenyButton: true,
+    confirmButtonText: `Yes`,
+    denyButtonText: `No`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    // clean message
+    if (result.isConfirmed) {
+      var msgs = msgerChat.firstChild;
+      while (msgs) {
+        msgerChat.removeChild(msgs);
+        msgs = msgerChat.firstChild;
+      }
+    }
+  });
+}
+
+/**
+ * Hide chat room and emoji picker
+ */
+function hideChatRoomAndEmojiPicker() {
+  msgerDraggable.style.display = "none";
+  msgerEmojiPicker.style.display = "none";
+  chatRoomBtn.className = "fas fa-comment";
+  isChatRoomVisible = false;
+  isChatEmojiVisible = false;
+}
+
+/**
+ * Called when a message is recieved over signaling server
+ * https://sweetalert2.github.io
+ * @param {*} msg
+ */
+function showMessage(msg) {
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    title: "New Message",
+    text: msg,
+    input: "text",
+    inputPlaceholder: "Type your message here...",
+    inputAttributes: {
+      "aria-label": "Type your message here",
+    },
+    showDenyButton: true,
+    confirmButtonText: `Reply`,
+    denyButtonText: `Close`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let msg = result.value;
+      emitMsg("simple", msg, "simple");
+    }
+  });
+}
+
+/**
+ * Hide - show count time
+ */
+function checkCountTime() {
+  if (isMobileDevice) {
+    if (countTime.style.display == "none") {
+      countTime.style.display = "inline";
+      return;
+    }
+    countTime.style.display = "none";
+  }
+}
+
+/**
+ * Escape Special Chars
+ * @param {*} regex
+ */
+function escapeSpecialChars(regex) {
+  return regex.replace(/([()[{*+.$^\\|?])/g, "\\$1");
+}
+
+/**
+ * Append Message to msger chat room
+ * @param {*} name
+ * @param {*} img
+ * @param {*} side
+ * @param {*} text
+ */
+function appendMessage(name, img, side, text) {
+  let ctext = detectUrl(text);
+  const msgHTML = `
+	<div class="msg ${side}-msg">
+		<div class="msg-img" style="background-image: url(${img})"></div>
+		<div class="msg-bubble">
+		<div class="msg-info">
+			<div class="msg-info-name">${name}</div>
+			<div class="msg-info-time">${getFormatDate(new Date())}</div>
+		</div>
+		<div class="msg-text">${ctext}</div>
+		</div>
+	</div>
+  `;
+  msgerChat.insertAdjacentHTML("beforeend", msgHTML);
+  msgerChat.scrollTop += 500;
+}
+
+/**
+ * Detect url from text and make it clickable
+ * @param {*} text
+ */
+function detectUrl(text) {
+  var urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, function (url) {
+    return (
+      '<div id="chat-msg"><a href="' +
+      url +
+      '" target="_blank">' +
+      url +
+      "</a></div>"
+    );
+  });
+}
+
+/**
+ * Format data h:m
+ * @param {*} date
+ */
+function getFormatDate(date) {
+  const h = "0" + date.getHours();
+  const m = "0" + date.getMinutes();
+  return `${h.slice(-2)}:${m.slice(-2)}`;
+}
+
+/**
+ * Send message over signaling server
+ * @param {*} name
+ * @param {*} msg
+ * @param {*} type
+ */
+function emitMsg(name, msg, type) {
+  if (msg) {
+    signalingSocket.emit("msg", {
+      peers: peers,
+      name: name,
+      msg: msg,
+      type: type,
+    });
+    console.log("Send msg", {
+      name: name,
+      msg: msg,
+    });
+  }
+}
+
+/**
+ * Hide - Show emoji picker div
+ */
+function hideShowEmojiPicker() {
+  if (!isChatEmojiVisible) {
+    msgerEmojiPicker.style.display = "block";
+    isChatEmojiVisible = true;
+    return;
+  }
+  msgerEmojiPicker.style.display = "none";
+  isChatEmojiVisible = false;
+}
+
+/**
+ * Make chat room - devices draggable
+ * https://www.w3schools.com/howto/howto_js_draggable.asp
+ * @param {*} elmnt
+ * @param {*} dragObj
+ */
+function dragElement(elmnt, dragObj) {
+  var pos1 = 0,
+    pos2 = 0,
+    pos3 = 0,
+    pos4 = 0;
+  if (dragObj) {
+    // if present, the header is where you move the DIV from:
+    dragObj.onmousedown = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+  }
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+    elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+  }
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
 }
 
 /**
@@ -1700,6 +1706,46 @@ function getTheme() {
     },
     inputValidator: (theme) => {
       setTheme(theme);
+    },
+  });
+}
+
+/**
+ * Hide - show audio - video devices select box
+ */
+function hideShowAudioVideoDevices() {
+  if (!isAudioVideoDevicesVisible) {
+    if (noPeers()) {
+      userLog("info", "Can't setup devices, no peer connection detected");
+      return;
+    }
+    myDevices.style.display = "block";
+    isAudioVideoDevicesVisible = true;
+    return;
+  }
+  myDevices.style.display = "none";
+  isAudioVideoDevicesVisible = false;
+}
+
+/**
+ * About info
+ * https://sweetalert2.github.io
+ */
+function getAbout() {
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    title: "<strong>WebRTC Made with ❤️</strong>",
+    imageAlt: "mirotalk",
+    imageUrl: loaderGif,
+    imageWidth: 320,
+    imageHeight: 240,
+    html: `<div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
     },
   });
 }
@@ -1813,68 +1859,6 @@ async function playSound(state) {
 }
 
 /**
- * Set mirotalk theme neon - dark - ghost
- * https://sweetalert2.github.io
- * @param {*} theme
- */
-function setTheme(theme) {
-  mirotalkTheme = theme;
-  switch (mirotalkTheme) {
-    case "neon":
-      // neon theme
-      swalBackground = "transparent";
-      document.documentElement.style.setProperty("--body-bg", "black");
-      document.documentElement.style.setProperty("--msger-bg", "black");
-      document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
-      document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
-      document.documentElement.style.setProperty("--btn-bg", "white");
-      document.documentElement.style.setProperty("--btn-opc", "1");
-      document.documentElement.style.setProperty("--btns-left", "20px");
-      document.documentElement.style.setProperty(
-        "--box-shadow",
-        "5px 5px 10px #0500ff, -5px -5px 10px #da05f3"
-      );
-      break;
-    case "dark":
-      // dark theme
-      swalBackground = "transparent";
-      document.documentElement.style.setProperty("--body-bg", "#16171b");
-      document.documentElement.style.setProperty("--msger-bg", "#16171b");
-      document.documentElement.style.setProperty("--left-msg-bg", "#222328");
-      document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
-      document.documentElement.style.setProperty("--btn-bg", "white");
-      document.documentElement.style.setProperty("--btn-opc", "1");
-      document.documentElement.style.setProperty("--btns-left", "20px");
-      document.documentElement.style.setProperty(
-        "--box-shadow",
-        "5px 5px 10px #0a0b0c, -5px -5px 10px #222328"
-      );
-      break;
-    case "ghost":
-      // ghost theme
-      swalBackground = "transparent";
-      document.documentElement.style.setProperty("--body-bg", "black");
-      document.documentElement.style.setProperty("--msger-bg", "transparent");
-      document.documentElement.style.setProperty("--btn-bg", "white");
-      document.documentElement.style.setProperty("--btn-opc", "0.7");
-      document.documentElement.style.setProperty("--btns-left", "2px");
-      document.documentElement.style.setProperty("--box-shadow", "0px");
-      document.documentElement.style.setProperty(
-        "--left-msg-bg",
-        "transparent"
-      );
-      document.documentElement.style.setProperty(
-        "--right-msg-bg",
-        "transparent"
-      );
-      break;
-    // ...
-    default:
-      console.log("No theme found");
-  }
-}
-
-/**
  * Get Html element by Id
  * @param {*} id
  */
@@ -1888,14 +1872,4 @@ function get(id) {
  */
 function getS(selector) {
   return document.querySelector(selector);
-}
-
-/**
- * Format data
- * @param {*} date
- */
-function getFormatDate(date) {
-  const h = "0" + date.getHours();
-  const m = "0" + date.getMinutes();
-  return `${h.slice(-2)}:${m.slice(-2)}`;
 }
