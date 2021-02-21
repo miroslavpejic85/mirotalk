@@ -850,19 +850,6 @@ function setShareRoomBtn() {
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
   shareRoomBtn.addEventListener("click", async (e) => {
     shareRoomUrl();
-
-    if (navigator.share) {
-      try {
-        // not add title and description to load metadata from url
-        await navigator.share({ url: window.location.href });
-        userLog("info", "Shared successfully!");
-      } catch (error) {
-        // This feature is available only in secure contexts (HTTPS),
-        // in some or all supporting browsers.
-        // console.error("navigator.share", error);
-        return;
-      }
-    }
   });
 }
 
@@ -1605,10 +1592,12 @@ function swapCamera() {
 }
 
 /**
- * Copy room url to clipboard and share it
+ * Copy room url to clipboard and share it with navigator share if supported
+ * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
  * https://sweetalert2.github.io
  */
-function shareRoomUrl() {
+async function shareRoomUrl() {
+  // save Room Url to clipboard
   var tmpInput = document.createElement("input");
   let ROOM_URL = window.location.href;
   document.body.appendChild(tmpInput);
@@ -1618,21 +1607,44 @@ function shareRoomUrl() {
   tmpInput.setSelectionRange(0, 99999);
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", ROOM_URL);
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    icon: "success",
-    title: "Copied to clipboard",
-    text: "Join link: " + ROOM_URL,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-    timer: 4000,
-  });
-  document.body.removeChild(tmpInput);
+  // navigator share
+  let isSupportedNavigatorShare = false;
+  let errorNavigatorShare = false;
+  // if supported
+  if (navigator.share) {
+    isSupportedNavigatorShare = true;
+    try {
+      // not add title and description to load metadata from url
+      await navigator.share({ url: window.location.href });
+      userLog("info", "Room Shared successfully!");
+    } catch (error) {
+      errorNavigatorShare = true;
+      // This feature is available only in secure contexts (HTTPS),
+      // in some or all supporting browsers and mobile devices
+      // console.error("navigator.share", error);
+    }
+  }
+  // something wrong or not supported navigator.share
+  if (
+    !isSupportedNavigatorShare ||
+    (isSupportedNavigatorShare && errorNavigatorShare)
+  ) {
+    Swal.fire({
+      background: swalBackground,
+      position: "center",
+      icon: "success",
+      title: "Copied to clipboard",
+      text: "Join link: " + ROOM_URL,
+      showClass: {
+        popup: "animate__animated animate__fadeInDown",
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp",
+      },
+      timer: 4000,
+    });
+    document.body.removeChild(tmpInput);
+  }
 }
 
 /**
@@ -1643,12 +1655,12 @@ function getAbout() {
   Swal.fire({
     background: swalBackground,
     position: "center",
-    title: "<strong>Made with ❤️</strong>",
+    title: "<strong>WebRTC Made with ❤️</strong>",
     imageAlt: "mirotalk",
     imageUrl: loaderGif,
     imageWidth: 320,
     imageHeight: 240,
-    html: `<div id="about"><h1>WebRTC</h1><b>open source</b> on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h2><strong> GitHub </strong></h2></a></div>`,
+    html: `<div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
