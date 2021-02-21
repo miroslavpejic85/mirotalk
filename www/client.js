@@ -101,8 +101,10 @@ var myVideo = null;
  */
 function getHtmlElementsById() {
   countTime = get("countTime");
+  myVideo = get("myVideo");
 
   // left buttons
+  leftButtons = get("leftButtons");
   shareRoomBtn = get("shareRoomBtn");
   audioBtn = get("audioBtn");
   videoBtn = get("videoBtn");
@@ -157,7 +159,7 @@ function getPeerInfo() {
     osVersion: DetectRTC.osVersion,
     browserName: DetectRTC.browser.name,
     browserVersion: DetectRTC.browser.version,
-  }; // https://github.com/muaz-khan/DetectRTC
+  };
 }
 
 /**
@@ -201,9 +203,6 @@ function initPeer() {
     userLog("error", "This browser seems not supported WebRTC!");
     return;
   }
-
-  // load all Html elements
-  getHtmlElementsById();
 
   // peer ready for WebRTC! :)
   console.log("Connecting to signaling server");
@@ -542,6 +541,7 @@ function setupLocalMedia(callback, errorback) {
   /**
    * Ask user for permission to use the computers microphone and/or camera,
    * attach it to an <audio> or <video> tag if they give us access.
+   * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
    */
   console.log("Requesting access to local audio / video inputs");
 
@@ -551,7 +551,6 @@ function setupLocalMedia(callback, errorback) {
   };
 
   navigator.mediaDevices
-    // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
     .getUserMedia(constraints)
     .then(function (stream) {
       console.log("Access granted to audio/video");
@@ -574,7 +573,6 @@ function setupLocalMedia(callback, errorback) {
       localMedia.volume = 0;
       localMedia.controls = false;
       document.body.appendChild(videoWrap);
-      myVideo = get("myVideo");
 
       console.log("local-video-audio", {
         video: localMediaStream.getVideoTracks()[0].label,
@@ -586,6 +584,7 @@ function setupLocalMedia(callback, errorback) {
       localMedia.poster = null;
       resizeVideos();
 
+      getHtmlElementsById();
       startCountTime();
       manageLeftButtons();
       handleBodyOnMouseMove();
@@ -739,8 +738,7 @@ function handleError(error) {
 }
 
 /**
- * Extra function not used,
- * print audio - video devices
+ * Extra function not used, print audio - video devices
  */
 function getDevices() {
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
@@ -748,7 +746,8 @@ function getDevices() {
     console.log("enumerateDevices() not supported.");
     return;
   }
-  let myDevices = []; // List cameras and microphones.
+  // list cameras and microphones
+  let myDevices = [];
   navigator.mediaDevices
     .enumerateDevices()
     .then(function (devices) {
@@ -824,8 +823,6 @@ function getTimeToString(time) {
  * Handle WebRTC left buttons
  */
 function manageLeftButtons() {
-  leftButtons = get("leftButtons");
-
   setShareRoomBtn();
   setAudioBtn();
   setVideoBtn();
@@ -855,7 +852,6 @@ function handleBodyOnMouseMove() {
  * Copy - share room url button click event
  */
 function setShareRoomBtn() {
-  // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
   shareRoomBtn.addEventListener("click", async (e) => {
     shareRoomUrl();
   });
