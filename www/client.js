@@ -1648,7 +1648,7 @@ function getAbout() {
     imageUrl: loaderGif,
     imageWidth: 320,
     imageHeight: 240,
-    html: `<div id="about"><b>Open Source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h2><strong> GitHub </strong></h2></a></div>`,
+    html: `<div id="about"><h1>WebRTC</h1><b>open source</b> on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h2><strong> GitHub </strong></h2></a></div>`,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
