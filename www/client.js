@@ -226,9 +226,11 @@ function initPeer() {
    */
   signalingSocket.on("connect", function () {
     console.log("Connected to signaling server");
-    setupLocalMedia(function () {
-      joinToChannel(roomId, peerInfo);
-    });
+    if (localMediaStream) joinToChannel(roomId, peerInfo);
+    else
+      setupLocalMedia(function () {
+        joinToChannel(roomId, peerInfo);
+      });
   });
 
   /**
@@ -1005,7 +1007,6 @@ function changeAudioDestination() {
   const audioDestination = audioOutputSelect.value;
   attachSinkId(myVideo, audioDestination);
 }
-
 
 /**
  * Attach audio output device to video element using device/sink ID.

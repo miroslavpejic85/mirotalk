@@ -453,9 +453,16 @@ video:fullscreen {
 .swal2-content {
   color: white !important;
 }
-/* .swal2-popup {
+/* 
+.swal2-popup {
   font-size: 0.8rem !important;
-}*/
+}
+*/
+.swal2-select {
+  background-color: transparent !important;
+  color: white !important;
+  border-radius: 6px !important;
+}
 
 #countTime {
   z-index: 8;
