@@ -311,36 +311,40 @@ function initPeer() {
     };
 
     /**
-     * WebRTC: onaddstream is deprecated! Use peerConnection.ontrack instead
+     * WebRTC: onaddstream is deprecated! Use peerConnection.ontrack instead (done)
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onaddstream
+     * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ontrack
      */
-    peers[peer_id].onaddstream = function (event) {
-      console.log("onaddstream", event);
-      remoteMediaStream = event.stream;
-      const videoWrap = document.createElement("div");
-      const remoteMedia = document.createElement("video");
-      videoWrap.className = "video";
-      videoWrap.appendChild(remoteMedia);
-      remoteMedia.setAttribute("playsinline", true);
-      remoteMedia.mediaGroup = "remotevideo";
-      remoteMedia.poster = loaderGif;
-      remoteMedia.autoplay = true;
-      remoteMedia.controls = false;
-      peerMediaElements[peer_id] = remoteMedia;
-      document.body.appendChild(videoWrap);
-
-      // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(remoteMedia, remoteMediaStream);
-      remoteMedia.poster = null;
-      resizeVideos();
+    let ontrackCount = 0;
+    peers[peer_id].ontrack = function (event) {
+      ontrackCount++;
+      if (ontrackCount === 2) {
+        console.log("ontrack", event);
+        remoteMediaStream = event.streams[0];
+        const videoWrap = document.createElement("div");
+        const remoteMedia = document.createElement("video");
+        videoWrap.className = "video";
+        videoWrap.appendChild(remoteMedia);
+        remoteMedia.setAttribute("playsinline", true);
+        remoteMedia.mediaGroup = "remotevideo";
+        remoteMedia.poster = loaderGif;
+        remoteMedia.autoplay = true;
+        remoteMedia.controls = false;
+        peerMediaElements[peer_id] = remoteMedia;
+        document.body.appendChild(videoWrap);
+        // attachMediaStream is a part of the adapter.js library
+        attachMediaStream(remoteMedia, remoteMediaStream);
+        remoteMedia.poster = null;
+        resizeVideos();
+      }
     };
 
     /**
-     * Old: peers[peer_id].addStream(localMediaStream); // Add our local stream
+     * peers[peer_id].addStream(localMediaStream); // no longer raccomanded
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream
+     * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
      */
     localMediaStream.getTracks().forEach(function (track) {
-      //console.log("track -----------> ", track.kind);
       peers[peer_id].addTrack(track, localMediaStream);
     });
 
