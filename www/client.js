@@ -41,7 +41,7 @@ var peers = {}; // keep track of our peer connections, indexed by peer_id == soc
 var peerMediaElements = {}; // keep track of our <video> tags, indexed by peer_id
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
 
-var map = {
+var chatInputEmoji = {
   "<3": "\u2764\uFE0F",
   "</3": "\uD83D\uDC94",
   ":D": "\uD83D\uDE00",
@@ -85,7 +85,7 @@ var msgerEmojiPicker = null;
 var msgerEmojiHeader = null;
 var msgerCloseEmojiBtn = null;
 var emojiPicker = null;
-// audio - video devices
+// my audio - video devices
 var myDevices = null;
 var myDeviceHeader = null;
 var myDevicesCloseBtn = null;
@@ -102,7 +102,6 @@ var myVideo = null;
 function getHtmlElementsById() {
   countTime = get("countTime");
   myVideo = get("myVideo");
-
   // left buttons
   leftButtons = get("leftButtons");
   shareRoomBtn = get("shareRoomBtn");
@@ -117,7 +116,6 @@ function getHtmlElementsById() {
   myDevicesBtn = get("myDevicesBtn");
   aboutBtn = get("aboutBtn");
   leaveRoomBtn = get("leaveRoomBtn");
-
   // chat Room elements
   msgerDraggable = get("msgerDraggable");
   msgerHeader = get("msgerHeader");
@@ -129,14 +127,12 @@ function getHtmlElementsById() {
   msgerChat = get("msgerChat");
   msgerInput = get("msgerInput");
   msgerSendBtn = get("msgerSendBtn");
-
   // chat room emoji picker
   msgerEmojiPicker = get("msgerEmojiPicker");
   msgerEmojiHeader = get("msgerEmojiHeader");
   msgerCloseEmojiBtn = get("msgerCloseEmojiBtn");
   emojiPicker = getS("emoji-picker");
-
-  // audio - video devices elements
+  // my audio - video devices
   myDevices = get("myDevices");
   myDeviceHeader = get("myDeviceHeader");
   myDevicesCloseBtn = get("myDevicesCloseBtn");
@@ -202,7 +198,7 @@ function noPeers() {
 }
 
 /**
- * Get started
+ * On body load Get started
  */
 function initPeer() {
   // set mirotalk theme
@@ -667,17 +663,13 @@ function startCountTime() {
 function getTimeToString(time) {
   let diffInHrs = time / 3600000;
   let hh = Math.floor(diffInHrs);
-
   let diffInMin = (diffInHrs - hh) * 60;
   let mm = Math.floor(diffInMin);
-
   let diffInSec = (diffInMin - mm) * 60;
   let ss = Math.floor(diffInSec);
-
   let formattedHH = hh.toString().padStart(2, "0");
   let formattedMM = mm.toString().padStart(2, "0");
   let formattedSS = ss.toString().padStart(2, "0");
-
   return `${formattedHH}:${formattedMM}:${formattedSS}`;
 }
 
@@ -782,7 +774,6 @@ function setFullScreenBtn() {
         fullScreenBtn.className = "fas fa-expand-alt";
       }
     });
-
     fullScreenBtn.addEventListener("click", (e) => {
       toggleFullScreen();
     });
@@ -856,9 +847,9 @@ function setChatRoomBtn() {
 
   // on input check 4emoji from map
   msgerInput.oninput = function () {
-    for (var i in map) {
+    for (var i in chatInputEmoji) {
       var regex = new RegExp(escapeSpecialChars(i), "gim");
-      this.value = this.value.replace(regex, map[i]);
+      this.value = this.value.replace(regex, chatInputEmoji[i]);
     }
   };
 
@@ -1777,10 +1768,13 @@ function getAbout() {
     position: "center",
     title: "<strong>WebRTC Made with ❤️</strong>",
     imageAlt: "mirotalk",
-    // imageUrl: loaderGif,
-    // imageWidth: 320,
-    // imageHeight: 240,
+    /*
+    imageUrl: loaderGif,
+    imageWidth: 320,
+    imageHeight: 240,
+    */
     html: `
+    <br>
     <a title="Customer reviews of mirotalk.herokuapp.com" href="https://www.webwiki.com/mirotalk.herokuapp.com" target="_blank"><img src="https://www.webwiki.com/etc/rating/widget/1332372621/mirotalk-herokuapp-com-rating-round-220.png" alt="Reviews of mirotalk.herokuapp.com" /></a>
     <br><br>
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
