@@ -1777,10 +1777,14 @@ function getAbout() {
     position: "center",
     title: "<strong>WebRTC Made with ❤️</strong>",
     imageAlt: "mirotalk",
-    imageUrl: loaderGif,
-    imageWidth: 320,
-    imageHeight: 240,
-    html: `<div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>`,
+    // imageUrl: loaderGif,
+    // imageWidth: 320,
+    // imageHeight: 240,
+    html: `
+    <a title="Customer reviews of mirotalk.herokuapp.com" href="https://www.webwiki.com/mirotalk.herokuapp.com" target="_blank"><img src="https://www.webwiki.com/etc/rating/widget/1332372621/mirotalk-herokuapp-com-rating-round-220.png" alt="Reviews of mirotalk.herokuapp.com" /></a>
+    <br><br>
+    <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
+    `,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
     },
