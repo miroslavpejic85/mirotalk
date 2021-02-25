@@ -459,7 +459,7 @@ video:fullscreen {
 }
 */
 .swal2-select {
-  background-color: transparent !important;
+  background-color: black !important;
   color: white !important;
   border-radius: 6px !important;
 }
