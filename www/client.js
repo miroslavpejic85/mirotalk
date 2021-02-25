@@ -1197,6 +1197,7 @@ async function shareRoomUrl() {
   tmpInput.setSelectionRange(0, 99999);
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", ROOM_URL);
+  document.body.removeChild(tmpInput);
   // navigator share
   let isSupportedNavigatorShare = false;
   let errorNavigatorShare = false;
@@ -1233,7 +1234,6 @@ async function shareRoomUrl() {
       },
       timer: 4000,
     });
-    document.body.removeChild(tmpInput);
   }
 }
 
