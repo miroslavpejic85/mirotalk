@@ -168,8 +168,12 @@ button:hover {
   z-index: 9;
   display: none;
   position: absolute;
-  top: var(--msger-top);
-  left: var(--msger-left);
+  /* center */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* top: var(--msger-top);
+  left: var(--msger-left); */
   height: var(--msger-height);
   width: var(--msger-width);
   background: var(--msger-bg);
