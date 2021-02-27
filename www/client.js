@@ -807,8 +807,7 @@ function setChatRoomBtn() {
     if (!isChatRoomVisible) {
       showChatRoom();
     } else {
-      msgerDraggable.style.display = "none";
-      isChatRoomVisible = false;
+      hideChatRoomAndEmojiPicker();
       e.target.className = "fas fa-comment";
     }
   });
@@ -1170,9 +1169,12 @@ function attachMediaStream(element, stream) {
 
 /**
  * Show left buttons for 10 seconds on body mousemove
+ * if mobile and chatroom open do nothing return
  */
 function showLeftButtons() {
-  if (isButtonsVisible || isChatRoomVisible) return;
+  if (isButtonsVisible || (isMobileDevice && isChatRoomVisible)) {
+    return;
+  }
   leftButtons.style.display = "flex";
   isButtonsVisible = true;
   setTimeout(function () {
@@ -1460,10 +1462,12 @@ function showChatRoom() {
 }
 
 /**
- * Show msger draggable
+ * Show msger draggable on center screen position
  */
 function showMsgerDraggable() {
   chatRoomBtn.className = "fas fa-comment-slash";
+  msgerDraggable.style.top = "50%";
+  msgerDraggable.style.left = "50%";
   msgerDraggable.style.display = "flex";
   checkCountTime();
   isChatRoomVisible = true;

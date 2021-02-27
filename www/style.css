@@ -28,8 +28,8 @@
 
 :root {
   /* common */
-  --msger-top: 3px;
-  --msger-left: 3px;
+  --msger-top: 50%;
+  --msger-left: 50%;
   --msger-height: 732px;
   --msger-width: 412px;
 
@@ -168,12 +168,11 @@ button:hover {
   z-index: 9;
   display: none;
   position: absolute;
-  /* center */
-  top: 50%;
-  left: 50%;
+  /* center screen */
+  top: var(--msger-top);
+  left: var(--msger-left);
   transform: translate(-50%, -50%);
-  /* top: var(--msger-top);
-  left: var(--msger-left); */
+  /* end center screen  */
   height: var(--msger-height);
   width: var(--msger-width);
   background: var(--msger-bg);
