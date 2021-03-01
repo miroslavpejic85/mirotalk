@@ -11,6 +11,7 @@
 const loaderGif = "/images/loader.gif";
 const myChatAvatar = "/images/programmer.svg";
 const friendChatAvatar = "/images/friend.svg";
+const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const notifyBySound = true; // turn on-off sound notifications
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
@@ -23,6 +24,7 @@ var signalingServerPort = 80;
 var signalingServer = getServerUrl();
 var roomId = getRoomId();
 var peerInfo = getPeerInfo();
+var peerGeo = null;
 var peerConnection = null;
 var myChatName = null;
 var useAudio = true;
@@ -159,6 +161,16 @@ function getPeerInfo() {
 }
 
 /**
+ * Get approximative peer geolocation
+ * @return json
+ */
+function getPeerGeoLocation() {
+  $.getJSON(peerLoockupUrl, function (data) {
+    peerGeo = data;
+  });
+}
+
+/**
  * Get Signaling server url
  * @return Signaling server Url
  */
@@ -222,23 +234,22 @@ function initPeer() {
    */
   signalingSocket.on("connect", function () {
     console.log("Connected to signaling server");
-    if (localMediaStream) joinToChannel(roomId, peerInfo);
+    if (localMediaStream) joinToChannel();
     else
       setupLocalMedia(function () {
-        joinToChannel(roomId, peerInfo);
+        joinToChannel();
       });
   });
 
   /**
    * join to chennel and send some peer info
-   * @param {*} channel
-   * @param {*} peerInfo
    */
-  function joinToChannel(channel, peerInfo) {
-    console.log("join to channel", channel);
+  function joinToChannel() {
+    console.log("join to channel", roomId);
     signalingSocket.emit("join", {
-      channel: channel,
+      channel: roomId,
       peerInfo: peerInfo,
+      peerGeo: peerGeo,
     });
   }
 
@@ -568,6 +579,8 @@ function setupLocalMedia(callback, errorback) {
       track.stop();
     });
   }
+
+  getPeerGeoLocation();
 
   /**
    * Ask user for permission to use the computers microphone and/or camera,
