@@ -29,18 +29,20 @@ Open the app in one of following **supported browser**
 
 ## Features
 
+- Is 100% free and open-source
+- Unlimited users, without time limitation
 - Room Url Sharing (share to your friends, wait them to join)
 - WebCam Streaming (Front - Rear)
 - Audio Streaming
-- Screen Sharing
+- Screen Sharing to present documents, slides, and more
 - Quick Message
 - Chat Room && Emoji Picker
 - Full Screen Mode
 - Change Theme
 - Select Audio Input - Output && Video source
 - Right click on Video elements for more options
-- No download required, entirely browser based
-- Direct peer to peer connection ensures lowest latency
+- No download required, No account needed, entirely browser based
+- Direct peer-to-peer connection ensures lowest latency thanks to webrtc
 
 ## Demo
 
@@ -48,6 +50,11 @@ Open the app in one of following **supported browser**
 - `Allow` to use the camera and microphone
 - `Click` the first button to copy the url and then share it
 - `Wait` someone to join for video conference
+
+## Room
+
+- You can also create a room by going to https://mirotalk.herokuapp.com/your-room-name-goes-here
+- if you not specified, a random name will bill created
 
 ## Quick start
 
@@ -102,6 +109,7 @@ Many Thanks to vasanthv (webrtc) and Sajad Hashemian (chat) from where I taked i
 ## Contributing
 
 - Pull Requests are welcome! :slightly_smiling_face:
-- Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`.
-- For communication we use Gitter Chat which can be found here:  
+- Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`
+- For communication we use Gitter Chat which can be found here:
+
   [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
