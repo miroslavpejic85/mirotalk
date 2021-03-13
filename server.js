@@ -20,12 +20,13 @@ const { Server } = require("socket.io");
 const io = new Server().listen(server);
 const ngrok = require("ngrok");
 
-var PORT = process.env.PORT || 80;
+var PORT = process.env.PORT || 80; // signalingServerPort
 var channels = {}; // collect channels
 var sockets = {}; // collect sockets
 
 var ngrokEnabled = process.env.NGROK_ENABLED;
 var ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
+var turnEnabled = process.env.TURN_ENABLED;
 var turnUrls = process.env.TURN_URLS;
 var turnUsername = process.env.TURN_USERNAME;
 var turnCredential = process.env.TURN_PASSWORD;
@@ -68,14 +69,18 @@ async function ngrokStart() {
  * Check the functionality of STUN/TURN servers:
  * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
-var iceServers = [
-  { urls: "stun:stun.l.google.com:19302" },
-  {
-    urls: turnUrls,
-    username: turnUsername,
-    credential: turnCredential,
-  },
-];
+var iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
+
+if (turnEnabled == "true") {
+  iceServers = [
+    { urls: "stun:stun.l.google.com:19302" },
+    {
+      urls: turnUrls,
+      username: turnUsername,
+      credential: turnCredential,
+    },
+  ];
+}
 
 /**
  * Start Local Server with ngrok https tunnel (optional)
