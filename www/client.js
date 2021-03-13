@@ -179,7 +179,8 @@ function getServerUrl() {
     "http" +
     (location.hostname == "localhost" ? "" : "s") +
     "://" +
-    location.hostname
+    location.hostname +
+    (location.hostname == "localhost" ? ":" + signalingServerPort : "")
   );
 }
 
