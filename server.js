@@ -20,7 +20,7 @@ const { Server } = require("socket.io");
 const io = new Server().listen(server);
 const ngrok = require("ngrok");
 
-var PORT = process.env.PORT || 80; // signalingServerPort
+var PORT = process.env.PORT || 3000; // signalingServerPort
 var channels = {}; // collect channels
 var sockets = {}; // collect sockets
 

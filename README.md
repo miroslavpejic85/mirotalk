@@ -79,6 +79,7 @@ cp .env.template .env
 - Create an account on http://numb.viagenie.ca
 - Get your Account USERNAME and PASSWORD
 - Fill in your credentials in the `.env` file
+- Set `TURN_ENABLED=true`, if you want enable the Turn Server.
 
 `Ngrok`
 
@@ -98,7 +99,7 @@ npm install
 npm start
 ```
 
-- Open http://localhost:80 in browser
+- Open http://localhost:3000 in browser
 - If you want to use a client on another computer/network, make sure you publish your server on an HTTPS connection.
   You can use a service like [ngrok](https://ngrok.com/) Or deploy it on [heroku](https://www.heroku.com/).
 

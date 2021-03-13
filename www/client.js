@@ -20,7 +20,7 @@ var startTime;
 var elapsedTime;
 var mirotalkTheme = "neon"; // neon - dark - ghost ...
 var swalBackground = "transparent"; // black - #16171b ...
-var signalingServerPort = 80;
+var signalingServerPort = 3000; // must be same of server PORT
 var signalingServer = getServerUrl();
 var roomId = getRoomId();
 var peerInfo = getPeerInfo();
