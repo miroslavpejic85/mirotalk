@@ -1,21 +1,18 @@
 # git folder
 .git
 
-# NPM
+# npm
 node_modules
 npm-debug.log
 
-# Package
+# package
 package-lock.json
 
-# Testing
-.nyc_output
-
-# Mac
+# mac
 .DS_Store
 
 # cache
 .cache
 
-# env
+# personal env
 .env

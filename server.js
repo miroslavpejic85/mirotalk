@@ -81,6 +81,8 @@ var iceServers = [
  * Start Local Server with ngrok https tunnel (optional)
  */
 server.listen(PORT, null, function () {
+  let localHost = "http://localhost:" + PORT;
+
   console.log(
     `%c
 
@@ -98,9 +100,10 @@ server.listen(PORT, null, function () {
   if (ngrokEnabled == "true") {
     ngrokStart();
   }
+
   // init settings
   console.log("settings", {
-    http: "http://localhost:" + PORT,
+    http: localHost,
     iceServers: iceServers,
     ngrok: {
       ngrok_enabled: ngrokEnabled,

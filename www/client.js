@@ -290,14 +290,7 @@ function initPeer() {
     console.log("iceServers", iceServers[0]);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
-    peerConnection = new RTCPeerConnection(
-      { iceServers: iceServers },
-      {
-        optional: [
-          { DtlsSrtpKeyAgreement: true }, // is required for Chrome and Firefox to interoperate.
-        ],
-      }
-    );
+    peerConnection = new RTCPeerConnection({ iceServers: iceServers });
 
     // collect peer connections
     peers[peer_id] = peerConnection;
