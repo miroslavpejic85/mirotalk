@@ -66,7 +66,7 @@ git clone git@github.com:miroslavpejic85/mirotalk.git
 cd mirotalk
 ```
 
-## Set up credentials
+## Setup Turn and Ngrok
 
 - Copy .env.template to .env
 
@@ -113,4 +113,4 @@ Many Thanks to vasanthv (webrtc) and Sajad Hashemian (chat) from where I taked i
 - Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`
 - For communication we use Gitter Chat which can be found here:
 
-  [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
