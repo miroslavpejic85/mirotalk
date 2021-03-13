@@ -621,11 +621,12 @@ function setupLocalMedia(callback, errorback) {
       attachMediaStream(localMedia, localMediaStream);
       localMedia.poster = null;
       resizeVideos();
+
       getHtmlElementsById();
-      startCountTime();
       manageLeftButtons();
       handleBodyOnMouseMove();
       setupAudioVideoDevices();
+      startCountTime();
 
       if (callback) callback();
     })

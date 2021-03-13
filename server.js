@@ -72,14 +72,11 @@ async function ngrokStart() {
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
 
 if (turnEnabled == "true") {
-  iceServers = [
-    { urls: "stun:stun.l.google.com:19302" },
-    {
-      urls: turnUrls,
-      username: turnUsername,
-      credential: turnCredential,
-    },
-  ];
+  iceServers.push({
+    urls: turnUrls,
+    username: turnUsername,
+    credential: turnCredential,
+  });
 }
 
 /**
