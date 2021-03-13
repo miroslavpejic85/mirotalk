@@ -11,6 +11,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
 require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const app = express();
@@ -63,9 +64,11 @@ async function ngrokStart() {
 /**
  * You should probably use a different stun-turn server
  * doing commercial stuff, also see:
+ *
  * https://gist.github.com/zziuni/3741933
  * https://www.twilio.com/docs/stun-turn
  * https://github.com/coturn/coturn
+ *
  * Check the functionality of STUN/TURN servers:
  * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
@@ -103,7 +106,7 @@ server.listen(PORT, null, function () {
     ngrokStart();
   }
 
-  // init settings
+  // server settings
   console.log("settings", {
     http: localHost,
     iceServers: iceServers,
@@ -192,8 +195,8 @@ io.sockets.on("connect", (socket) => {
     delete channels[channel][socket.id];
 
     for (var id in channels[channel]) {
-      channels[channel][id].emit("removePeer", { peer_id: socket.id });
-      socket.emit("removePeer", { peer_id: id });
+      await channels[channel][id].emit("removePeer", { peer_id: socket.id });
+      await socket.emit("removePeer", { peer_id: id });
       console.log("[" + socket.id + "] emit remove Peer [" + id + "]");
     }
   }
@@ -239,7 +242,7 @@ io.sockets.on("connect", (socket) => {
   });
 
   /**
-   * Handle peers messages
+   * Relay MSG to peers
    */
   socket.on("msg", (config) => {
     let peerConnections = config.peerConnections;
