@@ -242,7 +242,7 @@ io.sockets.on("connect", (socket) => {
    * Handle peers messages
    */
   socket.on("msg", (config) => {
-    let peers = config.peers;
+    let peerConnections = config.peerConnections;
     let name = config.name;
     let msg = config.msg;
     let type = config.type;
@@ -252,7 +252,7 @@ io.sockets.on("connect", (socket) => {
       msg: msg,
     });
 
-    for (var peer_id in peers) {
+    for (var peer_id in peerConnections) {
       sockets[peer_id].emit("onMessage", {
         name: name,
         msg: msg,

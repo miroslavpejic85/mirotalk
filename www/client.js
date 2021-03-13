@@ -38,9 +38,9 @@ var isButtonsVisible = false;
 var isAudioVideoDevicesVisible = false;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
-var remoteMediaStream = null; // friends microphone / webcam
-var peers = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
-var peerMediaElements = {}; // keep track of our <video> tags, indexed by peer_id
+var remoteMediaStream = null; // peers microphone / webcam
+var peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
+var peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
 
 var chatInputEmoji = {
@@ -200,11 +200,11 @@ function getRoomId() {
 }
 
 /**
- * Check if there is peers connection
+ * Check if there is peer connections
  * @return true, false otherwise
  */
-function noPeers() {
-  if (Object.keys(peers).length === 0) {
+function noPeerConnections() {
+  if (Object.keys(peerConnections).length === 0) {
     return true;
   }
   return false;
@@ -264,10 +264,10 @@ function initPeer() {
       document.body.removeChild(peerMediaElements[peer_id].parentNode);
       resizeVideos();
     }
-    for (var peer_id in peers) {
-      peers[peer_id].close();
+    for (var peer_id in peerConnections) {
+      peerConnections[peer_id].close();
     }
-    peers = {};
+    peerConnections = {};
     peerMediaElements = {};
   });
 
@@ -281,7 +281,8 @@ function initPeer() {
     // console.log('addPeer', JSON.stringify(config))
 
     var peer_id = config.peer_id;
-    if (peer_id in peers) {
+
+    if (peer_id in peerConnections) {
       // This could happen if the user joins multiple channels where the other peer is also in.
       console.log("Already connected to peer", peer_id);
       return;
@@ -294,11 +295,11 @@ function initPeer() {
     peerConnection = new RTCPeerConnection({ iceServers: iceServers });
 
     // collect peer connections
-    peers[peer_id] = peerConnection;
+    peerConnections[peer_id] = peerConnection;
     playSound("addPeer");
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
-    peers[peer_id].onicecandidate = function (event) {
+    peerConnections[peer_id].onicecandidate = function (event) {
       if (event.candidate) {
         signalingSocket.emit("relayICE", {
           peer_id: peer_id,
@@ -317,7 +318,7 @@ function initPeer() {
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ontrack
      */
     let ontrackCount = 0;
-    peers[peer_id].ontrack = function (event) {
+    peerConnections[peer_id].ontrack = function (event) {
       ontrackCount++;
       if (ontrackCount === 2) {
         console.log("ontrack", event);
@@ -341,12 +342,12 @@ function initPeer() {
     };
 
     /**
-     * peers[peer_id].addStream(localMediaStream); // no longer raccomanded
+     * peerConnections[peer_id].addStream(localMediaStream); // no longer raccomanded
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
      */
     localMediaStream.getTracks().forEach(function (track) {
-      peers[peer_id].addTrack(track, localMediaStream);
+      peerConnections[peer_id].addTrack(track, localMediaStream);
     });
 
     /**
@@ -358,12 +359,12 @@ function initPeer() {
     if (config.should_create_offer) {
       console.log("Creating RTC offer to", peer_id);
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
-      peers[peer_id]
+      peerConnections[peer_id]
         .createOffer()
         .then(function (local_description) {
           console.log("Local offer description is", local_description);
           // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
-          peers[peer_id]
+          peerConnections[peer_id]
             .setLocalDescription(local_description)
             .then(function () {
               signalingSocket.emit("relaySDP", {
@@ -393,26 +394,25 @@ function initPeer() {
     console.log("Remote Session-description", config);
 
     var peer_id = config.peer_id;
-    var peer = peers[peer_id];
     var remote_description = config.session_description;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription
     var description = new RTCSessionDescription(remote_description);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription
-    peer
+    peerConnections[peer_id]
       .setRemoteDescription(description)
       .then(function () {
         console.log("setRemoteDescription done!");
         if (remote_description.type == "offer") {
           console.log("Creating answer");
           // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createAnswer
-          peer
+          peerConnections[peer_id]
             .createAnswer()
             .then(function (local_description) {
               console.log("Answer description is: ", local_description);
               // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
-              peer
+              peerConnections[peer_id]
                 .setLocalDescription(local_description)
                 .then(function () {
                   signalingSocket.emit("relaySDP", {
@@ -441,10 +441,12 @@ function initPeer() {
    * can begin trying to find the best path to one another on the net.
    */
   signalingSocket.on("iceCandidate", function (config) {
-    var peer = peers[config.peer_id];
+    var peer_id = config.peer_id;
     var ice_candidate = config.ice_candidate;
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate
-    peer.addIceCandidate(new RTCIceCandidate(ice_candidate));
+    peerConnections[peer_id].addIceCandidate(
+      new RTCIceCandidate(ice_candidate)
+    );
   });
 
   /**
@@ -461,24 +463,25 @@ function initPeer() {
     console.log("Signaling server said to remove peer:", config);
 
     var peer_id = config.peer_id;
+
     if (peer_id in peerMediaElements) {
       document.body.removeChild(peerMediaElements[peer_id].parentNode);
       resizeVideos();
     }
-    if (peer_id in peers) {
-      peers[peer_id].close();
+    if (peer_id in peerConnections) {
+      peerConnections[peer_id].close();
     }
 
-    delete peers[peer_id];
-    delete peerMediaElements[config.peer_id];
+    delete peerConnections[peer_id];
+    delete peerMediaElements[peer_id];
     playSound("removePeer");
   });
 
-  // show messages simple - chat
+  // show messages qmsg (quick msg) - chat msg
   signalingSocket.on("onMessage", function (config) {
     console.log("Receive msg", { msg: config.msg });
     switch (config.type) {
-      case "simple":
+      case "qmsg":
         playSound("newMessage");
         showMessage(config.msg);
         break;
@@ -808,7 +811,7 @@ function setChatRoomBtn() {
 
   // open hide chat room
   chatRoomBtn.addEventListener("click", (e) => {
-    if (noPeers()) {
+    if (noPeerConnections()) {
       userLog("info", "Can't Open Chat Room, no peer connection detected");
       return;
     }
@@ -1045,9 +1048,9 @@ function gotStream(stream) {
   window.stream = stream;
 
   // refresh my video to peers
-  for (var peer_id in peers) {
+  for (var peer_id in peerConnections) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-    var sender = peers[peer_id]
+    var sender = peerConnections[peer_id]
       .getSenders()
       .find((s) => (s.track ? s.track.kind === "video" : false));
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
@@ -1251,7 +1254,7 @@ async function shareRoomUrl() {
  * SwapCamer front (user) - rear (environment)
  */
 function swapCamera() {
-  if (noPeers()) {
+  if (noPeerConnections()) {
     userLog("info", "Can't Swap the Camera, no peer connection detected");
     return;
   }
@@ -1264,9 +1267,9 @@ function swapCamera() {
   navigator.mediaDevices
     .getUserMedia({ video: useVideo })
     .then((camStream) => {
-      for (var peer_id in peers) {
+      for (var peer_id in peerConnections) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-        var sender = peers[peer_id]
+        var sender = peerConnections[peer_id]
           .getSenders()
           .find((s) => (s.track ? s.track.kind === "video" : false));
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
@@ -1297,7 +1300,7 @@ function swapCamera() {
  */
 function toggleScreenSharing() {
   if (!isScreenStreaming) {
-    if (noPeers()) {
+    if (noPeerConnections()) {
       userLog(
         "info",
         "Can't Toggle screen sharing, no peer connection detected"
@@ -1334,9 +1337,9 @@ function toggleScreenSharing() {
   screenMediaPromise
     .then((screenStream) => {
       isScreenStreaming = !isScreenStreaming;
-      for (var peer_id in peers) {
+      for (var peer_id in peerConnections) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-        var sender = peers[peer_id]
+        var sender = peerConnections[peer_id]
           .getSenders()
           .find((s) => (s.track ? s.track.kind === "video" : false));
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
@@ -1391,7 +1394,7 @@ function toggleFullScreen() {
  * https://sweetalert2.github.io
  */
 function sendMessage() {
-  if (noPeers()) {
+  if (noPeerConnections()) {
     userLog("info", "Can't Send msg, no peer connection detected");
     return;
   }
@@ -1416,7 +1419,7 @@ function sendMessage() {
   }).then((result) => {
     if (result.isConfirmed) {
       let msg = result.value;
-      emitMsg("simple", msg, "simple");
+      emitMsg("qmsg", msg, "qmsg");
     }
   });
 }
@@ -1564,7 +1567,7 @@ function showMessage(msg) {
   }).then((result) => {
     if (result.isConfirmed) {
       let msg = result.value;
-      emitMsg("simple", msg, "simple");
+      emitMsg("qmsg", msg, "qmsg");
     }
   });
 }
@@ -1651,7 +1654,7 @@ function getFormatDate(date) {
 function emitMsg(name, msg, type) {
   if (msg) {
     signalingSocket.emit("msg", {
-      peers: peers,
+      peerConnections: peerConnections,
       name: name,
       msg: msg,
       type: type,
@@ -1758,7 +1761,7 @@ function getTheme() {
  */
 function hideShowAudioVideoDevices() {
   if (!isAudioVideoDevicesVisible) {
-    if (noPeers()) {
+    if (noPeerConnections()) {
       userLog("info", "Can't setup devices, no peer connection detected");
       return;
     }
