@@ -12,7 +12,7 @@ const loaderGif = "/images/loader.gif";
 const myChatAvatar = "/images/programmer.svg";
 const friendChatAvatar = "/images/friend.svg";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
-const notifyBySound = true; // turn on-off sound notifications
+const notifyBySound = true; // turn on - off sound notifications
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
@@ -102,45 +102,45 @@ var myVideo = null;
  * Load all Html elements by Id
  */
 function getHtmlElementsById() {
-  countTime = get("countTime");
-  myVideo = get("myVideo");
+  countTime = getId("countTime");
+  myVideo = getId("myVideo");
   // left buttons
-  leftButtons = get("leftButtons");
-  shareRoomBtn = get("shareRoomBtn");
-  audioBtn = get("audioBtn");
-  videoBtn = get("videoBtn");
-  swapCameraBtn = get("swapCameraBtn");
-  screenShareBtn = get("screenShareBtn");
-  fullScreenBtn = get("fullScreenBtn");
-  sendMsgBtn = get("sendMsgBtn");
-  chatRoomBtn = get("chatRoomBtn");
-  themeBtn = get("themeBtn");
-  myDevicesBtn = get("myDevicesBtn");
-  aboutBtn = get("aboutBtn");
-  leaveRoomBtn = get("leaveRoomBtn");
+  leftButtons = getId("leftButtons");
+  shareRoomBtn = getId("shareRoomBtn");
+  audioBtn = getId("audioBtn");
+  videoBtn = getId("videoBtn");
+  swapCameraBtn = getId("swapCameraBtn");
+  screenShareBtn = getId("screenShareBtn");
+  fullScreenBtn = getId("fullScreenBtn");
+  sendMsgBtn = getId("sendMsgBtn");
+  chatRoomBtn = getId("chatRoomBtn");
+  themeBtn = getId("themeBtn");
+  myDevicesBtn = getId("myDevicesBtn");
+  aboutBtn = getId("aboutBtn");
+  leaveRoomBtn = getId("leaveRoomBtn");
   // chat Room elements
-  msgerDraggable = get("msgerDraggable");
-  msgerHeader = get("msgerHeader");
-  msgerButtons = get("msgerButtons");
-  msgerTheme = get("msgerTheme");
-  msgerClean = get("msgerClean");
-  msgerEmojiBtn = get("msgerEmojiBtn");
-  msgerClose = get("msgerClose");
-  msgerChat = get("msgerChat");
-  msgerInput = get("msgerInput");
-  msgerSendBtn = get("msgerSendBtn");
+  msgerDraggable = getId("msgerDraggable");
+  msgerHeader = getId("msgerHeader");
+  msgerButtons = getId("msgerButtons");
+  msgerTheme = getId("msgerTheme");
+  msgerClean = getId("msgerClean");
+  msgerEmojiBtn = getId("msgerEmojiBtn");
+  msgerClose = getId("msgerClose");
+  msgerChat = getId("msgerChat");
+  msgerInput = getId("msgerInput");
+  msgerSendBtn = getId("msgerSendBtn");
   // chat room emoji picker
-  msgerEmojiPicker = get("msgerEmojiPicker");
-  msgerEmojiHeader = get("msgerEmojiHeader");
-  msgerCloseEmojiBtn = get("msgerCloseEmojiBtn");
-  emojiPicker = getS("emoji-picker");
+  msgerEmojiPicker = getId("msgerEmojiPicker");
+  msgerEmojiHeader = getId("msgerEmojiHeader");
+  msgerCloseEmojiBtn = getId("msgerCloseEmojiBtn");
+  emojiPicker = getSl("emoji-picker");
   // my audio - video devices
-  myDevices = get("myDevices");
-  myDeviceHeader = get("myDeviceHeader");
-  myDevicesCloseBtn = get("myDevicesCloseBtn");
-  audioInputSelect = get("audioSource");
-  audioOutputSelect = get("audioOutput");
-  videoSelect = get("videoSource");
+  myDevices = getId("myDevices");
+  myDeviceHeader = getId("myDeviceHeader");
+  myDevicesCloseBtn = getId("myDevicesCloseBtn");
+  audioInputSelect = getId("audioSource");
+  audioOutputSelect = getId("audioOutput");
+  videoSelect = getId("videoSource");
 }
 
 /**
@@ -499,7 +499,6 @@ function initPeer() {
 
 /**
  * Set mirotalk theme neon - dark - ghost
- * https://sweetalert2.github.io
  * @param {*} theme
  */
 function setTheme(theme) {
@@ -1517,7 +1516,7 @@ function cleanMessages() {
       popup: "animate__animated animate__fadeOutUp",
     },
   }).then((result) => {
-    // clean message
+    // clean chat messages
     if (result.isConfirmed) {
       var msgs = msgerChat.firstChild;
       while (msgs) {
@@ -1915,7 +1914,7 @@ async function playSound(state) {
  * Get Html element by Id
  * @param {*} id
  */
-function get(id) {
+function getId(id) {
   return document.getElementById(id);
 }
 
@@ -1923,6 +1922,6 @@ function get(id) {
  * Get Html element by selector
  * @param {*} selector
  */
-function getS(selector) {
+function getSl(selector) {
   return document.querySelector(selector);
 }

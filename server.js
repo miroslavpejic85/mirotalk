@@ -42,7 +42,7 @@ app.get(["/", "/:room"], (req, res) =>
 
 /**
  * Expose server to external with https tunnel using ngrok
- * https://www.iditect.com/how-to/55122741.html
+ * https://ngrok.com
  */
 async function ngrokStart() {
   try {
@@ -102,6 +102,7 @@ server.listen(PORT, null, function () {
     "font-family:monospace"
   );
 
+  // https tunnel
   if (ngrokEnabled == "true") {
     ngrokStart();
   }
