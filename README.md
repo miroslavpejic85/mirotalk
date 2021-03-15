@@ -1,6 +1,6 @@
 # mirotalk
 
-🚀 `A free WebRTC browser-based video call and screen sharing` 🚀
+🚀 `A free WebRTC browser-based video call, chat and screen sharing` 🚀
 
 <br>
 
@@ -19,7 +19,7 @@ Open the app in one of following **supported browser**
 
 [//]: #![webrtc](www/images/webrtc.png)
 
-![browsers](www/images/browsers.png)
+[![Foo](www/images/browsers.png)](https://mirotalk.herokuapp.com/)
 
 ## https://mirotalk.herokuapp.com/
 
@@ -105,7 +105,7 @@ npm start
 
 ## Credits
 
-Many Thanks to vasanthv (webrtc) and Sajad Hashemian (chat) from where I taked inspiration for this project. ❤️
+Many Thanks to vasanthv (webrtc) and Sajad (chat) from where I taked inspiration for this project. ❤️
 
 ## Contributing
 
