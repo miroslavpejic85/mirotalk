@@ -192,11 +192,27 @@ function getRoomId() {
   let roomId = location.pathname.substring(1);
   // if not specified room id, create one random
   if (roomId == "") {
-    roomId = Math.random().toString(36).substr(2, 10);
+    roomId = makeId(12);
     const newurl = signalingServer + "/" + roomId;
     window.history.pushState({ url: newurl }, roomId, newurl);
   }
   return roomId;
+}
+
+/**
+ * Generate random Id
+ * @param {*} length
+ * @returns random id
+ */
+function makeId(length) {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 /**
