@@ -45,16 +45,17 @@
       sizes="32x32"
       href="/images/favicon.png"
     />
+    <!-- mirotalk css-->
     <link rel="stylesheet" href="style.css" />
-    <script
-      src="https://kit.fontawesome.com/d2f1016e6f.js"
-      crossorigin="anonymous"
-    ></script>
     <!-- https://animate.style -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
+    <script
+      src="https://kit.fontawesome.com/d2f1016e6f.js"
+      crossorigin="anonymous"
+    ></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script src="https://cdn.rawgit.com/muaz-khan/DetectRTC/master/DetectRTC.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
@@ -74,8 +75,10 @@
 
     <div id="countTime">00:00:00</div>
 
+    <!-- Start left buttons 
+    https://fontawesome.com/icons?d=gallery
+    -->
     <div id="leftButtons">
-      <!-- https://fontawesome.com/icons?d=gallery -->
       <button
         title="share room"
         id="shareRoomBtn"
@@ -117,10 +120,13 @@
         class="fas fa-phone-slash"
       ></button>
     </div>
+    <!-- End left buttons -->
 
-    <!-- Start chat room -->
+    <!-- Start chat room 
+    https://codepen.io/sajadhsm/pen/odaBdd
+    https://getemoji.com
+    -->
     <section id="msgerDraggable" class="msger-draggable">
-      <!-- https://codepen.io/sajadhsm/pen/odaBdd -->
       <section id="msger" class="msger">
         <header id="msgerHeader" class="msger-header">
           <div class="msger-header-title">
@@ -167,7 +173,7 @@
                 <div class="msg-info-name">Friends Name</div>
                 <div class="msg-info-time">00:00</div>
               </div>
-              <!-- https://getemoji.com -->
+
               <div class="msg-text">Hi, welcome to mirotalk-Chat</div>
             </div>
           </div>
@@ -206,7 +212,9 @@
     </section>
     <!-- End chat room -->
 
-    <!-- https://github.com/nolanlawson/emoji-picker-element -->
+    <!-- Start emoji picker 
+    https://github.com/nolanlawson/emoji-picker-element ] 
+    -->
     <section id="msgerEmojiPicker">
       <header id="msgerEmojiHeader">
         <button
@@ -218,7 +226,9 @@
       <emoji-picker class="dark"></emoji-picker>
       <!-- <emoji-picker class="light"></emoji-picker> -->
     </section>
+    <!-- End emoji picker -->
 
+    <!-- Start audio - video devices -->
     <section id="myDevices">
       <header id="myDeviceHeader">
         <button
@@ -245,6 +255,7 @@
         </div>
       </main>
     </section>
+    <!-- End audio - video devices -->
 
     <!-- 
 		the <video> and <audio> tags are all added and removed dynamically

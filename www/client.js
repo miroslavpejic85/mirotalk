@@ -39,6 +39,7 @@ var isAudioVideoDevicesVisible = false;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
 var remoteMediaStream = null; // peers microphone / webcam
+var remoteMediaControls = false; // enable - disable peers video player controls (default false)
 var peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 var peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
@@ -347,7 +348,10 @@ function initPeer() {
         remoteMedia.mediaGroup = "remotevideo";
         remoteMedia.poster = loaderGif;
         remoteMedia.autoplay = true;
-        remoteMedia.controls = false;
+        isMobileDevice
+          ? (remoteMediaControls = false)
+          : (remoteMediaControls = remoteMediaControls);
+        remoteMedia.controls = remoteMediaControls;
         peerMediaElements[peer_id] = remoteMedia;
         document.body.appendChild(videoWrap);
         // attachMediaStream is a part of the adapter.js library
