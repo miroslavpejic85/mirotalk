@@ -36,6 +36,8 @@ var isChatRoomVisible = false;
 var isChatEmojiVisible = false;
 var isButtonsVisible = false;
 var isAudioVideoDevicesVisible = false;
+var isVideoOnFullScreen = false;
+var isDocumentOnFullScreen = false;
 var signalingSocket = null; // socket.io connection to our webserver
 var localMediaStream = null; // my microphone / webcam
 var remoteMediaStream = null; // peers microphone / webcam
@@ -344,6 +346,7 @@ function initPeer() {
         const remoteMedia = document.createElement("video");
         videoWrap.className = "video";
         videoWrap.appendChild(remoteMedia);
+        remoteMedia.setAttribute("id", peer_id);
         remoteMedia.setAttribute("playsinline", true);
         remoteMedia.mediaGroup = "remotevideo";
         remoteMedia.poster = loaderGif;
@@ -358,6 +361,10 @@ function initPeer() {
         attachMediaStream(remoteMedia, remoteMediaStream);
         remoteMedia.poster = null;
         resizeVideos();
+
+        if (!isMobileDevice) {
+          handleVideoPlayerFs(peer_id);
+        }
       }
     };
 
@@ -650,6 +657,12 @@ function setupLocalMedia(callback, errorback) {
       setupAudioVideoDevices();
       startCountTime();
 
+      /*
+      if (!isMobileDevice) {
+        handleVideoPlayerFs("myVideo");
+      }
+      */
+
       if (callback) callback();
     })
     .catch((e) => {
@@ -671,6 +684,74 @@ function resizeVideos() {
   const videos = document.querySelectorAll(".video");
   document.querySelectorAll(".video").forEach((v) => {
     v.className = "video " + numToString[videos.length];
+  });
+}
+
+/**
+ * On video player click, go on full screen mode.
+ * Press Esc to exit from full screen mode, or click again.
+ * @param {*} videoId
+ */
+function handleVideoPlayerFs(videoId) {
+  var videoPlayer = getId(videoId);
+
+  // handle Chrome Firefox Opera Microsoft Edge videoPlayer ESC
+  videoPlayer.addEventListener("fullscreenchange", function (e) {
+    // if Controls enabled, or document on FS do nothing
+    if (videoPlayer.controls || isDocumentOnFullScreen) return;
+    var fullscreenElement = document.fullscreenElement;
+    if (!fullscreenElement) {
+      videoPlayer.style.pointerEvents = "auto";
+      isVideoOnFullScreen = false;
+      // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
+    }
+  });
+
+  // handle Safari videoPlayer ESC
+  videoPlayer.addEventListener("webkitfullscreenchange", function () {
+    // if Controls enabled, or document on FS do nothing
+    if (videoPlayer.controls || isDocumentOnFullScreen) return;
+    var webkitIsFullScreen = document.webkitIsFullScreen;
+    if (!webkitIsFullScreen) {
+      videoPlayer.style.pointerEvents = "auto";
+      isVideoOnFullScreen = false;
+      // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
+    }
+  });
+
+  videoPlayer.addEventListener("click", (e) => {
+    // if Controls enabled, or document on FS do nothing
+    if (videoPlayer.controls || isDocumentOnFullScreen) return;
+
+    if (!isVideoOnFullScreen) {
+      if (videoPlayer.requestFullscreen) {
+        // Chrome Firefox Opera Microsoft Edge
+        videoPlayer.requestFullscreen();
+      } else if (videoPlayer.webkitRequestFullscreen) {
+        // Safari request full screen mode
+        videoPlayer.webkitRequestFullscreen();
+      } else if (videoPlayer.msRequestFullscreen) {
+        // IE11 request full screen mode
+        videoPlayer.msRequestFullscreen();
+      }
+      isVideoOnFullScreen = true;
+      videoPlayer.style.pointerEvents = "none";
+      // console.log("Go on FS isVideoOnFullScreen", isVideoOnFullScreen);
+    } else {
+      if (document.exitFullscreen) {
+        // Chrome Firefox Opera Microsoft Edge
+        document.exitFullscreen();
+      } else if (document.webkitCancelFullScreen) {
+        // Safari exit full screen mode ( Not work...)
+        document.webkitCancelFullScreen();
+      } else if (document.msExitFullscreen) {
+        // IE11 exit full screen mode
+        document.msExitFullscreen();
+      }
+      isVideoOnFullScreen = false;
+      videoPlayer.style.pointerEvents = "auto";
+      // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
+    }
   });
 }
 
@@ -802,6 +883,7 @@ function setFullScreenBtn() {
       var fullscreenElement = document.fullscreenElement;
       if (!fullscreenElement) {
         fullScreenBtn.className = "fas fa-expand-alt";
+        isDocumentOnFullScreen = false;
       }
     });
     fullScreenBtn.addEventListener("click", (e) => {
@@ -1400,10 +1482,12 @@ function toggleFullScreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
     fullScreenBtn.className = "fas fa-compress-alt";
+    isDocumentOnFullScreen = true;
   } else {
     if (document.exitFullscreen) {
       document.exitFullscreen();
       fullScreenBtn.className = "fas fa-expand-alt";
+      isDocumentOnFullScreen = false;
     }
   }
 }
