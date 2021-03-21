@@ -378,9 +378,6 @@ video {
   height: 100%;
   object-fit: var(--video-object-fit);
   border: 5px solid transparent;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
 }
 video:fullscreen {
   object-fit: contain;
