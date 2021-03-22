@@ -1896,6 +1896,7 @@ function getAbout() {
     <a title="Customer reviews of mirotalk.herokuapp.com" href="https://www.webwiki.com/mirotalk.herokuapp.com" target="_blank"><img src="https://www.webwiki.com/etc/rating/widget/1332372621/mirotalk-herokuapp-com-rating-round-220.png" alt="Reviews of mirotalk.herokuapp.com" /></a>
     <br><br>
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
+    <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div>
     `,
     showClass: {
       popup: "animate__animated animate__fadeInDown",

@@ -30,8 +30,8 @@
   /* common */
   --msger-top: 50%;
   --msger-left: 50%;
-  --msger-height: 732px;
-  --msger-width: 412px;
+  --msger-height: 680px;
+  --msger-width: 450px;
 
   /* neon theme default */
   --body-bg: black;
@@ -482,6 +482,9 @@ video:fullscreen {
   /*text-decoration: none;*/
 }
 #chat-msg a {
+  color: white;
+}
+#author a {
   color: white;
 }
 
