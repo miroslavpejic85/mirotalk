@@ -8,7 +8,7 @@
 
 [![Author](https://img.shields.io/badge/Author-miro-brightgreen.svg)](https://www.linkedin.com/in/miroslav-pejic-976a07101/)
 ![License: CC-NC](https://img.shields.io/badge/License-CCNC-blue.svg)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-brightgreen.svg)](https://www.paypal.com/donate?hosted_button_id=K2SG47W4R6ZZN)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-brightgreen.svg)](https://paypal.me/MiroslavPejic?locale.x=it_IT)
 [![Repo Link](https://img.shields.io/badge/Repo-Link-black.svg)](https://github.com/miroslavpejic85/mirotalk)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?)](https://github.com/prettier/prettier)
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -37,7 +37,7 @@ Open the app in one of following **supported browser**
 - Screen Sharing to present documents, slides, and more
 - Quick Message
 - Chat Room && Emoji Picker
-- Full Screen Mode
+- Full Screen Mode on click
 - Change Theme
 - Select Audio Input - Output && Video source
 - Right click on Video elements for more options
