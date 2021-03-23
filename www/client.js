@@ -30,7 +30,6 @@ var myChatName = null;
 var useAudio = true;
 var useVideo = true;
 var camera = "user";
-var videoChange = false;
 var isScreenStreaming = false;
 var isChatRoomVisible = false;
 var isChatEmojiVisible = false;
@@ -742,7 +741,7 @@ function handleVideoPlayerFs(videoId) {
         // Chrome Firefox Opera Microsoft Edge
         document.exitFullscreen();
       } else if (document.webkitCancelFullScreen) {
-        // Safari exit full screen mode ( Not work...)
+        // Safari exit full screen mode ( Not work... )
         document.webkitCancelFullScreen();
       } else if (document.msExitFullscreen) {
         // IE11 exit full screen mode
@@ -1071,23 +1070,20 @@ function setupAudioVideoDevices() {
   audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
   audioInputSelect.addEventListener("change", (e) => {
-    refreshLocalMedia(false);
+    refreshLocalMedia();
   });
   audioOutputSelect.addEventListener("change", (e) => {
     changeAudioDestination();
   });
   videoSelect.addEventListener("change", (e) => {
-    refreshLocalMedia(true);
+    refreshLocalMedia();
   });
 }
 
 /**
  * Refresh Local media audio video in - out
- * @param {*} change boolean videoChange
  */
-function refreshLocalMedia(change) {
-  videoChange = change;
-
+function refreshLocalMedia() {
   if (window.stream) {
     window.stream.getTracks().forEach((track) => {
       track.stop();
@@ -1168,10 +1164,6 @@ function gotStream(stream) {
 
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(myVideo, localMediaStream);
-
-  if (videoChange) {
-    myVideo.classList.toggle("mirror");
-  }
 
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
@@ -1431,6 +1423,11 @@ function toggleScreenSharing() {
       });
     }
   } else {
+    // on screen sharing stop
+    const videoSource = videoSelect.value;
+    const constraints = {
+      video: { deviceId: videoSource ? { exact: videoSource } : undefined },
+    };
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
     // make sure to enable video
     videoBtn.className = "fas fa-video";
@@ -1844,6 +1841,7 @@ function getTheme() {
       dark: "mirotalk-dark",
       ghost: "mirotalk-ghost",
     },
+    inputPlaceholder: "mirotalk-" + mirotalkTheme,
     showDenyButton: true,
     confirmButtonText: `Apply`,
     denyButtonText: `Cancel`,
