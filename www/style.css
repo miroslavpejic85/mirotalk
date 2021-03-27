@@ -381,7 +381,7 @@ video {
 video:fullscreen {
   object-fit: contain;
 }
-.video h2 {
+.video h3 {
   top: 0;
   margin: 10px;
   font-family: Verdana, sans-serif;

@@ -408,7 +408,7 @@ function initPeer() {
 
         // print peers name
         const videoWrap = document.createElement("div");
-        const remoteVideoParagraph = document.createElement("h2");
+        const remoteVideoParagraph = document.createElement("h3");
         const peerVideoText = document.createTextNode(peers[peer_id]);
         remoteVideoParagraph.appendChild(peerVideoText);
         videoWrap.appendChild(remoteVideoParagraph);
@@ -689,7 +689,7 @@ function setupLocalMedia(callback, errorback) {
       const videoWrap = document.createElement("div");
 
       // print my name on top video element
-      const myVideoParagraph = document.createElement("h2");
+      const myVideoParagraph = document.createElement("h3");
       const myVideoText = document.createTextNode("welcome to mirotalk");
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
       myVideoParagraph.appendChild(myVideoText);
