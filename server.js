@@ -24,6 +24,7 @@ const ngrok = require("ngrok");
 var PORT = process.env.PORT || 3000; // signalingServerPort
 var channels = {}; // collect channels
 var sockets = {}; // collect sockets
+var peers = {}; // collect peers id:name in channel
 
 var ngrokEnabled = process.env.NGROK_ENABLED;
 var ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
@@ -151,7 +152,9 @@ io.sockets.on("connect", (socket) => {
    */
   socket.on("join", (config) => {
     console.log("[" + socket.id + "] --> join ", config);
+
     var channel = config.channel;
+    var peer_name = config.peerName;
 
     if (channel in socket.channels) {
       console.log("[" + socket.id + "] [Warning] already joined", channel);
@@ -160,18 +163,25 @@ io.sockets.on("connect", (socket) => {
 
     if (!(channel in channels)) {
       channels[channel] = {};
+      peers[channel] = {};
     }
+
+    // collect peers id:name group by channel
+    peers[channel][socket.id] = peer_name;
+    console.log("connected peers", peers);
 
     for (var id in channels[channel]) {
       // offer false
       channels[channel][id].emit("addPeer", {
         peer_id: socket.id,
+        peers: peers[channel],
         should_create_offer: false,
         iceServers: iceServers,
       });
       // offer true
       socket.emit("addPeer", {
         peer_id: id,
+        peers: peers[channel],
         should_create_offer: true,
         iceServers: iceServers,
       });
@@ -194,6 +204,9 @@ io.sockets.on("connect", (socket) => {
 
     delete socket.channels[channel];
     delete channels[channel][socket.id];
+    delete peers[channel][socket.id];
+
+    // console.log("connected peers", peers);
 
     for (var id in channels[channel]) {
       await channels[channel][id].emit("removePeer", { peer_id: socket.id });
@@ -249,7 +262,6 @@ io.sockets.on("connect", (socket) => {
     let peerConnections = config.peerConnections;
     let name = config.name;
     let msg = config.msg;
-    let type = config.type;
 
     console.log("[" + socket.id + "] emit onMessage", {
       name: name,
@@ -260,7 +272,6 @@ io.sockets.on("connect", (socket) => {
       sockets[peer_id].emit("onMessage", {
         name: name,
         msg: msg,
-        type: type,
       });
     }
   });

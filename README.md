@@ -35,7 +35,6 @@ Open the app in one of following **supported browser**
 - WebCam Streaming (Front - Rear)
 - Audio Streaming
 - Screen Sharing to present documents, slides, and more
-- Quick Message
 - Chat Room && Emoji Picker
 - Full Screen Mode on click
 - Change Theme

@@ -9,6 +9,7 @@
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
 const loaderGif = "/images/loader.gif";
+const welcomeImg = "/images/welcome.png";
 const myChatAvatar = "/images/programmer.svg";
 const friendChatAvatar = "/images/friend.svg";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
@@ -26,7 +27,7 @@ var roomId = getRoomId();
 var peerInfo = getPeerInfo();
 var peerGeo = null;
 var peerConnection = null;
-var myChatName = null;
+var myPeerName = null;
 var useAudio = true;
 var useVideo = true;
 var camera = "user";
@@ -67,7 +68,6 @@ var videoBtn = null;
 var swapCameraBtn = null;
 var screenShareBtn = null;
 var fullScreenBtn = null;
-var sendMsgBtn = null;
 var chatRoomBtn = null;
 var themeBtn = null;
 var myDevicesBtn = null;
@@ -76,7 +76,6 @@ var leaveRoomBtn = null;
 // chat room elements
 var msgerDraggable = null;
 var msgerHeader = null;
-var msgerButtons = null;
 var msgerTheme = null;
 var msgerClean = null;
 var msgerEmojiBtn = null;
@@ -99,6 +98,8 @@ var videoSelect = null;
 var selectors = null;
 // my video element
 var myVideo = null;
+// my conference Name
+var myVideoParagraph = null;
 
 /**
  * Load all Html elements by Id
@@ -114,7 +115,6 @@ function getHtmlElementsById() {
   swapCameraBtn = getId("swapCameraBtn");
   screenShareBtn = getId("screenShareBtn");
   fullScreenBtn = getId("fullScreenBtn");
-  sendMsgBtn = getId("sendMsgBtn");
   chatRoomBtn = getId("chatRoomBtn");
   themeBtn = getId("themeBtn");
   myDevicesBtn = getId("myDevicesBtn");
@@ -123,7 +123,6 @@ function getHtmlElementsById() {
   // chat Room elements
   msgerDraggable = getId("msgerDraggable");
   msgerHeader = getId("msgerHeader");
-  msgerButtons = getId("msgerButtons");
   msgerTheme = getId("msgerTheme");
   msgerClean = getId("msgerClean");
   msgerEmojiBtn = getId("msgerEmojiBtn");
@@ -143,6 +142,8 @@ function getHtmlElementsById() {
   audioInputSelect = getId("audioSource");
   audioOutputSelect = getId("audioOutput");
   videoSelect = getId("videoSource");
+  // my conference Name
+  myVideoParagraph = getId("myVideoParagraph");
 }
 
 /**
@@ -256,9 +257,39 @@ function initPeer() {
     if (localMediaStream) joinToChannel();
     else
       setupLocalMedia(function () {
-        joinToChannel();
+        whoAreYou();
       });
   });
+
+  /**
+   * set your name 4 conference
+   */
+  function whoAreYou() {
+    Swal.fire({
+      allowOutsideClick: false,
+      background: swalBackground,
+      position: "center",
+      icon: "info",
+      title: "Enter your name",
+      input: "text",
+      showClass: {
+        popup: "animate__animated animate__fadeInDown",
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp",
+      },
+      inputValidator: (value) => {
+        if (!value) {
+          return "Please enter youre name";
+        }
+        myPeerName = value;
+        myVideoParagraph.innerHTML = myPeerName;
+        joinToChannel();
+      },
+    }).then(function () {
+      welcomeUser();
+    });
+  }
 
   /**
    * join to chennel and send some peer info
@@ -269,6 +300,38 @@ function initPeer() {
       channel: roomId,
       peerInfo: peerInfo,
       peerGeo: peerGeo,
+      peerName: myPeerName,
+    });
+  }
+
+  /**
+   * welcome message
+   */
+  function welcomeUser() {
+    const myRoomUrl = window.location.href;
+    Swal.fire({
+      background: swalBackground,
+      position: "center",
+      title: "<strong>Welcome " + myPeerName + "</strong>",
+      imageAlt: "welcome",
+      imageUrl: welcomeImg,
+      imageWidth: 320,
+      imageHeight: 240,
+      html:
+        `
+      <br> 
+      Share this link to join on this call
+      <br>
+      <p style="color:rgb(8, 189, 89);">` +
+        myRoomUrl +
+        `</p>
+      <br>`,
+      showClass: {
+        popup: "animate__animated animate__fadeInDown",
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp",
+      },
     });
   }
 
@@ -296,9 +359,10 @@ function initPeer() {
    * connections in the network).
    */
   signalingSocket.on("addPeer", function (config) {
-    // console.log('addPeer', JSON.stringify(config))
+    // console.log("addPeer", JSON.stringify(config));
 
     var peer_id = config.peer_id;
+    var peers = config.peers;
 
     if (peer_id in peerConnections) {
       // This could happen if the user joins multiple channels where the other peer is also in.
@@ -341,14 +405,20 @@ function initPeer() {
       if (ontrackCount === 2) {
         console.log("ontrack", event);
         remoteMediaStream = event.streams[0];
+
+        // print peers name
         const videoWrap = document.createElement("div");
+        const remoteVideoParagraph = document.createElement("h2");
+        const peerVideoText = document.createTextNode(peers[peer_id]);
+        remoteVideoParagraph.appendChild(peerVideoText);
+        videoWrap.appendChild(remoteVideoParagraph);
+
         const remoteMedia = document.createElement("video");
         videoWrap.className = "video";
         videoWrap.appendChild(remoteMedia);
         remoteMedia.setAttribute("id", peer_id);
         remoteMedia.setAttribute("playsinline", true);
         remoteMedia.mediaGroup = "remotevideo";
-        remoteMedia.poster = loaderGif;
         remoteMedia.autoplay = true;
         isMobileDevice
           ? (remoteMediaControls = false)
@@ -358,7 +428,6 @@ function initPeer() {
         document.body.appendChild(videoWrap);
         // attachMediaStream is a part of the adapter.js library
         attachMediaStream(remoteMedia, remoteMediaStream);
-        remoteMedia.poster = null;
         resizeVideos();
 
         if (!isMobileDevice) {
@@ -503,23 +572,15 @@ function initPeer() {
     playSound("removePeer");
   });
 
-  // show messages qmsg (quick msg) - chat msg
+  // show chat messages
   signalingSocket.on("onMessage", function (config) {
     console.log("Receive msg", { msg: config.msg });
-    switch (config.type) {
-      case "qmsg":
-        playSound("newMessage");
-        showMessage(config.msg);
-        break;
-      case "chat":
-        if (!isChatRoomVisible) {
-          showChatRoom();
-          chatRoomBtn.className = "fas fa-comment-slash";
-        }
-        playSound("newMessage");
-        appendMessage(config.name, friendChatAvatar, "left", config.msg);
-        break;
+    if (!isChatRoomVisible) {
+      showChatRoomDraggable();
+      chatRoomBtn.className = "fas fa-comment-slash";
     }
+    playSound("newMessage");
+    appendMessage(config.name, friendChatAvatar, "left", config.msg);
   });
 } // end [initPeer]
 
@@ -532,7 +593,7 @@ function setTheme(theme) {
   switch (mirotalkTheme) {
     case "neon":
       // neon theme
-      swalBackground = "transparent";
+      swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
       document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
@@ -547,7 +608,7 @@ function setTheme(theme) {
       break;
     case "dark":
       // dark theme
-      swalBackground = "transparent";
+      swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "#16171b");
       document.documentElement.style.setProperty("--msger-bg", "#16171b");
       document.documentElement.style.setProperty("--left-msg-bg", "#222328");
@@ -626,6 +687,14 @@ function setupLocalMedia(callback, errorback) {
 
       // Setup localMedia
       const videoWrap = document.createElement("div");
+
+      // print my name on top video element
+      const myVideoParagraph = document.createElement("h2");
+      const myVideoText = document.createTextNode("welcome to mirotalk");
+      myVideoParagraph.setAttribute("id", "myVideoParagraph");
+      myVideoParagraph.appendChild(myVideoText);
+      videoWrap.appendChild(myVideoParagraph);
+
       const localMedia = document.createElement("video");
       videoWrap.className = "video";
       videoWrap.setAttribute("id", "myVideoWrap");
@@ -633,7 +702,6 @@ function setupLocalMedia(callback, errorback) {
       localMedia.setAttribute("id", "myVideo");
       localMedia.setAttribute("playsinline", true);
       localMedia.className = "mirror";
-      localMedia.poster = loaderGif;
       localMedia.autoplay = true;
       localMedia.muted = true;
       localMedia.volume = 0;
@@ -647,7 +715,6 @@ function setupLocalMedia(callback, errorback) {
 
       // attachMediaStream is a part of the adapter.js library
       attachMediaStream(localMedia, localMediaStream);
-      localMedia.poster = null;
       resizeVideos();
 
       getHtmlElementsById();
@@ -793,7 +860,6 @@ function manageLeftButtons() {
   setSwapCameraBtn();
   setScreenShareBtn();
   setFullScreenBtn();
-  setSendMsgBtn();
   setChatRoomBtn();
   setChatEmojiBtn();
   setThemeBtn();
@@ -894,15 +960,6 @@ function setFullScreenBtn() {
 }
 
 /**
- * Send quick message button click event
- */
-function setSendMsgBtn() {
-  sendMsgBtn.addEventListener("click", (e) => {
-    sendMessage();
-  });
-}
-
-/**
  * Chat room buttons click event
  */
 function setChatRoomBtn() {
@@ -916,16 +973,11 @@ function setChatRoomBtn() {
       return;
     }
     if (!isChatRoomVisible) {
-      showChatRoom();
+      showChatRoomDraggable();
     } else {
       hideChatRoomAndEmojiPicker();
       e.target.className = "fas fa-comment";
     }
-  });
-
-  // show left buttons
-  msgerButtons.addEventListener("click", (e) => {
-    checkLeftButtons();
   });
 
   // ghost theme + undo
@@ -972,8 +1024,8 @@ function setChatRoomBtn() {
     // empity msg
     if (!msg) return;
 
-    emitMsg(myChatName, msg, "chat");
-    appendMessage(myChatName, myChatAvatar, "right", msg);
+    emitMsg(myPeerName, msg);
+    appendMessage(myPeerName, myChatAvatar, "right", msg);
     msgerInput.value = "";
   });
 }
@@ -1304,6 +1356,7 @@ async function shareRoomUrl() {
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", ROOM_URL);
   document.body.removeChild(tmpInput);
+
   // navigator share
   let isSupportedNavigatorShare = false;
   let errorNavigatorShare = false;
@@ -1321,24 +1374,31 @@ async function shareRoomUrl() {
       // console.error("navigator.share", error);
     }
   }
+
   // something wrong or not supported navigator.share
   if (
     !isSupportedNavigatorShare ||
     (isSupportedNavigatorShare && errorNavigatorShare)
   ) {
     Swal.fire({
+      allowOutsideClick: false,
       background: swalBackground,
       position: "center",
       icon: "success",
       title: "Copied to clipboard",
-      text: "Join link: " + ROOM_URL,
+      html:
+        `
+      Send this link to all participants
+      <p style="color:rgb(8, 189, 89);">` +
+        ROOM_URL +
+        `</p>
+      <br>`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
       hideClass: {
         popup: "animate__animated animate__fadeOutUp",
       },
-      timer: 4000,
     });
   }
 }
@@ -1490,41 +1550,6 @@ function toggleFullScreen() {
 }
 
 /**
- * Send quick message to peers
- * https://sweetalert2.github.io
- */
-function sendMessage() {
-  if (noPeerConnections()) {
-    userLog("info", "Can't Send msg, no peer connection detected");
-    return;
-  }
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    input: "text",
-    inputLabel: "Send Message",
-    inputPlaceholder: "Type your message here...",
-    inputAttributes: {
-      "aria-label": "Type your message here",
-    },
-    showDenyButton: true,
-    confirmButtonText: `Send`,
-    denyButtonText: `Close`,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      let msg = result.value;
-      emitMsg("qmsg", msg, "qmsg");
-    }
-  });
-}
-
-/**
  * Set the chat room on full screen mode for mobile
  */
 function setChatRoomForMobile() {
@@ -1541,60 +1566,15 @@ function setChatRoomForMobile() {
 }
 
 /**
- * Chat room form
- * https://sweetalert2.github.io
- */
-function showChatRoom() {
-  if (!myChatName) {
-    Swal.fire({
-      background: swalBackground,
-      position: "center",
-      icon: "info",
-      title: "Enter a name for chat",
-      input: "text",
-      showClass: {
-        popup: "animate__animated animate__fadeInDown",
-      },
-      hideClass: {
-        popup: "animate__animated animate__fadeOutUp",
-      },
-      inputValidator: (value) => {
-        if (!value) {
-          return "Please enter a name for chat";
-        }
-        myChatName = value;
-        showMsgerDraggable();
-      },
-    });
-  } else {
-    // chat name already set just open chat room
-    showMsgerDraggable();
-  }
-}
-
-/**
  * Show msger draggable on center screen position
  */
-function showMsgerDraggable() {
+function showChatRoomDraggable() {
   chatRoomBtn.className = "fas fa-comment-slash";
   msgerDraggable.style.top = "50%";
   msgerDraggable.style.left = "50%";
   msgerDraggable.style.display = "flex";
   checkCountTime();
   isChatRoomVisible = true;
-}
-
-/**
- * Hide - show left buttons
- */
-function checkLeftButtons() {
-  if (isButtonsVisible) {
-    leftButtons.style.display = "none";
-    isButtonsVisible = false;
-    return;
-  }
-  leftButtons.style.display = "flex";
-  isButtonsVisible = true;
 }
 
 /**
@@ -1637,39 +1617,6 @@ function hideChatRoomAndEmojiPicker() {
   chatRoomBtn.className = "fas fa-comment";
   isChatRoomVisible = false;
   isChatEmojiVisible = false;
-}
-
-/**
- * Called when a message is recieved over signaling server
- * https://sweetalert2.github.io
- * @param {*} msg
- */
-function showMessage(msg) {
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    title: "New Message",
-    text: msg,
-    input: "text",
-    inputPlaceholder: "Type your message here...",
-    inputAttributes: {
-      "aria-label": "Type your message here",
-    },
-    showDenyButton: true,
-    confirmButtonText: `Reply`,
-    denyButtonText: `Close`,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      let msg = result.value;
-      emitMsg("qmsg", msg, "qmsg");
-    }
-  });
 }
 
 /**
@@ -1749,15 +1696,13 @@ function getFormatDate(date) {
  * Send message over signaling server
  * @param {*} name
  * @param {*} msg
- * @param {*} type
  */
-function emitMsg(name, msg, type) {
+function emitMsg(name, msg) {
   if (msg) {
     signalingSocket.emit("msg", {
       peerConnections: peerConnections,
       name: name,
       msg: msg,
-      type: type,
     });
     console.log("Send msg", {
       name: name,
@@ -1883,8 +1828,8 @@ function getAbout() {
     background: swalBackground,
     position: "center",
     title: "<strong>WebRTC Made with ❤️</strong>",
-    imageAlt: "mirotalk",
     /*
+    imageAlt: "mirotalk",
     imageUrl: loaderGif,
     imageWidth: 320,
     imageHeight: 240,
@@ -1895,6 +1840,7 @@ function getAbout() {
     <br><br>
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
     <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div>
+    <br>
     `,
     showClass: {
       popup: "animate__animated animate__fadeInDown",

@@ -149,7 +149,6 @@ button:hover {
 #swapCameraBtn,
 #screenShareBtn,
 #fullScreenBtn,
-#sendMsgBtn,
 #chatRoomBtn,
 #themeBtn,
 #myDevicesBtn,
@@ -363,7 +362,7 @@ button:hover {
 
 emoji-picker {
   --num-columns: 9;
-  --emoji-size: 2rem;
+  --emoji-size: 1.5rem;
   --background: var(--msger-bg);
 }
 
@@ -381,6 +380,14 @@ video {
 }
 video:fullscreen {
   object-fit: contain;
+}
+.video h2 {
+  top: 0;
+  margin: 10px;
+  font-family: Verdana, sans-serif;
+  color: #fff;
+  text-align: center;
+  opacity: 0.5;
 }
 .video {
   float: left;
@@ -498,7 +505,7 @@ video:fullscreen {
   left: 50%;
   transform: translate(-50%, -50%);
   /* gui */
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   border-radius: 5px;
   margin: auto;
   box-shadow: var(--box-shadow);
@@ -522,7 +529,7 @@ video:fullscreen {
 #myDevices label {
   width: 7em;
   display: flex;
-  color: black;
+  color: limegreen;
 }
 
 #myDevices select {

@@ -87,11 +87,6 @@
         class="fas fa-expand-alt"
       ></button>
       <button
-        title="quick msg"
-        id="sendMsgBtn"
-        class="fas fa-paper-plane"
-      ></button>
-      <button
         title="chat room"
         id="chatRoomBtn"
         class="fas fa-comment"
@@ -118,11 +113,6 @@
             <i class="fas fa-comment-alt"></i> mirotalk-Chat
           </div>
           <div class="msger-header-options">
-            <button
-              id="msgerButtons"
-              title="show-hide buttons"
-              class="fas fa-ellipsis-v"
-            ></button>
             <button
               id="msgerTheme"
               title="ghost theme"
@@ -225,27 +215,25 @@
       <main>
         <br />
         <div>
-          <label for="audioSource">Audio input:&nbsp;</label
-          ><select id="audioSource"></select>
+          <label for="audioSource">Audio input:&nbsp;</label><br /><select
+            id="audioSource"
+          ></select>
         </div>
         <br />
         <div>
-          <label for="audioOutput">Audio output:&nbsp;</label
-          ><select id="audioOutput"></select>
+          <label for="audioOutput">Audio output:&nbsp;</label><br /><select
+            id="audioOutput"
+          ></select>
         </div>
         <br />
         <div>
-          <label for="videoSource">Video source:&nbsp;</label
-          ><select id="videoSource"></select>
+          <label for="videoSource">Video source:&nbsp;</label><br /><select
+            id="videoSource"
+          ></select>
         </div>
       </main>
     </section>
     <!-- End audio - video devices -->
-
-    <!-- 
-		the <video> and <audio> tags are all added and removed dynamically
-		in 'onAddStream', 'setupLocalMedia', and 'removePeer'/'disconnect'
-		-->
 
     <!-- Js scripts -->
     <script
@@ -263,5 +251,10 @@
     ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
-  </body>
+    <!-- end of Js scriots -->
+
+    <!-- 
+		the <video> and <audio> tags are all added and removed dynamically
+		in 'onAddStream', 'setupLocalMedia', and 'removePeer'/'disconnect'
+		--></body>
 </html>
