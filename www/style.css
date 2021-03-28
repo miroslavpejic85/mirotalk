@@ -483,12 +483,11 @@ video:fullscreen {
   object-fit: contain;
 }
 .video h3 {
-  top: 0;
-  margin: 10px;
-  font-family: Verdana, sans-serif;
-  color: #fff;
-  text-align: center;
-  opacity: 0.5;
+  color: whitesmoke;
+  /* center */
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 .video {
   float: left;
