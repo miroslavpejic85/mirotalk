@@ -1667,19 +1667,31 @@ function appendMessage(name, img, side, text) {
 
 /**
  * Detect url from text and make it clickable
+ * Detect also if url is a img to create preview of it
  * @param {*} text
+ * @returns html
  */
 function detectUrl(text) {
   var urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.replace(urlRegex, function (url) {
+    if (isImageURL(text)) {
+      return (
+        '<p><img src="' + url + '" alt="img" width="300" height="auto"/></p>'
+      );
+    }
     return (
-      '<div id="chat-msg"><a href="' +
-      url +
-      '" target="_blank">' +
-      url +
-      "</a></div>"
+      '<a id="chat-msg-a" href="' + url + '" target="_blank">' + url + "</a>"
     );
   });
+}
+
+/**
+ * Check if url passed is a image
+ * @param {*} url
+ * @returns true/false
+ */
+function isImageURL(url) {
+  return url.match(/\.(jpeg|jpg|gif|png)$/) != null;
 }
 
 /**
