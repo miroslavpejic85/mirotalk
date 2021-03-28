@@ -1,4 +1,4 @@
-/*Fade in page on load*/
+/* Fade in page on load */
 @-webkit-keyframes fadeIn {
   from {
     opacity: 0;
@@ -25,6 +25,10 @@
     opacity: 1;
   }
 }
+
+/* ------------------------ */
+/* Root settings            */
+/* ------------------------ */
 
 :root {
   /* common */
@@ -73,6 +77,10 @@
   outline: none;
 }
 
+/* ------------------------ */
+/* Body setup               */
+/* ------------------------ */
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
@@ -98,6 +106,27 @@ body {
   animation-duration: 0.3s;
   overflow: hidden;
 }
+
+/* ------------------------ */
+/* mirotalk timer           */
+/* ------------------------ */
+
+#countTime {
+  z-index: 8;
+  display: none;
+  width: 100%;
+  left: 15px;
+  padding: 10px;
+  background-color: transparent;
+  position: fixed;
+  color: rgb(112, 112, 112);
+  text-align: left;
+  top: 0;
+}
+
+/* ------------------------ */
+/* Left buttons             */
+/* ------------------------ */
 
 #leftButtons {
   z-index: 10;
@@ -163,6 +192,10 @@ button:hover {
   color: #e74c3c !important;
 }
 
+/* ------------------------ */
+/* Chat room                */
+/* ------------------------ */
+
 .msger-draggable {
   z-index: 9;
   display: none;
@@ -201,6 +234,10 @@ button:hover {
   background: var(--msger-bg);
 }
 
+/* ------------------------ */
+/* Chat room header         */
+/* ------------------------ */
+
 .msger-header {
   display: flex;
   justify-content: space-between;
@@ -223,10 +260,41 @@ button:hover {
   border-radius: 5px;
 }
 
+#msgerTheme,
+#msgerClean,
+#msgerSendBtn,
+#msgerEmojiBtn,
+#msgerClose {
+  background: rgb(0, 0, 0);
+  color: #fff;
+  transition: background 0.23s;
+}
+
+#msgerTheme:hover {
+  color: rgb(0, 180, 50);
+}
+#msgerClean:hover {
+  color: rgb(0, 180, 50);
+}
+#msgerSendBtn:hover {
+  color: rgb(0, 180, 50);
+}
+#msgerEmojiBtn:hover {
+  color: rgb(0, 180, 50);
+}
+#msgerClose:hover {
+  color: rgb(0, 180, 50);
+}
+
+/* ------------------------ */
+/* Chat rooom box area      */
+/* ------------------------ */
+
 .msger-chat {
   flex: 1;
   overflow-y: auto;
   padding: 10px;
+  background: var(--msger-bg);
 }
 .msger-chat::-webkit-scrollbar {
   width: 5px;
@@ -237,47 +305,26 @@ button:hover {
 .msger-chat::-webkit-scrollbar-thumb {
   background: black;
 }
+
 .msg {
   display: flex;
   align-items: flex-end;
   margin-bottom: 10px;
 }
+
 .msg:last-of-type {
   margin: 0;
 }
-.msg-img {
-  width: 50px;
-  height: 50px;
-  margin-right: 10px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  /* border-radius: 50%; */
-}
-.msg-bubble {
-  max-width: 300px;
-  padding: 15px;
-  border-radius: 15px;
-}
-.msg-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.msg-info-name {
-  margin-right: 10px;
-  font-weight: bold;
-}
-.msg-info-time {
-  font-size: 0.85em;
-}
+
+/* left side */
 
 .left-msg .msg-bubble {
   background: var(--left-msg-bg);
   border-bottom-left-radius: 0;
   color: #fff;
 }
+
+/* right side */
 
 .right-msg {
   flex-direction: row-reverse;
@@ -291,9 +338,54 @@ button:hover {
   margin: 0 0 0 10px;
 }
 
-.msg-text {
-  overflow-wrap: break-word;
+/* common */
+
+.msg-img {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  /* border-radius: 50%; */
 }
+
+.msg-bubble {
+  max-width: 300px;
+  padding: 15px;
+  border-radius: 15px;
+}
+
+.msg-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.msg-info-name {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.msg-info-time {
+  font-size: 0.85em;
+}
+
+.msg-text {
+  /* https://css-tricks.com/almanac/properties/o/overflow-wrap/ */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+#chat-msg a {
+  color: white;
+}
+
+/* ------------------------ */
+/* Chat room input area     */
+/* ------------------------ */
 
 .msger-inputarea {
   display: flex;
@@ -314,25 +406,10 @@ button:hover {
   background: rgb(0, 0, 0);
 }
 
-#msgerSendBtn,
-#msgerEmojiBtn {
-  background: rgb(0, 0, 0);
-  color: #fff;
-  transition: background 0.23s;
-}
+/* ------------------------ */
+/* Emoji picker             */
+/* ------------------------ */
 
-#msgerSendBtn:hover {
-  color: rgb(0, 180, 50);
-}
-#msgerEmojiBtn:hover {
-  color: rgb(0, 180, 50);
-}
-
-.msger-chat {
-  background: var(--msger-bg);
-}
-
-/* emoji */
 #msgerEmojiPicker {
   z-index: 11;
   display: none;
@@ -360,10 +437,31 @@ button:hover {
   cursor: move;
 }
 
+#msgerCloseEmojiBtn {
+  border: none;
+  font-size: 1.2rem;
+  transition: all 0.3s ease-in-out;
+  background: rgb(0, 0, 0);
+  color: #fff;
+  border-radius: 5px;
+}
+
+#msgerCloseEmojiBtn:hover {
+  color: rgb(0, 180, 50);
+}
+
 emoji-picker {
   --num-columns: 9;
   --emoji-size: 1.5rem;
   --background: var(--msger-bg);
+}
+
+/* ------------------------ */
+/* Handle Video elements    */
+/* ------------------------ */
+
+#myVideoParagraph {
+  z-index: 7;
 }
 
 #myVideo.mirror {
@@ -427,6 +525,10 @@ video:fullscreen {
   --video-object-fit: cover;
 }
 
+/* ------------------------ */
+/* Video on screen resize   */
+/* ------------------------ */
+
 @media only screen and (max-width: 960px) {
   .video {
     float: left;
@@ -456,46 +558,10 @@ video:fullscreen {
   }
 }
 
-.swal2-title,
-.swal2-content {
-  color: white !important;
-}
-/* 
-.swal2-popup {
-  font-size: 0.8rem !important;
-}
-*/
-.swal2-select {
-  background-color: black !important;
-  color: white !important;
-  border-radius: 6px !important;
-}
+/* ------------------------ */
+/* My video/audio devices   */
+/* ------------------------ */
 
-#countTime {
-  z-index: 8;
-  display: none;
-  width: 100%;
-  left: 15px;
-  padding: 10px;
-  background-color: transparent;
-  position: fixed;
-  color: rgb(112, 112, 112);
-  text-align: left;
-  top: 0;
-}
-
-#about a {
-  color: red;
-  /*text-decoration: none;*/
-}
-#chat-msg a {
-  color: white;
-}
-#author a {
-  color: white;
-}
-
-/* devices */
 #myDevices {
   display: none;
   z-index: 12;
@@ -522,6 +588,7 @@ video:fullscreen {
   animation-duration: 1s;
   overflow: hidden;
 }
+
 #myDeviceHeader {
   cursor: move;
 }
@@ -538,6 +605,37 @@ video:fullscreen {
   color: white;
   background-color: #2b2b2b;
   border-radius: 5px;
+}
+
+/* ------------------------ */
+/* Swal2                    */
+/* ------------------------ */
+
+.swal2-title,
+.swal2-content {
+  color: white !important;
+}
+/* 
+.swal2-popup {
+  font-size: 0.8rem !important;
+}
+*/
+.swal2-select {
+  background-color: black !important;
+  color: white !important;
+  border-radius: 6px !important;
+}
+
+/* ------------------------ */
+/* Other                    */
+/* ------------------------ */
+
+#about a {
+  color: red;
+  /*text-decoration: none;*/
+}
+#author a {
+  color: white;
 }
 
 #webRTCSeo {
