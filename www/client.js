@@ -589,6 +589,8 @@ function initPeer() {
  * @param {*} theme
  */
 function setTheme(theme) {
+  if (!theme) return;
+
   mirotalkTheme = theme;
   switch (mirotalkTheme) {
     case "neon":
