@@ -1679,7 +1679,7 @@ function detectUrl(text) {
   return text.replace(urlRegex, function (url) {
     if (isImageURL(text)) {
       return (
-        '<p><img src="' + url + '" alt="img" width="300" height="auto"/></p>'
+        '<p><img src="' + url + '" alt="img" width="200" height="auto"/></p>'
       );
     }
     return (

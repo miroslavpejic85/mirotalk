@@ -38,7 +38,7 @@
   --msger-top: 50%;
   --msger-left: 50%;
   --msger-height: 680px;
-  --msger-width: 450px;
+  --msger-width: 420px;
 
   /* neon theme default */
   --body-bg: black;
@@ -355,7 +355,7 @@ button:hover {
 }
 
 .msg-bubble {
-  max-width: 300px;
+  max-width: 200px;
   padding: 15px;
   border-radius: 15px;
 }
