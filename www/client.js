@@ -265,6 +265,8 @@ function initPeer() {
    * set your name 4 conference
    */
   function whoAreYou() {
+    playSound("newMessage");
+
     Swal.fire({
       allowOutsideClick: false,
       background: swalBackground,
@@ -309,6 +311,8 @@ function initPeer() {
    */
   function welcomeUser() {
     const myRoomUrl = window.location.href;
+    playSound("newMessage");
+
     Swal.fire({
       background: swalBackground,
       position: "center",
@@ -324,8 +328,7 @@ function initPeer() {
       <br>
       <p style="color:rgb(8, 189, 89);">` +
         myRoomUrl +
-        `</p>
-      <br>`,
+        `</p>`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -692,9 +695,7 @@ function setupLocalMedia(callback, errorback) {
 
       // print my name on top video element
       const myVideoParagraph = document.createElement("h3");
-      const myVideoText = document.createTextNode("welcome to mirotalk");
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
-      myVideoParagraph.appendChild(myVideoText);
       videoWrap.appendChild(myVideoParagraph);
 
       const localMedia = document.createElement("video");
@@ -1793,7 +1794,7 @@ function getTheme() {
   Swal.fire({
     background: swalBackground,
     position: "center",
-    title: "Select mirotalk theme",
+    title: "Select theme",
     input: "select",
     inputOptions: {
       neon: "mirotalk-neon",
