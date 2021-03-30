@@ -612,6 +612,18 @@ video:fullscreen {
   border-radius: 5px;
 }
 
+#mySettingsCloseBtn {
+  border: none;
+  font-size: 1.2rem;
+  background: transparent;
+  color: #fff;
+  transition: background 0.23s;
+}
+
+#mySettingsCloseBtn:hover {
+  color: rgb(0, 180, 50);
+}
+
 /*--------------------------------------------------------------
 # Swal2
 --------------------------------------------------------------*/
