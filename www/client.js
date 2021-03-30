@@ -35,7 +35,7 @@ var isScreenStreaming = false;
 var isChatRoomVisible = false;
 var isChatEmojiVisible = false;
 var isButtonsVisible = false;
-var isAudioVideoDevicesVisible = false;
+var isMySettingsVisible = false;
 var isVideoOnFullScreen = false;
 var isDocumentOnFullScreen = false;
 var signalingSocket = null; // socket.io connection to our webserver
@@ -69,8 +69,7 @@ var swapCameraBtn = null;
 var screenShareBtn = null;
 var fullScreenBtn = null;
 var chatRoomBtn = null;
-var themeBtn = null;
-var myDevicesBtn = null;
+var mySettingsBtn = null;
 var aboutBtn = null;
 var leaveRoomBtn = null;
 // chat room elements
@@ -88,13 +87,14 @@ var msgerEmojiPicker = null;
 var msgerEmojiHeader = null;
 var msgerCloseEmojiBtn = null;
 var emojiPicker = null;
-// my audio - video devices
-var myDevices = null;
-var myDeviceHeader = null;
-var myDevicesCloseBtn = null;
+// my settings
+var mySettings = null;
+var mySettingsHeader = null;
+var mySettingsCloseBtn = null;
 var audioInputSelect = null;
 var audioOutputSelect = null;
 var videoSelect = null;
+var themeSelect = null;
 var selectors = null;
 // my video element
 var myVideo = null;
@@ -116,8 +116,7 @@ function getHtmlElementsById() {
   screenShareBtn = getId("screenShareBtn");
   fullScreenBtn = getId("fullScreenBtn");
   chatRoomBtn = getId("chatRoomBtn");
-  themeBtn = getId("themeBtn");
-  myDevicesBtn = getId("myDevicesBtn");
+  mySettingsBtn = getId("mySettingsBtn");
   aboutBtn = getId("aboutBtn");
   leaveRoomBtn = getId("leaveRoomBtn");
   // chat Room elements
@@ -136,12 +135,13 @@ function getHtmlElementsById() {
   msgerCloseEmojiBtn = getId("msgerCloseEmojiBtn");
   emojiPicker = getSl("emoji-picker");
   // my audio - video devices
-  myDevices = getId("myDevices");
-  myDeviceHeader = getId("myDeviceHeader");
-  myDevicesCloseBtn = getId("myDevicesCloseBtn");
+  mySettings = getId("mySettings");
+  mySettingsHeader = getId("mySettingsHeader");
+  mySettingsCloseBtn = getId("mySettingsCloseBtn");
   audioInputSelect = getId("audioSource");
   audioOutputSelect = getId("audioOutput");
   videoSelect = getId("videoSource");
+  themeSelect = getId("mirotalkTheme");
   // my conference Name
   myVideoParagraph = getId("myVideoParagraph");
 }
@@ -723,7 +723,7 @@ function setupLocalMedia(callback, errorback) {
       getHtmlElementsById();
       manageLeftButtons();
       handleBodyOnMouseMove();
-      setupAudioVideoDevices();
+      setupMySettings();
       startCountTime();
 
       /*
@@ -865,8 +865,7 @@ function manageLeftButtons() {
   setFullScreenBtn();
   setChatRoomBtn();
   setChatEmojiBtn();
-  setThemeBtn();
-  setDevicesBtn();
+  setMySettingsBtn();
   setAboutBtn();
   setLeaveRoomBtn();
   showLeftButtons();
@@ -1065,27 +1064,18 @@ function setChatEmojiBtn() {
 }
 
 /**
- * Mirotalk theme button click event
+ * My settings button click event
  */
-function setThemeBtn() {
-  themeBtn.addEventListener("click", (e) => {
-    getTheme();
+function setMySettingsBtn() {
+  mySettingsBtn.addEventListener("click", (e) => {
+    hideShowMySettings();
   });
-}
-
-/**
- * My devices button click event
- */
-function setDevicesBtn() {
-  myDevicesBtn.addEventListener("click", (e) => {
-    hideShowAudioVideoDevices();
-  });
-  myDevicesCloseBtn.addEventListener("click", (e) => {
-    hideShowAudioVideoDevices();
+  mySettingsCloseBtn.addEventListener("click", (e) => {
+    hideShowMySettings();
   });
   if (!isMobileDevice) {
     // make chat room draggable for desktop
-    dragElement(myDevices, myDeviceHeader);
+    dragElement(mySettings, mySettingsHeader);
   }
 }
 
@@ -1117,9 +1107,9 @@ function handleBodyOnMouseMove() {
 }
 
 /**
- * Setup local audio - video devices
+ * Setup local audio - video devices - theme ...
  */
-function setupAudioVideoDevices() {
+function setupMySettings() {
   // audio - video select box
   selectors = [audioInputSelect, audioOutputSelect, videoSelect];
   audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
@@ -1132,6 +1122,9 @@ function setupAudioVideoDevices() {
   });
   videoSelect.addEventListener("change", (e) => {
     refreshLocalMedia();
+  });
+  themeSelect.addEventListener("change", (e) => {
+    setTheme(themeSelect.value);
   });
 }
 
@@ -1285,18 +1278,18 @@ function getDevices() {
     return;
   }
   // list cameras and microphones
-  let myDevices = [];
+  let mySettings = [];
   navigator.mediaDevices
     .enumerateDevices()
     .then(function (devices) {
       devices.forEach(function (device) {
-        myDevices.push({
+        mySettings.push({
           deviceKind: device.kind,
           deviceName: device.label,
           deviceId: device.deviceId,
         });
       });
-      console.log("Audio-Video-Devices", myDevices);
+      console.log("Audio-Video-Devices", mySettings);
     })
     .catch(function (err) {
       console.log(err.name + ": " + err.message);
@@ -1394,8 +1387,7 @@ async function shareRoomUrl() {
       Send this link to all participants
       <p style="color:rgb(8, 189, 89);">` +
         ROOM_URL +
-        `</p>
-      <br>`,
+        `</p>`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -1818,20 +1810,23 @@ function getTheme() {
 }
 
 /**
- * Hide - show audio - video devices select box
+ * Hide - show my settings
  */
-function hideShowAudioVideoDevices() {
-  if (!isAudioVideoDevicesVisible) {
+function hideShowMySettings() {
+  if (!isMySettingsVisible) {
     if (noPeerConnections()) {
-      userLog("info", "Can't setup devices, no peer connection detected");
+      userLog("info", "Can't open settings, no peer connection detected");
       return;
     }
-    myDevices.style.display = "block";
-    isAudioVideoDevicesVisible = true;
+    // center screen on show
+    mySettings.style.top = "50%";
+    mySettings.style.left = "50%";
+    mySettings.style.display = "block";
+    isMySettingsVisible = true;
     return;
   }
-  myDevices.style.display = "none";
-  isAudioVideoDevicesVisible = false;
+  mySettings.style.display = "none";
+  isMySettingsVisible = false;
 }
 
 /**
@@ -1855,7 +1850,6 @@ function getAbout() {
     <br><br>
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
     <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div>
-    <br>
     `,
     showClass: {
       popup: "animate__animated animate__fadeInDown",

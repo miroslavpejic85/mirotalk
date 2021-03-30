@@ -91,8 +91,7 @@
         id="chatRoomBtn"
         class="fas fa-comment"
       ></button>
-      <button title="theme" id="themeBtn" class="fas fa-palette"></button>
-      <button title="devices" id="myDevicesBtn" class="fas fa-cogs"></button>
+      <button title="settings" id="mySettingsBtn" class="fas fa-cogs"></button>
       <button title="about" id="aboutBtn" class="fas fa-question"></button>
       <button
         title="leave room"
@@ -203,12 +202,12 @@
     </section>
     <!-- End emoji picker -->
 
-    <!-- Start audio - video devices -->
-    <section id="myDevices">
-      <header id="myDeviceHeader">
+    <!-- Start my settings -->
+    <section id="mySettings">
+      <header id="mySettingsHeader">
         <button
           title="close"
-          id="myDevicesCloseBtn"
+          id="mySettingsCloseBtn"
           class="fas fa-times"
         ></button>
       </header>
@@ -231,9 +230,19 @@
             id="videoSource"
           ></select>
         </div>
+        <br />
+        <div>
+          <label for="mirotalkTheme">Theme:&nbsp;</label><br /><select
+            id="mirotalkTheme"
+          >
+            <option value="neon">mirotalk-neon</option>
+            <option value="dark">mirotalk-dark</option>
+            <option value="ghost">mirotalk-ghost</option>
+          </select>
+        </div>
       </main>
     </section>
-    <!-- End audio - video devices -->
+    <!-- End my settings -->
 
     <!-- Js scripts -->
     <script

@@ -183,8 +183,7 @@ button:hover {
 #screenShareBtn,
 #fullScreenBtn,
 #chatRoomBtn,
-#themeBtn,
-#myDevicesBtn,
+#mySettingsBtn,
 #aboutBtn,
 #leaveRoomBtn {
   font-size: 2rem;
@@ -565,10 +564,10 @@ video:fullscreen {
 }
 
 /*--------------------------------------------------------------
-# My video audio devices
+# My settings
 --------------------------------------------------------------*/
 
-#myDevices {
+#mySettings {
   display: none;
   z-index: 12;
   /* center */
@@ -595,17 +594,17 @@ video:fullscreen {
   overflow: hidden;
 }
 
-#myDeviceHeader {
+#mySettingsHeader {
   cursor: move;
 }
 
-#myDevices label {
+#mySettings label {
   width: 7em;
   display: flex;
   color: limegreen;
 }
 
-#myDevices select {
+#mySettings select {
   width: 25em;
   height: 30px;
   color: white;
