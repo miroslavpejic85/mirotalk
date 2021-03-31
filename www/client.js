@@ -134,7 +134,7 @@ function getHtmlElementsById() {
   msgerEmojiHeader = getId("msgerEmojiHeader");
   msgerCloseEmojiBtn = getId("msgerCloseEmojiBtn");
   emojiPicker = getSl("emoji-picker");
-  // my audio - video devices
+  // my settings
   mySettings = getId("mySettings");
   mySettingsHeader = getId("mySettingsHeader");
   mySettingsCloseBtn = getId("mySettingsCloseBtn");
@@ -222,11 +222,11 @@ function makeId(length) {
  * Check if there is peer connections
  * @return true, false otherwise
  */
-function noPeerConnections() {
+function thereIsPeerConnections() {
   if (Object.keys(peerConnections).length === 0) {
-    return true;
+    return false;
   }
-  return false;
+  return true;
 }
 
 /**
@@ -662,12 +662,6 @@ function setupLocalMedia(callback, errorback) {
     return;
   }
 
-  if (window.stream) {
-    window.stream.getTracks().forEach((track) => {
-      track.stop();
-    });
-  }
-
   getPeerGeoLocation();
 
   /**
@@ -688,6 +682,12 @@ function setupLocalMedia(callback, errorback) {
       console.log("Access granted to audio/video");
       document.body.style.backgroundImage = "none";
 
+      if (window.stream) {
+        window.stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      }
+      window.stream = stream;
       localMediaStream = stream;
 
       // Setup localMedia
@@ -970,10 +970,6 @@ function setChatRoomBtn() {
 
   // open hide chat room
   chatRoomBtn.addEventListener("click", (e) => {
-    if (noPeerConnections()) {
-      userLog("info", "Can't Open Chat Room, no peer connection detected");
-      return;
-    }
     if (!isChatRoomVisible) {
       showChatRoomDraggable();
     } else {
@@ -1021,6 +1017,12 @@ function setChatRoomBtn() {
   msgerSendBtn.addEventListener("click", (e) => {
     // prevent refresh page
     e.preventDefault();
+
+    if (!thereIsPeerConnections()) {
+      userLog("info", "Can't send message, no peer connection detected");
+      msgerInput.value = "";
+      return;
+    }
 
     const msg = msgerInput.value;
     // empity msg
@@ -1192,14 +1194,16 @@ function gotStream(stream) {
   // make stream available to console
   window.stream = stream;
 
-  // refresh my video to peers
-  for (var peer_id in peerConnections) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-    var sender = peerConnections[peer_id]
-      .getSenders()
-      .find((s) => (s.track ? s.track.kind === "video" : false));
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-    sender.replaceTrack(stream.getVideoTracks()[0]);
+  if (thereIsPeerConnections()) {
+    // refresh my video stream
+    for (var peer_id in peerConnections) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+      var sender = peerConnections[peer_id]
+        .getSenders()
+        .find((s) => (s.track ? s.track.kind === "video" : false));
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+      sender.replaceTrack(stream.getVideoTracks()[0]);
+    }
   }
 
   stream.getVideoTracks()[0].enabled = true;
@@ -1266,34 +1270,6 @@ function gotDevices(deviceInfos) {
       select.value = values[selectorIndex];
     }
   });
-}
-
-/**
- * Extra function not used, print audio - video devices
- */
-function getDevices() {
-  // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
-  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-    console.log("enumerateDevices() not supported.");
-    return;
-  }
-  // list cameras and microphones
-  let mySettings = [];
-  navigator.mediaDevices
-    .enumerateDevices()
-    .then(function (devices) {
-      devices.forEach(function (device) {
-        mySettings.push({
-          deviceKind: device.kind,
-          deviceName: device.label,
-          deviceId: device.deviceId,
-        });
-      });
-      console.log("Audio-Video-Devices", mySettings);
-    })
-    .catch(function (err) {
-      console.log(err.name + ": " + err.message);
-    });
 }
 
 /**
@@ -1365,9 +1341,10 @@ async function shareRoomUrl() {
       userLog("info", "Room Shared successfully!");
     } catch (error) {
       errorNavigatorShare = true;
-      // This feature is available only in secure contexts (HTTPS),
-      // in some or all supporting browsers and mobile devices
-      // console.error("navigator.share", error);
+      /*  This feature is available only in secure contexts (HTTPS),
+          in some or all supporting browsers and mobile devices
+          console.error("navigator.share", error); 
+      */
     }
   }
 
@@ -1402,11 +1379,12 @@ async function shareRoomUrl() {
  * SwapCamer front (user) - rear (environment)
  */
 function swapCamera() {
-  if (noPeerConnections()) {
+  if (!thereIsPeerConnections()) {
     userLog("info", "Can't Swap the Camera, no peer connection detected");
     return;
   }
 
+  // setup camera
   camera = camera == "user" ? "environment" : "user";
   if (camera == "user") useVideo = true;
   else useVideo = { facingMode: { exact: camera } };
@@ -1415,6 +1393,7 @@ function swapCamera() {
   navigator.mediaDevices
     .getUserMedia({ video: useVideo })
     .then((camStream) => {
+      // refresh my video stream
       for (var peer_id in peerConnections) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
         var sender = peerConnections[peer_id]
@@ -1447,16 +1426,6 @@ function swapCamera() {
  * Enable - disable screen sharing
  */
 function toggleScreenSharing() {
-  if (!isScreenStreaming) {
-    if (noPeerConnections()) {
-      userLog(
-        "info",
-        "Can't Toggle screen sharing, no peer connection detected"
-      );
-      return;
-    }
-  }
-
   const constraints = {
     video: true,
   };
@@ -1490,13 +1459,17 @@ function toggleScreenSharing() {
   screenMediaPromise
     .then((screenStream) => {
       isScreenStreaming = !isScreenStreaming;
-      for (var peer_id in peerConnections) {
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-        var sender = peerConnections[peer_id]
-          .getSenders()
-          .find((s) => (s.track ? s.track.kind === "video" : false));
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-        sender.replaceTrack(screenStream.getVideoTracks()[0]);
+
+      if (thereIsPeerConnections()) {
+        // refresh my new video stream
+        for (var peer_id in peerConnections) {
+          // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+          var sender = peerConnections[peer_id]
+            .getSenders()
+            .find((s) => (s.track ? s.track.kind === "video" : false));
+          // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+          sender.replaceTrack(screenStream.getVideoTracks()[0]);
+        }
       }
 
       screenStream.getVideoTracks()[0].enabled = true;
@@ -1814,10 +1787,6 @@ function getTheme() {
  */
 function hideShowMySettings() {
   if (!isMySettingsVisible) {
-    if (noPeerConnections()) {
-      userLog("info", "Can't open settings, no peer connection detected");
-      return;
-    }
     // center screen on show
     mySettings.style.top = "50%";
     mySettings.style.left = "50%";
