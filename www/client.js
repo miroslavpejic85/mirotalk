@@ -31,6 +31,7 @@ var myPeerName = null;
 var useAudio = true;
 var useVideo = true;
 var camera = "user";
+var myVideoChange = false;
 var isScreenStreaming = false;
 var isChatRoomVisible = false;
 var isChatEmojiVisible = false;
@@ -1121,9 +1122,11 @@ function setupMySettings() {
   });
   audioOutputSelect.addEventListener("change", (e) => {
     changeAudioDestination();
+    myVideoChange = false;
   });
   videoSelect.addEventListener("change", (e) => {
     refreshLocalMedia();
+    myVideoChange = true;
   });
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
@@ -1216,6 +1219,10 @@ function gotStream(stream) {
 
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(myVideo, localMediaStream);
+
+  if (myVideoChange) {
+    myVideo.classList.toggle("mirror");
+  }
 
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
