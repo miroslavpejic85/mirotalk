@@ -169,9 +169,12 @@ function getPeerInfo() {
  * @return json
  */
 function getPeerGeoLocation() {
-  $.getJSON(peerLoockupUrl, function (data) {
-    peerGeo = data;
-  });
+  fetch(peerLoockupUrl)
+    .then((res) => res.json())
+    .then((outJson) => {
+      peerGeo = outJson;
+    })
+    .catch((err) => console.error(err));
 }
 
 /**
@@ -1534,9 +1537,6 @@ function setChatRoomForMobile() {
   } else {
     // make chat room draggable for desktop
     dragElement(msgerDraggable, msgerHeader);
-
-    // https://jqueryui.com/draggable/ declined, can't select chat room texts...
-    // $("#msgerDraggable").draggable();
   }
 }
 
