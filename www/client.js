@@ -686,12 +686,6 @@ function setupLocalMedia(callback, errorback) {
       console.log("Access granted to audio/video");
       document.body.style.backgroundImage = "none";
 
-      if (window.stream) {
-        window.stream.getTracks().forEach((track) => {
-          track.stop();
-        });
-      }
-      window.stream = stream;
       localMediaStream = stream;
 
       // Setup localMedia
@@ -729,13 +723,11 @@ function setupLocalMedia(callback, errorback) {
       handleBodyOnMouseMove();
       setupMySettings();
       startCountTime();
-
       /*
       if (!isMobileDevice) {
         handleVideoPlayerFs("myVideo");
       }
       */
-
       if (callback) callback();
     })
     .catch((e) => {
@@ -1074,6 +1066,8 @@ function setChatEmojiBtn() {
  */
 function setMySettingsBtn() {
   mySettingsBtn.addEventListener("click", (e) => {
+    leftButtons.style.display = "none";
+    isButtonsVisible = false;
     hideShowMySettings();
   });
   mySettingsCloseBtn.addEventListener("click", (e) => {
@@ -1121,15 +1115,16 @@ function setupMySettings() {
   audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
   audioInputSelect.addEventListener("change", (e) => {
+    myVideoChange = false;
     refreshLocalMedia();
   });
   audioOutputSelect.addEventListener("change", (e) => {
     changeAudioDestination();
-    myVideoChange = false;
   });
   videoSelect.addEventListener("change", (e) => {
+    // mobile have fron - rear camera ....
+    if (isMobileDevice) myVideoChange = true;
     refreshLocalMedia();
-    myVideoChange = true;
   });
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
@@ -1140,11 +1135,6 @@ function setupMySettings() {
  * Refresh Local media audio video in - out
  */
 function refreshLocalMedia() {
-  if (window.stream) {
-    window.stream.getTracks().forEach((track) => {
-      track.stop();
-    });
-  }
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   const constraints = {
@@ -1197,36 +1187,11 @@ function attachSinkId(element, sinkId) {
  * @param {*} stream
  */
 function gotStream(stream) {
-  // make stream available to console
-  window.stream = stream;
-
-  if (thereIsPeerConnections()) {
-    // refresh my video stream
-    for (var peer_id in peerConnections) {
-      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-      var sender = peerConnections[peer_id]
-        .getSenders()
-        .find((s) => (s.track ? s.track.kind === "video" : false));
-      // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-      sender.replaceTrack(stream.getVideoTracks()[0]);
-    }
-  }
-
-  stream.getVideoTracks()[0].enabled = true;
-  // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
-  const newStream = new MediaStream([
-    stream.getVideoTracks()[0],
-    localMediaStream.getAudioTracks()[0],
-  ]);
-  localMediaStream = newStream;
-
-  // attachMediaStream is a part of the adapter.js library
-  attachMediaStream(myVideo, localMediaStream);
-
+  refreshMyStreamToPeers(stream);
+  refreshMyLocalStream(stream);
   if (myVideoChange) {
     myVideo.classList.toggle("mirror");
   }
-
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
 }
@@ -1308,9 +1273,14 @@ function attachMediaStream(element, stream) {
 /**
  * Show left buttons for 10 seconds on body mousemove
  * if mobile and chatroom open do nothing return
+ * if mobile and mySettings open do nothing return
  */
 function showLeftButtons() {
-  if (isButtonsVisible || (isMobileDevice && isChatRoomVisible)) {
+  if (
+    isButtonsVisible ||
+    (isMobileDevice && isChatRoomVisible) ||
+    (isMobileDevice && isMySettingsVisible)
+  ) {
     return;
   }
   leftButtons.style.display = "flex";
@@ -1403,27 +1373,8 @@ function swapCamera() {
   navigator.mediaDevices
     .getUserMedia({ video: useVideo })
     .then((camStream) => {
-      // refresh my video stream
-      for (var peer_id in peerConnections) {
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-        var sender = peerConnections[peer_id]
-          .getSenders()
-          .find((s) => (s.track ? s.track.kind === "video" : false));
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-        sender.replaceTrack(camStream.getVideoTracks()[0]);
-      }
-
-      camStream.getVideoTracks()[0].enabled = true;
-      // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
-      const newStream = new MediaStream([
-        camStream.getVideoTracks()[0],
-        localMediaStream.getAudioTracks()[0],
-      ]);
-      localMediaStream = newStream;
-
-      // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(myVideo, localMediaStream);
-
+      refreshMyStreamToPeers(camStream);
+      refreshMyLocalStream(camStream);
       myVideo.classList.toggle("mirror");
     })
     .catch((e) => {
@@ -1443,6 +1394,7 @@ function toggleScreenSharing() {
   let screenMediaPromise;
 
   if (!isScreenStreaming) {
+    // on screen sharing start
     if (navigator.getDisplayMedia) {
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
       screenMediaPromise = navigator.getDisplayMedia(constraints);
@@ -1469,18 +1421,7 @@ function toggleScreenSharing() {
   screenMediaPromise
     .then((screenStream) => {
       isScreenStreaming = !isScreenStreaming;
-
-      if (thereIsPeerConnections()) {
-        // refresh my new video stream
-        for (var peer_id in peerConnections) {
-          // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-          var sender = peerConnections[peer_id]
-            .getSenders()
-            .find((s) => (s.track ? s.track.kind === "video" : false));
-          // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-          sender.replaceTrack(screenStream.getVideoTracks()[0]);
-        }
-      }
+      refreshMyStreamToPeers(screenStream);
 
       screenStream.getVideoTracks()[0].enabled = true;
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
@@ -1507,6 +1448,40 @@ function toggleScreenSharing() {
       console.error("[Error] Unable to share the screen", e);
       userLog("error", "Unable to share the screen");
     });
+}
+
+/**
+ * Refresh my stream changes to connected peers in the room
+ * @param {*} stream
+ */
+function refreshMyStreamToPeers(stream) {
+  if (thereIsPeerConnections()) {
+    // refresh my video stream
+    for (var peer_id in peerConnections) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+      var sender = peerConnections[peer_id]
+        .getSenders()
+        .find((s) => (s.track ? s.track.kind === "video" : false));
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+      sender.replaceTrack(stream.getVideoTracks()[0]);
+    }
+  }
+}
+
+/**
+ * Refresh my local stream
+ * @param {*} stream
+ */
+function refreshMyLocalStream(stream) {
+  stream.getVideoTracks()[0].enabled = true;
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
+  const newStream = new MediaStream([
+    stream.getVideoTracks()[0],
+    localMediaStream.getAudioTracks()[0],
+  ]);
+  localMediaStream = newStream;
+  // attachMediaStream is a part of the adapter.js library
+  attachMediaStream(myVideo, localMediaStream); // newstream
 }
 
 /**
