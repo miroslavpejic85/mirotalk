@@ -1358,11 +1358,6 @@ async function shareRoomUrl() {
  * SwapCamer front (user) - rear (environment)
  */
 function swapCamera() {
-  if (!thereIsPeerConnections()) {
-    userLog("info", "Can't Swap the Camera, no peer connection detected");
-    return;
-  }
-
   // setup camera
   camera = camera == "user" ? "environment" : "user";
   if (camera == "user") useVideo = true;
