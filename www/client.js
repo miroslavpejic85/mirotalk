@@ -1122,7 +1122,6 @@ function setupMySettings() {
     changeAudioDestination();
   });
   videoSelect.addEventListener("change", (e) => {
-    // mobile have fron - rear camera ....
     if (isMobileDevice) myVideoChange = true;
     refreshLocalMedia();
   });
@@ -1415,34 +1414,17 @@ function toggleScreenSharing() {
       video: { deviceId: videoSource ? { exact: videoSource } : undefined },
     };
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
-    // make sure to enable video
     videoBtn.className = "fas fa-video";
   }
   screenMediaPromise
     .then((screenStream) => {
       isScreenStreaming = !isScreenStreaming;
       refreshMyStreamToPeers(screenStream);
-
-      screenStream.getVideoTracks()[0].enabled = true;
-      // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
-      const newStream = new MediaStream([
-        screenStream.getVideoTracks()[0],
-        localMediaStream.getAudioTracks()[0],
-      ]);
-      localMediaStream = newStream;
-
-      // attachMediaStream is a part of the adapter.js library
-      attachMediaStream(myVideo, localMediaStream); // newstream
-
+      refreshMyLocalStream(screenStream);
       myVideo.classList.toggle("mirror");
-      screenShareBtn.classList.toggle("active");
       screenShareBtn.className = isScreenStreaming
         ? "fas fa-stop-circle"
         : "fas fa-desktop";
-
-      screenStream.getVideoTracks()[0].onended = function () {
-        if (isScreenStreaming) toggleScreenSharing();
-      };
     })
     .catch((e) => {
       console.error("[Error] Unable to share the screen", e);
@@ -1482,6 +1464,11 @@ function refreshMyLocalStream(stream) {
   localMediaStream = newStream;
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(myVideo, localMediaStream); // newstream
+
+  // on toggleScreenSharing video stop
+  stream.getVideoTracks()[0].onended = function () {
+    if (isScreenStreaming) toggleScreenSharing();
+  };
 }
 
 /**
@@ -1519,6 +1506,10 @@ function setChatRoomForMobile() {
  * Show msger draggable on center screen position
  */
 function showChatRoomDraggable() {
+  if (isMobileDevice) {
+    leftButtons.style.display = "none";
+    isButtonsVisible = false;
+  }
   chatRoomBtn.className = "fas fa-comment-slash";
   msgerDraggable.style.top = "50%";
   msgerDraggable.style.left = "50%";
