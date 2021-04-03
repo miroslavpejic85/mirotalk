@@ -1540,7 +1540,6 @@ function handleDataAvailable(event) {
 /**
  * Start Recording
  * https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/record
- * https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/webm-to-mp4.html
  */
 function startStreamRecording() {
   recordedBlobs = [];
@@ -1612,7 +1611,8 @@ function downloadRecordedStream() {
 }
 
 /**
- * Data Formated DMYYYY-HMS-REC.webm
+ * Data Formated DD-MM-YYYY-H_M_S-REC.webm
+ * https://convertio.co/it/
  * @returns recording file name
  */
 function getRecordingFileName() {
@@ -1781,13 +1781,12 @@ function isImageURL(url) {
 }
 
 /**
- * Format data h:m
+ * Format data h:m:s
  * @param {*} date
  */
 function getFormatDate(date) {
-  const h = "0" + date.getHours();
-  const m = "0" + date.getMinutes();
-  return `${h.slice(-2)}:${m.slice(-2)}`;
+  const time = date.toTimeString().split(" ")[0];
+  return `${time}`;
 }
 
 /**
