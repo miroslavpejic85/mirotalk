@@ -165,6 +165,7 @@ body {
   background: var(--btn-bg);
   padding: 4px;
   border-radius: 5px;
+  opacity: var(--btn-opc);
 }
 
 button:focus {
@@ -172,20 +173,6 @@ button:focus {
 }
 button:hover {
   color: rgb(8, 189, 89);
-}
-
-#shareRoomBtn,
-#audioBtn,
-#videoBtn,
-#swapCameraBtn,
-#screenShareBtn,
-#fullScreenBtn,
-#chatRoomBtn,
-#mySettingsBtn,
-#aboutBtn,
-#leaveRoomBtn {
-  font-size: 2rem;
-  opacity: var(--btn-opc);
 }
 
 .fa-microphone-slash,

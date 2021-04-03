@@ -101,6 +101,11 @@ var selectors = null;
 var myVideo = null;
 // my conference Name
 var myVideoParagraph = null;
+// Record Media Stream
+var recordStreamBtn = null;
+var isStreamRecording = false;
+var mediaRecorder;
+var recordedBlobs;
 
 /**
  * Load all Html elements by Id
@@ -145,6 +150,7 @@ function getHtmlElementsById() {
   themeSelect = getId("mirotalkTheme");
   // my conference Name
   myVideoParagraph = getId("myVideoParagraph");
+  recordStreamBtn = getId("recordStreamBtn");
 }
 
 /**
@@ -686,11 +692,12 @@ function setupLocalMedia(callback, errorback) {
       console.log("Access granted to audio/video");
       document.body.style.backgroundImage = "none";
 
+      // need for recording stream later
+      window.stream = stream;
+
       localMediaStream = stream;
 
-      // Setup localMedia
       const videoWrap = document.createElement("div");
-
       // print my name on top video element
       const myVideoParagraph = document.createElement("h3");
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
@@ -833,6 +840,22 @@ function startCountTime() {
 }
 
 /**
+ * Start recording time
+ */
+function startRecordingTime() {
+  startTime = Date.now();
+  var rc = setInterval(function printTime() {
+    if (isStreamRecording) {
+      elapsedTime = Date.now() - startTime;
+      myVideoParagraph.innerHTML =
+        myPeerName + " 🔴 REC " + getTimeToString(elapsedTime);
+      return;
+    }
+    clearInterval(rc);
+  }, 1000);
+}
+
+/**
  * Return time to string
  * @param {*} time
  */
@@ -858,6 +881,7 @@ function manageLeftButtons() {
   setVideoBtn();
   setSwapCameraBtn();
   setScreenShareBtn();
+  setRecordStreamBtn();
   setFullScreenBtn();
   setChatRoomBtn();
   setChatEmojiBtn();
@@ -934,6 +958,19 @@ function setScreenShareBtn() {
   } else {
     screenShareBtn.style.display = "none";
   }
+}
+
+/**
+ * Start - Stop Stream recording
+ */
+function setRecordStreamBtn() {
+  recordStreamBtn.addEventListener("click", (e) => {
+    if (isStreamRecording) {
+      stopStreamRecording();
+    } else {
+      startStreamRecording();
+    }
+  });
 }
 
 /**
@@ -1066,8 +1103,10 @@ function setChatEmojiBtn() {
  */
 function setMySettingsBtn() {
   mySettingsBtn.addEventListener("click", (e) => {
-    leftButtons.style.display = "none";
-    isButtonsVisible = false;
+    if (isMobileDevice) {
+      leftButtons.style.display = "none";
+      isButtonsVisible = false;
+    }
     hideShowMySettings();
   });
   mySettingsCloseBtn.addEventListener("click", (e) => {
@@ -1365,7 +1404,7 @@ function swapCamera() {
 
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
   navigator.mediaDevices
-    .getUserMedia({ video: useVideo })
+    .getUserMedia({ audio: useAudio, video: useVideo })
     .then((camStream) => {
       refreshMyStreamToPeers(camStream);
       refreshMyLocalStream(camStream);
@@ -1428,6 +1467,24 @@ function toggleScreenSharing() {
 }
 
 /**
+ * Enter - esc on full screen mode
+ * https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
+ */
+function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    fullScreenBtn.className = "fas fa-compress-alt";
+    isDocumentOnFullScreen = true;
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+      fullScreenBtn.className = "fas fa-expand-alt";
+      isDocumentOnFullScreen = false;
+    }
+  }
+}
+
+/**
  * Refresh my stream changes to connected peers in the room
  * @param {*} stream
  */
@@ -1450,6 +1507,9 @@ function refreshMyStreamToPeers(stream) {
  * @param {*} stream
  */
 function refreshMyLocalStream(stream) {
+  // need for recording stream later
+  window.stream = stream;
+
   stream.getVideoTracks()[0].enabled = true;
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
   const newStream = new MediaStream([
@@ -1467,21 +1527,111 @@ function refreshMyLocalStream(stream) {
 }
 
 /**
- * Enter - esc on full screen mode
- * https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
+ * recordind stream data
+ * @param {*} event
  */
-function toggleFullScreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen();
-    fullScreenBtn.className = "fas fa-compress-alt";
-    isDocumentOnFullScreen = true;
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-      fullScreenBtn.className = "fas fa-expand-alt";
-      isDocumentOnFullScreen = false;
+function handleDataAvailable(event) {
+  console.log("handleDataAvailable", event);
+  if (event.data && event.data.size > 0) {
+    recordedBlobs.push(event.data);
+  }
+}
+
+/**
+ * Start Recording
+ * https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/record
+ * https://github.com/muaz-khan/WebRTC-Experiment/blob/master/ffmpeg/webm-to-mp4.html
+ */
+function startStreamRecording() {
+  recordedBlobs = [];
+  let options = { mimeType: "video/webm;codecs=vp9,opus" };
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    console.error(`${options.mimeType} is not supported`);
+    options = { mimeType: "video/webm;codecs=vp8,opus" };
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      console.error(`${options.mimeType} is not supported`);
+      options = { mimeType: "video/webm" };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        console.error(`${options.mimeType} is not supported`);
+        options = { mimeType: "" };
+      }
     }
   }
+
+  try {
+    mediaRecorder = new MediaRecorder(window.stream, options);
+  } catch (e) {
+    console.error("Exception while creating MediaRecorder:", e);
+    userLog("error", "Can't start stream recording :(");
+    return;
+  }
+
+  console.log("Created MediaRecorder", mediaRecorder, "with options", options);
+  mediaRecorder.onstop = (event) => {
+    console.log("MediaRecorder stopped: ", event);
+    console.log("MediaRecorder Blobs: ", recordedBlobs);
+    myVideoParagraph.innerHTML = myPeerName;
+    disableElements(false);
+    downloadRecordedStream();
+  };
+
+  mediaRecorder.ondataavailable = handleDataAvailable;
+  mediaRecorder.start();
+  console.log("MediaRecorder started", mediaRecorder);
+  isStreamRecording = true;
+  recordStreamBtn.style.setProperty("background-color", "red");
+  startRecordingTime();
+  disableElements(true);
+}
+
+/**
+ * Stop recording
+ */
+function stopStreamRecording() {
+  mediaRecorder.stop();
+  isStreamRecording = false;
+  recordStreamBtn.style.setProperty("background-color", "white");
+}
+
+/**
+ * Download recorded stream
+ */
+function downloadRecordedStream() {
+  const blob = new Blob(recordedBlobs, { type: "video/webm" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.style.display = "none";
+  a.href = url;
+  a.download = getRecordingFileName();
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 100);
+}
+
+/**
+ * Data Formated DMYYYY-HMS-REC.webm
+ * @returns recording file name
+ */
+function getRecordingFileName() {
+  const d = new Date();
+  const date = d.toISOString().split("T")[0];
+  const time = d.toTimeString().split(" ")[0];
+  return `${date}-${time}-REC.webm`;
+}
+
+/**
+ * Disable - enable some elements on Recording
+ * I can Record One Media Stream at time
+ * @param {*} b boolean true/false
+ */
+function disableElements(b) {
+  swapCameraBtn.disabled = b;
+  screenShareBtn.disabled = b;
+  audioSource.disabled = b;
+  videoSource.disabled = b;
 }
 
 /**
