@@ -275,4 +275,43 @@ io.sockets.on("connect", (socket) => {
       });
     }
   });
+
+  /**
+   * Relay NAME to peers
+   */
+  socket.on("cName", (config) => {
+    let peerConnections = config.peerConnections;
+    let room_id = config.room_id;
+    let peer_name_old = config.peer_name_old;
+    let peer_name_new = config.peer_name_new;
+    let peer_id_to_update = null;
+
+    // update peers new name in the specified room
+    for (var peer_id in peers[room_id]) {
+      if (peers[room_id][peer_id] == peer_name_old) {
+        peers[room_id][peer_id] = peer_name_new;
+        peer_id_to_update = peer_id;
+        console.log("change peer name", {
+          room_id: room_id,
+          peer_id: peer_id,
+          peer_name_old: peer_name_old,
+          peer_name_new: peer_name_new,
+        });
+      }
+    }
+
+    // refresh if found
+    if (peer_id_to_update) {
+      console.log("[" + socket.id + "] emit onCName", {
+        peer_id: peer_id_to_update,
+        peer_name: peer_name_new,
+      });
+      for (var peer_id in peerConnections) {
+        sockets[peer_id].emit("onCName", {
+          peer_id: peer_id_to_update,
+          peer_name: peer_name_new,
+        });
+      }
+    }
+  });
 }); // end [sockets.on-connect]

@@ -92,6 +92,8 @@ var emojiPicker = null;
 var mySettings = null;
 var mySettingsHeader = null;
 var mySettingsCloseBtn = null;
+var myPeerNameSet = null;
+var myPeerNameSetBtn = null;
 var audioInputSelect = null;
 var audioOutputSelect = null;
 var videoSelect = null;
@@ -144,6 +146,8 @@ function getHtmlElementsById() {
   mySettings = getId("mySettings");
   mySettingsHeader = getId("mySettingsHeader");
   mySettingsCloseBtn = getId("mySettingsCloseBtn");
+  myPeerNameSet = getId("myPeerNameSet");
+  myPeerNameSetBtn = getId("myPeerNameSetBtn");
   audioInputSelect = getId("audioSource");
   audioOutputSelect = getId("audioOutput");
   videoSelect = getId("videoSource");
@@ -421,7 +425,8 @@ function initPeer() {
 
         // print peers name
         const videoWrap = document.createElement("div");
-        const remoteVideoParagraph = document.createElement("h3");
+        const remoteVideoParagraph = document.createElement("h4");
+        remoteVideoParagraph.setAttribute("id", peer_id + "_name");
         const peerVideoText = document.createTextNode(peers[peer_id]);
         remoteVideoParagraph.appendChild(peerVideoText);
         videoWrap.appendChild(remoteVideoParagraph);
@@ -429,7 +434,7 @@ function initPeer() {
         const remoteMedia = document.createElement("video");
         videoWrap.className = "video";
         videoWrap.appendChild(remoteMedia);
-        remoteMedia.setAttribute("id", peer_id);
+        remoteMedia.setAttribute("id", peer_id + "_video");
         remoteMedia.setAttribute("playsinline", true);
         remoteMedia.mediaGroup = "remotevideo";
         remoteMedia.autoplay = true;
@@ -444,7 +449,7 @@ function initPeer() {
         resizeVideos();
 
         if (!isMobileDevice) {
-          handleVideoPlayerFs(peer_id);
+          handleVideoPlayerFs(peer_id + "_video");
         }
       }
     };
@@ -595,6 +600,11 @@ function initPeer() {
     playSound("newMessage");
     appendMessage(config.name, friendChatAvatar, "left", config.msg);
   });
+
+  // refresh peers name
+  signalingSocket.on("onCName", function (config) {
+    appendPeerName(config.peer_id, config.peer_name);
+  });
 } // end [initPeer]
 
 /**
@@ -699,7 +709,7 @@ function setupLocalMedia(callback, errorback) {
 
       const videoWrap = document.createElement("div");
       // print my name on top video element
-      const myVideoParagraph = document.createElement("h3");
+      const myVideoParagraph = document.createElement("h4");
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
       videoWrap.appendChild(myVideoParagraph);
 
@@ -1111,6 +1121,9 @@ function setMySettingsBtn() {
   });
   mySettingsCloseBtn.addEventListener("click", (e) => {
     hideShowMySettings();
+  });
+  myPeerNameSetBtn.addEventListener("click", (e) => {
+    updateMyPeerName();
   });
   if (!isMobileDevice) {
     // make chat room draggable for desktop
@@ -1904,6 +1917,8 @@ function getTheme() {
  */
 function hideShowMySettings() {
   if (!isMySettingsVisible) {
+    // my current peer name
+    myPeerNameSet.placeholder = myPeerName;
     // center screen on show
     mySettings.style.top = "50%";
     mySettings.style.left = "50%";
@@ -1913,6 +1928,42 @@ function hideShowMySettings() {
   }
   mySettings.style.display = "none";
   isMySettingsVisible = false;
+}
+
+/**
+ * Update myPeerName to other peers in the room
+ */
+function updateMyPeerName() {
+  var myNewPeerName = myPeerNameSet.value;
+  var myOldPeerName = myPeerName;
+
+  // myNewPeerName empty
+  if (!myNewPeerName) return;
+
+  myPeerName = myNewPeerName;
+  myVideoParagraph.innerHTML = myPeerName;
+
+  signalingSocket.emit("cName", {
+    peerConnections: peerConnections,
+    room_id: roomId,
+    peer_name_old: myOldPeerName,
+    peer_name_new: myPeerName,
+  });
+
+  myPeerNameSet.value = "";
+  myPeerNameSet.placeholder = myPeerName;
+}
+
+/**
+ * Append updated peer name to video player
+ * @param {*} id
+ * @param {*} name
+ */
+function appendPeerName(id, name) {
+  var videoName = getId(id + "_name");
+  if (videoName) {
+    videoName.innerHTML = name;
+  }
 }
 
 /**
