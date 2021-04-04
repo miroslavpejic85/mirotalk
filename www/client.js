@@ -45,6 +45,7 @@ var remoteMediaStream = null; // peers microphone / webcam
 var remoteMediaControls = false; // enable - disable peers video player controls (default false)
 var peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 var peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
+var chatMessages = []; // collect chat messages to save it later if want
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
 
 var chatInputEmoji = {
@@ -79,6 +80,7 @@ var msgerHeader = null;
 var msgerTheme = null;
 var msgerClean = null;
 var msgerEmojiBtn = null;
+var msgerSaveBtn = null;
 var msgerClose = null;
 var msgerChat = null;
 var msgerInput = null;
@@ -133,6 +135,7 @@ function getHtmlElementsById() {
   msgerTheme = getId("msgerTheme");
   msgerClean = getId("msgerClean");
   msgerEmojiBtn = getId("msgerEmojiBtn");
+  msgerSaveBtn = getId("msgerSaveBtn");
   msgerClose = getId("msgerClose");
   msgerChat = getId("msgerChat");
   msgerInput = getId("msgerInput");
@@ -1041,6 +1044,15 @@ function setChatRoomBtn() {
     cleanMessages();
   });
 
+  // save chat messages to file
+  msgerSaveBtn.addEventListener("click", (e) => {
+    if (chatMessages.length != 0) {
+      downloadChatMsgs();
+      return;
+    }
+    userLog("info", "No chat messages to save");
+  });
+
   // close chat room - show left button and time if hide
   msgerClose.addEventListener("click", (e) => {
     hideChatRoomAndEmojiPicker();
@@ -1614,7 +1626,7 @@ function downloadRecordedStream() {
   const a = document.createElement("a");
   a.style.display = "none";
   a.href = url;
-  a.download = getRecordingFileName();
+  a.download = getDataTimeString() + "-REC.webm";
   document.body.appendChild(a);
   a.click();
   setTimeout(() => {
@@ -1624,15 +1636,15 @@ function downloadRecordedStream() {
 }
 
 /**
- * Data Formated DD-MM-YYYY-H_M_S-REC.webm
+ * Data Formated DD-MM-YYYY-H_M_S
  * https://convertio.co/it/
- * @returns recording file name
+ * @returns data string
  */
-function getRecordingFileName() {
+function getDataTimeString() {
   const d = new Date();
   const date = d.toISOString().split("T")[0];
   const time = d.toTimeString().split(" ")[0];
-  return `${date}-${time}-REC.webm`;
+  return `${date}-${time}`;
 }
 
 /**
@@ -1703,6 +1715,8 @@ function cleanMessages() {
         msgerChat.removeChild(msgs);
         msgs = msgerChat.firstChild;
       }
+      // clean object
+      chatMessages = [];
     }
   });
 }
@@ -1747,6 +1761,14 @@ function escapeSpecialChars(regex) {
  * @param {*} text
  */
 function appendMessage(name, img, side, text) {
+  let time = getFormatDate(new Date());
+  // collect chat msges to save it later
+  chatMessages.push({
+    time: time,
+    name: name,
+    text: text,
+  });
+  // console.log("--------->chatMessages", chatMessages);
   let ctext = detectUrl(text);
   const msgHTML = `
 	<div class="msg ${side}-msg">
@@ -1754,7 +1776,7 @@ function appendMessage(name, img, side, text) {
 		<div class="msg-bubble">
 		<div class="msg-info">
 			<div class="msg-info-name">${name}</div>
-			<div class="msg-info-time">${getFormatDate(new Date())}</div>
+			<div class="msg-info-time">${time}</div>
 		</div>
 		<div class="msg-text">${ctext}</div>
 		</div>
@@ -1832,6 +1854,21 @@ function hideShowEmojiPicker() {
   }
   msgerEmojiPicker.style.display = "none";
   isChatEmojiVisible = false;
+}
+
+/**
+ * Download Chat messages in json format
+ * https://developer.mozilla.org/it/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+ */
+function downloadChatMsgs() {
+  var a = document.createElement("a");
+  a.href =
+    "data:text/json;charset=utf-8," +
+    encodeURIComponent(JSON.stringify(chatMessages, null, 1));
+  a.download = getDataTimeString() + "-CHAT.txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 /**

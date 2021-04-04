@@ -29,13 +29,13 @@ Open the app in one of following **supported browser**
 
 ## Features
 
-- Is 100% free and open-source
+- Is 100% Free and open-source
 - Unlimited users, without time limitation
 - Room Url Sharing (share to your friends, wait them to join)
-- WebCam Streaming (Front - Rear)
+- WebCam Streaming (Front - Rear for mobile)
 - Audio Streaming
 - Screen Sharing to present documents, slides, and more
-- Recording Screen & Audio & Video
+- Recording Screen && Audio && Video
 - Chat Room && Emoji Picker
 - Full Screen Mode on click
 - Change Theme

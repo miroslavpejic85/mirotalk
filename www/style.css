@@ -250,6 +250,7 @@ button:hover {
 
 #msgerTheme,
 #msgerClean,
+#msgerSaveBtn,
 #msgerSendBtn,
 #msgerEmojiBtn,
 #msgerClose {
@@ -262,6 +263,9 @@ button:hover {
   color: rgb(0, 180, 50);
 }
 #msgerClean:hover {
+  color: rgb(0, 180, 50);
+}
+#msgerSaveBtn:hover {
   color: rgb(0, 180, 50);
 }
 #msgerSendBtn:hover {
