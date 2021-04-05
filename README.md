@@ -29,7 +29,7 @@ Open the app in one of following **supported browser**
 
 ## Features
 
-- Is 100% Free and open-source
+- Is 100% Free and Open Source
 - Unlimited users, without time limitation
 - Room Url Sharing (share to your friends, wait them to join)
 - WebCam Streaming (Front - Rear for mobile)
