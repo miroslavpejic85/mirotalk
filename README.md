@@ -104,7 +104,13 @@ npm start
 
 ## Credits
 
-Many Thanks to ianramzy (html template), vasanthv (webrtc) and Sajad (chat) from where I taked inspiration for this project. ❤️
+Many Thanks to:
+
+- ianramzy (html template)
+- vasanthv (webrtc)
+- Sajad (chat)
+
+from where I taked inspiration for this project. ❤️
 
 ## Contributing
 
@@ -113,3 +119,7 @@ Many Thanks to ianramzy (html template), vasanthv (webrtc) and Sajad (chat) from
 - For communication we use Gitter Chat which can be found here:
 
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+---
+
+![qr](www/images/mirotalk-qr.png)
