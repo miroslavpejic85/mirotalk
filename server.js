@@ -36,10 +36,50 @@ var turnCredential = process.env.TURN_PASSWORD;
 // Use all static files from the www folder
 app.use(express.static(path.join(__dirname, "www")));
 
-// All URL patterns should served with the same file.
-app.get(["/", "/:room"], (req, res) =>
-  res.sendFile(path.join(__dirname, "www/index.html"))
+// Remove trailing slashes in url
+app.use(function (req, res, next) {
+  if (req.path.substr(-1) === "/" && req.path.length > 1) {
+    let query = req.url.slice(req.path.length);
+    res.redirect(301, req.path.slice(0, -1) + query);
+  } else {
+    next();
+  }
+});
+
+/*
+app.get(["/"], (req, res) =>
+  res.sendFile(path.join(__dirname, "www/client.html"))
+); */
+
+// all start from here
+app.get(["/"], (req, res) =>
+  res.sendFile(path.join(__dirname, "www/landing.html"))
 );
+
+// set new room name and join
+app.get(["/newcall"], (req, res) =>
+  res.sendFile(path.join(__dirname, "www/newcall.html"))
+);
+
+// if not allow video/audio
+app.get(["/permission"], (req, res) =>
+  res.sendFile(path.join(__dirname, "www/permission.html"))
+);
+
+// no room name specified to join
+app.get("/join/", function (req, res) {
+  res.redirect("/");
+});
+
+// join to room
+app.get("/join/*", function (req, res) {
+  if (Object.keys(req.query).length > 0) {
+    console.log("redirect:" + req.url + " to " + url.parse(req.url).pathname);
+    res.redirect(url.parse(req.url).pathname);
+  } else {
+    res.sendFile(path.join(__dirname, "www/client.html"));
+  }
+});
 
 /**
  * Expose server to external with https tunnel using ngrok

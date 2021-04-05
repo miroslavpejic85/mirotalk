@@ -46,15 +46,14 @@ Open the app in one of following **supported browser**
 
 ## Demo
 
-- `Open` https://mirotalk.herokuapp.com/
+- `Open` https://mirotalk.herokuapp.com/newcall
+- `Pick` your personal Room name and `Join To Room`
 - `Allow` to use the camera and microphone
-- `Click` the first button to copy the url and then share it
-- `Wait` someone to join for video conference
+- `Share` the Room URL and `Wait` someone to join for video conference
 
-## Room
+## Room name
 
-- You can also create a room by going to https://mirotalk.herokuapp.com/your-room-name-goes-here
-- if you not specified, a random name will bill created
+- You can also `join` dirrectly to your room name by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here
 
 ## Quick start
 
@@ -105,7 +104,7 @@ npm start
 
 ## Credits
 
-Many Thanks to vasanthv (webrtc) and Sajad (chat) from where I taked inspiration for this project. ❤️
+Many Thanks to ianramzy (html template), vasanthv (webrtc) and Sajad (chat) from where I taked inspiration for this project. ❤️
 
 ## Contributing
 

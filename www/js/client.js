@@ -8,12 +8,16 @@
 
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
-const loaderGif = "/images/loader.gif";
-const welcomeImg = "/images/welcome.png";
-const myChatAvatar = "/images/programmer.svg";
-const friendChatAvatar = "/images/friend.svg";
+const loaderGif = "../images/loader.gif";
+const welcomeImg = "../images/welcome.png";
+const myChatAvatar = "../images/programmer.svg";
+const friendChatAvatar = "../images/friend.svg";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const notifyBySound = true; // turn on - off sound notifications
+const notifyAddPeer = "../audio/add_peer.mp3";
+const notifyRemovePeer = "../audio/remove_peer.mp3";
+const notifyNewMessage = "../audio/new_message.mp3";
+const notifyError = "../audio/error.mp3";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
@@ -209,11 +213,12 @@ function getServerUrl() {
  * @return Room Id
  */
 function getRoomId() {
-  let roomId = location.pathname.substring(1);
+  // skip /join/
+  let roomId = location.pathname.substring(6);
   // if not specified room id, create one random
   if (roomId == "") {
     roomId = makeId(12);
-    const newurl = signalingServer + "/" + roomId;
+    const newurl = signalingServer + "/join/" + roomId;
     window.history.pushState({ url: newurl }, roomId, newurl);
   }
   return roomId;
@@ -329,7 +334,7 @@ function initPeer() {
   function welcomeUser() {
     const myRoomUrl = window.location.href;
     playSound("newMessage");
-
+    copyRoomURL();
     Swal.fire({
       background: swalBackground,
       position: "center",
@@ -341,11 +346,12 @@ function initPeer() {
       html:
         `
       <br> 
-      Share this link to join on this call
+      Share this URL to join on this call.
       <br>
       <p style="color:rgb(8, 189, 89);">` +
         myRoomUrl +
         `</p>`,
+      confirmButtonText: `Copy URL`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -753,10 +759,8 @@ function setupLocalMedia(callback, errorback) {
     .catch((e) => {
       // user denied access to audio/video
       console.error("Access denied for audio/video", e);
-      userLog(
-        "error",
-        "This app will not work without camera/microphone access."
-      );
+      playSound("error");
+      window.location.href = `/permission?roomId=${roomId}`;
       if (errorback) errorback();
     });
 } // end [setup_local_stream]
@@ -1360,17 +1364,7 @@ function showLeftButtons() {
  * https://sweetalert2.github.io
  */
 async function shareRoomUrl() {
-  // save Room Url to clipboard
-  var tmpInput = document.createElement("input");
-  let ROOM_URL = window.location.href;
-  document.body.appendChild(tmpInput);
-  tmpInput.value = ROOM_URL;
-  tmpInput.select();
-  // For mobile devices
-  tmpInput.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-  console.log("Copied to clipboard Join Link ", ROOM_URL);
-  document.body.removeChild(tmpInput);
+  copyRoomURL();
 
   // navigator share
   let isSupportedNavigatorShare = false;
@@ -1400,13 +1394,15 @@ async function shareRoomUrl() {
       allowOutsideClick: false,
       background: swalBackground,
       position: "center",
-      icon: "success",
-      title: "Copied to clipboard",
+      // icon: "success",
+      title: "Share Room",
+      imageAlt: "share",
+      imageUrl: loaderGif,
       html:
         `
-      Send this link to all participants
+      Send this URL to all participants
       <p style="color:rgb(8, 189, 89);">` +
-        ROOM_URL +
+        window.location.href +
         `</p>`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
@@ -1414,8 +1410,26 @@ async function shareRoomUrl() {
       hideClass: {
         popup: "animate__animated animate__fadeOutUp",
       },
+      confirmButtonText: `Copy URL`,
     });
   }
+}
+
+/**
+ * Copy Room URL to clipboard
+ */
+function copyRoomURL() {
+  // save Room Url to clipboard
+  var roomURL = window.location.href;
+  var tmpInput = document.createElement("input");
+  document.body.appendChild(tmpInput);
+  tmpInput.value = roomURL;
+  tmpInput.select();
+  // For mobile devices
+  tmpInput.setSelectionRange(0, 99999);
+  document.execCommand("copy");
+  console.log("Copied to clipboard Join Link ", roomURL);
+  document.body.removeChild(tmpInput);
 }
 
 /**
@@ -2054,7 +2068,8 @@ function leaveRoom() {
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      window.location.href = "/";
+      playSound("removePeer");
+      window.location.href = "/newcall";
     }
   });
 }
@@ -2115,16 +2130,16 @@ async function playSound(state) {
   let file_audio = "";
   switch (state) {
     case "addPeer":
-      file_audio = "audio/add_peer.mp3";
+      file_audio = notifyAddPeer;
       break;
     case "removePeer":
-      file_audio = "audio/remove_peer.mp3";
+      file_audio = notifyRemovePeer;
       break;
     case "newMessage":
-      file_audio = "audio/new_message.mp3";
+      file_audio = notifyNewMessage;
       break;
     case "error":
-      file_audio = "audio/error.mp3";
+      file_audio = notifyError;
       break;
     // ...
     default:
