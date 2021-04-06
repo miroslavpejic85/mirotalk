@@ -8,8 +8,10 @@
 
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
-const loaderGif = "../images/loader.gif";
-const welcomeImg = "../images/welcome.png";
+const welcomeImg = "../images/illustration-section-01.svg";
+const shareUrlImg = "../images/illustration-section-01.svg";
+const leaveRoomImg = "../images/illustration-section-01.svg";
+const aboutImg = "../images/preview.png";
 const myChatAvatar = "../images/programmer.svg";
 const friendChatAvatar = "../images/friend.svg";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
@@ -293,7 +295,8 @@ function initPeer() {
       allowOutsideClick: false,
       background: swalBackground,
       position: "center",
-      icon: "info",
+      imageAlt: "mirotalk-name",
+      imageUrl: welcomeImg,
       title: "Enter your name",
       input: "text",
       showClass: {
@@ -339,15 +342,12 @@ function initPeer() {
       background: swalBackground,
       position: "center",
       title: "<strong>Welcome " + myPeerName + "</strong>",
-      imageAlt: "welcome",
+      imageAlt: "mirotalk-welcome",
       imageUrl: welcomeImg,
-      imageWidth: 320,
-      imageHeight: 240,
       html:
         `
-      <br> 
+      <br/> 
       Share this URL to join on this call.
-      <br>
       <p style="color:rgb(8, 189, 89);">` +
         myRoomUrl +
         `</p>`,
@@ -1390,16 +1390,18 @@ async function shareRoomUrl() {
     !isSupportedNavigatorShare ||
     (isSupportedNavigatorShare && errorNavigatorShare)
   ) {
+    playSound("newMessage");
+
     Swal.fire({
       allowOutsideClick: false,
       background: swalBackground,
       position: "center",
-      // icon: "success",
       title: "Share Room",
-      imageAlt: "share",
-      imageUrl: loaderGif,
+      imageAlt: "mirotalk-share",
+      imageUrl: shareUrlImg,
       html:
         `
+      <br/>
       Send this URL to all participants
       <p style="color:rgb(8, 189, 89);">` +
         window.location.href +
@@ -1690,6 +1692,7 @@ function setChatRoomForMobile() {
  * Show msger draggable on center screen position
  */
 function showChatRoomDraggable() {
+  playSound("newMessage");
   if (isMobileDevice) {
     leftButtons.style.display = "none";
     isButtonsVisible = false;
@@ -1862,6 +1865,7 @@ function emitMsg(name, msg) {
  */
 function hideShowEmojiPicker() {
   if (!isChatEmojiVisible) {
+    playSound("newMessage");
     msgerEmojiPicker.style.display = "block";
     isChatEmojiVisible = true;
     return;
@@ -1968,6 +1972,7 @@ function getTheme() {
  */
 function hideShowMySettings() {
   if (!isMySettingsVisible) {
+    playSound("newMessage");
     // my current peer name
     myPeerNameSet.placeholder = myPeerName;
     // center screen on show
@@ -2022,20 +2027,19 @@ function appendPeerName(id, name) {
  * https://sweetalert2.github.io
  */
 function getAbout() {
+  playSound("newMessage");
+
   Swal.fire({
     background: swalBackground,
     position: "center",
     title: "<strong>WebRTC Made with ❤️</strong>",
-    /*
-    imageAlt: "mirotalk",
-    imageUrl: loaderGif,
-    imageWidth: 320,
-    imageHeight: 240,
-    */
+    imageAlt: "mirotalk-about",
+    imageUrl: aboutImg,
     html: `
-    <br>
-    <a title="Customer reviews of mirotalk.herokuapp.com" href="https://www.webwiki.com/mirotalk.herokuapp.com" target="_blank"><img src="https://www.webwiki.com/etc/rating/widget/1332372621/mirotalk-herokuapp-com-rating-round-220.png" alt="Reviews of mirotalk.herokuapp.com" /></a>
-    <br><br>
+    <br/>
+    <!-- <a title="Customer reviews of mirotalk.herokuapp.com" href="https://www.webwiki.com/mirotalk.herokuapp.com" target="_blank"><img src="https://www.webwiki.com/etc/rating/widget/1332372621/mirotalk-herokuapp-com-rating-round-220.png" alt="Reviews of mirotalk.herokuapp.com" /></a>
+    <br/><br/>
+    -->
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
     <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div>
     `,
@@ -2053,9 +2057,13 @@ function getAbout() {
  * https://sweetalert2.github.io
  */
 function leaveRoom() {
+  playSound("newMessage");
+
   Swal.fire({
     background: swalBackground,
     position: "center",
+    imageAlt: "mirotalk-leave",
+    imageUrl: leaveRoomImg,
     title: "Leave this room?",
     showDenyButton: true,
     confirmButtonText: `Yes`,
@@ -2068,7 +2076,6 @@ function leaveRoom() {
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      playSound("removePeer");
       window.location.href = "/newcall";
     }
   });
