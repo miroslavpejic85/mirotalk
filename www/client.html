@@ -60,6 +60,13 @@
     <!-- just 4SEO Optimization -->
     <div id="webRTCSeo"><h1>WebRTC</h1></div>
 
+    <!-- show this before to join -->
+    <div id="loadingDiv">
+      <h1 class="pulsate">Loading...</h1>
+      <p>Please allow camera & microphone</p>
+      <p>access to use this app.</p>
+    </div>
+
     <p id="countTime">00:00:00</p>
 
     <!-- Start left buttons 
@@ -284,7 +291,7 @@
     ></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/client.js"></script>
-    <!-- end of Js scriots -->
+    <!-- end of Js scripts -->
 
     <!-- 
 		the <video> and <audio> tags are all added and removed dynamically

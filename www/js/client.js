@@ -709,7 +709,9 @@ function setupLocalMedia(callback, errorback) {
     .getUserMedia(constraints)
     .then(function (stream) {
       console.log("Access granted to audio/video");
+      // hide img bg and loading div
       document.body.style.backgroundImage = "none";
+      getId("loadingDiv").style.display = "none";
 
       // need for recording stream later
       window.stream = stream;
