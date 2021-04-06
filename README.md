@@ -25,7 +25,7 @@ Open the app in one of following **supported browser**
 
 <br>
 
-![mirotalk](www/images/preview.png)
+[![mirotalk](www/images/preview.png)](https://mirotalk.herokuapp.com/)
 
 ## Features
 
