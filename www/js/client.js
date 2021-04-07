@@ -1639,12 +1639,17 @@ function stopStreamRecording() {
  * Download recorded stream
  */
 function downloadRecordedStream() {
+  const recFileName = getDataTimeString() + "-REC.webm";
+  userLog(
+    "success",
+    `Recording file name: ${recFileName}, please wait to be processed, then will be downloaded to your PC.`
+  );
   const blob = new Blob(recordedBlobs, { type: "video/webm" });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.style.display = "none";
   a.href = url;
-  a.download = getDataTimeString() + "-REC.webm";
+  a.download = recFileName;
   document.body.appendChild(a);
   a.click();
   setTimeout(() => {
@@ -2113,6 +2118,21 @@ function userLog(type, message) {
         position: "center",
         icon: "info",
         title: "Info",
+        text: message,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
+      break;
+    case "success":
+      Swal.fire({
+        background: swalBackground,
+        position: "center",
+        icon: "success",
+        title: "Success",
         text: message,
         showClass: {
           popup: "animate__animated animate__fadeInDown",
