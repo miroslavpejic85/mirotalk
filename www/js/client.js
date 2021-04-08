@@ -25,8 +25,10 @@ const notifyError = "../audio/error.mp3";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
-var startTime;
-var elapsedTime;
+var callStartTime;
+var callElapsedTime;
+var recStartTime;
+var recElapsedTime;
 var mirotalkTheme = "neon"; // neon - dark - ghost ...
 var swalBackground = "transparent"; // black - #16171b ...
 var signalingServerPort = 3000; // must be same of server PORT
@@ -438,6 +440,7 @@ function initPeer() {
         const videoWrap = document.createElement("div");
         const remoteVideoParagraph = document.createElement("h4");
         remoteVideoParagraph.setAttribute("id", peer_id + "_name");
+        remoteVideoParagraph.className = "videoPeerName";
         const peerVideoText = document.createTextNode(peers[peer_id]);
         remoteVideoParagraph.appendChild(peerVideoText);
         videoWrap.appendChild(remoteVideoParagraph);
@@ -724,6 +727,7 @@ function setupLocalMedia(callback, errorback) {
       // print my name on top video element
       const myVideoParagraph = document.createElement("h4");
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
+      myVideoParagraph.className = "videoPeerName";
       videoWrap.appendChild(myVideoParagraph);
 
       const localMedia = document.createElement("video");
@@ -853,10 +857,10 @@ function handleVideoPlayerFs(videoId) {
  */
 function startCountTime() {
   countTime.style.display = "inline";
-  startTime = Date.now();
+  callStartTime = Date.now();
   setInterval(function printTime() {
-    elapsedTime = Date.now() - startTime;
-    countTime.innerHTML = getTimeToString(elapsedTime);
+    callElapsedTime = Date.now() - callStartTime;
+    countTime.innerHTML = getTimeToString(callElapsedTime);
   }, 1000);
 }
 
@@ -864,12 +868,12 @@ function startCountTime() {
  * Start recording time
  */
 function startRecordingTime() {
-  startTime = Date.now();
+  recStartTime = Date.now();
   var rc = setInterval(function printTime() {
     if (isStreamRecording) {
-      elapsedTime = Date.now() - startTime;
+      recElapsedTime = Date.now() - recStartTime;
       myVideoParagraph.innerHTML =
-        myPeerName + " 🔴 REC " + getTimeToString(elapsedTime);
+        myPeerName + " 🔴 REC " + getTimeToString(recElapsedTime);
       return;
     }
     clearInterval(rc);

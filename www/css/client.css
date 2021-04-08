@@ -516,7 +516,7 @@ emoji-picker {
 # Handle video elements
 --------------------------------------------------------------*/
 
-#myVideoParagraph {
+.videoPeerName {
   z-index: 7;
 }
 
@@ -559,7 +559,8 @@ video:fullscreen {
 .video.two {
   width: 50vw;
   height: 100vh;
-  --video-object-fit: contain;
+  --video-object-fit: cover;
+  /* --video-object-fit: contain; */
 }
 .video.three {
   /* width: 33.33vw;
@@ -587,7 +588,8 @@ video:fullscreen {
 # Handle video elements on screen resize
 --------------------------------------------------------------*/
 
-@media only screen and (max-width: 960px) {
+@media only screen and (max-width: 720px) {
+  /* 960px */
   .video {
     float: left;
     width: 50vw;
