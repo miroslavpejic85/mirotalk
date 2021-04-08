@@ -124,8 +124,8 @@ body {
 #loadingDiv h1 {
   font-size: 70px;
 }
-#loadingDiv p {
-  font-size: 20px;
+#loadingDiv pre {
+  font-size: 15px;
 }
 
 /*--------------------------------------------------------------
