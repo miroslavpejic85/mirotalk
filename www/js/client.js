@@ -16,9 +16,11 @@ const myChatAvatar = "../images/programmer.svg";
 const friendChatAvatar = "../images/friend.svg";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const notifyBySound = true; // turn on - off sound notifications
-const notifyAddPeer = "../audio/add_peer.mp3";
-const notifyRemovePeer = "../audio/remove_peer.mp3";
-const notifyNewMessage = "../audio/new_message.mp3";
+const notifyAddPeer = "../audio/addPeer.mp3";
+const notifyRemovePeer = "../audio/removePeer.mp3";
+const notifyNewMessage = "../audio/newMessage.mp3";
+const notifyRecStart = "../audio/recStart.mp3";
+const notifyRecStop = "../audio/recStop.mp3";
 const notifyError = "../audio/error.mp3";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
@@ -985,8 +987,10 @@ function setScreenShareBtn() {
 function setRecordStreamBtn() {
   recordStreamBtn.addEventListener("click", (e) => {
     if (isStreamRecording) {
+      playSound("recStop");
       stopStreamRecording();
     } else {
+      playSound("recStart");
       startStreamRecording();
     }
   });
@@ -2166,6 +2170,12 @@ async function playSound(state) {
       break;
     case "newMessage":
       file_audio = notifyNewMessage;
+      break;
+    case "recStart":
+      file_audio = notifyRecStart;
+      break;
+    case "recStop":
+      file_audio = notifyRecStop;
       break;
     case "error":
       file_audio = notifyError;
