@@ -35,9 +35,9 @@ var signalingServerPort = 3000; // must be same of server PORT
 var signalingServer = getServerUrl();
 var roomId = getRoomId();
 var peerInfo = getPeerInfo();
-var peerGeo = null;
-var peerConnection = null;
-var myPeerName = null;
+var peerGeo;
+var peerConnection;
+var myPeerName;
 var useAudio = true;
 var useVideo = true;
 var camera = "user";
@@ -49,9 +49,9 @@ var isButtonsVisible = false;
 var isMySettingsVisible = false;
 var isVideoOnFullScreen = false;
 var isDocumentOnFullScreen = false;
-var signalingSocket = null; // socket.io connection to our webserver
-var localMediaStream = null; // my microphone / webcam
-var remoteMediaStream = null; // peers microphone / webcam
+var signalingSocket; // socket.io connection to our webserver
+var localMediaStream; // my microphone / webcam
+var remoteMediaStream; // peers microphone / webcam
 var remoteMediaControls = false; // enable - disable peers video player controls (default false)
 var peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 var peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
@@ -71,55 +71,55 @@ var chatInputEmoji = {
   ":+1:": "\uD83D\uDC4D",
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
-var countTime = null;
+var countTime;
 // left buttons
-var leftButtons = null;
-var shareRoomBtn = null;
-var audioBtn = null;
-var videoBtn = null;
-var swapCameraBtn = null;
-var screenShareBtn = null;
-var fullScreenBtn = null;
-var chatRoomBtn = null;
-var mySettingsBtn = null;
-var aboutBtn = null;
-var leaveRoomBtn = null;
+var leftButtons;
+var shareRoomBtn;
+var audioBtn;
+var videoBtn;
+var swapCameraBtn;
+var screenShareBtn;
+var fullScreenBtn;
+var chatRoomBtn;
+var mySettingsBtn;
+var aboutBtn;
+var leaveRoomBtn;
 // chat room elements
-var msgerDraggable = null;
-var msgerHeader = null;
-var msgerTheme = null;
-var msgerClean = null;
-var msgerEmojiBtn = null;
-var msgerSaveBtn = null;
-var msgerClose = null;
-var msgerChat = null;
-var msgerInput = null;
-var msgerSendBtn = null;
+var msgerDraggable;
+var msgerHeader;
+var msgerTheme;
+var msgerClean;
+var msgerEmojiBtn;
+var msgerSaveBtn;
+var msgerClose;
+var msgerChat;
+var msgerInput;
+var msgerSendBtn;
 // chat room emoji picker
-var msgerEmojiPicker = null;
-var msgerEmojiHeader = null;
-var msgerCloseEmojiBtn = null;
-var emojiPicker = null;
+var msgerEmojiPicker;
+var msgerEmojiHeader;
+var msgerCloseEmojiBtn;
+var emojiPicker;
 // my settings
-var mySettings = null;
-var mySettingsHeader = null;
-var mySettingsCloseBtn = null;
-var myPeerNameSet = null;
-var myPeerNameSetBtn = null;
-var audioInputSelect = null;
-var audioOutputSelect = null;
-var videoSelect = null;
-var themeSelect = null;
-var selectors = null;
+var mySettings;
+var mySettingsHeader;
+var mySettingsCloseBtn;
+var myPeerNameSet;
+var myPeerNameSetBtn;
+var audioInputSelect;
+var audioOutputSelect;
+var videoSelect;
+var themeSelect;
+var selectors;
 // my video element
-var myVideo = null;
+var myVideo;
 // my conference Name
-var myVideoParagraph = null;
-// Record Media Stream
-var recordStreamBtn = null;
-var isStreamRecording = false;
+var myVideoParagraph;
+// record Media Stream
+var recordStreamBtn;
 var mediaRecorder;
 var recordedBlobs;
+var isStreamRecording = false;
 
 /**
  * Load all Html elements by Id
@@ -1264,6 +1264,8 @@ function attachSinkId(element, sinkId) {
  * @param {*} stream
  */
 function gotStream(stream) {
+  // need for recording stream later
+  window.stream = stream;
   refreshMyStreamToPeers(stream);
   refreshMyLocalStream(stream);
   if (myVideoChange) {
@@ -1371,7 +1373,6 @@ function showLeftButtons() {
 /**
  * Copy room url to clipboard and share it with navigator share if supported
  * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
- * https://sweetalert2.github.io
  */
 async function shareRoomUrl() {
   copyRoomURL();
@@ -1437,7 +1438,7 @@ function copyRoomURL() {
   document.body.appendChild(tmpInput);
   tmpInput.value = roomURL;
   tmpInput.select();
-  // For mobile devices
+  // for mobile devices
   tmpInput.setSelectionRange(0, 99999);
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", roomURL);
@@ -1500,6 +1501,10 @@ function toggleScreenSharing() {
     };
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
     videoBtn.className = "fas fa-video";
+    // if screen sharing accidentally closed
+    if (isStreamRecording) {
+      stopStreamRecording();
+    }
   }
   screenMediaPromise
     .then((screenStream) => {
@@ -1800,7 +1805,7 @@ function appendMessage(name, img, side, text) {
     name: name,
     text: text,
   });
-  // console.log("--------->chatMessages", chatMessages);
+  // console.log("chatMessages", chatMessages);
   let ctext = detectUrl(text);
   const msgHTML = `
 	<div class="msg ${side}-msg">
@@ -1952,37 +1957,6 @@ function dragElement(elmnt, dragObj) {
 }
 
 /**
- * Change mirotalk UX theme
- * https://sweetalert2.github.io
- */
-function getTheme() {
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    title: "Select theme",
-    input: "select",
-    inputOptions: {
-      neon: "mirotalk-neon",
-      dark: "mirotalk-dark",
-      ghost: "mirotalk-ghost",
-    },
-    inputPlaceholder: "mirotalk-" + mirotalkTheme,
-    showDenyButton: true,
-    confirmButtonText: `Apply`,
-    denyButtonText: `Cancel`,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-    inputValidator: (theme) => {
-      setTheme(theme);
-    },
-  });
-}
-
-/**
  * Hide - show my settings
  */
 function hideShowMySettings() {
@@ -2052,9 +2026,6 @@ function getAbout() {
     imageUrl: aboutImg,
     html: `
     <br/>
-    <!-- <a title="Customer reviews of mirotalk.herokuapp.com" href="https://www.webwiki.com/mirotalk.herokuapp.com" target="_blank"><img src="https://www.webwiki.com/etc/rating/widget/1332372621/mirotalk-herokuapp-com-rating-round-220.png" alt="Reviews of mirotalk.herokuapp.com" /></a>
-    <br/><br/>
-    -->
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
     <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div>
     `,
@@ -2158,7 +2129,7 @@ function userLog(type, message) {
 
 /**
  * Sound notifications
- * https://sweetalert2.github.io
+ * https://notificationsounds.com/notification-sounds
  * @param {*} state
  */
 async function playSound(state) {
