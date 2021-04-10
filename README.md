@@ -29,19 +29,19 @@ Open the app in one of following **supported browser**
 
 ## Features
 
-- Is 100% Free and Open Source
+- Is 100% `Free` and `Open Source`
+- No download, plug-in or login required, entirely browser based
 - Unlimited users, without time limitation
 - Room Url Sharing (share to your friends, wait them to join)
 - WebCam Streaming (Front - Rear for mobile)
 - Audio Streaming
-- Screen Sharing to present documents, slides, and more
-- Recording Screen && Audio && Video
-- Chat Room && Emoji Picker
+- Screen Sharing to present documents, slides, and more...
+- Recording Screen, Audio and Video
+- Chat & Emoji Picker
 - Full Screen Mode on click
-- Change Theme
+- Possibility to Change UI Themes
 - Select Audio Input - Output && Video source
 - Right click on Video elements for more options
-- No download required, No account needed, entirely browser based
 - Direct peer-to-peer connection ensures lowest latency thanks to webrtc
 
 ## Demo
@@ -123,3 +123,5 @@ from where I taked inspiration for this project. ❤️
 ---
 
 ![qr](www/images/mirotalk-qr.png)
+
+<p align="center"> Made with ❤️ by <a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/">Miroslav Pejic</a></p>
