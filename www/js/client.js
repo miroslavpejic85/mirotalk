@@ -42,6 +42,8 @@ var useAudio = true;
 var useVideo = true;
 var camera = "user";
 var myVideoChange = false;
+var myVideoStatus = true;
+var myAudioStatus = true;
 var isScreenStreaming = false;
 var isChatRoomVisible = false;
 var isChatEmojiVisible = false;
@@ -115,6 +117,8 @@ var selectors;
 var myVideo;
 // my conference Name
 var myVideoParagraph;
+var myVideoStatusIcon;
+var myAudioStatusIcon;
 // record Media Stream
 var recordStreamBtn;
 var mediaRecorder;
@@ -167,6 +171,8 @@ function getHtmlElementsById() {
   themeSelect = getId("mirotalkTheme");
   // my conference Name
   myVideoParagraph = getId("myVideoParagraph");
+  myVideoStatusIcon = getId("myVideoStatusIcon");
+  myAudioStatusIcon = getId("myAudioStatusIcon");
   recordStreamBtn = getId("recordStreamBtn");
 }
 
@@ -332,6 +338,8 @@ function initPeer() {
       peerInfo: peerInfo,
       peerGeo: peerGeo,
       peerName: myPeerName,
+      peerVideo: myVideoStatus,
+      peerAudio: myAudioStatus,
     });
   }
 
@@ -436,14 +444,33 @@ function initPeer() {
         console.log("ontrack", event);
         remoteMediaStream = event.streams[0];
 
-        // print peers name
         const videoWrap = document.createElement("div");
+
+        // handle peers name video audio status
         const remoteVideoParagraph = document.createElement("h4");
+        const remoteVideoStatusIcon = document.createElement("button");
+        const remoteAudioStatusIcon = document.createElement("button");
+
+        // remote peer name element
         remoteVideoParagraph.setAttribute("id", peer_id + "_name");
         remoteVideoParagraph.className = "videoPeerName";
-        const peerVideoText = document.createTextNode(peers[peer_id]);
+        const peerVideoText = document.createTextNode(
+          peers[peer_id]["peer_name"]
+        );
         remoteVideoParagraph.appendChild(peerVideoText);
+
+        // remote audio status element
+        remoteVideoStatusIcon.setAttribute("id", peer_id + "_videoStatus");
+        remoteVideoStatusIcon.className = "fas fa-video videoStatusIcon";
+
+        // remote audio status element
+        remoteAudioStatusIcon.setAttribute("id", peer_id + "_audioStatus");
+        remoteAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
+
+        // add elements to video wrap div
         videoWrap.appendChild(remoteVideoParagraph);
+        videoWrap.appendChild(remoteVideoStatusIcon);
+        videoWrap.appendChild(remoteAudioStatusIcon);
 
         const remoteMedia = document.createElement("video");
         videoWrap.className = "video";
@@ -465,6 +492,18 @@ function initPeer() {
         if (!isMobileDevice) {
           handleVideoPlayerFs(peer_id + "_video");
         }
+
+        // refresh remote peers video icon status
+        getId(peer_id + "_videoStatus").className =
+          "fas fa-video" +
+          (peers[peer_id]["peer_video"] ? "" : "-slash") +
+          " videoStatusIcon";
+
+        // refresh remote peers audio icon status
+        getId(peer_id + "_audioStatus").className =
+          "fas fa-microphone" +
+          (peers[peer_id]["peer_audio"] ? "" : "-slash") +
+          " audioStatusIcon";
       }
     };
 
@@ -619,6 +658,24 @@ function initPeer() {
   signalingSocket.on("onCName", function (config) {
     appendPeerName(config.peer_id, config.peer_name);
   });
+
+  // refresh peers video - audio icon status
+  signalingSocket.on("onVAStatus", function (config) {
+    var peer_id = config.peer_id;
+    var element = config.element;
+    var status = config.status;
+
+    switch (element) {
+      case "video":
+        getId(peer_id + "_videoStatus").className =
+          "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
+        break;
+      case "audio":
+        getId(peer_id + "_audioStatus").className =
+          "fas fa-microphone" + (status ? "" : "-slash") + " audioStatusIcon";
+        break;
+    }
+  });
 } // end [initPeer]
 
 /**
@@ -724,11 +781,27 @@ function setupLocalMedia(callback, errorback) {
       localMediaStream = stream;
 
       const videoWrap = document.createElement("div");
-      // print my name on top video element
+      // handle my peer name video audio status
       const myVideoParagraph = document.createElement("h4");
+      const myVideoStatusIcon = document.createElement("button");
+      const myAudioStatusIcon = document.createElement("button");
+
+      // my peer name
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
       myVideoParagraph.className = "videoPeerName";
+
+      // my audio status element
+      myVideoStatusIcon.setAttribute("id", "myVideoStatusIcon");
+      myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
+
+      // my audio status element
+      myAudioStatusIcon.setAttribute("id", "myAudioStatusIcon");
+      myAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
+
+      // add elements to video wrap div
       videoWrap.appendChild(myVideoParagraph);
+      videoWrap.appendChild(myVideoStatusIcon);
+      videoWrap.appendChild(myAudioStatusIcon);
 
       const localMedia = document.createElement("video");
       videoWrap.className = "video";
@@ -930,11 +1003,19 @@ function setShareRoomBtn() {
  */
 function setAudioBtn() {
   audioBtn.addEventListener("click", (e) => {
+    // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
     localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
       .enabled;
     e.target.className =
       "fas fa-microphone" +
       (localMediaStream.getAudioTracks()[0].enabled ? "" : "-slash");
+    // refresh my audio status to all peers in the room
+    myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+    myAudioStatusIcon.className =
+      "fas fa-microphone" +
+      (myAudioStatus ? "" : "-slash") +
+      " audioStatusIcon";
+    emitVAStatus("audio", myAudioStatus);
   });
 }
 
@@ -949,6 +1030,11 @@ function setVideoBtn() {
     e.target.className =
       "fas fa-video" +
       (localMediaStream.getVideoTracks()[0].enabled ? "" : "-slash");
+    // refresh my video status to all peers in the room
+    myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+    myVideoStatusIcon.className =
+      "fas fa-video" + (myVideoStatus ? "" : "-slash") + " videoStatusIcon";
+    emitVAStatus("video", myVideoStatus);
   });
 }
 
@@ -1870,10 +1956,12 @@ function emitMsg(name, msg) {
   if (msg) {
     signalingSocket.emit("msg", {
       peerConnections: peerConnections,
+      room_id: roomId,
       name: name,
       msg: msg,
     });
     console.log("Send msg", {
+      room_id: roomId,
       name: name,
       msg: msg,
     });
@@ -2009,6 +2097,21 @@ function appendPeerName(id, name) {
   if (videoName) {
     videoName.innerHTML = name;
   }
+}
+
+/**
+ * Send my Video-Audio status
+ * @param {*} element
+ * @param {*} status
+ */
+function emitVAStatus(element, status) {
+  signalingSocket.emit("vaStatus", {
+    peerConnections: peerConnections,
+    room_id: roomId,
+    peer_name: myPeerName,
+    element: element,
+    status: status,
+  });
 }
 
 /**

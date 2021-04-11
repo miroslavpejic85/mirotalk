@@ -24,7 +24,7 @@ const ngrok = require("ngrok");
 var PORT = process.env.PORT || 3000; // signalingServerPort
 var channels = {}; // collect channels
 var sockets = {}; // collect sockets
-var peers = {}; // collect peers id:name in channel
+var peers = {}; // collect peers info grp by channels
 
 var ngrokEnabled = process.env.NGROK_ENABLED;
 var ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
@@ -195,6 +195,8 @@ io.sockets.on("connect", (socket) => {
 
     var channel = config.channel;
     var peer_name = config.peerName;
+    var peer_video = config.peerVideo;
+    var peer_audio = config.peerAudio;
 
     if (channel in socket.channels) {
       console.log("[" + socket.id + "] [Warning] already joined", channel);
@@ -206,9 +208,13 @@ io.sockets.on("connect", (socket) => {
       peers[channel] = {};
     }
 
-    // collect peers id:name group by channel
-    peers[channel][socket.id] = peer_name;
-    console.log("connected peers", peers);
+    // collect peers info grp by channels
+    peers[channel][socket.id] = {
+      peer_name: peer_name,
+      peer_video: peer_video,
+      peer_audio: peer_audio,
+    };
+    console.log("connected peers grp by roomId", peers);
 
     for (var id in channels[channel]) {
       // offer false
@@ -300,13 +306,17 @@ io.sockets.on("connect", (socket) => {
    */
   socket.on("msg", (config) => {
     let peerConnections = config.peerConnections;
+    let room_id = config.room_id;
     let name = config.name;
     let msg = config.msg;
 
-    console.log("[" + socket.id + "] emit onMessage", {
-      name: name,
-      msg: msg,
-    });
+    console.log(
+      "[" + socket.id + "] emit onMessage to [room_id: " + room_id + "]",
+      {
+        name: name,
+        msg: msg,
+      }
+    );
 
     for (var peer_id in peerConnections) {
       sockets[peer_id].emit("onMessage", {
@@ -328,28 +338,80 @@ io.sockets.on("connect", (socket) => {
 
     // update peers new name in the specified room
     for (var peer_id in peers[room_id]) {
-      if (peers[room_id][peer_id] == peer_name_old) {
-        peers[room_id][peer_id] = peer_name_new;
+      if (peers[room_id][peer_id]["peer_name"] == peer_name_old) {
+        peers[room_id][peer_id]["peer_name"] = peer_name_new;
         peer_id_to_update = peer_id;
-        console.log("change peer name", {
+        /*
+        console.log("[" + socket.id + "] change peer name", {
           room_id: room_id,
           peer_id: peer_id,
           peer_name_old: peer_name_old,
           peer_name_new: peer_name_new,
         });
+        */
       }
     }
 
     // refresh if found
-    if (peer_id_to_update) {
-      console.log("[" + socket.id + "] emit onCName", {
-        peer_id: peer_id_to_update,
-        peer_name: peer_name_new,
-      });
+    if (peer_id_to_update && Object.keys(peerConnections).length != 0) {
+      console.log(
+        "[" + socket.id + "] emit onCName to [room_id: " + room_id + "]",
+        {
+          peer_id: peer_id_to_update,
+          peer_name: peer_name_new,
+        }
+      );
       for (var peer_id in peerConnections) {
         sockets[peer_id].emit("onCName", {
           peer_id: peer_id_to_update,
           peer_name: peer_name_new,
+        });
+      }
+    }
+  });
+
+  /**
+   * Relay Audio Video Status to peers
+   */
+  socket.on("vaStatus", (config) => {
+    let peerConnections = config.peerConnections;
+    let room_id = config.room_id;
+    let peer_name = config.peer_name;
+    let element = config.element;
+    let status = config.status;
+
+    // update peers video-audio status in the specified room
+    for (var peer_id in peers[room_id]) {
+      if (peers[room_id][peer_id]["peer_name"] == peer_name) {
+        element == "video"
+          ? (peers[room_id][peer_id]["peer_video"] = status)
+          : (peers[room_id][peer_id]["peer_audio"] = status);
+        /*
+        console.log("[" + socket.id + "] change " + element + " status", {
+          room_id: room_id,
+          peer_name: peer_name,
+          element: element,
+          status: status,
+        }); 
+        */
+      }
+    }
+
+    // socket.id aka peer that send this status
+    if (Object.keys(peerConnections).length != 0) {
+      console.log(
+        "[" + socket.id + "] emit onVAStatus to [room_id: " + room_id + "]",
+        {
+          peer_id: socket.id,
+          element: element,
+          status: status,
+        }
+      );
+      for (var peer_id in peerConnections) {
+        sockets[peer_id].emit("onVAStatus", {
+          peer_id: socket.id,
+          element: element,
+          status: status,
         });
       }
     }

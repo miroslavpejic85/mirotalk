@@ -232,10 +232,10 @@ body {
   opacity: var(--btn-opc);
 }
 
-button:focus {
+#leftButtons button:focus {
   outline: none;
 }
-button:hover {
+#leftButtons button:hover {
   color: rgb(8, 189, 89);
 }
 
@@ -310,35 +310,18 @@ button:hover {
   background: rgb(0, 0, 0);
   color: #fff;
   border-radius: 5px;
+  transition: background 0.23s;
+}
+.msger-header-options button:hover {
+  color: rgb(0, 180, 50);
 }
 
-#msgerTheme,
-#msgerClean,
-#msgerSaveBtn,
-#msgerSendBtn,
-#msgerEmojiBtn,
-#msgerClose {
+#msgerSendBtn {
   background: rgb(0, 0, 0);
   color: #fff;
   transition: background 0.23s;
 }
-
-#msgerTheme:hover {
-  color: rgb(0, 180, 50);
-}
-#msgerClean:hover {
-  color: rgb(0, 180, 50);
-}
-#msgerSaveBtn:hover {
-  color: rgb(0, 180, 50);
-}
 #msgerSendBtn:hover {
-  color: rgb(0, 180, 50);
-}
-#msgerEmojiBtn:hover {
-  color: rgb(0, 180, 50);
-}
-#msgerClose:hover {
   color: rgb(0, 180, 50);
 }
 
@@ -517,7 +500,28 @@ emoji-picker {
 --------------------------------------------------------------*/
 
 .videoPeerName {
+  z-index: 5;
+}
+
+.videoStatusIcon {
+  z-index: 6;
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  color: whitesmoke;
+  transition: all 0.3s ease-in-out;
+  background: transparent;
+  border: none;
+}
+.audioStatusIcon {
   z-index: 7;
+  position: absolute;
+  top: 15px;
+  right: 5px;
+  color: whitesmoke;
+  transition: all 0.3s ease-in-out;
+  background: transparent;
+  border: none;
 }
 
 #myVideo.mirror {
