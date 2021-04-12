@@ -202,9 +202,13 @@ io.sockets.on("connect", (socket) => {
       console.log("[" + socket.id + "] [Warning] already joined", channel);
       return;
     }
-
+    // no channel aka room in channels init
     if (!(channel in channels)) {
       channels[channel] = {};
+    }
+
+    // no channel aka room in peers init
+    if (!(channel in peers)) {
       peers[channel] = {};
     }
 
@@ -239,7 +243,7 @@ io.sockets.on("connect", (socket) => {
   });
 
   /**
-   * Remove peers
+   * Remove peers from channel aka room
    * @param {*} channel
    */
   async function removePeerFrom(channel) {
@@ -252,7 +256,10 @@ io.sockets.on("connect", (socket) => {
     delete channels[channel][socket.id];
     delete peers[channel][socket.id];
 
-    // console.log("connected peers", peers);
+    // if not channel aka room in peers remove it
+    if (Object.keys(peers[channel]).length === 0) {
+      delete peers[channel];
+    }
 
     for (var id in channels[channel]) {
       await channels[channel][id].emit("removePeer", { peer_id: socket.id });
