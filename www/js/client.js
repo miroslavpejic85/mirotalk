@@ -115,7 +115,7 @@ var themeSelect;
 var selectors;
 // my video element
 var myVideo;
-// my conference Name
+// Name && video audio - status
 var myVideoParagraph;
 var myVideoStatusIcon;
 var myAudioStatusIcon;
@@ -169,7 +169,7 @@ function getHtmlElementsById() {
   audioOutputSelect = getId("audioOutput");
   videoSelect = getId("videoSource");
   themeSelect = getId("mirotalkTheme");
-  // my conference Name
+  // my conference name, video - audio status
   myVideoParagraph = getId("myVideoParagraph");
   myVideoStatusIcon = getId("myVideoStatusIcon");
   myAudioStatusIcon = getId("myAudioStatusIcon");
@@ -458,16 +458,14 @@ function initPeer() {
           peers[peer_id]["peer_name"]
         );
         remoteVideoParagraph.appendChild(peerVideoText);
-
-        // remote audio status element
+        // remote video status element
         remoteVideoStatusIcon.setAttribute("id", peer_id + "_videoStatus");
         remoteVideoStatusIcon.className = "fas fa-video videoStatusIcon";
-
         // remote audio status element
         remoteAudioStatusIcon.setAttribute("id", peer_id + "_audioStatus");
         remoteAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
 
-        // add elements to video wrap div
+        // add elements to videoWrap div
         videoWrap.appendChild(remoteVideoParagraph);
         videoWrap.appendChild(remoteVideoStatusIcon);
         videoWrap.appendChild(remoteAudioStatusIcon);
@@ -789,11 +787,9 @@ function setupLocalMedia(callback, errorback) {
       // my peer name
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
       myVideoParagraph.className = "videoPeerName";
-
-      // my audio status element
+      // my video status element
       myVideoStatusIcon.setAttribute("id", "myVideoStatusIcon");
       myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
-
       // my audio status element
       myAudioStatusIcon.setAttribute("id", "myAudioStatusIcon");
       myAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
@@ -1786,8 +1782,8 @@ function disableElements(b) {
  */
 function setChatRoomForMobile() {
   if (isMobileDevice) {
-    document.documentElement.style.setProperty("--msger-height", "98vh");
-    document.documentElement.style.setProperty("--msger-width", "98vw");
+    document.documentElement.style.setProperty("--msger-height", "98%");
+    document.documentElement.style.setProperty("--msger-width", "98%");
   } else {
     // make chat room draggable for desktop
     dragElement(msgerDraggable, msgerHeader);
