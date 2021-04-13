@@ -299,10 +299,6 @@ body {
   cursor: move;
 }
 
-.msger-header-options {
-  cursor: pointer;
-}
-
 .msger-header-options button {
   border: none;
   font-size: 1.2rem;

@@ -1350,6 +1350,7 @@ function gotStream(stream) {
   window.stream = stream;
   refreshMyStreamToPeers(stream);
   refreshMyLocalStream(stream);
+  setMyVideoStatusTrue();
   if (myVideoChange) {
     myVideo.classList.toggle("mirror");
   }
@@ -1542,6 +1543,7 @@ function swapCamera() {
     .then((camStream) => {
       refreshMyStreamToPeers(camStream);
       refreshMyLocalStream(camStream);
+      if (useVideo) setMyVideoStatusTrue();
       myVideo.classList.toggle("mirror");
     })
     .catch((e) => {
@@ -1597,11 +1599,25 @@ function toggleScreenSharing() {
       screenShareBtn.className = isScreenStreaming
         ? "fas fa-stop-circle"
         : "fas fa-desktop";
+      setMyVideoStatusTrue();
     })
     .catch((e) => {
       console.error("[Error] Unable to share the screen", e);
       userLog("error", "Unable to share the screen");
     });
+}
+
+/**
+ * set myVideoStatus true
+ */
+function setMyVideoStatusTrue() {
+  // Put video status alredy ON
+  if (myVideoStatus === false) {
+    myVideoStatus = true;
+    videoBtn.className = "fas fa-video";
+    myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
+    emitVAStatus("video", myVideoStatus);
+  }
 }
 
 /**
