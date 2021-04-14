@@ -773,6 +773,8 @@ function setupLocalMedia(callback, errorback) {
       document.body.style.backgroundImage = "none";
       getId("loadingDiv").style.display = "none";
 
+      stopWindowsStream();
+
       // need for recording stream later
       window.stream = stream;
 
@@ -1346,8 +1348,6 @@ function attachSinkId(element, sinkId) {
  * @param {*} stream
  */
 function gotStream(stream) {
-  // need for recording stream later
-  window.stream = stream;
   refreshMyStreamToPeers(stream);
   refreshMyLocalStream(stream);
   setMyVideoStatusTrue();
@@ -1579,8 +1579,10 @@ function toggleScreenSharing() {
     }
   } else {
     // on screen sharing stop
+    const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
     const constraints = {
+      audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
       video: { deviceId: videoSource ? { exact: videoSource } : undefined },
     };
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
@@ -1661,6 +1663,8 @@ function refreshMyStreamToPeers(stream) {
  * @param {*} stream
  */
 function refreshMyLocalStream(stream) {
+  stopWindowsStream();
+
   // need for recording stream later
   window.stream = stream;
 
@@ -1678,6 +1682,17 @@ function refreshMyLocalStream(stream) {
   stream.getVideoTracks()[0].onended = function () {
     if (isScreenStreaming) toggleScreenSharing();
   };
+}
+
+/**
+ * Stop windows.stream
+ */
+function stopWindowsStream() {
+  if (window.stream) {
+    window.stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
 }
 
 /**
