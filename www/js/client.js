@@ -773,8 +773,6 @@ function setupLocalMedia(callback, errorback) {
       document.body.style.backgroundImage = "none";
       getId("loadingDiv").style.display = "none";
 
-      stopWindowsStream();
-
       // need for recording stream later
       window.stream = stream;
 
@@ -1296,6 +1294,7 @@ function setupMySettings() {
  * Refresh Local media audio video in - out
  */
 function refreshLocalMedia() {
+  stopWindowsStream();
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   const constraints = {
@@ -1579,6 +1578,7 @@ function toggleScreenSharing() {
     }
   } else {
     // on screen sharing stop
+    stopWindowsStream();
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
     const constraints = {
@@ -1663,8 +1663,6 @@ function refreshMyStreamToPeers(stream) {
  * @param {*} stream
  */
 function refreshMyLocalStream(stream) {
-  stopWindowsStream();
-
   // need for recording stream later
   window.stream = stream;
 
