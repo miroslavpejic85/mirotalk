@@ -1578,7 +1578,6 @@ function toggleScreenSharing() {
     }
   } else {
     // on screen sharing stop
-    stopWindowsStream();
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
     const constraints = {
@@ -1663,8 +1662,6 @@ function refreshMyStreamToPeers(stream) {
  * @param {*} stream
  */
 function refreshMyLocalStream(stream) {
-  // need for recording stream later
-  window.stream = stream;
 
   stream.getVideoTracks()[0].enabled = true;
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
@@ -1673,6 +1670,9 @@ function refreshMyLocalStream(stream) {
     localMediaStream.getAudioTracks()[0],
   ]);
   localMediaStream = newStream;
+
+  // need for recording stream later
+  window.stream = newStream;
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(myVideo, localMediaStream); // newstream
 
