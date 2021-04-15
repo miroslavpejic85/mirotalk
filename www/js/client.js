@@ -1294,7 +1294,6 @@ function setupMySettings() {
  * Refresh Local media audio video in - out
  */
 function refreshLocalMedia() {
-  stopWindowsStream();
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   const constraints = {
@@ -1662,7 +1661,6 @@ function refreshMyStreamToPeers(stream) {
  * @param {*} stream
  */
 function refreshMyLocalStream(stream) {
-
   stream.getVideoTracks()[0].enabled = true;
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
   const newStream = new MediaStream([
@@ -1680,17 +1678,6 @@ function refreshMyLocalStream(stream) {
   stream.getVideoTracks()[0].onended = function () {
     if (isScreenStreaming) toggleScreenSharing();
   };
-}
-
-/**
- * Stop windows.stream
- */
-function stopWindowsStream() {
-  if (window.stream) {
-    window.stream.getTracks().forEach((track) => {
-      track.stop();
-    });
-  }
 }
 
 /**
