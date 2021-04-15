@@ -1483,7 +1483,6 @@ async function shareRoomUrl() {
     (isSupportedNavigatorShare && errorNavigatorShare)
   ) {
     playSound("newMessage");
-
     Swal.fire({
       allowOutsideClick: false,
       background: swalBackground,
@@ -1494,6 +1493,10 @@ async function shareRoomUrl() {
       html:
         `
       <br/>
+      <div id="qrRoomContainer">
+        <canvas id="qrRoom"></canvas>
+      </div>
+      <br/><br/>
       Send this URL to all participants
       <p style="color:rgb(8, 189, 89);">` +
         window.location.href +
@@ -1506,7 +1509,22 @@ async function shareRoomUrl() {
       },
       confirmButtonText: `Copy URL`,
     });
+    makeRoomQR();
   }
+}
+
+/**
+ * Make Room QR
+ * https://github.com/neocotic/qrious
+ */
+function makeRoomQR() {
+  var qr = new QRious({
+    element: getId("qrRoom"),
+    value: window.location.href,
+  });
+  qr.set({
+    size: 128,
+  });
 }
 
 /**
