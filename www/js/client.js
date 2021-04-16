@@ -826,11 +826,13 @@ function setupLocalMedia(callback, errorback) {
       handleBodyOnMouseMove();
       setupMySettings();
       startCountTime();
+
       /*
       if (!isMobileDevice) {
         handleVideoPlayerFs("myVideo");
       }
       */
+
       if (callback) callback();
     })
     .catch((e) => {
@@ -1689,6 +1691,7 @@ function refreshMyLocalStream(stream) {
 
   // need for recording stream later
   window.stream = newStream;
+
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(myVideo, localMediaStream); // newstream
 

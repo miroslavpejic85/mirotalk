@@ -32,15 +32,15 @@ Open the app in one of following **supported browser**
 - Is 100% `Free` and `Open Source`
 - No download, plug-in or login required, entirely browser based
 - Unlimited users, without time limitation
-- Room Url Sharing (share to your friends, wait them to join)
+- Room Url Sharing (share it to your participants, wait them to join)
 - WebCam Streaming (Front - Rear for mobile)
 - Audio Streaming
 - Screen Sharing to present documents, slides, and more...
-- Recording Screen, Audio and Video
-- Chat & Emoji Picker
+- Select Audio Input - Output && Video source
+- Recording your Screen, Audio and Video
+- Chat & Emoji Picker & Save the conversations
 - Full Screen Mode on click
 - Possibility to Change UI Themes
-- Select Audio Input - Output && Video source
 - Right click on Video elements for more options
 - Direct peer-to-peer connection ensures lowest latency thanks to webrtc
 
