@@ -22,6 +22,7 @@ const io = new Server().listen(server);
 const ngrok = require("ngrok");
 
 var PORT = process.env.PORT || 3000; // signalingServerPort
+var localHost = "http://localhost:" + PORT; // http
 var channels = {}; // collect channels
 var sockets = {}; // collect sockets
 var peers = {}; // collect peers info grp by channels
@@ -82,27 +83,6 @@ app.get("/join/*", function (req, res) {
 });
 
 /**
- * Expose server to external with https tunnel using ngrok
- * https://ngrok.com
- */
-async function ngrokStart() {
-  try {
-    await ngrok.authtoken(ngrokAuthToken);
-    await ngrok.connect(PORT);
-    let api = ngrok.getApi();
-    let data = await api.get("api/tunnels");
-    data = JSON.parse(data);
-    //console.log(data);
-    let pu0 = data.tunnels[0].public_url;
-    let pu1 = data.tunnels[1].public_url;
-    let tunnelHttps = pu0.startsWith("https") ? pu0 : pu1;
-    console.log("ngrok-tunnel", { https: tunnelHttps });
-  } catch (e) {
-    console.error("[Error] ngrokStart", e);
-  }
-}
-
-/**
  * You should probably use a different stun-turn server
  * doing commercial stuff, also see:
  *
@@ -124,11 +104,39 @@ if (turnEnabled == "true") {
 }
 
 /**
+ * Expose server to external with https tunnel using ngrok
+ * https://ngrok.com
+ */
+async function ngrokStart() {
+  try {
+    await ngrok.authtoken(ngrokAuthToken);
+    await ngrok.connect(PORT);
+    let api = ngrok.getApi();
+    let data = await api.get("api/tunnels");
+    data = JSON.parse(data);
+    // console.log(data);
+    let pu0 = data.tunnels[0].public_url;
+    let pu1 = data.tunnels[1].public_url;
+    let tunnelHttps = pu0.startsWith("https") ? pu0 : pu1;
+    // server settings
+    console.log("settings", {
+      http: localHost,
+      https: tunnelHttps,
+      iceServers: iceServers,
+      ngrok: {
+        ngrok_enabled: ngrokEnabled,
+        ngrok_token: ngrokAuthToken,
+      },
+    });
+  } catch (e) {
+    console.error("[Error] ngrokStart", e);
+  }
+}
+
+/**
  * Start Local Server with ngrok https tunnel (optional)
  */
 server.listen(PORT, null, function () {
-  let localHost = "http://localhost:" + PORT;
-
   console.log(
     `%c
 
@@ -146,17 +154,13 @@ server.listen(PORT, null, function () {
   // https tunnel
   if (ngrokEnabled == "true") {
     ngrokStart();
+  } else {
+    // server settings
+    console.log("settings", {
+      http: localHost,
+      iceServers: iceServers,
+    });
   }
-
-  // server settings
-  console.log("settings", {
-    http: localHost,
-    iceServers: iceServers,
-    ngrok: {
-      ngrok_enabled: ngrokEnabled,
-      ngrok_token: ngrokAuthToken,
-    },
-  });
 });
 
 /**
