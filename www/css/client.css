@@ -45,7 +45,7 @@
   --msger-bg: black;
   --left-msg-bg: #da05f3;
   --right-msg-bg: #579ffb;
-  --box-shadow: 5px 5px 10px #0500ff, -5px -5px 10px #da05f3;
+  --box-shadow: 3px 3px 6px #0500ff, -3px -3px 6px #da05f3;
   --btn-bg: white;
   --btn-opc: 1;
   --btns-left: 20px;
@@ -55,7 +55,7 @@
   --msger-bg: #16171b;
   --left-msg-bg: #222328;
   --right-msg-bg: #0a0b0c;
-  --box-shadow: 5px 5px 10px #0a0b0c, -5px -5px 10px #222328; 
+  --box-shadow: 3px 3px 6px #0a0b0c, -3px -3px 6px #222328; 
   --btn-bg: white;
   --btn-opc: 1;
   --btns-left: 20px;
@@ -471,17 +471,19 @@ body {
 }
 
 #msgerEmojiHeader {
-  background: var(--msger-bg);
+  background: rgb(0, 0, 0);
   cursor: move;
 }
 
 #msgerCloseEmojiBtn {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: rgb(0, 0, 0);
   border: none;
+  color: #fff;
   font-size: 1.2rem;
   transition: all 0.3s ease-in-out;
-  background: rgb(0, 0, 0);
-  color: #fff;
-  border-radius: 5px;
 }
 
 #msgerCloseEmojiBtn:hover {

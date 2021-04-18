@@ -539,7 +539,10 @@ function initPeer() {
             })
             .catch((e) => {
               console.error("[Error] offer setLocalDescription", e);
-              userLog("error", "Offer setLocalDescription failed!");
+              userLog(
+                "error",
+                "Offer setLocalDescription failed: " + e.message
+              );
             });
         })
         .catch((e) => {
@@ -587,7 +590,10 @@ function initPeer() {
                 })
                 .catch((e) => {
                   console.error("[Error] answer setLocalDescription", e);
-                  userLog("error", "Answer setLocalDescription failed!");
+                  userLog(
+                    "error",
+                    "Answer setLocalDescription failed: " + e.message
+                  );
                 });
             })
             .catch((e) => {
@@ -697,7 +703,7 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
         "--box-shadow",
-        "5px 5px 10px #0500ff, -5px -5px 10px #da05f3"
+        "3px 3px 6px #0500ff, -3px -3px 6px #da05f3"
       );
       break;
     case "dark":
@@ -712,7 +718,7 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
         "--box-shadow",
-        "5px 5px 10px #0a0b0c, -5px -5px 10px #222328"
+        "3px 3px 6px #0a0b0c, -3px -3px 6px #222328"
       );
       break;
     case "ghost":
@@ -1419,6 +1425,7 @@ function handleError(error) {
     error.message,
     error.name
   );
+  userLog("error", "Something wrong: " + error.message);
 }
 
 /**
@@ -1489,7 +1496,7 @@ async function shareRoomUrl() {
       allowOutsideClick: false,
       background: swalBackground,
       position: "center",
-      title: "Share Room",
+      title: "Room QR",
       imageAlt: "mirotalk-share",
       imageUrl: shareUrlImg,
       html:
@@ -1566,7 +1573,7 @@ function swapCamera() {
     })
     .catch((e) => {
       console.log("[Error] to swaping camera", e);
-      userLog("error", "Error to swaping the camera");
+      userLog("error", "Error to swaping the camera: " + e.message);
     });
 }
 
@@ -1623,7 +1630,7 @@ function toggleScreenSharing() {
     })
     .catch((e) => {
       console.error("[Error] Unable to share the screen", e);
-      userLog("error", "Unable to share the screen");
+      userLog("error", "Unable to share the screen: " + e.message);
     });
 }
 
@@ -1736,7 +1743,7 @@ function startStreamRecording() {
     mediaRecorder = new MediaRecorder(window.stream, options);
   } catch (e) {
     console.error("Exception while creating MediaRecorder:", e);
-    userLog("error", "Can't start stream recording :(");
+    userLog("error", "Can't start stream recording: " + e.message);
     return;
   }
 
@@ -1819,8 +1826,8 @@ function disableElements(b) {
  */
 function setChatRoomForMobile() {
   if (isMobileDevice) {
-    document.documentElement.style.setProperty("--msger-height", "98%");
-    document.documentElement.style.setProperty("--msger-width", "98%");
+    document.documentElement.style.setProperty("--msger-height", "99%");
+    document.documentElement.style.setProperty("--msger-width", "99%");
   } else {
     // make chat room draggable for desktop
     dragElement(msgerDraggable, msgerHeader);
