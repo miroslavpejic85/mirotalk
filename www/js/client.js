@@ -91,10 +91,10 @@ var msgerDraggable;
 var msgerHeader;
 var msgerTheme;
 var msgerClean;
-var msgerEmojiBtn;
 var msgerSaveBtn;
 var msgerClose;
 var msgerChat;
+var msgerEmojiBtn;
 var msgerInput;
 var msgerSendBtn;
 // chat room emoji picker
@@ -148,10 +148,10 @@ function getHtmlElementsById() {
   msgerHeader = getId("msgerHeader");
   msgerTheme = getId("msgerTheme");
   msgerClean = getId("msgerClean");
-  msgerEmojiBtn = getId("msgerEmojiBtn");
   msgerSaveBtn = getId("msgerSaveBtn");
   msgerClose = getId("msgerClose");
   msgerChat = getId("msgerChat");
+  msgerEmojiBtn = getId("msgerEmojiBtn");
   msgerInput = getId("msgerInput");
   msgerSendBtn = getId("msgerSendBtn");
   // chat room emoji picker

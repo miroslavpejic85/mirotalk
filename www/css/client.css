@@ -312,11 +312,14 @@ body {
   color: rgb(0, 180, 50);
 }
 
+#msgerEmojiBtn,
 #msgerSendBtn {
   background: rgb(0, 0, 0);
   color: #fff;
   transition: background 0.23s;
 }
+
+#msgerEmojiBtn:hover,
 #msgerSendBtn:hover {
   color: rgb(0, 180, 50);
 }
