@@ -454,6 +454,7 @@ function initPeer() {
         // remote peer name element
         remoteVideoParagraph.setAttribute("id", peer_id + "_name");
         remoteVideoParagraph.className = "videoPeerName";
+        remoteVideoParagraph.title = "Participant name";
         const peerVideoText = document.createTextNode(
           peers[peer_id]["peer_name"]
         );
@@ -461,9 +462,12 @@ function initPeer() {
         // remote video status element
         remoteVideoStatusIcon.setAttribute("id", peer_id + "_videoStatus");
         remoteVideoStatusIcon.className = "fas fa-video videoStatusIcon";
+        remoteVideoStatusIcon.title = "Participant video is ON";
+
         // remote audio status element
         remoteAudioStatusIcon.setAttribute("id", peer_id + "_audioStatus");
         remoteAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
+        remoteAudioStatusIcon.title = "Participant audio is ON";
 
         // add elements to videoWrap div
         videoWrap.appendChild(remoteVideoParagraph);
@@ -491,17 +495,10 @@ function initPeer() {
           handleVideoPlayerFs(peer_id + "_video");
         }
 
-        // refresh remote peers video icon status
-        getId(peer_id + "_videoStatus").className =
-          "fas fa-video" +
-          (peers[peer_id]["peer_video"] ? "" : "-slash") +
-          " videoStatusIcon";
-
-        // refresh remote peers audio icon status
-        getId(peer_id + "_audioStatus").className =
-          "fas fa-microphone" +
-          (peers[peer_id]["peer_audio"] ? "" : "-slash") +
-          " audioStatusIcon";
+        // refresh remote peers video icon status and title
+        setPeerVideoStatus(peer_id, peers[peer_id]["peer_video"]);
+        // refresh remote peers audio icon status and title
+        setPeerAudioStatus(peer_id, peers[peer_id]["peer_audio"]);
       }
     };
 
@@ -663,7 +660,7 @@ function initPeer() {
     appendPeerName(config.peer_id, config.peer_name);
   });
 
-  // refresh peers video - audio icon status
+  // refresh peers video - audio icon status and title
   signalingSocket.on("onVAStatus", function (config) {
     var peer_id = config.peer_id;
     var element = config.element;
@@ -671,12 +668,10 @@ function initPeer() {
 
     switch (element) {
       case "video":
-        getId(peer_id + "_videoStatus").className =
-          "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
+        setPeerVideoStatus(peer_id, status);
         break;
       case "audio":
-        getId(peer_id + "_audioStatus").className =
-          "fas fa-microphone" + (status ? "" : "-slash") + " audioStatusIcon";
+        setPeerAudioStatus(peer_id, status);
         break;
     }
   });
@@ -793,12 +788,17 @@ function setupLocalMedia(callback, errorback) {
       // my peer name
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
       myVideoParagraph.className = "videoPeerName";
+      myVideoParagraph.title = "My name";
+
       // my video status element
       myVideoStatusIcon.setAttribute("id", "myVideoStatusIcon");
       myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
+      myVideoStatusIcon.title = "My video is ON";
+
       // my audio status element
       myAudioStatusIcon.setAttribute("id", "myAudioStatusIcon");
       myAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
+      myAudioStatusIcon.title = "My audio is ON";
 
       // add elements to video wrap div
       videoWrap.appendChild(myVideoParagraph);
@@ -1013,13 +1013,8 @@ function setAudioBtn() {
     e.target.className =
       "fas fa-microphone" +
       (localMediaStream.getAudioTracks()[0].enabled ? "" : "-slash");
-    // refresh my audio status to all peers in the room
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
-    myAudioStatusIcon.className =
-      "fas fa-microphone" +
-      (myAudioStatus ? "" : "-slash") +
-      " audioStatusIcon";
-    emitVAStatus("audio", myAudioStatus);
+    setMyAudioStatus(myAudioStatus);
   });
 }
 
@@ -1034,11 +1029,8 @@ function setVideoBtn() {
     e.target.className =
       "fas fa-video" +
       (localMediaStream.getVideoTracks()[0].enabled ? "" : "-slash");
-    // refresh my video status to all peers in the room
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
-    myVideoStatusIcon.className =
-      "fas fa-video" + (myVideoStatus ? "" : "-slash") + " videoStatusIcon";
-    emitVAStatus("video", myVideoStatus);
+    setMyVideoStatus(myVideoStatus);
   });
 }
 
@@ -2152,6 +2144,58 @@ function emitVAStatus(element, status) {
     element: element,
     status: status,
   });
+}
+
+/**
+ * Set My Audio Status Icon and Title
+ * @param {*} status
+ */
+function setMyAudioStatus(status) {
+  myAudioStatusIcon.className =
+    "fas fa-microphone" + (status ? "" : "-slash") + " audioStatusIcon";
+  // send my audio status to all peers in the room
+  emitVAStatus("audio", status);
+  myAudioStatusIcon.title = status ? "My audio is ON" : "My audio is OFF";
+}
+
+/**
+ * Set My Video Status Icon and Title
+ * @param {*} status
+ */
+function setMyVideoStatus(status) {
+  myVideoStatusIcon.className =
+    "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
+  // send my video status to all peers in the room
+  emitVAStatus("video", status);
+  myVideoStatusIcon.title = status ? "My video is ON" : "My video is OFF";
+}
+
+/**
+ * Set Participant Audio Status Icon and Title
+ * @param {*} peer_id
+ * @param {*} status
+ */
+function setPeerAudioStatus(peer_id, status) {
+  let peerAudioStatus = getId(peer_id + "_audioStatus");
+  peerAudioStatus.className =
+    "fas fa-microphone" + (status ? "" : "-slash") + " audioStatusIcon";
+  peerAudioStatus.title = status
+    ? "Participant audio is ON"
+    : "Participant audio is OFF";
+}
+
+/**
+ * Set Participant Video Status Icon and Title
+ * @param {*} peer_id
+ * @param {*} status
+ */
+function setPeerVideoStatus(peer_id, status) {
+  let peerVideoStatus = getId(peer_id + "_videoStatus");
+  peerVideoStatus.className =
+    "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
+  peerVideoStatus.title = status
+    ? "Participant video is ON"
+    : "Participant video is OFF";
 }
 
 /**

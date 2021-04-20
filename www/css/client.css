@@ -187,6 +187,7 @@ body {
   position: fixed;
   color: rgb(112, 112, 112);
   text-align: left;
+  cursor: default;
 }
 
 /*--------------------------------------------------------------
@@ -543,6 +544,7 @@ video:fullscreen {
 .video h4 {
   font-family: Verdana;
   color: whitesmoke;
+  cursor: default;
   /* center */
   position: absolute;
   left: 50%;
