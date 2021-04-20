@@ -75,53 +75,17 @@ access to use this app.
     https://fontawesome.com/icons?d=gallery
     -->
     <div id="leftButtons">
-      <button
-        title="invite people to join"
-        id="shareRoomBtn"
-        class="fas fa-users"
-      ></button>
-      <button
-        title="audio mute / unmute"
-        id="audioBtn"
-        class="fas fa-microphone"
-      ></button>
-      <button
-        title="video show / hide"
-        id="videoBtn"
-        class="fas fa-video"
-      ></button>
-      <button
-        title="swap camera front / rear"
-        id="swapCameraBtn"
-        class="fas fa-sync-alt"
-      ></button>
-      <button
-        title="share your screen / stop"
-        id="screenShareBtn"
-        class="fas fa-desktop"
-      ></button>
-      <button
-        title="recording start / stop"
-        id="recordStreamBtn"
-        class="fas fa-record-vinyl"
-      ></button>
-      <button
-        title="full screen on / off"
-        id="fullScreenBtn"
-        class="fas fa-expand-alt"
-      ></button>
-      <button
-        title="chat open / close"
-        id="chatRoomBtn"
-        class="fas fa-comment"
-      ></button>
-      <button title="settings" id="mySettingsBtn" class="fas fa-cogs"></button>
-      <button title="about" id="aboutBtn" class="fas fa-question"></button>
-      <button
-        title="leave this room"
-        id="leaveRoomBtn"
-        class="fas fa-phone-slash"
-      ></button>
+      <button id="shareRoomBtn" class="fas fa-users"></button>
+      <button id="audioBtn" class="fas fa-microphone"></button>
+      <button id="videoBtn" class="fas fa-video"></button>
+      <button id="swapCameraBtn" class="fas fa-sync-alt"></button>
+      <button id="screenShareBtn" class="fas fa-desktop"></button>
+      <button id="recordStreamBtn" class="fas fa-record-vinyl"></button>
+      <button id="fullScreenBtn" class="fas fa-expand-alt"></button>
+      <button id="chatRoomBtn" class="fas fa-comment"></button>
+      <button id="mySettingsBtn" class="fas fa-cogs"></button>
+      <button id="aboutBtn" class="fas fa-question"></button>
+      <button id="leaveRoomBtn" class="fas fa-phone-slash"></button>
     </div>
     <!-- End left buttons -->
 
@@ -136,26 +100,10 @@ access to use this app.
             <i class="fas fa-comment-alt"></i> mirotalk-Chat
           </div>
           <div class="msger-header-options">
-            <button
-              title="ghost theme"
-              id="msgerTheme"
-              class="fas fa-ghost"
-            ></button>
-            <button
-              title="clean messages"
-              id="msgerClean"
-              class="fas fa-trash"
-            ></button>
-            <button
-              title="save messages"
-              id="msgerSaveBtn"
-              class="fas fa-save"
-            ></button>
-            <button
-              title="close chat"
-              id="msgerClose"
-              class="fas fa-times"
-            ></button>
+            <button id="msgerTheme" class="fas fa-ghost"></button>
+            <button id="msgerClean" class="fas fa-trash"></button>
+            <button id="msgerSaveBtn" class="fas fa-save"></button>
+            <button id="msgerClose" class="fas fa-times"></button>
           </div>
         </header>
 
@@ -194,22 +142,14 @@ access to use this app.
         </main>
 
         <form class="msger-inputarea">
-          <button
-            title="emoji"
-            id="msgerEmojiBtn"
-            class="fas fa-smile"
-          ></button>
+          <button id="msgerEmojiBtn" class="fas fa-smile"></button>
           <input
             id="msgerInput"
             class="msger-input"
             type="text"
             placeholder="Enter your message..."
           />
-          <button
-            title="send"
-            id="msgerSendBtn"
-            class="fas fa-paper-plane"
-          ></button>
+          <button id="msgerSendBtn" class="fas fa-paper-plane"></button>
         </form>
       </section>
     </section>
@@ -220,11 +160,7 @@ access to use this app.
     -->
     <section id="msgerEmojiPicker">
       <header id="msgerEmojiHeader">
-        <button
-          title="close"
-          id="msgerCloseEmojiBtn"
-          class="fas fa-times"
-        ></button>
+        <button id="msgerCloseEmojiBtn" class="fas fa-times"></button>
       </header>
       <emoji-picker class="dark"></emoji-picker>
       <!-- <emoji-picker class="light"></emoji-picker> -->
@@ -234,11 +170,7 @@ access to use this app.
     <!-- Start my settings -->
     <section id="mySettings">
       <header id="mySettingsHeader">
-        <button
-          title="close"
-          id="mySettingsCloseBtn"
-          class="fas fa-times"
-        ></button>
+        <button id="mySettingsCloseBtn" class="fas fa-times"></button>
       </header>
       <main>
         <br />
@@ -248,7 +180,6 @@ access to use this app.
             type="text"
             placeholder="Change name..."
           />&nbsp;&nbsp;<button
-            title="change name"
             id="myPeerNameSetBtn"
             class="fas fa-paper-plane"
           >
@@ -300,6 +231,8 @@ access to use this app.
       src="https://unpkg.com/emoji-picker-element@1"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/client.js"></script>
     <!-- end of Js scripts -->

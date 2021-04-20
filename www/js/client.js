@@ -81,6 +81,7 @@ var audioBtn;
 var videoBtn;
 var swapCameraBtn;
 var screenShareBtn;
+var recordStreamBtn;
 var fullScreenBtn;
 var chatRoomBtn;
 var mySettingsBtn;
@@ -120,7 +121,6 @@ var myVideoParagraph;
 var myVideoStatusIcon;
 var myAudioStatusIcon;
 // record Media Stream
-var recordStreamBtn;
 var mediaRecorder;
 var recordedBlobs;
 var isStreamRecording = false;
@@ -138,6 +138,7 @@ function getHtmlElementsById() {
   videoBtn = getId("videoBtn");
   swapCameraBtn = getId("swapCameraBtn");
   screenShareBtn = getId("screenShareBtn");
+  recordStreamBtn = getId("recordStreamBtn");
   fullScreenBtn = getId("fullScreenBtn");
   chatRoomBtn = getId("chatRoomBtn");
   mySettingsBtn = getId("mySettingsBtn");
@@ -173,7 +174,94 @@ function getHtmlElementsById() {
   myVideoParagraph = getId("myVideoParagraph");
   myVideoStatusIcon = getId("myVideoStatusIcon");
   myAudioStatusIcon = getId("myAudioStatusIcon");
-  recordStreamBtn = getId("recordStreamBtn");
+}
+
+/**
+ * Using tippy aka very nice tooltip!
+ * https://atomiks.github.io/tippyjs/
+ */
+function setButtonsTitle() {
+  // not need for mobile
+  if (isMobileDevice) return;
+
+  // left buttons
+  tippy(shareRoomBtn, {
+    content: "invite people to join",
+    placement: "right-start",
+  });
+  tippy(audioBtn, {
+    content: "audio mute - unmute",
+    placement: "right-start",
+  });
+  tippy(videoBtn, {
+    content: "video show - hide",
+    placement: "right-start",
+  });
+  tippy(swapCameraBtn, {
+    content: "swap camera front - rear",
+    placement: "right-start",
+  });
+  tippy(screenShareBtn, {
+    content: "share your screen - stop",
+    placement: "right-start",
+  });
+  tippy(recordStreamBtn, {
+    content: "recording start - stop",
+    placement: "right-start",
+  });
+  tippy(fullScreenBtn, {
+    content: "full screen on - off",
+    placement: "right-start",
+  });
+  tippy(chatRoomBtn, {
+    content: "chat open - close",
+    placement: "right-start",
+  });
+  tippy(mySettingsBtn, {
+    content: "settings",
+    placement: "right-start",
+  });
+  tippy(aboutBtn, {
+    content: "about",
+    placement: "right-start",
+  });
+  tippy(leaveRoomBtn, {
+    content: "leave this room",
+    placement: "right-start",
+  });
+
+  // chat room buttons
+  tippy(msgerTheme, {
+    content: "ghost theme",
+  });
+  tippy(msgerClean, {
+    content: "clean messages",
+  });
+  tippy(msgerSaveBtn, {
+    content: "save messages",
+  });
+  tippy(msgerClose, {
+    content: "close chat",
+  });
+  tippy(msgerEmojiBtn, {
+    content: "emoji",
+  });
+  tippy(msgerSendBtn, {
+    content: "send",
+  });
+
+  // emoji picker
+  tippy(msgerCloseEmojiBtn, {
+    content: "close emoji",
+  });
+
+  // settings
+  tippy(mySettingsCloseBtn, {
+    content: "close settings",
+  });
+  tippy(myPeerNameSetBtn, {
+    content: "change name",
+  });
 }
 
 /**
@@ -454,7 +542,9 @@ function initPeer() {
         // remote peer name element
         remoteVideoParagraph.setAttribute("id", peer_id + "_name");
         remoteVideoParagraph.className = "videoPeerName";
-        remoteVideoParagraph.title = "Participant name";
+        tippy(remoteVideoParagraph, {
+          content: "Participant name",
+        });
         const peerVideoText = document.createTextNode(
           peers[peer_id]["peer_name"]
         );
@@ -462,12 +552,15 @@ function initPeer() {
         // remote video status element
         remoteVideoStatusIcon.setAttribute("id", peer_id + "_videoStatus");
         remoteVideoStatusIcon.className = "fas fa-video videoStatusIcon";
-        remoteVideoStatusIcon.title = "Participant video is ON";
-
+        tippy(remoteVideoStatusIcon, {
+          content: "Participant video is ON",
+        });
         // remote audio status element
         remoteAudioStatusIcon.setAttribute("id", peer_id + "_audioStatus");
         remoteAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
-        remoteAudioStatusIcon.title = "Participant audio is ON";
+        tippy(remoteAudioStatusIcon, {
+          content: "Participant audio is ON",
+        });
 
         // add elements to videoWrap div
         videoWrap.appendChild(remoteVideoParagraph);
@@ -788,17 +881,21 @@ function setupLocalMedia(callback, errorback) {
       // my peer name
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
       myVideoParagraph.className = "videoPeerName";
-      myVideoParagraph.title = "My name";
-
+      tippy(myVideoParagraph, {
+        content: "My name",
+      });
       // my video status element
       myVideoStatusIcon.setAttribute("id", "myVideoStatusIcon");
       myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
-      myVideoStatusIcon.title = "My video is ON";
-
+      tippy(myVideoStatusIcon, {
+        content: "My video is ON",
+      });
       // my audio status element
       myAudioStatusIcon.setAttribute("id", "myAudioStatusIcon");
       myAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
-      myAudioStatusIcon.title = "My audio is ON";
+      tippy(myAudioStatusIcon, {
+        content: "My audio is ON",
+      });
 
       // add elements to video wrap div
       videoWrap.appendChild(myVideoParagraph);
@@ -828,6 +925,7 @@ function setupLocalMedia(callback, errorback) {
       resizeVideos();
 
       getHtmlElementsById();
+      setButtonsTitle();
       manageLeftButtons();
       handleBodyOnMouseMove();
       setupMySettings();
@@ -2155,11 +2253,14 @@ function setMyAudioStatus(status) {
     "fas fa-microphone" + (status ? "" : "-slash") + " audioStatusIcon";
   // send my audio status to all peers in the room
   emitVAStatus("audio", status);
-  myAudioStatusIcon.title = status ? "My audio is ON" : "My audio is OFF";
+  tippy(myAudioStatusIcon, {
+    content: status ? "My audio is ON" : "My audio is OFF",
+  });
 }
 
 /**
  * Set My Video Status Icon and Title
+ * https://atomiks.github.io/tippyjs/
  * @param {*} status
  */
 function setMyVideoStatus(status) {
@@ -2167,11 +2268,14 @@ function setMyVideoStatus(status) {
     "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
   // send my video status to all peers in the room
   emitVAStatus("video", status);
-  myVideoStatusIcon.title = status ? "My video is ON" : "My video is OFF";
+  tippy(myVideoStatusIcon, {
+    content: status ? "My video is ON" : "My video is OFF",
+  });
 }
 
 /**
  * Set Participant Audio Status Icon and Title
+ * https://atomiks.github.io/tippyjs/
  * @param {*} peer_id
  * @param {*} status
  */
@@ -2179,13 +2283,14 @@ function setPeerAudioStatus(peer_id, status) {
   let peerAudioStatus = getId(peer_id + "_audioStatus");
   peerAudioStatus.className =
     "fas fa-microphone" + (status ? "" : "-slash") + " audioStatusIcon";
-  peerAudioStatus.title = status
-    ? "Participant audio is ON"
-    : "Participant audio is OFF";
+  tippy(peerAudioStatus, {
+    content: status ? "Participant audio is ON" : "Participant audio is OFF",
+  });
 }
 
 /**
  * Set Participant Video Status Icon and Title
+ * https://atomiks.github.io/tippyjs/
  * @param {*} peer_id
  * @param {*} status
  */
@@ -2193,9 +2298,9 @@ function setPeerVideoStatus(peer_id, status) {
   let peerVideoStatus = getId(peer_id + "_videoStatus");
   peerVideoStatus.className =
     "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
-  peerVideoStatus.title = status
-    ? "Participant video is ON"
-    : "Participant video is OFF";
+  tippy(peerVideoStatus, {
+    content: status ? "Participant video is ON" : "Participant video is OFF",
+  });
 }
 
 /**
