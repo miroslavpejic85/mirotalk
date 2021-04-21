@@ -1254,6 +1254,15 @@ function setChatRoomBtn() {
     checkCountTime();
   });
 
+  // Execute a function when the user releases a key on the keyboard
+  msgerInput.addEventListener("keyup", function (e) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      msgerSendBtn.click();
+    }
+  });
+
   // on input check 4emoji from map
   msgerInput.oninput = function () {
     for (var i in chatInputEmoji) {
