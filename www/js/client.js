@@ -186,81 +186,77 @@ function setButtonsTitle() {
 
   // left buttons
   tippy(shareRoomBtn, {
-    content: "invite people to join",
+    content: "Invite people to join",
     placement: "right-start",
   });
   tippy(audioBtn, {
-    content: "audio mute - unmute",
+    content: "Click to audio OFF",
     placement: "right-start",
   });
   tippy(videoBtn, {
-    content: "video show - hide",
-    placement: "right-start",
-  });
-  tippy(swapCameraBtn, {
-    content: "swap camera front - rear",
+    content: "Click to video OFF",
     placement: "right-start",
   });
   tippy(screenShareBtn, {
-    content: "share your screen - stop",
+    content: "START screen sharing",
     placement: "right-start",
   });
   tippy(recordStreamBtn, {
-    content: "recording start - stop",
+    content: "START recording",
     placement: "right-start",
   });
   tippy(fullScreenBtn, {
-    content: "full screen on - off",
+    content: "VIEW full screen",
     placement: "right-start",
   });
   tippy(chatRoomBtn, {
-    content: "chat open - close",
+    content: "OPEN the chat",
     placement: "right-start",
   });
   tippy(mySettingsBtn, {
-    content: "settings",
+    content: "Show settings",
     placement: "right-start",
   });
   tippy(aboutBtn, {
-    content: "about",
+    content: "Show about",
     placement: "right-start",
   });
   tippy(leaveRoomBtn, {
-    content: "leave this room",
+    content: "Leave this room",
     placement: "right-start",
   });
 
   // chat room buttons
   tippy(msgerTheme, {
-    content: "ghost theme",
+    content: "Ghost theme",
   });
   tippy(msgerClean, {
-    content: "clean messages",
+    content: "Clean messages",
   });
   tippy(msgerSaveBtn, {
-    content: "save messages",
+    content: "Save messages",
   });
   tippy(msgerClose, {
-    content: "close chat",
+    content: "Close the chat",
   });
   tippy(msgerEmojiBtn, {
-    content: "emoji",
+    content: "Emoji",
   });
   tippy(msgerSendBtn, {
-    content: "send",
+    content: "Send",
   });
 
   // emoji picker
   tippy(msgerCloseEmojiBtn, {
-    content: "close emoji",
+    content: "Close emoji",
   });
 
   // settings
   tippy(mySettingsCloseBtn, {
-    content: "close settings",
+    content: "Close settings",
   });
   tippy(myPeerNameSetBtn, {
-    content: "change name",
+    content: "Change name",
   });
 }
 
@@ -1191,6 +1187,13 @@ function setFullScreenBtn() {
       if (!fullscreenElement) {
         fullScreenBtn.className = "fas fa-expand-alt";
         isDocumentOnFullScreen = false;
+        // only for desktop
+        if (!isMobileDevice) {
+          tippy(fullScreenBtn, {
+            content: "VIEW full screen",
+            placement: "right-start",
+          });
+        }
       }
     });
     fullScreenBtn.addEventListener("click", (e) => {
@@ -1710,7 +1713,6 @@ function toggleScreenSharing() {
       video: { deviceId: videoSource ? { exact: videoSource } : undefined },
     };
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
-    videoBtn.className = "fas fa-video";
     // if screen sharing accidentally closed
     if (isStreamRecording) {
       stopStreamRecording();
@@ -1722,15 +1724,28 @@ function toggleScreenSharing() {
       refreshMyStreamToPeers(screenStream);
       refreshMyLocalStream(screenStream);
       myVideo.classList.toggle("mirror");
-      screenShareBtn.className = isScreenStreaming
-        ? "fas fa-stop-circle"
-        : "fas fa-desktop";
+      setScreenSharingStatus(isScreenStreaming);
       setMyVideoStatusTrue();
     })
     .catch((e) => {
       console.error("[Error] Unable to share the screen", e);
       userLog("error", "Unable to share the screen: " + e.message);
     });
+}
+
+/**
+ * Set Screen Sharing Status
+ * @param {*} status
+ */
+function setScreenSharingStatus(status) {
+  screenShareBtn.className = status ? "fas fa-stop-circle" : "fas fa-desktop";
+  // only for desktop
+  if (!isMobileDevice) {
+    tippy(screenShareBtn, {
+      content: status ? "STOP screen sharing" : "START screen sharing",
+      placement: "right-start",
+    });
+  }
 }
 
 /**
@@ -1743,6 +1758,13 @@ function setMyVideoStatusTrue() {
     videoBtn.className = "fas fa-video";
     myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
     emitVAStatus("video", myVideoStatus);
+    // only for desktop
+    if (!isMobileDevice) {
+      tippy(videoBtn, {
+        content: "Click to video OFF",
+        placement: "right-start",
+      });
+    }
   }
 }
 
@@ -1761,6 +1783,13 @@ function toggleFullScreen() {
       fullScreenBtn.className = "fas fa-expand-alt";
       isDocumentOnFullScreen = false;
     }
+  }
+  // only for desktop
+  if (!isMobileDevice) {
+    tippy(fullScreenBtn, {
+      content: isDocumentOnFullScreen ? "EXIT full screen" : "VIEW full screen",
+      placement: "right-start",
+    });
   }
 }
 
@@ -1853,6 +1882,13 @@ function startStreamRecording() {
     myVideoParagraph.innerHTML = myPeerName;
     disableElements(false);
     downloadRecordedStream();
+    // only for desktop
+    if (!isMobileDevice) {
+      tippy(recordStreamBtn, {
+        content: "START recording",
+        placement: "right-start",
+      });
+    }
   };
 
   mediaRecorder.ondataavailable = handleDataAvailable;
@@ -1862,6 +1898,13 @@ function startStreamRecording() {
   recordStreamBtn.style.setProperty("background-color", "red");
   startRecordingTime();
   disableElements(true);
+  // only for desktop
+  if (!isMobileDevice) {
+    tippy(recordStreamBtn, {
+      content: "STOP recording",
+      placement: "right-start",
+    });
+  }
 }
 
 /**
@@ -1948,6 +1991,13 @@ function showChatRoomDraggable() {
   msgerDraggable.style.display = "flex";
   checkCountTime();
   isChatRoomVisible = true;
+  // only for desktop
+  if (!isMobileDevice) {
+    tippy(chatRoomBtn, {
+      content: "CLOSE the chat",
+      placement: "right-start",
+    });
+  }
 }
 
 /**
@@ -1992,6 +2042,13 @@ function hideChatRoomAndEmojiPicker() {
   chatRoomBtn.className = "fas fa-comment";
   isChatRoomVisible = false;
   isChatEmojiVisible = false;
+  // only for desktop
+  if (!isMobileDevice) {
+    tippy(chatRoomBtn, {
+      content: "OPEN the chat",
+      placement: "right-start",
+    });
+  }
 }
 
 /**
@@ -2265,6 +2322,13 @@ function setMyAudioStatus(status) {
   tippy(myAudioStatusIcon, {
     content: status ? "My audio is ON" : "My audio is OFF",
   });
+  // only for desktop
+  if (!isMobileDevice) {
+    tippy(audioBtn, {
+      content: status ? "Click to audio OFF" : "Click to audio ON",
+      placement: "right-start",
+    });
+  }
 }
 
 /**
@@ -2280,6 +2344,13 @@ function setMyVideoStatus(status) {
   tippy(myVideoStatusIcon, {
     content: status ? "My video is ON" : "My video is OFF",
   });
+  // only for desktop
+  if (!isMobileDevice) {
+    tippy(videoBtn, {
+      content: status ? "Click to video OFF" : "Click to video ON",
+      placement: "right-start",
+    });
+  }
 }
 
 /**
