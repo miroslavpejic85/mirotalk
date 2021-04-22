@@ -863,9 +863,6 @@ function setupLocalMedia(callback, errorback) {
       document.body.style.backgroundImage = "none";
       getId("loadingDiv").style.display = "none";
 
-      // need for recording stream later
-      window.stream = stream;
-
       localMediaStream = stream;
 
       const videoWrap = document.createElement("div");
@@ -1824,9 +1821,6 @@ function refreshMyLocalStream(stream) {
   ]);
   localMediaStream = newStream;
 
-  // need for recording stream later
-  window.stream = newStream;
-
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(myVideo, localMediaStream); // newstream
 
@@ -1868,7 +1862,8 @@ function startStreamRecording() {
   }
 
   try {
-    mediaRecorder = new MediaRecorder(window.stream, options);
+    // record only my local Media Stream
+    mediaRecorder = new MediaRecorder(localMediaStream, options);
   } catch (e) {
     console.error("Exception while creating MediaRecorder:", e);
     userLog("error", "Can't start stream recording: " + e.message);
