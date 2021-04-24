@@ -318,19 +318,39 @@ io.sockets.on("connect", (socket) => {
   socket.on("msg", (config) => {
     let peerConnections = config.peerConnections;
     let room_id = config.room_id;
+    let privateMsg = config.privateMsg;
+    let id = config.peer_id;
     let name = config.name;
     let msg = config.msg;
 
     console.log(
-      "[" + socket.id + "] emit onMessage to [room_id: " + room_id + "]",
+      "[" +
+        socket.id +
+        "] emit onMessage to [room_id: " +
+        room_id +
+        " private_msg: " +
+        privateMsg +
+        "]",
       {
         name: name,
         msg: msg,
       }
     );
 
+    if (privateMsg) {
+      sockets[id].emit("onMessage", {
+        peer_id: socket.id,
+        privateMsg: privateMsg,
+        name: name,
+        msg: msg,
+      });
+      return;
+    }
+
     for (var peer_id in peerConnections) {
       sockets[peer_id].emit("onMessage", {
+        peer_id: socket.id,
+        privateMsg: privateMsg,
         name: name,
         msg: msg,
       });

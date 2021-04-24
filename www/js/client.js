@@ -91,6 +91,7 @@ var leaveRoomBtn;
 var msgerDraggable;
 var msgerHeader;
 var msgerTheme;
+var msgerCPBtn;
 var msgerClean;
 var msgerSaveBtn;
 var msgerClose;
@@ -98,6 +99,11 @@ var msgerChat;
 var msgerEmojiBtn;
 var msgerInput;
 var msgerSendBtn;
+// chat room connected peers
+var msgerCP;
+var msgerCPHeader;
+var msgerCPCloseBtn;
+var msgerCPList;
 // chat room emoji picker
 var msgerEmojiPicker;
 var msgerEmojiHeader;
@@ -148,6 +154,7 @@ function getHtmlElementsById() {
   msgerDraggable = getId("msgerDraggable");
   msgerHeader = getId("msgerHeader");
   msgerTheme = getId("msgerTheme");
+  msgerCPBtn = getId("msgerCPBtn");
   msgerClean = getId("msgerClean");
   msgerSaveBtn = getId("msgerSaveBtn");
   msgerClose = getId("msgerClose");
@@ -155,6 +162,11 @@ function getHtmlElementsById() {
   msgerEmojiBtn = getId("msgerEmojiBtn");
   msgerInput = getId("msgerInput");
   msgerSendBtn = getId("msgerSendBtn");
+  // chat room connected peers
+  msgerCP = getId("msgerCP");
+  msgerCPHeader = getId("msgerCPHeader");
+  msgerCPCloseBtn = getId("msgerCPCloseBtn");
+  msgerCPList = getId("msgerCPList");
   // chat room emoji picker
   msgerEmojiPicker = getId("msgerEmojiPicker");
   msgerEmojiHeader = getId("msgerEmojiHeader");
@@ -229,6 +241,9 @@ function setButtonsTitle() {
   // chat room buttons
   tippy(msgerTheme, {
     content: "Ghost theme",
+  });
+  tippy(msgerCPBtn, {
+    content: "All Participants",
   });
   tippy(msgerClean, {
     content: "Clean messages",
@@ -500,6 +515,10 @@ function initPeer() {
 
     // collect peer connections
     peerConnections[peer_id] = peerConnection;
+
+    // add peer to msger lists 4 private msgs
+    msgerAddPeers(peers);
+
     playSound("addPeer");
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
@@ -728,6 +747,8 @@ function initPeer() {
       peerConnections[peer_id].close();
     }
 
+    msgerRemovePeer(peer_id);
+
     delete peerConnections[peer_id];
     delete peerMediaElements[peer_id];
     playSound("removePeer");
@@ -741,7 +762,13 @@ function initPeer() {
       chatRoomBtn.className = "fas fa-comment-slash";
     }
     playSound("newMessage");
-    appendMessage(config.name, friendChatAvatar, "left", config.msg);
+    appendMessage(
+      config.name,
+      friendChatAvatar,
+      "left",
+      config.msg,
+      config.privateMsg
+    );
   });
 
   // refresh peers name
@@ -780,7 +807,9 @@ function setTheme(theme) {
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
+      document.documentElement.style.setProperty("--msger-private-bg", "black");
       document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
+      document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -795,7 +824,12 @@ function setTheme(theme) {
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "#16171b");
       document.documentElement.style.setProperty("--msger-bg", "#16171b");
+      document.documentElement.style.setProperty(
+        "--msger-private-bg",
+        "#16171b"
+      );
       document.documentElement.style.setProperty("--left-msg-bg", "#222328");
+      document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -810,6 +844,7 @@ function setTheme(theme) {
       swalBackground = "transparent";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "transparent");
+      document.documentElement.style.setProperty("--msger-private-bg", "black");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-opc", "0.7");
       document.documentElement.style.setProperty("--btns-left", "2px");
@@ -818,6 +853,7 @@ function setTheme(theme) {
         "--left-msg-bg",
         "transparent"
       );
+      document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty(
         "--right-msg-bg",
         "transparent"
@@ -1228,12 +1264,27 @@ function setChatRoomBtn() {
     if (e.target.className == "fas fa-ghost") {
       e.target.className = "fas fa-undo";
       document.documentElement.style.setProperty("--msger-bg", "transparent");
+      document.documentElement.style.setProperty("--msger-private-bg", "black");
     } else {
       e.target.className = "fas fa-ghost";
       mirotalkTheme == "dark"
         ? document.documentElement.style.setProperty("--msger-bg", "#16171b")
         : document.documentElement.style.setProperty("--msger-bg", "black");
     }
+  });
+
+  // show msger participants section
+  msgerCPBtn.addEventListener("click", (e) => {
+    if (!thereIsPeerConnections()) {
+      userLog("info", "No participants detected");
+      return;
+    }
+    msgerCP.style.display = "flex";
+  });
+
+  // hide msger participants section
+  msgerCPCloseBtn.addEventListener("click", (e) => {
+    msgerCP.style.display = "none";
   });
 
   // clean chat messages
@@ -1289,8 +1340,8 @@ function setChatRoomBtn() {
     // empity msg
     if (!msg) return;
 
-    emitMsg(myPeerName, msg);
-    appendMessage(myPeerName, myChatAvatar, "right", msg);
+    emitMsg(myPeerName, msg, false, "");
+    appendMessage(myPeerName, myChatAvatar, "right", msg, false);
     msgerInput.value = "";
   });
 }
@@ -2078,31 +2129,114 @@ function escapeSpecialChars(regex) {
  * @param {*} img
  * @param {*} side
  * @param {*} text
+ * @param {*} privateMsg
  */
-function appendMessage(name, img, side, text) {
+function appendMessage(name, img, side, text, privateMsg) {
   let time = getFormatDate(new Date());
   // collect chat msges to save it later
   chatMessages.push({
     time: time,
     name: name,
     text: text,
+    private_msg: privateMsg,
   });
+
+  // check if i receive a private message
+  let msgBubble = privateMsg ? "private-msg-bubble" : "msg-bubble";
+
   // console.log("chatMessages", chatMessages);
   let ctext = detectUrl(text);
   const msgHTML = `
 	<div class="msg ${side}-msg">
 		<div class="msg-img" style="background-image: url(${img})"></div>
-		<div class="msg-bubble">
-		<div class="msg-info">
-			<div class="msg-info-name">${name}</div>
-			<div class="msg-info-time">${time}</div>
-		</div>
-		<div class="msg-text">${ctext}</div>
-		</div>
+		<div class=${msgBubble}>
+      <div class="msg-info">
+        <div class="msg-info-name">${name}</div>
+        <div class="msg-info-time">${time}</div>
+      </div>
+      <div class="msg-text">${ctext}</div>
+    </div>
 	</div>
   `;
   msgerChat.insertAdjacentHTML("beforeend", msgHTML);
   msgerChat.scrollTop += 500;
+}
+
+/**
+ * Add participants in the chat room lists
+ * @param {*} peers
+ */
+function msgerAddPeers(peers) {
+  // console.log("peers", peers);
+  // add all current Participants
+  for (var peer_id in peers) {
+    var peer_name = peers[peer_id]["peer_name"];
+    // bypass insert to myself in the list :)
+    if (peer_name != myPeerName) {
+      var exsistMsgerPrivateDiv = getId(peer_id + "_pMsgDiv");
+      // if there isn't add it....
+      if (!exsistMsgerPrivateDiv) {
+        var msgerPrivateDiv = `
+        <div id="${peer_id}_pMsgDiv" class="msger-inputarea">
+          <input
+            id="${peer_id}_pMsgInput"
+            class="msger-input"
+            type="text"
+            placeholder="Enter your message..."
+          />
+          <button id="${peer_id}_pMsgBtn" class="fas fa-paper-plane" value="${peer_name}">&nbsp;${peer_name}</button>
+        </div>
+        `;
+        msgerCPList.insertAdjacentHTML("beforeend", msgerPrivateDiv);
+        msgerCPList.scrollTop += 500;
+
+        var msgerPrivateMsgInput = getId(peer_id + "_pMsgInput");
+        var msgerPrivateBtn = getId(peer_id + "_pMsgBtn");
+        addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id);
+      }
+    }
+  }
+}
+
+/**
+ * Remove participant from chat room lists
+ * @param {*} peer_id
+ */
+function msgerRemovePeer(peer_id) {
+  var msgerPrivateDiv = getId(peer_id + "_pMsgDiv");
+  var peerToRemove = msgerPrivateDiv.firstChild;
+  while (peerToRemove) {
+    msgerPrivateDiv.removeChild(peerToRemove);
+    peerToRemove = msgerPrivateDiv.firstChild;
+  }
+  msgerPrivateDiv.remove();
+}
+
+/**
+ * Setup msger buttons to send private messages
+ * @param {*} msgerPrivateBtn
+ * @param {*} msgerPrivateMsgInput
+ * @param {*} peer_id
+ */
+function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
+  // add button to send private messages
+  msgerPrivateBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    var pMsg = msgerPrivateMsgInput.value;
+    if (!pMsg) return;
+    var peer_name = msgerPrivateBtn.value;
+    // userLog("info", peer_name + ":" + peer_id);
+    emitMsg(myPeerName, pMsg, true, peer_id);
+    appendMessage(
+      myPeerName,
+      myChatAvatar,
+      "right",
+      pMsg + "<br/>Private message to " + peer_name,
+      true
+    );
+    msgerPrivateMsgInput.value = "";
+    msgerCP.style.display = "none";
+  });
 }
 
 /**
@@ -2147,17 +2281,23 @@ function getFormatDate(date) {
  * Send message over signaling server
  * @param {*} name
  * @param {*} msg
+ * @param {*} privateMsg private message true/false
+ * @param {*} peer_id to sent private message
  */
-function emitMsg(name, msg) {
+function emitMsg(name, msg, privateMsg, peer_id) {
   if (msg) {
     signalingSocket.emit("msg", {
       peerConnections: peerConnections,
       room_id: roomId,
+      privateMsg: privateMsg,
+      peer_id: peer_id,
       name: name,
       msg: msg,
     });
     console.log("Send msg", {
       room_id: roomId,
+      privateMsg: privateMsg,
+      peer_id: peer_id,
       name: name,
       msg: msg,
     });
@@ -2292,6 +2432,12 @@ function appendPeerName(id, name) {
   var videoName = getId(id + "_name");
   if (videoName) {
     videoName.innerHTML = name;
+  }
+  // change also btn value - name on chat lists....
+  var msgerPeerName = getId(id + "_pMsgBtn");
+  if (msgerPeerName) {
+    msgerPeerName.innerHTML = `&nbsp;${name}`;
+    msgerPeerName.value = name;
   }
 }
 

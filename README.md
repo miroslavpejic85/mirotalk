@@ -38,7 +38,7 @@ Open the app in one of following **supported browser**
 - Screen Sharing to present documents, slides, and more...
 - Select Audio Input - Output && Video source
 - Recording your Screen, Audio and Video
-- Chat & Emoji Picker & Save the conversations
+- Chat & Emoji Picker & Private messages & Save the conversations
 - Full Screen Mode on click
 - Possibility to Change UI Themes
 - Right click on Video elements for more options

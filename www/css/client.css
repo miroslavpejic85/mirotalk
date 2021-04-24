@@ -43,7 +43,9 @@
   /* neon theme default */
   --body-bg: black;
   --msger-bg: black;
+  --msger-private-bg: black;
   --left-msg-bg: #da05f3;
+  --private-msg-bg: #f77070;
   --right-msg-bg: #579ffb;
   --box-shadow: 3px 3px 6px #0500ff, -3px -3px 6px #da05f3;
   --btn-bg: white;
@@ -53,7 +55,9 @@
   /* dark theme
   --body-bg: #16171b;
   --msger-bg: #16171b;
+  --msger-private-bg: black;
   --left-msg-bg: #222328;
+  --private-msg-bg: #f77070;
   --right-msg-bg: #0a0b0c;
   --box-shadow: 3px 3px 6px #0a0b0c, -3px -3px 6px #222328; 
   --btn-bg: white;
@@ -64,7 +68,9 @@
   /* ghost theme
   --body-bg: #16171b;
   --msger-bg: transparent;
+  --msger-private-bg: black;
   --left-msg-bg: transparent;
+  --private-msg-bg: #f77070;
   --right-msg-bg: transparent;
   --box-shadow: "0px"; 
   --btn-bg: transparent;
@@ -195,7 +201,7 @@ body {
 --------------------------------------------------------------*/
 
 #leftButtons {
-  z-index: 10;
+  z-index: 11;
   display: none;
   position: absolute;
   left: var(--btns-left);
@@ -300,6 +306,14 @@ body {
   cursor: move;
 }
 
+.msger-private-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: rgb(0, 0, 0);
+  color: #666;
+}
+
 .msger-header-options button {
   border: none;
   font-size: 1.2rem;
@@ -351,6 +365,12 @@ body {
   color: #fff;
 }
 
+.left-msg .private-msg-bubble {
+  background: var(--private-msg-bg);
+  border-bottom-left-radius: 0;
+  color: #fff;
+}
+
 /* right side */
 
 .right-msg {
@@ -358,6 +378,11 @@ body {
 }
 .right-msg .msg-bubble {
   background: var(--right-msg-bg);
+  border-bottom-right-radius: 0;
+  color: #fff;
+}
+.right-msg .private-msg-bubble {
+  background: var(--private-msg-bg);
   border-bottom-right-radius: 0;
   color: #fff;
 }
@@ -377,6 +402,7 @@ body {
   /* border-radius: 50%; */
 }
 
+.private-msg-bubble,
 .msg-bubble {
   max-width: 200px;
   padding: 15px;
@@ -446,11 +472,56 @@ body {
 }
 
 /*--------------------------------------------------------------
+# Chat Connected Peers 
+--------------------------------------------------------------*/
+
+#msgerCP {
+  z-index: 10;
+  display: none;
+  box-shadow: var(--box-shadow);
+  top: var(--msger-top);
+  left: var(--msger-left);
+  height: var(--msger-height);
+  width: var(--msger-width);
+  background: var(--msger-private-bg);
+  /* center */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* fade in */
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: hidden;
+}
+
+#msgerCPList button {
+  border: none;
+  font-size: 1.2rem;
+  transition: all 0.3s ease-in-out;
+  background: rgb(0, 0, 0);
+  color: #fff;
+  border-radius: 5px;
+  transition: background 0.23s;
+}
+
+#msgerCPList button:hover {
+  color: rgb(0, 180, 50);
+}
+
+/*--------------------------------------------------------------
 # Emoji picker
 --------------------------------------------------------------*/
 
 #msgerEmojiPicker {
-  z-index: 11;
+  z-index: 12;
   display: none;
   box-shadow: var(--box-shadow);
   /* center */
@@ -641,7 +712,7 @@ video:fullscreen {
 
 #mySettings {
   display: none;
-  z-index: 12;
+  z-index: 13;
   /* center */
   position: absolute;
   top: 50%;

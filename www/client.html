@@ -97,16 +97,18 @@ access to use this app.
       <section id="msger" class="msger">
         <header id="msgerHeader" class="msger-header">
           <div class="msger-header-title">
-            <i class="fas fa-comment-alt"></i> mirotalk-Chat
+            <i class="fas fa-comment-alt"></i> Chat
           </div>
           <div class="msger-header-options">
             <button id="msgerTheme" class="fas fa-ghost"></button>
+            <button id="msgerCPBtn" class="fas fa-users"></button>
             <button id="msgerClean" class="fas fa-trash"></button>
             <button id="msgerSaveBtn" class="fas fa-save"></button>
             <button id="msgerClose" class="fas fa-times"></button>
           </div>
         </header>
 
+        <!-- public messages example -->
         <main id="msgerChat" class="msger-chat">
           <div class="msg left-msg">
             <div
@@ -120,7 +122,7 @@ access to use this app.
                 <div class="msg-info-time">00:00:00</div>
               </div>
 
-              <div class="msg-text">Hi, welcome to mirotalk-Chat</div>
+              <div class="msg-text">Public message example</div>
             </div>
           </div>
 
@@ -136,7 +138,40 @@ access to use this app.
                 <div class="msg-info-time">00:00:00</div>
               </div>
 
-              <div class="msg-text">Your message example</div>
+              <div class="msg-text">Public message example</div>
+            </div>
+          </div>
+
+          <!-- private message example -->
+          <div class="msg left-msg">
+            <div
+              class="msg-img"
+              style="background-image: url('/images/friend.svg')"
+            ></div>
+
+            <div class="private-msg-bubble">
+              <div class="msg-info">
+                <div class="msg-info-name">Friends Name</div>
+                <div class="msg-info-time">00:00:00</div>
+              </div>
+
+              <div class="msg-text">Private message example</div>
+            </div>
+          </div>
+
+          <div class="msg right-msg">
+            <div
+              class="msg-img"
+              style="background-image: url('/images/programmer.svg')"
+            ></div>
+
+            <div class="private-msg-bubble">
+              <div class="msg-info">
+                <div class="msg-info-name">Your Name</div>
+                <div class="msg-info-time">00:00:00</div>
+              </div>
+
+              <div class="msg-text">Private message example</div>
             </div>
           </div>
         </main>
@@ -152,6 +187,24 @@ access to use this app.
           <button id="msgerSendBtn" class="fas fa-paper-plane"></button>
         </div>
       </section>
+
+      <!-- Start private msg -->
+      <section id="msgerCP">
+        <section id="msgerCPSec" class="msger">
+          <header id="msgerCPHeader" class="msger-private-header">
+            <div class="msger-header-title">
+              <i class="fas fa-comment-alt"></i> Send Private messages
+            </div>
+            <div class="msger-header-options">
+              <button id="msgerCPCloseBtn" class="fas fa-times"></button>
+            </div>
+          </header>
+          <main id="msgerCPChat" class="msger-chat">
+            <div id="msgerCPList"></div>
+          </main>
+        </section>
+      </section>
+      <!-- End private msg -->
     </section>
     <!-- End chat room -->
 
