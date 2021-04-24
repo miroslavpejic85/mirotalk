@@ -1646,7 +1646,7 @@ async function shareRoomUrl() {
       allowOutsideClick: false,
       background: swalBackground,
       position: "center",
-      title: "Room QR",
+      title: "Share the Room",
       imageAlt: "mirotalk-share",
       imageUrl: shareUrlImg,
       html:
