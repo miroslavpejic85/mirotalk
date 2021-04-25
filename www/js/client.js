@@ -841,7 +841,7 @@ function setTheme(theme) {
       break;
     case "ghost":
       // ghost theme
-      swalBackground = "transparent";
+      swalBackground = "rgba(0, 0, 0, 0.150)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "transparent");
       document.documentElement.style.setProperty("--msger-private-bg", "black");
@@ -851,12 +851,15 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--box-shadow", "0px");
       document.documentElement.style.setProperty(
         "--left-msg-bg",
-        "transparent"
+        "rgba(0, 0, 0, 0.7)"
       );
-      document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
+      document.documentElement.style.setProperty(
+        "--private-msg-bg",
+        "rgba(252, 110, 110, 0.7)"
+      );
       document.documentElement.style.setProperty(
         "--right-msg-bg",
-        "transparent"
+        "rgba(0, 0, 0, 0.7)"
       );
       break;
     // ...
