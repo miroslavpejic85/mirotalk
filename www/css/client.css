@@ -478,7 +478,7 @@ body {
 #msgerCP {
   z-index: 10;
   display: none;
-  box-shadow: var(--box-shadow);
+  cursor: default;
   top: var(--msger-top);
   left: var(--msger-left);
   height: var(--msger-height);
