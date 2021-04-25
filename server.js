@@ -338,22 +338,26 @@ io.sockets.on("connect", (socket) => {
     );
 
     if (privateMsg) {
-      sockets[id].emit("onMessage", {
-        peer_id: socket.id,
-        privateMsg: privateMsg,
-        name: name,
-        msg: msg,
-      });
+      if (sockets[id]) {
+        sockets[id].emit("onMessage", {
+          peer_id: socket.id,
+          privateMsg: privateMsg,
+          name: name,
+          msg: msg,
+        });
+      }
       return;
     }
 
     for (var peer_id in peerConnections) {
-      sockets[peer_id].emit("onMessage", {
-        peer_id: socket.id,
-        privateMsg: privateMsg,
-        name: name,
-        msg: msg,
-      });
+      if (sockets[peer_id]) {
+        sockets[peer_id].emit("onMessage", {
+          peer_id: socket.id,
+          privateMsg: privateMsg,
+          name: name,
+          msg: msg,
+        });
+      }
     }
   });
 
@@ -393,10 +397,12 @@ io.sockets.on("connect", (socket) => {
         }
       );
       for (var peer_id in peerConnections) {
-        sockets[peer_id].emit("onCName", {
-          peer_id: peer_id_to_update,
-          peer_name: peer_name_new,
-        });
+        if (sockets[peer_id]) {
+          sockets[peer_id].emit("onCName", {
+            peer_id: peer_id_to_update,
+            peer_name: peer_name_new,
+          });
+        }
       }
     }
   });
@@ -439,11 +445,13 @@ io.sockets.on("connect", (socket) => {
         }
       );
       for (var peer_id in peerConnections) {
-        sockets[peer_id].emit("onVAStatus", {
-          peer_id: socket.id,
-          element: element,
-          status: status,
-        });
+        if (sockets[peer_id]) {
+          sockets[peer_id].emit("onVAStatus", {
+            peer_id: socket.id,
+            element: element,
+            status: status,
+          });
+        }
       }
     }
   });
