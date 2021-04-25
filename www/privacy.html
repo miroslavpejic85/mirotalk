@@ -18,10 +18,17 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>mirotalk Create your Room name and start the new call.</title>
+    <title>mirotalk privacy and policy.</title>
     <link rel="stylesheet" href="css/landing.css" />
-    <link rel="stylesheet" href="css/newcall.css" />
     <link rel="shortcut icon" href="images/logo.svg" />
+    <meta
+      name="description"
+      content="mirotalk powered by WebRTC, Real-time secure video calls, chat and screen sharing capabilities in the browser, from your mobile or desktop"
+    />
+    <meta
+      name="keywords"
+      content="webrtc, RTCICECandidates, RTCSessionDescription, real-time communications, webrtc stun, webrtc turn, video meeting, video chat, video conference, multi video chat, multi video conference, peer to peer, p2p, zoom"
+    />
     <!-- https://ogp.me -->
     <meta property="og:type" content="app-webrtc" />
     <meta property="og:site_name" content="mirotalk" />
@@ -62,17 +69,64 @@
                       class="mt-0 mb-16 reveal-from-bottom"
                       data-reveal-delay="150"
                     >
-                      Pick name. <br />
-                      Share URL. <br />
-                      Start conference.
+                      Privacy and policy
                     </h1>
                     <p
                       class="mt-0 mb-32 reveal-from-bottom"
                       data-reveal-delay="300"
                     >
-                      Each room has its own disposable URL. Just pick a room
-                      name and share your custom URL. It's really that easy.
+                      We limit ourselves to collect the smallest amount of user
+                      data that we need in order to create a seamless experience
+                      when using <strong>miroalk</strong>. <br /><br />
+                      This data includes mainly:
+                      <a
+                        href="https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate"
+                        target="_blank"
+                        >RTCICECandidates</a
+                      >
+                      &
+                      <a
+                        href="https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription"
+                        target="_blank"
+                        >RTCSessionDescription</a
+                      >
+                      which is needed to establish the video call using WebRTC.
+                      RTCICECandidates, RTCSessionDescription and also the chat
+                      messaging is not stored in any persistent database, it's
+                      removed from the server as soon as the user leave the call
+                      by closing the browser window.
+                      <br /><br />
+                      If you record a meeting, the recording of the meeting is
+                      temporarily stored on Your browser
+                      <a
+                        href="https://developer.mozilla.org/en-US/docs/Web/API/Blob"
+                        target="_blank"
+                        >blob</a
+                      >, then will be downloaded on Your PC. <br /><br />
+                      Mirotalk is purely peer-to-peer, which means the user's
+                      video and audio is not sent to our server at all.
+                      <br /><br />
+                      We use Google Analytics to track aggregated usage
+                      statistics in order to improve our service. The maker of
+                      <strong>mirotalk</strong> has no intention of using
+                      personally or selling any of the above-mentioned data.
                     </p>
+                    <div class="reveal-from-bottom" data-reveal-delay="450">
+                      <a
+                        class="button button-primary button-wide-mobile pulse"
+                        style="
+                          border: 0;
+                          background: linear-gradient(
+                            100deg,
+                            #376df9 0,
+                            #ff5fa0 75%,
+                            #ffc55a 100%
+                          );
+                        "
+                        href="/newcall"
+                        >AGREE</a
+                      >
+                    </div>
                   </div>
                   <style>
                     @media (min-width: 641px) {
@@ -81,40 +135,6 @@
                       }
                     }
                   </style>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="cta section center-content-mobile reveal-from-bottom">
-          <div class="container">
-            <div class="cta-inner section-inner cta-split">
-              <div class="cta-slogan">
-                <h3 class="m-0">
-                  Pick a room name.<br />
-                  How about this one?
-                </h3>
-              </div>
-              <div class="cta-action">
-                <div class="mb-24">
-                  <label class="form-label screen-reader" for="roomName"
-                    >mirotalk</label
-                  >
-                  <div class="form-group-desktop">
-                    <input
-                      class="form-input"
-                      type="text"
-                      id="roomName"
-                      value="PurpleSquid"
-                    />
-                    <button
-                      class="button button-primary pulse"
-                      onclick="{window.location.href = '/join/' + document.getElementById('roomName').value}"
-                    >
-                      Join to room
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -158,9 +178,6 @@
               <nav class="footer-nav">
                 <ul class="list-reset">
                   <li>
-                    <a target="_blank" href="/privacy">Privacy and Policy</a>
-                  </li>
-                  <li>
                     <a
                       target="_blank"
                       href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
@@ -178,6 +195,5 @@
       </footer>
     </div>
     <script src="js/landing.js"></script>
-    <script src="js/newroom.js"></script>
   </body>
 </html>
