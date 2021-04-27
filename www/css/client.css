@@ -48,8 +48,8 @@
   --private-msg-bg: #f77070;
   --right-msg-bg: #579ffb;
   --box-shadow: 3px 3px 6px #0500ff, -3px -3px 6px #da05f3;
-  --btn-bg: transparent;
-  --btn-color: white;
+  --btn-bg: white;
+  --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
 
@@ -61,8 +61,8 @@
   --private-msg-bg: #f77070;
   --right-msg-bg: #0a0b0c;
   --box-shadow: 3px 3px 6px #0a0b0c, -3px -3px 6px #222328; 
-  --btn-bg: transparent;
-  --btn-color: white;
+  --btn-bg: white;
+  --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
   */

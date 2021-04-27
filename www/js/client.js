@@ -811,8 +811,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
-      document.documentElement.style.setProperty("--btn-bg", "transparent");
-      document.documentElement.style.setProperty("--btn-color", "white");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
@@ -832,8 +832,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#222328");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
-      document.documentElement.style.setProperty("--btn-bg", "transparent");
-      document.documentElement.style.setProperty("--btn-color", "white");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
@@ -1451,6 +1451,7 @@ function setupMySettings() {
   });
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
+    setRecordButtonUi();
   });
 }
 
@@ -1965,7 +1966,18 @@ function startStreamRecording() {
 function stopStreamRecording() {
   mediaRecorder.stop();
   isStreamRecording = false;
-  recordStreamBtn.style.setProperty("background-color", "transparent");
+  setRecordButtonUi();
+}
+
+/**
+ * Set Record Button UI on change theme
+ */
+function setRecordButtonUi() {
+  if (mirotalkTheme == "ghost") {
+    recordStreamBtn.style.setProperty("background-color", "transparent");
+  } else {
+    recordStreamBtn.style.setProperty("background-color", "white");
+  }
 }
 
 /**
