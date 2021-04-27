@@ -30,7 +30,7 @@ var callElapsedTime;
 var recStartTime;
 var recElapsedTime;
 var mirotalkTheme = "neon"; // neon - dark - ghost ...
-var swalBackground = "transparent"; // black - #16171b ...
+var swalBackground = "rgba(0, 0, 0, 0.7)"; // black - #16171b - transparent ...
 var signalingServerPort = 3000; // must be same of server PORT
 var signalingServer = getServerUrl();
 var roomId = getRoomId();
@@ -811,7 +811,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
-      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-bg", "transparent");
+      document.documentElement.style.setProperty("--btn-color", "white");
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
@@ -831,7 +832,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#222328");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
-      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-bg", "transparent");
+      document.documentElement.style.setProperty("--btn-color", "white");
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
@@ -845,9 +847,10 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "transparent");
       document.documentElement.style.setProperty("--msger-private-bg", "black");
-      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-bg", "transparent");
+      document.documentElement.style.setProperty("--btn-color", "white");
       document.documentElement.style.setProperty("--btn-opc", "0.7");
-      document.documentElement.style.setProperty("--btns-left", "2px");
+      document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty("--box-shadow", "0px");
       document.documentElement.style.setProperty(
         "--left-msg-bg",
@@ -1962,7 +1965,7 @@ function startStreamRecording() {
 function stopStreamRecording() {
   mediaRecorder.stop();
   isStreamRecording = false;
-  recordStreamBtn.style.setProperty("background-color", "white");
+  recordStreamBtn.style.setProperty("background-color", "transparent");
 }
 
 /**
