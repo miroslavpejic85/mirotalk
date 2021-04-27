@@ -254,6 +254,7 @@ body {
 #fullScreenBtn,
 #swapCameraBtn,
 #chatRoomBtn,
+#whiteboardBtn,
 #mySettingsBtn,
 #aboutBtn,
 #leaveRoomBtn {
@@ -273,7 +274,9 @@ body {
 #screenShareBtn:hover,
 #recordStreamBtn:hover,
 #fullScreenBtn:hover,
+#swapCameraBtn:hover,
 #chatRoomBtn:hover,
+#whiteboardBtn:hover,
 #mySettingsBtn:hover,
 #aboutBtn:hover {
   color: rgb(8, 189, 89);

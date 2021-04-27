@@ -39,6 +39,7 @@ Open the app in one of following **supported browser**
 - Select Audio Input - Output && Video source
 - Recording your Screen, Audio and Video
 - Chat & Emoji Picker & Private messages & Save the conversations
+- Simple Whiteboard for teachers
 - Full Screen Mode on click
 - Possibility to Change UI Themes
 - Right click on Video elements for more options
@@ -109,6 +110,7 @@ Many Thanks to:
 - ianramzy (html template)
 - vasanthv (webrtc)
 - Sajad (chat)
+- i-aryan (whiteboard)
 
 from where I taked inspiration for this project. ❤️
 

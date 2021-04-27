@@ -96,6 +96,7 @@ var msgerClean;
 var msgerSaveBtn;
 var msgerClose;
 var msgerChat;
+var whiteboardBtn;
 var msgerEmojiBtn;
 var msgerInput;
 var msgerSendBtn;
@@ -130,6 +131,20 @@ var myAudioStatusIcon;
 var mediaRecorder;
 var recordedBlobs;
 var isStreamRecording = false;
+// whiteboard init
+var whiteboardCont;
+var whiteboardCloseBtn;
+var whiteboardCleanBtn;
+var whiteboardEraserBtn;
+var isWhiteboardVisible = false;
+var canvas;
+var ctx;
+// whiteboard settings
+var isDrawing = 0;
+var x = 0;
+var y = 0;
+var color = "black";
+var drawsize = 3;
 
 /**
  * Load all Html elements by Id
@@ -147,6 +162,7 @@ function getHtmlElementsById() {
   recordStreamBtn = getId("recordStreamBtn");
   fullScreenBtn = getId("fullScreenBtn");
   chatRoomBtn = getId("chatRoomBtn");
+  whiteboardBtn = getId("whiteboardBtn");
   mySettingsBtn = getId("mySettingsBtn");
   aboutBtn = getId("aboutBtn");
   leaveRoomBtn = getId("leaveRoomBtn");
@@ -186,6 +202,13 @@ function getHtmlElementsById() {
   myVideoParagraph = getId("myVideoParagraph");
   myVideoStatusIcon = getId("myVideoStatusIcon");
   myAudioStatusIcon = getId("myAudioStatusIcon");
+  // my whiteboard
+  whiteboardCont = getSl(".whiteboard-cont");
+  whiteboardCloseBtn = getId("whiteboardCloseBtn");
+  whiteboardEraserBtn = getId("whiteboardEraserBtn");
+  whiteboardCleanBtn = getId("whiteboardCleanBtn");
+  canvas = getId("whiteboard");
+  ctx = canvas.getContext("2d");
 }
 
 /**
@@ -223,6 +246,10 @@ function setButtonsTitle() {
   });
   tippy(chatRoomBtn, {
     content: "OPEN the chat",
+    placement: "right-start",
+  });
+  tippy(whiteboardBtn, {
+    content: "OPEN the whiteboard",
     placement: "right-start",
   });
   tippy(mySettingsBtn, {
@@ -272,6 +299,20 @@ function setButtonsTitle() {
   });
   tippy(myPeerNameSetBtn, {
     content: "Change name",
+  });
+
+  // whiteboard btns
+  tippy(whiteboardCloseBtn, {
+    content: "CLOSE the whiteboard",
+    placement: "right-start",
+  });
+  tippy(whiteboardEraserBtn, {
+    content: "ERAISE the board",
+    placement: "right-start",
+  });
+  tippy(whiteboardCleanBtn, {
+    content: "CLEAN the board",
+    placement: "right-start",
   });
 }
 
@@ -976,6 +1017,7 @@ function setupLocalMedia(callback, errorback) {
     })
     .catch((e) => {
       // user denied access to audio/video
+      // https://blog.addpipe.com/common-getusermedia-errors/
       console.error("Access denied for audio/video", e);
       playSound("error");
       window.location.href = `/permission?roomId=${roomId}`;
@@ -1120,6 +1162,7 @@ function manageLeftButtons() {
   setFullScreenBtn();
   setChatRoomBtn();
   setChatEmojiBtn();
+  setMyWhiteboardBtn();
   setMySettingsBtn();
   setAboutBtn();
   setLeaveRoomBtn();
@@ -1378,6 +1421,46 @@ function setChatEmojiBtn() {
       msgerInput.value += e.detail.emoji.unicode;
     });
   }
+}
+
+/**
+ * Whiteboard
+ * https://r8.whiteboardfox.com (good alternative)
+ */
+function setMyWhiteboardBtn() {
+  // not supported for mobile
+  if (isMobileDevice) {
+    whiteboardBtn.style.display = "none";
+    return;
+  }
+
+  setupCanvas();
+
+  whiteboardBtn.addEventListener("click", (e) => {
+    //hideWhiteboard();
+    if (isWhiteboardVisible) {
+      whiteboardCont.style.display = "none";
+      isWhiteboardVisible = false;
+    } else {
+      whiteboardCont.style.display = "block";
+      isWhiteboardVisible = true;
+    }
+    fitToContainer(canvas);
+  });
+
+  // close whiteboard
+  whiteboardCloseBtn.addEventListener("click", (e) => {
+    whiteboardCont.style.display = "none";
+    isWhiteboardVisible = false;
+  });
+  // erase whiteboard
+  whiteboardEraserBtn.addEventListener("click", (e) => {
+    setEraser();
+  });
+  // clean whiteboard
+  whiteboardCleanBtn.addEventListener("click", (e) => {
+    cleanBoard();
+  });
 }
 
 /**
@@ -2540,6 +2623,112 @@ function setPeerVideoStatus(peer_id, status) {
   tippy(peerVideoStatus, {
     content: status ? "Participant video is ON" : "Participant video is OFF",
   });
+}
+
+/**
+ * Set whiteboard color
+ * @param {*} newcolor
+ */
+function setColor(newcolor) {
+  color = newcolor;
+  drawsize = 3;
+}
+
+/**
+ * Whiteboard eraser
+ */
+function setEraser() {
+  color = "white";
+  drawsize = 10;
+}
+
+/**
+ * Clean whiteboard content
+ */
+function cleanBoard() {
+  playSound("newMessage");
+
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    title: "Clean the board",
+    text: "Are you sure you want to clean the board?",
+    showDenyButton: true,
+    confirmButtonText: `Yes`,
+    denyButtonText: `No`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  });
+}
+
+/**
+ * Draw on whiteboard
+ * @param {*} newx
+ * @param {*} newy
+ * @param {*} oldx
+ * @param {*} oldy
+ */
+function draw(newx, newy, oldx, oldy) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = drawsize;
+  ctx.beginPath();
+  ctx.moveTo(oldx, oldy);
+  ctx.lineTo(newx, newy);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+/**
+ * Resize canvas
+ * @param {*} canvas
+ */
+function fitToContainer(canvas) {
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+
+/**
+ * Handle whiteboard on windows resize
+ * here i lose drawing, Todo fix it
+ */
+function reportWindowSize() {
+  fitToContainer(canvas);
+}
+/**
+ * Whiteboard setup
+ */
+function setupCanvas() {
+  fitToContainer(canvas);
+
+  canvas.addEventListener("mousedown", (e) => {
+    x = e.offsetX;
+    y = e.offsetY;
+    isDrawing = 1;
+  });
+  canvas.addEventListener("mousemove", (e) => {
+    if (isDrawing) {
+      draw(e.offsetX, e.offsetY, x, y);
+      x = e.offsetX;
+      y = e.offsetY;
+    }
+  });
+  window.addEventListener("mouseup", (e) => {
+    if (isDrawing) {
+      isDrawing = 0;
+    }
+  });
+
+  window.onresize = reportWindowSize;
 }
 
 /**

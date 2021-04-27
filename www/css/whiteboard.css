@@ -1,0 +1,130 @@
+.whiteboard-cont {
+  z-index: 99;
+  display: none;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+.whiteboard-cont #whiteboard {
+  z-index: 99;
+  background-color: white;
+  border-radius: 10px;
+}
+.whiteboard-cont .colors-cont {
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  display: flex;
+  flex-direction: column;
+}
+.whiteboard-cont .colors-cont .black {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: black;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .black:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .red {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #e74c3c;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .red:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .yellow {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #f1c40f;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .yellow:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .green {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #badc58;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .green:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .orange {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #e67e22;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .orange:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .purple {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #9b59b6;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .purple:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .blue {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #3498db;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .blue:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .pink {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #fd79a8;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .pink:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .brown {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: #834c32;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .brown:hover {
+  cursor: pointer;
+}
+.whiteboard-cont .colors-cont .grey {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: gray;
+  margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .grey:hover {
+  cursor: pointer;
+}
+.whiteboard-cont button {
+  height: 30px;
+  width: 30px;
+  font-size: 1.2rem;
+  margin-top: 10px;
+  border: none;
+  background: transparent;
+}
+.whiteboard-cont button:hover {
+  color: rgb(0, 180, 50);
+}
