@@ -133,6 +133,9 @@ var recordedBlobs;
 var isStreamRecording = false;
 // whiteboard init
 var whiteboardCont;
+var whiteboardColorPicker;
+var whiteboardBlackColor;
+var whiteboardWhiteColor;
 var whiteboardCloseBtn;
 var whiteboardCleanBtn;
 var whiteboardEraserBtn;
@@ -143,7 +146,7 @@ var ctx;
 var isDrawing = 0;
 var x = 0;
 var y = 0;
-var color = "black";
+var color = "#000000";
 var drawsize = 3;
 
 /**
@@ -205,6 +208,9 @@ function getHtmlElementsById() {
   // my whiteboard
   whiteboardCont = getSl(".whiteboard-cont");
   whiteboardCloseBtn = getId("whiteboardCloseBtn");
+  whiteboardColorPicker = getId("whiteboardColorPicker");
+  whiteboardBlackColor = getId("whiteboardBlackColor");
+  whiteboardWhiteColor = getId("whiteboardWhiteColor");
   whiteboardEraserBtn = getId("whiteboardEraserBtn");
   whiteboardCleanBtn = getId("whiteboardCleanBtn");
   canvas = getId("whiteboard");
@@ -304,6 +310,10 @@ function setButtonsTitle() {
   // whiteboard btns
   tippy(whiteboardCloseBtn, {
     content: "CLOSE the whiteboard",
+    placement: "right-start",
+  });
+  tippy(whiteboardColorPicker, {
+    content: "COLOR picker",
     placement: "right-start",
   });
   tippy(whiteboardEraserBtn, {
@@ -852,6 +862,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
+      document.documentElement.style.setProperty("--wb-bg", "white");
+      document.documentElement.style.setProperty("--wb-btn-color", "black");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -873,6 +885,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#222328");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
+      document.documentElement.style.setProperty("--wb-bg", "black");
+      document.documentElement.style.setProperty("--wb-btn-color", "white");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -888,6 +902,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "transparent");
       document.documentElement.style.setProperty("--msger-private-bg", "black");
+      document.documentElement.style.setProperty("--wb-bg", "whitesmoke");
+      document.documentElement.style.setProperty("--wb-btn-color", "black");
       document.documentElement.style.setProperty("--btn-bg", "transparent");
       document.documentElement.style.setProperty("--btn-color", "white");
       document.documentElement.style.setProperty("--btn-opc", "0.7");
@@ -1437,13 +1453,14 @@ function setMyWhiteboardBtn() {
   setupCanvas();
 
   whiteboardBtn.addEventListener("click", (e) => {
-    //hideWhiteboard();
     if (isWhiteboardVisible) {
       whiteboardCont.style.display = "none";
       isWhiteboardVisible = false;
     } else {
       whiteboardCont.style.display = "block";
       isWhiteboardVisible = true;
+      // default web write size
+      drawsize = 3;
     }
     fitToContainer(canvas);
   });
@@ -1535,6 +1552,7 @@ function setupMySettings() {
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
     setRecordButtonUi();
+    setWhiteboardBgandColors();
   });
 }
 
@@ -2632,14 +2650,16 @@ function setPeerVideoStatus(peer_id, status) {
 function setColor(newcolor) {
   color = newcolor;
   drawsize = 3;
+  whiteboardColorPicker.value = color;
 }
 
 /**
  * Whiteboard eraser
  */
 function setEraser() {
-  color = "white";
+  mirotalkTheme == "dark" ? (color = "#000000") : (color = "#ffffff");
   drawsize = 10;
+  whiteboardColorPicker.value = color;
 }
 
 /**
@@ -2729,6 +2749,21 @@ function setupCanvas() {
   });
 
   window.onresize = reportWindowSize;
+}
+
+/**
+ * Whiteboard bg and colors on theme changes
+ */
+function setWhiteboardBgandColors() {
+  if (mirotalkTheme == "dark") {
+    whiteboardWhiteColor.style.display = "flex";
+    whiteboardBlackColor.style.display = "none";
+    setColor("#ffffff");
+  } else {
+    whiteboardWhiteColor.style.display = "none";
+    whiteboardBlackColor.style.display = "flex";
+    setColor("#000000");
+  }
 }
 
 /**

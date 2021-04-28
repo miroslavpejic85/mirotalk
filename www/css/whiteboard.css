@@ -7,7 +7,7 @@
 }
 .whiteboard-cont #whiteboard {
   z-index: 99;
-  background-color: white;
+  background-color: var(--wb-bg);
   border-radius: 10px;
 }
 .whiteboard-cont .colors-cont {
@@ -23,6 +23,14 @@
   border-radius: 50px;
   background-color: black;
   margin-top: 10px;
+}
+.whiteboard-cont .colors-cont .white {
+  height: 30px;
+  width: 30px;
+  border-radius: 50px;
+  background-color: white;
+  margin-top: 10px;
+  display: none;
 }
 .whiteboard-cont .colors-cont .black:hover {
   cursor: pointer;
@@ -123,8 +131,51 @@
   font-size: 1.2rem;
   margin-top: 10px;
   border: none;
+  color: var(--wb-btn-color);
   background: transparent;
 }
 .whiteboard-cont button:hover {
   color: rgb(0, 180, 50);
+}
+
+#whiteboardColorPicker {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 0;
+  border: none;
+  width: 30px;
+  height: 30px;
+  margin-top: 10px;
+  border-radius: 50px;
+}
+#whiteboardColorPicker::-webkit-color-swatch {
+  border: none;
+  border-radius: 50px;
+  padding: 0;
+}
+#whiteboardColorPicker::-webkit-color-swatch-wrapper {
+  border: none;
+  border-radius: 50px;
+  padding: 0;
+}
+#whiteboardColorPicker::-moz-color-swatch {
+  border: none;
+  border-radius: 50px;
+  padding: 0;
+}
+#whiteboardColorPicker::-moz-color-swatch-wrapper {
+  border: none;
+  border-radius: 50px;
+  padding: 0;
+}
+#whiteboardColorPicker::color-swatch {
+  border: none;
+  border-radius: 50px;
+  padding: 0;
+}
+#whiteboardColorPicker::color-swatch-wrapper {
+  border: none;
+  border-radius: 50px;
+  padding: 0;
 }

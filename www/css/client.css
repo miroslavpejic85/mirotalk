@@ -52,6 +52,8 @@
   --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
+  --wb-btn-color: black;
+  --wb-bg: white;
 
   /* dark theme
   --body-bg: #16171b;
@@ -65,6 +67,8 @@
   --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
+  --wb-btn-color: white;
+  --wb-bg: black;
   */
 
   /* ghost theme
@@ -79,6 +83,8 @@
   --btn-color: white;
   --btn-opc: 0.7;
   --btns-left: 20px;
+  --wb-btn-color: black;
+  --wb-bg: white;
   */
 
   /* https://developer.mozilla.org/it/docs/Web/CSS/object-fit */

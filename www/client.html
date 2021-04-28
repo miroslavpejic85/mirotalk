@@ -279,7 +279,24 @@ access to use this app.
       <canvas id="whiteboard" height="1000" width="1000"></canvas>
       <div class="colors-cont">
         <button id="whiteboardCloseBtn" class="fas fa-times"></button>
-        <div class="black" onclick="setColor('black')"></div>
+        <div>
+          <input
+            type="color"
+            id="whiteboardColorPicker"
+            onchange="setColor(value)"
+          />
+        </div>
+        <br />
+        <div
+          class="white"
+          id="whiteboardWhiteColor"
+          onclick="setColor('#ffffff')"
+        ></div>
+        <div
+          class="black"
+          id="whiteboardBlackColor"
+          onclick="setColor('#000000')"
+        ></div>
         <div class="red" onclick="setColor('#e74c3c')"></div>
         <div class="yellow" onclick="setColor('#f1c40f')"></div>
         <div class="green" onclick="setColor('#badc58')"></div>
