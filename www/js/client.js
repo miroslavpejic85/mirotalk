@@ -2747,7 +2747,8 @@ function getAbout() {
     html: `
     <br/>
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
-    <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div>
+    <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div><br>
+<a href="https://paypal.me/MiroslavPejic?locale.x=it_IT" target="_blank"><img src="../images/donate.png" alt="Donate" style="width:220px;height:auto;"></a>
     `,
     showClass: {
       popup: "animate__animated animate__fadeInDown",
