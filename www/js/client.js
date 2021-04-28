@@ -317,7 +317,7 @@ function setButtonsTitle() {
     placement: "right-start",
   });
   tippy(whiteboardEraserBtn, {
-    content: "ERAISE the board",
+    content: "ERASE the board",
     placement: "right-start",
   });
   tippy(whiteboardCleanBtn, {
