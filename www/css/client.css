@@ -871,12 +871,7 @@ video:fullscreen {
   width: 180px;
   height: 50px;
   font-size: 1.2rem;
-  background: linear-gradient(
-    100deg,
-    #376df9 0,
-    #ff5fa0 75%,
-    #ffc55a 100%
-  );
+  background: linear-gradient(100deg, #376df9 0, #ff5fa0 75%, #ffc55a 100%);
   box-shadow: 0 0 6px 0 rgb(251 255 0 / 82%);
   color: #ffffff;
   transition: background 0.23s;
