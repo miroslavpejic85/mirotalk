@@ -2345,7 +2345,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
       myPeerName,
       myChatAvatar,
       "right",
-      pMsg + "<br/>Private message to " + peer_name,
+      pMsg + "<br/><hr>Private message to " + peer_name,
       true
     );
     msgerPrivateMsgInput.value = "";
