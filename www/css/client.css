@@ -40,6 +40,9 @@
   --msger-height: 680px;
   --msger-width: 420px;
 
+  /* my settings */
+  --mySettings-select-w: 25em;
+
   /* neon theme default */
   --body-bg: black;
   --msger-bg: black;
@@ -793,7 +796,7 @@ video:fullscreen {
 }
 
 #mySettings select {
-  width: 25em;
+  width: var(--mySettings-select-w);
   height: 30px;
   color: white;
   background-color: #2b2b2b;

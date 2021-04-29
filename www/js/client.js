@@ -2500,6 +2500,14 @@ function dragElement(elmnt, dragObj) {
 function hideShowMySettings() {
   if (!isMySettingsVisible) {
     playSound("newMessage");
+    // adapt it for mobile
+    if (isMobileDevice) {
+      mySettings.style.setProperty("width", "90%");
+      document.documentElement.style.setProperty(
+        "--mySettings-select-w",
+        "99%"
+      );
+    }
     // my current peer name
     myPeerNameSet.placeholder = myPeerName;
     // center screen on show
