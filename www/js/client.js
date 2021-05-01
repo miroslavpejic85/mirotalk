@@ -42,6 +42,7 @@ var useAudio = true;
 var useVideo = true;
 var camera = "user";
 var myVideoChange = false;
+var myHandStatus = false;
 var myVideoStatus = true;
 var myAudioStatus = true;
 var isScreenStreaming = false;
@@ -84,6 +85,8 @@ var screenShareBtn;
 var recordStreamBtn;
 var fullScreenBtn;
 var chatRoomBtn;
+var myHandBtn;
+var whiteboardBtn;
 var mySettingsBtn;
 var aboutBtn;
 var leaveRoomBtn;
@@ -96,7 +99,6 @@ var msgerClean;
 var msgerSaveBtn;
 var msgerClose;
 var msgerChat;
-var whiteboardBtn;
 var msgerEmojiBtn;
 var msgerInput;
 var msgerSendBtn;
@@ -123,8 +125,9 @@ var themeSelect;
 var selectors;
 // my video element
 var myVideo;
-// Name && video audio - status
+// Name && hand video audio - status
 var myVideoParagraph;
+var myHandStatusIcon;
 var myVideoStatusIcon;
 var myAudioStatusIcon;
 // record Media Stream
@@ -148,6 +151,9 @@ var x = 0;
 var y = 0;
 var color = "#000000";
 var drawsize = 3;
+// room actions btns
+var muteEveryoneBtn;
+var hideEveryoneBtn;
 
 /**
  * Load all Html elements by Id
@@ -166,6 +172,7 @@ function getHtmlElementsById() {
   fullScreenBtn = getId("fullScreenBtn");
   chatRoomBtn = getId("chatRoomBtn");
   whiteboardBtn = getId("whiteboardBtn");
+  myHandBtn = getId("myHandBtn");
   mySettingsBtn = getId("mySettingsBtn");
   aboutBtn = getId("aboutBtn");
   leaveRoomBtn = getId("leaveRoomBtn");
@@ -201,8 +208,9 @@ function getHtmlElementsById() {
   audioOutputSelect = getId("audioOutput");
   videoSelect = getId("videoSource");
   themeSelect = getId("mirotalkTheme");
-  // my conference name, video - audio status
+  // my conference name, hand, video - audio status
   myVideoParagraph = getId("myVideoParagraph");
+  myHandStatusIcon = getId("myHandStatusIcon");
   myVideoStatusIcon = getId("myVideoStatusIcon");
   myAudioStatusIcon = getId("myAudioStatusIcon");
   // my whiteboard
@@ -215,6 +223,9 @@ function getHtmlElementsById() {
   whiteboardCleanBtn = getId("whiteboardCleanBtn");
   canvas = getId("whiteboard");
   ctx = canvas.getContext("2d");
+  // room actions buttons
+  muteEveryoneBtn = getId("muteEveryoneBtn");
+  hideEveryoneBtn = getId("hideEveryoneBtn");
 }
 
 /**
@@ -252,6 +263,10 @@ function setButtonsTitle() {
   });
   tippy(chatRoomBtn, {
     content: "OPEN the chat",
+    placement: "right-start",
+  });
+  tippy(myHandBtn, {
+    content: "RAISE your hand",
     placement: "right-start",
   });
   tippy(whiteboardBtn, {
@@ -323,6 +338,16 @@ function setButtonsTitle() {
   tippy(whiteboardCleanBtn, {
     content: "CLEAN the board",
     placement: "right-start",
+  });
+
+  // room actions btn
+  tippy(muteEveryoneBtn, {
+    content: "MUTE everyone except yourself",
+    placement: "top",
+  });
+  tippy(hideEveryoneBtn, {
+    content: "HIDE everyone except yourself",
+    placement: "top",
   });
 }
 
@@ -490,6 +515,7 @@ function initPeer() {
       peerName: myPeerName,
       peerVideo: myVideoStatus,
       peerAudio: myAudioStatus,
+      peerHand: myHandStatus,
     });
   }
 
@@ -602,6 +628,7 @@ function initPeer() {
 
         // handle peers name video audio status
         const remoteVideoParagraph = document.createElement("h4");
+        const remoteHandStatusIcon = document.createElement("button");
         const remoteVideoStatusIcon = document.createElement("button");
         const remoteAudioStatusIcon = document.createElement("button");
 
@@ -615,6 +642,12 @@ function initPeer() {
           peers[peer_id]["peer_name"]
         );
         remoteVideoParagraph.appendChild(peerVideoText);
+        // remote hand status element
+        remoteHandStatusIcon.setAttribute("id", peer_id + "_handStatus");
+        remoteHandStatusIcon.className = "fas fa-hand-paper handStatusIcon";
+        tippy(remoteHandStatusIcon, {
+          content: "Participant hand is RAISED",
+        });
         // remote video status element
         remoteVideoStatusIcon.setAttribute("id", peer_id + "_videoStatus");
         remoteVideoStatusIcon.className = "fas fa-video videoStatusIcon";
@@ -630,6 +663,7 @@ function initPeer() {
 
         // add elements to videoWrap div
         videoWrap.appendChild(remoteVideoParagraph);
+        videoWrap.appendChild(remoteHandStatusIcon);
         videoWrap.appendChild(remoteVideoStatusIcon);
         videoWrap.appendChild(remoteAudioStatusIcon);
 
@@ -654,6 +688,8 @@ function initPeer() {
           handleVideoPlayerFs(peer_id + "_video");
         }
 
+        // refresh remote peers hand icon status and title
+        setPeerHandStatus(peer_id, peers[peer_id]["peer_hand"]);
         // refresh remote peers video icon status and title
         setPeerVideoStatus(peer_id, peers[peer_id]["peer_video"]);
         // refresh remote peers audio icon status and title
@@ -827,8 +863,8 @@ function initPeer() {
     appendPeerName(config.peer_id, config.peer_name);
   });
 
-  // refresh peers video - audio icon status and title
-  signalingSocket.on("onVAStatus", function (config) {
+  // refresh peers video - audio - hand icon status and title
+  signalingSocket.on("onpeerStatus", function (config) {
     var peer_id = config.peer_id;
     var element = config.element;
     var status = config.status;
@@ -840,7 +876,19 @@ function initPeer() {
       case "audio":
         setPeerAudioStatus(peer_id, status);
         break;
+      case "hand":
+        setPeerHandStatus(peer_id, status);
+        break;
     }
+  });
+
+  // set my Audio off
+  signalingSocket.on("onmuteEveryone", function (config) {
+    setMyAudioOff(config.peer_name);
+  });
+  // set my Video off
+  signalingSocket.on("onhideEveryone", function (config) {
+    setMyVideoOff(config.peer_name);
   });
 } // end [initPeer]
 
@@ -967,6 +1015,7 @@ function setupLocalMedia(callback, errorback) {
       const videoWrap = document.createElement("div");
       // handle my peer name video audio status
       const myVideoParagraph = document.createElement("h4");
+      const myHandStatusIcon = document.createElement("button");
       const myVideoStatusIcon = document.createElement("button");
       const myAudioStatusIcon = document.createElement("button");
 
@@ -975,6 +1024,12 @@ function setupLocalMedia(callback, errorback) {
       myVideoParagraph.className = "videoPeerName";
       tippy(myVideoParagraph, {
         content: "My name",
+      });
+      // my hand status element
+      myHandStatusIcon.setAttribute("id", "myHandStatusIcon");
+      myHandStatusIcon.className = "fas fa-hand-paper handStatusIcon";
+      tippy(myHandStatusIcon, {
+        content: "My hand is RAISED",
       });
       // my video status element
       myVideoStatusIcon.setAttribute("id", "myVideoStatusIcon");
@@ -991,8 +1046,12 @@ function setupLocalMedia(callback, errorback) {
 
       // add elements to video wrap div
       videoWrap.appendChild(myVideoParagraph);
+      videoWrap.appendChild(myHandStatusIcon);
       videoWrap.appendChild(myVideoStatusIcon);
       videoWrap.appendChild(myAudioStatusIcon);
+
+      // hand display none on default menad is raised == false
+      myHandStatusIcon.style.display = "none";
 
       const localMedia = document.createElement("video");
       videoWrap.className = "video";
@@ -1178,6 +1237,7 @@ function manageLeftButtons() {
   setFullScreenBtn();
   setChatRoomBtn();
   setChatEmojiBtn();
+  setMyHandBtn();
   setMyWhiteboardBtn();
   setMySettingsBtn();
   setAboutBtn();
@@ -1440,6 +1500,35 @@ function setChatEmojiBtn() {
 }
 
 /**
+ * Set my hand button click event
+ */
+function setMyHandBtn() {
+  myHandBtn.addEventListener("click", async (e) => {
+    if (myHandStatus) {
+      // Raised hand
+      myHandStatus = false;
+      if (!isMobileDevice) {
+        tippy(myHandBtn, {
+          content: "RAISE your hand",
+          placement: "right-start",
+        });
+      }
+    } else {
+      // Lower hand
+      myHandStatus = true;
+      if (!isMobileDevice) {
+        tippy(myHandBtn, {
+          content: "LOWER your hand",
+          placement: "right-start",
+        });
+      }
+    }
+    myHandStatusIcon.style.display = myHandStatus ? "block" : "none";
+    emitPeerStatus("hand", myHandStatus);
+  });
+}
+
+/**
  * Whiteboard
  * https://r8.whiteboardfox.com (good alternative)
  */
@@ -1553,6 +1642,13 @@ function setupMySettings() {
     setTheme(themeSelect.value);
     setRecordButtonUi();
     setWhiteboardBgandColors();
+  });
+  // room actions
+  muteEveryoneBtn.addEventListener("click", (e) => {
+    muteEveryone();
+  });
+  hideEveryoneBtn.addEventListener("click", (e) => {
+    hideEveryone();
   });
 }
 
@@ -1913,7 +2009,7 @@ function setMyVideoStatusTrue() {
     myVideoStatus = true;
     videoBtn.className = "fas fa-video";
     myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
-    emitVAStatus("video", myVideoStatus);
+    emitPeerStatus("video", myVideoStatus);
     // only for desktop
     if (!isMobileDevice) {
       tippy(videoBtn, {
@@ -2564,12 +2660,12 @@ function appendPeerName(id, name) {
 }
 
 /**
- * Send my Video-Audio status
+ * Send my Video-Audio-Hand... status
  * @param {*} element
  * @param {*} status
  */
-function emitVAStatus(element, status) {
-  signalingSocket.emit("vaStatus", {
+function emitPeerStatus(element, status) {
+  signalingSocket.emit("peerStatus", {
     peerConnections: peerConnections,
     room_id: roomId,
     peer_name: myPeerName,
@@ -2586,7 +2682,7 @@ function setMyAudioStatus(status) {
   myAudioStatusIcon.className =
     "fas fa-microphone" + (status ? "" : "-slash") + " audioStatusIcon";
   // send my audio status to all peers in the room
-  emitVAStatus("audio", status);
+  emitPeerStatus("audio", status);
   tippy(myAudioStatusIcon, {
     content: status ? "My audio is ON" : "My audio is OFF",
   });
@@ -2608,7 +2704,7 @@ function setMyVideoStatus(status) {
   myVideoStatusIcon.className =
     "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
   // send my video status to all peers in the room
-  emitVAStatus("video", status);
+  emitPeerStatus("video", status);
   tippy(myVideoStatusIcon, {
     content: status ? "My video is ON" : "My video is OFF",
   });
@@ -2619,6 +2715,16 @@ function setMyVideoStatus(status) {
       placement: "right-start",
     });
   }
+}
+
+/**
+ * Set Participant Hand Status Icon and Title
+ * @param {*} peer_id
+ * @param {*} status
+ */
+function setPeerHandStatus(peer_id, status) {
+  let peerHandStatus = getId(peer_id + "_handStatus");
+  peerHandStatus.style.display = status ? "block" : "none";
 }
 
 /**
@@ -2775,6 +2881,64 @@ function setWhiteboardBgandColors() {
 }
 
 /**
+ * Mute everyone except yourself
+ * Once muted, you won't be able to unmute them, but they can unmute themselves at any time
+ */
+function muteEveryone() {
+  if (!thereIsPeerConnections()) {
+    userLog("info", "No participants detected");
+    return;
+  }
+  signalingSocket.emit("muteEveryone", {
+    peerConnections: peerConnections,
+    room_id: roomId,
+    peer_name: myPeerName,
+  });
+}
+
+/**
+ * Hide everyone except yourself
+ * Once hided, you won't be able to unhide them, but they can unhide themselves at any time
+ */
+function hideEveryone() {
+  if (!thereIsPeerConnections()) {
+    userLog("info", "No participants detected");
+    return;
+  }
+  signalingSocket.emit("hideEveryone", {
+    peerConnections: peerConnections,
+    room_id: roomId,
+    peer_name: myPeerName,
+  });
+}
+
+/**
+ * Popup the peer_name that do this actions
+ * @param {*} peer_name
+ */
+function setMyAudioOff(peer_name) {
+  if (myAudioStatus === false) return;
+  localMediaStream.getAudioTracks()[0].enabled = false;
+  myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+  audioBtn.className = "fas fa-microphone-slash";
+  setMyAudioStatus(myAudioStatus);
+  userLog("info", peer_name + " has disabled your audio");
+}
+
+/**
+ * Popup the peer_name that do this actions
+ * @param {*} peer_name
+ */
+function setMyVideoOff(peer_name) {
+  if (myVideoStatus === false) return;
+  localMediaStream.getVideoTracks()[0].enabled = false;
+  myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+  videoBtn.className = "fas fa-video-slash";
+  setMyVideoStatus(myVideoStatus);
+  userLog("info", peer_name + " has disabled your video");
+}
+
+/**
  * About info
  * https://sweetalert2.github.io
  */
@@ -2791,7 +2955,7 @@ function getAbout() {
     <br/>
     <div id="about"><b>open source</b> project on<a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><h1><strong> GitHub </strong></h1></a></div>
     <div id="author"><a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank">Author: Miroslav Pejic</a></div><br>
-    <button id="sponsorBtn" class="far fa-heart" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"> Sponsor</button>
+    <button id="sponsorBtn" class="far fa-heart pulsate" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"> Sponsor</button>
     `,
     showClass: {
       popup: "animate__animated animate__fadeInDown",

@@ -206,6 +206,7 @@ io.sockets.on("connect", (socket) => {
     var peer_name = config.peerName;
     var peer_video = config.peerVideo;
     var peer_audio = config.peerAudio;
+    var peer_hand = config.peerHand;
 
     if (channel in socket.channels) {
       console.log("[" + socket.id + "] [Warning] already joined", channel);
@@ -226,6 +227,7 @@ io.sockets.on("connect", (socket) => {
       peer_name: peer_name,
       peer_video: peer_video,
       peer_audio: peer_audio,
+      peer_hand: peer_hand,
     };
     console.log("connected peers grp by roomId", peers);
 
@@ -413,9 +415,9 @@ io.sockets.on("connect", (socket) => {
   });
 
   /**
-   * Relay Audio Video Status to peers
+   * Relay Audio Video Hand ... Status to peers
    */
-  socket.on("vaStatus", (config) => {
+  socket.on("peerStatus", (config) => {
     let peerConnections = config.peerConnections;
     let room_id = config.room_id;
     let peer_name = config.peer_name;
@@ -425,9 +427,17 @@ io.sockets.on("connect", (socket) => {
     // update peers video-audio status in the specified room
     for (var peer_id in peers[room_id]) {
       if (peers[room_id][peer_id]["peer_name"] == peer_name) {
-        element == "video"
-          ? (peers[room_id][peer_id]["peer_video"] = status)
-          : (peers[room_id][peer_id]["peer_audio"] = status);
+        switch (element) {
+          case "video":
+            peers[room_id][peer_id]["peer_video"] = status;
+            break;
+          case "audio":
+            peers[room_id][peer_id]["peer_audio"] = status;
+            break;
+          case "hand":
+            peers[room_id][peer_id]["peer_hand"] = status;
+            break;
+        }
         /*
         console.log("[" + socket.id + "] change " + element + " status", {
           room_id: room_id,
@@ -442,7 +452,7 @@ io.sockets.on("connect", (socket) => {
     // socket.id aka peer that send this status
     if (Object.keys(peerConnections).length != 0) {
       console.log(
-        "[" + socket.id + "] emit onVAStatus to [room_id: " + room_id + "]",
+        "[" + socket.id + "] emit onpeerStatus to [room_id: " + room_id + "]",
         {
           peer_id: socket.id,
           element: element,
@@ -451,10 +461,63 @@ io.sockets.on("connect", (socket) => {
       );
       for (var peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("onVAStatus", {
+          sockets[peer_id].emit("onpeerStatus", {
             peer_id: socket.id,
             element: element,
             status: status,
+          });
+        }
+      }
+    }
+  });
+
+  /**
+   * Relay mute everyone in the room
+   */
+  socket.on("muteEveryone", (config) => {
+    let peerConnections = config.peerConnections;
+    let room_id = config.room_id;
+    let peer_name = config.peer_name;
+
+    // socket.id aka peer that send this status
+    if (Object.keys(peerConnections).length != 0) {
+      console.log(
+        "[" + socket.id + "] emit onmuteEveryone to [room_id: " + room_id + "]",
+        {
+          peer_id: socket.id,
+          peer_name: peer_name,
+        }
+      );
+      for (var peer_id in peerConnections) {
+        if (sockets[peer_id]) {
+          sockets[peer_id].emit("onmuteEveryone", {
+            peer_name: peer_name,
+          });
+        }
+      }
+    }
+  });
+
+  /**
+   * Relay hide everyone in the room
+   */
+  socket.on("hideEveryone", (config) => {
+    let peerConnections = config.peerConnections;
+    let room_id = config.room_id;
+    let peer_name = config.peer_name;
+
+    // socket.id aka peer that send this status
+    if (Object.keys(peerConnections).length != 0) {
+      console.log(
+        "[" + socket.id + "] emit onhideEveryone to [room_id: " + room_id + "]",
+        {
+          peer_name: peer_name,
+        }
+      );
+      for (var peer_id in peerConnections) {
+        if (sockets[peer_id]) {
+          sockets[peer_id].emit("onhideEveryone", {
+            peer_name: peer_name,
           });
         }
       }

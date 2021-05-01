@@ -41,7 +41,7 @@
   --msger-width: 420px;
 
   /* my settings */
-  --mySettings-select-w: 25em;
+  --mySettings-select-w: 100%;
 
   /* neon theme default */
   --body-bg: black;
@@ -263,6 +263,7 @@ body {
 #fullScreenBtn,
 #swapCameraBtn,
 #chatRoomBtn,
+#myHandBtn,
 #whiteboardBtn,
 #mySettingsBtn,
 #aboutBtn,
@@ -285,6 +286,7 @@ body {
 #fullScreenBtn:hover,
 #swapCameraBtn:hover,
 #chatRoomBtn:hover,
+#myHandBtn:hover,
 #whiteboardBtn:hover,
 #mySettingsBtn:hover,
 #aboutBtn:hover {
@@ -621,9 +623,19 @@ emoji-picker {
 --------------------------------------------------------------*/
 
 .videoPeerName {
-  z-index: 5;
+  z-index: 4;
 }
 
+.handStatusIcon {
+  z-index: 5;
+  position: absolute;
+  top: 15px;
+  right: 50px;
+  color: rgb(0, 255, 0);
+  transition: all 0.3s ease-in-out;
+  background: transparent;
+  border: none;
+}
 .videoStatusIcon {
   z-index: 6;
   position: absolute;
@@ -821,8 +833,11 @@ video:fullscreen {
   background-color: #2b2b2b;
 }
 
-#myPeerNameSetBtn {
+#myPeerNameSetBtn,
+#muteEveryoneBtn,
+#hideEveryoneBtn {
   border: none;
+  font-size: 1rem;
   color: white;
   background-color: transparent;
   transition: background 0.23s;
@@ -830,6 +845,11 @@ video:fullscreen {
 
 #myPeerNameSetBtn:hover {
   color: rgb(0, 180, 50);
+}
+
+#muteEveryoneBtn:hover,
+#hideEveryoneBtn:hover {
+  color: rgb(255, 0, 0);
 }
 
 /*--------------------------------------------------------------
@@ -849,6 +869,52 @@ video:fullscreen {
   background-color: black !important;
   color: white !important;
   border-radius: 6px !important;
+}
+
+/*--------------------------------------------------------------
+# Pulse class effect
+--------------------------------------------------------------*/
+
+.pulsate {
+  animation: pulsate 3s ease-out;
+  animation-iteration-count: infinite;
+  -webkit-animation: pulsate 3s ease-out;
+  -webkit-animation-iteration-count: infinite;
+  opacity: 0.5;
+}
+
+@-webkit-keyframes pulsate {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+@keyframes pulsate {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+@-webkit-keyframes pulsate {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.5;
+  }
 }
 
 /*--------------------------------------------------------------
