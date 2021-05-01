@@ -1972,6 +1972,8 @@ function toggleScreenSharing() {
   }
   screenMediaPromise
     .then((screenStream) => {
+      // stop cam video track on screen share
+      localMediaStream.getVideoTracks()[0].stop();
       isScreenStreaming = !isScreenStreaming;
       refreshMyStreamToPeers(screenStream);
       refreshMyLocalStream(screenStream);
