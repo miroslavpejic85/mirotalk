@@ -21,14 +21,14 @@
   height: 30px;
   width: 30px;
   border-radius: 50px;
-  background-color: black;
+  background-color: #000000;
   margin-top: 10px;
 }
 .whiteboard-cont .colors-cont .white {
   height: 30px;
   width: 30px;
   border-radius: 50px;
-  background-color: white;
+  background-color: #ffffff;
   margin-top: 10px;
   display: none;
 }
