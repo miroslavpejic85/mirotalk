@@ -118,9 +118,9 @@ from where I taked inspiration for this project. ❤️
 
 - Pull Requests are welcome! :slightly_smiling_face:
 - Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`
-- For communication we use Gitter Chat which can be found here:
+- For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
-[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/c5AZn8yKbQ)
 
 ---
 
