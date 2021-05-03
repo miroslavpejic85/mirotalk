@@ -21,6 +21,7 @@ const notifyRemovePeer = "../audio/removePeer.mp3";
 const notifyNewMessage = "../audio/newMessage.mp3";
 const notifyRecStart = "../audio/recStart.mp3";
 const notifyRecStop = "../audio/recStop.mp3";
+const notifyRaiseHand = "../audio/raiseHand.mp3";
 const notifyError = "../audio/error.mp3";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
@@ -644,7 +645,7 @@ function initPeer() {
         remoteVideoParagraph.appendChild(peerVideoText);
         // remote hand status element
         remoteHandStatusIcon.setAttribute("id", peer_id + "_handStatus");
-        remoteHandStatusIcon.className = "fas fa-hand-paper handStatusIcon";
+        remoteHandStatusIcon.className = "fas fa-hand-paper handStatusIcon pulsate";
         tippy(remoteHandStatusIcon, {
           content: "Participant hand is RAISED",
         });
@@ -1027,7 +1028,7 @@ function setupLocalMedia(callback, errorback) {
       });
       // my hand status element
       myHandStatusIcon.setAttribute("id", "myHandStatusIcon");
-      myHandStatusIcon.className = "fas fa-hand-paper handStatusIcon";
+      myHandStatusIcon.className = "fas fa-hand-paper handStatusIcon pulsate";
       tippy(myHandStatusIcon, {
         content: "My hand is RAISED",
       });
@@ -1504,27 +1505,7 @@ function setChatEmojiBtn() {
  */
 function setMyHandBtn() {
   myHandBtn.addEventListener("click", async (e) => {
-    if (myHandStatus) {
-      // Raised hand
-      myHandStatus = false;
-      if (!isMobileDevice) {
-        tippy(myHandBtn, {
-          content: "RAISE your hand",
-          placement: "right-start",
-        });
-      }
-    } else {
-      // Lower hand
-      myHandStatus = true;
-      if (!isMobileDevice) {
-        tippy(myHandBtn, {
-          content: "LOWER your hand",
-          placement: "right-start",
-        });
-      }
-    }
-    myHandStatusIcon.style.display = myHandStatus ? "block" : "none";
-    emitPeerStatus("hand", myHandStatus);
+    setMyHandStatus(myHandStatus);
   });
 }
 
@@ -2677,6 +2658,35 @@ function emitPeerStatus(element, status) {
 }
 
 /**
+ * Set my Hand Status and Icon 
+ * @param {*} status 
+ */
+function setMyHandStatus(status) {
+  if (myHandStatus) {
+    // Raise hand
+    myHandStatus = false;
+    if (!isMobileDevice) {
+      tippy(myHandBtn, {
+        content: "RAISE your hand",
+        placement: "right-start",
+      });
+    }
+  } else {
+    // Lower hand
+    myHandStatus = true;
+    if (!isMobileDevice) {
+      tippy(myHandBtn, {
+        content: "LOWER your hand",
+        placement: "right-start",
+      });
+    }
+    playSound("rHand");
+  }
+  myHandStatusIcon.style.display = myHandStatus ? "block" : "none";
+  emitPeerStatus("hand", myHandStatus);
+}
+
+/**
  * Set My Audio Status Icon and Title
  * @param {*} status
  */
@@ -2727,6 +2737,7 @@ function setMyVideoStatus(status) {
 function setPeerHandStatus(peer_id, status) {
   let peerHandStatus = getId(peer_id + "_handStatus");
   peerHandStatus.style.display = status ? "block" : "none";
+  if (status) playSound("rHand");
 }
 
 /**
@@ -3081,6 +3092,9 @@ async function playSound(state) {
       break;
     case "recStop":
       file_audio = notifyRecStop;
+      break;
+    case "rHand":
+      file_audio = notifyRaiseHand;
       break;
     case "error":
       file_audio = notifyError;

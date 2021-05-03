@@ -630,11 +630,12 @@ emoji-picker {
   z-index: 5;
   position: absolute;
   top: 15px;
-  right: 50px;
+  right: 55px;
   color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
-  background: transparent;
+  background: #000000;
   border: none;
+  border-radius: 5px 1px;
 }
 .videoStatusIcon {
   z-index: 6;
