@@ -1960,7 +1960,7 @@ function toggleScreenSharing() {
       refreshMyLocalStream(screenStream);
       myVideo.classList.toggle("mirror");
       setScreenSharingStatus(isScreenStreaming);
-      setMyVideoStatusTrue();
+      //setMyVideoStatusTrue();
     })
     .catch((e) => {
       console.error("[Error] Unable to share the screen", e);
@@ -2066,6 +2066,14 @@ function refreshMyLocalStream(stream) {
   stream.getVideoTracks()[0].onended = function () {
     if (isScreenStreaming) toggleScreenSharing();
   };
+
+  /** when you stop the screen sharing, on default i turn back to the webcam with video stream ON. 
+   *  if you want the webcam with video stream OFF, just disable it with the button (click to video OFF), 
+   *  before to stop the screen sharing.
+  */
+  if (myVideoStatus === false) {
+    localMediaStream.getVideoTracks()[0].enabled = false;
+  }
 }
 
 /**
