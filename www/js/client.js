@@ -645,7 +645,8 @@ function initPeer() {
         remoteVideoParagraph.appendChild(peerVideoText);
         // remote hand status element
         remoteHandStatusIcon.setAttribute("id", peer_id + "_handStatus");
-        remoteHandStatusIcon.className = "fas fa-hand-paper handStatusIcon pulsate";
+        remoteHandStatusIcon.className =
+          "fas fa-hand-paper handStatusIcon pulsate";
         tippy(remoteHandStatusIcon, {
           content: "Participant hand is RAISED",
         });
@@ -2067,10 +2068,10 @@ function refreshMyLocalStream(stream) {
     if (isScreenStreaming) toggleScreenSharing();
   };
 
-  /** when you stop the screen sharing, on default i turn back to the webcam with video stream ON. 
-   *  if you want the webcam with video stream OFF, just disable it with the button (click to video OFF), 
+  /** when you stop the screen sharing, on default i turn back to the webcam with video stream ON.
+   *  if you want the webcam with video stream OFF, just disable it with the button (click to video OFF),
    *  before to stop the screen sharing.
-  */
+   */
   if (myVideoStatus === false) {
     localMediaStream.getVideoTracks()[0].enabled = false;
   }
@@ -2666,8 +2667,8 @@ function emitPeerStatus(element, status) {
 }
 
 /**
- * Set my Hand Status and Icon 
- * @param {*} status 
+ * Set my Hand Status and Icon
+ * @param {*} status
  */
 function setMyHandStatus(status) {
   if (myHandStatus) {
