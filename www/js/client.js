@@ -2174,9 +2174,10 @@ function setRecordButtonUi() {
  */
 function downloadRecordedStream() {
   const recFileName = getDataTimeString() + "-REC.webm";
+  const currentDevice = isMobileDevice ? "MOBILE" : "PC";
   userLog(
     "success",
-    `Recording file name: ${recFileName}, please wait to be processed, then will be downloaded to your PC.`
+    `Recording file name: ${recFileName}, please wait to be processed, then will be downloaded to your ${currentDevice} device.`
   );
   const blob = new Blob(recordedBlobs, { type: "video/webm" });
   const url = window.URL.createObjectURL(blob);

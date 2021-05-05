@@ -630,7 +630,7 @@ emoji-picker {
   z-index: 5;
   position: absolute;
   top: 15px;
-  right: 55px;
+  right: 53px;
   color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
   background: #000000;
