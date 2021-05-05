@@ -1900,7 +1900,7 @@ function swapCamera() {
 
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
   navigator.mediaDevices
-    .getUserMedia({ audio: useAudio, video: useVideo })
+    .getUserMedia({ video: useVideo })
     .then((camStream) => {
       refreshMyStreamToPeers(camStream);
       refreshMyLocalStream(camStream);
