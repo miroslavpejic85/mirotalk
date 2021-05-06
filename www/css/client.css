@@ -197,7 +197,7 @@ body {
 --------------------------------------------------------------*/
 
 #countTime {
-  z-index: 8;
+  z-index: 9;
   display: none;
   top: 0;
   left: 20px;
@@ -213,7 +213,7 @@ body {
 --------------------------------------------------------------*/
 
 #leftButtons {
-  z-index: 11;
+  z-index: 12;
   display: none;
   position: absolute;
   left: var(--btns-left);
@@ -306,7 +306,7 @@ body {
 --------------------------------------------------------------*/
 
 .msger-draggable {
-  z-index: 9;
+  z-index: 10;
   display: none;
   position: absolute;
   /* center screen */
@@ -526,7 +526,7 @@ body {
 --------------------------------------------------------------*/
 
 #msgerCP {
-  z-index: 10;
+  z-index: 11;
   display: none;
   cursor: default;
   top: var(--msger-top);
@@ -571,7 +571,7 @@ body {
 --------------------------------------------------------------*/
 
 #msgerEmojiPicker {
-  z-index: 12;
+  z-index: 13;
   display: none;
   box-shadow: var(--box-shadow);
   /* center */
@@ -656,6 +656,15 @@ emoji-picker {
   transition: all 0.3s ease-in-out;
   background: transparent;
   border: none;
+}
+.videoAvatarImage {
+  z-index: 8;
+  position: absolute;
+  /*center*/
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
 }
 
 #myVideo.mirror {
@@ -773,7 +782,7 @@ video:fullscreen {
 
 #mySettings {
   display: none;
-  z-index: 13;
+  z-index: 14;
   /* center */
   position: absolute;
   top: 50%;
@@ -950,3 +959,18 @@ video:fullscreen {
 #sponsorBtn:hover {
   font-weight: bold;
 }
+
+/*
+z-index
+4 peer name
+5 hand status
+6 video status
+7 audio status
+8 video avatar img
+9 count time
+10 chat room
+11 chat peers private msg
+12 left buttons
+13 chat emoji
+14 settings
+*/

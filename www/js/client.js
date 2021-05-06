@@ -15,6 +15,7 @@ const aboutImg = "../images/about.png";
 const myChatAvatar = "../images/programmer.svg";
 const friendChatAvatar = "../images/friend.svg";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
+const avatarApiUrl = "https://eu.ui-avatars.com/api";
 const notifyBySound = true; // turn on - off sound notifications
 const notifyAddPeer = "../audio/addPeer.mp3";
 const notifyRemovePeer = "../audio/removePeer.mp3";
@@ -126,7 +127,7 @@ var themeSelect;
 var selectors;
 // my video element
 var myVideo;
-// Name && hand video audio - status
+// name && hand video audio status
 var myVideoParagraph;
 var myHandStatusIcon;
 var myVideoStatusIcon;
@@ -496,7 +497,8 @@ function initPeer() {
           return "Please enter youre name";
         }
         myPeerName = value;
-        myVideoParagraph.innerHTML = myPeerName;
+        myVideoParagraph.innerHTML = myPeerName + " (me)";
+        setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
         joinToChannel();
       },
     }).then(function () {
@@ -632,6 +634,7 @@ function initPeer() {
         const remoteHandStatusIcon = document.createElement("button");
         const remoteVideoStatusIcon = document.createElement("button");
         const remoteAudioStatusIcon = document.createElement("button");
+        const remoteVideoAvatarImage = document.createElement("img")
 
         // remote peer name element
         remoteVideoParagraph.setAttribute("id", peer_id + "_name");
@@ -661,13 +664,17 @@ function initPeer() {
         remoteAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
         tippy(remoteAudioStatusIcon, {
           content: "Participant audio is ON",
-        });
+          });
+        // my video avatar image
+        remoteVideoAvatarImage.setAttribute("id", peer_id + "_avatar");
+        remoteVideoAvatarImage.className = "videoAvatarImage pulsate";
 
         // add elements to videoWrap div
         videoWrap.appendChild(remoteVideoParagraph);
         videoWrap.appendChild(remoteHandStatusIcon);
         videoWrap.appendChild(remoteVideoStatusIcon);
         videoWrap.appendChild(remoteAudioStatusIcon);
+        videoWrap.appendChild(remoteVideoAvatarImage);
 
         const remoteMedia = document.createElement("video");
         videoWrap.className = "video";
@@ -690,6 +697,8 @@ function initPeer() {
           handleVideoPlayerFs(peer_id + "_video");
         }
 
+        // refresh remote peers avatar name
+        setPeerAvatarImgName(peer_id + "_avatar", peers[peer_id]["peer_name"]);
         // refresh remote peers hand icon status and title
         setPeerHandStatus(peer_id, peers[peer_id]["peer_hand"]);
         // refresh remote peers video icon status and title
@@ -1020,6 +1029,7 @@ function setupLocalMedia(callback, errorback) {
       const myHandStatusIcon = document.createElement("button");
       const myVideoStatusIcon = document.createElement("button");
       const myAudioStatusIcon = document.createElement("button");
+      const myVideoAvatarImage = document.createElement("img")
 
       // my peer name
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
@@ -1045,12 +1055,16 @@ function setupLocalMedia(callback, errorback) {
       tippy(myAudioStatusIcon, {
         content: "My audio is ON",
       });
+      // my video avatar image
+      myVideoAvatarImage.setAttribute("id", "myVideoAvatarImage");
+      myVideoAvatarImage.className = "videoAvatarImage pulsate";
 
       // add elements to video wrap div
       videoWrap.appendChild(myVideoParagraph);
       videoWrap.appendChild(myHandStatusIcon);
       videoWrap.appendChild(myVideoStatusIcon);
       videoWrap.appendChild(myAudioStatusIcon);
+      videoWrap.appendChild(myVideoAvatarImage);
 
       // hand display none on default menad is raised == false
       myHandStatusIcon.style.display = "none";
@@ -1084,11 +1098,10 @@ function setupLocalMedia(callback, errorback) {
       setupMySettings();
       startCountTime();
 
-      /*
+      // on click go on Full Screen mode - back
       if (!isMobileDevice) {
         handleVideoPlayerFs("myVideo");
       }
-      */
 
       if (callback) callback();
     })
@@ -1111,6 +1124,26 @@ function resizeVideos() {
   document.querySelectorAll(".video").forEach((v) => {
     v.className = "video " + numToString[videos.length];
   });
+}
+
+
+/**
+ * Refresh video image avatar on name changes 
+ * https://eu.ui-avatars.com/  
+ * 
+ * @param {*} videoAvatarImageId element
+ * @param {*} peerName
+ */
+function setPeerAvatarImgName(videoAvatarImageId, peerName) {
+  var videoAvatarImageElement = getId(videoAvatarImageId);
+  // default img size 64 max 512
+  var avatarImgSize = (isMobileDevice ? 128 : 256);
+  videoAvatarImageElement.setAttribute(
+    "src", 
+    avatarApiUrl + 
+    "?name=" + peerName + 
+    "&size=" + avatarImgSize + 
+    "&background=random&rounded=true");
 }
 
 /**
@@ -2121,7 +2154,7 @@ function startStreamRecording() {
   mediaRecorder.onstop = (event) => {
     console.log("MediaRecorder stopped: ", event);
     console.log("MediaRecorder Blobs: ", recordedBlobs);
-    myVideoParagraph.innerHTML = myPeerName;
+    myVideoParagraph.innerHTML = myPeerName + " (me)";
     disableElements(false);
     downloadRecordedStream();
     // only for desktop
@@ -2621,7 +2654,7 @@ function updateMyPeerName() {
   if (!myNewPeerName) return;
 
   myPeerName = myNewPeerName;
-  myVideoParagraph.innerHTML = myPeerName;
+  myVideoParagraph.innerHTML = myPeerName + " (me)";
 
   signalingSocket.emit("cName", {
     peerConnections: peerConnections,
@@ -2632,6 +2665,8 @@ function updateMyPeerName() {
 
   myPeerNameSet.value = "";
   myPeerNameSet.placeholder = myPeerName;
+
+  setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
 }
 
 /**
@@ -2650,6 +2685,8 @@ function appendPeerName(id, name) {
     msgerPeerName.innerHTML = `&nbsp;${name}`;
     msgerPeerName.value = name;
   }
+  // refresh also peer video avatar name
+  setPeerAvatarImgName(id + "_avatar", name);
 }
 
 /**
@@ -2723,6 +2760,8 @@ function setMyAudioStatus(status) {
  * @param {*} status
  */
 function setMyVideoStatus(status) {
+  // on vdeo OFF display my video avatar name
+  myVideoAvatarImage.style.display = (status ? "none" : "block");
   myVideoStatusIcon.className =
     "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
   // send my video status to all peers in the room
@@ -2772,9 +2811,11 @@ function setPeerAudioStatus(peer_id, status) {
  * @param {*} status
  */
 function setPeerVideoStatus(peer_id, status) {
+  let peerVideoAvatarImage = getId(peer_id + "_avatar");
   let peerVideoStatus = getId(peer_id + "_videoStatus");
   peerVideoStatus.className =
     "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
+  peerVideoAvatarImage.style.display = (status ? "none" : "block");
   tippy(peerVideoStatus, {
     content: status ? "Participant video is ON" : "Participant video is OFF",
   });
