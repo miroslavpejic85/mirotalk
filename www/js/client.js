@@ -634,7 +634,7 @@ function initPeer() {
         const remoteHandStatusIcon = document.createElement("button");
         const remoteVideoStatusIcon = document.createElement("button");
         const remoteAudioStatusIcon = document.createElement("button");
-        const remoteVideoAvatarImage = document.createElement("img")
+        const remoteVideoAvatarImage = document.createElement("img");
 
         // remote peer name element
         remoteVideoParagraph.setAttribute("id", peer_id + "_name");
@@ -664,7 +664,7 @@ function initPeer() {
         remoteAudioStatusIcon.className = "fas fa-microphone audioStatusIcon";
         tippy(remoteAudioStatusIcon, {
           content: "Participant audio is ON",
-          });
+        });
         // my video avatar image
         remoteVideoAvatarImage.setAttribute("id", peer_id + "_avatar");
         remoteVideoAvatarImage.className = "videoAvatarImage pulsate";
@@ -1029,7 +1029,7 @@ function setupLocalMedia(callback, errorback) {
       const myHandStatusIcon = document.createElement("button");
       const myVideoStatusIcon = document.createElement("button");
       const myAudioStatusIcon = document.createElement("button");
-      const myVideoAvatarImage = document.createElement("img")
+      const myVideoAvatarImage = document.createElement("img");
 
       // my peer name
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
@@ -1126,24 +1126,26 @@ function resizeVideos() {
   });
 }
 
-
 /**
- * Refresh video image avatar on name changes 
- * https://eu.ui-avatars.com/  
- * 
+ * Refresh video image avatar on name changes
+ * https://eu.ui-avatars.com/
+ *
  * @param {*} videoAvatarImageId element
  * @param {*} peerName
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName) {
   var videoAvatarImageElement = getId(videoAvatarImageId);
   // default img size 64 max 512
-  var avatarImgSize = (isMobileDevice ? 128 : 256);
+  var avatarImgSize = isMobileDevice ? 128 : 256;
   videoAvatarImageElement.setAttribute(
-    "src", 
-    avatarApiUrl + 
-    "?name=" + peerName + 
-    "&size=" + avatarImgSize + 
-    "&background=random&rounded=true");
+    "src",
+    avatarApiUrl +
+      "?name=" +
+      peerName +
+      "&size=" +
+      avatarImgSize +
+      "&background=random&rounded=true"
+  );
 }
 
 /**
@@ -2761,7 +2763,7 @@ function setMyAudioStatus(status) {
  */
 function setMyVideoStatus(status) {
   // on vdeo OFF display my video avatar name
-  myVideoAvatarImage.style.display = (status ? "none" : "block");
+  myVideoAvatarImage.style.display = status ? "none" : "block";
   myVideoStatusIcon.className =
     "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
   // send my video status to all peers in the room
@@ -2815,7 +2817,7 @@ function setPeerVideoStatus(peer_id, status) {
   let peerVideoStatus = getId(peer_id + "_videoStatus");
   peerVideoStatus.className =
     "fas fa-video" + (status ? "" : "-slash") + " videoStatusIcon";
-  peerVideoAvatarImage.style.display = (status ? "none" : "block");
+  peerVideoAvatarImage.style.display = status ? "none" : "block";
   tippy(peerVideoStatus, {
     content: status ? "Participant video is ON" : "Participant video is OFF",
   });
