@@ -1662,10 +1662,10 @@ function setupMySettings() {
   });
   // room actions
   muteEveryoneBtn.addEventListener("click", (e) => {
-    muteEveryone();
+    disableAllPeers("audio");
   });
   hideEveryoneBtn.addEventListener("click", (e) => {
-    hideEveryone();
+    disableAllPeers("video");
   });
 }
 
@@ -3002,6 +3002,47 @@ function setMyVideoOff(peer_name) {
   videoBtn.className = "fas fa-video-slash";
   setMyVideoStatus(myVideoStatus);
   userLog("info", peer_name + " has disabled your video");
+}
+
+/**
+ * Mute or Hide everyone except yourself
+ * @param {*} element audio/video
+ */
+function disableAllPeers(element) {
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    imageAlt: "mirotalk-disable-" + element,
+    imageUrl: leaveRoomImg,
+    title:
+      element == "audio"
+        ? "Mute everyone except yourself?"
+        : "Hide everyone except yourself?",
+    text:
+      element == "audio"
+        ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
+        : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+    showDenyButton: true,
+    confirmButtonText: element == "audio" ? `Mute` : `Hide`,
+    denyButtonText: `Cancel`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      switch (element) {
+        case "audio":
+          muteEveryone();
+          break;
+        case "video":
+          hideEveryone();
+          break;
+      }
+    }
+  });
 }
 
 /**
