@@ -2951,10 +2951,6 @@ function setWhiteboardBgandColors() {
  * Once muted, you won't be able to unmute them, but they can unmute themselves at any time
  */
 function muteEveryone() {
-  if (!thereIsPeerConnections()) {
-    userLog("info", "No participants detected");
-    return;
-  }
   signalingSocket.emit("muteEveryone", {
     peerConnections: peerConnections,
     room_id: roomId,
@@ -2967,10 +2963,6 @@ function muteEveryone() {
  * Once hided, you won't be able to unhide them, but they can unhide themselves at any time
  */
 function hideEveryone() {
-  if (!thereIsPeerConnections()) {
-    userLog("info", "No participants detected");
-    return;
-  }
   signalingSocket.emit("hideEveryone", {
     peerConnections: peerConnections,
     room_id: roomId,
@@ -3009,6 +3001,10 @@ function setMyVideoOff(peer_name) {
  * @param {*} element audio/video
  */
 function disableAllPeers(element) {
+  if (!thereIsPeerConnections()) {
+    userLog("info", "No participants detected");
+    return;
+  }
   Swal.fire({
     background: swalBackground,
     position: "center",
