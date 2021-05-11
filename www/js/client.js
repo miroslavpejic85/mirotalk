@@ -564,6 +564,7 @@ function initPeer() {
     }
     for (var peer_id in peerConnections) {
       peerConnections[peer_id].close();
+      msgerRemovePeer(peer_id);
     }
     peerConnections = {};
     peerMediaElements = {};
