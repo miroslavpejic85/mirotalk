@@ -59,6 +59,8 @@ var localMediaStream; // my microphone / webcam
 var remoteMediaStream; // peers microphone / webcam
 var remoteMediaControls = false; // enable - disable peers video player controls (default false)
 var peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
+var dataChannels = {}; // keep track of our peer data channels
+var useRTCDataChannel = true; // https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel
 var peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 var chatMessages = []; // collect chat messages to save it later if want
 var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
@@ -566,6 +568,7 @@ function initPeer() {
       peerConnections[peer_id].close();
       msgerRemovePeer(peer_id);
     }
+    if (useRTCDataChannel) dataChannels = {};
     peerConnections = {};
     peerMediaElements = {};
   });
@@ -709,6 +712,48 @@ function initPeer() {
       }
     };
 
+    if (useRTCDataChannel) {
+      /**
+       * Secure Data Channel (production mode)
+       * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel
+       * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ondatachannel
+       * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
+       */
+      peerConnections[peer_id].ondatachannel = function (event) {
+        console.log("Datachannel event" + peer_id, event);
+        event.channel.onmessage = (msg) => {
+          let dataMessage = {};
+          try {
+            dataMessage = JSON.parse(msg.data);
+            handleIncomingDataChannelMessages(dataMessage);
+          } catch (err) {
+            console.log(err);
+          }
+        };
+      };
+      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel
+      dataChannels[peer_id] = peerConnections[peer_id].createDataChannel(
+        "mirotalk_data_channel"
+      );
+    } else {
+      // show chat messages dev mode
+      signalingSocket.on("onMessage", function (config) {
+        console.log("Receive msg", { msg: config.msg });
+        if (!isChatRoomVisible) {
+          showChatRoomDraggable();
+          chatRoomBtn.className = "fas fa-comment-slash";
+        }
+        playSound("newMessage");
+        appendMessage(
+          config.name,
+          friendChatAvatar,
+          "left",
+          config.msg,
+          config.privateMsg
+        );
+      });
+    }
+
     /**
      * peerConnections[peer_id].addStream(localMediaStream); // no longer raccomanded
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream
@@ -823,53 +868,6 @@ function initPeer() {
     );
   });
 
-  /**
-   * When a user leaves a channel (or is disconnected from the
-   * signaling server) everyone will recieve a 'removePeer' message
-   * telling them to trash the media channels they have open for those
-   * that peer. If it was this client that left a channel, they'll also
-   * receive the removePeers. If this client was disconnected, they
-   * wont receive removePeers, but rather the
-   * signaling_socket.on('disconnect') code will kick in and tear down
-   * all the peer sessions.
-   */
-  signalingSocket.on("removePeer", function (config) {
-    console.log("Signaling server said to remove peer:", config);
-
-    var peer_id = config.peer_id;
-
-    if (peer_id in peerMediaElements) {
-      document.body.removeChild(peerMediaElements[peer_id].parentNode);
-      resizeVideos();
-    }
-    if (peer_id in peerConnections) {
-      peerConnections[peer_id].close();
-    }
-
-    msgerRemovePeer(peer_id);
-
-    delete peerConnections[peer_id];
-    delete peerMediaElements[peer_id];
-    playSound("removePeer");
-  });
-
-  // show chat messages
-  signalingSocket.on("onMessage", function (config) {
-    console.log("Receive msg", { msg: config.msg });
-    if (!isChatRoomVisible) {
-      showChatRoomDraggable();
-      chatRoomBtn.className = "fas fa-comment-slash";
-    }
-    playSound("newMessage");
-    appendMessage(
-      config.name,
-      friendChatAvatar,
-      "left",
-      config.msg,
-      config.privateMsg
-    );
-  });
-
   // refresh peers name
   signalingSocket.on("onCName", function (config) {
     appendPeerName(config.peer_id, config.peer_name);
@@ -902,7 +900,71 @@ function initPeer() {
   signalingSocket.on("onhideEveryone", function (config) {
     setMyVideoOff(config.peer_name);
   });
+
+  /**
+   * When a user leaves a channel (or is disconnected from the
+   * signaling server) everyone will recieve a 'removePeer' message
+   * telling them to trash the media channels they have open for those
+   * that peer. If it was this client that left a channel, they'll also
+   * receive the removePeers. If this client was disconnected, they
+   * wont receive removePeers, but rather the
+   * signaling_socket.on('disconnect') code will kick in and tear down
+   * all the peer sessions.
+   */
+  signalingSocket.on("removePeer", function (config) {
+    console.log("Signaling server said to remove peer:", config);
+
+    var peer_id = config.peer_id;
+
+    if (peer_id in peerMediaElements) {
+      document.body.removeChild(peerMediaElements[peer_id].parentNode);
+      resizeVideos();
+    }
+    if (peer_id in peerConnections) {
+      peerConnections[peer_id].close();
+    }
+
+    msgerRemovePeer(peer_id);
+
+    if (useRTCDataChannel) delete dataChannels[peer_id];
+
+    delete peerConnections[peer_id];
+    delete peerMediaElements[peer_id];
+
+    playSound("removePeer");
+  });
 } // end [initPeer]
+
+/**
+ * handle Incoming Data Channel Message if useRTCDataChannel(true)
+ * @param {*} dataMessages
+ */
+function handleIncomingDataChannelMessages(dataMessages) {
+  switch (dataMessages.type) {
+    case "chat":
+      // private message but not for me return
+      if (dataMessages.privateMsg && dataMessages.toName != myPeerName) return;
+      // log incoming dataMessages json
+      console.log("handleIncomingDataChannelMessages", dataMessages);
+      // chat message for me also
+      if (!isChatRoomVisible) {
+        showChatRoomDraggable();
+        chatRoomBtn.className = "fas fa-comment-slash";
+      }
+      playSound("newMessage");
+      appendMessage(
+        dataMessages.name,
+        friendChatAvatar,
+        "left",
+        dataMessages.msg,
+        dataMessages.privateMsg
+      );
+      break;
+    // .........
+    default:
+      break;
+  }
+}
 
 /**
  * Set mirotalk theme neon - dark - ghost
@@ -1500,7 +1562,7 @@ function setChatRoomBtn() {
     // empity msg
     if (!msg) return;
 
-    emitMsg(myPeerName, msg, false, "");
+    emitMsg(myPeerName, "toAll", msg, false, "");
     appendMessage(myPeerName, myChatAvatar, "right", msg, false);
     msgerInput.value = "";
   });
@@ -2465,14 +2527,14 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
     e.preventDefault();
     var pMsg = msgerPrivateMsgInput.value;
     if (!pMsg) return;
-    var peer_name = msgerPrivateBtn.value;
-    // userLog("info", peer_name + ":" + peer_id);
-    emitMsg(myPeerName, pMsg, true, peer_id);
+    var toPeerName = msgerPrivateBtn.value;
+    // userLog("info", toPeerName + ":" + peer_id);
+    emitMsg(myPeerName, toPeerName, pMsg, true, peer_id);
     appendMessage(
       myPeerName,
       myChatAvatar,
       "right",
-      pMsg + "<br/><hr>Private message to " + peer_name,
+      pMsg + "<br/><hr>Private message to " + toPeerName,
       true
     );
     msgerPrivateMsgInput.value = "";
@@ -2519,22 +2581,39 @@ function getFormatDate(date) {
 }
 
 /**
- * Send message over signaling server
+ * Send message over Secure dataChannels if use useRTCDataChannel(true)
+ * otherwise over signaling server
  * @param {*} name
+ * @param {*} toName
  * @param {*} msg
  * @param {*} privateMsg private message true/false
  * @param {*} peer_id to sent private message
  */
-function emitMsg(name, msg, privateMsg, peer_id) {
+function emitMsg(name, toName, msg, privateMsg, peer_id) {
   if (msg) {
-    signalingSocket.emit("msg", {
-      peerConnections: peerConnections,
-      room_id: roomId,
-      privateMsg: privateMsg,
-      peer_id: peer_id,
-      name: name,
-      msg: msg,
-    });
+    if (useRTCDataChannel) {
+      const chatMessage = {
+        type: "chat",
+        name: name,
+        toName: toName,
+        msg: msg,
+        privateMsg: privateMsg,
+      };
+      // peer to peer over dataChannels
+      Object.keys(dataChannels).map((id) =>
+        dataChannels[id].send(JSON.stringify(chatMessage))
+      );
+    } else {
+      // client over signaling server
+      signalingSocket.emit("msg", {
+        peerConnections: peerConnections,
+        room_id: roomId,
+        privateMsg: privateMsg,
+        peer_id: peer_id,
+        name: name,
+        msg: msg,
+      });
+    }
     console.log("Send msg", {
       room_id: roomId,
       privateMsg: privateMsg,
