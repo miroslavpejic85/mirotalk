@@ -2443,12 +2443,14 @@ function msgerAddPeers(peers) {
  */
 function msgerRemovePeer(peer_id) {
   var msgerPrivateDiv = getId(peer_id + "_pMsgDiv");
-  var peerToRemove = msgerPrivateDiv.firstChild;
-  while (peerToRemove) {
-    msgerPrivateDiv.removeChild(peerToRemove);
-    peerToRemove = msgerPrivateDiv.firstChild;
+  if (msgerPrivateDiv) {
+    var peerToRemove = msgerPrivateDiv.firstChild;
+    while (peerToRemove) {
+      msgerPrivateDiv.removeChild(peerToRemove);
+      peerToRemove = msgerPrivateDiv.firstChild;
+    }
+    msgerPrivateDiv.remove();
   }
-  msgerPrivateDiv.remove();
 }
 
 /**
