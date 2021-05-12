@@ -255,6 +255,18 @@ body {
   outline: none;
 }
 
+#initAudioBtn,
+#initVideoBtn {
+  border: none;
+  border-radius: 5px;
+  width: 40px;
+  background: white;
+  color: black;
+  font-size: 1.5rem;
+  padding: 4px;
+  transition: all 0.3s ease-in-out;
+}
+
 #shareRoomBtn,
 #audioBtn,
 #videoBtn,
@@ -270,14 +282,9 @@ body {
 #leaveRoomBtn {
   color: var(--btn-color);
 }
-/* 
-#leaveRoomBtn {
-  color: red;
-}
-#leftButtons button:hover {
-  color: rgb(8, 189, 89);
-} 
-*/
+
+#initAudioBtn:hover,
+#initVideoBtn:hover,
 #shareRoomBtn:hover,
 #audioBtn:hover,
 #videoBtn:hover,

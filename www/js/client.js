@@ -79,6 +79,9 @@ var chatInputEmoji = {
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
 var countTime;
+// init audio-video
+var initAudioBtn;
+var initVideoBtn;
 // left buttons
 var leftButtons;
 var shareRoomBtn;
@@ -488,6 +491,10 @@ function initPeer() {
       imageUrl: welcomeImg,
       title: "Enter your name",
       input: "text",
+      html: `<br>
+        <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
+        <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>   
+      `,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -505,6 +512,21 @@ function initPeer() {
       },
     }).then(function () {
       welcomeUser();
+    });
+
+    // not need for mobile
+    if (isMobileDevice) return;
+    // init audio-video
+    initAudioBtn = getId("initAudioBtn");
+    initVideoBtn = getId("initVideoBtn");
+    // popup text
+    tippy(initAudioBtn, {
+      content: "Click to audio OFF",
+      placement: "top",
+    });
+    tippy(initVideoBtn, {
+      content: "Click to video OFF",
+      placement: "top",
     });
   }
 
@@ -1359,14 +1381,7 @@ function setShareRoomBtn() {
  */
 function setAudioBtn() {
   audioBtn.addEventListener("click", (e) => {
-    // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
-    localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
-      .enabled;
-    e.target.className =
-      "fas fa-microphone" +
-      (localMediaStream.getAudioTracks()[0].enabled ? "" : "-slash");
-    myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
-    setMyAudioStatus(myAudioStatus);
+    handleAudio(e, false);
   });
 }
 
@@ -1375,14 +1390,7 @@ function setAudioBtn() {
  */
 function setVideoBtn() {
   videoBtn.addEventListener("click", (e) => {
-    // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
-    localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
-      .enabled;
-    e.target.className =
-      "fas fa-video" +
-      (localMediaStream.getVideoTracks()[0].enabled ? "" : "-slash");
-    myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
-    setMyVideoStatus(myVideoStatus);
+    handleVideo(e, false);
   });
 }
 
@@ -1985,6 +1993,52 @@ function copyRoomURL() {
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", roomURL);
   document.body.removeChild(tmpInput);
+}
+
+/**
+ * Handle Audio ON-OFF
+ * @param {*} e event
+ * @param {*} init bool true/false
+ */
+function handleAudio(e, init) {
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
+  localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
+    .enabled;
+  myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+  e.target.className = "fas fa-microphone" + (myAudioStatus ? "" : "-slash");
+  if (init) {
+    audioBtn.className = "fas fa-microphone" + (myAudioStatus ? "" : "-slash");
+    if (!isMobileDevice) {
+      tippy(initAudioBtn, {
+        content: myAudioStatus ? "Click to audio OFF" : "Click to audio ON",
+        placement: "top",
+      });
+    }
+  }
+  setMyAudioStatus(myAudioStatus);
+}
+
+/**
+ * Handle Video ON-OFF
+ * @param {*} e event
+ * @param {*} init bool true/false
+ */
+function handleVideo(e, init) {
+  // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
+  localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
+    .enabled;
+  myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+  e.target.className = "fas fa-video" + (myVideoStatus ? "" : "-slash");
+  if (init) {
+    videoBtn.className = "fas fa-video" + (myVideoStatus ? "" : "-slash");
+    if (!isMobileDevice) {
+      tippy(initVideoBtn, {
+        content: myVideoStatus ? "Click to video OFF" : "Click to video ON",
+        placement: "top",
+      });
+    }
+  }
+  setMyVideoStatus(myVideoStatus);
 }
 
 /**
