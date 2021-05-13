@@ -495,6 +495,7 @@ function initPeer() {
         <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
         <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>   
       `,
+      confirmButtonText: `Join meeting`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -562,11 +563,11 @@ function initPeer() {
       html:
         `
       <br/> 
-      Share this URL to join on this call.
+      Share this meeting invite others to join.
       <p style="color:rgb(8, 189, 89);">` +
         myRoomUrl +
         `</p>`,
-      confirmButtonText: `Copy URL`,
+      confirmButtonText: `Copy meeting URL`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -1948,7 +1949,7 @@ async function shareRoomUrl() {
         <canvas id="qrRoom"></canvas>
       </div>
       <br/><br/>
-      Send this URL to all participants
+      Share this meeting invite others to join.
       <p style="color:rgb(8, 189, 89);">` +
         window.location.href +
         `</p>`,
@@ -1958,7 +1959,7 @@ async function shareRoomUrl() {
       hideClass: {
         popup: "animate__animated animate__fadeOutUp",
       },
-      confirmButtonText: `Copy URL`,
+      confirmButtonText: `Copy meeting URL`,
     });
     makeRoomQR();
   }
