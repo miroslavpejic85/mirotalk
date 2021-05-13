@@ -2056,7 +2056,10 @@ function swapCamera() {
     .then((camStream) => {
       refreshMyStreamToPeers(camStream);
       refreshMyLocalStream(camStream);
-      if (useVideo) setMyVideoStatusTrue();
+      if (useVideo) {
+        setMyVideoStatusTrue();
+        localMediaStream.getVideoTracks()[0].enabled = true;
+      } 
       myVideo.classList.toggle("mirror");
     })
     .catch((e) => {
@@ -2145,6 +2148,7 @@ function setMyVideoStatusTrue() {
     myVideoStatus = true;
     videoBtn.className = "fas fa-video";
     myVideoStatusIcon.className = "fas fa-video videoStatusIcon";
+    myVideoAvatarImage.style.display = "none";
     emitPeerStatus("video", myVideoStatus);
     // only for desktop
     if (!isMobileDevice) {
