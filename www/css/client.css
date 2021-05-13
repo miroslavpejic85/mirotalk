@@ -202,7 +202,7 @@ body {
   top: 0;
   left: 20px;
   background-color: transparent;
-  position: fixed;
+  position: absolute;
   color: rgb(112, 112, 112);
   text-align: left;
   cursor: default;

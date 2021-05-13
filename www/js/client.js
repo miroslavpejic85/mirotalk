@@ -2060,7 +2060,7 @@ function swapCamera() {
       if (useVideo) {
         setMyVideoStatusTrue();
         localMediaStream.getVideoTracks()[0].enabled = true;
-      } 
+      }
       myVideo.classList.toggle("mirror");
     })
     .catch((e) => {
