@@ -203,9 +203,8 @@ body {
   left: 20px;
   background-color: transparent;
   position: absolute;
-  color: rgb(112, 112, 112);
+  color: white;
   text-align: left;
-  cursor: default;
 }
 
 /*--------------------------------------------------------------
