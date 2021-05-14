@@ -58,6 +58,8 @@
 }
 .whiteboard-cont .colors-cont .yellow:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .green {
   height: 30px;
