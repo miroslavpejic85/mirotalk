@@ -34,6 +34,8 @@
 }
 .whiteboard-cont .colors-cont .black:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .red {
   height: 30px;
@@ -44,6 +46,8 @@
 }
 .whiteboard-cont .colors-cont .red:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .yellow {
   height: 30px;
@@ -64,6 +68,8 @@
 }
 .whiteboard-cont .colors-cont .green:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .orange {
   height: 30px;
@@ -74,6 +80,8 @@
 }
 .whiteboard-cont .colors-cont .orange:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .purple {
   height: 30px;
@@ -84,6 +92,8 @@
 }
 .whiteboard-cont .colors-cont .purple:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .blue {
   height: 30px;
@@ -94,6 +104,8 @@
 }
 .whiteboard-cont .colors-cont .blue:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .pink {
   height: 30px;
@@ -104,6 +116,8 @@
 }
 .whiteboard-cont .colors-cont .pink:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .brown {
   height: 30px;
@@ -114,6 +128,8 @@
 }
 .whiteboard-cont .colors-cont .brown:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont .colors-cont .grey {
   height: 30px;
@@ -124,6 +140,8 @@
 }
 .whiteboard-cont .colors-cont .grey:hover {
   cursor: pointer;
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 .whiteboard-cont button {
   height: 30px;
@@ -136,6 +154,8 @@
 }
 .whiteboard-cont button:hover {
   color: rgb(0, 180, 50);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 #whiteboardColorPicker {
@@ -148,6 +168,10 @@
   height: 30px;
   margin-top: 10px;
   border-radius: 50px;
+}
+#whiteboardColorPicker:hover {
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 #whiteboardColorPicker::-webkit-color-swatch {
   border: none;

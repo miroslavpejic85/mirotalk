@@ -43,6 +43,9 @@
   /* my settings */
   --mySettings-select-w: 100%;
 
+  /* btns hover scale 110% zoom */
+  --btns-hover-scale: scale(1.1);
+
   /* neon theme default */
   --body-bg: black;
   --msger-bg: black;
@@ -297,9 +300,11 @@ body {
 #mySettingsBtn:hover,
 #aboutBtn:hover {
   color: rgb(8, 189, 89);
+  transform: var(--btns-hover-scale);
 }
 #leaveRoomBtn:hover {
   color: red;
+  transform: var(--btns-hover-scale);
 }
 
 .fa-microphone-slash,
@@ -381,6 +386,8 @@ body {
 }
 .msger-header-options button:hover {
   color: rgb(0, 180, 50);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 /*--------------------------------------------------------------
@@ -525,6 +532,8 @@ body {
 #msgerEmojiBtn:hover,
 #msgerSendBtn:hover {
   color: rgb(0, 180, 50);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 /*--------------------------------------------------------------
@@ -570,6 +579,8 @@ body {
 
 #msgerCPList button:hover {
   color: rgb(0, 180, 50);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 /*--------------------------------------------------------------
@@ -616,6 +627,8 @@ body {
 
 #msgerCloseEmojiBtn:hover {
   color: rgb(0, 180, 50);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 emoji-picker {
@@ -841,6 +854,8 @@ video:fullscreen {
 
 #mySettingsCloseBtn:hover {
   color: rgb(0, 180, 50);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 #myPeerNameSet {
@@ -861,11 +876,15 @@ video:fullscreen {
 
 #myPeerNameSetBtn:hover {
   color: rgb(0, 180, 50);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 #muteEveryoneBtn:hover,
 #hideEveryoneBtn:hover {
   color: rgb(255, 0, 0);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
 }
 
 /*--------------------------------------------------------------
@@ -953,8 +972,8 @@ video:fullscreen {
 /* about Sponsor btn */
 #sponsorBtn {
   border: none;
-  width: 180px;
-  height: 50px;
+  width: 170px;
+  height: 40px;
   font-size: 1.2rem;
   background: linear-gradient(100deg, #376df9 0, #ff5fa0 75%, #ffc55a 100%);
   box-shadow: 0 0 6px 0 rgb(251 255 0 / 82%);
