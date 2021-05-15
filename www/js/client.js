@@ -563,7 +563,7 @@ function initPeer() {
       html:
         `
       <br/> 
-      Share this meeting invite others to join.
+      <p style="color:white;"> Share this meeting invite others to join.</p>
       <p style="color:rgb(8, 189, 89);">` +
         myRoomUrl +
         `</p>`,
@@ -1949,7 +1949,7 @@ async function shareRoomUrl() {
         <canvas id="qrRoom"></canvas>
       </div>
       <br/><br/>
-      Share this meeting invite others to join.
+      <p style="color:white;"> Share this meeting invite others to join.</p>
       <p style="color:rgb(8, 189, 89);">` +
         window.location.href +
         `</p>`,
