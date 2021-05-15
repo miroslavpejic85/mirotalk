@@ -892,8 +892,10 @@ video:fullscreen {
 --------------------------------------------------------------*/
 
 .swal2-title,
-.swal2-content {
+.swal2-content,
+.swal2-input {
   color: white !important;
+  background-color: transparent !important;
 }
 /* 
 .swal2-popup {
