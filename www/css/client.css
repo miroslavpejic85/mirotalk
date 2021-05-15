@@ -897,6 +897,11 @@ video:fullscreen {
   color: white !important;
   background-color: transparent !important;
 }
+.swal2-html-container {
+  color: rgb(165, 165, 165) !important;
+  background-color: transparent !important;
+}
+
 /* 
 .swal2-popup {
   font-size: 0.8rem !important;
