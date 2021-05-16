@@ -208,6 +208,11 @@ body {
   position: absolute;
   color: white;
   text-align: left;
+  cursor: default;
+}
+#countTime:hover {
+  color: rgb(0, 180, 50);
+  transition: all 0.3s ease-in-out;
 }
 
 /*--------------------------------------------------------------
@@ -643,6 +648,19 @@ emoji-picker {
 
 .videoPeerName {
   z-index: 4;
+  font-family: Verdana;
+  color: whitesmoke;
+  cursor: default;
+  /* center */
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+}
+.videoPeerName:hover {
+  color: rgb(0, 180, 50);
+  transition: all 0.3s ease-in-out;
 }
 
 .handStatusIcon {
@@ -666,6 +684,10 @@ emoji-picker {
   background: transparent;
   border: none;
 }
+.videoStatusIcon:hover {
+  color: rgb(0, 180, 50);
+  transition: all 0.3s ease-in-out;
+}
 .audioStatusIcon {
   z-index: 7;
   position: absolute;
@@ -675,6 +697,10 @@ emoji-picker {
   transition: all 0.3s ease-in-out;
   background: transparent;
   border: none;
+}
+.audioStatusIcon:hover {
+  color: rgb(0, 180, 50);
+  transition: all 0.3s ease-in-out;
 }
 .videoAvatarImage {
   z-index: 8;
@@ -700,17 +726,6 @@ video {
 }
 video:fullscreen {
   object-fit: contain;
-}
-.video h4 {
-  font-family: Verdana;
-  color: whitesmoke;
-  cursor: default;
-  /* center */
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -webkit-transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
 }
 .video {
   float: left;
