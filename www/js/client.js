@@ -243,12 +243,6 @@ function setButtonsTitle() {
   // not need for mobile
   if (isMobileDevice) return;
 
-  // session time
-  tippy(countTime, {
-    content: "Session time",
-    placement: "right-start",
-  });
-
   // left buttons
   tippy(shareRoomBtn, {
     content: "Invite people to join",
@@ -1312,6 +1306,10 @@ function handleVideoPlayerFs(videoId) {
  * Start talk time
  */
 function startCountTime() {
+  tippy(countTime, {
+    content: "Session time",
+    placement: "right-start",
+  });
   countTime.style.display = "inline";
   callStartTime = Date.now();
   setInterval(function printTime() {

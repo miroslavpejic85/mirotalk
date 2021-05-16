@@ -202,8 +202,9 @@ body {
 #countTime {
   z-index: 9;
   display: none;
-  top: 0;
-  left: 20px;
+  top: 2px;
+  font-size: small;
+  left: 26px;
   background-color: transparent;
   position: absolute;
   color: white;
@@ -648,7 +649,8 @@ emoji-picker {
 
 .videoPeerName {
   z-index: 4;
-  top: 1px;
+  top: 5px;
+  font-size: small;
   font-family: Verdana;
   color: whitesmoke;
   cursor: default;
