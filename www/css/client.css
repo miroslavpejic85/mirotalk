@@ -196,18 +196,23 @@ body {
 }
 
 /*--------------------------------------------------------------
-# Mirotalk call timer
+# mirotalk call timer
 --------------------------------------------------------------*/
 
 #countTime {
   z-index: 9;
   display: none;
   top: 0;
-  left: 20px;
+  height: 35px;
+  width: 80px;
+  left: 40px;
   background-color: transparent;
   position: absolute;
   color: white;
-  text-align: left;
+  background-color:#0500ff;
+  text-align: center;
+  font-weight: bolder;
+  border-radius: 20px 10px;
 }
 
 /*--------------------------------------------------------------
@@ -284,7 +289,6 @@ body {
 #leaveRoomBtn {
   color: var(--btn-color);
 }
-
 #initAudioBtn:hover,
 #initVideoBtn:hover,
 #shareRoomBtn:hover,
@@ -643,38 +647,65 @@ emoji-picker {
 
 .videoPeerName {
   z-index: 4;
+  color: #579ffb;
+  position: fixed;
+  font-size: larger;
+  text-align: center;
+  width: auto;
+  height: auto;
+  top: 5px;
+  border-radius: 10px 100px;
+}
+
+.videoPeerName:hover{
+  color: chartreuse;
+  background-color: cadetblue;
 }
 
 .handStatusIcon {
   z-index: 5;
   position: absolute;
+  height: 50px;
+  width: 50px;
   top: 15px;
-  right: 53px;
+  font-size: 35px;
+  right: 110px;
   color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
   background: #000000;
   border: none;
-  border-radius: 5px 1px;
+  border-radius: 10px 10px;
+  
 }
 .videoStatusIcon {
   z-index: 6;
   position: absolute;
+  height: 40px;
+  width: 40px;
   top: 15px;
-  right: 25px;
+  right: 55px;
   color: whitesmoke;
   transition: all 0.3s ease-in-out;
   background: transparent;
   border: none;
+  background: #000000;
+  border: none;
+  border-radius: 10px 10px;
 }
 .audioStatusIcon {
   z-index: 7;
   position: absolute;
+  height: 40px;
+  width: 40px;
   top: 15px;
   right: 5px;
   color: whitesmoke;
   transition: all 0.3s ease-in-out;
   background: transparent;
   border: none;
+  background: #000000;
+  border: none;
+  border-radius: 10px 10px;
 }
 .videoAvatarImage {
   z-index: 8;
@@ -869,7 +900,7 @@ video:fullscreen {
 #hideEveryoneBtn {
   border: none;
   font-size: 1rem;
-  color: white;
+  color: rgb(255, 238, 0);
   background-color: transparent;
   transition: background 0.23s;
 }
@@ -890,13 +921,12 @@ video:fullscreen {
 /*--------------------------------------------------------------
 # Swal2
 --------------------------------------------------------------*/
-
 .swal2-title,
 .swal2-content,
 .swal2-input {
-  text-align: center;
   color: white !important;
   background-color: transparent !important;
+  text-align: center;
 }
 .swal2-html-container {
   color: rgb(165, 165, 165) !important;
