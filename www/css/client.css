@@ -211,7 +211,7 @@ body {
   cursor: default;
 }
 #countTime:hover {
-  color: rgb(0, 180, 50);
+  color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
 }
 
@@ -648,6 +648,7 @@ emoji-picker {
 
 .videoPeerName {
   z-index: 4;
+  top: 1px;
   font-family: Verdana;
   color: whitesmoke;
   cursor: default;
@@ -659,7 +660,7 @@ emoji-picker {
   -moz-transform: translate(-50%, -50%);
 }
 .videoPeerName:hover {
-  color: rgb(0, 180, 50);
+  color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
 }
 
@@ -674,6 +675,7 @@ emoji-picker {
   border: none;
   border-radius: 5px 1px;
 }
+
 .videoStatusIcon {
   z-index: 6;
   position: absolute;
@@ -685,9 +687,10 @@ emoji-picker {
   border: none;
 }
 .videoStatusIcon:hover {
-  color: rgb(0, 180, 50);
+  color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
 }
+
 .audioStatusIcon {
   z-index: 7;
   position: absolute;
@@ -699,9 +702,10 @@ emoji-picker {
   border: none;
 }
 .audioStatusIcon:hover {
-  color: rgb(0, 180, 50);
+  color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
 }
+
 .videoAvatarImage {
   z-index: 8;
   position: absolute;
