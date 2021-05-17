@@ -196,24 +196,73 @@ body {
 }
 
 /*--------------------------------------------------------------
-# Mirotalk call timer
+# Status menù (time-name-audio-video)
 --------------------------------------------------------------*/
 
-#countTime {
-  z-index: 9;
+.statusMenu {
+  z-index: 7;
   display: none;
-  top: 2px;
-  font-size: small;
-  left: 26px;
-  background-color: transparent;
   position: absolute;
-  color: white;
-  text-align: left;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 5px;
+  font-size: small; /* 4 mobile */
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
   cursor: default;
+  /* center */
+  top: 22px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  /* fadeIn effect */
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: hidden;
 }
-#countTime:hover {
+.statusMenu p,
+.statusMenu h4 {
+  color: white;
+  display: inline;
+  border: none;
+  margin: 5px;
+}
+.statusMenu button {
+  float: right;
+  margin-right: 3px;
+  color: white;
+  background: transparent;
+  display: inline;
+  border: none;
+}
+.statusMenu p:hover,
+.statusMenu h4:hover,
+.statusMenu button:hover {
   color: rgb(0, 255, 0);
   transition: all 0.3s ease-in-out;
+}
+
+/*--------------------------------------------------------------
+# Avatar Image on video OFF
+--------------------------------------------------------------*/
+
+.videoAvatarImage {
+  z-index: 8;
+  position: absolute;
+  /*center*/
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
 }
 
 /*--------------------------------------------------------------
@@ -643,81 +692,6 @@ emoji-picker {
   --background: var(--msger-bg);
 }
 
-/*--------------------------------------------------------------
-# Handle video elements
---------------------------------------------------------------*/
-
-.videoPeerName {
-  z-index: 4;
-  top: 5px;
-  font-size: small;
-  font-family: Verdana;
-  color: whitesmoke;
-  cursor: default;
-  /* center */
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -webkit-transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
-}
-.videoPeerName:hover {
-  color: rgb(0, 255, 0);
-  transition: all 0.3s ease-in-out;
-}
-
-.handStatusIcon {
-  z-index: 5;
-  position: absolute;
-  top: 15px;
-  right: 53px;
-  color: rgb(0, 255, 0);
-  transition: all 0.3s ease-in-out;
-  background: #000000;
-  border: none;
-  border-radius: 5px 1px;
-}
-
-.videoStatusIcon {
-  z-index: 6;
-  position: absolute;
-  top: 15px;
-  right: 25px;
-  color: whitesmoke;
-  transition: all 0.3s ease-in-out;
-  background: transparent;
-  border: none;
-}
-.videoStatusIcon:hover {
-  color: rgb(0, 255, 0);
-  transition: all 0.3s ease-in-out;
-}
-
-.audioStatusIcon {
-  z-index: 7;
-  position: absolute;
-  top: 15px;
-  right: 5px;
-  color: whitesmoke;
-  transition: all 0.3s ease-in-out;
-  background: transparent;
-  border: none;
-}
-.audioStatusIcon:hover {
-  color: rgb(0, 255, 0);
-  transition: all 0.3s ease-in-out;
-}
-
-.videoAvatarImage {
-  z-index: 8;
-  position: absolute;
-  /*center*/
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: none;
-}
-
 #myVideo.mirror {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
@@ -1016,10 +990,12 @@ video:fullscreen {
 
 /*
 z-index
-4 peer name
-5 hand status
-6 video status
-7 audio status
+7 statusMenu -----
+- peer name
+- hand status
+- video status
+- audio status
+------------------
 8 video avatar img
 9 count time
 10 chat room
