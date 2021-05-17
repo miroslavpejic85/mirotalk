@@ -202,17 +202,18 @@ body {
 #countTime {
   z-index: 9;
   display: none;
-  top: 0;
-  height: 35px;
-  width: 80px;
-  left: 40px;
+  top: 2px;
+  font-size: small;
+  left: 26px;
   background-color: transparent;
   position: absolute;
   color: white;
-  background-color:#0500ff;
-  text-align: center;
-  font-weight: bolder;
-  border-radius: 20px 10px;
+  text-align: left;
+  cursor: default;
+}
+#countTime:hover {
+  color: rgb(0, 255, 0);
+  transition: all 0.3s ease-in-out;
 }
 
 /*--------------------------------------------------------------
@@ -647,19 +648,21 @@ emoji-picker {
 
 .videoPeerName {
   z-index: 4;
-  color: #579ffb;
-  position: fixed;
-  font-size: larger;
-  text-align: center;
-  width: auto;
-  height: auto;
   top: 5px;
-  border-radius: 10px 100px;
+  font-size: small;
+  font-family: Verdana;
+  color: whitesmoke;
+  cursor: default;
+  /* center */
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
 }
-
-.videoPeerName:hover{
-  color: chartreuse;
-  background-color: cadetblue;
+.videoPeerName:hover {
+  color: rgb(0, 255, 0);
+  transition: all 0.3s ease-in-out;
 }
 
 .handStatusIcon {
@@ -677,6 +680,7 @@ emoji-picker {
   border-radius: 10px 10px;
   
 }
+
 .videoStatusIcon {
   z-index: 6;
   position: absolute;
@@ -692,6 +696,11 @@ emoji-picker {
   border: none;
   border-radius: 10px 10px;
 }
+.videoStatusIcon:hover {
+  color: rgb(0, 255, 0);
+  transition: all 0.3s ease-in-out;
+}
+
 .audioStatusIcon {
   z-index: 7;
   position: absolute;
@@ -707,6 +716,11 @@ emoji-picker {
   border: none;
   border-radius: 10px 10px;
 }
+.audioStatusIcon:hover {
+  color: rgb(0, 255, 0);
+  transition: all 0.3s ease-in-out;
+}
+
 .videoAvatarImage {
   z-index: 8;
   position: absolute;
@@ -731,17 +745,6 @@ video {
 }
 video:fullscreen {
   object-fit: contain;
-}
-.video h4 {
-  font-family: Verdana;
-  color: whitesmoke;
-  cursor: default;
-  /* center */
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -webkit-transform: translate(-50%, -50%);
-  -moz-transform: translate(-50%, -50%);
 }
 .video {
   float: left;

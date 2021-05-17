@@ -1306,6 +1306,10 @@ function handleVideoPlayerFs(videoId) {
  * Start talk time
  */
 function startCountTime() {
+  tippy(countTime, {
+    content: "Session time",
+    placement: "right-start",
+  });
   countTime.style.display = "inline";
   callStartTime = Date.now();
   setInterval(function printTime() {
