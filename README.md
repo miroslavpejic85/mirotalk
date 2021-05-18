@@ -1,4 +1,4 @@
-# mirotalk
+# Mirotalk
 
 🚀 `A free WebRTC browser-based video call, chat and screen sharing` 🚀
 
@@ -14,7 +14,7 @@
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/c5AZn8yKbQ)
 
-Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn. `mirotalk` provides video quality and latency not available with traditional technology.
+Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn. `Mirotalk` provides video quality and latency not available with traditional technology.
 
 Open the app in one of following **supported browser**
 
