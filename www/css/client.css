@@ -234,7 +234,7 @@ body {
   color: white;
   display: inline;
   border: none;
-  margin: 5px;
+  margin-right: 5px;
 }
 .statusMenu button {
   float: right;
