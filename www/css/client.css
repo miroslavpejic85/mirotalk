@@ -886,6 +886,7 @@ video:fullscreen {
 # Swal2
 --------------------------------------------------------------*/
 
+.swal2-validation-message,
 .swal2-title,
 .swal2-content,
 .swal2-input {

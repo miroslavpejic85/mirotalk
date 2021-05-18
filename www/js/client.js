@@ -563,7 +563,7 @@ function initPeer() {
       html:
         `
       <br/> 
-      <p style="color:white;"> Share this meeting invite others to join.</p>
+      <p style="color:white;">Share this meeting invite others to join.</p>
       <p style="color:rgb(8, 189, 89);">` +
         myRoomUrl +
         `</p>`,
