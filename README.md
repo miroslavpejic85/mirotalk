@@ -113,7 +113,7 @@ Many Thanks to:
 - Sajad (chat)
 - i-aryan (whiteboard)
 
-from where I taked inspiration for this project. ❤️
+From where I took inspiration for this project. ❤️
 
 ## Contributing
 
