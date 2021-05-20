@@ -93,6 +93,22 @@
   --wb-bg: white;
   */
 
+  /* sky theme
+  --body-bg: black;
+  --msger-bg: black;
+  --msger-private-bg: black;
+  --left-msg-bg: #03a5ce;
+  --private-msg-bg: #f77070;
+  --right-msg-bg: #012a5f;
+  --box-shadow: 3px 3px 6px #03a5ce, -3px -3px 6px #03a5ce;
+  --btn-bg: white;
+  --btn-color: black;
+  --btn-opc: 1;
+  --btns-left: 20px;
+  --wb-btn-color: black;
+  --wb-bg: white;
+  */
+
   /* ghost theme
   --body-bg: #16171b;
   --msger-bg: transparent;
