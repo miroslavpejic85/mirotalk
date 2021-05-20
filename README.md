@@ -30,7 +30,7 @@ Open the app in one of following **supported browser**
 
 ## Features
 
-- Is 100% `Free` and `Open Source`
+- Is `100% Free` and `Open Source`
 - No download, plug-in or login required, entirely browser based
 - Unlimited users, without time limitation
 - Room Url Sharing (share it to your participants, wait them to join)
