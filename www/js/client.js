@@ -1024,6 +1024,10 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
+        "--my-settings-label-color",
+        "limegreen"
+      );
+      document.documentElement.style.setProperty(
         "--box-shadow",
         "3px 3px 6px #0500ff, -3px -3px 6px #da05f3"
       );
@@ -1047,6 +1051,10 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
+        "--my-settings-label-color",
+        "limegreen"
+      );
+      document.documentElement.style.setProperty(
         "--box-shadow",
         "3px 3px 6px #0a0b0c, -3px -3px 6px #222328"
       );
@@ -1066,6 +1074,10 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
+      document.documentElement.style.setProperty(
+        "--my-settings-label-color",
+        "limegreen"
+      );
       document.documentElement.style.setProperty(
         "--box-shadow",
         "3px 3px 6px #27944f, -3px -3px 6px #14843d"
@@ -1087,6 +1099,10 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--btn-opc", "1");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty(
+        "--my-settings-label-color",
+        "#03a5ce"
+      );
+      document.documentElement.style.setProperty(
         "--box-shadow",
         "3px 3px 6px #03a5ce, -3px -3px 6px #03a5ce"
       );
@@ -1104,6 +1120,10 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--btn-opc", "0.7");
       document.documentElement.style.setProperty("--btns-left", "20px");
       document.documentElement.style.setProperty("--box-shadow", "0px");
+      document.documentElement.style.setProperty(
+        "--my-settings-label-color",
+        "limegreen"
+      );
       document.documentElement.style.setProperty(
         "--left-msg-bg",
         "rgba(0, 0, 0, 0.7)"

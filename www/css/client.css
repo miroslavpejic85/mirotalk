@@ -60,6 +60,7 @@
   --btns-left: 20px;
   --wb-btn-color: black;
   --wb-bg: white;
+  --my-settings-label-color: limegreen;
 
   /* dark theme
   --body-bg: #16171b;
@@ -75,6 +76,7 @@
   --btns-left: 20px;
   --wb-btn-color: white;
   --wb-bg: black;
+  --my-settings-label-color: limegreen;
   */
 
   /* forest theme
@@ -91,6 +93,7 @@
   --btns-left: 20px;
   --wb-btn-color: black;
   --wb-bg: white;
+  --my-settings-label-color: limegreen;
   */
 
   /* sky theme
@@ -107,6 +110,7 @@
   --btns-left: 20px;
   --wb-btn-color: black;
   --wb-bg: white;
+  --my-settings-label-color: #03a5ce;
   */
 
   /* ghost theme
@@ -123,6 +127,7 @@
   --btns-left: 20px;
   --wb-btn-color: black;
   --wb-bg: white;
+  --my-settings-label-color: limegreen;
   */
 
   /* https://developer.mozilla.org/it/docs/Web/CSS/object-fit */
@@ -860,7 +865,7 @@ video:fullscreen {
 #mySettings label {
   width: 7em;
   display: flex;
-  color: limegreen;
+  color: var(--my-settings-label-color);
 }
 
 #mySettings select {
