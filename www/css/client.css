@@ -77,6 +77,22 @@
   --wb-bg: black;
   */
 
+  /* forest theme
+  --body-bg: black;
+  --msger-bg: black;
+  --msger-private-bg: black;
+  --left-msg-bg: #2e3500;
+  --private-msg-bg: #f77070;
+  --right-msg-bg: #004b1c;
+  --box-shadow: 3px 3px 6px #27944f, -3px -3px 6px #14843d;
+  --btn-bg: white;
+  --btn-color: black;
+  --btn-opc: 1;
+  --btns-left: 20px;
+  --wb-btn-color: black;
+  --wb-bg: white;
+  */
+
   /* ghost theme
   --body-bg: #16171b;
   --msger-bg: transparent;

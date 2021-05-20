@@ -31,7 +31,7 @@ var callStartTime;
 var callElapsedTime;
 var recStartTime;
 var recElapsedTime;
-var mirotalkTheme = "neon"; // neon - dark - ghost ...
+var mirotalkTheme = "neon"; // neon - dark - forest - ghost ...
 var swalBackground = "rgba(0, 0, 0, 0.7)"; // black - #16171b - transparent ...
 var signalingServerPort = 3000; // must be same of server PORT
 var signalingServer = getServerUrl();
@@ -1049,6 +1049,26 @@ function setTheme(theme) {
       document.documentElement.style.setProperty(
         "--box-shadow",
         "3px 3px 6px #0a0b0c, -3px -3px 6px #222328"
+      );
+      break;
+    case "forest":
+      // forest theme
+      swalBackground = "rgba(0, 0, 0, 0.7)";
+      document.documentElement.style.setProperty("--body-bg", "black");
+      document.documentElement.style.setProperty("--msger-bg", "black");
+      document.documentElement.style.setProperty("--msger-private-bg", "black");
+      document.documentElement.style.setProperty("--left-msg-bg", "#2e3500");
+      document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
+      document.documentElement.style.setProperty("--right-msg-bg", "#004b1c");
+      document.documentElement.style.setProperty("--wb-bg", "#ffffff");
+      document.documentElement.style.setProperty("--wb-btn-color", "black");
+      document.documentElement.style.setProperty("--btn-bg", "white");
+      document.documentElement.style.setProperty("--btn-color", "black");
+      document.documentElement.style.setProperty("--btn-opc", "1");
+      document.documentElement.style.setProperty("--btns-left", "20px");
+      document.documentElement.style.setProperty(
+        "--box-shadow",
+        "3px 3px 6px #27944f, -3px -3px 6px #14843d"
       );
       break;
     case "ghost":
