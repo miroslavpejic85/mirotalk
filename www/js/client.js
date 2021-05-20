@@ -1089,7 +1089,7 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
       document.documentElement.style.setProperty("--msger-private-bg", "black");
-      document.documentElement.style.setProperty("--left-msg-bg", "#03a5ce");
+      document.documentElement.style.setProperty("--left-msg-bg", "#0c95b7");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#012a5f");
       document.documentElement.style.setProperty("--wb-bg", "#ffffff");
