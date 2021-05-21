@@ -64,6 +64,11 @@
                       Access denied.
                     </h1>
                     <p
+                      id="getUserMediaError"
+                      class="mt-0 mb-32 reveal-from-bottom"
+                      data-reveal-delay="300"
+                    ></p>
+                    <p
                       class="mt-0 mb-32 reveal-from-bottom"
                       data-reveal-delay="300"
                     >
@@ -73,7 +78,15 @@
                     <script>
                       var qs = new URLSearchParams(window.location.search);
                       var roomId = qs.get("roomId");
-                      console.log("Allow Camera && Audio for roomId", roomId);
+                      var getUserMediaError = qs.get("getUserMediaError");
+                      console.log("Allow Camera && Audio", {
+                        roomId: roomId,
+                        getUserMediaError: getUserMediaError,
+                      });
+                      // print getUserMedia error
+                      document.getElementById(
+                        "getUserMediaError"
+                      ).innerHTML = getUserMediaError;
                     </script>
                     <div class="reveal-from-bottom" data-reveal-delay="450">
                       <button
