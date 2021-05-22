@@ -12,8 +12,6 @@ const welcomeImg = "../images/illustration-section-01.svg";
 const shareUrlImg = "../images/illustration-section-01.svg";
 const leaveRoomImg = "../images/illustration-section-01.svg";
 const aboutImg = "../images/about.png";
-const myChatAvatar = "../images/programmer.svg";
-const friendChatAvatar = "../images/friend.svg";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const avatarApiUrl = "https://eu.ui-avatars.com/api";
 const notifyBySound = true; // turn on - off sound notifications
@@ -26,6 +24,9 @@ const notifyRaiseHand = "../audio/raiseHand.mp3";
 const notifyError = "../audio/error.mp3";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
+
+var leftChatAvatar = "../images/programmer.svg";
+var rightChatAvatar = "../images/friend.svg";
 
 var callStartTime;
 var callElapsedTime;
@@ -509,6 +510,7 @@ function initPeer() {
         myPeerName = value;
         myVideoParagraph.innerHTML = myPeerName + " (me)";
         setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
+        setPeerChatAvatarImgName("left", myPeerName);
         joinToChannel();
       },
     }).then(function () {
@@ -777,10 +779,11 @@ function initPeer() {
           chatRoomBtn.className = "fas fa-comment-slash";
         }
         playSound("newMessage");
+        setPeerChatAvatarImgName("right", config.name);
         appendMessage(
           config.name,
-          friendChatAvatar,
-          "left",
+          rightChatAvatar,
+          "right",
           config.msg,
           config.privateMsg
         );
@@ -985,10 +988,11 @@ function handleIncomingDataChannelMessages(dataMessages) {
         chatRoomBtn.className = "fas fa-comment-slash";
       }
       playSound("newMessage");
+      setPeerChatAvatarImgName("right", dataMessages.name);
       appendMessage(
         dataMessages.name,
-        friendChatAvatar,
-        "left",
+        rightChatAvatar,
+        "right",
         dataMessages.msg,
         dataMessages.privateMsg
       );
@@ -1319,6 +1323,31 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName) {
       avatarImgSize +
       "&background=random&rounded=true"
   );
+}
+
+/**
+ * Set Chat avatar image icon by peer name
+ * @param {*} avatar left/right
+ * @param {*} peerName my/friends
+ */
+function setPeerChatAvatarImgName(avatar, peerName) {
+  let avatarImg =
+    avatarApiUrl +
+    "?name=" +
+    peerName +
+    "&size=24" +
+    "&background=random&rounded=true";
+
+  switch (avatar) {
+    case "left":
+      // console.log("Set My chat avatar image");
+      leftChatAvatar = avatarImg;
+      break;
+    case "right":
+      // console.log("Set Friend chat avatar image");
+      rightChatAvatar = avatarImg;
+      break;
+  }
 }
 
 /**
@@ -1658,7 +1687,7 @@ function setChatRoomBtn() {
     if (!msg) return;
 
     emitMsg(myPeerName, "toAll", msg, false, "");
-    appendMessage(myPeerName, myChatAvatar, "right", msg, false);
+    appendMessage(myPeerName, leftChatAvatar, "left", msg, false);
     msgerInput.value = "";
   });
 }
@@ -2665,8 +2694,8 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
     emitMsg(myPeerName, toPeerName, pMsg, true, peer_id);
     appendMessage(
       myPeerName,
-      myChatAvatar,
-      "right",
+      leftChatAvatar,
+      "left",
       pMsg + "<br/><hr>Private message to " + toPeerName,
       true
     );
@@ -2884,6 +2913,7 @@ function updateMyPeerName() {
   myPeerNameSet.placeholder = myPeerName;
 
   setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
+  setPeerChatAvatarImgName("left", myPeerName);
 }
 
 /**
