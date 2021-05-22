@@ -510,6 +510,7 @@ function initPeer() {
         myPeerName = value;
         myVideoParagraph.innerHTML = myPeerName + " (me)";
         setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
+        setPeerChatAvatarImgName("right", myPeerName);
         joinToChannel();
       },
     }).then(function () {
@@ -1322,7 +1323,6 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName) {
       avatarImgSize +
       "&background=random&rounded=true"
   );
-  setPeerChatAvatarImgName("right", peerName);
 }
 
 /**
@@ -1687,7 +1687,7 @@ function setChatRoomBtn() {
     if (!msg) return;
 
     emitMsg(myPeerName, "toAll", msg, false, "");
-    appendMessage(myPeerName, leftChatAvatar, "right", msg, false);
+    appendMessage(myPeerName, rightChatAvatar, "right", msg, false);
     msgerInput.value = "";
   });
 }
@@ -2913,6 +2913,7 @@ function updateMyPeerName() {
   myPeerNameSet.placeholder = myPeerName;
 
   setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
+  setPeerChatAvatarImgName("right", myPeerName);
 }
 
 /**
