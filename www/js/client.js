@@ -25,8 +25,8 @@ const notifyError = "../audio/error.mp3";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
-var leftChatAvatar = "../images/programmer.svg";
-var rightChatAvatar = "../images/friend.svg";
+var leftChatAvatar = "../images/friend.svg";
+var rightChatAvatar = "../images/programmer.svg";
 
 var callStartTime;
 var callElapsedTime;
