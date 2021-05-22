@@ -510,7 +510,6 @@ function initPeer() {
         myPeerName = value;
         myVideoParagraph.innerHTML = myPeerName + " (me)";
         setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
-        setPeerChatAvatarImgName("left", myPeerName);
         joinToChannel();
       },
     }).then(function () {
@@ -1304,7 +1303,7 @@ function resizeVideos() {
 }
 
 /**
- * Refresh video image avatar on name changes
+ * Refresh video - chat image avatar on name changes
  * https://eu.ui-avatars.com/
  *
  * @param {*} videoAvatarImageId element
@@ -1323,10 +1322,11 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName) {
       avatarImgSize +
       "&background=random&rounded=true"
   );
+  setPeerChatAvatarImgName("left", myPeerName);
 }
 
 /**
- * Set Chat avatar image icon by peer name
+ * Set Chat avatar image by peer name
  * @param {*} avatar left/right
  * @param {*} peerName my/friends
  */
@@ -2913,7 +2913,6 @@ function updateMyPeerName() {
   myPeerNameSet.placeholder = myPeerName;
 
   setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
-  setPeerChatAvatarImgName("left", myPeerName);
 }
 
 /**
