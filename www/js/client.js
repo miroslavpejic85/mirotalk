@@ -2611,7 +2611,7 @@ function appendMessage(name, img, side, text, privateMsg) {
   let ctext = detectUrl(text);
   const msgHTML = `
 	<div class="msg ${side}-msg">
-		<div class="msg-img" style="background-image: url(${img})"></div>
+		<div class="msg-img" style="background-image: url('${img}')"></div>
 		<div class=${msgBubble}>
       <div class="msg-info">
         <div class="msg-info-name">${name}</div>
