@@ -778,11 +778,11 @@ function initPeer() {
           chatRoomBtn.className = "fas fa-comment-slash";
         }
         playSound("newMessage");
-        setPeerChatAvatarImgName("right", config.name);
+        setPeerChatAvatarImgName("left", config.name);
         appendMessage(
           config.name,
-          rightChatAvatar,
-          "right",
+          leftChatAvatar,
+          "left",
           config.msg,
           config.privateMsg
         );
@@ -987,11 +987,11 @@ function handleIncomingDataChannelMessages(dataMessages) {
         chatRoomBtn.className = "fas fa-comment-slash";
       }
       playSound("newMessage");
-      setPeerChatAvatarImgName("right", dataMessages.name);
+      setPeerChatAvatarImgName("left", dataMessages.name);
       appendMessage(
         dataMessages.name,
-        rightChatAvatar,
-        "right",
+        leftChatAvatar,
+        "left",
         dataMessages.msg,
         dataMessages.privateMsg
       );
@@ -1322,7 +1322,7 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName) {
       avatarImgSize +
       "&background=random&rounded=true"
   );
-  setPeerChatAvatarImgName("left", myPeerName);
+  setPeerChatAvatarImgName("right", peerName);
 }
 
 /**
@@ -1340,11 +1340,11 @@ function setPeerChatAvatarImgName(avatar, peerName) {
 
   switch (avatar) {
     case "left":
-      // console.log("Set My chat avatar image");
+      // console.log("Set Friend chat avatar image");
       leftChatAvatar = avatarImg;
       break;
     case "right":
-      // console.log("Set Friend chat avatar image");
+      // console.log("Set My chat avatar image");
       rightChatAvatar = avatarImg;
       break;
   }
@@ -1687,7 +1687,7 @@ function setChatRoomBtn() {
     if (!msg) return;
 
     emitMsg(myPeerName, "toAll", msg, false, "");
-    appendMessage(myPeerName, leftChatAvatar, "left", msg, false);
+    appendMessage(myPeerName, leftChatAvatar, "right", msg, false);
     msgerInput.value = "";
   });
 }
@@ -2694,8 +2694,8 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
     emitMsg(myPeerName, toPeerName, pMsg, true, peer_id);
     appendMessage(
       myPeerName,
-      leftChatAvatar,
-      "left",
+      rightChatAvatar,
+      "right",
       pMsg + "<br/><hr>Private message to " + toPeerName,
       true
     );
