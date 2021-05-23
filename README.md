@@ -103,8 +103,21 @@ npm start
 - Open http://localhost:3000 in browser
 - If you want to use a client on another computer/network, make sure you publish your server on an `HTTPS` connection.
   You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
-  - [heroku](https://www.heroku.com/) `try mirotalk demo on heroku` https://mirotalk.herokuapp.com/
-  - [railway](https://railway.app) `try mirotalk demo on railway` https://mirotalk.up.railway.app/
+  <br><br>
+  <a href="https://www.heroku.com/" target="_blank">
+  <img src="https://www.herokucdn.com/deploy/button.svg" style="border: solid 1px grey; border-radius:20px; width:128px;" title="Deploy Mirotalk on Heroku">
+  </a><br>
+  <strong style="color: green">demo </strong>
+  <a href="https://mirotalk.herokuapp.com/" target="_blank">
+  https://mirotalk.herokuapp.com/
+  </a><br><br>
+  <a href="https://railway.app" target="_blank">
+  <img src="https://railway.app/button.svg" style="border: solid 1px grey; border-radius:20px; width: 128px;" title="Deploy Mirotalk on Railway">
+  </a><br>
+  <strong style="color: green">demo </strong>
+  <a href="https://mirotalk.up.railway.app/" target="_blank">
+  https://mirotalk.up.railway.app/
+  </a>
 
 ## Credits
 
