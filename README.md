@@ -106,11 +106,11 @@ npm start
 
   [![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/)
 
-  **demo** https://mirotalk.herokuapp.com/
+  `demo` https://mirotalk.herokuapp.com/
 
   [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
 
-  **demo** https://mirotalk.up.railway.app/
+  `demo` https://mirotalk.up.railway.app/
 
 ## Credits
 
