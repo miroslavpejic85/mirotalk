@@ -133,6 +133,14 @@ From where I took inspiration for this project. ❤️
 
 ---
 
-![qr](www/images/mirotalk-qr.png)
+`heroku-qr`
+
+![heroku-qr](www/images/mirotalk-heroku-qr.png)
+
+`railway-qr`
+
+![railway-qr](www/images/mirotalk-railway-qr.png)
+
+---
 
 <p align="center"> Made with ❤️ by <a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/">Miroslav Pejic</a></p>
