@@ -899,9 +899,11 @@ function initPeer() {
     var peer_id = config.peer_id;
     var ice_candidate = config.ice_candidate;
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate
-    peerConnections[peer_id].addIceCandidate(
-      new RTCIceCandidate(ice_candidate)
-    );
+    peerConnections[peer_id]
+      .addIceCandidate(new RTCIceCandidate(ice_candidate))
+      .catch((e) => {
+        console.error("[Error] addIceCandidate", e);
+      });
   });
 
   // refresh peers name
