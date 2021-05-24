@@ -104,13 +104,13 @@ npm start
 - If you want to use a client on another computer/network, make sure you publish your server on an `HTTPS` connection.
   You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
-  [![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/)
+[![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/)
 
-  `demo` https://mirotalk.herokuapp.com/
+`demo` https://mirotalk.herokuapp.com/
 
-  [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
 
-  `demo` https://mirotalk.up.railway.app/
+`demo` https://mirotalk.up.railway.app/
 
 ## Credits
 
