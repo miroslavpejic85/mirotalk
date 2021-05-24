@@ -107,13 +107,21 @@ npm start
 If you want to use a client on another computer/network, make sure you publish your server on an `HTTPS` connection.
 You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
+<br>
+
 [![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/)
 
 `demo` https://mirotalk.herokuapp.com/
 
+![heroku-qr](www/images/mirotalk-heroku-qr.png)
+
+<br>
+
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
 
 `demo` https://mirotalk.up.railway.app/
+
+![railway-qr](www/images/mirotalk-railway-qr.png)
 
 ---
 
@@ -135,16 +143,6 @@ From where I took inspiration for this project. ❤️
 - For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/c5AZn8yKbQ)
-
----
-
-`heroku-qr`
-
-![heroku-qr](www/images/mirotalk-heroku-qr.png)
-
-`railway-qr`
-
-![railway-qr](www/images/mirotalk-railway-qr.png)
 
 ---
 
