@@ -101,8 +101,11 @@ npm start
 ```
 
 - Open http://localhost:3000 in browser
-- If you want to use a client on another computer/network, make sure you publish your server on an `HTTPS` connection.
-  You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
+
+---
+
+If you want to use a client on another computer/network, make sure you publish your server on an `HTTPS` connection.
+You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
 [![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/)
 
@@ -111,6 +114,8 @@ npm start
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
 
 `demo` https://mirotalk.up.railway.app/
+
+---
 
 ## Credits
 
