@@ -55,7 +55,7 @@ Open the app in one of following **supported browser**
 
 ## Room name
 
-- You can also `join` dirrectly to your room name by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here `or` https://mirotalk.up.railway.app/join/your-room-name-goes-here
+- You can also `join` directly to your room name by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here `or` https://mirotalk.up.railway.app/join/your-room-name-goes-here
 
 ## Quick start
 
