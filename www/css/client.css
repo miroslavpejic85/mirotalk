@@ -901,7 +901,7 @@ video:fullscreen {
 #muteEveryoneBtn,
 #hideEveryoneBtn {
   padding: 5px;
-  border-radius: 5%;
+  border-radius: 5px;
   font-size: 1rem;
   color: white;
   background-color: transparent;
