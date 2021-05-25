@@ -664,6 +664,7 @@ function initPeer() {
         const remoteHandStatusIcon = document.createElement("button");
         const remoteVideoStatusIcon = document.createElement("button");
         const remoteAudioStatusIcon = document.createElement("button");
+        const remotePeerKickOut = document.createElement("button");
         const remoteVideoAvatarImage = document.createElement("img");
 
         // menu Status
@@ -699,6 +700,12 @@ function initPeer() {
         tippy(remoteAudioStatusIcon, {
           content: "Participant audio is ON",
         });
+        // remote peer kick out
+        remotePeerKickOut.setAttribute("id", peer_id + "_kickOut");
+        remotePeerKickOut.className = "fas fa-sign-out-alt";
+        tippy(remotePeerKickOut, {
+          content: "Kick out",
+        });
         // my video avatar image
         remoteVideoAvatarImage.setAttribute("id", peer_id + "_avatar");
         remoteVideoAvatarImage.className = "videoAvatarImage pulsate";
@@ -708,6 +715,7 @@ function initPeer() {
         remoteStatusMenu.appendChild(remoteHandStatusIcon);
         remoteStatusMenu.appendChild(remoteVideoStatusIcon);
         remoteStatusMenu.appendChild(remoteAudioStatusIcon);
+        remoteStatusMenu.appendChild(remotePeerKickOut);
 
         // add elements to videoWrap div
         videoWrap.appendChild(remoteStatusMenu);
@@ -734,6 +742,8 @@ function initPeer() {
           handleVideoPlayerFs(peer_id + "_video");
         }
 
+        // handle kick out button event
+        handlePeerKickOutBtn(peer_id);
         // refresh remote peers avatar name
         setPeerAvatarImgName(peer_id + "_avatar", peers[peer_id]["peer_name"]);
         // refresh remote peers hand icon status and title
@@ -937,6 +947,10 @@ function initPeer() {
   // set my Video off
   signalingSocket.on("onhideEveryone", function (config) {
     setMyVideoOff(config.peer_name);
+  });
+  // kick out
+  signalingSocket.on("onKickOut", function (config) {
+    kickedOut(config.peer_name);
   });
 
   /**
@@ -1302,6 +1316,17 @@ function resizeVideos() {
   const videos = document.querySelectorAll(".video");
   document.querySelectorAll(".video").forEach((v) => {
     v.className = "video " + numToString[videos.length];
+  });
+}
+
+/**
+ * Handle peer kick out event button
+ * @param {*} peer_id
+ */
+function handlePeerKickOutBtn(peer_id) {
+  var peerKickOutBtn = getId(peer_id + "_kickOut");
+  peerKickOutBtn.addEventListener("click", (e) => {
+    kickOut(peer_id, peerKickOutBtn);
   });
 }
 
@@ -3280,6 +3305,91 @@ function disableAllPeers(element) {
           break;
       }
     }
+  });
+}
+
+/**
+ * Kick out confirm
+ * @param {*} peer_id
+ * @param {*} peerKickOutBtn
+ */
+function kickOut(peer_id, peerKickOutBtn) {
+  playSound("newMessage");
+
+  let pName = getId(peer_id + "_name").innerHTML;
+
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    icon: "warning",
+    title: "Kick out this participant?",
+    text: "Are you sure you want to kick out " + pName + "?",
+    showDenyButton: true,
+    confirmButtonText: `Yes`,
+    denyButtonText: `No`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // send peer to kick out from room
+      signalingSocket.emit("kickOut", {
+        room_id: roomId,
+        peer_id: peer_id,
+        peer_name: myPeerName,
+      });
+      peerKickOutBtn.style.display = "none";
+    }
+  });
+}
+
+/**
+ * Who Kick out you msg popup
+ * @param {*} peer_name
+ */
+function kickedOut(peer_name) {
+  playSound("newMessage");
+
+  let timerInterval;
+
+  Swal.fire({
+    allowOutsideClick: false,
+    background: swalBackground,
+    position: "center",
+    icon: "warning",
+    title: "You will be kicked out!",
+    html:
+      "<h2>" +
+      peer_name +
+      "</h2> will kick out you after <b></b> milliseconds.",
+    timer: 10000,
+    timerProgressBar: true,
+    didOpen: () => {
+      Swal.showLoading();
+      timerInterval = setInterval(() => {
+        const content = Swal.getHtmlContainer();
+        if (content) {
+          const b = content.querySelector("b");
+          if (b) {
+            b.textContent = Swal.getTimerLeft();
+          }
+        }
+      }, 100);
+    },
+    willClose: () => {
+      clearInterval(timerInterval);
+    },
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then(() => {
+    window.location.href = "/newcall";
   });
 }
 

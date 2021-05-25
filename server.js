@@ -523,4 +523,28 @@ io.sockets.on("connect", (socket) => {
       }
     }
   });
+
+  /**
+   * Relay Kick out peer from room
+   */
+  socket.on("kickOut", (config) => {
+    let room_id = config.room_id;
+    let peer_id = config.peer_id;
+    let peer_name = config.peer_name;
+
+    console.log(
+      "[" +
+        socket.id +
+        "] kick out peer [" +
+        peer_id +
+        "] from room_id " +
+        room_id
+    );
+
+    if (peer_id in sockets) {
+      sockets[peer_id].emit("onKickOut", {
+        peer_name: peer_name,
+      });
+    }
+  });
 }); // end [sockets.on-connect]
