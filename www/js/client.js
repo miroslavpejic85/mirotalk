@@ -3321,9 +3321,8 @@ function kickOut(peer_id, peerKickOutBtn) {
   Swal.fire({
     background: swalBackground,
     position: "center",
-    icon: "warning",
-    title: "Kick out this participant?",
-    text: "Are you sure you want to kick out " + pName + "?",
+    title: "Kick out " + pName,
+    text: "Are you sure you want to kick out this participant?",
     showDenyButton: true,
     confirmButtonText: `Yes`,
     denyButtonText: `No`,
@@ -3362,9 +3361,9 @@ function kickedOut(peer_name) {
     icon: "warning",
     title: "You will be kicked out!",
     html:
-      "<h2>" +
+      `<h2 style="color: limegreen;">` +
       peer_name +
-      "</h2> will kick out you after <b></b> milliseconds.",
+      `</h2> will kick out you after <b></b> milliseconds.`,
     timer: 10000,
     timerProgressBar: true,
     didOpen: () => {
