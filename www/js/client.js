@@ -11,11 +11,13 @@
 const welcomeImg = "../images/illustration-section-01.svg";
 const shareUrlImg = "../images/illustration-section-01.svg";
 const leaveRoomImg = "../images/illustration-section-01.svg";
+const confirmImg = "../images/illustration-section-01.svg";
 const aboutImg = "../images/about.png";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const avatarApiUrl = "https://eu.ui-avatars.com/api";
 const notifyBySound = true; // turn on - off sound notifications
 const notifyAddPeer = "../audio/addPeer.mp3";
+const notifyKickedOut = "../audio/kickedOut.mp3";
 const notifyRemovePeer = "../audio/removePeer.mp3";
 const notifyNewMessage = "../audio/newMessage.mp3";
 const notifyRecStart = "../audio/recStart.mp3";
@@ -1362,7 +1364,7 @@ function setPeerChatAvatarImgName(avatar, peerName) {
     avatarApiUrl +
     "?name=" +
     peerName +
-    "&size=24" +
+    "&size=32" +
     "&background=random&rounded=true";
 
   switch (avatar) {
@@ -3276,7 +3278,7 @@ function disableAllPeers(element) {
     background: swalBackground,
     position: "center",
     imageAlt: "mirotalk-disable-" + element,
-    imageUrl: leaveRoomImg,
+    imageUrl: confirmImg,
     title:
       element == "audio"
         ? "Mute everyone except yourself?"
@@ -3314,13 +3316,12 @@ function disableAllPeers(element) {
  * @param {*} peerKickOutBtn
  */
 function kickOut(peer_id, peerKickOutBtn) {
-  playSound("newMessage");
-
   let pName = getId(peer_id + "_name").innerHTML;
 
   Swal.fire({
     background: swalBackground,
     position: "center",
+    imageUrl: confirmImg,
     title: "Kick out " + pName,
     text: "Are you sure you want to kick out this participant?",
     showDenyButton: true,
@@ -3350,7 +3351,7 @@ function kickOut(peer_id, peerKickOutBtn) {
  * @param {*} peer_name
  */
 function kickedOut(peer_name) {
-  playSound("newMessage");
+  playSound("kickedOut");
 
   let timerInterval;
 
@@ -3521,6 +3522,9 @@ async function playSound(state) {
   switch (state) {
     case "addPeer":
       file_audio = notifyAddPeer;
+      break;
+    case "kickedOut":
+      file_audio = notifyKickedOut;
       break;
     case "removePeer":
       file_audio = notifyRemovePeer;
