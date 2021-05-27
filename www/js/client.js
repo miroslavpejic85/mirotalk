@@ -507,7 +507,7 @@ function initPeer() {
       },
       inputValidator: (value) => {
         if (!value) {
-          return "Please enter youre name";
+          return "Please enter your name";
         }
         myPeerName = value;
         myVideoParagraph.innerHTML = myPeerName + " (me)";
