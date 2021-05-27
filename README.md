@@ -33,18 +33,18 @@ Open the app in one of following **supported browser**
 - Is `100% Free` and `Open Source`
 - No download, plug-in or login required, entirely browser based
 - Unlimited users, without time limitation
-- Room Url Sharing (share it to your participants, wait them to join)
+- Optimized Room Url Sharing (share it to your participants, wait them to join)
 - WebCam Streaming (Front - Rear for mobile)
 - Audio Streaming
 - Screen Sharing to present documents, slides, and more...
 - Select Audio Input - Output && Video source
 - Recording your Screen, Audio and Video
-- Chat & Emoji Picker & Private messages & Save the conversations
-- Simple Whiteboard for teachers
-- Full Screen Mode on click
+- Chat with Emoji Picker & Private messages & Save the conversations
+- Simple Whiteboard for the teachers
+- Full Screen Mode on mouse click on the Video element
 - Possibility to Change UI Themes
-- Right click on Video elements for more options
-- Direct peer-to-peer connection ensures lowest latency thanks to webrtc
+- Right click on the Video elements for more options
+- Direct `peer-to-peer` connection ensures lowest latency thanks to `webrtc`
 
 ## Demo
 
@@ -77,6 +77,8 @@ cp .env.template .env
 
 `Turn`
 
+Not mandatory but recommended.
+
 - Create an account on http://numb.viagenie.ca
 - Get your Account USERNAME and PASSWORD
 - Fill in your credentials in the `.env` file
@@ -84,9 +86,11 @@ cp .env.template .env
 
 `Ngrok`
 
+Not mandatory at all, but useful for tests and debug.
+
 - Get started for free https://ngrok.com/
 - Fill in your authtoken in the `.env` file
-- Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunnel, starting it from your local pc.
+- Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunnel, starting it from your local PC.
 
 ## Install dependencies
 
