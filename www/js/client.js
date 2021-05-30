@@ -12,11 +12,13 @@ const welcomeImg = "../images/illustration-section-01.svg";
 const shareUrlImg = "../images/illustration-section-01.svg";
 const leaveRoomImg = "../images/illustration-section-01.svg";
 const confirmImg = "../images/illustration-section-01.svg";
+const fileSharingImg = "../images/illustration-section-01.svg";
 const aboutImg = "../images/about.png";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const avatarApiUrl = "https://eu.ui-avatars.com/api";
 const notifyBySound = true; // turn on - off sound notifications
 const notifyAddPeer = "../audio/addPeer.mp3";
+const notifyDownload = "../audio/download.mp3";
 const notifyKickedOut = "../audio/kickedOut.mp3";
 const notifyRemovePeer = "../audio/removePeer.mp3";
 const notifyNewMessage = "../audio/newMessage.mp3";
@@ -24,6 +26,8 @@ const notifyRecStart = "../audio/recStart.mp3";
 const notifyRecStop = "../audio/recStop.mp3";
 const notifyRaiseHand = "../audio/raiseHand.mp3";
 const notifyError = "../audio/error.mp3";
+const fileSharingInput =
+  "image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.zip,.rar,.tar";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
@@ -62,7 +66,8 @@ var localMediaStream; // my microphone / webcam
 var remoteMediaStream; // peers microphone / webcam
 var remoteMediaControls = false; // enable - disable peers video player controls (default false)
 var peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
-var dataChannels = {}; // keep track of our peer data channels
+var chatDataChannels = {}; // keep track of our peer chat data channels
+var fileSharingDataChannels = {}; // keep track of our peer file sharing data channels
 var useRTCDataChannel = true; // https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel
 var peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 var chatMessages = []; // collect chat messages to save it later if want
@@ -97,6 +102,7 @@ var fullScreenBtn;
 var chatRoomBtn;
 var myHandBtn;
 var whiteboardBtn;
+var fileShareBtn;
 var mySettingsBtn;
 var aboutBtn;
 var leaveRoomBtn;
@@ -164,6 +170,17 @@ var drawsize = 3;
 // room actions btns
 var muteEveryoneBtn;
 var hideEveryoneBtn;
+// file transfer settings
+var fileToSend;
+var fileReader;
+var receiveBuffer = [];
+var receivedSize = 0;
+var incomingFileInfo;
+var incomingFileData;
+var sendFileDiv;
+var sendFileInfo;
+var sendProgress;
+const chunkSize = 16 * 1024; //16kb
 
 /**
  * Load all Html elements by Id
@@ -182,6 +199,7 @@ function getHtmlElementsById() {
   fullScreenBtn = getId("fullScreenBtn");
   chatRoomBtn = getId("chatRoomBtn");
   whiteboardBtn = getId("whiteboardBtn");
+  fileShareBtn = getId("fileShareBtn");
   myHandBtn = getId("myHandBtn");
   mySettingsBtn = getId("mySettingsBtn");
   aboutBtn = getId("aboutBtn");
@@ -236,6 +254,10 @@ function getHtmlElementsById() {
   // room actions buttons
   muteEveryoneBtn = getId("muteEveryoneBtn");
   hideEveryoneBtn = getId("hideEveryoneBtn");
+  // file send progress
+  sendFileDiv = getId("sendFileDiv");
+  sendFileInfo = getId("sendFileInfo");
+  sendProgress = getId("sendProgress");
 }
 
 /**
@@ -281,6 +303,10 @@ function setButtonsTitle() {
   });
   tippy(whiteboardBtn, {
     content: "OPEN the whiteboard",
+    placement: "right-start",
+  });
+  tippy(fileShareBtn, {
+    content: "SHARE the file",
     placement: "right-start",
   });
   tippy(mySettingsBtn, {
@@ -595,7 +621,8 @@ function initPeer() {
       peerConnections[peer_id].close();
       msgerRemovePeer(peer_id);
     }
-    if (useRTCDataChannel) dataChannels = {};
+    if (useRTCDataChannel) chatDataChannels = {};
+    fileSharingDataChannels = {};
     peerConnections = {};
     peerMediaElements = {};
   });
@@ -767,21 +794,29 @@ function initPeer() {
        * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
        */
       peerConnections[peer_id].ondatachannel = function (event) {
-        console.log("Datachannel event" + peer_id, event);
+        console.log("Datachannel event " + peer_id, event);
         event.channel.onmessage = (msg) => {
-          let dataMessage = {};
-          try {
-            dataMessage = JSON.parse(msg.data);
-            handleIncomingDataChannelMessages(dataMessage);
-          } catch (err) {
-            console.log(err);
+          switch (event.channel.label) {
+            case "mirotalk_chat_channel":
+              let dataMessage = {};
+              try {
+                dataMessage = JSON.parse(msg.data);
+                handleDataChannelChat(dataMessage);
+              } catch (err) {
+                console.log(err);
+              }
+              break;
+            case "mirotalk_file_sharing_channel":
+              handleDataChannelFileSharing(msg.data);
+              break;
           }
         };
       };
+
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel
-      dataChannels[peer_id] = peerConnections[peer_id].createDataChannel(
-        "mirotalk_data_channel"
-      );
+      createChatDataChannel(peer_id);
+      createFileSharingDataChannel(peer_id);
+      // ...
     } else {
       // show chat messages dev mode
       signalingSocket.on("onMessage", function (config) {
@@ -955,6 +990,11 @@ function initPeer() {
     kickedOut(config.peer_name);
   });
 
+  // get file info
+  signalingSocket.on("onFileInfo", function (data) {
+    startDownload(data);
+  });
+
   /**
    * When a user leaves a channel (or is disconnected from the
    * signaling server) everyone will recieve a 'removePeer' message
@@ -980,7 +1020,8 @@ function initPeer() {
 
     msgerRemovePeer(peer_id);
 
-    if (useRTCDataChannel) delete dataChannels[peer_id];
+    if (useRTCDataChannel) delete chatDataChannels[peer_id];
+    delete fileSharingDataChannels[peer_id];
 
     delete peerConnections[peer_id];
     delete peerMediaElements[peer_id];
@@ -988,38 +1029,6 @@ function initPeer() {
     playSound("removePeer");
   });
 } // end [initPeer]
-
-/**
- * handle Incoming Data Channel Message if useRTCDataChannel(true)
- * @param {*} dataMessages
- */
-function handleIncomingDataChannelMessages(dataMessages) {
-  switch (dataMessages.type) {
-    case "chat":
-      // private message but not for me return
-      if (dataMessages.privateMsg && dataMessages.toName != myPeerName) return;
-      // log incoming dataMessages json
-      console.log("handleIncomingDataChannelMessages", dataMessages);
-      // chat message for me also
-      if (!isChatRoomVisible) {
-        showChatRoomDraggable();
-        chatRoomBtn.className = "fas fa-comment-slash";
-      }
-      playSound("newMessage");
-      setPeerChatAvatarImgName("left", dataMessages.name);
-      appendMessage(
-        dataMessages.name,
-        leftChatAvatar,
-        "left",
-        dataMessages.msg,
-        dataMessages.privateMsg
-      );
-      break;
-    // .........
-    default:
-      break;
-  }
-}
 
 /**
  * Set mirotalk theme neon - dark - ghost
@@ -1507,6 +1516,7 @@ function manageLeftButtons() {
   setChatEmojiBtn();
   setMyHandBtn();
   setMyWhiteboardBtn();
+  setMyFileShareBtn();
   setMySettingsBtn();
   setAboutBtn();
   setLeaveRoomBtn();
@@ -1799,6 +1809,17 @@ function setMyWhiteboardBtn() {
   // clean whiteboard
   whiteboardCleanBtn.addEventListener("click", (e) => {
     cleanBoard();
+  });
+}
+
+/**
+ * File Transfer button event click
+ * https://fromsmash.com for Big Data
+ */
+function setMyFileShareBtn() {
+  fileShareBtn.addEventListener("click", (e) => {
+    //window.open("https://fromsmash.com");
+    selectFileToShare();
   });
 }
 
@@ -2608,6 +2629,48 @@ function hideChatRoomAndEmojiPicker() {
 }
 
 /**
+ * Create Chat Room Data Channel
+ * @param {*} peer_id
+ */
+function createChatDataChannel(peer_id) {
+  chatDataChannels[peer_id] = peerConnections[peer_id].createDataChannel(
+    "mirotalk_chat_channel"
+  );
+}
+
+/**
+ * handle Incoming Data Channel Chat Messages
+ * @param {*} dataMessages
+ */
+function handleDataChannelChat(dataMessages) {
+  switch (dataMessages.type) {
+    case "chat":
+      // private message but not for me return
+      if (dataMessages.privateMsg && dataMessages.toName != myPeerName) return;
+      // log incoming dataMessages json
+      console.log("handleDataChannelChat", dataMessages);
+      // chat message for me also
+      if (!isChatRoomVisible) {
+        showChatRoomDraggable();
+        chatRoomBtn.className = "fas fa-comment-slash";
+      }
+      playSound("newMessage");
+      setPeerChatAvatarImgName("left", dataMessages.name);
+      appendMessage(
+        dataMessages.name,
+        leftChatAvatar,
+        "left",
+        dataMessages.msg,
+        dataMessages.privateMsg
+      );
+      break;
+    // .........
+    default:
+      break;
+  }
+}
+
+/**
  * Escape Special Chars
  * @param {*} regex
  */
@@ -2759,7 +2822,7 @@ function detectUrl(text) {
  * @returns true/false
  */
 function isImageURL(url) {
-  return url.match(/\.(jpeg|jpg|gif|png)$/) != null;
+  return url.match(/\.(jpeg|jpg|gif|png|tiff|bmp)$/) != null;
 }
 
 /**
@@ -2790,9 +2853,9 @@ function emitMsg(name, toName, msg, privateMsg, peer_id) {
         msg: msg,
         privateMsg: privateMsg,
       };
-      // peer to peer over dataChannels
-      Object.keys(dataChannels).map((id) =>
-        dataChannels[id].send(JSON.stringify(chatMessage))
+      // peer to peer over DataChannels
+      Object.keys(chatDataChannels).map((peerId) =>
+        chatDataChannels[peerId].send(JSON.stringify(chatMessage))
       );
     } else {
       // client over signaling server
@@ -3216,6 +3279,296 @@ function setWhiteboardBgandColors() {
 }
 
 /**
+ * WEBRCT FILE TRANSFER
+ * https://webrtc.github.io/samples/src/content/datachannel/filetransfer/
+ * https://github.com/webrtc/samples/blob/gh-pages/src/content/datachannel/filetransfer/js/main.js
+ */
+
+/**
+ * Create File Sharing Data Channel
+ * @param {*} peer_id
+ */
+function createFileSharingDataChannel(peer_id) {
+  fileSharingDataChannels[peer_id] = peerConnections[peer_id].createDataChannel(
+    "mirotalk_file_sharing_channel"
+  );
+  fileSharingDataChannels[peer_id].binaryType = "arraybuffer";
+  fileSharingDataChannels[peer_id].addEventListener("error", onFsError);
+}
+
+/**
+ * Handle File Sharing
+ * @param {*} data
+ */
+function handleDataChannelFileSharing(data) {
+  receiveBuffer.push(data);
+  receivedSize += data.byteLength;
+
+  // let getPercentage = ((receivedSize / incomingFileInfo.fileSize) * 100).toFixed(2);
+  // console.log("Received progress: " + getPercentage + "%");
+
+  if (receivedSize === incomingFileInfo.fileSize) {
+    incomingFileData = receiveBuffer;
+    receiveBuffer = [];
+    endDownload();
+  }
+}
+
+/**
+ * Handle File sharing data channel error
+ * @param {*} event
+ */
+function onFsError(event) {
+  console.error("onFsError", event);
+  // cleanup
+  receiveBuffer = [];
+  incomingFileData = [];
+  receivedSize = 0;
+  sendFileDiv.style.display = "none";
+}
+
+/**
+ * Send File Data trought datachannel
+ */
+function sendFileData() {
+  sendFileInfo.innerHTML =
+    "File name: " +
+    fileToSend.name +
+    "<br>" +
+    "File type: " +
+    fileToSend.type +
+    "<br>" +
+    "File size: " +
+    bytesToSize(fileToSend.size) +
+    "<br>";
+
+  sendFileDiv.style.display = "inline";
+  sendProgress.max = fileToSend.size;
+  fileReader = new FileReader();
+  let offset = 0;
+
+  fileReader.addEventListener("error", (error) =>
+    console.error("fileReader error", error)
+  );
+  fileReader.addEventListener("abort", (event) =>
+    console.log("fileReader aborted", event)
+  );
+  fileReader.addEventListener("load", (e) => {
+    // peer to peer over DataChannels
+    Object.keys(fileSharingDataChannels).map((peer_id) =>
+      fileSharingDataChannels[peer_id].send(e.target.result)
+    );
+    offset += e.target.result.byteLength;
+
+    sendProgress.value = offset;
+    sendFilePercentage.innerHTML =
+      "Send progress: " + ((offset / fileToSend.size) * 100).toFixed(2) + "%";
+
+    // send file completed
+    if (offset === fileToSend.size) {
+      sendFileDiv.style.display = "none";
+      userLog(
+        "success",
+        "The file " + fileToSend.name + " was sent successfully."
+      );
+    }
+
+    if (offset < fileToSend.size) {
+      readSlice(offset);
+    }
+  });
+  const readSlice = (o) => {
+    const slice = fileToSend.slice(offset, o + chunkSize);
+    fileReader.readAsArrayBuffer(slice);
+  };
+  readSlice(0);
+}
+
+/**
+ * Select the File to Share
+ */
+function selectFileToShare() {
+  if (!thereIsPeerConnections()) {
+    userLog("info", "No participants detected");
+    return;
+  }
+
+  playSound("newMessage");
+
+  Swal.fire({
+    allowOutsideClick: false,
+    background: swalBackground,
+    imageAlt: "mirotalk-file-sharing",
+    imageUrl: fileSharingImg,
+    position: "center",
+    title: "Share the file",
+    input: "file",
+    inputAttributes: {
+      accept: fileSharingInput,
+      "aria-label": "Select the file",
+    },
+    showDenyButton: true,
+    confirmButtonText: `Send`,
+    denyButtonText: `Cancel`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fileToSend = result.value;
+      if (fileToSend) {
+        console.log(
+          "Send file " +
+            fileToSend.name +
+            " size " +
+            bytesToSize(fileToSend.size) +
+            " type " +
+            fileToSend.type
+        );
+        // send some metadata about our file to peers in the room
+        signalingSocket.emit("fileInfo", {
+          peerConnections: peerConnections,
+          peer_name: myPeerName,
+          room_id: roomId,
+          file: {
+            fileName: fileToSend.name,
+            fileSize: fileToSend.size,
+            fileType: fileToSend.type,
+          },
+        });
+        // send the File
+        setTimeout(() => {
+          sendFileData();
+        }, 1000);
+      }
+    }
+  });
+}
+
+/**
+ * Start to Download the File
+ * @param {*} data file
+ */
+function startDownload(data) {
+  incomingFileInfo = data;
+  incomingFileData = [];
+  receiveBuffer = [];
+  receivedSize = 0;
+  console.log(
+    "incoming file: " +
+      incomingFileInfo.fileName +
+      " size: " +
+      bytesToSize(incomingFileInfo.fileSize) +
+      " type " +
+      incomingFileInfo.fileType
+  );
+}
+
+/**
+ * The file will be saved in the blob
+ * You will be asked to confirm if you want to save it on your PC / Mobile device.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Blob
+ */
+function endDownload() {
+  playSound("download");
+
+  // save received file into Blob
+  const blob = new Blob(incomingFileData);
+  incomingFileData = [];
+
+  // if file is image, show the preview
+  if (isImageURL(incomingFileInfo.fileName)) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      Swal.fire({
+        allowOutsideClick: false,
+        background: swalBackground,
+        position: "center",
+        title: "Received file",
+        text:
+          incomingFileInfo.fileName +
+          " size " +
+          bytesToSize(incomingFileInfo.fileSize),
+        imageUrl: e.target.result,
+        imageAlt: "mirotalk-file-img-download",
+        showDenyButton: true,
+        confirmButtonText: `Save`,
+        denyButtonText: `Cancel`,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          saveFileFromBlob();
+        }
+      });
+    };
+    // blob where is stored downloaded file
+    reader.readAsDataURL(blob);
+  } else {
+    // not img file
+    Swal.fire({
+      allowOutsideClick: false,
+      background: swalBackground,
+      imageAlt: "mirotalk-file-download",
+      imageUrl: fileSharingImg,
+      position: "center",
+      title: "Received file",
+      text:
+        incomingFileInfo.fileName +
+        " size " +
+        bytesToSize(incomingFileInfo.fileSize),
+      showDenyButton: true,
+      confirmButtonText: `Save`,
+      denyButtonText: `Cancel`,
+      showClass: {
+        popup: "animate__animated animate__fadeInDown",
+      },
+      hideClass: {
+        popup: "animate__animated animate__fadeOutUp",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        saveFileFromBlob();
+      }
+    });
+  }
+
+  // save to PC / Mobile devices
+  function saveFileFromBlob() {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = incomingFileInfo.fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  }
+}
+
+/**
+ * Convert bytes to KB-MB-GB-TB
+ * @param {*} bytes
+ * @returns size
+ */
+function bytesToSize(bytes) {
+  var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  if (bytes == 0) return "0 Byte";
+  var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+  return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
+}
+
+/**
  * Mute everyone except yourself
  * Once muted, you won't be able to unmute them, but they can unmute themselves at any time
  */
@@ -3362,9 +3715,9 @@ function kickedOut(peer_name) {
     icon: "warning",
     title: "You will be kicked out!",
     html:
-      `<h2 style="color: limegreen;">` +
+      `<h2 style="color: red;">` +
       peer_name +
-      `</h2> will kick out you after <b></b> milliseconds.`,
+      `</h2> will kick out you after <b style="color: red;"></b> milliseconds.`,
     timer: 10000,
     timerProgressBar: true,
     didOpen: () => {
@@ -3522,6 +3875,9 @@ async function playSound(state) {
   switch (state) {
     case "addPeer":
       file_audio = notifyAddPeer;
+      break;
+    case "download":
+      file_audio = notifyDownload;
       break;
     case "kickedOut":
       file_audio = notifyKickedOut;

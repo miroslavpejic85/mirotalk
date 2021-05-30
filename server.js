@@ -537,14 +537,55 @@ io.sockets.on("connect", (socket) => {
         socket.id +
         "] kick out peer [" +
         peer_id +
-        "] from room_id " +
-        room_id
+        "] from room_id [" +
+        room_id +
+        "]"
     );
 
     if (peer_id in sockets) {
       sockets[peer_id].emit("onKickOut", {
         peer_name: peer_name,
       });
+    }
+  });
+
+  /**
+   * Relay File info
+   */
+  socket.on("fileInfo", function (config) {
+    let peerConnections = config.peerConnections;
+    let room_id = config.room_id;
+    let peer_name = config.peer_name;
+    let file = config.file;
+
+    console.log(
+      "[" +
+        socket.id +
+        "] Peer [" +
+        peer_name +
+        "] send file to room_id [" +
+        room_id +
+        "]",
+      {
+        fileName: file.fileName,
+        fileSize: bytesToSize(file.fileSize),
+        fileType: file.fileType,
+      }
+    );
+
+    function bytesToSize(bytes) {
+      var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+      if (bytes == 0) return "0 Byte";
+      var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+      return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
+    }
+
+    if (Object.keys(peerConnections).length != 0) {
+      for (var peer_id in peerConnections) {
+        if (sockets[peer_id]) {
+          sockets[peer_id].emit("onFileInfo", file);
+        }
+      }
     }
   });
 }); // end [sockets.on-connect]

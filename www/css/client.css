@@ -371,6 +371,7 @@ body {
 #chatRoomBtn,
 #myHandBtn,
 #whiteboardBtn,
+#fileShareBtn,
 #mySettingsBtn,
 #aboutBtn,
 #leaveRoomBtn {
@@ -388,6 +389,7 @@ body {
 #swapCameraBtn:hover,
 #chatRoomBtn:hover,
 #myHandBtn:hover,
+#fileShareBtn:hover,
 #whiteboardBtn:hover,
 #mySettingsBtn:hover,
 #aboutBtn:hover {
@@ -933,6 +935,10 @@ video:fullscreen {
   color: white !important;
   background-color: transparent !important;
 }
+.swal2-file {
+  color: white !important;
+  background-color: transparent !important;
+}
 .swal2-html-container {
   color: rgb(165, 165, 165) !important;
   background-color: transparent !important;
@@ -996,6 +1002,44 @@ video:fullscreen {
 }
 
 /*--------------------------------------------------------------
+# Send File
+--------------------------------------------------------------*/
+
+#sendFileDiv {
+  z-index: 15;
+  display: none;
+  /* center */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* gui */
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 5px;
+  margin: auto;
+  box-shadow: var(--box-shadow);
+  padding: 10px;
+  color: white;
+  font-size: 1rem;
+  /* fade in */
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: hidden;
+}
+
+progress {
+  width: 0;
+  min-width: 100%;
+}
+
+/*--------------------------------------------------------------
 # Other
 --------------------------------------------------------------*/
 
@@ -1044,4 +1088,5 @@ z-index
 12 left buttons
 13 chat emoji
 14 settings
+15 send File Div
 */
