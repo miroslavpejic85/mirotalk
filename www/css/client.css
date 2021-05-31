@@ -1034,6 +1034,20 @@ video:fullscreen {
   overflow: hidden;
 }
 
+#sendAbortBtn {
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: white;
+  background-color: transparent;
+  transition: background 0.23s;
+}
+#sendAbortBtn:hover {
+  color: rgb(255, 0, 0);
+  transform: var(--btns-hover-scale);
+  transition: all 0.3s ease-in-out;
+}
+
 progress {
   width: 0;
   min-width: 100%;

@@ -27,7 +27,7 @@ const notifyRecStop = "../audio/recStop.mp3";
 const notifyRaiseHand = "../audio/raiseHand.mp3";
 const notifyError = "../audio/error.mp3";
 const fileSharingInput =
-  "image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.zip,.rar,.tar";
+  "image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.zip,.rar,.tar"; // "*"
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
@@ -180,6 +180,7 @@ var incomingFileData;
 var sendFileDiv;
 var sendFileInfo;
 var sendProgress;
+var sendAbortBtn;
 var sendInProgress = false;
 var fsDataChannelOpen = false;
 const chunkSize = 16 * 1024; //16kb
@@ -260,6 +261,7 @@ function getHtmlElementsById() {
   sendFileDiv = getId("sendFileDiv");
   sendFileInfo = getId("sendFileInfo");
   sendProgress = getId("sendProgress");
+  sendAbortBtn = getId("sendAbortBtn");
 }
 
 /**
@@ -386,6 +388,12 @@ function setButtonsTitle() {
   tippy(hideEveryoneBtn, {
     content: "HIDE everyone except yourself",
     placement: "top",
+  });
+
+  // Suspend File transfer btn
+  tippy(sendAbortBtn, {
+    content: "ABORT file transfer",
+    placement: "right-start",
   });
 }
 
@@ -1822,6 +1830,9 @@ function setMyFileShareBtn() {
   fileShareBtn.addEventListener("click", (e) => {
     //window.open("https://fromsmash.com");
     selectFileToShare();
+  });
+  sendAbortBtn.addEventListener("click", (e) => {
+    abortFileTransfer();
   });
 }
 
@@ -3424,6 +3435,16 @@ function sendFileData() {
     fileReader.readAsArrayBuffer(slice);
   };
   readSlice(0);
+}
+
+/**
+ * Abort the file transfer
+ */
+function abortFileTransfer() {
+  if (fileReader && fileReader.readyState === 1) {
+    fileReader.abort();
+    sendFileDiv.style.display = "none";
+  }
 }
 
 /**
