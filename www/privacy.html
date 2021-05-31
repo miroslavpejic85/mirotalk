@@ -63,7 +63,11 @@
               <div class="split-wrap invert-mobile">
                 <div class="split-item">
                   <div
-                    class="hero-content split-item-content center-content-mobile"
+                    class="
+                      hero-content
+                      split-item-content
+                      center-content-mobile
+                    "
                   >
                     <h1
                       class="mt-0 mb-16 reveal-from-bottom"
@@ -91,22 +95,39 @@
                         >RTCSessionDescription</a
                       >
                       which is needed to establish the video call using WebRTC.
-                      RTCICECandidates, RTCSessionDescription and also the chat
-                      messaging is not stored in any persistent database, it's
-                      removed from the server as soon as the user leave the call
-                      by closing the browser window.
+                      RTCICECandidates, RTCSessionDescription is not stored in
+                      any persistent database, it's removed from the server as
+                      soon as the user leave the call by closing the browser
+                      window.
+                      <br /><br />
+                      For Chat messaging and File Sharing, we using WebRTC's
+                      <a
+                        href="https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel"
+                        target="_blank"
+                        >RTCDataChannel</a
+                      >
+                      to transfer data directly from one peer to another. With
+                      RTCDataChannel, all data is secured with
+                      <a
+                        href="https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security"
+                        target="_blank"
+                        >Datagram Transport Layer Security</a
+                      >
+                      (DTLS). DTLS is a derivative of SSL, meaning your data
+                      will be as secure as using any standard SSL-based
+                      connection.
                       <br /><br />
                       If you record a meeting, the recording of the meeting is
-                      temporarily stored on Your browser
+                      temporarily stored on <strong>Your browser</strong>
                       <a
                         href="https://developer.mozilla.org/en-US/docs/Web/API/Blob"
                         target="_blank"
                         >blob</a
                       >, then will be downloaded on Your PC/Mobile Device.
                       <br /><br />
-                      Mirotalk is purely peer-to-peer, which means the user's
-                      video and audio is not sent to our server at all.
-                      <br /><br />
+                      <strong>Mirotalk</strong> is purely peer-to-peer, which
+                      means the user's video and audio is not sent to our server
+                      at all. <br /><br />
                       We use Google Analytics to track aggregated usage
                       statistics in order to improve our service. The maker of
                       <strong>Mirotalk</strong> has no intention of using
