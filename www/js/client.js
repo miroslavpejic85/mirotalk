@@ -26,8 +26,8 @@ const notifyRecStart = "../audio/recStart.mp3";
 const notifyRecStop = "../audio/recStop.mp3";
 const notifyRaiseHand = "../audio/raiseHand.mp3";
 const notifyError = "../audio/error.mp3";
-const fileSharingInput =
-  "image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.zip,.rar,.tar";
+const fileSharingInput = "*";
+//"image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.zip,.rar,.tar";
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
@@ -180,6 +180,8 @@ var incomingFileData;
 var sendFileDiv;
 var sendFileInfo;
 var sendProgress;
+var sendInProgress = false;
+var fsDataChannelOpen = false;
 const chunkSize = 16 * 1024; //16kb
 
 /**
@@ -2170,8 +2172,8 @@ function copyRoomURL() {
  */
 function handleAudio(e, init) {
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
-  localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0]
-    .enabled;
+  localMediaStream.getAudioTracks()[0].enabled =
+    !localMediaStream.getAudioTracks()[0].enabled;
   myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
   e.target.className = "fas fa-microphone" + (myAudioStatus ? "" : "-slash");
   if (init) {
@@ -2193,8 +2195,8 @@ function handleAudio(e, init) {
  */
 function handleVideo(e, init) {
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
-  localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0]
-    .enabled;
+  localMediaStream.getVideoTracks()[0].enabled =
+    !localMediaStream.getVideoTracks()[0].enabled;
   myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
   e.target.className = "fas fa-video" + (myVideoStatus ? "" : "-slash");
   if (init) {
@@ -3293,6 +3295,14 @@ function createFileSharingDataChannel(peer_id) {
     "mirotalk_file_sharing_channel"
   );
   fileSharingDataChannels[peer_id].binaryType = "arraybuffer";
+  fileSharingDataChannels[peer_id].addEventListener(
+    "open",
+    onFSChannelStateChange
+  );
+  fileSharingDataChannels[peer_id].addEventListener(
+    "close",
+    onFSChannelStateChange
+  );
   fileSharingDataChannels[peer_id].addEventListener("error", onFsError);
 }
 
@@ -3315,6 +3325,19 @@ function handleDataChannelFileSharing(data) {
 }
 
 /**
+ * Handle File Sharing data channel state
+ * @param {*} event
+ */
+function onFSChannelStateChange(event) {
+  console.log("onFSChannelStateChange IS", event.type);
+  if (event.type === "close") {
+    fsDataChannelOpen = false;
+    return;
+  }
+  fsDataChannelOpen = true;
+}
+
+/**
  * Handle File sharing data channel error
  * @param {*} event
  */
@@ -3325,12 +3348,28 @@ function onFsError(event) {
   incomingFileData = [];
   receivedSize = 0;
   sendFileDiv.style.display = "none";
+  // Popup what wrong
+  if (sendInProgress) {
+    userLog("error", "File Sharing " + event.error);
+    sendInProgress = false;
+  }
 }
 
 /**
  * Send File Data trought datachannel
  */
 function sendFileData() {
+  console.log(
+    "Send file " +
+      fileToSend.name +
+      " size " +
+      bytesToSize(fileToSend.size) +
+      " type " +
+      fileToSend.type
+  );
+
+  sendInProgress = true;
+
   sendFileInfo.innerHTML =
     "File name: " +
     fileToSend.name +
@@ -3354,6 +3393,8 @@ function sendFileData() {
     console.log("fileReader aborted", event)
   );
   fileReader.addEventListener("load", (e) => {
+    if (!sendInProgress || !fsDataChannelOpen) return;
+
     // peer to peer over DataChannels
     Object.keys(fileSharingDataChannels).map((peer_id) =>
       fileSharingDataChannels[peer_id].send(e.target.result)
@@ -3366,6 +3407,7 @@ function sendFileData() {
 
     // send file completed
     if (offset === fileToSend.size) {
+      sendInProgress = false;
       sendFileDiv.style.display = "none";
       userLog(
         "success",
@@ -3419,15 +3461,15 @@ function selectFileToShare() {
   }).then((result) => {
     if (result.isConfirmed) {
       fileToSend = result.value;
-      if (fileToSend) {
-        console.log(
-          "Send file " +
-            fileToSend.name +
-            " size " +
-            bytesToSize(fileToSend.size) +
-            " type " +
-            fileToSend.type
-        );
+      if (fileToSend && fileToSend.size > 0) {
+        // something wrong channel not open
+        if (!fsDataChannelOpen) {
+          userLog(
+            "error",
+            "Unable to Sharing the file, DataChannel seems closed."
+          );
+          return;
+        }
         // send some metadata about our file to peers in the room
         signalingSocket.emit("fileInfo", {
           peerConnections: peerConnections,
@@ -3443,6 +3485,8 @@ function selectFileToShare() {
         setTimeout(() => {
           sendFileData();
         }, 1000);
+      } else {
+        userLog("error", "File not selected or empty.");
       }
     }
   });
