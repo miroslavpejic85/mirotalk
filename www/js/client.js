@@ -3342,6 +3342,11 @@ function handleDataChannelFileSharing(data) {
 function onFSChannelStateChange(event) {
   console.log("onFSChannelStateChange", event.type);
   if (event.type === "close") {
+    if (sendInProgress) {
+      userLog("error", "File Sharing channel closed");
+      sendFileDiv.style.display = "none";
+      sendInProgress = false;
+    }
     fsDataChannelOpen = false;
     return;
   }
@@ -3407,9 +3412,7 @@ function sendFileData() {
     if (!sendInProgress || !fsDataChannelOpen) return;
 
     // peer to peer over DataChannels
-    Object.keys(fileSharingDataChannels).map((peer_id) =>
-      fileSharingDataChannels[peer_id].send(e.target.result)
-    );
+    sendFSData(e.target.result);
     offset += e.target.result.byteLength;
 
     sendProgress.value = offset;
@@ -3435,6 +3438,18 @@ function sendFileData() {
     fileReader.readAsArrayBuffer(slice);
   };
   readSlice(0);
+}
+
+/**
+ * Send Data if channel open
+ * @param {*} data fileReader e.target.result
+ */
+function sendFSData(data) {
+  for (var peer_id in fileSharingDataChannels) {
+    if (fileSharingDataChannels[peer_id].readyState === "open") {
+      fileSharingDataChannels[peer_id].send(data);
+    }
+  }
 }
 
 /**
