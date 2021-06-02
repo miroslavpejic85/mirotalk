@@ -3340,7 +3340,7 @@ function handleDataChannelFileSharing(data) {
  * @param {*} event
  */
 function onFSChannelStateChange(event) {
-  console.log("onFSChannelStateChange IS", event.type);
+  console.log("onFSChannelStateChange", event.type);
   if (event.type === "close") {
     fsDataChannelOpen = false;
     return;
@@ -3353,7 +3353,6 @@ function onFSChannelStateChange(event) {
  * @param {*} event
  */
 function onFsError(event) {
-  console.error("onFsError", event);
   // cleanup
   receiveBuffer = [];
   incomingFileData = [];
@@ -3361,6 +3360,7 @@ function onFsError(event) {
   sendFileDiv.style.display = "none";
   // Popup what wrong
   if (sendInProgress) {
+    console.error("onFsError", event);
     userLog("error", "File Sharing " + event.error);
     sendInProgress = false;
   }
