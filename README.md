@@ -37,7 +37,7 @@ Open the app in one of following **supported browser**
 - WebCam Streaming (Front - Rear for mobile)
 - Audio Streaming
 - Screen Sharing to present documents, slides, and more...
-- File Sharing, share the files to your participants in the room
+- File Sharing, share any files to your participants in the room
 - Select Audio Input - Output && Video source
 - Recording your Screen, Audio and Video
 - Chat with Emoji Picker & Private messages & Save the conversations
