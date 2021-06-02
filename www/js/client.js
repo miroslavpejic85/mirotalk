@@ -3451,11 +3451,6 @@ function abortFileTransfer() {
  * Select the File to Share
  */
 function selectFileToShare() {
-  if (!thereIsPeerConnections()) {
-    userLog("info", "No participants detected");
-    return;
-  }
-
   playSound("newMessage");
 
   Swal.fire({
@@ -3483,6 +3478,11 @@ function selectFileToShare() {
     if (result.isConfirmed) {
       fileToSend = result.value;
       if (fileToSend && fileToSend.size > 0) {
+        // no peers in the room
+        if (!thereIsPeerConnections()) {
+          userLog("info", "No participants detected");
+          return;
+        }
         // something wrong channel not open
         if (!fsDataChannelOpen) {
           userLog(
