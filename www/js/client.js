@@ -704,6 +704,7 @@ function initPeer() {
         const remoteVideoStatusIcon = document.createElement("button");
         const remoteAudioStatusIcon = document.createElement("button");
         const remotePeerKickOut = document.createElement("button");
+        const remoteVideoFullScreenBtn = document.createElement("button");
         const remoteVideoAvatarImage = document.createElement("img");
 
         // menu Status
@@ -745,6 +746,12 @@ function initPeer() {
         tippy(remotePeerKickOut, {
           content: "Kick out",
         });
+        // remote video full screen mode
+        remoteVideoFullScreenBtn.setAttribute("id", peer_id + "_fullScreen");
+        remoteVideoFullScreenBtn.className = "fas fa-expand";
+        tippy(remoteVideoFullScreenBtn, {
+          content: "Full screen mode",
+        });
         // my video avatar image
         remoteVideoAvatarImage.setAttribute("id", peer_id + "_avatar");
         remoteVideoAvatarImage.className = "videoAvatarImage pulsate";
@@ -755,6 +762,7 @@ function initPeer() {
         remoteStatusMenu.appendChild(remoteVideoStatusIcon);
         remoteStatusMenu.appendChild(remoteAudioStatusIcon);
         remoteStatusMenu.appendChild(remotePeerKickOut);
+        remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
 
         // add elements to videoWrap div
         videoWrap.appendChild(remoteStatusMenu);
@@ -778,7 +786,7 @@ function initPeer() {
         resizeVideos();
 
         if (!isMobileDevice) {
-          handleVideoPlayerFs(peer_id + "_video");
+          handleVideoPlayerFs(peer_id + "_video", peer_id + "_fullScreen");
         }
 
         // handle kick out button event
@@ -1229,6 +1237,7 @@ function setupLocalMedia(callback, errorback) {
       const myHandStatusIcon = document.createElement("button");
       const myVideoStatusIcon = document.createElement("button");
       const myAudioStatusIcon = document.createElement("button");
+      const myVideoFullScreenBtn = document.createElement("button");
       const myVideoAvatarImage = document.createElement("img");
 
       // menu Status
@@ -1265,6 +1274,12 @@ function setupLocalMedia(callback, errorback) {
       tippy(myAudioStatusIcon, {
         content: "My audio is ON",
       });
+      // my video full screen mode
+      myVideoFullScreenBtn.setAttribute("id", "myVideoFullScreenBtn");
+      myVideoFullScreenBtn.className = "fas fa-expand";
+      tippy(myVideoFullScreenBtn, {
+        content: "Full screen mode",
+      });
       // my video avatar image
       myVideoAvatarImage.setAttribute("id", "myVideoAvatarImage");
       myVideoAvatarImage.className = "videoAvatarImage pulsate";
@@ -1275,6 +1290,7 @@ function setupLocalMedia(callback, errorback) {
       myStatusMenu.appendChild(myHandStatusIcon);
       myStatusMenu.appendChild(myVideoStatusIcon);
       myStatusMenu.appendChild(myAudioStatusIcon);
+      myStatusMenu.appendChild(myVideoFullScreenBtn);
 
       // add elements to video wrap div
       videoWrap.appendChild(myStatusMenu);
@@ -1314,7 +1330,7 @@ function setupLocalMedia(callback, errorback) {
 
       // on click go on Full Screen mode - back
       if (!isMobileDevice) {
-        handleVideoPlayerFs("myVideo");
+        handleVideoPlayerFs("myVideo", "myVideoFullScreenBtn");
       }
 
       if (callback) callback();
@@ -1399,12 +1415,15 @@ function setPeerChatAvatarImgName(avatar, peerName) {
 }
 
 /**
- * On video player click, go on full screen mode.
+ * On video player click, go on full screen mode ||
+ * On button click, go on full screen mode.
  * Press Esc to exit from full screen mode, or click again.
  * @param {*} videoId
+ * @param {*} videoFullScreenBtnId
  */
-function handleVideoPlayerFs(videoId) {
+function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
   var videoPlayer = getId(videoId);
+  var videoFullScreenBtn = getId(videoFullScreenBtnId);
 
   // handle Chrome Firefox Opera Microsoft Edge videoPlayer ESC
   videoPlayer.addEventListener("fullscreenchange", function (e) {
@@ -1430,7 +1449,16 @@ function handleVideoPlayerFs(videoId) {
     }
   });
 
+  // on button click go on FS
+  videoFullScreenBtn.addEventListener("click", (e) => {
+    handleFSVideo();
+  });
+  // on video click go on FS
   videoPlayer.addEventListener("click", (e) => {
+    handleFSVideo();
+  });
+
+  function handleFSVideo() {
     // if Controls enabled, or document on FS do nothing
     if (videoPlayer.controls || isDocumentOnFullScreen) return;
 
@@ -1463,7 +1491,7 @@ function handleVideoPlayerFs(videoId) {
       videoPlayer.style.pointerEvents = "auto";
       // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
     }
-  });
+  }
 }
 
 /**
