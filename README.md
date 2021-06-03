@@ -60,7 +60,7 @@ Open the app in one of following **supported browser**
 
 ## Quick start
 
-- You will need to have [Node.js](https://nodejs.org/it/) installed, this project has been tested with Node version 12.X
+- You will need to have [Node.js](https://nodejs.org/en/blog/release/v12.22.1/) installed, this project has been tested with Node version 12.X
 - Clone this repo
 
 ```bash
