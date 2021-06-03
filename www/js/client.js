@@ -787,6 +787,8 @@ function initPeer() {
 
         if (!isMobileDevice) {
           handleVideoPlayerFs(peer_id + "_video", peer_id + "_fullScreen");
+        } else {
+          remoteVideoFullScreenBtn.style.display = "none";
         }
 
         // handle kick out button event
@@ -1331,6 +1333,8 @@ function setupLocalMedia(callback, errorback) {
       // on click go on Full Screen mode - back
       if (!isMobileDevice) {
         handleVideoPlayerFs("myVideo", "myVideoFullScreenBtn");
+      } else {
+        myVideoFullScreenBtn.style.display = "none";
       }
 
       if (callback) callback();

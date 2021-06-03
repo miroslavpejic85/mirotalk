@@ -117,9 +117,7 @@ async function ngrokStart() {
     await ngrok.authtoken(ngrokAuthToken);
     await ngrok.connect(PORT);
     let api = ngrok.getApi();
-    let data = await api.get("api/tunnels");
-    data = JSON.parse(data);
-    // logme(data);
+    let data = await api.listTunnels();
     let pu0 = data.tunnels[0].public_url;
     let pu1 = data.tunnels[1].public_url;
     let tunnelHttps = pu0.startsWith("https") ? pu0 : pu1;
