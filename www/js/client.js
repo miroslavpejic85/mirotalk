@@ -2542,13 +2542,20 @@ function setRecordButtonUi() {
  * Download recorded stream
  */
 function downloadRecordedStream() {
+  const blob = new Blob(recordedBlobs, { type: "video/webm" });
   const recFileName = getDataTimeString() + "-REC.webm";
   const currentDevice = isMobileDevice ? "MOBILE" : "PC";
+  const blobFileSize = bytesToSize(blob.size);
   userLog(
-    "success",
-    `Recording file name: ${recFileName}, please wait to be processed, then will be downloaded to your ${currentDevice} device.`
+    "success-html",
+    `<div style="text-align: left;">
+      Recording Info <br/>
+      FILE: ${recFileName} <br/>
+      SIZE: ${blobFileSize} <br/>
+      Please wait to be processed, then will be downloaded to your ${currentDevice} device.
+    </div>`
   );
-  const blob = new Blob(recordedBlobs, { type: "video/webm" });
+  // save the recorded file to device
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.style.display = "none";
@@ -3961,6 +3968,21 @@ function userLog(type, message) {
         icon: "success",
         title: "Success",
         text: message,
+        showClass: {
+          popup: "animate__animated animate__fadeInDown",
+        },
+        hideClass: {
+          popup: "animate__animated animate__fadeOutUp",
+        },
+      });
+      break;
+    case "success-html":
+      Swal.fire({
+        background: swalBackground,
+        position: "center",
+        icon: "success",
+        title: "Success",
+        html: message,
         showClass: {
           popup: "animate__animated animate__fadeInDown",
         },
