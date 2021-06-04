@@ -2542,31 +2542,35 @@ function setRecordButtonUi() {
  * Download recorded stream
  */
 function downloadRecordedStream() {
-  const blob = new Blob(recordedBlobs, { type: "video/webm" });
-  const recFileName = getDataTimeString() + "-REC.webm";
-  const currentDevice = isMobileDevice ? "MOBILE" : "PC";
-  const blobFileSize = bytesToSize(blob.size);
-  userLog(
-    "success-html",
-    `<div style="text-align: left;">
-      Recording Info <br/>
-      FILE: ${recFileName} <br/>
-      SIZE: ${blobFileSize} <br/>
-      Please wait to be processed, then will be downloaded to your ${currentDevice} device.
-    </div>`
-  );
-  // save the recorded file to device
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.style.display = "none";
-  a.href = url;
-  a.download = recFileName;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => {
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }, 100);
+  try {
+    const blob = new Blob(recordedBlobs, { type: "video/webm" });
+    const recFileName = getDataTimeString() + "-REC.webm";
+    const currentDevice = isMobileDevice ? "MOBILE" : "PC";
+    const blobFileSize = bytesToSize(blob.size);
+    userLog(
+      "success-html",
+      `<div style="text-align: left;">
+        Recording Info <br/>
+        FILE: ${recFileName} <br/>
+        SIZE: ${blobFileSize} <br/>
+        Please wait to be processed, then will be downloaded to your ${currentDevice} device.
+      </div>`
+    );
+    // save the recorded file to device
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = recFileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+  } catch (error) {
+    userLog("error", "Recording save failed: " + error.message);
+  }
 }
 
 /**
