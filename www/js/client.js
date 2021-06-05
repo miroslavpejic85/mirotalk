@@ -331,7 +331,7 @@ function setButtonsTitle() {
     content: "Ghost theme",
   });
   tippy(msgerCPBtn, {
-    content: "All Participants",
+    content: "Private messages",
   });
   tippy(msgerClean, {
     content: "Clean messages",
@@ -593,9 +593,9 @@ function initPeer() {
   function welcomeUser() {
     const myRoomUrl = window.location.href;
     playSound("newMessage");
-    copyRoomURL();
     Swal.fire({
       background: swalBackground,
+      allowOutsideClick: false,
       position: "center",
       title: "<strong>Welcome " + myPeerName + "</strong>",
       imageAlt: "mirotalk-welcome",
@@ -607,13 +607,26 @@ function initPeer() {
       <p style="color:rgb(8, 189, 89);">` +
         myRoomUrl +
         `</p>`,
+      showDenyButton: true,
       confirmButtonText: `Copy meeting URL`,
+      denyButtonText: `Email invite`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
       hideClass: {
         popup: "animate__animated animate__fadeOutUp",
       },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        copyRoomURL();
+      } else {
+        let message = {
+          email: "",
+          subject: "Please join our Mirotalk Video Chat Meeting",
+          body: "Click to join: " + myRoomUrl,
+        };
+        shareRoomByEmail(message);
+      }
     });
   }
 
@@ -2120,7 +2133,7 @@ function showLeftButtonsAndMenu() {
  * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
  */
 async function shareRoomUrl() {
-  copyRoomURL();
+  const myRoomUrl = window.location.href;
 
   // navigator share
   let isSupportedNavigatorShare = false;
@@ -2130,7 +2143,7 @@ async function shareRoomUrl() {
     isSupportedNavigatorShare = true;
     try {
       // not add title and description to load metadata from url
-      await navigator.share({ url: window.location.href });
+      await navigator.share({ url: myRoomUrl });
       userLog("info", "Room Shared successfully!");
     } catch (error) {
       errorNavigatorShare = true;
@@ -2163,15 +2176,28 @@ async function shareRoomUrl() {
       <br/><br/>
       <p style="color:white;"> Share this meeting invite others to join.</p>
       <p style="color:rgb(8, 189, 89);">` +
-        window.location.href +
+        myRoomUrl +
         `</p>`,
+      showDenyButton: true,
+      confirmButtonText: `Copy meeting URL`,
+      denyButtonText: `Email invite`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
       hideClass: {
         popup: "animate__animated animate__fadeOutUp",
       },
-      confirmButtonText: `Copy meeting URL`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        copyRoomURL();
+      } else {
+        let message = {
+          email: "",
+          subject: "Please join our Mirotalk Video Chat Meeting",
+          body: "Click to join: " + myRoomUrl,
+        };
+        shareRoomByEmail(message);
+      }
     });
     makeRoomQR();
   }
@@ -2206,6 +2232,18 @@ function copyRoomURL() {
   document.execCommand("copy");
   console.log("Copied to clipboard Join Link ", roomURL);
   document.body.removeChild(tmpInput);
+}
+
+/**
+ * Share room id by email
+ * @param {*} message email | subject | body
+ */
+function shareRoomByEmail(message) {
+  var email = message.email;
+  var subject = message.subject;
+  var emailBody = message.body;
+  document.location =
+    "mailto:" + email + "?subject=" + subject + "&body=" + emailBody;
 }
 
 /**
@@ -2547,6 +2585,7 @@ function downloadRecordedStream() {
     const recFileName = getDataTimeString() + "-REC.webm";
     const currentDevice = isMobileDevice ? "MOBILE" : "PC";
     const blobFileSize = bytesToSize(blob.size);
+
     userLog(
       "success-html",
       `<div style="text-align: left;">
@@ -2556,6 +2595,7 @@ function downloadRecordedStream() {
         Please wait to be processed, then will be downloaded to your ${currentDevice} device.
       </div>`
     );
+
     // save the recorded file to device
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
