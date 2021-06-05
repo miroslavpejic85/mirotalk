@@ -595,7 +595,6 @@ function initPeer() {
     playSound("newMessage");
     Swal.fire({
       background: swalBackground,
-      allowOutsideClick: false,
       position: "center",
       title: "<strong>Welcome " + myPeerName + "</strong>",
       imageAlt: "mirotalk-welcome",
@@ -608,8 +607,10 @@ function initPeer() {
         myRoomUrl +
         `</p>`,
       showDenyButton: true,
+      showCancelButton: true,
       confirmButtonText: `Copy meeting URL`,
       denyButtonText: `Email invite`,
+      cancelButtonText: `Close`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -619,7 +620,7 @@ function initPeer() {
     }).then((result) => {
       if (result.isConfirmed) {
         copyRoomURL();
-      } else {
+      } else if (result.isDenied) {
         let message = {
           email: "",
           subject: "Please join our Mirotalk Video Chat Meeting",
@@ -2179,8 +2180,10 @@ async function shareRoomUrl() {
         myRoomUrl +
         `</p>`,
       showDenyButton: true,
+      showCancelButton: true,
       confirmButtonText: `Copy meeting URL`,
       denyButtonText: `Email invite`,
+      cancelButtonText: `Close`,
       showClass: {
         popup: "animate__animated animate__fadeInDown",
       },
@@ -2190,7 +2193,7 @@ async function shareRoomUrl() {
     }).then((result) => {
       if (result.isConfirmed) {
         copyRoomURL();
-      } else {
+      } else if (result.isDenied) {
         let message = {
           email: "",
           subject: "Please join our Mirotalk Video Chat Meeting",
