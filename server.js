@@ -7,14 +7,24 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
      ██ ██      ██   ██  ██  ██  ██      ██   ██ 
 ███████ ███████ ██   ██   ████   ███████ ██   ██                                           
 */
-
+/*
+dependencies: {
+  compression : https://www.npmjs.com/package/compression
+  dotenv      : https://www.npmjs.com/package/dotenv
+  express     : https://www.npmjs.com/package/express
+  ngrok       : https://www.npmjs.com/package/ngrok
+  socket.io   : https://www.npmjs.com/package/socket.io
+}
+*/
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
 require("dotenv").config();
 
+const compression = require("compression");
 const express = require("express");
 const path = require("path");
 const app = express();
+app.use(compression()); // Compress all HTTP responses GZip
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");

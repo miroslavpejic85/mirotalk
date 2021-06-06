@@ -2162,7 +2162,6 @@ async function shareRoomUrl() {
   ) {
     playSound("newMessage");
     Swal.fire({
-      allowOutsideClick: false,
       background: swalBackground,
       position: "center",
       title: "Share the Room",
