@@ -266,12 +266,13 @@ body {
   animation-duration: 1s;
   overflow: hidden;
 }
+.statusMenu i,
 .statusMenu p,
 .statusMenu h4 {
   color: white;
   display: inline;
   border: none;
-  margin-right: 5px;
+  margin-right: 10px;
 }
 .statusMenu button {
   float: right;

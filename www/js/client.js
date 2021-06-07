@@ -713,6 +713,7 @@ function initPeer() {
 
         // handle peers name video audio status
         const remoteStatusMenu = document.createElement("div");
+        const remoteVideoParagraphImg = document.createElement("i");
         const remoteVideoParagraph = document.createElement("h4");
         const remoteHandStatusIcon = document.createElement("button");
         const remoteVideoStatusIcon = document.createElement("button");
@@ -726,6 +727,8 @@ function initPeer() {
         remoteStatusMenu.className = "statusMenu";
 
         // remote peer name element
+        remoteVideoParagraphImg.setAttribute("id", peer_id + "_nameImg");
+        remoteVideoParagraphImg.className = "fas fa-user";
         remoteVideoParagraph.setAttribute("id", peer_id + "_name");
         remoteVideoParagraph.className = "videoPeerName";
         tippy(remoteVideoParagraph, {
@@ -771,6 +774,7 @@ function initPeer() {
         remoteVideoAvatarImage.className = "videoAvatarImage pulsate";
 
         // add elements to remoteStatusMenu div
+        remoteStatusMenu.appendChild(remoteVideoParagraphImg);
         remoteStatusMenu.appendChild(remoteVideoParagraph);
         remoteStatusMenu.appendChild(remoteHandStatusIcon);
         remoteStatusMenu.appendChild(remoteVideoStatusIcon);
@@ -1248,7 +1252,9 @@ function setupLocalMedia(callback, errorback) {
 
       // handle my peer name video audio status
       const myStatusMenu = document.createElement("div");
+      const myCountTimeImg = document.createElement("i");
       const myCountTime = document.createElement("p");
+      const myVideoParagraphImg = document.createElement("i");
       const myVideoParagraph = document.createElement("h4");
       const myHandStatusIcon = document.createElement("button");
       const myVideoStatusIcon = document.createElement("button");
@@ -1261,11 +1267,15 @@ function setupLocalMedia(callback, errorback) {
       myStatusMenu.className = "statusMenu";
 
       // session time
+      myCountTimeImg.setAttribute("id", "countTimeImg");
+      myCountTimeImg.className = "fas fa-clock";
       myCountTime.setAttribute("id", "countTime");
       tippy(myCountTime, {
         content: "Session Time",
       });
       // my peer name
+      myVideoParagraphImg.setAttribute("id", "myVideoParagraphImg");
+      myVideoParagraphImg.className = "fas fa-user";
       myVideoParagraph.setAttribute("id", "myVideoParagraph");
       myVideoParagraph.className = "videoPeerName";
       tippy(myVideoParagraph, {
@@ -1301,7 +1311,9 @@ function setupLocalMedia(callback, errorback) {
       myVideoAvatarImage.className = "videoAvatarImage pulsate";
 
       // add elements to myStatusMenu div
+      myStatusMenu.appendChild(myCountTimeImg);
       myStatusMenu.appendChild(myCountTime);
+      myStatusMenu.appendChild(myVideoParagraphImg);
       myStatusMenu.appendChild(myVideoParagraph);
       myStatusMenu.appendChild(myHandStatusIcon);
       myStatusMenu.appendChild(myVideoStatusIcon);
@@ -1533,7 +1545,7 @@ function startRecordingTime() {
     if (isStreamRecording) {
       recElapsedTime = Date.now() - recStartTime;
       myVideoParagraph.innerHTML =
-        myPeerName + " 🔴 REC " + getTimeToString(recElapsedTime);
+        myPeerName + "&nbsp;&nbsp; 🔴 REC " + getTimeToString(recElapsedTime);
       return;
     }
     clearInterval(rc);
