@@ -803,12 +803,8 @@ function initPeer() {
         attachMediaStream(remoteMedia, remoteMediaStream);
         resizeVideos();
 
-        if (!isMobileDevice) {
-          handleVideoPlayerFs(peer_id + "_video", peer_id + "_fullScreen");
-        } else {
-          remoteVideoFullScreenBtn.style.display = "none";
-        }
-
+        // handle video full screen mode
+        handleVideoPlayerFs(peer_id + "_video", peer_id + "_fullScreen");
         // handle kick out button event
         handlePeerKickOutBtn(peer_id);
         // refresh remote peers avatar name
@@ -1356,12 +1352,8 @@ function setupLocalMedia(callback, errorback) {
       setupMySettings();
       startCountTime();
 
-      // on click go on Full Screen mode - back
-      if (!isMobileDevice) {
-        handleVideoPlayerFs("myVideo", "myVideoFullScreenBtn");
-      } else {
-        myVideoFullScreenBtn.style.display = "none";
-      }
+      // handle video full screen mode
+      handleVideoPlayerFs("myVideo", "myVideoFullScreenBtn");
 
       if (callback) callback();
     })
@@ -1641,7 +1633,10 @@ function setSwapCameraBtn() {
  * if yes show button else hide it
  */
 function setScreenShareBtn() {
-  if (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
+  if (
+    !isMobileDevice &&
+    (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)
+  ) {
     // share screen on - off button click event
     screenShareBtn.addEventListener("click", (e) => {
       toggleScreenSharing();
@@ -2104,7 +2099,8 @@ function handleError(error) {
     error.message,
     error.name
   );
-  userLog("error", "Something wrong: " + error.message);
+  userLog("error", "GetUserMedia error: " + error);
+  // https://blog.addpipe.com/common-getusermedia-errors/
 }
 
 /**
@@ -2307,7 +2303,7 @@ function handleVideo(e, init) {
 }
 
 /**
- * SwapCamer front (user) - rear (environment)
+ * SwapCamera front (user) - rear (environment)
  */
 function swapCamera() {
   // setup camera
@@ -2329,7 +2325,8 @@ function swapCamera() {
     })
     .catch((e) => {
       console.log("[Error] to swaping camera", e);
-      userLog("error", "Error to swaping the camera: " + e.message);
+      userLog("error", "Error to swaping the camera " + e);
+      // https://blog.addpipe.com/common-getusermedia-errors/
     });
 }
 

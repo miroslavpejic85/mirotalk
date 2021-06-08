@@ -894,7 +894,7 @@ video:fullscreen {
 }
 
 #myPeerNameSet {
-  font-size: 1.1rem;
+  font-size: 1rem;
   border: 1px solid white;
   color: white;
   background-color: #2b2b2b;
@@ -908,7 +908,6 @@ video:fullscreen {
   font-size: 1rem;
   color: white;
   background-color: transparent;
-  transition: background 0.23s;
 }
 
 #myPeerNameSetBtn:hover {
