@@ -32,7 +32,7 @@ Open the app in one of following **supported browser**
 
 - Is `100% Free` and `Open Source`
 - No download, plug-in or login required, entirely browser based
-- Unlimited users, without time limitation
+- Unlimited number of conference rooms without call time limitation
 - Desktop and Mobile compatible
 - Optimized Room Url Sharing (share it to your participants, wait them to join)
 - WebCam Streaming (Front - Rear for mobile)
@@ -65,7 +65,7 @@ Open the app in one of following **supported browser**
 - Clone this repo
 
 ```bash
-git clone git@github.com:miroslavpejic85/mirotalk.git
+git clone https://github.com/miroslavpejic85/mirotalk.git
 cd mirotalk
 ```
 
