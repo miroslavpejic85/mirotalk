@@ -110,6 +110,21 @@ npm start
 
 ---
 
+## Docker
+
+Install: https://docs.docker.com/compose/install/
+
+```bash
+docker-compose up # or
+docker-compose up -d
+docker ps
+docker-compose down
+```
+
+- Open http://localhost:3000 in browser
+
+---
+
 If you want to use a client on another computer/network, make sure you publish your server on an `HTTPS` connection.
 You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
