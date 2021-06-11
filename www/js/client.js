@@ -1357,12 +1357,12 @@ function setupLocalMedia(callback, errorback) {
 
       if (callback) callback();
     })
-    .catch((e) => {
+    .catch((err) => {
       // user denied access to audio/video
       // https://blog.addpipe.com/common-getusermedia-errors/
-      console.error("Access denied for audio/video", e);
+      console.error("Access denied for audio/video", err);
       playSound("error");
-      window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${e.message}`;
+      window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${err}`;
       if (errorback) errorback();
     });
 } // end [setup_local_stream]
