@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  mirotalk:
+    image: mirotalk:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mirotalk
+    hostname: mirotalk
+    volumes:
+      - .env:/usr/src/app/.env:ro
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+# Uncomment below, remove "ports:" section above and configure labels as
+# needed for LetsEncrypt TLS certificates with Traefik.
+# See https://doc.traefik.io/traefik/user-guides/docker-compose/basic-example/
+#   expose:
+#     - 3000
+#   labels:
+#     - "traefik.enable=true"
+#     - "traefik.http.routers.mirotalk.rule=Host(`mirotalk.example.com`)"
+#     - "traefik.http.routers.mirotalk.entrypoints=websecure"
+#     - "traefik.http.routers.mirotalk.tls.certresolver=myresolver"
+#     - "traefik.http.services.mirotalk.loadbalancer.server.port=3000"
