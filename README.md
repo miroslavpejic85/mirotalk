@@ -117,11 +117,17 @@ Install: https://docs.docker.com/compose/install/
 ```bash
 docker-compose up # or
 docker-compose up -d
-docker ps
-docker-compose down
 ```
 
 - Open http://localhost:3000 in browser
+
+<br>
+
+To `Stops` containers and removes containers, networks, volumes, and images created by `up`
+
+```bash
+docker-compose down
+```
 
 ---
 
