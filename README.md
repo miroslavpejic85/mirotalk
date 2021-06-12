@@ -140,9 +140,9 @@ docker-compose down
 The `response` will give you a `entrypoint / Room URL` for `your meeting`.
 
 ```bash
-curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: YourApiKeySecret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotlak GET meeting\"}"
-curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotlak GET meeting\"}"
-curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotlak GET meeting\"}"
+curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: YourApiKeySecret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotalk GET meeting\"}"
+curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotalk GET meeting\"}"
+curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotalk GET meeting\"}"
 ```
 
 ---
