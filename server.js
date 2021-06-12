@@ -31,6 +31,7 @@ const { Server } = require("socket.io");
 const io = new Server().listen(server);
 const ngrok = require("ngrok");
 
+var API_KEY_SECRET = process.env.API_KEY_SECRET || "mirotalk_default_secret";
 var PORT = process.env.PORT || 3000; // signalingServerPort
 var localHost = "http://localhost:" + PORT; // http
 var channels = {}; // collect channels
@@ -47,8 +48,19 @@ var turnCredential = process.env.TURN_PASSWORD;
 // Use all static files from the www folder
 app.use(express.static(path.join(__dirname, "www")));
 
-// Remove trailing slashes in url
-app.use(function (req, res, next) {
+// Api parse body data as json
+app.use(express.json());
+
+// Remove trailing slashes in url handle bad requests
+app.use(function (err, req, res, next) {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    logme("Request Error", {
+      header: req.headers,
+      body: req.body,
+      error: err.message,
+    });
+    return res.status(400).send({ status: 404, message: err.message }); // Bad request
+  }
   if (req.path.substr(-1) === "/" && req.path.length > 1) {
     let query = req.url.slice(req.path.length);
     res.redirect(301, req.path.slice(0, -1) + query);
@@ -98,6 +110,60 @@ app.get("/join/*", function (req, res) {
 });
 
 /**
+  MIROTALK API v1
+  The response will give you a entrypoint / Room URL for your meeting.
+*/
+app.post(["/api/v1/meeting"], (req, res) => {
+  // check if user was authorized for the api call
+  let authorization = req.headers.authorization;
+  if (authorization != API_KEY_SECRET) {
+    logme("Mirotalk get meeting - Unauthorized", {
+      header: req.headers,
+      body: req.body,
+    });
+    return res.status(403).json({ error: "Unauthorized!" });
+  }
+  // setup mirotalk meeting URL
+  let host = req.headers.host;
+  let meetingURL = getMeetingURL(host) + "/join/" + makeId(15);
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify({ meeting: meetingURL }));
+
+  // logme the output if all done
+  logme("Mirotalk get meeting - Authorized", {
+    header: req.headers,
+    body: req.body,
+    meeting: meetingURL,
+  });
+});
+
+/**
+ * Get get Meeting Room URL
+ * @param {*} host string
+ * @returns meeting Room URL
+ */
+function getMeetingURL(host) {
+  return "http" + (host.includes("localhost") ? "" : "s") + "://" + host;
+}
+
+/**
+ * Generate random Id
+ * @param {*} length int
+ * @returns random id
+ */
+function makeId(length) {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+// end of MIROTALK API v1
+
+/**
  * You should probably use a different stun-turn server
  * doing commercial stuff, also see:
  *
@@ -135,6 +201,7 @@ async function ngrokStart() {
     logme("settings", {
       http: localHost,
       https: tunnelHttps,
+      api_key_secret: API_KEY_SECRET,
       iceServers: iceServers,
       ngrok: {
         ngrok_enabled: ngrokEnabled,
@@ -171,6 +238,7 @@ server.listen(PORT, null, function () {
     // server settings
     logme("settings", {
       http: localHost,
+      api_key_secret: API_KEY_SECRET,
       iceServers: iceServers,
     });
   }

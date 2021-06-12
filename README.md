@@ -115,18 +115,33 @@ npm start
 Install: https://docs.docker.com/compose/install/
 
 ```bash
+cp .env.template .env
 docker-compose up # or
 docker-compose up -d
 ```
 
 - Open http://localhost:3000 in browser
 
-<br>
+To `Update` image after some mirotalk `changes` or `updates`.
+
+```bash
+docker-compose build
+```
 
 To `Stops` containers and removes containers, networks, volumes, and images created by `up`
 
 ```bash
 docker-compose down
+```
+
+## API
+
+The `response` will give you a `entrypoint / Room URL` for `your meeting`.
+
+```bash
+  curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: YourApiKeySecret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotlak GET meeting\"}"
+  curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotlak GET meeting\"}"
+  curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotlak GET meeting\"}"
 ```
 
 ---
