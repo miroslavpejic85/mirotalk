@@ -16,6 +16,7 @@
   "homepage": "https://github.com/miroslavpejic85/mirotalk",
   "dependencies": {
     "compression": "^1.7.4",
+    "docker": "^1.0.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "ngrok": "^4.0.1",
