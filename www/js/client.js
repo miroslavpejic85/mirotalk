@@ -824,6 +824,7 @@ function initPeer() {
       /**
        * Secure Data Channel (production mode)
        * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel
+       * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel
        * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ondatachannel
        * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
        */
@@ -847,7 +848,6 @@ function initPeer() {
         };
       };
 
-      // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel
       createChatDataChannel(peer_id);
       createFileSharingDataChannel(peer_id);
       // ...

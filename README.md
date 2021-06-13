@@ -56,9 +56,9 @@ Open the app in one of following **supported browser**
 - `Allow` to use the camera and microphone
 - `Share` the Room URL and `Wait` someone to join for video conference
 
-## Room name
+## Room join
 
-- You can also `join` directly to your room name by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here `or` https://mirotalk.up.railway.app/join/your-room-name-goes-here
+- You can also `join` directly to your `room` by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here `or` https://mirotalk.up.railway.app/join/your-room-name-goes-here
 
 ## Quick start
 
