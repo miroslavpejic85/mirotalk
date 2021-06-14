@@ -1475,9 +1475,16 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
   videoFullScreenBtn.addEventListener("click", (e) => {
     handleFSVideo();
   });
+
   // on video click go on FS
   videoPlayer.addEventListener("click", (e) => {
-    handleFSVideo();
+    // not mobile on click go on FS or exit from FS
+    if (!isMobileDevice) {
+      handleFSVideo();
+    } else {
+      // mobile on click exit from FS, for enter use videoFullScreenBtn
+      if (isVideoOnFullScreen) handleFSVideo();
+    }
   });
 
   function handleFSVideo() {
@@ -1976,6 +1983,8 @@ function setupMySettings() {
  * Refresh Local media audio video in - out
  */
 function refreshLocalMedia() {
+  // some devices can't swap the video track, if already in execution.
+  stopLocalVideoTrack();
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   const constraints = {
@@ -2311,6 +2320,9 @@ function swapCamera() {
   if (camera == "user") useVideo = true;
   else useVideo = { facingMode: { exact: camera } };
 
+  // some devices can't swap the cam, if have Video Track already in execution.
+  if (useVideo) stopLocalVideoTrack();
+
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
   navigator.mediaDevices
     .getUserMedia({ video: useVideo })
@@ -2328,6 +2340,13 @@ function swapCamera() {
       userLog("error", "Error to swaping the camera " + e);
       // https://blog.addpipe.com/common-getusermedia-errors/
     });
+}
+
+/**
+ * Stop Local Video Track
+ */
+function stopLocalVideoTrack() {
+  localMediaStream.getVideoTracks()[0].stop();
 }
 
 /**
@@ -2372,7 +2391,7 @@ function toggleScreenSharing() {
   screenMediaPromise
     .then((screenStream) => {
       // stop cam video track on screen share
-      localMediaStream.getVideoTracks()[0].stop();
+      stopLocalVideoTrack();
       isScreenStreaming = !isScreenStreaming;
       refreshMyStreamToPeers(screenStream);
       refreshMyLocalStream(screenStream);
