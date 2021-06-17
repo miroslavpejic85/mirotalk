@@ -376,7 +376,7 @@ function setButtonsTitle() {
   tippy(whiteboardSaveBtn, {
     content: "SAVE the board",
     placement: "right-start",
-  })
+  });
   tippy(whiteboardEraserBtn, {
     content: "ERASE the board",
     placement: "right-start",
@@ -3302,9 +3302,9 @@ function setPeerVideoStatus(peer_id, status) {
   });
 }
 
-/**
- * SIMPLE COLLABORATIVE WHITEBOARD v1
- */
+// ##############################################################################
+// SIMPLE COLLABORATIVE WHITEBOARD v1
+// ##############################################################################
 
 /**
  * Whiteboard Open
@@ -3496,8 +3496,8 @@ function setWhiteboardBgandColors() {
  */
 function saveWbCanvas() {
   // Improve it if erase something...
-  var link = document.createElement('a');
-  link.download = getDataTimeString() + 'WHITEBOARD.png';
+  var link = document.createElement("a");
+  link.download = getDataTimeString() + "WHITEBOARD.png";
   link.href = canvas.toDataURL();
   link.click();
   link.delete;
