@@ -118,7 +118,7 @@ Install: https://docs.docker.com/compose/install/
 ```bash
 cp .env.template .env
 docker-compose up # or
-docker-compose up -d
+docker-compose up -d # to run in background
 ```
 
 - Open http://localhost:3000 in browser
