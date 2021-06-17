@@ -157,6 +157,7 @@ var whiteboardBlackColor;
 var whiteboardWhiteColor;
 var whiteboardCloseBtn;
 var whiteboardCleanBtn;
+var whiteboardSaveBtn;
 var whiteboardEraserBtn;
 var isWhiteboardVisible = false;
 var canvas;
@@ -250,6 +251,7 @@ function getHtmlElementsById() {
   whiteboardColorPicker = getId("whiteboardColorPicker");
   whiteboardBlackColor = getId("whiteboardBlackColor");
   whiteboardWhiteColor = getId("whiteboardWhiteColor");
+  whiteboardSaveBtn = getId("whiteboardSaveBtn");
   whiteboardEraserBtn = getId("whiteboardEraserBtn");
   whiteboardCleanBtn = getId("whiteboardCleanBtn");
   canvas = getId("whiteboard");
@@ -371,6 +373,10 @@ function setButtonsTitle() {
     content: "COLOR picker",
     placement: "right-start",
   });
+  tippy(whiteboardSaveBtn, {
+    content: "SAVE the board",
+    placement: "right-start",
+  })
   tippy(whiteboardEraserBtn, {
     content: "ERASE the board",
     placement: "right-start",
@@ -799,6 +805,7 @@ function initPeer() {
         remoteMedia.controls = remoteMediaControls;
         peerMediaElements[peer_id] = remoteMedia;
         document.body.appendChild(videoWrap);
+
         // attachMediaStream is a part of the adapter.js library
         attachMediaStream(remoteMedia, remoteMediaStream);
         resizeVideos();
@@ -1011,6 +1018,25 @@ function initPeer() {
     }
   });
 
+  // whiteboard actions
+  signalingSocket.on("wb", function (config) {
+    switch (config.act) {
+      case "draw":
+        drawRemote(config);
+        break;
+      case "clean":
+        whiteboardClean();
+        break;
+      case "open":
+        whiteboardOpen();
+        break;
+      case "close":
+        whiteboardClose();
+        break;
+      // ...
+    }
+  });
+
   // set my Audio off
   signalingSocket.on("onmuteEveryone", function (config) {
     setMyAudioOff(config.peer_name);
@@ -1023,7 +1049,6 @@ function initPeer() {
   signalingSocket.on("onKickOut", function (config) {
     kickedOut(config.peer_name);
   });
-
   // get file info
   signalingSocket.on("onFileInfo", function (data) {
     startDownload(data);
@@ -1848,37 +1873,33 @@ function setMyHandBtn() {
 function setMyWhiteboardBtn() {
   // not supported for mobile
   if (isMobileDevice) {
-    whiteboardBtn.style.display = "none";
+    whiteboardClose();
     return;
   }
 
   setupCanvas();
 
+  // open whiteboard
   whiteboardBtn.addEventListener("click", (e) => {
-    if (isWhiteboardVisible) {
-      whiteboardCont.style.display = "none";
-      isWhiteboardVisible = false;
-    } else {
-      whiteboardCont.style.display = "block";
-      isWhiteboardVisible = true;
-      // default web write size
-      drawsize = 3;
-    }
-    fitToContainer(canvas);
+    whiteboardOpen();
+    remoteWbAction("open");
   });
-
   // close whiteboard
   whiteboardCloseBtn.addEventListener("click", (e) => {
-    whiteboardCont.style.display = "none";
-    isWhiteboardVisible = false;
+    whiteboardClose();
+    remoteWbAction("close");
   });
   // erase whiteboard
   whiteboardEraserBtn.addEventListener("click", (e) => {
     setEraser();
   });
+  // save whitebaord content as img
+  whiteboardSaveBtn.addEventListener("click", (e) => {
+    saveWbCanvas();
+  });
   // clean whiteboard
   whiteboardCleanBtn.addEventListener("click", (e) => {
-    cleanBoard();
+    confirmCleanBoard();
   });
 }
 
@@ -2401,7 +2422,7 @@ function toggleScreenSharing() {
     })
     .catch((e) => {
       console.error("[Error] Unable to share the screen", e);
-      userLog("error", "Unable to share the screen: " + e.message);
+      userLog("error", "Unable to share the screen " + e);
     });
 }
 
@@ -3282,6 +3303,41 @@ function setPeerVideoStatus(peer_id, status) {
 }
 
 /**
+ * SIMPLE COLLABORATIVE WHITEBOARD v1
+ */
+
+/**
+ * Whiteboard Open
+ */
+function whiteboardOpen() {
+  if (!isWhiteboardVisible) {
+    whiteboardCont.style.display = "block";
+    isWhiteboardVisible = true;
+    drawsize = 3;
+    fitToContainer(canvas);
+  }
+}
+
+/**
+ * Whiteboard close
+ */
+function whiteboardClose() {
+  if (isWhiteboardVisible) {
+    whiteboardCont.style.display = "none";
+    isWhiteboardVisible = false;
+  }
+}
+
+/**
+ * Whiteboard clean
+ */
+function whiteboardClean() {
+  if (isWhiteboardVisible) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+/**
  * Set whiteboard color
  * @param {*} newcolor
  */
@@ -3296,14 +3352,14 @@ function setColor(newcolor) {
  */
 function setEraser() {
   mirotalkTheme == "dark" ? (color = "#000000") : (color = "#ffffff");
-  drawsize = 10;
+  drawsize = 25;
   whiteboardColorPicker.value = color;
 }
 
 /**
  * Clean whiteboard content
  */
-function cleanBoard() {
+function confirmCleanBoard() {
   playSound("newMessage");
 
   Swal.fire({
@@ -3322,7 +3378,8 @@ function cleanBoard() {
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      whiteboardClean();
+      remoteWbAction("clean");
     }
   });
 }
@@ -3342,6 +3399,23 @@ function draw(newx, newy, oldx, oldy) {
   ctx.lineTo(newx, newy);
   ctx.stroke();
   ctx.closePath();
+}
+
+/**
+ * Draw Remote whiteboard
+ * @param {*} config draw coordinates, color and size
+ */
+function drawRemote(config) {
+  // draw on whiteboard
+  if (isWhiteboardVisible) {
+    ctx.strokeStyle = config.color;
+    ctx.lineWidth = config.size;
+    ctx.beginPath();
+    ctx.moveTo(config.prevx, config.prevy);
+    ctx.lineTo(config.newx, config.newy);
+    ctx.stroke();
+    ctx.closePath();
+  }
 }
 
 /**
@@ -3376,6 +3450,19 @@ function setupCanvas() {
   canvas.addEventListener("mousemove", (e) => {
     if (isDrawing) {
       draw(e.offsetX, e.offsetY, x, y);
+      // send draw to other peers in the room
+      if (thereIsPeerConnections()) {
+        signalingSocket.emit("wb", {
+          peerConnections: peerConnections,
+          act: "draw",
+          newx: e.offsetX,
+          newy: e.offsetY,
+          prevx: x,
+          prevy: y,
+          color: color,
+          size: drawsize,
+        });
+      }
       x = e.offsetX;
       y = e.offsetY;
     }
@@ -3401,6 +3488,31 @@ function setWhiteboardBgandColors() {
     whiteboardWhiteColor.style.display = "none";
     whiteboardBlackColor.style.display = "flex";
     setColor("#000000");
+  }
+}
+
+/**
+ * Save whiteboard canvas to file as png
+ */
+function saveWbCanvas() {
+  // Improve it if erase something...
+  var link = document.createElement('a');
+  link.download = getDataTimeString() + 'WHITEBOARD.png';
+  link.href = canvas.toDataURL();
+  link.click();
+  link.delete;
+}
+
+/**
+ * Remote whiteboard actions
+ * @param {*} action
+ */
+function remoteWbAction(action) {
+  if (thereIsPeerConnections()) {
+    signalingSocket.emit("wb", {
+      peerConnections: peerConnections,
+      act: action,
+    });
   }
 }
 

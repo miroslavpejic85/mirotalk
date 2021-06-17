@@ -661,6 +661,22 @@ io.sockets.on("connect", (socket) => {
       }
     }
   });
+
+  /**
+  * Whiteboard actions for all user in the same room
+  */
+  socket.on("wb", function (config) {
+    let peerConnections = config.peerConnections;
+    delete config.peerConnections;
+    if (Object.keys(peerConnections).length != 0) {
+      // logme("[" + socket.id + "] whiteboard config", config);
+      for (var peer_id in peerConnections) {
+        if (sockets[peer_id]) {
+          sockets[peer_id].emit("wb", config);
+        }
+      }
+    }
+  });
 }); // end [sockets.on-connect]
 
 /**
