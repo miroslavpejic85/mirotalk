@@ -132,4 +132,20 @@ var noun = nouns[Math.floor(Math.random() * nouns.length)];
 var num = getRandomNumber(5);
 noun = noun.charAt(0).toUpperCase() + noun.substring(1);
 adjective = adjective.charAt(0).toUpperCase() + adjective.substring(1);
-document.getElementById("roomName").value = num + adjective + noun;
+document.getElementById("roomName").value = "";
+
+// Typing Effect
+
+var i = 0;
+var txt = num + adjective + noun;
+var speed = 100;
+
+typeWriter();
+
+function typeWriter() {
+  if (i < txt.length) {
+    document.getElementById("roomName").value += txt.charAt(i);
+    i++;
+    setTimeout(typeWriter, speed);
+  }
+}
