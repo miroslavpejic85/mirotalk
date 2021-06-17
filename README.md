@@ -117,8 +117,8 @@ Install: https://docs.docker.com/compose/install/
 
 ```bash
 cp .env.template .env
-docker-compose up # or
-docker-compose up -d # to run in background
+docker-compose up       # or
+docker-compose up -d    # to run in background
 ```
 
 - Open http://localhost:3000 in browser
@@ -156,7 +156,7 @@ You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
 `demo` https://mirotalk.herokuapp.com/
 
-![heroku-qr](www/images/mirotalk-heroku-qr.png)
+[![heroku-qr](www/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com/)
 
 <br>
 
@@ -164,7 +164,7 @@ You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
 `demo` https://mirotalk.up.railway.app/
 
-![railway-qr](www/images/mirotalk-railway-qr.png)
+[![railway-qr](www/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app/)
 
 ---
 
