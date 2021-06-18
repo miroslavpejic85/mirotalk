@@ -31,50 +31,50 @@ const fileSharingInput = "*"; // allow all file extensions
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
-var leftChatAvatar = "../images/friend.svg";
-var rightChatAvatar = "../images/programmer.svg";
+let leftChatAvatar = "../images/friend.svg";
+let rightChatAvatar = "../images/programmer.svg";
 
-var callStartTime;
-var callElapsedTime;
-var recStartTime;
-var recElapsedTime;
-var mirotalkTheme = "neon"; // neon - dark - forest - ghost ...
-var swalBackground = "rgba(0, 0, 0, 0.7)"; // black - #16171b - transparent ...
-var signalingServerPort = 3000; // must be same of server PORT
-var signalingServer = getServerUrl();
-var roomId = getRoomId();
-var peerInfo = getPeerInfo();
-var peerGeo;
-var peerConnection;
-var myPeerName;
-var useAudio = true;
-var useVideo = true;
-var camera = "user";
-var myVideoChange = false;
-var myHandStatus = false;
-var myVideoStatus = true;
-var myAudioStatus = true;
-var isScreenStreaming = false;
-var isChatRoomVisible = false;
-var isChatEmojiVisible = false;
-var isButtonsVisible = false;
-var isMySettingsVisible = false;
-var isVideoOnFullScreen = false;
-var isDocumentOnFullScreen = false;
-var isWhiteboardDark = false;
-var signalingSocket; // socket.io connection to our webserver
-var localMediaStream; // my microphone / webcam
-var remoteMediaStream; // peers microphone / webcam
-var remoteMediaControls = false; // enable - disable peers video player controls (default false)
-var peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
-var chatDataChannels = {}; // keep track of our peer chat data channels
-var fileSharingDataChannels = {}; // keep track of our peer file sharing data channels
-var useRTCDataChannel = true; // https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel
-var peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
-var chatMessages = []; // collect chat messages to save it later if want
-var iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
+let callStartTime;
+let callElapsedTime;
+let recStartTime;
+let recElapsedTime;
+let mirotalkTheme = "neon"; // neon - dark - forest - ghost ...
+let swalBackground = "rgba(0, 0, 0, 0.7)"; // black - #16171b - transparent ...
+let signalingServerPort = 3000; // must be same of server PORT
+let signalingServer = getServerUrl();
+let roomId = getRoomId();
+let peerInfo = getPeerInfo();
+let peerGeo;
+let peerConnection;
+let myPeerName;
+let useAudio = true;
+let useVideo = true;
+let camera = "user";
+let myVideoChange = false;
+let myHandStatus = false;
+let myVideoStatus = true;
+let myAudioStatus = true;
+let isScreenStreaming = false;
+let isChatRoomVisible = false;
+let isChatEmojiVisible = false;
+let isButtonsVisible = false;
+let isMySettingsVisible = false;
+let isVideoOnFullScreen = false;
+let isDocumentOnFullScreen = false;
+let isWhiteboardDark = false;
+let signalingSocket; // socket.io connection to our webserver
+let localMediaStream; // my microphone / webcam
+let remoteMediaStream; // peers microphone / webcam
+let remoteMediaControls = false; // enable - disable peers video player controls (default false)
+let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
+let chatDataChannels = {}; // keep track of our peer chat data channels
+let fileSharingDataChannels = {}; // keep track of our peer file sharing data channels
+let useRTCDataChannel = true; // https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel
+let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
+let chatMessages = []; // collect chat messages to save it later if want
+let iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
 
-var chatInputEmoji = {
+let chatInputEmoji = {
   "<3": "\u2764\uFE0F",
   "</3": "\uD83D\uDC94",
   ":D": "\uD83D\uDE00",
@@ -87,104 +87,104 @@ var chatInputEmoji = {
   ":+1:": "\uD83D\uDC4D",
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
-var countTime;
+let countTime;
 // init audio-video
-var initAudioBtn;
-var initVideoBtn;
+let initAudioBtn;
+let initVideoBtn;
 // left buttons
-var leftButtons;
-var shareRoomBtn;
-var audioBtn;
-var videoBtn;
-var swapCameraBtn;
-var screenShareBtn;
-var recordStreamBtn;
-var fullScreenBtn;
-var chatRoomBtn;
-var myHandBtn;
-var whiteboardBtn;
-var fileShareBtn;
-var mySettingsBtn;
-var aboutBtn;
-var leaveRoomBtn;
+let leftButtons;
+let shareRoomBtn;
+let audioBtn;
+let videoBtn;
+let swapCameraBtn;
+let screenShareBtn;
+let recordStreamBtn;
+let fullScreenBtn;
+let chatRoomBtn;
+let myHandBtn;
+let whiteboardBtn;
+let fileShareBtn;
+let mySettingsBtn;
+let aboutBtn;
+let leaveRoomBtn;
 // chat room elements
-var msgerDraggable;
-var msgerHeader;
-var msgerTheme;
-var msgerCPBtn;
-var msgerClean;
-var msgerSaveBtn;
-var msgerClose;
-var msgerChat;
-var msgerEmojiBtn;
-var msgerInput;
-var msgerSendBtn;
+let msgerDraggable;
+let msgerHeader;
+let msgerTheme;
+let msgerCPBtn;
+let msgerClean;
+let msgerSaveBtn;
+let msgerClose;
+let msgerChat;
+let msgerEmojiBtn;
+let msgerInput;
+let msgerSendBtn;
 // chat room connected peers
-var msgerCP;
-var msgerCPHeader;
-var msgerCPCloseBtn;
-var msgerCPList;
+let msgerCP;
+let msgerCPHeader;
+let msgerCPCloseBtn;
+let msgerCPList;
 // chat room emoji picker
-var msgerEmojiPicker;
-var msgerEmojiHeader;
-var msgerCloseEmojiBtn;
-var emojiPicker;
+let msgerEmojiPicker;
+let msgerEmojiHeader;
+let msgerCloseEmojiBtn;
+let emojiPicker;
 // my settings
-var mySettings;
-var mySettingsHeader;
-var mySettingsCloseBtn;
-var myPeerNameSet;
-var myPeerNameSetBtn;
-var audioInputSelect;
-var audioOutputSelect;
-var videoSelect;
-var themeSelect;
-var selectors;
+let mySettings;
+let mySettingsHeader;
+let mySettingsCloseBtn;
+let myPeerNameSet;
+let myPeerNameSetBtn;
+let audioInputSelect;
+let audioOutputSelect;
+let videoSelect;
+let themeSelect;
+let selectors;
 // my video element
-var myVideo;
+let myVideo;
 // name && hand video audio status
-var myVideoParagraph;
-var myHandStatusIcon;
-var myVideoStatusIcon;
-var myAudioStatusIcon;
+let myVideoParagraph;
+let myHandStatusIcon;
+let myVideoStatusIcon;
+let myAudioStatusIcon;
 // record Media Stream
-var mediaRecorder;
-var recordedBlobs;
-var isStreamRecording = false;
+let mediaRecorder;
+let recordedBlobs;
+let isStreamRecording = false;
 // whiteboard init
-var whiteboardCont;
-var whiteboardColorPicker;
-var whiteboardBlackColor;
-var whiteboardWhiteColor;
-var whiteboardCloseBtn;
-var whiteboardCleanBtn;
-var whiteboardSaveBtn;
-var whiteboardEraserBtn;
-var isWhiteboardVisible = false;
-var canvas;
-var ctx;
+let whiteboardCont;
+let whiteboardColorPicker;
+let whiteboardBlackColor;
+let whiteboardWhiteColor;
+let whiteboardCloseBtn;
+let whiteboardCleanBtn;
+let whiteboardSaveBtn;
+let whiteboardEraserBtn;
+let isWhiteboardVisible = false;
+let canvas;
+let ctx;
 // whiteboard settings
-var isDrawing = 0;
-var x = 0;
-var y = 0;
-var color = "#000000";
-var drawsize = 3;
+let isDrawing = 0;
+let x = 0;
+let y = 0;
+let color = "#000000";
+let drawsize = 3;
 // room actions btns
-var muteEveryoneBtn;
-var hideEveryoneBtn;
+let muteEveryoneBtn;
+let hideEveryoneBtn;
 // file transfer settings
-var fileToSend;
-var fileReader;
-var receiveBuffer = [];
-var receivedSize = 0;
-var incomingFileInfo;
-var incomingFileData;
-var sendFileDiv;
-var sendFileInfo;
-var sendProgress;
-var sendAbortBtn;
-var sendInProgress = false;
-var fsDataChannelOpen = false;
+let fileToSend;
+let fileReader;
+let receiveBuffer = [];
+let receivedSize = 0;
+let incomingFileInfo;
+let incomingFileData;
+let sendFileDiv;
+let sendFileInfo;
+let sendProgress;
+let sendAbortBtn;
+let sendInProgress = false;
+let fsDataChannelOpen = false;
 const chunkSize = 16 * 1024; //16kb
 
 /**
@@ -470,11 +470,11 @@ function getRoomId() {
  * @returns random id
  */
 function makeId(length) {
-  var result = "";
-  var characters =
+  let result = "";
+  let characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
+  let charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
@@ -644,11 +644,11 @@ function initPeer() {
    */
   signalingSocket.on("disconnect", function () {
     console.log("Disconnected from signaling server");
-    for (var peer_id in peerMediaElements) {
+    for (let peer_id in peerMediaElements) {
       document.body.removeChild(peerMediaElements[peer_id].parentNode);
       resizeVideos();
     }
-    for (var peer_id in peerConnections) {
+    for (let peer_id in peerConnections) {
       peerConnections[peer_id].close();
       msgerRemovePeer(peer_id);
     }
@@ -667,8 +667,8 @@ function initPeer() {
   signalingSocket.on("addPeer", function (config) {
     // console.log("addPeer", JSON.stringify(config));
 
-    var peer_id = config.peer_id;
-    var peers = config.peers;
+    let peer_id = config.peer_id;
+    let peers = config.peers;
 
     if (peer_id in peerConnections) {
       // This could happen if the user joins multiple channels where the other peer is also in.
@@ -934,11 +934,11 @@ function initPeer() {
   signalingSocket.on("sessionDescription", function (config) {
     console.log("Remote Session-description", config);
 
-    var peer_id = config.peer_id;
-    var remote_description = config.session_description;
+    let peer_id = config.peer_id;
+    let remote_description = config.session_description;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription
-    var description = new RTCSessionDescription(remote_description);
+    let description = new RTCSessionDescription(remote_description);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription
     peerConnections[peer_id]
@@ -985,8 +985,8 @@ function initPeer() {
    * can begin trying to find the best path to one another on the net.
    */
   signalingSocket.on("iceCandidate", function (config) {
-    var peer_id = config.peer_id;
-    var ice_candidate = config.ice_candidate;
+    let peer_id = config.peer_id;
+    let ice_candidate = config.ice_candidate;
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate
     peerConnections[peer_id]
       .addIceCandidate(new RTCIceCandidate(ice_candidate))
@@ -1002,9 +1002,9 @@ function initPeer() {
 
   // refresh peers video - audio - hand icon status and title
   signalingSocket.on("onpeerStatus", function (config) {
-    var peer_id = config.peer_id;
-    var element = config.element;
-    var status = config.status;
+    let peer_id = config.peer_id;
+    let element = config.element;
+    let status = config.status;
 
     switch (element) {
       case "video":
@@ -1069,7 +1069,7 @@ function initPeer() {
   signalingSocket.on("removePeer", function (config) {
     console.log("Signaling server said to remove peer:", config);
 
-    var peer_id = config.peer_id;
+    let peer_id = config.peer_id;
 
     if (peer_id in peerMediaElements) {
       document.body.removeChild(peerMediaElements[peer_id].parentNode);
@@ -1415,7 +1415,7 @@ function resizeVideos() {
  * @param {*} peer_id
  */
 function handlePeerKickOutBtn(peer_id) {
-  var peerKickOutBtn = getId(peer_id + "_kickOut");
+  let peerKickOutBtn = getId(peer_id + "_kickOut");
   peerKickOutBtn.addEventListener("click", (e) => {
     kickOut(peer_id, peerKickOutBtn);
   });
@@ -1429,9 +1429,9 @@ function handlePeerKickOutBtn(peer_id) {
  * @param {*} peerName
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName) {
-  var videoAvatarImageElement = getId(videoAvatarImageId);
+  let videoAvatarImageElement = getId(videoAvatarImageId);
   // default img size 64 max 512
-  var avatarImgSize = isMobileDevice ? 128 : 256;
+  let avatarImgSize = isMobileDevice ? 128 : 256;
   videoAvatarImageElement.setAttribute(
     "src",
     avatarApiUrl +
@@ -1476,14 +1476,14 @@ function setPeerChatAvatarImgName(avatar, peerName) {
  * @param {*} videoFullScreenBtnId
  */
 function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
-  var videoPlayer = getId(videoId);
-  var videoFullScreenBtn = getId(videoFullScreenBtnId);
+  let videoPlayer = getId(videoId);
+  let videoFullScreenBtn = getId(videoFullScreenBtnId);
 
   // handle Chrome Firefox Opera Microsoft Edge videoPlayer ESC
   videoPlayer.addEventListener("fullscreenchange", function (e) {
     // if Controls enabled, or document on FS do nothing
     if (videoPlayer.controls || isDocumentOnFullScreen) return;
-    var fullscreenElement = document.fullscreenElement;
+    let fullscreenElement = document.fullscreenElement;
     if (!fullscreenElement) {
       videoPlayer.style.pointerEvents = "auto";
       isVideoOnFullScreen = false;
@@ -1495,7 +1495,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
   videoPlayer.addEventListener("webkitfullscreenchange", function () {
     // if Controls enabled, or document on FS do nothing
     if (videoPlayer.controls || isDocumentOnFullScreen) return;
-    var webkitIsFullScreen = document.webkitIsFullScreen;
+    let webkitIsFullScreen = document.webkitIsFullScreen;
     if (!webkitIsFullScreen) {
       videoPlayer.style.pointerEvents = "auto";
       isVideoOnFullScreen = false;
@@ -1572,7 +1572,7 @@ function startCountTime() {
  */
 function startRecordingTime() {
   recStartTime = Date.now();
-  var rc = setInterval(function printTime() {
+  let rc = setInterval(function printTime() {
     if (isStreamRecording) {
       recElapsedTime = Date.now() - recStartTime;
       myVideoParagraph.innerHTML =
@@ -1707,7 +1707,7 @@ function setFullScreenBtn() {
   if (DetectRTC.browser.name != "Safari") {
     // detect esc from full screen mode
     document.addEventListener("fullscreenchange", function (e) {
-      var fullscreenElement = document.fullscreenElement;
+      let fullscreenElement = document.fullscreenElement;
       if (!fullscreenElement) {
         fullScreenBtn.className = "fas fa-expand-alt";
         isDocumentOnFullScreen = false;
@@ -1806,8 +1806,8 @@ function setChatRoomBtn() {
 
   // on input check 4emoji from map
   msgerInput.oninput = function () {
-    for (var i in chatInputEmoji) {
-      var regex = new RegExp(escapeSpecialChars(i), "gim");
+    for (let i in chatInputEmoji) {
+      let regex = new RegExp(escapeSpecialChars(i), "gim");
       this.value = this.value.replace(regex, chatInputEmoji[i]);
     }
   };
@@ -2254,7 +2254,7 @@ async function shareRoomUrl() {
  * https://github.com/neocotic/qrious
  */
 function makeRoomQR() {
-  var qr = new QRious({
+  let qr = new QRious({
     element: getId("qrRoom"),
     value: window.location.href,
   });
@@ -2268,8 +2268,8 @@ function makeRoomQR() {
  */
 function copyRoomURL() {
   // save Room Url to clipboard
-  var roomURL = window.location.href;
-  var tmpInput = document.createElement("input");
+  let roomURL = window.location.href;
+  let tmpInput = document.createElement("input");
   document.body.appendChild(tmpInput);
   tmpInput.value = roomURL;
   tmpInput.select();
@@ -2285,9 +2285,9 @@ function copyRoomURL() {
  * @param {*} message email | subject | body
  */
 function shareRoomByEmail(message) {
-  var email = message.email;
-  var subject = message.subject;
-  var emailBody = message.body;
+  let email = message.email;
+  let subject = message.subject;
+  let emailBody = message.body;
   document.location =
     "mailto:" + email + "?subject=" + subject + "&body=" + emailBody;
 }
@@ -2500,9 +2500,9 @@ function toggleFullScreen() {
 function refreshMyStreamToPeers(stream) {
   if (thereIsPeerConnections()) {
     // refresh my video stream
-    for (var peer_id in peerConnections) {
+    for (let peer_id in peerConnections) {
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-      var sender = peerConnections[peer_id]
+      let sender = peerConnections[peer_id]
         .getSenders()
         .find((s) => (s.track ? s.track.kind === "video" : false));
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
@@ -2752,7 +2752,7 @@ function cleanMessages() {
   }).then((result) => {
     // clean chat messages
     if (result.isConfirmed) {
-      var msgs = msgerChat.firstChild;
+      let msgs = msgerChat.firstChild;
       while (msgs) {
         msgerChat.removeChild(msgs);
         msgs = msgerChat.firstChild;
@@ -2877,14 +2877,14 @@ function appendMessage(name, img, side, text, privateMsg) {
 function msgerAddPeers(peers) {
   // console.log("peers", peers);
   // add all current Participants
-  for (var peer_id in peers) {
-    var peer_name = peers[peer_id]["peer_name"];
+  for (let peer_id in peers) {
+    let peer_name = peers[peer_id]["peer_name"];
     // bypass insert to myself in the list :)
     if (peer_name != myPeerName) {
-      var exsistMsgerPrivateDiv = getId(peer_id + "_pMsgDiv");
+      let exsistMsgerPrivateDiv = getId(peer_id + "_pMsgDiv");
       // if there isn't add it....
       if (!exsistMsgerPrivateDiv) {
-        var msgerPrivateDiv = `
+        let msgerPrivateDiv = `
         <div id="${peer_id}_pMsgDiv" class="msger-inputarea">
           <input
             id="${peer_id}_pMsgInput"
@@ -2898,8 +2898,8 @@ function msgerAddPeers(peers) {
         msgerCPList.insertAdjacentHTML("beforeend", msgerPrivateDiv);
         msgerCPList.scrollTop += 500;
 
-        var msgerPrivateMsgInput = getId(peer_id + "_pMsgInput");
-        var msgerPrivateBtn = getId(peer_id + "_pMsgBtn");
+        let msgerPrivateMsgInput = getId(peer_id + "_pMsgInput");
+        let msgerPrivateBtn = getId(peer_id + "_pMsgBtn");
         addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id);
       }
     }
@@ -2911,9 +2911,9 @@ function msgerAddPeers(peers) {
  * @param {*} peer_id
  */
 function msgerRemovePeer(peer_id) {
-  var msgerPrivateDiv = getId(peer_id + "_pMsgDiv");
+  let msgerPrivateDiv = getId(peer_id + "_pMsgDiv");
   if (msgerPrivateDiv) {
-    var peerToRemove = msgerPrivateDiv.firstChild;
+    let peerToRemove = msgerPrivateDiv.firstChild;
     while (peerToRemove) {
       msgerPrivateDiv.removeChild(peerToRemove);
       peerToRemove = msgerPrivateDiv.firstChild;
@@ -2932,9 +2932,9 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
   // add button to send private messages
   msgerPrivateBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    var pMsg = msgerPrivateMsgInput.value;
+    let pMsg = msgerPrivateMsgInput.value;
     if (!pMsg) return;
-    var toPeerName = msgerPrivateBtn.value;
+    let toPeerName = msgerPrivateBtn.value;
     // userLog("info", toPeerName + ":" + peer_id);
     emitMsg(myPeerName, toPeerName, pMsg, true, peer_id);
     appendMessage(
@@ -2956,7 +2956,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
  * @returns html
  */
 function detectUrl(text) {
-  var urlRegex = /(https?:\/\/[^\s]+)/g;
+  let urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.replace(urlRegex, function (url) {
     if (isImageURL(text)) {
       return (
@@ -3050,7 +3050,7 @@ function hideShowEmojiPicker() {
  * https://developer.mozilla.org/it/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
  */
 function downloadChatMsgs() {
-  var a = document.createElement("a");
+  let a = document.createElement("a");
   a.href =
     "data:text/json;charset=utf-8," +
     encodeURIComponent(JSON.stringify(chatMessages, null, 1));
@@ -3067,7 +3067,7 @@ function downloadChatMsgs() {
  * @param {*} dragObj
  */
 function dragElement(elmnt, dragObj) {
-  var pos1 = 0,
+  let pos1 = 0,
     pos2 = 0,
     pos3 = 0,
     pos4 = 0;
@@ -3138,8 +3138,8 @@ function hideShowMySettings() {
  * Update myPeerName to other peers in the room
  */
 function updateMyPeerName() {
-  var myNewPeerName = myPeerNameSet.value;
-  var myOldPeerName = myPeerName;
+  let myNewPeerName = myPeerNameSet.value;
+  let myOldPeerName = myPeerName;
 
   // myNewPeerName empty
   if (!myNewPeerName) return;
@@ -3167,12 +3167,12 @@ function updateMyPeerName() {
  * @param {*} name
  */
 function appendPeerName(id, name) {
-  var videoName = getId(id + "_name");
+  let videoName = getId(id + "_name");
   if (videoName) {
     videoName.innerHTML = name;
   }
   // change also btn value - name on chat lists....
-  var msgerPeerName = getId(id + "_pMsgBtn");
+  let msgerPeerName = getId(id + "_pMsgBtn");
   if (msgerPeerName) {
     msgerPeerName.innerHTML = `&nbsp;${name}`;
     msgerPeerName.value = name;
@@ -3507,7 +3507,7 @@ function setWhiteboardBgandColors() {
  */
 function saveWbCanvas() {
   // Improve it if erase something...
-  var link = document.createElement("a");
+  let link = document.createElement("a");
   link.download = getDataTimeString() + "WHITEBOARD.png";
   link.href = canvas.toDataURL();
   link.click();
@@ -3682,7 +3682,7 @@ function sendFileData() {
  * @param {*} data fileReader e.target.result
  */
 function sendFSData(data) {
-  for (var peer_id in fileSharingDataChannels) {
+  for (let peer_id in fileSharingDataChannels) {
     if (fileSharingDataChannels[peer_id].readyState === "open") {
       fileSharingDataChannels[peer_id].send(data);
     }
@@ -3879,9 +3879,9 @@ function endDownload() {
  * @returns size
  */
 function bytesToSize(bytes) {
-  var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  let sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   if (bytes == 0) return "0 Byte";
-  var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+  let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
   return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
 }
 
@@ -4254,8 +4254,8 @@ async function playSound(state) {
  * @param {*} displayState
  */
 function toggleClassElements(className, displayState) {
-  var elements = getEcN(className);
-  for (var i = 0; i < elements.length; i++) {
+  let elements = getEcN(className);
+  for (let i = 0; i < elements.length; i++) {
     elements[i].style.display = displayState;
   }
 }
