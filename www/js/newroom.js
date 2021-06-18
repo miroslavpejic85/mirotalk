@@ -1,4 +1,4 @@
-var adjectives = [
+let adjectives = [
   "small",
   "big",
   "large",
@@ -52,7 +52,7 @@ var adjectives = [
   "smart",
 ];
 
-var nouns = [
+let nouns = [
   "dog",
   "bat",
   "wrench",
@@ -118,27 +118,27 @@ var nouns = [
 ];
 
 function getRandomNumber(length) {
-  var result = "";
-  var characters = "0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
+  let result = "";
+  let characters = "0123456789";
+  let charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
 }
 
-var adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-var noun = nouns[Math.floor(Math.random() * nouns.length)];
-var num = getRandomNumber(5);
+let adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+let noun = nouns[Math.floor(Math.random() * nouns.length)];
+let num = getRandomNumber(5);
 noun = noun.charAt(0).toUpperCase() + noun.substring(1);
 adjective = adjective.charAt(0).toUpperCase() + adjective.substring(1);
 document.getElementById("roomName").value = "";
 
 // Typing Effect
 
-var i = 0;
-var txt = num + adjective + noun;
-var speed = 100;
+let i = 0;
+let txt = num + adjective + noun;
+let speed = 100;
 
 typeWriter();
 
