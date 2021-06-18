@@ -31,19 +31,19 @@ const { Server } = require("socket.io");
 const io = new Server().listen(server);
 const ngrok = require("ngrok");
 
-var API_KEY_SECRET = process.env.API_KEY_SECRET || "mirotalk_default_secret";
-var PORT = process.env.PORT || 3000; // signalingServerPort
-var localHost = "http://localhost:" + PORT; // http
-var channels = {}; // collect channels
-var sockets = {}; // collect sockets
-var peers = {}; // collect peers info grp by channels
+let API_KEY_SECRET = process.env.API_KEY_SECRET || "mirotalk_default_secret";
+let PORT = process.env.PORT || 3000; // signalingServerPort
+let localHost = "http://localhost:" + PORT; // http
+let channels = {}; // collect channels
+let sockets = {}; // collect sockets
+let peers = {}; // collect peers info grp by channels
 
-var ngrokEnabled = process.env.NGROK_ENABLED;
-var ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
-var turnEnabled = process.env.TURN_ENABLED;
-var turnUrls = process.env.TURN_URLS;
-var turnUsername = process.env.TURN_USERNAME;
-var turnCredential = process.env.TURN_PASSWORD;
+let ngrokEnabled = process.env.NGROK_ENABLED;
+let ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
+let turnEnabled = process.env.TURN_ENABLED;
+let turnUrls = process.env.TURN_URLS;
+let turnUsername = process.env.TURN_USERNAME;
+let turnCredential = process.env.TURN_PASSWORD;
 
 // Use all static files from the www folder
 app.use(express.static(path.join(__dirname, "www")));
@@ -152,11 +152,11 @@ function getMeetingURL(host) {
  * @returns random id
  */
 function makeId(length) {
-  var result = "";
-  var characters =
+  let result = "";
+  let characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
+  let charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
@@ -174,7 +174,7 @@ function makeId(length) {
  * Check the functionality of STUN/TURN servers:
  * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
-var iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
+let iceServers = [{ urls: "stun:stun.l.google.com:19302" }];
 
 if (turnEnabled == "true") {
   iceServers.push({
@@ -265,7 +265,7 @@ io.sockets.on("connect", (socket) => {
    * On peer diconnected
    */
   socket.on("disconnect", () => {
-    for (var channel in socket.channels) {
+    for (let channel in socket.channels) {
       removePeerFrom(channel);
     }
     logme("[" + socket.id + "] <--> disconnected");
@@ -278,11 +278,11 @@ io.sockets.on("connect", (socket) => {
   socket.on("join", (config) => {
     logme("[" + socket.id + "] --> join ", config);
 
-    var channel = config.channel;
-    var peer_name = config.peerName;
-    var peer_video = config.peerVideo;
-    var peer_audio = config.peerAudio;
-    var peer_hand = config.peerHand;
+    let channel = config.channel;
+    let peer_name = config.peerName;
+    let peer_video = config.peerVideo;
+    let peer_audio = config.peerAudio;
+    let peer_hand = config.peerHand;
 
     if (channel in socket.channels) {
       logme("[" + socket.id + "] [Warning] already joined", channel);
@@ -307,7 +307,7 @@ io.sockets.on("connect", (socket) => {
     };
     logme("connected peers grp by roomId", peers);
 
-    for (var id in channels[channel]) {
+    for (let id in channels[channel]) {
       // offer false
       channels[channel][id].emit("addPeer", {
         peer_id: socket.id,
@@ -348,7 +348,7 @@ io.sockets.on("connect", (socket) => {
       delete peers[channel];
     }
 
-    for (var id in channels[channel]) {
+    for (let id in channels[channel]) {
       await channels[channel][id].emit("removePeer", { peer_id: socket.id });
       await socket.emit("removePeer", { peer_id: id });
       logme("[" + socket.id + "] emit remove Peer [" + id + "]");
@@ -432,7 +432,7 @@ io.sockets.on("connect", (socket) => {
       return;
     }
 
-    for (var peer_id in peerConnections) {
+    for (let peer_id in peerConnections) {
       if (sockets[peer_id]) {
         sockets[peer_id].emit("onMessage", {
           peer_id: socket.id,
@@ -455,7 +455,7 @@ io.sockets.on("connect", (socket) => {
     let peer_id_to_update = null;
 
     // update peers new name in the specified room
-    for (var peer_id in peers[room_id]) {
+    for (let peer_id in peers[room_id]) {
       if (peers[room_id][peer_id]["peer_name"] == peer_name_old) {
         peers[room_id][peer_id]["peer_name"] = peer_name_new;
         peer_id_to_update = peer_id;
@@ -476,7 +476,7 @@ io.sockets.on("connect", (socket) => {
         peer_id: peer_id_to_update,
         peer_name: peer_name_new,
       });
-      for (var peer_id in peerConnections) {
+      for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
           sockets[peer_id].emit("onCName", {
             peer_id: peer_id_to_update,
@@ -498,7 +498,7 @@ io.sockets.on("connect", (socket) => {
     let status = config.status;
 
     // update peers video-audio status in the specified room
-    for (var peer_id in peers[room_id]) {
+    for (let peer_id in peers[room_id]) {
       if (peers[room_id][peer_id]["peer_name"] == peer_name) {
         switch (element) {
           case "video":
@@ -532,7 +532,7 @@ io.sockets.on("connect", (socket) => {
           status: status,
         }
       );
-      for (var peer_id in peerConnections) {
+      for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
           sockets[peer_id].emit("onpeerStatus", {
             peer_id: socket.id,
@@ -561,7 +561,7 @@ io.sockets.on("connect", (socket) => {
           peer_name: peer_name,
         }
       );
-      for (var peer_id in peerConnections) {
+      for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
           sockets[peer_id].emit("onmuteEveryone", {
             peer_name: peer_name,
@@ -587,7 +587,7 @@ io.sockets.on("connect", (socket) => {
           peer_name: peer_name,
         }
       );
-      for (var peer_id in peerConnections) {
+      for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
           sockets[peer_id].emit("onhideEveryone", {
             peer_name: peer_name,
@@ -647,14 +647,14 @@ io.sockets.on("connect", (socket) => {
     );
 
     function bytesToSize(bytes) {
-      var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+      let sizes = ["Bytes", "KB", "MB", "GB", "TB"];
       if (bytes == 0) return "0 Byte";
-      var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+      let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
       return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
     }
 
     if (Object.keys(peerConnections).length != 0) {
-      for (var peer_id in peerConnections) {
+      for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
           sockets[peer_id].emit("onFileInfo", file);
         }
@@ -670,7 +670,7 @@ io.sockets.on("connect", (socket) => {
     delete config.peerConnections;
     if (Object.keys(peerConnections).length != 0) {
       // logme("[" + socket.id + "] whiteboard config", config);
-      for (var peer_id in peerConnections) {
+      for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
           sockets[peer_id].emit("wb", config);
         }

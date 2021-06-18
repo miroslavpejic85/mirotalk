@@ -76,9 +76,9 @@
                       Please Try again and allow it.
                     </p>
                     <script>
-                      var qs = new URLSearchParams(window.location.search);
-                      var roomId = qs.get("roomId");
-                      var getUserMediaError = qs.get("getUserMediaError");
+                      let qs = new URLSearchParams(window.location.search);
+                      let roomId = qs.get("roomId");
+                      let getUserMediaError = qs.get("getUserMediaError");
                       console.log("Allow Camera && Audio", {
                         roomId: roomId,
                         getUserMediaError: getUserMediaError,

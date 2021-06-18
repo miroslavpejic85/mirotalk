@@ -211,7 +211,7 @@
                   .querySelector("video")
                   .setAttribute("src", n.getAttribute("data-video"))),
           n.addEventListener("click", function (e) {
-            var t;
+            let t;
             e.preventDefault(),
               n.hasAttribute("aria-controls") &&
                 (t = i) &&
@@ -250,14 +250,15 @@
     let t = window.innerHeight;
 
     function n(e, t) {
-      var n = 0;
+      let n = 0;
       return function () {
-        var i = new Date().getTime();
+        let i = new Date().getTime();
         if (!(i - n < e)) return (n = i), t.apply(void 0, arguments);
       };
     }
 
     function i() {
+      let n;
       for (let i = 0; i < e.length; i++) {
         let s = e[i],
           a = s.getAttribute("data-reveal-delay"),
@@ -276,7 +277,6 @@
                 }, a)
               : s.classList.add("is-revealed"));
       }
-      var n;
       !(function () {
         if (
           e.length >
