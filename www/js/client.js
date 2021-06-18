@@ -1021,6 +1021,8 @@ function initPeer() {
 
   // whiteboard actions
   signalingSocket.on("wb", function (config) {
+    // only on desktop if mobile do nothing
+    if (isMobileDevice) return;
     switch (config.act) {
       case "draw":
         drawRemote(config);
@@ -1880,7 +1882,7 @@ function setMyHandBtn() {
 function setMyWhiteboardBtn() {
   // not supported for mobile
   if (isMobileDevice) {
-    whiteboardClose();
+    whiteboardBtn.style.display = "none";
     return;
   }
 
