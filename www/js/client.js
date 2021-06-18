@@ -61,6 +61,7 @@ var isButtonsVisible = false;
 var isMySettingsVisible = false;
 var isVideoOnFullScreen = false;
 var isDocumentOnFullScreen = false;
+var isWhiteboardDark = false;
 var signalingSocket; // socket.io connection to our webserver
 var localMediaStream; // my microphone / webcam
 var remoteMediaStream; // peers microphone / webcam
@@ -1028,6 +1029,7 @@ function initPeer() {
         whiteboardClean();
         break;
       case "open":
+        isWhiteboardDark = config.isWhiteboardDark;
         whiteboardOpen();
         break;
       case "close":
@@ -1100,6 +1102,7 @@ function setTheme(theme) {
   switch (mirotalkTheme) {
     case "neon":
       // neon theme
+      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
@@ -1124,6 +1127,7 @@ function setTheme(theme) {
       break;
     case "dark":
       // dark theme
+      isWhiteboardDark = true;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "#16171b");
       document.documentElement.style.setProperty("--msger-bg", "#16171b");
@@ -1151,6 +1155,7 @@ function setTheme(theme) {
       break;
     case "forest":
       // forest theme
+      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
@@ -1175,6 +1180,7 @@ function setTheme(theme) {
       break;
     case "sky":
       // sky theme
+      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
@@ -1199,6 +1205,7 @@ function setTheme(theme) {
       break;
     case "ghost":
       // ghost theme
+      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.150)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "transparent");
@@ -1989,7 +1996,6 @@ function setupMySettings() {
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
     setRecordButtonUi();
-    setWhiteboardBgandColors();
   });
   // room actions
   muteEveryoneBtn.addEventListener("click", (e) => {
@@ -3311,6 +3317,7 @@ function setPeerVideoStatus(peer_id, status) {
  */
 function whiteboardOpen() {
   if (!isWhiteboardVisible) {
+    setWhiteboardBgandColors();
     whiteboardCont.style.display = "block";
     isWhiteboardVisible = true;
     drawsize = 3;
@@ -3351,7 +3358,7 @@ function setColor(newcolor) {
  * Whiteboard eraser
  */
 function setEraser() {
-  mirotalkTheme == "dark" ? (color = "#000000") : (color = "#ffffff");
+  isWhiteboardDark ? (color = "#000000") : (color = "#ffffff");
   drawsize = 25;
   whiteboardColorPicker.value = color;
 }
@@ -3480,11 +3487,15 @@ function setupCanvas() {
  * Whiteboard bg and colors on theme changes
  */
 function setWhiteboardBgandColors() {
-  if (mirotalkTheme == "dark") {
+  if (isWhiteboardDark) {
+    document.documentElement.style.setProperty("--wb-bg", "#000000");
+    document.documentElement.style.setProperty("--wb-btn-color", "white");
     whiteboardWhiteColor.style.display = "flex";
     whiteboardBlackColor.style.display = "none";
     setColor("#ffffff");
   } else {
+    document.documentElement.style.setProperty("--wb-bg", "#ffffff");
+    document.documentElement.style.setProperty("--wb-btn-color", "black");
     whiteboardWhiteColor.style.display = "none";
     whiteboardBlackColor.style.display = "flex";
     setColor("#000000");
@@ -3511,6 +3522,7 @@ function remoteWbAction(action) {
   if (thereIsPeerConnections()) {
     signalingSocket.emit("wb", {
       peerConnections: peerConnections,
+      isWhiteboardDark: isWhiteboardDark,
       act: action,
     });
   }
