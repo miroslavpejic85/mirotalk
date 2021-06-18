@@ -31,8 +31,8 @@ const fileSharingInput = "*"; // allow all file extensions
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
-let leftChatAvatar = "../images/friend.svg";
-let rightChatAvatar = "../images/programmer.svg";
+let leftChatAvatar;
+let rightChatAvatar;
 
 let callStartTime;
 let callElapsedTime;
@@ -514,11 +514,11 @@ function initPeer() {
    * microphone/camcorder, join the channel
    * and start peering up
    */
-  signalingSocket.on("connect", function () {
+  signalingSocket.on("connect", () => {
     console.log("Connected to signaling server");
     if (localMediaStream) joinToChannel();
     else
-      setupLocalMedia(function () {
+      setupLocalMedia(() => {
         whoAreYou();
       });
   });
@@ -558,7 +558,7 @@ function initPeer() {
         setPeerChatAvatarImgName("right", myPeerName);
         joinToChannel();
       },
-    }).then(function () {
+    }).then(() => {
       welcomeUser();
     });
 
@@ -639,32 +639,12 @@ function initPeer() {
   }
 
   /**
-   * Tear down all of our peer connections
-   * and remove all the media divs when we disconnect
-   */
-  signalingSocket.on("disconnect", function () {
-    console.log("Disconnected from signaling server");
-    for (let peer_id in peerMediaElements) {
-      document.body.removeChild(peerMediaElements[peer_id].parentNode);
-      resizeVideos();
-    }
-    for (let peer_id in peerConnections) {
-      peerConnections[peer_id].close();
-      msgerRemovePeer(peer_id);
-    }
-    if (useRTCDataChannel) chatDataChannels = {};
-    fileSharingDataChannels = {};
-    peerConnections = {};
-    peerMediaElements = {};
-  });
-
-  /**
    * When we join a group, our signaling server will send out 'addPeer' events to each pair
    * of users in the group (creating a fully-connected graph of users, ie if there are 6 people
    * in the channel you will connect directly to the other 5, so there will be a total of 15
    * connections in the network).
    */
-  signalingSocket.on("addPeer", function (config) {
+  signalingSocket.on("addPeer", (config) => {
     // console.log("addPeer", JSON.stringify(config));
 
     let peer_id = config.peer_id;
@@ -691,7 +671,7 @@ function initPeer() {
     playSound("addPeer");
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
-    peerConnections[peer_id].onicecandidate = function (event) {
+    peerConnections[peer_id].onicecandidate = (event) => {
       if (event.candidate) {
         signalingSocket.emit("relayICE", {
           peer_id: peer_id,
@@ -710,7 +690,7 @@ function initPeer() {
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ontrack
      */
     let ontrackCount = 0;
-    peerConnections[peer_id].ontrack = function (event) {
+    peerConnections[peer_id].ontrack = (event) => {
       ontrackCount++;
       if (ontrackCount === 2) {
         console.log("ontrack", event);
@@ -809,6 +789,7 @@ function initPeer() {
 
         // attachMediaStream is a part of the adapter.js library
         attachMediaStream(remoteMedia, remoteMediaStream);
+        // resize video elements
         resizeVideos();
 
         // handle video full screen mode
@@ -836,7 +817,7 @@ function initPeer() {
        * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ondatachannel
        * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
        */
-      peerConnections[peer_id].ondatachannel = function (event) {
+      peerConnections[peer_id].ondatachannel = (event) => {
         console.log("Datachannel event " + peer_id, event);
         event.channel.onmessage = (msg) => {
           switch (event.channel.label) {
@@ -861,7 +842,7 @@ function initPeer() {
       // ...
     } else {
       // show chat messages dev mode
-      signalingSocket.on("onMessage", function (config) {
+      signalingSocket.on("onMessage", (config) => {
         console.log("Receive msg", { msg: config.msg });
         if (!isChatRoomVisible) {
           showChatRoomDraggable();
@@ -884,7 +865,7 @@ function initPeer() {
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addStream
      * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
      */
-    localMediaStream.getTracks().forEach(function (track) {
+    localMediaStream.getTracks().forEach((track) => {
       peerConnections[peer_id].addTrack(track, localMediaStream);
     });
 
@@ -899,28 +880,25 @@ function initPeer() {
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
       peerConnections[peer_id]
         .createOffer()
-        .then(function (local_description) {
+        .then((local_description) => {
           console.log("Local offer description is", local_description);
           // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
           peerConnections[peer_id]
             .setLocalDescription(local_description)
-            .then(function () {
+            .then(() => {
               signalingSocket.emit("relaySDP", {
                 peer_id: peer_id,
                 session_description: local_description,
               });
               console.log("Offer setLocalDescription done!");
             })
-            .catch((e) => {
-              console.error("[Error] offer setLocalDescription", e);
-              userLog(
-                "error",
-                "Offer setLocalDescription failed: " + e.message
-              );
+            .catch((err) => {
+              console.error("[Error] offer setLocalDescription", err);
+              userLog("error", "Offer setLocalDescription failed " + err);
             });
         })
-        .catch((e) => {
-          console.error("[Error] sending offer", e);
+        .catch((err) => {
+          console.error("[Error] sending offer", err);
         });
     } // end [if offer true]
   }); // end [addPeer]
@@ -931,7 +909,7 @@ function initPeer() {
    * the 'offerer' sends a description to the 'answerer' (with type
    * "offer"), then the answerer sends one back (with type "answer").
    */
-  signalingSocket.on("sessionDescription", function (config) {
+  signalingSocket.on("sessionDescription", (config) => {
     console.log("Remote Session-description", config);
 
     let peer_id = config.peer_id;
@@ -943,40 +921,40 @@ function initPeer() {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription
     peerConnections[peer_id]
       .setRemoteDescription(description)
-      .then(function () {
+      .then(() => {
         console.log("setRemoteDescription done!");
         if (remote_description.type == "offer") {
           console.log("Creating answer");
           // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createAnswer
           peerConnections[peer_id]
             .createAnswer()
-            .then(function (local_description) {
+            .then((local_description) => {
               console.log("Answer description is: ", local_description);
               // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
               peerConnections[peer_id]
                 .setLocalDescription(local_description)
-                .then(function () {
+                .then(() => {
                   signalingSocket.emit("relaySDP", {
                     peer_id: peer_id,
                     session_description: local_description,
                   });
                   console.log("Answer setLocalDescription done!");
                 })
-                .catch((e) => {
-                  console.error("[Error] answer setLocalDescription", e);
+                .catch((err) => {
+                  console.error("[Error] answer setLocalDescription", err);
                   userLog(
                     "error",
-                    "Answer setLocalDescription failed: " + e.message
+                    "Answer setLocalDescription failed " + err
                   );
                 });
             })
-            .catch((e) => {
-              console.error("[Error] creating answer", e);
+            .catch((err) => {
+              console.error("[Error] creating answer", err);
             });
         } // end [if type offer]
       })
-      .catch((e) => {
-        console.error("[Error] setRemoteDescription", e);
+      .catch((err) => {
+        console.error("[Error] setRemoteDescription", err);
       });
   }); // end [sessionDescription]
 
@@ -984,24 +962,24 @@ function initPeer() {
    * The offerer will send a number of ICE Candidate blobs to the answerer so they
    * can begin trying to find the best path to one another on the net.
    */
-  signalingSocket.on("iceCandidate", function (config) {
+  signalingSocket.on("iceCandidate", (config) => {
     let peer_id = config.peer_id;
     let ice_candidate = config.ice_candidate;
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate
     peerConnections[peer_id]
       .addIceCandidate(new RTCIceCandidate(ice_candidate))
-      .catch((e) => {
-        console.error("[Error] addIceCandidate", e);
+      .catch((err) => {
+        console.error("[Error] addIceCandidate", err);
       });
   });
 
   // refresh peers name
-  signalingSocket.on("onCName", function (config) {
+  signalingSocket.on("onCName", (config) => {
     appendPeerName(config.peer_id, config.peer_name);
   });
 
   // refresh peers video - audio - hand icon status and title
-  signalingSocket.on("onpeerStatus", function (config) {
+  signalingSocket.on("onpeerStatus", (config) => {
     let peer_id = config.peer_id;
     let element = config.element;
     let status = config.status;
@@ -1020,7 +998,7 @@ function initPeer() {
   });
 
   // whiteboard actions
-  signalingSocket.on("wb", function (config) {
+  signalingSocket.on("wb", (config) => {
     // only on desktop if mobile do nothing
     if (isMobileDevice) return;
     switch (config.act) {
@@ -1042,20 +1020,40 @@ function initPeer() {
   });
 
   // set my Audio off
-  signalingSocket.on("onmuteEveryone", function (config) {
+  signalingSocket.on("onmuteEveryone", (config) => {
     setMyAudioOff(config.peer_name);
   });
   // set my Video off
-  signalingSocket.on("onhideEveryone", function (config) {
+  signalingSocket.on("onhideEveryone", (config) => {
     setMyVideoOff(config.peer_name);
   });
   // kick out
-  signalingSocket.on("onKickOut", function (config) {
+  signalingSocket.on("onKickOut", (config) => {
     kickedOut(config.peer_name);
   });
   // get file info
-  signalingSocket.on("onFileInfo", function (data) {
+  signalingSocket.on("onFileInfo", (data) => {
     startDownload(data);
+  });
+
+  /**
+   * Tear down all of our peer connections
+   * and remove all the media divs when we disconnect
+   */
+  signalingSocket.on("disconnect", () => {
+    console.log("Disconnected from signaling server");
+    for (let peer_id in peerMediaElements) {
+      document.body.removeChild(peerMediaElements[peer_id].parentNode);
+      resizeVideos();
+    }
+    for (let peer_id in peerConnections) {
+      peerConnections[peer_id].close();
+      msgerRemovePeer(peer_id);
+    }
+    if (useRTCDataChannel) chatDataChannels = {};
+    fileSharingDataChannels = {};
+    peerConnections = {};
+    peerMediaElements = {};
   });
 
   /**
@@ -1068,7 +1066,7 @@ function initPeer() {
    * signaling_socket.on('disconnect') code will kick in and tear down
    * all the peer sessions.
    */
-  signalingSocket.on("removePeer", function (config) {
+  signalingSocket.on("removePeer", (config) => {
     console.log("Signaling server said to remove peer:", config);
 
     let peer_id = config.peer_id;
@@ -1094,7 +1092,7 @@ function initPeer() {
 } // end [initPeer]
 
 /**
- * Set mirotalk theme neon - dark - ghost
+ * Set mirotalk theme neon - dark - forest - sky - ghost
  * @param {*} theme
  */
 function setTheme(theme) {
@@ -1270,7 +1268,7 @@ function setupLocalMedia(callback, errorback) {
 
   navigator.mediaDevices
     .getUserMedia(constraints)
-    .then(function (stream) {
+    .then((stream) => {
       console.log("Access granted to audio/video");
       // hide img bg and loading div
       document.body.style.backgroundImage = "none";
@@ -1482,7 +1480,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
   let videoFullScreenBtn = getId(videoFullScreenBtnId);
 
   // handle Chrome Firefox Opera Microsoft Edge videoPlayer ESC
-  videoPlayer.addEventListener("fullscreenchange", function (e) {
+  videoPlayer.addEventListener("fullscreenchange", (e) => {
     // if Controls enabled, or document on FS do nothing
     if (videoPlayer.controls || isDocumentOnFullScreen) return;
     let fullscreenElement = document.fullscreenElement;
@@ -1494,7 +1492,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
   });
 
   // handle Safari videoPlayer ESC
-  videoPlayer.addEventListener("webkitfullscreenchange", function () {
+  videoPlayer.addEventListener("webkitfullscreenchange", (e) => {
     // if Controls enabled, or document on FS do nothing
     if (videoPlayer.controls || isDocumentOnFullScreen) return;
     let webkitIsFullScreen = document.webkitIsFullScreen;
@@ -1708,7 +1706,7 @@ function setRecordStreamBtn() {
 function setFullScreenBtn() {
   if (DetectRTC.browser.name != "Safari") {
     // detect esc from full screen mode
-    document.addEventListener("fullscreenchange", function (e) {
+    document.addEventListener("fullscreenchange", (e) => {
       let fullscreenElement = document.fullscreenElement;
       if (!fullscreenElement) {
         fullScreenBtn.className = "fas fa-expand-alt";
@@ -1798,7 +1796,7 @@ function setChatRoomBtn() {
   });
 
   // Execute a function when the user releases a key on the keyboard
-  msgerInput.addEventListener("keyup", function (e) {
+  msgerInput.addEventListener("keyup", (e) => {
     // Number 13 is the "Enter" key on the keyboard
     if (e.keyCode === 13) {
       e.preventDefault();
@@ -1807,7 +1805,7 @@ function setChatRoomBtn() {
   });
 
   // on input check 4emoji from map
-  msgerInput.oninput = function () {
+  msgerInput.oninput = () => {
     for (let i in chatInputEmoji) {
       let regex = new RegExp(escapeSpecialChars(i), "gim");
       this.value = this.value.replace(regex, chatInputEmoji[i]);
@@ -2047,10 +2045,10 @@ function attachSinkId(element, sinkId) {
       .then(() => {
         console.log(`Success, audio output device attached: ${sinkId}`);
       })
-      .catch((error) => {
-        let errorMessage = error;
-        if (error.name === "SecurityError") {
-          errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+      .catch((err) => {
+        let errorMessage = err;
+        if (err.name === "SecurityError") {
+          errorMessage = `You need to use HTTPS for selecting audio output device: ${err}`;
         }
         console.error(errorMessage);
         // Jump back to first output device in the list as it's the default.
@@ -2129,15 +2127,15 @@ function gotDevices(deviceInfos) {
 
 /**
  * Handle getUserMedia error
- * @param {*} error
+ * @param {*} err
  */
-function handleError(error) {
+function handleError(err) {
   console.log(
     "navigator.MediaDevices.getUserMedia error: ",
-    error.message,
-    error.name
+    err.message,
+    err.name
   );
-  userLog("error", "GetUserMedia error: " + error);
+  userLog("error", "GetUserMedia error " + err);
   // https://blog.addpipe.com/common-getusermedia-errors/
 }
 
@@ -2168,7 +2166,7 @@ function showLeftButtonsAndMenu() {
   toggleClassElements("statusMenu", "inline");
   leftButtons.style.display = "flex";
   isButtonsVisible = true;
-  setTimeout(function () {
+  setTimeout(() => {
     toggleClassElements("statusMenu", "none");
     leftButtons.style.display = "none";
     isButtonsVisible = false;
@@ -2192,11 +2190,11 @@ async function shareRoomUrl() {
       // not add title and description to load metadata from url
       await navigator.share({ url: myRoomUrl });
       userLog("info", "Room Shared successfully!");
-    } catch (error) {
+    } catch (err) {
       errorNavigatorShare = true;
       /*  This feature is available only in secure contexts (HTTPS),
           in some or all supporting browsers and mobile devices
-          console.error("navigator.share", error); 
+          console.error("navigator.share", err); 
       */
     }
   }
@@ -2364,9 +2362,9 @@ function swapCamera() {
       }
       myVideo.classList.toggle("mirror");
     })
-    .catch((e) => {
-      console.log("[Error] to swaping camera", e);
-      userLog("error", "Error to swaping the camera " + e);
+    .catch((err) => {
+      console.log("[Error] to swaping camera", err);
+      userLog("error", "Error to swaping the camera " + err);
       // https://blog.addpipe.com/common-getusermedia-errors/
     });
 }
@@ -2428,9 +2426,9 @@ function toggleScreenSharing() {
       setScreenSharingStatus(isScreenStreaming);
       //setMyVideoStatusTrue();
     })
-    .catch((e) => {
-      console.error("[Error] Unable to share the screen", e);
-      userLog("error", "Unable to share the screen " + e);
+    .catch((err) => {
+      console.error("[Error] Unable to share the screen", err);
+      userLog("error", "Unable to share the screen " + err);
     });
 }
 
@@ -2530,7 +2528,7 @@ function refreshMyLocalStream(stream) {
   attachMediaStream(myVideo, localMediaStream); // newstream
 
   // on toggleScreenSharing video stop
-  stream.getVideoTracks()[0].onended = function () {
+  stream.getVideoTracks()[0].onended = () => {
     if (isScreenStreaming) toggleScreenSharing();
   };
 
@@ -2577,9 +2575,9 @@ function startStreamRecording() {
   try {
     // record only my local Media Stream
     mediaRecorder = new MediaRecorder(localMediaStream, options);
-  } catch (e) {
-    console.error("Exception while creating MediaRecorder:", e);
-    userLog("error", "Can't start stream recording: " + e.message);
+  } catch (err) {
+    console.error("Exception while creating MediaRecorder:", err);
+    userLog("error", "Can't start stream recording: " + err);
     return;
   }
 
@@ -2667,8 +2665,8 @@ function downloadRecordedStream() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }, 100);
-  } catch (error) {
-    userLog("error", "Recording save failed: " + error.message);
+  } catch (err) {
+    userLog("error", "Recording save failed: " + err);
   }
 }
 
@@ -2959,7 +2957,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
  */
 function detectUrl(text) {
   let urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, function (url) {
+  return text.replace(urlRegex, (url) => {
     if (isImageURL(text)) {
       return (
         '<p><img src="' + url + '" alt="img" width="200" height="auto"/></p>'
@@ -3641,11 +3639,11 @@ function sendFileData() {
   fileReader = new FileReader();
   let offset = 0;
 
-  fileReader.addEventListener("error", (error) =>
-    console.error("fileReader error", error)
+  fileReader.addEventListener("error", (err) =>
+    console.error("fileReader error", err)
   );
-  fileReader.addEventListener("abort", (event) =>
-    console.log("fileReader aborted", event)
+  fileReader.addEventListener("abort", (e) =>
+    console.log("fileReader aborted", e)
   );
   fileReader.addEventListener("load", (e) => {
     if (!sendInProgress || !fsDataChannelOpen) return;
@@ -4242,8 +4240,8 @@ async function playSound(state) {
     let audioToPlay = new Audio(file_audio);
     try {
       await audioToPlay.play();
-    } catch (e) {
-      // console.error("Cannot play sound", e);
+    } catch (err) {
+      // console.error("Cannot play sound", err);
       // Automatic playback failed. (safari)
       return;
     }

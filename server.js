@@ -52,7 +52,7 @@ app.use(express.static(path.join(__dirname, "www")));
 app.use(express.json());
 
 // Remove trailing slashes in url handle bad requests
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     logme("Request Error", {
       header: req.headers,
@@ -70,37 +70,37 @@ app.use(function (err, req, res, next) {
 });
 
 /*
-app.get(["/"], (req, res) =>
+app.get(["/"], (req, res) => {
   res.sendFile(path.join(__dirname, "www/client.html"))
-); */
+}); */
 
 // all start from here
-app.get(["/"], (req, res) =>
+app.get(["/"], (req, res) => {
   res.sendFile(path.join(__dirname, "www/landing.html"))
-);
+});
 
 // set new room name and join
-app.get(["/newcall"], (req, res) =>
+app.get(["/newcall"], (req, res) => {
   res.sendFile(path.join(__dirname, "www/newcall.html"))
-);
+});
 
 // if not allow video/audio
-app.get(["/permission"], (req, res) =>
+app.get(["/permission"], (req, res) => {
   res.sendFile(path.join(__dirname, "www/permission.html"))
-);
+});
 
 // privacy policy
-app.get(["/privacy"], (req, res) =>
+app.get(["/privacy"], (req, res) => {
   res.sendFile(path.join(__dirname, "www/privacy.html"))
-);
+});
 
 // no room name specified to join
-app.get("/join/", function (req, res) {
+app.get("/join/", (req, res) => {
   res.redirect("/");
 });
 
 // join to room
-app.get("/join/*", function (req, res) {
+app.get("/join/*", (req, res) => {
   if (Object.keys(req.query).length > 0) {
     logme("redirect:" + req.url + " to " + url.parse(req.url).pathname);
     res.redirect(url.parse(req.url).pathname);
@@ -208,15 +208,15 @@ async function ngrokStart() {
         ngrok_token: ngrokAuthToken,
       },
     });
-  } catch (e) {
-    console.error("[Error] ngrokStart", e);
+  } catch (err) {
+    console.error("[Error] ngrokStart", err);
   }
 }
 
 /**
  * Start Local Server with ngrok https tunnel (optional)
  */
-server.listen(PORT, null, function () {
+server.listen(PORT, null, () => {
   logme(
     `%c
 
@@ -625,7 +625,7 @@ io.sockets.on("connect", (socket) => {
   /**
    * Relay File info
    */
-  socket.on("fileInfo", function (config) {
+  socket.on("fileInfo", (config) => {
     let peerConnections = config.peerConnections;
     let room_id = config.room_id;
     let peer_name = config.peer_name;
@@ -663,9 +663,9 @@ io.sockets.on("connect", (socket) => {
   });
 
   /**
-  * Whiteboard actions for all user in the same room
-  */
-  socket.on("wb", function (config) {
+   * Whiteboard actions for all user in the same room
+   */
+  socket.on("wb", (config) => {
     let peerConnections = config.peerConnections;
     delete config.peerConnections;
     if (Object.keys(peerConnections).length != 0) {
