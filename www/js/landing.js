@@ -258,6 +258,7 @@
     }
 
     function i() {
+      let n;
       for (let i = 0; i < e.length; i++) {
         let s = e[i],
           a = s.getAttribute("data-reveal-delay"),
@@ -276,7 +277,6 @@
                 }, a)
               : s.classList.add("is-revealed"));
       }
-      let n;
       !(function () {
         if (
           e.length >
