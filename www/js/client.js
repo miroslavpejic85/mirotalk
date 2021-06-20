@@ -1755,7 +1755,10 @@ function setChatRoomBtn() {
 
     if (e.target.className == "fas fa-ghost") {
       e.target.className = "fas fa-undo";
-      document.documentElement.style.setProperty("--msger-bg", "transparent");
+      document.documentElement.style.setProperty(
+        "--msger-bg",
+        "rgba(0, 0, 0, 0.100)"
+      );
       document.documentElement.style.setProperty("--msger-private-bg", "black");
     } else {
       e.target.className = "fas fa-ghost";
@@ -1912,9 +1915,14 @@ function setMyWhiteboardBtn() {
   });
   // ghost mode
   whiteboardGhostBtn.addEventListener("click", (e) => {
+    if (mirotalkTheme == "ghost") return;
+
     if (e.target.className == "fas fa-ghost") {
       e.target.className = "fas fa-undo";
-      document.documentElement.style.setProperty("--wb-bg", "transparent");
+      document.documentElement.style.setProperty(
+        "--wb-bg",
+        "rgba(0, 0, 0, 0.7)"
+      );
       document.documentElement.style.setProperty("--wb-hbg", "#000000");
     } else {
       e.target.className = "fas fa-ghost";

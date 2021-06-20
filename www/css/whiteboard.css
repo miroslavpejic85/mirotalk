@@ -21,10 +21,12 @@
   animation-duration: 1s;
   overflow: none;
   box-shadow: var(--box-shadow);
+  border-radius: 5px;
 }
 .whiteboard-cont #whiteboard {
   z-index: 99;
   background-color: var(--wb-bg);
+  border-radius: 5px;
 }
 .whiteboard-cont .colors-cont {
   position: absolute;
@@ -34,6 +36,7 @@
   width: 100%;
   background: var(--wb-hbg);
   cursor: move;
+  border-radius: 5px;
 }
 .whiteboard-cont .colors-cont .white {
   height: 30px;
