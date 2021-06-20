@@ -155,7 +155,6 @@ let isStreamRecording = false;
 let whiteboardCont;
 let whiteboardHeader;
 let whiteboardColorPicker;
-let whiteboardWhiteColor;
 let whiteboardCloseBtn;
 let whiteboardFsBtn;
 let whiteboardGhostBtn;
@@ -254,7 +253,6 @@ function getHtmlElementsById() {
   whiteboardCloseBtn = getId("whiteboardCloseBtn");
   whiteboardFsBtn = getId("whiteboardFsBtn");
   whiteboardColorPicker = getId("whiteboardColorPicker");
-  whiteboardWhiteColor = getId("whiteboardWhiteColor");
   whiteboardGhostBtn = getId("whiteboardGhostBtn");
   whiteboardSaveBtn = getId("whiteboardSaveBtn");
   whiteboardEraserBtn = getId("whiteboardEraserBtn");
@@ -3363,6 +3361,7 @@ function whiteboardOpen() {
       content: "CLOSE the whiteboard",
       placement: "right-start",
     });
+    playSound("newMessage");
   }
 }
 
