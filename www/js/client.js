@@ -61,7 +61,7 @@ let isButtonsVisible = false;
 let isMySettingsVisible = false;
 let isVideoOnFullScreen = false;
 let isDocumentOnFullScreen = false;
-let isWhiteboardDark = false;
+let isWhiteboardFs = false;
 let signalingSocket; // socket.io connection to our webserver
 let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
@@ -153,10 +153,12 @@ let recordedBlobs;
 let isStreamRecording = false;
 // whiteboard init
 let whiteboardCont;
+let whiteboardHeader;
 let whiteboardColorPicker;
-let whiteboardBlackColor;
 let whiteboardWhiteColor;
 let whiteboardCloseBtn;
+let whiteboardFsBtn;
+let whiteboardGhostBtn;
 let whiteboardCleanBtn;
 let whiteboardSaveBtn;
 let whiteboardEraserBtn;
@@ -248,10 +250,12 @@ function getHtmlElementsById() {
   myAudioStatusIcon = getId("myAudioStatusIcon");
   // my whiteboard
   whiteboardCont = getSl(".whiteboard-cont");
+  whiteboardHeader = getSl(".colors-cont");
   whiteboardCloseBtn = getId("whiteboardCloseBtn");
+  whiteboardFsBtn = getId("whiteboardFsBtn");
   whiteboardColorPicker = getId("whiteboardColorPicker");
-  whiteboardBlackColor = getId("whiteboardBlackColor");
   whiteboardWhiteColor = getId("whiteboardWhiteColor");
+  whiteboardGhostBtn = getId("whiteboardGhostBtn");
   whiteboardSaveBtn = getId("whiteboardSaveBtn");
   whiteboardEraserBtn = getId("whiteboardEraserBtn");
   whiteboardCleanBtn = getId("whiteboardCleanBtn");
@@ -368,23 +372,31 @@ function setButtonsTitle() {
   // whiteboard btns
   tippy(whiteboardCloseBtn, {
     content: "CLOSE the whiteboard",
-    placement: "right-start",
+    placement: "bottom",
+  });
+  tippy(whiteboardFsBtn, {
+    content: "VIEW full screen",
+    placement: "bottom",
   });
   tippy(whiteboardColorPicker, {
     content: "COLOR picker",
-    placement: "right-start",
+    placement: "bottom",
+  });
+  tippy(whiteboardGhostBtn, {
+    content: "GHOST background",
+    placement: "bottom",
   });
   tippy(whiteboardSaveBtn, {
     content: "SAVE the board",
-    placement: "right-start",
+    placement: "bottom",
   });
   tippy(whiteboardEraserBtn, {
     content: "ERASE the board",
-    placement: "right-start",
+    placement: "bottom",
   });
   tippy(whiteboardCleanBtn, {
     content: "CLEAN the board",
-    placement: "right-start",
+    placement: "bottom",
   });
 
   // room actions btn
@@ -942,10 +954,7 @@ function initPeer() {
                 })
                 .catch((err) => {
                   console.error("[Error] answer setLocalDescription", err);
-                  userLog(
-                    "error",
-                    "Answer setLocalDescription failed " + err
-                  );
+                  userLog("error", "Answer setLocalDescription failed " + err);
                 });
             })
             .catch((err) => {
@@ -1009,11 +1018,13 @@ function initPeer() {
         whiteboardClean();
         break;
       case "open":
-        isWhiteboardDark = config.isWhiteboardDark;
         whiteboardOpen();
         break;
       case "close":
         whiteboardClose();
+        break;
+      case "resize":
+        whiteboardResize();
         break;
       // ...
     }
@@ -1102,7 +1113,6 @@ function setTheme(theme) {
   switch (mirotalkTheme) {
     case "neon":
       // neon theme
-      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
@@ -1110,8 +1120,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#da05f3");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#579ffb");
-      document.documentElement.style.setProperty("--wb-bg", "#ffffff");
-      document.documentElement.style.setProperty("--wb-btn-color", "black");
+      document.documentElement.style.setProperty("--wb-bg", "#000000");
+      document.documentElement.style.setProperty("--wb-hbg", "#000000");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -1127,7 +1137,6 @@ function setTheme(theme) {
       break;
     case "dark":
       // dark theme
-      isWhiteboardDark = true;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "#16171b");
       document.documentElement.style.setProperty("--msger-bg", "#16171b");
@@ -1139,7 +1148,7 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#0a0b0c");
       document.documentElement.style.setProperty("--wb-bg", "#000000");
-      document.documentElement.style.setProperty("--wb-btn-color", "white");
+      document.documentElement.style.setProperty("--wb-hbg", "#000000");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -1155,7 +1164,6 @@ function setTheme(theme) {
       break;
     case "forest":
       // forest theme
-      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
@@ -1163,8 +1171,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#2e3500");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#004b1c");
-      document.documentElement.style.setProperty("--wb-bg", "#ffffff");
-      document.documentElement.style.setProperty("--wb-btn-color", "black");
+      document.documentElement.style.setProperty("--wb-bg", "#000000");
+      document.documentElement.style.setProperty("--wb-hbg", "#000000");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -1180,7 +1188,6 @@ function setTheme(theme) {
       break;
     case "sky":
       // sky theme
-      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.7)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "black");
@@ -1188,8 +1195,8 @@ function setTheme(theme) {
       document.documentElement.style.setProperty("--left-msg-bg", "#0c95b7");
       document.documentElement.style.setProperty("--private-msg-bg", "#f77070");
       document.documentElement.style.setProperty("--right-msg-bg", "#012a5f");
-      document.documentElement.style.setProperty("--wb-bg", "#ffffff");
-      document.documentElement.style.setProperty("--wb-btn-color", "black");
+      document.documentElement.style.setProperty("--wb-bg", "#000000");
+      document.documentElement.style.setProperty("--wb-hbg", "#000000");
       document.documentElement.style.setProperty("--btn-bg", "white");
       document.documentElement.style.setProperty("--btn-color", "black");
       document.documentElement.style.setProperty("--btn-opc", "1");
@@ -1205,13 +1212,12 @@ function setTheme(theme) {
       break;
     case "ghost":
       // ghost theme
-      isWhiteboardDark = false;
       swalBackground = "rgba(0, 0, 0, 0.150)";
       document.documentElement.style.setProperty("--body-bg", "black");
       document.documentElement.style.setProperty("--msger-bg", "transparent");
       document.documentElement.style.setProperty("--msger-private-bg", "black");
-      document.documentElement.style.setProperty("--wb-bg", "#ffffff");
-      document.documentElement.style.setProperty("--wb-btn-color", "black");
+      document.documentElement.style.setProperty("--wb-bg", "transparent");
+      document.documentElement.style.setProperty("--wb-hbg", "#000000");
       document.documentElement.style.setProperty("--btn-bg", "transparent");
       document.documentElement.style.setProperty("--btn-color", "white");
       document.documentElement.style.setProperty("--btn-opc", "0.7");
@@ -1886,15 +1892,36 @@ function setMyWhiteboardBtn() {
 
   setupCanvas();
 
-  // open whiteboard
+  // open - close whiteboard
   whiteboardBtn.addEventListener("click", (e) => {
-    whiteboardOpen();
-    remoteWbAction("open");
+    if (isWhiteboardVisible) {
+      whiteboardClose();
+      remoteWbAction("close");
+    } else {
+      whiteboardOpen();
+      remoteWbAction("open");
+    }
   });
   // close whiteboard
   whiteboardCloseBtn.addEventListener("click", (e) => {
     whiteboardClose();
     remoteWbAction("close");
+  });
+  // view full screen
+  whiteboardFsBtn.addEventListener("click", (e) => {
+    whiteboardResize();
+    remoteWbAction("resize");
+  });
+  // ghost mode
+  whiteboardGhostBtn.addEventListener("click", (e) => {
+    if (e.target.className == "fas fa-ghost") {
+      e.target.className = "fas fa-undo";
+      document.documentElement.style.setProperty("--wb-bg", "transparent");
+      document.documentElement.style.setProperty("--wb-hbg", "#000000");
+    } else {
+      e.target.className = "fas fa-ghost";
+      document.documentElement.style.setProperty("--wb-bg", "#000000");
+    }
   });
   // erase whiteboard
   whiteboardEraserBtn.addEventListener("click", (e) => {
@@ -3313,15 +3340,29 @@ function setPeerVideoStatus(peer_id, status) {
 // ##############################################################################
 
 /**
+ * Whiteboard draggable
+ */
+function setWhiteboardDraggable() {
+  dragElement(whiteboardCont, whiteboardHeader);
+}
+
+/**
  * Whiteboard Open
  */
 function whiteboardOpen() {
   if (!isWhiteboardVisible) {
-    setWhiteboardBgandColors();
+    setWhiteboardDraggable();
+    setColor("#ffffff"); // color picker
+    whiteboardCont.style.top = "50%";
+    whiteboardCont.style.left = "50%";
     whiteboardCont.style.display = "block";
     isWhiteboardVisible = true;
     drawsize = 3;
     fitToContainer(canvas);
+    tippy(whiteboardBtn, {
+      content: "CLOSE the whiteboard",
+      placement: "right-start",
+    });
   }
 }
 
@@ -3332,7 +3373,39 @@ function whiteboardClose() {
   if (isWhiteboardVisible) {
     whiteboardCont.style.display = "none";
     isWhiteboardVisible = false;
+    tippy(whiteboardBtn, {
+      content: "OPEN the whiteboard",
+      placement: "right-start",
+    });
   }
+}
+
+/**
+ * Whiteboard resize
+ */
+function whiteboardResize() {
+  let content;
+  whiteboardCont.style.top = "50%";
+  whiteboardCont.style.left = "50%";
+  if (isWhiteboardFs) {
+    document.documentElement.style.setProperty("--wb-width", "800px");
+    document.documentElement.style.setProperty("--wb-height", "600px");
+    fitToContainer(canvas);
+    whiteboardFsBtn.className = "fas fa-expand-alt";
+    content = "VIEW full screen";
+    isWhiteboardFs = false;
+  } else {
+    document.documentElement.style.setProperty("--wb-width", "100%");
+    document.documentElement.style.setProperty("--wb-height", "100%");
+    fitToContainer(canvas);
+    whiteboardFsBtn.className = "fas fa-compress-alt";
+    content = "EXIT full screen";
+    isWhiteboardFs = true;
+  }
+  tippy(whiteboardFsBtn, {
+    content: content,
+    placement: "bottom",
+  });
 }
 
 /**
@@ -3358,7 +3431,7 @@ function setColor(newcolor) {
  * Whiteboard eraser
  */
 function setEraser() {
-  isWhiteboardDark ? (color = "#000000") : (color = "#ffffff");
+  color = "#000000";
   drawsize = 25;
   whiteboardColorPicker.value = color;
 }
@@ -3484,25 +3557,6 @@ function setupCanvas() {
 }
 
 /**
- * Whiteboard bg and colors on theme changes
- */
-function setWhiteboardBgandColors() {
-  if (isWhiteboardDark) {
-    document.documentElement.style.setProperty("--wb-bg", "#000000");
-    document.documentElement.style.setProperty("--wb-btn-color", "white");
-    whiteboardWhiteColor.style.display = "flex";
-    whiteboardBlackColor.style.display = "none";
-    setColor("#ffffff");
-  } else {
-    document.documentElement.style.setProperty("--wb-bg", "#ffffff");
-    document.documentElement.style.setProperty("--wb-btn-color", "black");
-    whiteboardWhiteColor.style.display = "none";
-    whiteboardBlackColor.style.display = "flex";
-    setColor("#000000");
-  }
-}
-
-/**
  * Save whiteboard canvas to file as png
  */
 function saveWbCanvas() {
@@ -3522,7 +3576,6 @@ function remoteWbAction(action) {
   if (thereIsPeerConnections()) {
     signalingSocket.emit("wb", {
       peerConnections: peerConnections,
-      isWhiteboardDark: isWhiteboardDark,
       act: action,
     });
   }

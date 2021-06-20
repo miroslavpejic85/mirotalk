@@ -40,6 +40,10 @@
   --msger-height: 680px;
   --msger-width: 420px;
 
+  /* whiteboard resize */
+  --wb-width: 800px;
+  --wb-height: 600px;
+
   /* my settings */
   --mySettings-select-w: 100%;
 
@@ -58,8 +62,8 @@
   --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
-  --wb-btn-color: black;
-  --wb-bg: white;
+  --wb-bg: #000000;
+  --wb-hbg: #000000;
   --my-settings-label-color: limegreen;
 
   /* dark theme
@@ -74,8 +78,8 @@
   --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
-  --wb-btn-color: white;
-  --wb-bg: black;
+  --wb-bg: #000000;
+  --wb-hbg: #000000;
   --my-settings-label-color: limegreen;
   */
 
@@ -91,8 +95,8 @@
   --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
-  --wb-btn-color: black;
-  --wb-bg: white;
+  --wb-bg: #000000;
+  --wb-hbg: #000000;
   --my-settings-label-color: limegreen;
   */
 
@@ -108,8 +112,8 @@
   --btn-color: black;
   --btn-opc: 1;
   --btns-left: 20px;
-  --wb-btn-color: black;
-  --wb-bg: white;
+  --wb-bg: #000000;
+  --wb-hbg: #000000;
   --my-settings-label-color: #03a5ce;
   */
 
@@ -125,8 +129,8 @@
   --btn-color: white;
   --btn-opc: 0.7;
   --btns-left: 20px;
-  --wb-btn-color: black;
-  --wb-bg: white;
+  --wb-bg: transparent;
+  --wb-hbg: #000000;
   --my-settings-label-color: limegreen;
   */
 
@@ -836,7 +840,7 @@ video:fullscreen {
 
 #mySettings {
   display: none;
-  z-index: 14;
+  z-index: 15;
   /* center */
   position: absolute;
   top: 50%;
@@ -1006,7 +1010,7 @@ video:fullscreen {
 --------------------------------------------------------------*/
 
 #sendFileDiv {
-  z-index: 15;
+  z-index: 16;
   display: none;
   /* center */
   position: absolute;
@@ -1101,6 +1105,7 @@ z-index
 11 chat peers private msg
 12 left buttons
 13 chat emoji
-14 settings
-15 send File Div
+14 whiteboard
+15 settings
+16 send File Div
 */

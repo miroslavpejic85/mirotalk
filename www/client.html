@@ -294,9 +294,9 @@ access to use this app.
 
     <!-- Start whiteboard -->
     <div class="whiteboard-cont">
-      <canvas id="whiteboard"></canvas>
       <div class="colors-cont">
         <button id="whiteboardCloseBtn" class="fas fa-times"></button>
+        <button id="whiteboardFsBtn" class="fas fa-expand-alt"></button>
         <div>
           <input
             type="color"
@@ -310,11 +310,6 @@ access to use this app.
           id="whiteboardWhiteColor"
           onclick="setColor('#ffffff')"
         ></div>
-        <div
-          class="black"
-          id="whiteboardBlackColor"
-          onclick="setColor('#000000')"
-        ></div>
         <div class="red" onclick="setColor('#e74c3c')"></div>
         <div class="yellow" onclick="setColor('#f1c40f')"></div>
         <div class="green" onclick="setColor('#badc58')"></div>
@@ -323,11 +318,13 @@ access to use this app.
         <div class="purple" onclick="setColor('#9b59b6')"></div>
         <div class="pink" onclick="setColor('#fd79a8')"></div>
         <div class="brown" onclick="setColor('#834c32')"></div>
-        <div class="grey" onclick="setColor('gray')"></div>
+        <div class="grey" onclick="setColor('#afadad')"></div>
+        <button id="whiteboardGhostBtn" class="fas fa-ghost"></button>
         <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
         <button id="whiteboardSaveBtn" class="fas fa-save"></button>
         <button id="whiteboardCleanBtn" class="fas fa-trash"></button>
       </div>
+      <canvas id="whiteboard"></canvas>
     </div>
     <!-- End whiteboard -->
 

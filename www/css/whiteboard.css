@@ -1,28 +1,39 @@
 .whiteboard-cont {
-  z-index: 99;
+  z-index: 14;
   display: none;
-  height: 100%;
-  width: 100%;
+  width: var(--wb-width);
+  height: var(--wb-height);
   position: absolute;
+  /* center */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* fade in */
+  -webkit-animation: fadeIn ease-in 1;
+  -moz-animation: fadeIn ease-in 1;
+  animation: fadeIn ease-in 1;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  animation-duration: 1s;
+  overflow: none;
+  box-shadow: var(--box-shadow);
 }
 .whiteboard-cont #whiteboard {
   z-index: 99;
   background-color: var(--wb-bg);
-  border-radius: 10px;
 }
 .whiteboard-cont .colors-cont {
   position: absolute;
-  right: 30px;
-  top: 30px;
   display: flex;
-  flex-direction: column;
-}
-.whiteboard-cont .colors-cont .black {
-  height: 30px;
-  width: 30px;
-  border-radius: 50px;
-  background-color: #000000;
-  margin-top: 10px;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  background: var(--wb-hbg);
+  cursor: move;
 }
 .whiteboard-cont .colors-cont .white {
   height: 30px;
@@ -30,9 +41,9 @@
   border-radius: 50px;
   background-color: #ffffff;
   margin-top: 10px;
-  display: none;
+  margin-left: 10px;
 }
-.whiteboard-cont .colors-cont .black:hover {
+.whiteboard-cont .colors-cont .white:hover {
   cursor: pointer;
   transform: var(--btns-hover-scale);
   transition: all 0.3s ease-in-out;
@@ -43,6 +54,7 @@
   border-radius: 50px;
   background-color: #e74c3c;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .red:hover {
   cursor: pointer;
@@ -55,6 +67,7 @@
   border-radius: 50px;
   background-color: #f1c40f;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .yellow:hover {
   cursor: pointer;
@@ -67,6 +80,7 @@
   border-radius: 50px;
   background-color: #badc58;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .green:hover {
   cursor: pointer;
@@ -79,6 +93,7 @@
   border-radius: 50px;
   background-color: #e67e22;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .orange:hover {
   cursor: pointer;
@@ -91,6 +106,7 @@
   border-radius: 50px;
   background-color: #9b59b6;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .purple:hover {
   cursor: pointer;
@@ -103,6 +119,7 @@
   border-radius: 50px;
   background-color: #3498db;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .blue:hover {
   cursor: pointer;
@@ -115,6 +132,7 @@
   border-radius: 50px;
   background-color: #fd79a8;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .pink:hover {
   cursor: pointer;
@@ -127,6 +145,7 @@
   border-radius: 50px;
   background-color: #834c32;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .brown:hover {
   cursor: pointer;
@@ -137,8 +156,9 @@
   height: 30px;
   width: 30px;
   border-radius: 50px;
-  background-color: gray;
+  background-color: #afadad;
   margin-top: 10px;
+  margin-left: 10px;
 }
 .whiteboard-cont .colors-cont .grey:hover {
   cursor: pointer;
@@ -150,8 +170,9 @@
   width: 30px;
   font-size: 1.2rem;
   margin-top: 10px;
+  margin-left: 10px;
   border: none;
-  color: var(--wb-btn-color);
+  color: white;
   background: transparent;
 }
 .whiteboard-cont button:hover {
@@ -169,7 +190,10 @@
   width: 30px;
   height: 30px;
   margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 15px;
   border-radius: 50px;
+  border: solid 0.5px #afadad38;
 }
 #whiteboardColorPicker:hover {
   transform: var(--btns-hover-scale);
