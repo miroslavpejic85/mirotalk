@@ -80,7 +80,7 @@ cp .env.template .env
 
 `Turn`
 
-Not mandatory but recommended.
+Not mandatory but `recommended`.
 
 - Create an account on http://numb.viagenie.ca
 - Get your Account USERNAME and PASSWORD
@@ -172,7 +172,7 @@ You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
 Many Thanks to:
 
-- ianramzy (html template)
+- ianramzy (html [template](https://cruip.com/demos/neon/))
 - vasanthv (webrtc)
 - Sajad (chat)
 - i-aryan (whiteboard)
