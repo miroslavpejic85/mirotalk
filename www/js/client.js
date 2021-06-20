@@ -3380,8 +3380,8 @@ function whiteboardResize() {
     content = "VIEW full screen";
     isWhiteboardFs = false;
   } else {
-    document.documentElement.style.setProperty("--wb-width", "100%");
-    document.documentElement.style.setProperty("--wb-height", "100%");
+    document.documentElement.style.setProperty("--wb-width", "99%");
+    document.documentElement.style.setProperty("--wb-height", "99%");
     fitToContainer(canvas);
     whiteboardFsBtn.className = "fas fa-compress-alt";
     content = "EXIT full screen";
