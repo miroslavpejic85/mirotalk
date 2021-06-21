@@ -76,22 +76,22 @@ app.get(["/"], (req, res) => {
 
 // all start from here
 app.get(["/"], (req, res) => {
-  res.sendFile(path.join(__dirname, "www/landing.html"))
+  res.sendFile(path.join(__dirname, "www/landing.html"));
 });
 
 // set new room name and join
 app.get(["/newcall"], (req, res) => {
-  res.sendFile(path.join(__dirname, "www/newcall.html"))
+  res.sendFile(path.join(__dirname, "www/newcall.html"));
 });
 
 // if not allow video/audio
 app.get(["/permission"], (req, res) => {
-  res.sendFile(path.join(__dirname, "www/permission.html"))
+  res.sendFile(path.join(__dirname, "www/permission.html"));
 });
 
 // privacy policy
 app.get(["/privacy"], (req, res) => {
-  res.sendFile(path.join(__dirname, "www/privacy.html"))
+  res.sendFile(path.join(__dirname, "www/privacy.html"));
 });
 
 // no room name specified to join
@@ -536,6 +536,7 @@ io.sockets.on("connect", (socket) => {
         if (sockets[peer_id]) {
           sockets[peer_id].emit("onpeerStatus", {
             peer_id: socket.id,
+            peer_name: peer_name,
             element: element,
             status: status,
           });
