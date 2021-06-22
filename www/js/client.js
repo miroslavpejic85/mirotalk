@@ -2204,7 +2204,7 @@ async function shareRoomUrl() {
     try {
       // not add title and description to load metadata from url
       await navigator.share({ url: myRoomUrl });
-      userLog("info", "Room Shared successfully!");
+      userLog("toast", "Room Shared successfully!");
     } catch (err) {
       errorNavigatorShare = true;
       /*  This feature is available only in secure contexts (HTTPS),

@@ -12,7 +12,7 @@
     "url": "git+https://github.com/miroslavpejic85/mirotalk"
   },
   "author": "Miroslav Pejic",
-  "license": "CC-BY-NC-ND-4.0",
+  "license": "ISC",
   "homepage": "https://github.com/miroslavpejic85/mirotalk",
   "dependencies": {
     "compression": "^1.7.4",
