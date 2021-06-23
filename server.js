@@ -6,8 +6,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 ███████ █████   ██████  ██    ██ █████   ██████  
      ██ ██      ██   ██  ██  ██  ██      ██   ██ 
 ███████ ███████ ██   ██   ████   ███████ ██   ██                                           
-*/
-/*
+
 dependencies: {
   compression : https://www.npmjs.com/package/compression
   dotenv      : https://www.npmjs.com/package/dotenv
@@ -15,7 +14,25 @@ dependencies: {
   ngrok       : https://www.npmjs.com/package/ngrok
   socket.io   : https://www.npmjs.com/package/socket.io
 }
+
+Mirotalk Signaling Server
+Copyright (C) 2021 Miroslav Pejic <miroslav.pejic.85@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 */
+
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
 require("dotenv").config();
