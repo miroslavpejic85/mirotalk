@@ -189,7 +189,7 @@ From where I took inspiration for this project. ❤️
 
 ## License
 
-[ISC](LICENSE)
+[AGPL3](LICENSE)
 
 ---
 
