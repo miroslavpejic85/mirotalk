@@ -2014,6 +2014,7 @@ function setupMySettings() {
   selectors = [audioInputSelect, audioOutputSelect, videoSelect];
   audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+  // select audio in - out
   audioInputSelect.addEventListener("change", (e) => {
     myVideoChange = false;
     refreshLocalMedia();
@@ -2021,10 +2022,12 @@ function setupMySettings() {
   audioOutputSelect.addEventListener("change", (e) => {
     changeAudioDestination();
   });
+  // select video in
   videoSelect.addEventListener("change", (e) => {
-    if (isMobileDevice) myVideoChange = true;
+    myVideoChange = true;
     refreshLocalMedia();
   });
+  // select themes
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
     setRecordButtonUi();
@@ -2096,11 +2099,11 @@ function attachSinkId(element, sinkId) {
  * @param {*} stream
  */
 function gotStream(stream) {
-  refreshMyStreamToPeers(stream);
-  refreshMyLocalStream(stream);
-  setMyVideoStatusTrue();
+  refreshMyStreamToPeers(stream, true);
+  refreshMyLocalStream(stream, true);
   if (myVideoChange) {
-    myVideo.classList.toggle("mirror");
+    setMyVideoStatusTrue();
+    if (isMobileDevice) myVideo.classList.toggle("mirror");
   }
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
@@ -2108,6 +2111,7 @@ function gotStream(stream) {
 
 /**
  * Get audio-video Devices and show it to select box
+ * https://webrtc.github.io/samples/src/content/devices/input-output/
  * https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
  * @param {*} deviceInfos
  */
@@ -2389,10 +2393,7 @@ function swapCamera() {
     .then((camStream) => {
       refreshMyStreamToPeers(camStream);
       refreshMyLocalStream(camStream);
-      if (useVideo) {
-        setMyVideoStatusTrue();
-        localMediaStream.getVideoTracks()[0].enabled = true;
-      }
+      if (useVideo) setMyVideoStatusTrue();
       myVideo.classList.toggle("mirror");
     })
     .catch((err) => {
@@ -2486,6 +2487,7 @@ function setScreenSharingStatus(status) {
 function setMyVideoStatusTrue() {
   // Put video status alredy ON
   if (myVideoStatus === false) {
+    localMediaStream.getVideoTracks()[0].enabled = true;
     myVideoStatus = true;
     videoBtn.className = "fas fa-video";
     myVideoStatusIcon.className = "fas fa-video";
@@ -2529,8 +2531,9 @@ function toggleFullScreen() {
 /**
  * Refresh my stream changes to connected peers in the room
  * @param {*} stream
+ * @param {*} localAudioTrackChange true or false(default)
  */
-function refreshMyStreamToPeers(stream) {
+function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
   if (thereIsPeerConnections()) {
     // refresh my video stream
     for (let peer_id in peerConnections) {
@@ -2540,6 +2543,14 @@ function refreshMyStreamToPeers(stream) {
         .find((s) => (s.track ? s.track.kind === "video" : false));
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
       sender.replaceTrack(stream.getVideoTracks()[0]);
+
+      if (localAudioTrackChange) {
+        let sender = peerConnections[peer_id]
+          .getSenders()
+          .find((s) => (s.track ? s.track.kind === "audio" : false));
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+        sender.replaceTrack(stream.getAudioTracks()[0]);
+      }
     }
   }
 }
@@ -2547,13 +2558,24 @@ function refreshMyStreamToPeers(stream) {
 /**
  * Refresh my local stream
  * @param {*} stream
+ * @param {*} localAudioTrackChange true or false(default)
  */
-function refreshMyLocalStream(stream) {
+function refreshMyLocalStream(stream, localAudioTrackChange = false) {
   stream.getVideoTracks()[0].enabled = true;
+
+  // enable audio
+  if (localAudioTrackChange && myAudioStatus === false) {
+    audioBtn.className = "fas fa-microphone";
+    setMyAudioStatus(true);
+    myAudioStatus = true;
+  }
+
   // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
   const newStream = new MediaStream([
     stream.getVideoTracks()[0],
-    localMediaStream.getAudioTracks()[0],
+    localAudioTrackChange
+      ? stream.getAudioTracks()[0]
+      : localMediaStream.getAudioTracks()[0],
   ]);
   localMediaStream = newStream;
 
