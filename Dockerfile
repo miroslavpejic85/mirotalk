@@ -4,7 +4,7 @@ FROM node:14-alpine
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-COPY .env.template ./.env
+COPY .env ./.env
 
 RUN npm install
 
