@@ -158,6 +158,7 @@ let themeSelect;
 let selectors;
 // my video element
 let myVideo;
+let myVideoAvatarImage;
 // name && hand video audio status
 let myVideoParagraph;
 let myHandStatusIcon;
@@ -208,7 +209,9 @@ const chunkSize = 16 * 1024; //16kb
  */
 function getHtmlElementsById() {
   countTime = getId("countTime");
+  // my video 
   myVideo = getId("myVideo");
+  myVideoAvatarImage = getId("myVideoAvatarImage");
   // left buttons
   leftButtons = getId("leftButtons");
   shareRoomBtn = getId("shareRoomBtn");
@@ -699,7 +702,7 @@ function handleAddPeer(config) {
   msgerAddPeers(peers);
   handleOnIceCandidate(peer_id);
   handleOnTrack(peer_id, peers);
-  handleGetTracks(peer_id);
+  handleAddTracks(peer_id);
   handleRTCDataChannel(peer_id);
 
   if (config.should_create_offer) {
@@ -745,7 +748,7 @@ function handleOnTrack(peer_id, peers) {
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
  * @param {*} peer_id
  */
-function handleGetTracks(peer_id) {
+function handleAddTracks(peer_id) {
   localMediaStream.getTracks().forEach((track) => {
     peerConnections[peer_id].addTrack(track, localMediaStream);
   });
