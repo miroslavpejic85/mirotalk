@@ -382,7 +382,7 @@ io.sockets.on("connect", (socket) => {
     logme(
       "[" + socket.id + "] relay ICE-candidate to [" + peer_id + "] ",
       { address: config.ice_candidate.address }
-    ); // ice_candidate
+    );
     */
     if (peer_id in sockets) {
       sockets[peer_id].emit("iceCandidate", {
@@ -402,62 +402,13 @@ io.sockets.on("connect", (socket) => {
     logme(
       "[" + socket.id + "] relay SessionDescription to [" + peer_id + "] ",
       { type: session_description.type }
-    ); // session_description
+    );
 
     if (peer_id in sockets) {
       sockets[peer_id].emit("sessionDescription", {
         peer_id: socket.id,
         session_description: session_description,
       });
-    }
-  });
-
-  /**
-   * Relay MSG to peers
-   */
-  socket.on("msg", (config) => {
-    let peerConnections = config.peerConnections;
-    let room_id = config.room_id;
-    let privateMsg = config.privateMsg;
-    let id = config.peer_id;
-    let name = config.name;
-    let msg = config.msg;
-
-    logme(
-      "[" +
-        socket.id +
-        "] emit onMessage to [room_id: " +
-        room_id +
-        " private_msg: " +
-        privateMsg +
-        "]",
-      {
-        name: name,
-        msg: msg,
-      }
-    );
-
-    if (privateMsg) {
-      if (sockets[id]) {
-        sockets[id].emit("onMessage", {
-          peer_id: socket.id,
-          privateMsg: privateMsg,
-          name: name,
-          msg: msg,
-        });
-      }
-      return;
-    }
-
-    for (let peer_id in peerConnections) {
-      if (sockets[peer_id]) {
-        sockets[peer_id].emit("onMessage", {
-          peer_id: socket.id,
-          privateMsg: privateMsg,
-          name: name,
-          msg: msg,
-        });
-      }
     }
   });
 
