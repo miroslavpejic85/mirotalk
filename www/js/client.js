@@ -209,7 +209,7 @@ const chunkSize = 16 * 1024; //16kb
  */
 function getHtmlElementsById() {
   countTime = getId("countTime");
-  // my video 
+  // my video
   myVideo = getId("myVideo");
   myVideoAvatarImage = getId("myVideoAvatarImage");
   // left buttons
@@ -528,27 +528,28 @@ function initPeer() {
   console.log("Connecting to signaling server");
   signalingSocket = io(signalingServer);
 
-  signalingSocket.on("connect", onSignalingServerConnected);
+  signalingSocket.on("connect", handleConnect);
   signalingSocket.on("addPeer", handleAddPeer);
-  signalingSocket.on("sessionDescription", handleRemoteSessionDescription);
+  signalingSocket.on("sessionDescription", handleSessionDescription);
   signalingSocket.on("iceCandidate", handleIceCandidate);
-  signalingSocket.on("cName", appendPeerName);
+  signalingSocket.on("peerName", handlePeerName);
   signalingSocket.on("peerStatus", handlePeerStatus);
   signalingSocket.on("wb", handleWhiteboard);
   signalingSocket.on("muteEveryone", setMyAudioOff);
   signalingSocket.on("hideEveryone", setMyVideoOff);
   signalingSocket.on("kickOut", kickedOut);
-  signalingSocket.on("fileInfo", startDownload);
-  signalingSocket.on("disconnect", disconnectFromSignalingServer);
-  signalingSocket.on("removePeer", removePeer);
+  signalingSocket.on("fileInfo", handleFileInfo);
+  signalingSocket.on("disconnect", handleDisconnect);
+  signalingSocket.on("removePeer", handleRemovePeer);
 } // end [initPeer]
 
 /**
+ * Connected to Signaling Server.
  * Once the user has given us access to their
  * microphone/camcorder, join the channel
  * and start peering up
  */
-function onSignalingServerConnected() {
+function handleConnect() {
   console.log("Connected to signaling server");
   if (localMediaStream) joinToChannel();
   else
@@ -706,14 +707,14 @@ function handleAddPeer(config) {
   handleRTCDataChannel(peer_id);
 
   if (config.should_create_offer) {
-    handleLocalSessionDescription(peer_id);
+    handleRtcOffer(peer_id);
   }
   playSound("addPeer");
 }
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
- * 
+ *
  * @param {*} peer_id
  */
 function handleOnIceCandidate(peer_id) {
@@ -733,7 +734,7 @@ function handleOnIceCandidate(peer_id) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ontrack
- * 
+ *
  * @param {*} peer_id
  * @param {*} peers
  */
@@ -748,7 +749,7 @@ function handleOnTrack(peer_id, peers) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
- * 
+ *
  * @param {*} peer_id
  */
 function handleAddTracks(peer_id) {
@@ -763,7 +764,7 @@ function handleAddTracks(peer_id) {
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ondatachannel
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
- * 
+ *
  * @param {*} peer_id
  */
 function handleRTCDataChannel(peer_id) {
@@ -798,7 +799,7 @@ function handleRTCDataChannel(peer_id) {
  *
  * @param {*} peer_id
  */
-function handleLocalSessionDescription(peer_id) {
+function handleRtcOffer(peer_id) {
   console.log("Creating RTC offer to", peer_id);
   // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
   peerConnections[peer_id]
@@ -833,7 +834,7 @@ function handleLocalSessionDescription(peer_id) {
  *
  * @param {*} config
  */
-function handleRemoteSessionDescription(config) {
+function handleSessionDescription(config) {
   console.log("Remote Session-description", config);
 
   let peer_id = config.peer_id;
@@ -898,10 +899,11 @@ function handleIceCandidate(config) {
 }
 
 /**
+ * Disconnected from Signaling Server
  * Tear down all of our peer connections
- * and remove all the media divs when we disconnect
+ * and remove all the media divs when we disconnect from signaling server
  */
-function disconnectFromSignalingServer() {
+function handleDisconnect() {
   console.log("Disconnected from signaling server");
   for (let peer_id in peerMediaElements) {
     document.body.removeChild(peerMediaElements[peer_id].parentNode);
@@ -928,7 +930,7 @@ function disconnectFromSignalingServer() {
  *
  * @param {*} config
  */
-function removePeer(config) {
+function handleRemovePeer(config) {
   console.log("Signaling server said to remove peer:", config);
 
   let peer_id = config.peer_id;
@@ -1444,7 +1446,7 @@ function setPeerChatAvatarImgName(avatar, peerName) {
  * On video player click, go on full screen mode ||
  * On button click, go on full screen mode.
  * Press Esc to exit from full screen mode, or click again.
- * 
+ *
  * @param {*} videoId
  * @param {*} videoFullScreenBtnId
  */
@@ -3085,7 +3087,7 @@ function updateMyPeerName() {
   myPeerName = myNewPeerName;
   myVideoParagraph.innerHTML = myPeerName + " (me)";
 
-  signalingSocket.emit("cName", {
+  signalingSocket.emit("peerName", {
     peerConnections: peerConnections,
     room_id: roomId,
     peer_name_old: myOldPeerName,
@@ -3103,7 +3105,7 @@ function updateMyPeerName() {
  * Append updated peer name to video player
  * @param {*} config
  */
-function appendPeerName(config) {
+function handlePeerName(config) {
   let peer_id = config.peer_id;
   let peer_name = config.peer_name;
   let videoName = getId(peer_id + "_name");
@@ -3207,7 +3209,7 @@ function setMyVideoStatus(status) {
 }
 
 /**
- * Handle peer status
+ * Handle peer audio - video - hand status
  * @param {*} config
  */
 function handlePeerStatus(config) {
@@ -3270,7 +3272,7 @@ function setPeerVideoStatus(peer_id, status) {
 }
 
 /**
- * Handle whiteboard
+ * Handle whiteboard events
  * @param {*} config
  */
 function handleWhiteboard(config) {
@@ -3776,10 +3778,10 @@ function selectFileToShare() {
 }
 
 /**
- * Start to Download the File
+ * Get remote file info
  * @param {*} config file
  */
-function startDownload(config) {
+function handleFileInfo(config) {
   incomingFileInfo = config;
   incomingFileData = [];
   receiveBuffer = [];
@@ -3909,7 +3911,7 @@ function hideEveryone() {
 }
 
 /**
- * Popup the peer_name that do this actions
+ * Set my Audio off and Popup the peer name that performed this action
  * @param {*} config
  */
 function setMyAudioOff(config) {
@@ -3923,7 +3925,7 @@ function setMyAudioOff(config) {
 }
 
 /**
- * Popup the peer_name that do this actions
+ * Set my Video off and Popup the peer name that performed this action
  * @param {*} config
  */
 function setMyVideoOff(config) {
@@ -4029,7 +4031,7 @@ function kickOut(peer_id, peerKickOutBtn) {
 }
 
 /**
- * Who Kick out you msg popup
+ * You will be kicked out from the room and popup the peer name that performed this action
  * @param {*} config
  */
 function kickedOut(config) {

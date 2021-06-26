@@ -339,7 +339,7 @@ io.sockets.on("connect", (socket) => {
         should_create_offer: true,
         iceServers: iceServers,
       });
-      logme("[" + socket.id + "] emit add Peer [" + id + "]");
+      logme("[" + socket.id + "] emit addPeer [" + id + "]");
     }
 
     channels[channel][socket.id] = socket;
@@ -368,7 +368,7 @@ io.sockets.on("connect", (socket) => {
     for (let id in channels[channel]) {
       await channels[channel][id].emit("removePeer", { peer_id: socket.id });
       await socket.emit("removePeer", { peer_id: id });
-      logme("[" + socket.id + "] emit remove Peer [" + id + "]");
+      logme("[" + socket.id + "] emit removePeer [" + id + "]");
     }
   }
 
@@ -415,7 +415,7 @@ io.sockets.on("connect", (socket) => {
   /**
    * Relay NAME to peers
    */
-  socket.on("cName", (config) => {
+  socket.on("peerName", (config) => {
     let peerConnections = config.peerConnections;
     let room_id = config.room_id;
     let peer_name_old = config.peer_name_old;
@@ -440,13 +440,13 @@ io.sockets.on("connect", (socket) => {
 
     // refresh if found
     if (peer_id_to_update && Object.keys(peerConnections).length != 0) {
-      logme("[" + socket.id + "] emit cName to [room_id: " + room_id + "]", {
+      logme("[" + socket.id + "] emit peerName to [room_id: " + room_id + "]", {
         peer_id: peer_id_to_update,
         peer_name: peer_name_new,
       });
       for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("cName", {
+          sockets[peer_id].emit("peerName", {
             peer_id: peer_id_to_update,
             peer_name: peer_name_new,
           });
