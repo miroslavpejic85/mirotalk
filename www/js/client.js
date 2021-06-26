@@ -532,13 +532,13 @@ function initPeer() {
   signalingSocket.on("addPeer", handleAddPeer);
   signalingSocket.on("sessionDescription", handleRemoteSessionDescription);
   signalingSocket.on("iceCandidate", handleIceCandidate);
-  signalingSocket.on("onCName", appendPeerName);
-  signalingSocket.on("onpeerStatus", handlePeerStatus);
+  signalingSocket.on("cName", appendPeerName);
+  signalingSocket.on("peerStatus", handlePeerStatus);
   signalingSocket.on("wb", handleWhiteboard);
-  signalingSocket.on("onmuteEveryone", setMyAudioOff);
-  signalingSocket.on("onhideEveryone", setMyVideoOff);
-  signalingSocket.on("onKickOut", kickedOut);
-  signalingSocket.on("onFileInfo", startDownload);
+  signalingSocket.on("muteEveryone", setMyAudioOff);
+  signalingSocket.on("hideEveryone", setMyVideoOff);
+  signalingSocket.on("kickOut", kickedOut);
+  signalingSocket.on("fileInfo", startDownload);
   signalingSocket.on("disconnect", disconnectFromSignalingServer);
   signalingSocket.on("removePeer", removePeer);
 } // end [initPeer]
@@ -713,6 +713,7 @@ function handleAddPeer(config) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
+ * 
  * @param {*} peer_id
  */
 function handleOnIceCandidate(peer_id) {
@@ -732,6 +733,7 @@ function handleOnIceCandidate(peer_id) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ontrack
+ * 
  * @param {*} peer_id
  * @param {*} peers
  */
@@ -746,6 +748,7 @@ function handleOnTrack(peer_id, peers) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
+ * 
  * @param {*} peer_id
  */
 function handleAddTracks(peer_id) {
@@ -760,6 +763,7 @@ function handleAddTracks(peer_id) {
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ondatachannel
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
+ * 
  * @param {*} peer_id
  */
 function handleRTCDataChannel(peer_id) {
@@ -1440,6 +1444,7 @@ function setPeerChatAvatarImgName(avatar, peerName) {
  * On video player click, go on full screen mode ||
  * On button click, go on full screen mode.
  * Press Esc to exit from full screen mode, or click again.
+ * 
  * @param {*} videoId
  * @param {*} videoFullScreenBtnId
  */

@@ -440,13 +440,13 @@ io.sockets.on("connect", (socket) => {
 
     // refresh if found
     if (peer_id_to_update && Object.keys(peerConnections).length != 0) {
-      logme("[" + socket.id + "] emit onCName to [room_id: " + room_id + "]", {
+      logme("[" + socket.id + "] emit cName to [room_id: " + room_id + "]", {
         peer_id: peer_id_to_update,
         peer_name: peer_name_new,
       });
       for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("onCName", {
+          sockets[peer_id].emit("cName", {
             peer_id: peer_id_to_update,
             peer_name: peer_name_new,
           });
@@ -493,7 +493,7 @@ io.sockets.on("connect", (socket) => {
     // socket.id aka peer that send this status
     if (Object.keys(peerConnections).length != 0) {
       logme(
-        "[" + socket.id + "] emit onpeerStatus to [room_id: " + room_id + "]",
+        "[" + socket.id + "] emit peerStatus to [room_id: " + room_id + "]",
         {
           peer_id: socket.id,
           element: element,
@@ -502,7 +502,7 @@ io.sockets.on("connect", (socket) => {
       );
       for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("onpeerStatus", {
+          sockets[peer_id].emit("peerStatus", {
             peer_id: socket.id,
             peer_name: peer_name,
             element: element,
@@ -524,7 +524,7 @@ io.sockets.on("connect", (socket) => {
     // socket.id aka peer that send this status
     if (Object.keys(peerConnections).length != 0) {
       logme(
-        "[" + socket.id + "] emit onmuteEveryone to [room_id: " + room_id + "]",
+        "[" + socket.id + "] emit muteEveryone to [room_id: " + room_id + "]",
         {
           peer_id: socket.id,
           peer_name: peer_name,
@@ -532,7 +532,7 @@ io.sockets.on("connect", (socket) => {
       );
       for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("onmuteEveryone", {
+          sockets[peer_id].emit("muteEveryone", {
             peer_name: peer_name,
           });
         }
@@ -551,14 +551,14 @@ io.sockets.on("connect", (socket) => {
     // socket.id aka peer that send this status
     if (Object.keys(peerConnections).length != 0) {
       logme(
-        "[" + socket.id + "] emit onhideEveryone to [room_id: " + room_id + "]",
+        "[" + socket.id + "] emit hideEveryone to [room_id: " + room_id + "]",
         {
           peer_name: peer_name,
         }
       );
       for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("onhideEveryone", {
+          sockets[peer_id].emit("hideEveryone", {
             peer_name: peer_name,
           });
         }
@@ -585,7 +585,7 @@ io.sockets.on("connect", (socket) => {
     );
 
     if (peer_id in sockets) {
-      sockets[peer_id].emit("onKickOut", {
+      sockets[peer_id].emit("kickOut", {
         peer_name: peer_name,
       });
     }
@@ -625,7 +625,7 @@ io.sockets.on("connect", (socket) => {
     if (Object.keys(peerConnections).length != 0) {
       for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("onFileInfo", file);
+          sockets[peer_id].emit("fileInfo", file);
         }
       }
     }
