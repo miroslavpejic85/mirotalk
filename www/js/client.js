@@ -534,9 +534,8 @@ function initPeer() {
   signalingSocket.on("iceCandidate", handleIceCandidate);
   signalingSocket.on("peerName", handlePeerName);
   signalingSocket.on("peerStatus", handlePeerStatus);
+  signalingSocket.on("peerAction", handlePeerAction);
   signalingSocket.on("wb", handleWhiteboard);
-  signalingSocket.on("muteEveryone", setMyAudioOff);
-  signalingSocket.on("hideEveryone", setMyVideoOff);
   signalingSocket.on("kickOut", kickedOut);
   signalingSocket.on("fileInfo", handleFileInfo);
   signalingSocket.on("disconnect", handleDisconnect);
@@ -2398,7 +2397,6 @@ function toggleScreenSharing() {
       refreshMyLocalStream(screenStream);
       myVideo.classList.toggle("mirror");
       setScreenSharingStatus(isScreenStreaming);
-      //setMyVideoStatusTrue();
     })
     .catch((err) => {
       console.error("[Error] Unable to share the screen", err);
@@ -3272,6 +3270,106 @@ function setPeerVideoStatus(peer_id, status) {
 }
 
 /**
+ * Emit actions to all peers in the same room except yourself
+ * @param {*} peerAction muteEveryone hideEveryone ...
+ */
+function emitPeerAction(peerAction) {
+  signalingSocket.emit("peerAction", {
+    peerConnections: peerConnections,
+    room_id: roomId,
+    peer_name: myPeerName,
+    peer_action: peerAction,
+  });
+}
+
+/**
+ * Handle received peer actions
+ * @param {*} config
+ */
+function handlePeerAction(config) {
+  let peer_name = config.peer_name;
+  let peer_action = config.peer_action;
+
+  switch (peer_action) {
+    case "muteEveryone":
+      setMyAudioOff(peer_name);
+      break;
+    case "hideEveryone":
+      setMyVideoOff(peer_name);
+      break;
+  }
+}
+
+/**
+ * Set my Audio off and Popup the peer name that performed this action
+ */
+function setMyAudioOff() {
+  if (myAudioStatus === false) return;
+  localMediaStream.getAudioTracks()[0].enabled = false;
+  myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+  audioBtn.className = "fas fa-microphone-slash";
+  setMyAudioStatus(myAudioStatus);
+  userLog("toast", peer_name + " has disabled your audio");
+}
+
+/**
+ * Set my Video off and Popup the peer name that performed this action
+ */
+function setMyVideoOff(peer_name) {
+  if (myVideoStatus === false) return;
+  localMediaStream.getVideoTracks()[0].enabled = false;
+  myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+  videoBtn.className = "fas fa-video-slash";
+  setMyVideoStatus(myVideoStatus);
+  userLog("toast", peer_name + " has disabled your video");
+}
+
+/**
+ * Mute or Hide everyone except yourself
+ * @param {*} element audio/video
+ */
+function disableAllPeers(element) {
+  if (!thereIsPeerConnections()) {
+    userLog("info", "No participants detected");
+    return;
+  }
+  Swal.fire({
+    background: swalBackground,
+    position: "center",
+    imageAlt: "mirotalk-disable-" + element,
+    imageUrl: confirmImg,
+    title:
+      element == "audio"
+        ? "Mute everyone except yourself?"
+        : "Hide everyone except yourself?",
+    text:
+      element == "audio"
+        ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
+        : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+    showDenyButton: true,
+    confirmButtonText: element == "audio" ? `Mute` : `Hide`,
+    denyButtonText: `Cancel`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      switch (element) {
+        case "audio":
+          emitPeerAction("muteEveryone");
+          break;
+        case "video":
+          emitPeerAction("hideEveryone");
+          break;
+      }
+    }
+  });
+}
+
+/**
  * Handle whiteboard events
  * @param {*} config
  */
@@ -3884,103 +3982,6 @@ function endDownload() {
       window.URL.revokeObjectURL(url);
     }, 100);
   }
-}
-
-/**
- * Mute everyone except yourself
- * Once muted, you won't be able to unmute them, but they can unmute themselves at any time
- */
-function muteEveryone() {
-  signalingSocket.emit("muteEveryone", {
-    peerConnections: peerConnections,
-    room_id: roomId,
-    peer_name: myPeerName,
-  });
-}
-
-/**
- * Hide everyone except yourself
- * Once hided, you won't be able to unhide them, but they can unhide themselves at any time
- */
-function hideEveryone() {
-  signalingSocket.emit("hideEveryone", {
-    peerConnections: peerConnections,
-    room_id: roomId,
-    peer_name: myPeerName,
-  });
-}
-
-/**
- * Set my Audio off and Popup the peer name that performed this action
- * @param {*} config
- */
-function setMyAudioOff(config) {
-  let peer_name = config.peer_name;
-  if (myAudioStatus === false) return;
-  localMediaStream.getAudioTracks()[0].enabled = false;
-  myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
-  audioBtn.className = "fas fa-microphone-slash";
-  setMyAudioStatus(myAudioStatus);
-  userLog("toast", peer_name + " has disabled your audio");
-}
-
-/**
- * Set my Video off and Popup the peer name that performed this action
- * @param {*} config
- */
-function setMyVideoOff(config) {
-  let peer_name = config.peer_name;
-  if (myVideoStatus === false) return;
-  localMediaStream.getVideoTracks()[0].enabled = false;
-  myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
-  videoBtn.className = "fas fa-video-slash";
-  setMyVideoStatus(myVideoStatus);
-  userLog("toast", peer_name + " has disabled your video");
-}
-
-/**
- * Mute or Hide everyone except yourself
- * @param {*} element audio/video
- */
-function disableAllPeers(element) {
-  if (!thereIsPeerConnections()) {
-    userLog("info", "No participants detected");
-    return;
-  }
-  Swal.fire({
-    background: swalBackground,
-    position: "center",
-    imageAlt: "mirotalk-disable-" + element,
-    imageUrl: confirmImg,
-    title:
-      element == "audio"
-        ? "Mute everyone except yourself?"
-        : "Hide everyone except yourself?",
-    text:
-      element == "audio"
-        ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
-        : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
-    showDenyButton: true,
-    confirmButtonText: element == "audio" ? `Mute` : `Hide`,
-    denyButtonText: `Cancel`,
-    showClass: {
-      popup: "animate__animated animate__fadeInDown",
-    },
-    hideClass: {
-      popup: "animate__animated animate__fadeOutUp",
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      switch (element) {
-        case "audio":
-          muteEveryone();
-          break;
-        case "video":
-          hideEveryone();
-          break;
-      }
-    }
-  });
 }
 
 /**

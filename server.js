@@ -514,52 +514,29 @@ io.sockets.on("connect", (socket) => {
   });
 
   /**
-   * Relay mute everyone in the room
+   * Relay actions to peers in the same room
    */
-  socket.on("muteEveryone", (config) => {
+  socket.on("peerAction", (config) => {
     let peerConnections = config.peerConnections;
     let room_id = config.room_id;
     let peer_name = config.peer_name;
+    let peer_action = config.peer_action;
 
     // socket.id aka peer that send this status
     if (Object.keys(peerConnections).length != 0) {
       logme(
-        "[" + socket.id + "] emit muteEveryone to [room_id: " + room_id + "]",
+        "[" + socket.id + "] emit peerAction to [room_id: " + room_id + "]",
         {
           peer_id: socket.id,
           peer_name: peer_name,
+          peer_action: peer_action,
         }
       );
       for (let peer_id in peerConnections) {
         if (sockets[peer_id]) {
-          sockets[peer_id].emit("muteEveryone", {
+          sockets[peer_id].emit("peerAction", {
             peer_name: peer_name,
-          });
-        }
-      }
-    }
-  });
-
-  /**
-   * Relay hide everyone in the room
-   */
-  socket.on("hideEveryone", (config) => {
-    let peerConnections = config.peerConnections;
-    let room_id = config.room_id;
-    let peer_name = config.peer_name;
-
-    // socket.id aka peer that send this status
-    if (Object.keys(peerConnections).length != 0) {
-      logme(
-        "[" + socket.id + "] emit hideEveryone to [room_id: " + room_id + "]",
-        {
-          peer_name: peer_name,
-        }
-      );
-      for (let peer_id in peerConnections) {
-        if (sockets[peer_id]) {
-          sockets[peer_id].emit("hideEveryone", {
-            peer_name: peer_name,
+            peer_action: peer_action,
           });
         }
       }
