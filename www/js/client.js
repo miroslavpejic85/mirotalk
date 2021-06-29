@@ -48,6 +48,29 @@ const fileSharingInput = "*"; // allow all file extensions
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 
+const qvgaVideo = {
+  width: { exact: 320 },
+  height: { exact: 240 },
+  frameRate: { max: 15 },
+}; // video constraints less bandwidth
+
+const vgaVideo = {
+  width: { exact: 640 },
+  height: { exact: 480 },
+  frameRate: { max: 15 },
+}; // video constraints medium bandwidth
+
+const hdVideo = {
+  width: { exact: 1280 },
+  height: { exact: 720 },
+  frameRate: { max: 15 },
+}; // video constraints haight bandwidth
+
+const frVideo = { frameRate: { max: 15 } }; // video frame rate medium bandwidth
+const scrSlow = { frameRate: { max: 5 } }; // screen sharing less bandwidth
+const scrMedium = { frameRate: { max: 10 } }; // screen sharing medium bandwidth
+const scrFast = { frameRate: { max: 20 } }; // screen sharing haight bandwidth
+
 let leftChatAvatar;
 let rightChatAvatar;
 
@@ -740,6 +763,7 @@ function handleOnIceCandidate(peer_id) {
 function handleOnTrack(peer_id, peers) {
   let ontrackCount = 0;
   peerConnections[peer_id].ontrack = (event) => {
+    console.log("ontrack", event);
     ontrackCount++;
     // 2 means audio + video
     if (ontrackCount === 2) loadRemoteMediaStream(event, peers, peer_id);
@@ -834,7 +858,7 @@ function handleRtcOffer(peer_id) {
  * @param {*} config
  */
 function handleSessionDescription(config) {
-  console.log("Remote Session-description", config);
+  console.log("Remote Session Description", config);
 
   let peer_id = config.peer_id;
   let remote_description = config.session_description;
@@ -1101,6 +1125,7 @@ function setTheme(theme) {
  * Ask user for permission to use the computers microphone and/or camera,
  * attach it to an <audio> or <video> tag if they give us access.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+ * https://webrtc.github.io/samples/src/content/getusermedia/resolution/
  *
  * @param {*} callback
  * @param {*} errorback
@@ -1118,7 +1143,7 @@ function setupLocalMedia(callback, errorback) {
 
   const constraints = {
     audio: useAudio,
-    video: useVideo,
+    video: frVideo, // useVideo | frVideo | qvgaVideo | vgaVideo | hdVideo
   };
 
   navigator.mediaDevices
@@ -1240,10 +1265,8 @@ function loadLocalMedia(stream) {
   localMedia.controls = false;
   document.body.appendChild(videoWrap);
 
-  console.log("loadLocalMedia", {
-    video: localMediaStream.getVideoTracks()[0].label,
-    audio: localMediaStream.getAudioTracks()[0].label,
-  });
+  // log localMediaStream devices
+  logStreamSettingsInfo("localMediaStream", localMediaStream);
 
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(localMedia, localMediaStream);
@@ -1267,7 +1290,6 @@ function loadLocalMedia(stream) {
  * @param {*} peer_id
  */
 function loadRemoteMediaStream(event, peers, peer_id) {
-  console.log("ontrack", event);
   remoteMediaStream = event.streams[0];
 
   const videoWrap = document.createElement("div");
@@ -1381,6 +1403,24 @@ function loadRemoteMediaStream(event, peers, peer_id) {
   setPeerAudioStatus(peer_id, peers[peer_id]["peer_audio"]);
   // show status menu
   toggleClassElements("statusMenu", "inline");
+}
+
+/**
+ * Log stream settings info
+ * @param {*} name
+ * @param {*} stream
+ */
+function logStreamSettingsInfo(name, stream) {
+  console.log(name, {
+    video: {
+      label: stream.getVideoTracks()[0].label,
+      settings: stream.getVideoTracks()[0].getSettings(),
+    },
+    audio: {
+      label: stream.getAudioTracks()[0].label,
+      settings: stream.getAudioTracks()[0].getSettings(),
+    },
+  });
 }
 
 /**
@@ -2354,7 +2394,7 @@ function stopLocalVideoTrack() {
  */
 function toggleScreenSharing() {
   const constraints = {
-    video: true,
+    video: scrMedium, // true | scrSlow scrMedium scrFast
   };
 
   let screenMediaPromise;
@@ -2518,10 +2558,7 @@ function refreshMyLocalStream(stream, localAudioTrackChange = false) {
   localMediaStream = newStream;
 
   // log newStream devices
-  console.log("refreshMyLocalStream", {
-    audio: localMediaStream.getAudioTracks()[0].label,
-    video: localMediaStream.getVideoTracks()[0].label,
-  });
+  logStreamSettingsInfo("refreshMyLocalStream", localMediaStream);
 
   // attachMediaStream is a part of the adapter.js library
   attachMediaStream(myVideo, localMediaStream); // newstream
