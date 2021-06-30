@@ -2026,7 +2026,7 @@ function setupMySettings() {
 function refreshLocalMedia() {
   // some devices can't swap the video track, if already in execution.
   stopLocalVideoTrack();
-  const constraints = getAudioVideoConstraints();
+  let constraints = getAudioVideoConstraints();
   navigator.mediaDevices
     .getUserMedia(constraints)
     .then(gotStream)
@@ -2039,9 +2039,9 @@ function refreshLocalMedia() {
  * @returns constraints
  */
 function getAudioVideoConstraints() {
-  const audioSource = audioInputSelect.value;
-  const videoSource = videoSelect.value;
-  const constraints = {
+  let audioSource = audioInputSelect.value;
+  let videoSource = videoSelect.value;
+  let constraints = {
     audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
     video: {
       deviceId: videoSource ? { exact: videoSource } : undefined,
@@ -2428,7 +2428,7 @@ function toggleScreenSharing() {
     }
   } else {
     // on screen sharing stop
-    const constraints = getAudioVideoConstraints();
+    let constraints = getAudioVideoConstraints();
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
     // if screen sharing accidentally closed
     if (isStreamRecording) {
