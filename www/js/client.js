@@ -49,28 +49,36 @@ const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
+// video cam - screen max frame rate
+const videoMaxFrameRate = 15;
+const screenMaxFrameRate = 10;
+
 const qvgaVideo = {
   width: { exact: 320 },
   height: { exact: 240 },
-  frameRate: { max: 15 },
-}; // video constraints less bandwidth
+  frameRate: { max: videoMaxFrameRate },
+}; // video cam constraints less bandwidth
 
 const vgaVideo = {
   width: { exact: 640 },
   height: { exact: 480 },
-  frameRate: { max: 15 },
-}; // video constraints medium bandwidth
+  frameRate: { max: videoMaxFrameRate },
+}; // video cam constraints medium bandwidth
 
 const hdVideo = {
   width: { exact: 1280 },
   height: { exact: 720 },
-  frameRate: { max: 15 },
-}; // video constraints haight bandwidth
+  frameRate: { max: videoMaxFrameRate },
+}; // video cam constraints haight bandwidth
 
-const frVideo = { frameRate: { max: 15 } }; // video frame rate medium bandwidth
-const scrSlow = { frameRate: { max: 5 } }; // screen sharing less bandwidth
-const scrMedium = { frameRate: { max: 10 } }; // screen sharing medium bandwidth
-const scrFast = { frameRate: { max: 20 } }; // screen sharing haight bandwidth
+const fhdVideo = {
+  width: { exact: 1920 },
+  height: { exact: 1080 },
+  frameRate: { max: videoMaxFrameRate },
+}; // video cam constraints very haight bandwidth
+
+const videoFrameRate = { frameRate: { max: videoMaxFrameRate } }; // video cam frame rate
+const screenFrameRate = { frameRate: { max: screenMaxFrameRate } }; // screen sharing video frame rate
 
 let leftChatAvatar;
 let rightChatAvatar;
@@ -1144,7 +1152,7 @@ function setupLocalMedia(callback, errorback) {
 
   const constraints = {
     audio: useAudio,
-    video: myBrowserName === "Firefox" ? useVideo : frVideo, // useVideo | frVideo | qvgaVideo | vgaVideo | hdVideo
+    video: myBrowserName === "Firefox" ? useVideo : videoFrameRate, // useVideo | videoFrameRate | qvgaVideo | vgaVideo | hdVideo | fhdVideo
   };
 
   navigator.mediaDevices
@@ -2042,21 +2050,13 @@ function refreshLocalMedia() {
 function getAudioVideoConstraints() {
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
-  let videoConstrains;
-  if (myBrowserName === "Firefox") {
-    // Firefox not support set frameRate (OverconstrainedError) O.o
-    videoConstrains = {
-      deviceId: videoSource ? { exact: videoSource } : undefined,
-    };
-  } else {
-    videoConstrains = {
-      deviceId: videoSource ? { exact: videoSource } : undefined,
-      frameRate: { max: 15 },
-    };
-  }
   const constraints = {
     audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
-    video: videoConstrains,
+    video: {
+      deviceId: videoSource ? { exact: videoSource } : undefined,
+      frameRate: myBrowserName != "Firefox" ? { max: screenMaxFrameRate } : undefined,
+      // Firefox not support set frameRate (OverconstrainedError) O.o
+    },
   };
   return constraints;
 }
@@ -2416,7 +2416,7 @@ function stopLocalVideoTrack() {
  */
 function toggleScreenSharing() {
   const constraints = {
-    video: scrMedium, // true | scrSlow scrMedium scrFast
+    video: screenFrameRate, // true | screenFrameRate
   };
 
   let screenMediaPromise;
@@ -3151,6 +3151,7 @@ function updateMyPeerName() {
 
   setPeerAvatarImgName("myVideoAvatarImage", myPeerName);
   setPeerChatAvatarImgName("right", myPeerName);
+  userLog("toast", "My name changed to " + myPeerName);
 }
 
 /**
@@ -3390,8 +3391,6 @@ function disableAllPeers(element) {
   Swal.fire({
     background: swalBackground,
     position: "center",
-    imageAlt: "mirotalk-disable-" + element,
-    imageUrl: confirmImg,
     title:
       element == "audio"
         ? "Mute everyone except yourself?"
@@ -3413,9 +3412,11 @@ function disableAllPeers(element) {
     if (result.isConfirmed) {
       switch (element) {
         case "audio":
+          userLog("toast", "Mute everyone 👍");
           emitPeerAction("muteEveryone");
           break;
         case "video":
+          userLog("toast", "Hide everyone 👍");
           emitPeerAction("hideEveryone");
           break;
       }
