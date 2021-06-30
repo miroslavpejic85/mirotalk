@@ -2026,17 +2026,29 @@ function setupMySettings() {
 function refreshLocalMedia() {
   // some devices can't swap the video track, if already in execution.
   stopLocalVideoTrack();
-  const audioSource = audioInputSelect.value;
-  const videoSource = videoSelect.value;
-  const constraints = {
-    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
-    video: { deviceId: videoSource ? { exact: videoSource } : undefined },
-  };
+  const constraints = getAudioVideoConstraints();
   navigator.mediaDevices
     .getUserMedia(constraints)
     .then(gotStream)
     .then(gotDevices)
     .catch(handleError);
+}
+
+/**
+ * Get audio - video constraints
+ * @returns constraints
+ */
+function getAudioVideoConstraints() {
+  const audioSource = audioInputSelect.value;
+  const videoSource = videoSelect.value;
+  const constraints = {
+    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+    video: {
+      deviceId: videoSource ? { exact: videoSource } : undefined,
+      frameRate: { max: 15 },
+    },
+  };
+  return constraints;
 }
 
 /**
@@ -2416,12 +2428,7 @@ function toggleScreenSharing() {
     }
   } else {
     // on screen sharing stop
-    const audioSource = audioInputSelect.value;
-    const videoSource = videoSelect.value;
-    const constraints = {
-      audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
-      video: { deviceId: videoSource ? { exact: videoSource } : undefined },
-    };
+    const constraints = getAudioVideoConstraints();
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
     // if screen sharing accidentally closed
     if (isStreamRecording) {
