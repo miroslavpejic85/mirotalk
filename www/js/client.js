@@ -47,6 +47,7 @@ const fileSharingInput = "*"; // allow all file extensions
 // "image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.pcap,.xml,.json,.md,.html,.js,.css,.php,.py,.sh,.zip,.rar,.tar"; // "*"
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
+const myBrowserName = DetectRTC.browser.name;
 
 const qvgaVideo = {
   width: { exact: 320 },
@@ -2026,7 +2027,7 @@ function setupMySettings() {
 function refreshLocalMedia() {
   // some devices can't swap the video track, if already in execution.
   stopLocalVideoTrack();
-  let constraints = getAudioVideoConstraints();
+  const constraints = getAudioVideoConstraints();
   navigator.mediaDevices
     .getUserMedia(constraints)
     .then(gotStream)
@@ -2039,14 +2040,23 @@ function refreshLocalMedia() {
  * @returns constraints
  */
 function getAudioVideoConstraints() {
-  let audioSource = audioInputSelect.value;
-  let videoSource = videoSelect.value;
-  let constraints = {
-    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
-    video: {
+  const audioSource = audioInputSelect.value;
+  const videoSource = videoSelect.value;
+  let videoConstrains;
+  if (myBrowserName === "Firefox") {
+    // Firefox not support set frameRate (OverconstrainedError) O.o
+    videoConstrains = {
+      deviceId: videoSource ? { exact: videoSource } : undefined,
+    };
+  } else {
+    videoConstrains = {
       deviceId: videoSource ? { exact: videoSource } : undefined,
       frameRate: { max: 15 },
-    },
+    };
+  }
+  const constraints = {
+    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+    video: videoConstrains,
   };
   return constraints;
 }
@@ -2428,7 +2438,7 @@ function toggleScreenSharing() {
     }
   } else {
     // on screen sharing stop
-    let constraints = getAudioVideoConstraints();
+    const constraints = getAudioVideoConstraints();
     screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
     // if screen sharing accidentally closed
     if (isStreamRecording) {
