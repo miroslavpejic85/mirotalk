@@ -1144,7 +1144,7 @@ function setupLocalMedia(callback, errorback) {
 
   const constraints = {
     audio: useAudio,
-    video: frVideo, // useVideo | frVideo | qvgaVideo | vgaVideo | hdVideo
+    video: myBrowserName === "Firefox" ? useVideo : frVideo, // useVideo | frVideo | qvgaVideo | vgaVideo | hdVideo
   };
 
   navigator.mediaDevices
