@@ -7,7 +7,7 @@
 [//]: https://img.shields.io/badge/<LABEL>-<MESSAGE>-<COLOR>
 
 [![Author](https://img.shields.io/badge/Author-miro-brightgreen.svg)](https://www.linkedin.com/in/miroslav-pejic-976a07101/)
-![License: CC-NC](https://img.shields.io/badge/License-CCNC-blue.svg)
+![License: CC-NC](https://img.shields.io/badge/License-AGPLv3-blue.svg)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-brightgreen.svg)](https://paypal.me/MiroslavPejic?locale.x=it_IT)
 [![Repo Link](https://img.shields.io/badge/Repo-Link-black.svg)](https://github.com/miroslavpejic85/mirotalk)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?)](https://github.com/prettier/prettier)
