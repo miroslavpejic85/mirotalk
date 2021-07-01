@@ -950,6 +950,8 @@ video:fullscreen {
 /* Change background color of buttons on hover */
 .tab button:hover {
   background-color: transparent;
+  color: rgb(0, 180, 50);
+  transition: all 0.3s ease-in-out;
 }
 
 /* Create an active/current tablink class */
