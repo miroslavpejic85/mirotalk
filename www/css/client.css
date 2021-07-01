@@ -1103,20 +1103,27 @@ progress {
 }
 
 /*--------------------------------------------------------------
-# Other
+# About
 --------------------------------------------------------------*/
 
-#about a {
-  color: red;
+#about {
+  cursor: default;
   /*text-decoration: none;*/
+}
+#about b {
+  color: rgb(0, 180, 50);
 }
 #author a {
   color: white;
+  text-decoration: none;
+}
+#about img {
+  cursor: pointer;
 }
 
-#webRTCSeo {
-  /* just for SEO */
-  display: none;
+#author a:hover {
+  color: rgb(0, 180, 50);
+  transition: all 0.3s ease-in-out;
 }
 
 /* about Sponsor btn */
@@ -1133,6 +1140,15 @@ progress {
 }
 #sponsorBtn:hover {
   font-weight: bold;
+}
+
+/*--------------------------------------------------------------
+# Other
+--------------------------------------------------------------*/
+
+#webRTCSeo {
+  /* just for SEO */
+  display: none;
 }
 
 /*
