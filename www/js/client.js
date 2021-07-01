@@ -51,8 +51,8 @@ const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
 // video cam - screen max frame rate
-const videoMaxFrameRate = 15;
-const screenMaxFrameRate = 10;
+const videoMaxFrameRate = 30;
+const screenMaxFrameRate = 15;
 
 const qvgaVideo = {
   width: { exact: 320 },
@@ -2055,7 +2055,8 @@ function getAudioVideoConstraints() {
     audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
     video: {
       deviceId: videoSource ? { exact: videoSource } : undefined,
-      frameRate: myBrowserName != "Firefox" ? { max: screenMaxFrameRate } : undefined,
+      frameRate:
+        myBrowserName != "Firefox" ? { max: videoMaxFrameRate } : undefined,
       // Firefox not support set frameRate (OverconstrainedError) O.o
     },
   };
