@@ -181,6 +181,9 @@ let emojiPicker;
 // my settings
 let mySettings;
 let mySettingsHeader;
+let tabDevicesBtn;
+let tabRoomBtn;
+let tabThemeBtn;
 let mySettingsCloseBtn;
 let myPeerNameSet;
 let myPeerNameSetBtn;
@@ -286,6 +289,9 @@ function getHtmlElementsById() {
   // my settings
   mySettings = getId("mySettings");
   mySettingsHeader = getId("mySettingsHeader");
+  tabDevicesBtn = getId("tabDevicesBtn");
+  tabRoomBtn = getId("tabRoomBtn");
+  tabThemeBtn = getId("tabThemeBtn");
   mySettingsCloseBtn = getId("mySettingsCloseBtn");
   myPeerNameSet = getId("myPeerNameSet");
   myPeerNameSetBtn = getId("myPeerNameSetBtn");
@@ -1999,6 +2005,16 @@ function handleBodyOnMouseMove() {
  * Setup local audio - video devices - theme ...
  */
 function setupMySettings() {
+  // tab buttons
+  tabDevicesBtn.addEventListener("click", (e) => {
+    openTab(e, "tabDevices");
+  });
+  tabRoomBtn.addEventListener("click", (e) => {
+    openTab(e, "tabRoom");
+  });
+  tabThemeBtn.addEventListener("click", (e) => {
+    openTab(e, "tabTheme");
+  });
   // audio - video select box
   selectors = [audioInputSelect, audioOutputSelect, videoSelect];
   audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
@@ -3126,6 +3142,27 @@ function hideShowMySettings() {
   }
   mySettings.style.display = "none";
   isMySettingsVisible = false;
+}
+
+/**
+ * Handle html tab settings
+ * https://www.w3schools.com/howto/howto_js_tabs.asp
+ * 
+ * @param {*} evt
+ * @param {*} tabName
+ */
+function openTab(evt, tabName) {
+  let i, tabcontent, tablinks;
+  tabcontent = getEcN("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = getEcN("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  getId(tabName).style.display = "block";
+  evt.currentTarget.className += " active";
 }
 
 /**

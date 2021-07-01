@@ -236,51 +236,58 @@ access to use this app.
       </header>
       <main>
         <br />
-        <div>
-          <label>My name:&nbsp;</label><br /><input
-            id="myPeerNameSet"
-            type="text"
-            placeholder="Change name..."
-          />&nbsp;&nbsp;<button
-            id="myPeerNameSetBtn"
-            class="fas fa-user-edit"
-          >
-            Change
-          </button>
+        <div class="tab">
+          <button id="tabDevicesBtn" class="tablinks">Devices</button>
+          <button id="tabRoomBtn" class="tablinks">Room</button>
+          <button id="tabThemeBtn" class="tablinks">Theme</button>
         </div>
-        <br />
-        <div>
-          <label>Room actions:&nbsp;</label><br />
-          <button id="muteEveryoneBtn" class="fas fa-microphone">
-            Mute everyone</button
-          >&nbsp;&nbsp;
-          <button id="hideEveryoneBtn" class="fas fa-video">
-            Hide everyone
-          </button>
+
+        <div id="tabDevices" class="tabcontent">
+          <div>
+            <label for="audioSource">Audio input:&nbsp;</label><br />
+            <select id="audioSource"></select>
+          </div>
+          <br />
+          <div>
+            <label for="audioOutput">Audio output:&nbsp;</label><br />
+            <select id="audioOutput"></select>
+          </div>
+          <br />
+          <div>
+            <label for="videoSource">Video source:&nbsp;</label><br />
+            <select id="videoSource"></select>
+          </div>
+          <br />
         </div>
-        <br />
-        <div>
-          <label for="audioSource">Audio input:&nbsp;</label><br /><select
-            id="audioSource"
-          ></select>
+
+        <div id="tabRoom" class="tabcontent">
+          <div>
+            <label>My name:&nbsp;</label><br />
+            <input
+              id="myPeerNameSet"
+              type="text"
+              placeholder="Change name..."
+            />&nbsp;&nbsp;
+            <button id="myPeerNameSetBtn" class="fas fa-user-edit">
+              Change
+            </button>
+          </div>
+          <br />
+          <div>
+            <label>Participants:&nbsp;</label><br />
+            <button id="muteEveryoneBtn" class="fas fa-microphone">
+              Mute everyone</button
+            >&nbsp;&nbsp;
+            <button id="hideEveryoneBtn" class="fas fa-video">
+              Hide everyone
+            </button>
+          </div>
         </div>
-        <br />
-        <div>
-          <label for="audioOutput">Audio output:&nbsp;</label><br /><select
-            id="audioOutput"
-          ></select>
-        </div>
-        <br />
-        <div>
-          <label for="videoSource">Video source:&nbsp;</label><br /><select
-            id="videoSource"
-          ></select>
-        </div>
-        <br />
-        <div>
-          <label for="mirotalkTheme">Theme:&nbsp;</label><br /><select
-            id="mirotalkTheme"
-          >
+
+        <div id="tabTheme" class="tabcontent">
+          <label for="mirotalkTheme">Select:&nbsp;</label>
+          <br />
+          <select id="mirotalkTheme">
             <option value="neon">mirotalk - neon</option>
             <option value="dark">mirotalk - dark</option>
             <option value="forest">mirotalk - forest</option>
