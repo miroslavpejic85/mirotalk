@@ -1138,11 +1138,11 @@ function setupLocalMedia(callback, errorback) {
 
   console.log("Requesting access to local audio / video inputs");
 
-  // videoFrameRate | qvgaVideo | vgaVideo | hdVideo | fhdVideo
+  // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo
   let videoConstraints =
     myBrowserName === "Firefox"
       ? getVideoConstraints("useVideo")
-      : getVideoConstraints("videoFrameRate");
+      : getVideoConstraints("default");
 
   let constraints = {
     audio: useAudio,
@@ -2085,7 +2085,7 @@ function getAudioVideoConstraints() {
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   let videoConstraints = getVideoConstraints(
-    videoQualitySelect.value ? videoQualitySelect.value : "videoFrameRate"
+    videoQualitySelect.value ? videoQualitySelect.value : "default"
   );
   videoConstraints["deviceId"] = videoSource
     ? { exact: videoSource }
@@ -2108,7 +2108,7 @@ function getVideoConstraints(videoQuality) {
     case "useVideo":
       return useVideo;
     // Firefox not support set frameRate (OverconstrainedError) O.o
-    case "videoFrameRate":
+    case "default":
       return { frameRate: frameRate };
     // video cam constraints default
     case "qvgaVideo":
@@ -2244,11 +2244,7 @@ function gotDevices(deviceInfos) {
  * @param {*} err
  */
 function handleError(err) {
-  console.log(
-    "navigator.MediaDevices.getUserMedia error: ",
-    err.message,
-    err.name
-  );
+  console.log("navigator.MediaDevices.getUserMedia error: ", err);
   userLog("error", "GetUserMedia error " + err);
   // https://blog.addpipe.com/common-getusermedia-errors/
 }
