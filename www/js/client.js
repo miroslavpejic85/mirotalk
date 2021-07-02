@@ -1122,7 +1122,6 @@ function setTheme(theme) {
  * Ask user for permission to use the computers microphone and/or camera,
  * attach it to an <audio> or <video> tag if they give us access.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
- * https://webrtc.github.io/samples/src/content/getusermedia/resolution/
  *
  * @param {*} callback
  * @param {*} errorback
@@ -1144,7 +1143,7 @@ function setupLocalMedia(callback, errorback) {
       ? getVideoConstraints("useVideo")
       : getVideoConstraints("default");
 
-  let constraints = {
+  const constraints = {
     audio: useAudio,
     video: videoConstraints,
   };
@@ -2099,6 +2098,8 @@ function getAudioVideoConstraints() {
 
 /**
  * Get video constraints
+ * https://webrtc.github.io/samples/src/content/getusermedia/resolution/
+ *
  * @returns video constraints
  */
 function getVideoConstraints(videoQuality) {
@@ -2135,6 +2136,12 @@ function getVideoConstraints(videoQuality) {
         height: { exact: 1080 },
         frameRate: frameRate,
       }; // video cam constraints very haigh bandwidth
+    case "4kVideo":
+      return {
+        width: { exact: 3840 },
+        height: { exact: 2160 },
+        frameRate: frameRate,
+      }; // video cam constraints very power bandwidth
   }
 }
 
