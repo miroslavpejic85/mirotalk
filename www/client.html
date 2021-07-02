@@ -238,6 +238,7 @@ access to use this app.
         <br />
         <div class="tab">
           <button id="tabDevicesBtn" class="tablinks">Devices</button>
+          <button id="tabBandwidthBtn" class="tablinks">Bandwidth</button>
           <button id="tabRoomBtn" class="tablinks">Room</button>
           <button id="tabThemeBtn" class="tablinks">Theme</button>
         </div>
@@ -258,7 +259,41 @@ access to use this app.
             <label for="videoSource">Video source:&nbsp;</label><br />
             <select id="videoSource"></select>
           </div>
+        </div>
+
+        <div id="tabBandwidth" class="tabcontent">
           <br />
+          <label for="videoQuality">Video quality:&nbsp;</label>
+          <br/>
+          <select id="videoQuality">
+            <option value="videoFrameRate">default</option>
+            <option value="qvgaVideo">low</option>
+            <option value="vgaVideo">medium</option>
+            <option value="hdVideo">haigh</option>
+            <option value="fhdVideo">very haigh</option>
+          </select>
+          <br /><br />
+          <label for="videoFps">Video fps:&nbsp;</label>
+          <br />
+          <select id="videoFps">
+            <option value="30">30 fps</option>
+            <option value="25">25 fps</option>
+            <option value="20">20 fps</option>
+            <option value="15">15 fps</option>
+            <option value="10">10 fps</option>
+            <option value="5">5 fps</option>
+          </select>
+          <br /><br />
+          <label for="screenFps">Screen fps:&nbsp;</label>
+          <br />
+          <select id="screenFps">
+            <option value="30">30 fps</option>
+            <option value="25">25 fps</option>
+            <option value="20">20 fps</option>
+            <option value="15">15 fps</option>
+            <option value="10">10 fps</option>
+            <option value="5">5 fps</option>
+          </select>
         </div>
 
         <div id="tabRoom" class="tabcontent">

@@ -51,35 +51,8 @@ const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
 // video cam - screen max frame rate
-const videoMaxFrameRate = 30;
-const screenMaxFrameRate = 15;
-
-const qvgaVideo = {
-  width: { exact: 320 },
-  height: { exact: 240 },
-  frameRate: { max: videoMaxFrameRate },
-}; // video cam constraints less bandwidth
-
-const vgaVideo = {
-  width: { exact: 640 },
-  height: { exact: 480 },
-  frameRate: { max: videoMaxFrameRate },
-}; // video cam constraints medium bandwidth
-
-const hdVideo = {
-  width: { exact: 1280 },
-  height: { exact: 720 },
-  frameRate: { max: videoMaxFrameRate },
-}; // video cam constraints haight bandwidth
-
-const fhdVideo = {
-  width: { exact: 1920 },
-  height: { exact: 1080 },
-  frameRate: { max: videoMaxFrameRate },
-}; // video cam constraints very haight bandwidth
-
-const videoFrameRate = { frameRate: { max: videoMaxFrameRate } }; // video cam frame rate
-const screenFrameRate = { frameRate: { max: screenMaxFrameRate } }; // screen sharing video frame rate
+let videoMaxFrameRate = 30;
+let screenMaxFrameRate = 30;
 
 let leftChatAvatar;
 let rightChatAvatar;
@@ -182,6 +155,7 @@ let emojiPicker;
 let mySettings;
 let mySettingsHeader;
 let tabDevicesBtn;
+let tabBandwidthBtn;
 let tabRoomBtn;
 let tabThemeBtn;
 let mySettingsCloseBtn;
@@ -190,6 +164,9 @@ let myPeerNameSetBtn;
 let audioInputSelect;
 let audioOutputSelect;
 let videoSelect;
+let videoQualitySelect;
+let videoFpsSelect;
+let screenFpsSelect;
 let themeSelect;
 let selectors;
 // my video element
@@ -290,6 +267,7 @@ function getHtmlElementsById() {
   mySettings = getId("mySettings");
   mySettingsHeader = getId("mySettingsHeader");
   tabDevicesBtn = getId("tabDevicesBtn");
+  tabBandwidthBtn = getId("tabBandwidthBtn");
   tabRoomBtn = getId("tabRoomBtn");
   tabThemeBtn = getId("tabThemeBtn");
   mySettingsCloseBtn = getId("mySettingsCloseBtn");
@@ -298,6 +276,9 @@ function getHtmlElementsById() {
   audioInputSelect = getId("audioSource");
   audioOutputSelect = getId("audioOutput");
   videoSelect = getId("videoSource");
+  videoQualitySelect = getId("videoQuality");
+  videoFpsSelect = getId("videoFps");
+  screenFpsSelect = getId("screenFps");
   themeSelect = getId("mirotalkTheme");
   // my conference name, hand, video - audio status
   myVideoParagraph = getId("myVideoParagraph");
@@ -1157,9 +1138,15 @@ function setupLocalMedia(callback, errorback) {
 
   console.log("Requesting access to local audio / video inputs");
 
-  const constraints = {
+  // videoFrameRate | qvgaVideo | vgaVideo | hdVideo | fhdVideo
+  let videoConstraints =
+    myBrowserName === "Firefox"
+      ? getVideoConstraints("useVideo")
+      : getVideoConstraints("videoFrameRate");
+
+  let constraints = {
     audio: useAudio,
-    video: myBrowserName === "Firefox" ? useVideo : videoFrameRate, // useVideo | videoFrameRate | qvgaVideo | vgaVideo | hdVideo | fhdVideo
+    video: videoConstraints,
   };
 
   navigator.mediaDevices
@@ -2009,6 +1996,9 @@ function setupMySettings() {
   tabDevicesBtn.addEventListener("click", (e) => {
     openTab(e, "tabDevices");
   });
+  tabBandwidthBtn.addEventListener("click", (e) => {
+    openTab(e, "tabBandwidth");
+  });
   tabRoomBtn.addEventListener("click", (e) => {
     openTab(e, "tabRoom");
   });
@@ -2032,6 +2022,32 @@ function setupMySettings() {
     myVideoChange = true;
     refreshLocalMedia();
   });
+
+  if (myBrowserName != "Firefox") {
+    // select video quality
+    videoQualitySelect.addEventListener("change", (e) => {
+      myVideoChange = true;
+      refreshLocalMedia();
+    });
+    // select video fps
+    videoFpsSelect.addEventListener("change", (e) => {
+      videoMaxFrameRate = parseInt(videoFpsSelect.value);
+      myVideoChange = true;
+      refreshLocalMedia();
+    });
+  } else {
+    // Firefox not support get (OverconstrainedError) O.o
+    videoQualitySelect.value = null;
+    videoFpsSelect.value = null;
+    videoQualitySelect.disabled = true;
+    videoFpsSelect.disabled = true;
+  }
+
+  // select screen fps
+  screenFpsSelect.addEventListener("change", (e) => {
+    screenMaxFrameRate = parseInt(screenFpsSelect.value);
+    if (isScreenStreaming) toggleScreenSharing();
+  });
   // select themes
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
@@ -2052,9 +2068,10 @@ function setupMySettings() {
 function refreshLocalMedia() {
   // some devices can't swap the video track, if already in execution.
   stopLocalVideoTrack();
-  const constraints = getAudioVideoConstraints();
+  stopLocalAudioTrack();
+
   navigator.mediaDevices
-    .getUserMedia(constraints)
+    .getUserMedia(getAudioVideoConstraints())
     .then(gotStream)
     .then(gotDevices)
     .catch(handleError);
@@ -2067,16 +2084,58 @@ function refreshLocalMedia() {
 function getAudioVideoConstraints() {
   const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
+  let videoConstraints = getVideoConstraints(
+    videoQualitySelect.value ? videoQualitySelect.value : "videoFrameRate"
+  );
+  videoConstraints["deviceId"] = videoSource
+    ? { exact: videoSource }
+    : undefined;
   const constraints = {
     audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
-    video: {
-      deviceId: videoSource ? { exact: videoSource } : undefined,
-      frameRate:
-        myBrowserName != "Firefox" ? { max: videoMaxFrameRate } : undefined,
-      // Firefox not support set frameRate (OverconstrainedError) O.o
-    },
+    video: videoConstraints,
   };
   return constraints;
+}
+
+/**
+ * Get video constraints
+ * @returns video constraints
+ */
+function getVideoConstraints(videoQuality) {
+  let frameRate = { max: videoMaxFrameRate };
+
+  switch (videoQuality) {
+    case "useVideo":
+      return useVideo;
+    // Firefox not support set frameRate (OverconstrainedError) O.o
+    case "videoFrameRate":
+      return { frameRate: frameRate };
+    // video cam constraints default
+    case "qvgaVideo":
+      return {
+        width: { exact: 320 },
+        height: { exact: 240 },
+        frameRate: frameRate,
+      }; // video cam constraints low bandwidth
+    case "vgaVideo":
+      return {
+        width: { exact: 640 },
+        height: { exact: 480 },
+        frameRate: frameRate,
+      }; // video cam constraints medium bandwidth
+    case "hdVideo":
+      return {
+        width: { exact: 1280 },
+        height: { exact: 720 },
+        frameRate: frameRate,
+      }; // video cam constraints haigh bandwidth
+    case "fhdVideo":
+      return {
+        width: { exact: 1920 },
+        height: { exact: 1080 },
+        frameRate: frameRate,
+      }; // video cam constraints very haigh bandwidth
+  }
 }
 
 /**
@@ -2430,12 +2489,20 @@ function stopLocalVideoTrack() {
 }
 
 /**
+ * Stop Local Audio Track
+ */
+function stopLocalAudioTrack() {
+  localMediaStream.getAudioTracks()[0].stop();
+}
+
+/**
  * Enable - disable screen sharing
  */
 function toggleScreenSharing() {
+  screenMaxFrameRate = parseInt(screenFpsSelect.value);
   const constraints = {
-    video: screenFrameRate, // true | screenFrameRate
-  };
+    video: { frameRate: { max: screenMaxFrameRate } },
+  }; // true | { frameRate: { max: screenMaxFrameRate } }
 
   let screenMediaPromise;
 
@@ -2456,8 +2523,9 @@ function toggleScreenSharing() {
     }
   } else {
     // on screen sharing stop
-    const constraints = getAudioVideoConstraints();
-    screenMediaPromise = navigator.mediaDevices.getUserMedia(constraints);
+    screenMediaPromise = navigator.mediaDevices.getUserMedia(
+      getAudioVideoConstraints()
+    );
     // if screen sharing accidentally closed
     if (isStreamRecording) {
       stopStreamRecording();
@@ -2767,6 +2835,9 @@ function disableElements(b) {
   screenShareBtn.disabled = b;
   audioSource.disabled = b;
   videoSource.disabled = b;
+  videoQualitySelect.disabled = b;
+  videoFpsSelect.disabled = b;
+  screenFpsSelect.disabled = b;
 }
 
 /**
