@@ -1117,6 +1117,7 @@ progress {
 }
 #about img {
   cursor: pointer;
+  border-radius: 10px;
 }
 
 #author a:hover {
