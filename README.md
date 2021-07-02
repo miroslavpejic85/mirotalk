@@ -40,6 +40,7 @@ Open the app in one of following **supported browser**
 - Screen Sharing to present documents, slides, and more...
 - File Sharing, share any files to your participants in the room
 - Select Audio Input - Output && Video source
+- Ability to set video quality up to FULL HD and the FPS
 - Recording your Screen, Audio and Video
 - Chat with Emoji Picker & Private messages & Save the conversations
 - Simple collaborative whiteboard for the teachers
