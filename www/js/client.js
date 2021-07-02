@@ -2129,19 +2129,19 @@ function getVideoConstraints(videoQuality) {
         width: { exact: 1280 },
         height: { exact: 720 },
         frameRate: frameRate,
-      }; // video cam constraints haigh bandwidth
+      }; // video cam constraints high bandwidth
     case "fhdVideo":
       return {
         width: { exact: 1920 },
         height: { exact: 1080 },
         frameRate: frameRate,
-      }; // video cam constraints very haigh bandwidth
+      }; // video cam constraints very high bandwidth
     case "4kVideo":
       return {
         width: { exact: 3840 },
         height: { exact: 2160 },
         frameRate: frameRate,
-      }; // video cam constraints very power bandwidth
+      }; // video cam constraints ulta high bandwidth
   }
 }
 
