@@ -2252,7 +2252,16 @@ function gotDevices(deviceInfos) {
  */
 function handleError(err) {
   console.log("navigator.MediaDevices.getUserMedia error: ", err);
-  userLog("error", "GetUserMedia error " + err);
+  switch (err.name) {
+    case "OverconstrainedError":
+      userLog(
+        "error",
+        "GetUserMedia: Your cam doesn't support the selected video quality, please select another video quality."
+      );
+      break;
+    default:
+      userLog("error", "GetUserMedia error " + err);
+  }
   // https://blog.addpipe.com/common-getusermedia-errors/
 }
 
