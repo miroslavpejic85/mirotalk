@@ -2256,7 +2256,7 @@ function handleError(err) {
     case "OverconstrainedError":
       userLog(
         "error",
-        "GetUserMedia: Your cam doesn't support the selected video quality, please select another video quality."
+        "GetUserMedia: Your cam doesn't support the selected video quality, please select another one."
       );
       break;
     default:
