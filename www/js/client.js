@@ -1158,7 +1158,7 @@ function setupLocalMedia(callback, errorback) {
       // https://blog.addpipe.com/common-getusermedia-errors/
       console.error("Access denied for audio/video", err);
       playSound("error");
-      window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${err}`;
+      window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${err.toString()}`;
       if (errorback) errorback();
     });
 } // end [setup_local_stream]
@@ -2021,27 +2021,22 @@ function setupMySettings() {
     myVideoChange = true;
     refreshLocalMedia();
   });
-
-  if (myBrowserName != "Firefox") {
-    // select video quality
-    videoQualitySelect.addEventListener("change", (e) => {
-      myVideoChange = true;
-      refreshLocalMedia();
-    });
-    // select video fps
-    videoFpsSelect.addEventListener("change", (e) => {
-      videoMaxFrameRate = parseInt(videoFpsSelect.value);
-      myVideoChange = true;
-      refreshLocalMedia();
-    });
-  } else {
-    // Firefox not support get (OverconstrainedError) O.o
-    videoQualitySelect.value = null;
+  // select video quality
+  videoQualitySelect.addEventListener("change", (e) => {
+    myVideoChange = true;
+    refreshLocalMedia();
+  });
+  // select video fps
+  videoFpsSelect.addEventListener("change", (e) => {
+    videoMaxFrameRate = parseInt(videoFpsSelect.value);
+    myVideoChange = true;
+    refreshLocalMedia();
+  });
+  // Firefox not support video cam Fps O.o
+  if (myBrowserName === "Firefox") {
     videoFpsSelect.value = null;
-    videoQualitySelect.disabled = true;
     videoFpsSelect.disabled = true;
   }
-
   // select screen fps
   screenFpsSelect.addEventListener("change", (e) => {
     screenMaxFrameRate = parseInt(screenFpsSelect.value);
@@ -2256,7 +2251,7 @@ function handleError(err) {
     case "OverconstrainedError":
       userLog(
         "error",
-        "GetUserMedia: Your cam doesn't support the selected video quality, please select another one."
+        "GetUserMedia: Your device doesn't support the selected video quality or fps, please select the another one."
       );
       break;
     default:
