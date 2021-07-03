@@ -2141,7 +2141,7 @@ function getVideoConstraints(videoQuality) {
         width: { exact: 3840 },
         height: { exact: 2160 },
         frameRate: frameRate,
-      }; // video cam constraints ulta high bandwidth
+      }; // video cam constraints ultra high bandwidth
   }
 }
 
@@ -2851,6 +2851,28 @@ function createChatDataChannel(peer_id) {
   chatDataChannels[peer_id] = peerConnections[peer_id].createDataChannel(
     "mirotalk_chat_channel"
   );
+  chatDataChannels[peer_id].addEventListener("open", onChatChannelStateChange);
+  chatDataChannels[peer_id].addEventListener("close", onChatChannelStateChange);
+  chatDataChannels[peer_id].addEventListener("error", onChatError);
+}
+
+/**
+ * Handle Chat Room channel state
+ * @param {*} event
+ */
+function onChatChannelStateChange(event) {
+  console.log("onChatChannelStateChange", event.type);
+}
+
+/**
+ * Something wrong on Chat Data Channel
+ * @param {*} event
+ */
+function onChatError(event) {
+  // Transport channel closed ignore it...
+  if (event.message.includes("closed")) return;
+  console.error("onChatError", event);
+  userLog("error", "Chat data channel " + event.error);
 }
 
 /**
