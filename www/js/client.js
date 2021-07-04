@@ -2040,6 +2040,11 @@ function setupMySettings() {
     screenMaxFrameRate = parseInt(screenFpsSelect.value);
     if (isScreenStreaming) setLocalMaxFps(screenMaxFrameRate);
   });
+  // Mobile not support screen sharing
+  if (isMobileDevice) {
+    screenFpsSelect.value = null;
+    screenFpsSelect.disabled = true;
+  }
   // select themes
   themeSelect.addEventListener("change", (e) => {
     setTheme(themeSelect.value);
@@ -2884,8 +2889,9 @@ function disableElements(b) {
   videoSource.disabled = b;
   videoQualitySelect.disabled = b;
   // FireFox not support set video Fps make it always disabled
-  videoFpsSelect.disabled = myBrowserName === "Firefox" ? true : d;
-  screenFpsSelect.disabled = b;
+  videoFpsSelect.disabled = myBrowserName === "Firefox" ? true : b;
+  // Mobile devices not support screen sharing so disable it always
+  screenFpsSelect.disabled = isMobileDevice ? true : b;
 }
 
 /**
