@@ -91,7 +91,7 @@ let remoteMediaStream; // peers microphone / webcam
 let remoteMediaControls = false; // enable - disable peers video player controls (default false)
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
-let fileSharingDataChannels = {}; // keep track of our peer file sharing data channels
+let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 let chatMessages = []; // collect chat messages to save it later if want
 let iceServers = [{ urls: "stun:stun.l.google.com:19302" }]; // backup iceServers
@@ -934,7 +934,7 @@ function handleDisconnect() {
     msgerRemovePeer(peer_id);
   }
   chatDataChannels = {};
-  fileSharingDataChannels = {};
+  fileDataChannels = {};
   peerConnections = {};
   peerMediaElements = {};
 }
@@ -966,7 +966,7 @@ function handleRemovePeer(config) {
   msgerRemovePeer(peer_id);
 
   delete chatDataChannels[peer_id];
-  delete fileSharingDataChannels[peer_id];
+  delete fileDataChannels[peer_id];
   delete peerConnections[peer_id];
   delete peerMediaElements[peer_id];
 
@@ -3842,19 +3842,13 @@ function remoteWbAction(action) {
  * @param {*} peer_id
  */
 function createFileSharingDataChannel(peer_id) {
-  fileSharingDataChannels[peer_id] = peerConnections[peer_id].createDataChannel(
+  fileDataChannels[peer_id] = peerConnections[peer_id].createDataChannel(
     "mirotalk_file_sharing_channel"
   );
-  fileSharingDataChannels[peer_id].binaryType = "arraybuffer";
-  fileSharingDataChannels[peer_id].addEventListener(
-    "open",
-    onFSChannelStateChange
-  );
-  fileSharingDataChannels[peer_id].addEventListener(
-    "close",
-    onFSChannelStateChange
-  );
-  fileSharingDataChannels[peer_id].addEventListener("error", onFsError);
+  fileDataChannels[peer_id].binaryType = "arraybuffer";
+  fileDataChannels[peer_id].addEventListener("open", onFSChannelStateChange);
+  fileDataChannels[peer_id].addEventListener("close", onFSChannelStateChange);
+  fileDataChannels[peer_id].addEventListener("error", onFsError);
 }
 
 /**
@@ -3987,9 +3981,9 @@ function sendFileData() {
  * @param {*} data fileReader e.target.result
  */
 function sendFSData(data) {
-  for (let peer_id in fileSharingDataChannels) {
-    if (fileSharingDataChannels[peer_id].readyState === "open") {
-      fileSharingDataChannels[peer_id].send(data);
+  for (let peer_id in fileDataChannels) {
+    if (fileDataChannels[peer_id].readyState === "open") {
+      fileDataChannels[peer_id].send(data);
     }
   }
 }
