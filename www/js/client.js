@@ -32,6 +32,7 @@ const confirmImg = "../images/illustration-section-01.svg";
 const fileSharingImg = "../images/illustration-section-01.svg";
 const camOffImg = "../images/cam-off.png";
 const audioOffImg = "../images/audio-off.png";
+const kickedOutImg = "../images/kicked-out.png";
 const aboutImg = "../images/about.png";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const avatarApiUrl = "https://eu.ui-avatars.com/api";
@@ -4292,7 +4293,7 @@ function kickedOut(config) {
     allowOutsideClick: false,
     background: swalBackground,
     position: "center",
-    icon: "warning",
+    imageUrl: kickedOutImg,
     title: "You will be kicked out!",
     html:
       `<h2 style="color: red;">` +
