@@ -30,6 +30,8 @@ const shareUrlImg = "../images/illustration-section-01.svg";
 const leaveRoomImg = "../images/illustration-section-01.svg";
 const confirmImg = "../images/illustration-section-01.svg";
 const fileSharingImg = "../images/illustration-section-01.svg";
+const camOffImg = "../images/cam-off.png";
+const audioOffImg = "../images/audio-off.png";
 const aboutImg = "../images/about.png";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const avatarApiUrl = "https://eu.ui-avatars.com/api";
@@ -2008,15 +2010,16 @@ function setupMySettings() {
   selectors = [audioInputSelect, audioOutputSelect, videoSelect];
   audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
   navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
-  // select audio in - out
+  // select audio input
   audioInputSelect.addEventListener("change", (e) => {
     myVideoChange = false;
     refreshLocalMedia();
   });
+  // select audio output
   audioOutputSelect.addEventListener("change", (e) => {
     changeAudioDestination();
   });
-  // select video in
+  // select video input
   videoSelect.addEventListener("change", (e) => {
     myVideoChange = true;
     refreshLocalMedia();
@@ -2146,7 +2149,7 @@ function getVideoConstraints(videoQuality) {
 /**
  * Set localMediaStream video max frame rate
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
- * 
+ *
  * @param {*} maxFrameRate
  */
 function setLocalMaxFps(maxFrameRate) {
@@ -2258,23 +2261,26 @@ function gotDevices(deviceInfos) {
     const option = document.createElement("option");
     option.value = deviceInfo.deviceId;
 
-    if (deviceInfo.kind === "audioinput") {
-      // audio Input
-      option.text =
-        deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
-      audioInputSelect.appendChild(option);
-    } else if (deviceInfo.kind === "audiooutput") {
-      // audio Output
-      option.text =
-        deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
-      audioOutputSelect.appendChild(option);
-    } else if (deviceInfo.kind === "videoinput") {
-      // video Input
-      option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
-      videoSelect.appendChild(option);
-    } else {
-      // something else
-      console.log("Some other kind of source/device: ", deviceInfo);
+    switch (deviceInfo.kind) {
+      case "audioinput":
+        option.text =
+          deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+        audioInputSelect.appendChild(option);
+        break;
+
+      case "audiooutput":
+        option.text =
+          deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+        audioOutputSelect.appendChild(option);
+        break;
+
+      case "videoinput":
+        option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+        videoSelect.appendChild(option);
+        break;
+
+      default:
+        console.log("Some other kind of source/device: ", deviceInfo);
     }
   } // end for devices
 
@@ -2674,18 +2680,18 @@ function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     // refresh my video stream
     for (let peer_id in peerConnections) {
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-      let sender = peerConnections[peer_id]
+      let videoSender = peerConnections[peer_id]
         .getSenders()
         .find((s) => (s.track ? s.track.kind === "video" : false));
       // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-      sender.replaceTrack(stream.getVideoTracks()[0]);
+      videoSender.replaceTrack(stream.getVideoTracks()[0]);
 
       if (localAudioTrackChange) {
-        let sender = peerConnections[peer_id]
+        let audioSender = peerConnections[peer_id]
           .getSenders()
           .find((s) => (s.track ? s.track.kind === "audio" : false));
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-        sender.replaceTrack(stream.getAudioTracks()[0]);
+        audioSender.replaceTrack(stream.getAudioTracks()[0]);
       }
     }
   }
@@ -2856,7 +2862,7 @@ function downloadRecordedStream() {
     userLog(
       "success-html",
       `<div style="text-align: left;">
-        Recording Info <br/>
+        🔴 Recording Info <br/>
         FILE: ${recFileName} <br/>
         SIZE: ${blobFileSize} <br/>
         Please wait to be processed, then will be downloaded to your ${currentDevice} device.
@@ -3581,6 +3587,7 @@ function disableAllPeers(element) {
   Swal.fire({
     background: swalBackground,
     position: "center",
+    imageUrl: element == "audio" ? audioOffImg : camOffImg,
     title:
       element == "audio"
         ? "Mute everyone except yourself?"
