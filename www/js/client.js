@@ -2023,14 +2023,12 @@ function setupMySettings() {
   });
   // select video quality
   videoQualitySelect.addEventListener("change", (e) => {
-    myVideoChange = true;
-    refreshLocalMedia();
+    setLocalVideoQuality();
   });
   // select video fps
   videoFpsSelect.addEventListener("change", (e) => {
     videoMaxFrameRate = parseInt(videoFpsSelect.value);
-    myVideoChange = true;
-    refreshLocalMedia();
+    setLocalMaxFps(videoMaxFrameRate);
   });
   // Firefox not support video cam Fps O.o
   if (myBrowserName === "Firefox") {
@@ -2040,7 +2038,7 @@ function setupMySettings() {
   // select screen fps
   screenFpsSelect.addEventListener("change", (e) => {
     screenMaxFrameRate = parseInt(screenFpsSelect.value);
-    if (isScreenStreaming) toggleScreenSharing();
+    if (isScreenStreaming) setLocalMaxFps(screenMaxFrameRate);
   });
   // select themes
   themeSelect.addEventListener("change", (e) => {
@@ -2138,6 +2136,48 @@ function getVideoConstraints(videoQuality) {
         frameRate: frameRate,
       }; // video cam constraints ultra high bandwidth
   }
+}
+
+/**
+ * Set localMediaStream video max frame rate
+ * @param {*} maxFrameRate
+ */
+function setLocalMaxFps(maxFrameRate) {
+  localMediaStream
+    .getVideoTracks()[0]
+    .applyConstraints({ frameRate: { max: maxFrameRate } })
+    .then(() => {
+      logStreamSettingsInfo("setLocalMaxFps", localMediaStream);
+    })
+    .catch((err) => {
+      console.error("setLocalMaxFps", err);
+      userLog(
+        "error",
+        "Your device doesn't support the selected fps, please select the another one."
+      );
+    });
+}
+
+/**
+ * Set localMediaStream video quality
+ */
+function setLocalVideoQuality() {
+  let videoConstraints = getVideoConstraints(
+    videoQualitySelect.value ? videoQualitySelect.value : "default"
+  );
+  localMediaStream
+    .getVideoTracks()[0]
+    .applyConstraints(videoConstraints)
+    .then(() => {
+      logStreamSettingsInfo("setLocalVideoQuality", localMediaStream);
+    })
+    .catch((err) => {
+      console.error("setLocalVideoQuality", err);
+      userLog(
+        "error",
+        "Your device doesn't support the selected video quality, please select the another one."
+      );
+    });
 }
 
 /**
@@ -2843,7 +2883,8 @@ function disableElements(b) {
   audioSource.disabled = b;
   videoSource.disabled = b;
   videoQualitySelect.disabled = b;
-  videoFpsSelect.disabled = b;
+  // FireFox not support set video Fps make it always disabled
+  videoFpsSelect.disabled = myBrowserName === "Firefox" ? true : d;
   screenFpsSelect.disabled = b;
 }
 
