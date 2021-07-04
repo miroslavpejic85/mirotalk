@@ -2145,6 +2145,8 @@ function getVideoConstraints(videoQuality) {
 
 /**
  * Set localMediaStream video max frame rate
+ * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
+ * 
  * @param {*} maxFrameRate
  */
 function setLocalMaxFps(maxFrameRate) {
@@ -2165,6 +2167,7 @@ function setLocalMaxFps(maxFrameRate) {
 
 /**
  * Set localMediaStream video quality
+ * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 function setLocalVideoQuality() {
   let videoConstraints = getVideoConstraints(
