@@ -2873,10 +2873,11 @@ function onChatChannelStateChange(event) {
  * @param {*} event
  */
 function onChatError(event) {
+  const errMessage = event.error.message;
   // Transport channel closed ignore it...
-  if (event.message.includes("closed")) return;
+  if (errMessage.includes("closed")) return;
   console.error("onChatError", event);
-  userLog("error", "Chat data channel " + event.error);
+  userLog("error", "Chat data channel error: " + errMessage);
 }
 
 /**
