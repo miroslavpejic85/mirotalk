@@ -48,7 +48,7 @@ Open the app in one of following **supported browser**
 - Possibility to Change UI Themes
 - Right click on the Video elements for more options
 - Direct `peer-to-peer` connection ensures lowest latency thanks to `webrtc`
-- Supports `API` (Application Programming Interface)
+- Supports [REST API](api/README.md) (Application Programming Interface)
 
 ## Demo
 

@@ -22,5 +22,8 @@
     "socket.io": "^4.1.2",
     "swagger-ui-express": "^4.1.6",
     "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "node-fetch": "^2.6.1"
   }
 }
