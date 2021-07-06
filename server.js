@@ -13,6 +13,8 @@ dependencies: {
   express     : https://www.npmjs.com/package/express
   ngrok       : https://www.npmjs.com/package/ngrok
   socket.io   : https://www.npmjs.com/package/socket.io
+  swagger     : https://www.npmjs.com/package/swagger-ui-express
+  yamljs      : https://www.npmjs.com/package/yamljs
 }
 
 Mirotalk Signaling Server
@@ -47,10 +49,15 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server().listen(server);
 const ngrok = require("ngrok");
+const yamlJS = require("yamljs");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = yamlJS.load(__dirname + "/api/swagger.yaml");
+const apiBasePath = "/api/v1";
 
 let API_KEY_SECRET = process.env.API_KEY_SECRET || "mirotalk_default_secret";
 let PORT = process.env.PORT || 3000; // signalingServerPort
 let localHost = "http://localhost:" + PORT; // http
+let api_docs = localHost + apiBasePath + "/docs"; // api docs
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
@@ -129,8 +136,18 @@ app.get("/join/*", (req, res) => {
 /**
   MIROTALK API v1
   The response will give you a entrypoint / Room URL for your meeting.
+  For api docs we use: https://swagger.io/
 */
-app.post(["/api/v1/meeting"], (req, res) => {
+
+// api docs
+app.use(
+  apiBasePath + "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
+
+// request meeting room endpoint
+app.post([apiBasePath + "/meeting"], (req, res) => {
   // check if user was authorized for the api call
   let authorization = req.headers.authorization;
   if (authorization != API_KEY_SECRET) {
@@ -218,6 +235,7 @@ async function ngrokStart() {
     logme("settings", {
       http: localHost,
       https: tunnelHttps,
+      api_docs: api_docs,
       api_key_secret: API_KEY_SECRET,
       iceServers: iceServers,
       ngrok: {
@@ -255,6 +273,7 @@ server.listen(PORT, null, () => {
     // server settings
     logme("settings", {
       http: localHost,
+      api_docs: api_docs,
       api_key_secret: API_KEY_SECRET,
       iceServers: iceServers,
     });

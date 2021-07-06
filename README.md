@@ -138,13 +138,16 @@ docker-compose down
 
 ## API
 
-The `response` will give you a `entrypoint / Room URL` for `your meeting`.
+The `response` will give you a `entrypoint / Room URL` for `your meeting`, where `authorization: API_KEY_SECRET`.
 
 ```bash
-curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: YourApiKeySecret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotalk GET meeting\"}"
-curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotalk GET meeting\"}"
-curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" -d "{ \"title\": \"Mirotalk GET meeting\"}"
+curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
+curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
+curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 ```
+## API Documentation
+
+The server exposes a [swagger](https://swagger.io/) document at http://localhost:3000/api/v1/docs. Or you can check it out live on [railway](https://mirotalk.up.railway.app/api/v1/docs) or [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
 
 ---
 
