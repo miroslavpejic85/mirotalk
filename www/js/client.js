@@ -1140,7 +1140,7 @@ function setupLocalMedia(callback, errorback) {
 
   console.log("Requesting access to local audio / video inputs");
 
-  // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo
+  // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 4kVideo
   let videoConstraints =
     myBrowserName === "Firefox"
       ? getVideoConstraints("useVideo")
@@ -2265,18 +2265,21 @@ function gotDevices(deviceInfos) {
     switch (deviceInfo.kind) {
       case "audioinput":
         option.text =
-          deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+          `🎤 ` + deviceInfo.label ||
+          `🎤 microphone ${audioInputSelect.length + 1}`;
         audioInputSelect.appendChild(option);
         break;
 
       case "audiooutput":
         option.text =
-          deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+          `🔈 ` + deviceInfo.label ||
+          `🔈 speaker ${audioOutputSelect.length + 1}`;
         audioOutputSelect.appendChild(option);
         break;
 
       case "videoinput":
-        option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+        option.text =
+          `📹 ` + deviceInfo.label || `📹 camera ${videoSelect.length + 1}`;
         videoSelect.appendChild(option);
         break;
 
