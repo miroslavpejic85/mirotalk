@@ -12,7 +12,7 @@
 [![Repo Link](https://img.shields.io/badge/Repo-Link-black.svg)](https://github.com/miroslavpejic85/mirotalk)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?)](https://github.com/prettier/prettier)
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/c5AZn8yKbQ)
+[![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/TAeWXJCvBr)
 
 Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn. `Mirotalk` provides video quality and latency not available with traditional technology.
 
@@ -189,7 +189,7 @@ From where I took inspiration for this project. ❤️
 - Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`
 - For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
-[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/c5AZn8yKbQ)
+[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/TAeWXJCvBr)
 
 ## License
 

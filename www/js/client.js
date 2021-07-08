@@ -2263,6 +2263,12 @@ function gotDevices(deviceInfos) {
     option.value = deviceInfo.deviceId;
 
     switch (deviceInfo.kind) {
+      case "videoinput":
+        option.text =
+          `📹 ` + deviceInfo.label || `📹 camera ${videoSelect.length + 1}`;
+        videoSelect.appendChild(option);
+        break;
+
       case "audioinput":
         option.text =
           `🎤 ` + deviceInfo.label ||
@@ -2275,12 +2281,6 @@ function gotDevices(deviceInfos) {
           `🔈 ` + deviceInfo.label ||
           `🔈 speaker ${audioOutputSelect.length + 1}`;
         audioOutputSelect.appendChild(option);
-        break;
-
-      case "videoinput":
-        option.text =
-          `📹 ` + deviceInfo.label || `📹 camera ${videoSelect.length + 1}`;
-        videoSelect.appendChild(option);
         break;
 
       default:
