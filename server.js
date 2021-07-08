@@ -17,7 +17,7 @@ dependencies: {
   yamljs      : https://www.npmjs.com/package/yamljs
 }
 
-Mirotalk Signaling Server
+MiroTalk Signaling Server
 Copyright (C) 2021 Miroslav Pejic <miroslav.pejic.85@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -134,7 +134,7 @@ app.get("/join/*", (req, res) => {
 });
 
 /**
-  MIROTALK API v1
+  MiroTalk API v1
   The response will give you a entrypoint / Room URL for your meeting.
   For api docs we use: https://swagger.io/
 */
@@ -157,7 +157,7 @@ app.post([apiBasePath + "/meeting"], (req, res) => {
     });
     return res.status(403).json({ error: "Unauthorized!" });
   }
-  // setup mirotalk meeting URL
+  // setup meeting URL
   let host = req.headers.host;
   let meetingURL = getMeetingURL(host) + "/join/" + makeId(15);
   res.setHeader("Content-Type", "application/json");
@@ -195,7 +195,7 @@ function makeId(length) {
   }
   return result;
 }
-// end of MIROTALK API v1
+// end of MiroTalk API v1
 
 /**
  * You should probably use a different stun-turn server

@@ -1,8 +1,8 @@
 swagger: "2.0"
 
 info:
-  title: Mirotalk API
-  description: API description for external applications that integrates with Mirotalk.
+  title: MiroTalk API
+  description: API description for external applications that integrates with MiroTalk.
   version: 1.0.0
 
 basePath: /api/v1
