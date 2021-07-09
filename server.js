@@ -151,7 +151,7 @@ app.post([apiBasePath + "/meeting"], (req, res) => {
   // check if user was authorized for the api call
   let authorization = req.headers.authorization;
   if (authorization != API_KEY_SECRET) {
-    logme("Mirotalk get meeting - Unauthorized", {
+    logme("MiroTalk get meeting - Unauthorized", {
       header: req.headers,
       body: req.body,
     });
@@ -164,7 +164,7 @@ app.post([apiBasePath + "/meeting"], (req, res) => {
   res.end(JSON.stringify({ meeting: meetingURL }));
 
   // logme the output if all done
-  logme("Mirotalk get meeting - Authorized", {
+  logme("MiroTalk get meeting - Authorized", {
     header: req.headers,
     body: req.body,
     meeting: meetingURL,

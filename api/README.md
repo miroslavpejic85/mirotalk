@@ -1,7 +1,7 @@
 [![restAPI](restAPI.png)](https://mirotalk.up.railway.app/api/v1/docs)
 ## Create a meeting
 
-Create a meeting with a `HTTP request` containing the `API_KEY` sent to Mirotalk’s server. The response contains a `meeting` URL that can be `embedded` in your client within an `iframe`.
+Create a meeting with a `HTTP request` containing the `API_KEY` sent to MiroTalk’s server. The response contains a `meeting` URL that can be `embedded` in your client within an `iframe`.
 
 ```bash
 # js
