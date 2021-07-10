@@ -42,6 +42,7 @@ const notifyDownload = "../audio/download.mp3";
 const notifyKickedOut = "../audio/kickedOut.mp3";
 const notifyRemovePeer = "../audio/removePeer.mp3";
 const notifyNewMessage = "../audio/newMessage.mp3";
+const notifyChatMessage = "../audio/chatMessage.mp3";
 const notifyRecStart = "../audio/recStart.mp3";
 const notifyRecStop = "../audio/recStop.mp3";
 const notifyRaiseHand = "../audio/raiseHand.mp3";
@@ -3043,7 +3044,7 @@ function handleDataChannelChat(dataMessages) {
         showChatRoomDraggable();
         chatRoomBtn.className = "fas fa-comment-slash";
       }
-      playSound("newMessage");
+      playSound("chatMessage");
       setPeerChatAvatarImgName("left", dataMessages.name);
       appendMessage(
         dataMessages.name,
@@ -4575,6 +4576,9 @@ async function playSound(state) {
       break;
     case "newMessage":
       file_audio = notifyNewMessage;
+      break;
+    case "chatMessage":
+      file_audio = notifyChatMessage;
       break;
     case "recStart":
       file_audio = notifyRecStart;
