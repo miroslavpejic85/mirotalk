@@ -209,6 +209,15 @@ access to use this app.
             </div>
           </header>
           <main id="msgerCPChat" class="msger-chat">
+            <div class="search-container">
+              <input
+                id="searchPeerBarName"
+                type="text"
+                placeholder="Search peer by name..."
+                name="search"
+                onkeyup="searchPeer()"
+              />
+            </div>
             <div id="msgerCPList"></div>
           </main>
         </section>

@@ -3122,7 +3122,7 @@ function msgerAddPeers(peers) {
       // if there isn't add it....
       if (!exsistMsgerPrivateDiv) {
         let msgerPrivateDiv = `
-        <div id="${peer_id}_pMsgDiv" class="msger-inputarea">
+        <div id="${peer_id}_pMsgDiv" class="msger-peer-inputarea">
           <input
             id="${peer_id}_pMsgInput"
             class="msger-input"
@@ -3139,6 +3139,23 @@ function msgerAddPeers(peers) {
         let msgerPrivateBtn = getId(peer_id + "_pMsgBtn");
         addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id);
       }
+    }
+  }
+}
+
+/**
+ * Search peer by name in chat room lists
+ * to send private messages
+ */
+function searchPeer() {
+  let searchPeerBarName = getId("searchPeerBarName").value;
+  let msgerPeerInputarea = getEcN("msger-peer-inputarea");
+  searchPeerBarName = searchPeerBarName.toLowerCase();
+  for (let i = 0; i < msgerPeerInputarea.length; i++) {
+    if (!msgerPeerInputarea[i].innerHTML.toLowerCase().includes(searchPeerBarName)) {
+      msgerPeerInputarea[i].style.display = "none";
+    } else {
+      msgerPeerInputarea[i].style.display = "flex";
     }
   }
 }

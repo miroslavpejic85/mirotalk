@@ -668,7 +668,7 @@ body {
 
 #msgerCPList button {
   border: none;
-  font-size: 1.2rem;
+  font-size: 1rem;
   transition: all 0.3s ease-in-out;
   background: rgb(0, 0, 0);
   color: #fff;
@@ -680,6 +680,29 @@ body {
   color: rgb(0, 180, 50);
   transform: var(--btns-hover-scale);
   transition: all 0.3s ease-in-out;
+}
+
+#searchPeerBarName{
+  width: 94%;
+  padding: 10px;
+  font-size: 1rem;
+  background-color: transparent;
+  color: #ffffff;
+  border: grey 1px solid;
+}
+
+.msger-peer-inputarea {
+  display: flex;
+  padding: 10px;
+  background: var(--msger-bg);
+}
+
+.msger-peer-inputarea * {
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  font-size: 1em;
+  color: white;
 }
 
 /*--------------------------------------------------------------
