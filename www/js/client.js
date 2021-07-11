@@ -25,14 +25,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 "use strict"; // https://www.w3schools.com/js/js_strict.asp
 
-const welcomeImg = "../images/illustration-section-01.svg";
-const shareUrlImg = "../images/illustration-section-01.svg";
-const leaveRoomImg = "../images/illustration-section-01.svg";
-const confirmImg = "../images/illustration-section-01.svg";
-const fileSharingImg = "../images/illustration-section-01.svg";
+const welcomeImg = "../images/image-placeholder.svg";
+const shareUrlImg = "../images/image-placeholder.svg";
+const leaveRoomImg = "../images/leave-room.png";
+const confirmImg = "../images/image-placeholder.svg";
+const fileSharingImg = "../images/image-placeholder.svg";
 const camOffImg = "../images/cam-off.png";
 const audioOffImg = "../images/audio-off.png";
-const kickedOutImg = "../images/kicked-out.png";
+const kickedOutImg = "../images/leave-room.png";
 const aboutImg = "../images/about.png";
 const peerLoockupUrl = "https://extreme-ip-lookup.com/json/";
 const avatarApiUrl = "https://eu.ui-avatars.com/api";
