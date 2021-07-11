@@ -929,14 +929,16 @@ video:fullscreen {
 
 #myPeerNameSetBtn,
 #muteEveryoneBtn,
-#hideEveryoneBtn {
+#hideEveryoneBtn,
+#lockUnlockRoomBtn {
   padding: 5px;
   border-radius: 5px;
   color: white;
   background-color: transparent;
 }
 
-#myPeerNameSetBtn:hover {
+#myPeerNameSetBtn:hover,
+#lockUnlockRoomBtn:hover {
   color: rgb(0, 180, 50);
   transform: var(--btns-hover-scale);
   transition: all 0.3s ease-in-out;

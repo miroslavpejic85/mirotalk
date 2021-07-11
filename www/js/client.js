@@ -30,6 +30,7 @@ const shareUrlImg = "../images/image-placeholder.svg";
 const leaveRoomImg = "../images/leave-room.png";
 const confirmImg = "../images/image-placeholder.svg";
 const fileSharingImg = "../images/image-placeholder.svg";
+const roomLockedImg = "../images/locked.png";
 const camOffImg = "../images/cam-off.png";
 const audioOffImg = "../images/audio-off.png";
 const kickedOutImg = "../images/leave-room.png";
@@ -77,6 +78,7 @@ let myPeerName;
 let useAudio = true;
 let useVideo = true;
 let camera = "user";
+let roomLocked = false;
 let myVideoChange = false;
 let myHandStatus = false;
 let myVideoStatus = true;
@@ -206,6 +208,7 @@ let drawsize = 3;
 // room actions btns
 let muteEveryoneBtn;
 let hideEveryoneBtn;
+let lockUnlockRoomBtn;
 // file transfer settings
 let fileToSend;
 let fileReader;
@@ -303,6 +306,7 @@ function getHtmlElementsById() {
   // room actions buttons
   muteEveryoneBtn = getId("muteEveryoneBtn");
   hideEveryoneBtn = getId("hideEveryoneBtn");
+  lockUnlockRoomBtn = getId("lockUnlockRoomBtn");
   // file send progress
   sendFileDiv = getId("sendFileDiv");
   sendFileInfo = getId("sendFileInfo");
@@ -553,6 +557,8 @@ function initPeer() {
   signalingSocket = io(signalingServer);
 
   signalingSocket.on("connect", handleConnect);
+  signalingSocket.on("roomIsLocked", roomIsLocked);
+  signalingSocket.on("roomStatus", handleRoomStatus);
   signalingSocket.on("addPeer", handleAddPeer);
   signalingSocket.on("sessionDescription", handleSessionDescription);
   signalingSocket.on("iceCandidate", handleIceCandidate);
@@ -2062,6 +2068,9 @@ function setupMySettings() {
   hideEveryoneBtn.addEventListener("click", (e) => {
     disableAllPeers("video");
   });
+  lockUnlockRoomBtn.addEventListener("click", (e) => {
+    lockUnlockRoom();
+  });
 }
 
 /**
@@ -3152,7 +3161,9 @@ function searchPeer() {
   let msgerPeerInputarea = getEcN("msger-peer-inputarea");
   searchPeerBarName = searchPeerBarName.toLowerCase();
   for (let i = 0; i < msgerPeerInputarea.length; i++) {
-    if (!msgerPeerInputarea[i].innerHTML.toLowerCase().includes(searchPeerBarName)) {
+    if (
+      !msgerPeerInputarea[i].innerHTML.toLowerCase().includes(searchPeerBarName)
+    ) {
       msgerPeerInputarea[i].style.display = "none";
     } else {
       msgerPeerInputarea[i].style.display = "flex";
@@ -3639,6 +3650,76 @@ function disableAllPeers(element) {
           emitPeerAction("hideEveryone");
           break;
       }
+    }
+  });
+}
+
+/**
+ * Lock Unlock the room from unauthorized access
+ */
+function lockUnlockRoom() {
+  lockUnlockRoomBtn.className = roomLocked ? "fas fa-lock-open" : "fas fa-lock";
+
+  if (roomLocked) {
+    roomLocked = false;
+    emitRoomStatus();
+  } else {
+    roomLocked = true;
+    emitRoomStatus();
+  }
+}
+
+/**
+ * Refresh Room Status (Locked/Unlocked)
+ */
+function emitRoomStatus() {
+  let rStatus = roomLocked
+    ? "🔒 LOCKED the room, no one can access!"
+    : "🔓 UNLOCKED the room";
+  userLog("toast", rStatus);
+
+  signalingSocket.emit("roomStatus", {
+    peerConnections: peerConnections,
+    room_id: roomId,
+    room_locked: roomLocked,
+    peer_name: myPeerName,
+  });
+}
+
+/**
+ * Handle Room Status (Lock - Unlock)
+ * @param {*} config
+ */
+function handleRoomStatus(config) {
+  roomLocked = config.room_locked;
+  lockUnlockRoomBtn.className = roomLocked ? "fas fa-lock" : "fas fa-lock-open";
+  userLog("toast", config.peer_name + " set room is locked to " + roomLocked);
+}
+
+/**
+ * Room is Locked can't access...
+ */
+function roomIsLocked() {
+  playSound("kickedOut");
+
+  Swal.fire({
+    allowOutsideClick: false,
+    background: swalBackground,
+    position: "center",
+    imageUrl: roomLockedImg,
+    title: "Oops, Room Locked",
+    text: "The room is locked, try with another one.",
+    showDenyButton: false,
+    confirmButtonText: `Ok`,
+    showClass: {
+      popup: "animate__animated animate__fadeInDown",
+    },
+    hideClass: {
+      popup: "animate__animated animate__fadeOutUp",
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = "/newcall";
     }
   });
 }

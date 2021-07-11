@@ -334,6 +334,13 @@ io.sockets.on("connect", (socket) => {
       peers[channel] = {};
     }
 
+    // room locked by the participants can't join
+    if (peers[channel]["Locked"] === true) {
+      logme("[" + socket.id + "] [Warning] Room Is Locked", channel);
+      socket.emit("roomIsLocked");
+      return;
+    }
+
     // collect peers info grp by channels
     peers[channel][socket.id] = {
       peer_name: peer_name,
@@ -379,9 +386,15 @@ io.sockets.on("connect", (socket) => {
     delete channels[channel][socket.id];
     delete peers[channel][socket.id];
 
-    // if not channel aka room in peers remove it
-    if (Object.keys(peers[channel]).length === 0) {
-      delete peers[channel];
+    switch (Object.keys(peers[channel]).length) {
+      case 0:
+        // last peer disconnected from the room without room status set, delete room data
+        delete peers[channel];
+        break;
+      case 1:
+        // last peer disconnected from the room having room status set, delete room data
+        if ("Locked" in peers[channel]) delete peers[channel];
+        break;
     }
 
     for (let id in channels[channel]) {
@@ -428,6 +441,39 @@ io.sockets.on("connect", (socket) => {
         peer_id: socket.id,
         session_description: session_description,
       });
+    }
+  });
+
+  /**
+   * Refresh Room Status (Locked/Unlocked)
+   */
+  socket.on("roomStatus", (config) => {
+    let peerConnections = config.peerConnections;
+    let room_id = config.room_id;
+    let room_locked = config.room_locked;
+    let peer_name = config.peer_name;
+
+    peers[room_id]["Locked"] = room_locked;
+
+    if (Object.keys(peerConnections).length != 0) {
+      logme(
+        "[" +
+          socket.id +
+          "] emit roomStatus" +
+          " to [room_id: " +
+          room_id +
+          " locked: " +
+          room_locked +
+          "]"
+      );
+      for (let peer_id in peerConnections) {
+        if (sockets[peer_id]) {
+          sockets[peer_id].emit("roomStatus", {
+            peer_name: peer_name,
+            room_locked: room_locked,
+          });
+        }
+      }
     }
   });
 
