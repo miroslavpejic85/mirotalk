@@ -147,7 +147,7 @@ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: 
 ```
 ## API Documentation
 
-The API documentation using [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or you can check it out on [railway](https://mirotalk.up.railway.app/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
+The API documentation using [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [railway](https://mirotalk.up.railway.app/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
 
 ---
 
