@@ -1,183 +1,151 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
-  <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-3XM60XK9RQ"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+    <head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3XM60XK9RQ"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
 
-      gtag("config", "G-3XM60XK9RQ");
-    </script>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>MiroTalk ~ Create your Room name and start the new call.</title>
-    <link rel="stylesheet" href="css/landing.css" />
-    <link rel="stylesheet" href="css/newcall.css" />
-    <link rel="shortcut icon" href="images/logo.svg" />
-    <!-- https://ogp.me -->
-    <meta property="og:type" content="app-webrtc" />
-    <meta property="og:site_name" content="MiroTalk" />
-    <meta property="og:title" content="Click the link to make a call." />
-    <meta
-      property="og:description"
-      content="MiroTalk calling provides real-time HD quality and latency simply
-      not available with traditional technology."
-    />
-    <meta property="og:image" content="/images/preview.png" />
-    <meta property="og:url" content="https://mirotalk.herokuapp.com/" />
-  </head>
-  <body class="has-animations">
-    <div class="body-wrap">
-      <header class="site-header reveal-from-top">
-        <div class="container">
-          <div class="site-header-inner">
-            <div class="brand">
-              <h1 class="m-0">
-                <a href="/"
-                  ><img src="images/logo.svg" alt="Neon" width="32" height="32"
-                /></a>
-              </h1>
-            </div>
-          </div>
+            gtag('config', 'G-3XM60XK9RQ');
+        </script>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>MiroTalk ~ Create your Room name and start the new call.</title>
+        <link rel="stylesheet" href="css/landing.css" />
+        <link rel="stylesheet" href="css/newcall.css" />
+        <link rel="shortcut icon" href="images/logo.svg" />
+        <!-- https://ogp.me -->
+        <meta property="og:type" content="app-webrtc" />
+        <meta property="og:site_name" content="MiroTalk" />
+        <meta property="og:title" content="Click the link to make a call." />
+        <meta
+            property="og:description"
+            content="MiroTalk calling provides real-time HD quality and latency simply not available with traditional technology."
+        />
+        <meta property="og:image" content="/images/preview.png" />
+        <meta property="og:url" content="https://mirotalk.herokuapp.com/" />
+    </head>
+    <body class="has-animations">
+        <div class="body-wrap">
+            <header class="site-header reveal-from-top">
+                <div class="container">
+                    <div class="site-header-inner">
+                        <div class="brand">
+                            <h1 class="m-0">
+                                <a href="/"><img src="images/logo.svg" alt="Neon" width="32" height="32" /></a>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="site-content">
+                <section class="hero section illustration-section-01">
+                    <div class="container">
+                        <div class="hero-inner section-inner">
+                            <div class="split-wrap invert-mobile">
+                                <div class="split-item">
+                                    <div class="hero-content split-item-content center-content-mobile">
+                                        <h1 class="mt-0 mb-16 reveal-from-bottom" data-reveal-delay="150">
+                                            Pick name. <br />
+                                            Share URL. <br />
+                                            Start conference.
+                                        </h1>
+                                        <p class="mt-0 mb-32 reveal-from-bottom" data-reveal-delay="300">
+                                            Each room has its own disposable URL. Just pick a room name and share your
+                                            custom URL. It's really that easy.
+                                        </p>
+                                    </div>
+                                    <style>
+                                        @media (min-width: 641px) {
+                                            .hero .split-wrap .split-item {
+                                                min-height: 492px;
+                                            }
+                                        }
+                                    </style>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cta section center-content-mobile reveal-from-bottom">
+                    <div class="container">
+                        <div class="cta-inner section-inner cta-split">
+                            <div class="cta-slogan">
+                                <h3 class="m-0">
+                                    Pick a room name.<br />
+                                    How about this one?
+                                </h3>
+                            </div>
+                            <div class="cta-action">
+                                <div class="mb-24">
+                                    <label class="form-label screen-reader" for="roomName">mirotalk</label>
+                                    <div class="form-group-desktop">
+                                        <input class="form-input" type="text" id="roomName" value="mirotalk" />
+                                        <button
+                                            class="button button-primary pulse"
+                                            onclick="{window.location.href = '/join/' + document.getElementById('roomName').value}"
+                                        >
+                                            Join to room
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="site-footer center-content-mobile">
+                <div class="container">
+                    <div class="site-footer-inner">
+                        <div class="footer-top space-between text-xxs">
+                            <div class="brand">
+                                <a href="/"><img src="images/logo.svg" alt="Neon" width="32" height="32" /></a>
+                            </div>
+                            <div class="footer-social">
+                                <div>
+                                    <a target="_blank" href="https://github.com/miroslavpejic85/mirotalk">
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 16 16"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <title>GitHub</title>
+                                            <path
+                                                d="M7.95 0C3.578 0 0 3.578 0 7.95c0 3.479 2.286 6.46 5.466 7.553.397.1.497-.199.497-.397v-1.392c-2.187.497-2.683-.994-2.683-.994-.398-.894-.895-1.192-.895-1.192-.696-.497.1-.497.1-.497.795.1 1.192.795 1.192.795.696 1.292 1.888.894 2.286.696.1-.497.298-.895.497-1.093-1.79-.2-3.578-.895-3.578-3.976 0-.894.298-1.59.795-2.087-.1-.198-.397-.993.1-2.086 0 0 .695-.2 2.186.795a6.408 6.408 0 0 1 1.987-.299c.696 0 1.392.1 1.988.299 1.49-.994 2.186-.795 2.186-.795.398 1.093.199 1.888.1 2.086.496.597.795 1.292.795 2.087 0 3.081-1.889 3.677-3.677 3.876.298.398.596.895.596 1.59v2.187c0 .198.1.496.596.397C13.714 14.41 16 11.43 16 7.95 15.9 3.578 12.323 0 7.95 0z"
+                                            />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer-bottom space-between text-xxs invert-order-desktop">
+                            <nav class="footer-nav">
+                                <ul class="list-reset">
+                                    <li>
+                                        <a href="/privacy">Privacy Policy</a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
+                                            >Made with ❤️ by Miroslav Pejic</a
+                                        >
+                                    </li>
+                                </ul>
+                            </nav>
+                            <div class="footer-copyright">&copy; 2021 MiroTalk, all rights reserved</div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
-      </header>
-      <main class="site-content">
-        <section class="hero section illustration-section-01">
-          <div class="container">
-            <div class="hero-inner section-inner">
-              <div class="split-wrap invert-mobile">
-                <div class="split-item">
-                  <div
-                    class="hero-content split-item-content center-content-mobile"
-                  >
-                    <h1
-                      class="mt-0 mb-16 reveal-from-bottom"
-                      data-reveal-delay="150"
-                    >
-                      Pick name. <br />
-                      Share URL. <br />
-                      Start conference.
-                    </h1>
-                    <p
-                      class="mt-0 mb-32 reveal-from-bottom"
-                      data-reveal-delay="300"
-                    >
-                      Each room has its own disposable URL. Just pick a room
-                      name and share your custom URL. It's really that easy.
-                    </p>
-                  </div>
-                  <style>
-                    @media (min-width: 641px) {
-                      .hero .split-wrap .split-item {
-                        min-height: 492px;
-                      }
-                    }
-                  </style>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="cta section center-content-mobile reveal-from-bottom">
-          <div class="container">
-            <div class="cta-inner section-inner cta-split">
-              <div class="cta-slogan">
-                <h3 class="m-0">
-                  Pick a room name.<br />
-                  How about this one?
-                </h3>
-              </div>
-              <div class="cta-action">
-                <div class="mb-24">
-                  <label class="form-label screen-reader" for="roomName"
-                    >mirotalk</label
-                  >
-                  <div class="form-group-desktop">
-                    <input
-                      class="form-input"
-                      type="text"
-                      id="roomName"
-                      value="mirotalk"
-                    />
-                    <button
-                      class="button button-primary pulse"
-                      onclick="{window.location.href = '/join/' + document.getElementById('roomName').value}"
-                    >
-                      Join to room
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer center-content-mobile">
-        <div class="container">
-          <div class="site-footer-inner">
-            <div class="footer-top space-between text-xxs">
-              <div class="brand">
-                <a href="/"
-                  ><img src="images/logo.svg" alt="Neon" width="32" height="32"
-                /></a>
-              </div>
-              <div class="footer-social">
-                <div>
-                  <a
-                    target="_blank"
-                    href="https://github.com/miroslavpejic85/mirotalk"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <title>GitHub</title>
-                      <path
-                        d="M7.95 0C3.578 0 0 3.578 0 7.95c0 3.479 2.286 6.46 5.466 7.553.397.1.497-.199.497-.397v-1.392c-2.187.497-2.683-.994-2.683-.994-.398-.894-.895-1.192-.895-1.192-.696-.497.1-.497.1-.497.795.1 1.192.795 1.192.795.696 1.292 1.888.894 2.286.696.1-.497.298-.895.497-1.093-1.79-.2-3.578-.895-3.578-3.976 0-.894.298-1.59.795-2.087-.1-.198-.397-.993.1-2.086 0 0 .695-.2 2.186.795a6.408 6.408 0 0 1 1.987-.299c.696 0 1.392.1 1.988.299 1.49-.994 2.186-.795 2.186-.795.398 1.093.199 1.888.1 2.086.496.597.795 1.292.795 2.087 0 3.081-1.889 3.677-3.677 3.876.298.398.596.895.596 1.59v2.187c0 .198.1.496.596.397C13.714 14.41 16 11.43 16 7.95 15.9 3.578 12.323 0 7.95 0z"
-                      />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div
-              class="footer-bottom space-between text-xxs invert-order-desktop"
-            >
-              <nav class="footer-nav">
-                <ul class="list-reset">
-                  <li>
-                    <a href="/privacy">Privacy Policy</a>
-                  </li>
-                  <li>
-                    <a
-                      target="_blank"
-                      href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
-                      >Made with ❤️ by Miroslav Pejic</a
-                    >
-                  </li>
-                </ul>
-              </nav>
-              <div class="footer-copyright">
-                &copy; 2021 MiroTalk, all rights reserved
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-    <script src="js/landing.js"></script>
-    <script src="js/newroom.js"></script>
-  </body>
+        <script src="js/landing.js"></script>
+        <script src="js/newroom.js"></script>
+    </body>
 </html>

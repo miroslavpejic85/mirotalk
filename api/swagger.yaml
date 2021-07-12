@@ -1,47 +1,47 @@
-swagger: "2.0"
+swagger: '2.0'
 
 info:
-  title: MiroTalk API
-  description: API description for external applications that integrates with MiroTalk.
-  version: 1.0.0
+    title: MiroTalk API
+    description: API description for external applications that integrates with MiroTalk.
+    version: 1.0.0
 
 basePath: /api/v1
 
 schemes:
-  - https
-  - http
+    - https
+    - http
 
 paths:
-  /meeting:
-    post:
-      tags:
-        - "meeting"
-      summary: "Create meeting"
-      description: "Create meeting"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      security:
-        - secretApiKey: []
-      responses:
-        "200":
-          description: "Meeting created"
-          schema:
-            $ref: "#/definitions/MeetingResponse"
-        "403":
-          description: "Unauthorized!"
+    /meeting:
+        post:
+            tags:
+                - 'meeting'
+            summary: 'Create meeting'
+            description: 'Create meeting'
+            consumes:
+                - 'application/json'
+            produces:
+                - 'application/json'
+            security:
+                - secretApiKey: []
+            responses:
+                '200':
+                    description: 'Meeting created'
+                    schema:
+                        $ref: '#/definitions/MeetingResponse'
+                '403':
+                    description: 'Unauthorized!'
 
 securityDefinitions:
-  secretApiKey:
-    type: "apiKey"
-    name: "authorization"
-    in: "header"
-    description: "Format like this: authorization: {API_KEY_SECRET}"
+    secretApiKey:
+        type: 'apiKey'
+        name: 'authorization'
+        in: 'header'
+        description: 'Format like this: authorization: {API_KEY_SECRET}'
 
 definitions:
-  MeetingResponse:
-    type: "object"
-    properties:
-      meeting:
-        type: "string"
+    MeetingResponse:
+        type: 'object'
+        properties:
+            meeting:
+                type: 'string'
