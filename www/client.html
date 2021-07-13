@@ -2,6 +2,7 @@
 <html lang="en">
     <head>
         <!-- Global site tag (gtag.js) - Google Analytics -->
+
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3XM60XK9RQ"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -12,7 +13,14 @@
 
             gtag('config', 'G-3XM60XK9RQ');
         </script>
+
+        <!-- Title and Icon -->
+
         <title>MiroTalk WebRTC Video call, Chat Room & Screen Sharing.</title>
+        <link rel="shortcut icon" href="images/logo.svg" />
+
+        <!-- Meta Information -->
+
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta
             name="viewport"
@@ -26,7 +34,9 @@
             name="keywords"
             content="webrtc, webrtc stun, webrtc turn, video meeting, video chat, multi video chat, peer to peer, p2p, zoom"
         />
+
         <!-- https://ogp.me -->
+
         <meta property="og:type" content="app-webrtc" />
         <meta property="og:site_name" content="MiroTalk" />
         <meta property="og:title" content="Click the link to join this call." />
@@ -34,19 +44,24 @@
         <meta property="og:image" content="/images/mirotalk.png" />
         <meta property="og:url" content="https://mirotalk.herokuapp.com/" />
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png" />
-        <!-- mirotalk css -->
+
+        <!-- StyleSheet -->
+
         <link rel="stylesheet" href="/css/client.css" />
-        <!-- whiteboard css -->
         <link rel="stylesheet" href="/css/whiteboard.css" />
-        <!-- https://animate.style 4 swal fadeIn-Out -->
+
+        <!-- https://animate.style 4 using for swal fadeIn-Out -->
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     </head>
 
     <body onload="initPeer()">
         <!-- just 4SEO Optimization -->
+
         <div id="webRTCSeo"><h1>WebRTC</h1></div>
 
         <!-- show this before to join -->
+
         <div id="loadingDiv">
             <h1 class="pulsate">Loading...</h1>
             <pre>
@@ -56,8 +71,9 @@ access to use this app.
         </div>
 
         <!-- Start left buttons 
-    https://fontawesome.com/icons?d=gallery
-    -->
+        https://fontawesome.com/icons?d=gallery
+        -->
+
         <div id="leftButtons">
             <button id="shareRoomBtn" class="fas fa-users"></button>
             <button id="audioBtn" class="fas fa-microphone"></button>
@@ -74,12 +90,14 @@ access to use this app.
             <button id="aboutBtn" class="fas fa-question"></button>
             <button id="leaveRoomBtn" class="fas fa-phone-slash"></button>
         </div>
+
         <!-- End left buttons -->
 
         <!-- Start chat room 
-    https://codepen.io/sajadhsm/pen/odaBdd
-    https://getemoji.com
-    -->
+        https://codepen.io/sajadhsm/pen/odaBdd
+        https://getemoji.com
+        -->
+
         <section id="msgerDraggable" class="msger-draggable">
             <section id="msger" class="msger">
                 <header id="msgerHeader" class="msger-header">
@@ -94,6 +112,7 @@ access to use this app.
                 </header>
 
                 <!-- public messages example -->
+
                 <main id="msgerChat" class="msger-chat">
                     <div class="msg left-msg">
                         <div
@@ -132,6 +151,7 @@ access to use this app.
                     </div>
 
                     <!-- private message example -->
+
                     <div class="msg left-msg">
                         <div
                             class="msg-img"
@@ -177,6 +197,7 @@ access to use this app.
             </section>
 
             <!-- Start private msg -->
+
             <section id="msgerCP">
                 <section id="msgerCPSec" class="msger">
                     <header id="msgerCPHeader" class="msger-private-header">
@@ -201,11 +222,13 @@ access to use this app.
             </section>
             <!-- End private msg -->
         </section>
+
         <!-- End chat room -->
 
         <!-- Start emoji picker 
-    https://github.com/nolanlawson/emoji-picker-element ] 
-    -->
+        https://github.com/nolanlawson/emoji-picker-element ] 
+        -->
+
         <section id="msgerEmojiPicker">
             <header id="msgerEmojiHeader">
                 <button id="msgerCloseEmojiBtn" class="fas fa-times"></button>
@@ -213,9 +236,11 @@ access to use this app.
             <emoji-picker class="dark"></emoji-picker>
             <!-- <emoji-picker class="light"></emoji-picker> -->
         </section>
+
         <!-- End emoji picker -->
 
         <!-- Start my settings -->
+
         <section id="mySettings">
             <header id="mySettingsHeader">
                 <button id="mySettingsCloseBtn" class="fas fa-times"></button>
@@ -315,9 +340,11 @@ access to use this app.
                 </div>
             </main>
         </section>
+
         <!-- End my settings -->
 
         <!-- Start whiteboard -->
+
         <div class="whiteboard-cont">
             <div class="colors-cont">
                 <button id="whiteboardCloseBtn" class="fas fa-times"></button>
@@ -344,18 +371,22 @@ access to use this app.
             </div>
             <canvas id="whiteboard"></canvas>
         </div>
+
         <!-- End whiteboard -->
 
         <!-- Start File Send -->
+
         <div id="sendFileDiv">
             <div id="sendFileInfo"></div>
             <div id="sendFilePercentage"></div>
             <progress id="sendProgress" max="0" value="0"></progress>
             <button id="sendAbortBtn" class="fas fa-stop-circle">&nbsp;Abort</button>
         </div>
+
         <!-- End File Send -->
 
         <!-- Js scripts -->
+
         <script src="https://kit.fontawesome.com/d2f1016e6f.js" crossorigin="anonymous"></script>
         <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script src="https://cdn.rawgit.com/muaz-khan/DetectRTC/master/DetectRTC.js"></script>
@@ -366,6 +397,7 @@ access to use this app.
         <script src="https://unpkg.com/tippy.js@6"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/js/client.js"></script>
+
         <!-- end of Js scripts -->
 
         <!-- 
