@@ -38,16 +38,6 @@ const aboutImg = '../images/about.png';
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/';
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const notifyBySound = true; // turn on - off sound notifications
-const notifyAddPeer = '../audio/addPeer.mp3';
-const notifyDownload = '../audio/download.mp3';
-const notifyKickedOut = '../audio/kickedOut.mp3';
-const notifyRemovePeer = '../audio/removePeer.mp3';
-const notifyNewMessage = '../audio/newMessage.mp3';
-const notifyChatMessage = '../audio/chatMessage.mp3';
-const notifyRecStart = '../audio/recStart.mp3';
-const notifyRecStop = '../audio/recStop.mp3';
-const notifyRaiseHand = '../audio/raiseHand.mp3';
-const notifyError = '../audio/error.mp3';
 const fileSharingInput = '*'; // allow all file extensions
 // "image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.pcap,.xml,.json,.md,.html,.js,.css,.php,.py,.sh,.zip,.rar,.tar"; // "*"
 
@@ -69,9 +59,6 @@ let recElapsedTime;
 let mirotalkTheme = 'neon'; // neon - dark - forest - ghost ...
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let signalingServerPort = 3000; // must be same of server PORT
-let signalingServer = getServerUrl();
-let roomId = getRoomId();
-let peerInfo = getPeerInfo();
 let peerGeo;
 let peerConnection;
 let myPeerName;
@@ -101,6 +88,10 @@ let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 let chatMessages = []; // collect chat messages to save it later if want
 let iceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
+
+const signalingServer = getServerUrl();
+const roomId = getRoomId();
+const peerInfo = getPeerInfo();
 
 let chatInputEmoji = {
     '<3': '\u2764\uFE0F',
@@ -458,7 +449,7 @@ function setButtonsTitle() {
 /**
  * Get peer info using DetecRTC
  * https://github.com/muaz-khan/DetectRTC
- * @return Json peer info
+ * @return Obj peer info
  */
 function getPeerInfo() {
     return {
@@ -572,10 +563,8 @@ function initPeer() {
 } // end [initPeer]
 
 /**
- * Connected to Signaling Server.
- * Once the user has given us access to their
- * microphone/camcorder, join the channel
- * and start peering up
+ * Connected to Signaling Server. Once the user has given us access to their
+ * microphone/cam, join the channel and start peering up
  */
 function handleConnect() {
     console.log('Connected to signaling server');
@@ -624,13 +613,11 @@ function whoAreYou() {
         welcomeUser();
     });
 
-    // not need for mobile
     if (isMobileDevice) return;
 
-    // init audio-video
     initAudioBtn = getId('initAudioBtn');
     initVideoBtn = getId('initVideoBtn');
-    // popup text
+
     tippy(initAudioBtn, {
         content: 'Click to audio OFF',
         placement: 'top',
@@ -702,10 +689,8 @@ function welcomeUser() {
 }
 
 /**
- * When we join a group, our signaling server will send out 'addPeer' events to each pair
- * of users in the group (creating a fully-connected graph of users, ie if there are 6 people
- * in the channel you will connect directly to the other 5, so there will be a total of 15
- * connections in the network).
+ * When we join a group, our signaling server will send out 'addPeer' events to each pair of users in the group (creating a fully-connected graph of users,
+ * ie if there are 6 people in the channel you will connect directly to the other 5, so there will be a total of 15 connections in the network).
  *
  * @param {*} config
  */
@@ -771,7 +756,7 @@ function handleOnTrack(peer_id, peers) {
         console.log('ontrack', event);
         ontrackCount++;
         // 2 means audio + video
-        if (ontrackCount === 2) loadRemoteMediaStream(event, peers, peer_id);
+        if (ontrackCount === 2) loadRemoteMediaStream(event.streams[0], peers, peer_id);
     };
 }
 
@@ -820,10 +805,8 @@ function handleRTCDataChannel(peer_id) {
 }
 
 /**
- * Only one side of the peer connection should create the
- * offer, the signaling server picks one to be the offerer.
- * The other user will get a 'sessionDescription' event and will
- * create an offer, then send back an answer 'sessionDescription' to us
+ * Only one side of the peer connection should create the offer, the signaling server picks one to be the offerer.
+ * The other user will get a 'sessionDescription' event and will create an offer, then send back an answer 'sessionDescription' to us
  *
  * @param {*} peer_id
  */
@@ -855,10 +838,8 @@ function handleRtcOffer(peer_id) {
 }
 
 /**
- * Peers exchange session descriptions which contains information
- * about their audio / video settings and that sort of stuff. First
- * the 'offerer' sends a description to the 'answerer' (with type "offer"),
- * then the answerer sends one back (with type "answer").
+ * Peers exchange session descriptions which contains information about their audio / video settings and that sort of stuff. First
+ * the 'offerer' sends a description to the 'answerer' (with type "offer"), then the answerer sends one back (with type "answer").
  *
  * @param {*} config
  */
@@ -925,8 +906,7 @@ function handleIceCandidate(config) {
 }
 
 /**
- * Disconnected from Signaling Server
- * Tear down all of our peer connections
+ * Disconnected from Signaling Server. Tear down all of our peer connections
  * and remove all the media divs when we disconnect from signaling server
  */
 function handleDisconnect() {
@@ -946,13 +926,10 @@ function handleDisconnect() {
 }
 
 /**
- * When a user leaves a channel (or is disconnected from the
- * signaling server) everyone will recieve a 'removePeer' message
- * telling them to trash the media channels they have open for those
- * that peer. If it was this client that left a channel, they'll also
- * receive the removePeers. If this client was disconnected, they
- * wont receive removePeers, but rather the signaling_socket.on('disconnect')
- * code will kick in and tear down all the peer sessions.
+ * When a user leaves a channel (or is disconnected from the signaling server) everyone will recieve a 'removePeer' message
+ * telling them to trash the media channels they have open for those that peer. If it was this client that left a channel,
+ * they'll also receive the removePeers. If this client was disconnected, they wont receive removePeers, but rather the
+ * signaling_socket.on('disconnect') code will kick in and tear down all the peer sessions.
  *
  * @param {*} config
  */
@@ -980,7 +957,7 @@ function handleRemovePeer(config) {
 }
 
 /**
- * Set mirotalk theme neon - dark - forest - sky - ghost
+ * Set mirotalk theme neon | dark | forest | sky | ghost | ...
  * @param {*} theme
  */
 function setTheme(theme) {
@@ -1085,8 +1062,7 @@ function setTheme(theme) {
 }
 
 /**
- * Setup local media stuff
- * Ask user for permission to use the computers microphone and/or camera,
+ * Setup local media stuff. Ask user for permission to use the computers microphone and/or camera,
  * attach it to an <audio> or <video> tag if they give us access.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  *
@@ -1104,7 +1080,7 @@ function setupLocalMedia(callback, errorback) {
 
     console.log('Requesting access to local audio / video inputs');
 
-    // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 4kVideo
+    // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 4kVideo |
     let videoConstraints =
         myBrowserName === 'Firefox' ? getVideoConstraints('useVideo') : getVideoConstraints('default');
 
@@ -1232,32 +1208,26 @@ function loadLocalMedia(stream) {
     localMedia.controls = false;
     document.body.appendChild(videoWrap);
 
-    // log localMediaStream devices
     logStreamSettingsInfo('localMediaStream', localMediaStream);
-
-    // attachMediaStream is a part of the adapter.js library
     attachMediaStream(localMedia, localMediaStream);
     resizeVideos();
-
     getHtmlElementsById();
     setButtonsTitle();
     manageLeftButtons();
     handleBodyOnMouseMove();
     setupMySettings();
     startCountTime();
-
-    // handle video full screen mode
     handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
 }
 
 /**
  * Load Remote Media Stream obj
- * @param {*} event
+ * @param {*} stream
  * @param {*} peers
  * @param {*} peer_id
  */
-function loadRemoteMediaStream(event, peers, peer_id) {
-    remoteMediaStream = event.streams[0];
+function loadRemoteMediaStream(stream, peers, peer_id) {
+    remoteMediaStream = stream;
 
     const videoWrap = document.createElement('div');
 
@@ -1599,14 +1569,12 @@ function setVideoBtn() {
 }
 
 /**
- * Check if can swap or not cam,
- * if yes show the button else hide it
+ * Check if can swap or not the cam, if yes show the button else hide it
  */
 function setSwapCameraBtn() {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
         const videoInput = devices.filter((device) => device.kind === 'videoinput');
         if (videoInput.length > 1 && isMobileDevice) {
-            // swap camera front - rear button click event for mobile
             swapCameraBtn.addEventListener('click', (e) => {
                 swapCamera();
             });
@@ -1617,12 +1585,10 @@ function setSwapCameraBtn() {
 }
 
 /**
- * Check if can share a screen,
- * if yes show button else hide it
+ * Check if i can share the screen, if yes show button else hide it
  */
 function setScreenShareBtn() {
     if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
-        // share screen on - off button click event
         screenShareBtn.addEventListener('click', (e) => {
             toggleScreenSharing();
         });
@@ -1678,7 +1644,7 @@ function setFullScreenBtn() {
  * Chat room buttons click event
  */
 function setChatRoomBtn() {
-    // adapt chat room for mobile
+    // adapt chat room size for mobile
     setChatRoomForMobile();
 
     // open hide chat room
@@ -1820,8 +1786,7 @@ function setMyHandBtn() {
 }
 
 /**
- * Whiteboard
- * https://r8.whiteboardfox.com (good alternative)
+ * Whiteboard : https://r8.whiteboardfox.com (good alternative)
  */
 function setMyWhiteboardBtn() {
     // not supported for mobile
@@ -1867,8 +1832,7 @@ function setMyWhiteboardBtn() {
 }
 
 /**
- * File Transfer button event click
- * https://fromsmash.com for Big Data
+ * File Transfer button event click : https://fromsmash.com for Big Data
  */
 function setMyFileShareBtn() {
     fileShareBtn.addEventListener('click', (e) => {
@@ -2034,7 +1998,6 @@ function getAudioVideoConstraints() {
 }
 
 /**
- * Get video constraints
  * https://webrtc.github.io/samples/src/content/getusermedia/resolution/
  *
  * @returns video constraints
@@ -2083,7 +2046,6 @@ function getVideoConstraints(videoQuality) {
 }
 
 /**
- * Set localMediaStream video max frame rate
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  *
  * @param {*} maxFrameRate
@@ -2102,7 +2064,6 @@ function setLocalMaxFps(maxFrameRate) {
 }
 
 /**
- * Set localMediaStream video quality
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 function setLocalVideoQuality() {
@@ -2120,7 +2081,7 @@ function setLocalVideoQuality() {
 }
 
 /**
- * Change Audio Output
+ * Change Speaker
  */
 function changeAudioDestination() {
     const audioDestination = audioOutputSelect.value;
@@ -2358,13 +2319,11 @@ function makeRoomQR() {
  * Copy Room URL to clipboard
  */
 function copyRoomURL() {
-    // save Room Url to clipboard
     let roomURL = window.location.href;
     let tmpInput = document.createElement('input');
     document.body.appendChild(tmpInput);
     tmpInput.value = roomURL;
     tmpInput.select();
-    // for mobile devices
     tmpInput.setSelectionRange(0, 99999);
     document.execCommand('copy');
     console.log('Copied to clipboard Join Link ', roomURL);
@@ -2384,7 +2343,7 @@ function shareRoomByEmail(message) {
 }
 
 /**
- * Handle Audio ON-OFF
+ * Handle Audio ON - OFF
  * @param {*} e event
  * @param {*} init bool true/false
  */
@@ -2406,7 +2365,7 @@ function handleAudio(e, init) {
 }
 
 /**
- * Handle Video ON-OFF
+ * Handle Video ON - OFF
  * @param {*} e event
  * @param {*} init bool true/false
  */
@@ -2641,9 +2600,10 @@ function refreshMyLocalStream(stream, localAudioTrackChange = false) {
         if (isScreenStreaming) toggleScreenSharing();
     };
 
-    /** when you stop the screen sharing, on default i turn back to the webcam with video stream ON.
-     *  if you want the webcam with video stream OFF, just disable it with the button (click to video OFF),
-     *  before to stop the screen sharing.
+    /**
+     * When you stop the screen sharing, on default i turn back to the webcam with video stream ON.
+     * If you want the webcam with video stream OFF, just disable it with the button (click to video OFF),
+     * before to stop the screen sharing.
      */
     if (myVideoStatus === false) {
         localMediaStream.getVideoTracks()[0].enabled = false;
@@ -2795,8 +2755,7 @@ function downloadRecordedStream() {
 }
 
 /**
- * Disable - enable some elements on Recording
- * I can Record One Media Stream at time
+ * Disable - enable some elements on Recording. I can Record One Media Stream at time
  * @param {*} b boolean true/false
  */
 function disableElements(b) {
@@ -2880,7 +2839,6 @@ function showChatRoomDraggable() {
 
 /**
  * Clean chat messages
- * https://sweetalert2.github.io
  */
 function cleanMessages() {
     Swal.fire({
@@ -3039,8 +2997,7 @@ function msgerAddPeers(peers) {
 }
 
 /**
- * Search peer by name in chat room lists
- * to send private messages
+ * Search peer by name in chat room lists to send the private messages
  */
 function searchPeer() {
     let searchPeerBarName = getId('searchPeerBarName').value;
@@ -3308,7 +3265,7 @@ function setMyHandStatus() {
                 placement: 'right-start',
             });
         }
-        playSound('rHand');
+        playSound('raiseHand');
     }
     myHandStatusIcon.style.display = myHandStatus ? 'inline' : 'none';
     emitPeerStatus('hand', myHandStatus);
@@ -3336,7 +3293,6 @@ function setMyAudioStatus(status) {
 
 /**
  * Set My Video Status Icon and Title
- * https://atomiks.github.io/tippyjs/
  * @param {*} status
  */
 function setMyVideoStatus(status) {
@@ -3386,13 +3342,12 @@ function setPeerHandStatus(peer_id, peer_name, status) {
     peerHandStatus.style.display = status ? 'block' : 'none';
     if (status) {
         userLog('toast', peer_name + ' has raised the hand');
-        playSound('rHand');
+        playSound('raiseHand');
     }
 }
 
 /**
  * Set Participant Audio Status Icon and Title
- * https://atomiks.github.io/tippyjs/
  * @param {*} peer_id
  * @param {*} status
  */
@@ -3406,7 +3361,6 @@ function setPeerAudioStatus(peer_id, status) {
 
 /**
  * Set Participant Video Status Icon and Title
- * https://atomiks.github.io/tippyjs/
  * @param {*} peer_id
  * @param {*} status
  */
@@ -3787,8 +3741,7 @@ function fitToContainer(canvas) {
 }
 
 /**
- * Handle whiteboard on windows resize
- * here i lose drawing, Todo fix it
+ * Handle whiteboard on windows resize, here i lose drawing, Todo fix it
  */
 function reportWindowSize() {
     fitToContainer(canvas);
@@ -4087,8 +4040,7 @@ function handleFileInfo(config) {
 }
 
 /**
- * The file will be saved in the blob
- * You will be asked to confirm if you want to save it on your PC / Mobile device.
+ * The file will be saved in the Blob. You will be asked to confirm if you want to save it on your PC / Mobile device.
  * https://developer.mozilla.org/en-US/docs/Web/API/Blob
  */
 function endDownload() {
@@ -4267,8 +4219,7 @@ function kickedOut(config) {
 }
 
 /**
- * About info
- * https://sweetalert2.github.io
+ * MiroTalk about info
  */
 function getAbout() {
     playSound('newMessage');
@@ -4301,7 +4252,6 @@ function getAbout() {
 
 /**
  * Leave the Room and create a new one
- * https://sweetalert2.github.io
  */
 function leaveRoom() {
     playSound('newMessage');
@@ -4331,6 +4281,7 @@ function leaveRoom() {
 /**
  * Make Obj draggable
  * https://www.w3schools.com/howto/howto_js_draggable.asp
+ *
  * @param {*} elmnt
  * @param {*} dragObj
  */
@@ -4400,8 +4351,7 @@ function bytesToSize(bytes) {
 }
 
 /**
- * Basic user logging
- * https://sweetalert2.github.io
+ * Basic user logging using https://sweetalert2.github.io
  * @param {*} type
  * @param {*} message
  */
@@ -4414,12 +4364,6 @@ function userLog(type, message) {
                 icon: 'error',
                 title: 'Oops...',
                 text: message,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
             });
             playSound('error');
             break;
@@ -4488,58 +4432,19 @@ function userLog(type, message) {
 }
 
 /**
- * Sound notifications
  * https://notificationsounds.com/notification-sounds
- * @param {*} state
+ * @param {*} name
  */
-async function playSound(state) {
+async function playSound(name) {
     if (!notifyBySound) return;
-
-    let file_audio = '';
-    switch (state) {
-        case 'addPeer':
-            file_audio = notifyAddPeer;
-            break;
-        case 'download':
-            file_audio = notifyDownload;
-            break;
-        case 'kickedOut':
-            file_audio = notifyKickedOut;
-            break;
-        case 'removePeer':
-            file_audio = notifyRemovePeer;
-            break;
-        case 'newMessage':
-            file_audio = notifyNewMessage;
-            break;
-        case 'chatMessage':
-            file_audio = notifyChatMessage;
-            break;
-        case 'recStart':
-            file_audio = notifyRecStart;
-            break;
-        case 'recStop':
-            file_audio = notifyRecStop;
-            break;
-        case 'rHand':
-            file_audio = notifyRaiseHand;
-            break;
-        case 'error':
-            file_audio = notifyError;
-            break;
-        // ...
-        default:
-            console.log('no file audio');
-    }
-    if (file_audio != '') {
-        let audioToPlay = new Audio(file_audio);
-        try {
-            await audioToPlay.play();
-        } catch (err) {
-            // console.error("Cannot play sound", err);
-            // Automatic playback failed. (safari)
-            return;
-        }
+    let file_audio = '../audio/' + name + '.mp3';
+    let audioToPlay = new Audio(file_audio);
+    try {
+        await audioToPlay.play();
+    } catch (err) {
+        // console.error("Cannot play sound", err);
+        // Automatic playback failed. (safari)
+        return;
     }
 }
 
