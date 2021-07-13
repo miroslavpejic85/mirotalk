@@ -30,41 +30,41 @@ Open the app in one of following **supported browser**
 
 ## Features
 
-- Is `100% Free` and `Open Source`
-- No download, plug-in or login required, entirely browser based
-- Unlimited number of conference rooms without call time limitation
-- Desktop and Mobile compatible
-- Optimized Room Url Sharing (share it to your participants, wait them to join)
-- WebCam Streaming (Front - Rear for mobile)
-- Audio Streaming
-- Screen Sharing to present documents, slides, and more...
-- File Sharing, share any files to your participants in the room
-- Select Audio Input - Output && Video source
-- Ability to set video quality up to 4K and adapt the FPS
-- Recording your Screen, Audio and Video
-- Chat with Emoji Picker & Private messages & Save the conversations
-- Simple collaborative whiteboard for the teachers
-- Full Screen Mode on mouse click on the Video element
-- Possibility to Change UI Themes
-- Right click on the Video elements for more options
-- Direct `peer-to-peer` connection ensures lowest latency thanks to `webrtc`
-- Supports [REST API](api/README.md) (Application Programming Interface)
+-   Is `100% Free` and `Open Source`
+-   No download, plug-in or login required, entirely browser based
+-   Unlimited number of conference rooms without call time limitation
+-   Desktop and Mobile compatible
+-   Optimized Room Url Sharing (share it to your participants, wait them to join)
+-   WebCam Streaming (Front - Rear for mobile)
+-   Audio Streaming
+-   Screen Sharing to present documents, slides, and more...
+-   File Sharing, share any files to your participants in the room
+-   Select Audio Input - Output && Video source
+-   Ability to set video quality up to 4K and adapt the FPS
+-   Recording your Screen, Audio and Video
+-   Chat with Emoji Picker & Private messages & Save the conversations
+-   Simple collaborative whiteboard for the teachers
+-   Full Screen Mode on mouse click on the Video element
+-   Possibility to Change UI Themes
+-   Right click on the Video elements for more options
+-   Direct `peer-to-peer` connection ensures lowest latency thanks to `webrtc`
+-   Supports [REST API](api/README.md) (Application Programming Interface)
 
 ## Demo
 
-- `Open` https://mirotalk.herokuapp.com/newcall `or` https://mirotalk.up.railway.app/newcall
-- `Pick` your personal Room name and `Join To Room`
-- `Allow` to use the camera and microphone
-- `Share` the Room URL and `Wait` someone to join for video conference
+-   `Open` https://mirotalk.herokuapp.com/newcall `or` https://mirotalk.up.railway.app/newcall
+-   `Pick` your personal Room name and `Join To Room`
+-   `Allow` to use the camera and microphone
+-   `Share` the Room URL and `Wait` someone to join for video conference
 
 ## Room join
 
-- You can also `join` directly to your `room` by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here `or` https://mirotalk.up.railway.app/join/your-room-name-goes-here
+-   You can also `join` directly to your `room` by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here `or` https://mirotalk.up.railway.app/join/your-room-name-goes-here
 
 ## Quick start
 
-- You will need to have [Node.js](https://nodejs.org/en/blog/release/v12.22.1/) installed, this project has been tested with Node version 12.X
-- Clone this repo
+-   You will need to have [Node.js](https://nodejs.org/en/blog/release/v12.22.1/) installed, this project has been tested with Node version 12.X
+-   Clone this repo
 
 ```bash
 git clone https://github.com/miroslavpejic85/mirotalk.git
@@ -73,7 +73,7 @@ cd mirotalk
 
 ## Setup Turn and Ngrok
 
-- Copy .env.template to .env
+-   Copy .env.template to .env
 
 ```bash
 cp .env.template .env
@@ -83,18 +83,18 @@ cp .env.template .env
 
 Not mandatory but `recommended`.
 
-- Create an account on http://numb.viagenie.ca
-- Get your Account USERNAME and PASSWORD
-- Fill in your credentials in the `.env` file
-- Set `TURN_ENABLED=true`, if you want enable the Turn Server.
+-   Create an account on http://numb.viagenie.ca
+-   Get your Account USERNAME and PASSWORD
+-   Fill in your credentials in the `.env` file
+-   Set `TURN_ENABLED=true`, if you want enable the Turn Server.
 
 `Ngrok`
 
 Not mandatory at all, but useful for tests and debug.
 
-- Get started for free https://ngrok.com/
-- Fill in your authtoken in the `.env` file
-- Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunnel, starting it from your local PC.
+-   Get started for free https://ngrok.com/
+-   Fill in your authtoken in the `.env` file
+-   Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunnel, starting it from your local PC.
 
 ## Install dependencies
 
@@ -108,7 +108,7 @@ npm install
 npm start
 ```
 
-- Open http://localhost:3000 in browser
+-   Open http://localhost:3000 in browser
 
 ---
 
@@ -122,7 +122,7 @@ docker-compose up       # or
 docker-compose up -d    # to run in background
 ```
 
-- Open http://localhost:3000 in browser
+-   Open http://localhost:3000 in browser
 
 To `Update` image after some mirotalk `changes` or `updates`.
 
@@ -177,19 +177,19 @@ You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
 
 Many Thanks to:
 
-- ianramzy (html [template](https://cruip.com/demos/neon/))
-- vasanthv (webrtc)
-- Sajad (chat)
-- i-aryan (whiteboard)
-- fmeringdal (rest api)
+-   ianramzy (html [template](https://cruip.com/demos/neon/))
+-   vasanthv (webrtc)
+-   Sajad (chat)
+-   i-aryan (whiteboard)
+-   fmeringdal (rest api)
 
 From where I took inspiration for this project. ❤️
 
 ## Contributing
 
-- Pull Requests are welcome! :slightly_smiling_face:
-- Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `prettier --write mirotalk/`
-- For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
+-   Pull Requests are welcome! :slightly_smiling_face:
+-   Please run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `npx prettier --write .`
+-   For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/TAeWXJCvBr)
 

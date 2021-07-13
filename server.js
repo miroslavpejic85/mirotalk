@@ -425,7 +425,9 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let session_description = config.session_description;
 
-        logme('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', { type: session_description.type });
+        logme('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
+            type: session_description.type,
+        });
 
         if (peer_id in sockets) {
             sockets[peer_id].emit('sessionDescription', {
