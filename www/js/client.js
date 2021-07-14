@@ -25,6 +25,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 'use strict'; // https://www.w3schools.com/js/js_strict.asp
 
+const signalingServerPort = 3000; // must be the same to server.js PORT
+const signalingServer = getSignalingServer();
+const roomId = getRoomId();
+const peerInfo = getPeerInfo();
+
+const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/';
+const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const welcomeImg = '../images/image-placeholder.svg';
 const shareUrlImg = '../images/image-placeholder.svg';
 const leaveRoomImg = '../images/leave-room.png';
@@ -35,11 +42,8 @@ const camOffImg = '../images/cam-off.png';
 const audioOffImg = '../images/audio-off.png';
 const kickedOutImg = '../images/leave-room.png';
 const aboutImg = '../images/about.png';
-const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/';
-const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const notifyBySound = true; // turn on - off sound notifications
 const fileSharingInput = '*'; // allow all file extensions
-// "image/*,.mp3,.doc,.docs,.txt,.pdf,.xls,.xlsx,.csv,.pcap,.xml,.json,.md,.html,.js,.css,.php,.py,.sh,.zip,.rar,.tar"; // "*"
 
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
@@ -58,7 +62,6 @@ let recStartTime;
 let recElapsedTime;
 let mirotalkTheme = 'neon'; // neon - dark - forest - ghost ...
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
-let signalingServerPort = 3000; // must be same of server PORT
 let peerGeo;
 let peerConnection;
 let myPeerName;
@@ -88,10 +91,6 @@ let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 let chatMessages = []; // collect chat messages to save it later if want
 let iceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
-
-const signalingServer = getServerUrl();
-const roomId = getRoomId();
-const peerInfo = getPeerInfo();
 
 let chatInputEmoji = {
     '<3': '\u2764\uFE0F',
@@ -477,10 +476,10 @@ function getPeerGeoLocation() {
 }
 
 /**
- * Get Signaling server url
- * @return Signaling server Url
+ * Get Signaling server URL
+ * @return Signaling server URL
  */
-function getServerUrl() {
+function getSignalingServer() {
     return (
         'http' +
         (location.hostname == 'localhost' ? '' : 's') +
@@ -526,16 +525,14 @@ function makeId(length) {
  * @return true, false otherwise
  */
 function thereIsPeerConnections() {
-    if (Object.keys(peerConnections).length === 0) {
-        return false;
-    }
+    if (Object.keys(peerConnections).length === 0) return false;
     return true;
 }
 
 /**
  * On body load Get started
  */
-function initPeer() {
+function initClientPeer() {
     setTheme(mirotalkTheme);
 
     if (!isWebRTCSupported) {
@@ -560,7 +557,7 @@ function initPeer() {
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
-} // end [initPeer]
+} // end [initClientPeer]
 
 /**
  * Connected to Signaling Server. Once the user has given us access to their
@@ -583,6 +580,7 @@ function whoAreYou() {
 
     Swal.fire({
         allowOutsideClick: false,
+        allowEscapeKey : false,
         background: swalBackground,
         position: 'center',
         imageAlt: 'mirotalk-name',
@@ -600,9 +598,8 @@ function whoAreYou() {
             popup: 'animate__animated animate__fadeOutUp',
         },
         inputValidator: (value) => {
-            if (!value) {
-                return 'Please enter your name';
-            }
+            if (!value) return 'Please enter your name';
+
             myPeerName = value;
             myVideoParagraph.innerHTML = myPeerName + ' (me)';
             setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
@@ -718,9 +715,8 @@ function handleAddPeer(config) {
     handleAddTracks(peer_id);
     handleRTCDataChannel(peer_id);
 
-    if (config.should_create_offer) {
-        handleRtcOffer(peer_id);
-    }
+    if (config.should_create_offer) handleRtcOffer(peer_id);
+
     playSound('addPeer');
 }
 
@@ -942,9 +938,7 @@ function handleRemovePeer(config) {
         document.body.removeChild(peerMediaElements[peer_id].parentNode);
         resizeVideos();
     }
-    if (peer_id in peerConnections) {
-        peerConnections[peer_id].close();
-    }
+    if (peer_id in peerConnections) peerConnections[peer_id].close();
 
     msgerRemovePeer(peer_id);
 
@@ -1728,20 +1722,7 @@ function setChatRoomBtn() {
     msgerSendBtn.addEventListener('click', (e) => {
         // prevent refresh page
         e.preventDefault();
-
-        if (!thereIsPeerConnections()) {
-            userLog('info', "Can't send message, no peer connection detected");
-            msgerInput.value = '';
-            return;
-        }
-
-        const msg = msgerInput.value;
-        // empity msg
-        if (!msg) return;
-
-        emitMsg(myPeerName, 'toAll', msg, false, '');
-        appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
-        msgerInput.value = '';
+        sendChatMessage();
     });
 }
 
@@ -1832,11 +1813,11 @@ function setMyWhiteboardBtn() {
 }
 
 /**
- * File Transfer button event click : https://fromsmash.com for Big Data
+ * File Transfer button event click
  */
 function setMyFileShareBtn() {
     fileShareBtn.addEventListener('click', (e) => {
-        //window.open("https://fromsmash.com");
+        //window.open("https://fromsmash.com"); // for Big Data
         selectFileToShare();
     });
     sendAbortBtn.addEventListener('click', (e) => {
@@ -2102,9 +2083,8 @@ function attachSinkId(element, sinkId) {
             })
             .catch((err) => {
                 let errorMessage = err;
-                if (err.name === 'SecurityError') {
+                if (err.name === 'SecurityError')
                     errorMessage = `You need to use HTTPS for selecting audio output device: ${err}`;
-                }
                 console.error(errorMessage);
                 // Jump back to first output device in the list as it's the default.
                 audioOutputSelect.selectedIndex = 0;
@@ -2214,9 +2194,7 @@ function attachMediaStream(element, stream) {
  * if mobile and mySettings open do nothing return
  */
 function showLeftButtonsAndMenu() {
-    if (isButtonsVisible || (isMobileDevice && isChatRoomVisible) || (isMobileDevice && isMySettingsVisible)) {
-        return;
-    }
+    if (isButtonsVisible || (isMobileDevice && isChatRoomVisible) || (isMobileDevice && isMySettingsVisible)) return;
     toggleClassElements('statusMenu', 'inline');
     leftButtons.style.display = 'flex';
     isButtonsVisible = true;
@@ -2441,19 +2419,8 @@ function toggleScreenSharing() {
 
     if (!isScreenStreaming) {
         // on screen sharing start
-        if (navigator.getDisplayMedia) {
-            // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
-            screenMediaPromise = navigator.getDisplayMedia(constraints);
-        } else if (navigator.mediaDevices.getDisplayMedia) {
-            screenMediaPromise = navigator.mediaDevices.getDisplayMedia(constraints);
-        } else {
-            // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-            screenMediaPromise = navigator.mediaDevices.getUserMedia({
-                video: {
-                    mediaSource: 'screen',
-                },
-            });
-        }
+        // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
+        screenMediaPromise = navigator.mediaDevices.getDisplayMedia(constraints);
     } else {
         // on screen sharing stop
         screenMediaPromise = navigator.mediaDevices.getUserMedia(getAudioVideoConstraints());
@@ -2605,9 +2572,7 @@ function refreshMyLocalStream(stream, localAudioTrackChange = false) {
      * If you want the webcam with video stream OFF, just disable it with the button (click to video OFF),
      * before to stop the screen sharing.
      */
-    if (myVideoStatus === false) {
-        localMediaStream.getVideoTracks()[0].enabled = false;
-    }
+    if (myVideoStatus === false) localMediaStream.getVideoTracks()[0].enabled = false;
 }
 
 /**
@@ -2712,9 +2677,7 @@ function setRecordButtonUi() {
  */
 function handleDataAvailable(event) {
     console.log('handleDataAvailable', event);
-    if (event.data && event.data.size > 0) {
-        recordedBlobs.push(event.data);
-    }
+    if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
 }
 
 /**
@@ -2888,6 +2851,25 @@ function hideChatRoomAndEmojiPicker() {
 }
 
 /**
+ * Send Chat messages to peers in the room
+ */
+function sendChatMessage() {
+    if (!thereIsPeerConnections()) {
+        userLog('info', "Can't send message, no peer connection detected");
+        msgerInput.value = '';
+        return;
+    }
+
+    const msg = msgerInput.value;
+    // empity msg
+    if (!msg) return;
+
+    emitMsg(myPeerName, 'toAll', msg, false, '');
+    appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
+    msgerInput.value = '';
+}
+
+/**
  * handle Incoming Data Channel Chat Messages
  * @param {*} dataMessages
  */
@@ -3058,9 +3040,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
 function detectUrl(text) {
     let urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, (url) => {
-        if (isImageURL(text)) {
-            return '<p><img src="' + url + '" alt="img" width="200" height="auto"/></p>';
-        }
+        if (isImageURL(text)) return '<p><img src="' + url + '" alt="img" width="200" height="auto"/></p>';
         return '<a id="chat-msg-a" href="' + url + '" target="_blank">' + url + '</a>';
     });
 }
@@ -3215,9 +3195,7 @@ function handlePeerName(config) {
     let peer_id = config.peer_id;
     let peer_name = config.peer_name;
     let videoName = getId(peer_id + '_name');
-    if (videoName) {
-        videoName.innerHTML = peer_name;
-    }
+    if (videoName) videoName.innerHTML = peer_name;
     // change also btn value - name on chat lists....
     let msgerPeerName = getId(peer_id + '_pMsgBtn');
     if (msgerPeerName) {
@@ -3484,6 +3462,7 @@ function lockUnlockRoom() {
     } else {
         roomLocked = true;
         emitRoomStatus();
+        playSound('locked');
     }
 }
 
@@ -3534,9 +3513,7 @@ function roomIsLocked() {
             popup: 'animate__animated animate__fadeOutUp',
         },
     }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '/newcall';
-        }
+        if (result.isConfirmed) window.location.href = '/newcall';
     });
 }
 
@@ -3643,9 +3620,7 @@ function whiteboardResize() {
  * Whiteboard clean
  */
 function whiteboardClean() {
-    if (isWhiteboardVisible) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    if (isWhiteboardVisible) ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 /**
@@ -3778,9 +3753,7 @@ function setupCanvas() {
         }
     });
     window.addEventListener('mouseup', (e) => {
-        if (isDrawing) {
-            isDrawing = 0;
-        }
+        if (isDrawing) isDrawing = 0;
     });
 
     window.onresize = reportWindowSize;
@@ -3923,9 +3896,7 @@ function sendFileData() {
             userLog('success', 'The file ' + fileToSend.name + ' was sent successfully.');
         }
 
-        if (offset < fileToSend.size) {
-            readSlice(offset);
-        }
+        if (offset < fileToSend.size) readSlice(offset);
     });
     const readSlice = (o) => {
         const slice = fileToSend.slice(offset, o + chunkSize);
@@ -3940,9 +3911,7 @@ function sendFileData() {
  */
 function sendFSData(data) {
     for (let peer_id in fileDataChannels) {
-        if (fileDataChannels[peer_id].readyState === 'open') {
-            fileDataChannels[peer_id].send(data);
-        }
+        if (fileDataChannels[peer_id].readyState === 'open') fileDataChannels[peer_id].send(data);
     }
 }
 
@@ -4072,9 +4041,7 @@ function endDownload() {
                     popup: 'animate__animated animate__fadeOutUp',
                 },
             }).then((result) => {
-                if (result.isConfirmed) {
-                    saveFileFromBlob();
-                }
+                if (result.isConfirmed) saveFileFromBlob();
             });
         };
         // blob where is stored downloaded file
@@ -4099,9 +4066,7 @@ function endDownload() {
                 popup: 'animate__animated animate__fadeOutUp',
             },
         }).then((result) => {
-            if (result.isConfirmed) {
-                saveFileFromBlob();
-            }
+            if (result.isConfirmed) saveFileFromBlob();
         });
     }
 
@@ -4272,9 +4237,7 @@ function leaveRoom() {
             popup: 'animate__animated animate__fadeOutUp',
         },
     }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '/newcall';
-        }
+        if (result.isConfirmed) window.location.href = '/newcall';
     });
 }
 

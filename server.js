@@ -43,7 +43,9 @@ const compression = require('compression');
 const express = require('express');
 const path = require('path');
 const app = express();
-app.use(compression()); // Compress all HTTP responses GZip
+
+app.use(compression()); // Compress all HTTP responses using GZip
+
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
@@ -52,22 +54,23 @@ const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = yamlJS.load(__dirname + '/api/swagger.yaml');
-const apiBasePath = '/api/v1';
 
-let API_KEY_SECRET = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
-let PORT = process.env.PORT || 3000; // signalingServerPort
-let localHost = 'http://localhost:' + PORT; // http
-let api_docs = localHost + apiBasePath + '/docs'; // api docs
+const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
+
+const localHost = 'http://localhost:' + port; // http
+const apiBasePath = '/api/v1'; // api endpoint path
+const api_docs = localHost + apiBasePath + '/docs'; // api docs
+const api_key_secret = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
+const ngrokEnabled = process.env.NGROK_ENABLED;
+const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
+const turnEnabled = process.env.TURN_ENABLED;
+const turnUrls = process.env.TURN_URLS;
+const turnUsername = process.env.TURN_USERNAME;
+const turnCredential = process.env.TURN_PASSWORD;
+
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
-
-let ngrokEnabled = process.env.NGROK_ENABLED;
-let ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
-let turnEnabled = process.env.TURN_ENABLED;
-let turnUrls = process.env.TURN_URLS;
-let turnUsername = process.env.TURN_USERNAME;
-let turnCredential = process.env.TURN_PASSWORD;
 
 // Use all static files from the www folder
 app.use(express.static(path.join(__dirname, 'www')));
@@ -146,7 +149,7 @@ app.use(apiBasePath + '/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)
 app.post([apiBasePath + '/meeting'], (req, res) => {
     // check if user was authorized for the api call
     let authorization = req.headers.authorization;
-    if (authorization != API_KEY_SECRET) {
+    if (authorization != api_key_secret) {
         logme('MiroTalk get meeting - Unauthorized', {
             header: req.headers,
             body: req.body,
@@ -203,7 +206,7 @@ function makeId(length) {
  * Check the functionality of STUN/TURN servers:
  * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
-let iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
+const iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
 
 if (turnEnabled == 'true') {
     iceServers.push({
@@ -220,7 +223,7 @@ if (turnEnabled == 'true') {
 async function ngrokStart() {
     try {
         await ngrok.authtoken(ngrokAuthToken);
-        await ngrok.connect(PORT);
+        await ngrok.connect(port);
         let api = ngrok.getApi();
         let data = await api.listTunnels();
         let pu0 = data.tunnels[0].public_url;
@@ -231,7 +234,7 @@ async function ngrokStart() {
             http: localHost,
             https: tunnelHttps,
             api_docs: api_docs,
-            api_key_secret: API_KEY_SECRET,
+            api_key_secret: api_key_secret,
             iceServers: iceServers,
             ngrok: {
                 ngrok_enabled: ngrokEnabled,
@@ -246,7 +249,7 @@ async function ngrokStart() {
 /**
  * Start Local Server with ngrok https tunnel (optional)
  */
-server.listen(PORT, null, () => {
+server.listen(port, null, () => {
     logme(
         `%c
 
@@ -269,7 +272,7 @@ server.listen(PORT, null, () => {
         logme('settings', {
             http: localHost,
             api_docs: api_docs,
-            api_key_secret: API_KEY_SECRET,
+            api_key_secret: api_key_secret,
             iceServers: iceServers,
         });
     }
@@ -320,14 +323,10 @@ io.sockets.on('connect', (socket) => {
             return;
         }
         // no channel aka room in channels init
-        if (!(channel in channels)) {
-            channels[channel] = {};
-        }
+        if (!(channel in channels)) channels[channel] = {};
 
         // no channel aka room in peers init
-        if (!(channel in peers)) {
-            peers[channel] = {};
-        }
+        if (!(channel in peers)) peers[channel] = {};
 
         // room locked by the participants can't join
         if (peers[channel]['Locked'] === true) {
