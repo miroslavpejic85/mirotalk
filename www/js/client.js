@@ -90,7 +90,7 @@ let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 let chatMessages = []; // collect chat messages to save it later if want
-let iceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
+let backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
 
 let chatInputEmoji = {
     '<3': '\u2764\uFE0F',
@@ -580,7 +580,7 @@ function whoAreYou() {
 
     Swal.fire({
         allowOutsideClick: false,
-        allowEscapeKey : false,
+        allowEscapeKey: false,
         background: swalBackground,
         position: 'center',
         imageAlt: 'mirotalk-name',
@@ -632,12 +632,12 @@ function joinToChannel() {
     console.log('join to channel', roomId);
     signalingSocket.emit('join', {
         channel: roomId,
-        peerInfo: peerInfo,
-        peerGeo: peerGeo,
-        peerName: myPeerName,
-        peerVideo: myVideoStatus,
-        peerAudio: myAudioStatus,
-        peerHand: myHandStatus,
+        peer_info: peerInfo,
+        peer_geo: peerGeo,
+        peer_name: myPeerName,
+        peer_video: myVideoStatus,
+        peer_audio: myAudioStatus,
+        peer_hand: myHandStatus,
     });
 }
 
@@ -693,8 +693,11 @@ function welcomeUser() {
  */
 function handleAddPeer(config) {
     // console.log("addPeer", JSON.stringify(config));
+
     let peer_id = config.peer_id;
     let peers = config.peers;
+    let should_create_offer = config.should_create_offer;
+    let iceServers = config.iceServers;
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
@@ -702,7 +705,7 @@ function handleAddPeer(config) {
         return;
     }
 
-    if (config.iceServers) iceServers = config.iceServers;
+    if (!iceServers) iceServers = backupIceServers;
     console.log('iceServers', iceServers[0]);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
@@ -715,7 +718,7 @@ function handleAddPeer(config) {
     handleAddTracks(peer_id);
     handleRTCDataChannel(peer_id);
 
-    if (config.should_create_offer) handleRtcOffer(peer_id);
+    if (should_create_offer) handleRtcOffer(peer_id);
 
     playSound('addPeer');
 }
@@ -733,7 +736,6 @@ function handleOnIceCandidate(peer_id) {
                 ice_candidate: {
                     sdpMLineIndex: event.candidate.sdpMLineIndex,
                     candidate: event.candidate.candidate,
-                    address: event.candidate.address,
                 },
             });
         }
@@ -3296,15 +3298,21 @@ function setMyVideoStatus(status) {
  * @param {*} config
  */
 function handlePeerStatus(config) {
-    switch (config.element) {
+    //
+    let peer_id = config.peer_id;
+    let peer_name = config.peer_name;
+    let element = config.element;
+    let status = config.status;
+
+    switch (element) {
         case 'video':
-            setPeerVideoStatus(config.peer_id, config.status);
+            setPeerVideoStatus(peer_id, status);
             break;
         case 'audio':
-            setPeerAudioStatus(config.peer_id, config.status);
+            setPeerAudioStatus(peer_id, status);
             break;
         case 'hand':
-            setPeerHandStatus(config.peer_id, config.peer_name, config.status);
+            setPeerHandStatus(peer_id, peer_name, status);
             break;
     }
 }
@@ -3486,9 +3494,11 @@ function emitRoomStatus() {
  * @param {*} config
  */
 function handleRoomStatus(config) {
-    roomLocked = config.room_locked;
+    let peer_name = config.peer_name;
+    let room_locked = config.room_locked;
+    roomLocked = room_locked;
     lockUnlockRoomBtn.className = roomLocked ? 'fas fa-lock' : 'fas fa-lock-open';
-    userLog('toast', config.peer_name + ' set room is locked to ' + roomLocked);
+    userLog('toast', peer_name + ' set room is locked to ' + roomLocked);
 }
 
 /**
@@ -3522,25 +3532,29 @@ function roomIsLocked() {
  * @param {*} config
  */
 function handleWhiteboard(config) {
+    //
+    let peer_name = config.peer_name;
+    let act = config.act;
+
     if (isMobileDevice) return;
-    switch (config.act) {
+    switch (act) {
         case 'draw':
             drawRemote(config);
             break;
         case 'clean':
-            userLog('toast', config.peer_name + ' has cleaned the board');
+            userLog('toast', peer_name + ' has cleaned the board');
             whiteboardClean();
             break;
         case 'open':
-            userLog('toast', config.peer_name + ' has opened the board');
+            userLog('toast', peer_name + ' has opened the board');
             whiteboardOpen();
             break;
         case 'close':
-            userLog('toast', config.peer_name + ' has closed the board');
+            userLog('toast', peer_name + ' has closed the board');
             whiteboardClose();
             break;
         case 'resize':
-            userLog('toast', config.peer_name + ' has resized the board');
+            userLog('toast', peer_name + ' has resized the board');
             whiteboardResize();
             break;
     }

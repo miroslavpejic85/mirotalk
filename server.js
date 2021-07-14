@@ -313,10 +313,10 @@ io.sockets.on('connect', (socket) => {
         logme('[' + socket.id + '] --> join ', config);
 
         let channel = config.channel;
-        let peer_name = config.peerName;
-        let peer_video = config.peerVideo;
-        let peer_audio = config.peerAudio;
-        let peer_hand = config.peerHand;
+        let peer_name = config.peer_name;
+        let peer_video = config.peer_video;
+        let peer_audio = config.peer_audio;
+        let peer_hand = config.peer_hand;
 
         if (channel in socket.channels) {
             logme('[' + socket.id + '] [Warning] already joined', channel);
@@ -406,7 +406,7 @@ io.sockets.on('connect', (socket) => {
         let ice_candidate = config.ice_candidate;
 
         // logme('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
-        //     address: config.ice_candidate.address,
+        //     address: config.ice_candidate,
         // });
 
         if (peer_id in sockets) {
