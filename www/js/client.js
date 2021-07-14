@@ -2426,10 +2426,7 @@ function toggleScreenSharing() {
     } else {
         // on screen sharing stop
         screenMediaPromise = navigator.mediaDevices.getUserMedia(getAudioVideoConstraints());
-        // if screen sharing accidentally closed
-        if (isStreamRecording) {
-            stopStreamRecording();
-        }
+        if (isStreamRecording) stopStreamRecording();
     }
     screenMediaPromise
         .then((screenStream) => {
@@ -2466,21 +2463,20 @@ function setScreenSharingStatus(status) {
  * set myVideoStatus true
  */
 function setMyVideoStatusTrue() {
+    if (myVideoStatus) return;
     // Put video status alredy ON
-    if (myVideoStatus === false) {
-        localMediaStream.getVideoTracks()[0].enabled = true;
-        myVideoStatus = true;
-        videoBtn.className = 'fas fa-video';
-        myVideoStatusIcon.className = 'fas fa-video';
-        myVideoAvatarImage.style.display = 'none';
-        emitPeerStatus('video', myVideoStatus);
-        // only for desktop
-        if (!isMobileDevice) {
-            tippy(videoBtn, {
-                content: 'Click to video OFF',
-                placement: 'right-start',
-            });
-        }
+    localMediaStream.getVideoTracks()[0].enabled = true;
+    myVideoStatus = true;
+    videoBtn.className = 'fas fa-video';
+    myVideoStatusIcon.className = 'fas fa-video';
+    myVideoAvatarImage.style.display = 'none';
+    emitPeerStatus('video', myVideoStatus);
+    // only for desktop
+    if (!isMobileDevice) {
+        tippy(videoBtn, {
+            content: 'Click to video OFF',
+            placement: 'right-start',
+        });
     }
 }
 
@@ -2515,23 +2511,23 @@ function toggleFullScreen() {
  * @param {*} localAudioTrackChange true or false(default)
  */
 function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
-    if (thereIsPeerConnections()) {
-        // refresh my video stream
-        for (let peer_id in peerConnections) {
-            // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-            let videoSender = peerConnections[peer_id]
-                .getSenders()
-                .find((s) => (s.track ? s.track.kind === 'video' : false));
-            // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-            videoSender.replaceTrack(stream.getVideoTracks()[0]);
+    if (!thereIsPeerConnections()) return;
 
-            if (localAudioTrackChange) {
-                let audioSender = peerConnections[peer_id]
-                    .getSenders()
-                    .find((s) => (s.track ? s.track.kind === 'audio' : false));
-                // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-                audioSender.replaceTrack(stream.getAudioTracks()[0]);
-            }
+    // refresh my stream to peers
+    for (let peer_id in peerConnections) {
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+        let videoSender = peerConnections[peer_id]
+            .getSenders()
+            .find((s) => (s.track ? s.track.kind === 'video' : false));
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+        videoSender.replaceTrack(stream.getVideoTracks()[0]);
+
+        if (localAudioTrackChange) {
+            let audioSender = peerConnections[peer_id]
+                .getSenders()
+                .find((s) => (s.track ? s.track.kind === 'audio' : false));
+            // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+            audioSender.replaceTrack(stream.getAudioTracks()[0]);
         }
     }
 }
@@ -3706,16 +3702,15 @@ function draw(newx, newy, oldx, oldy) {
  * @param {*} config draw coordinates, color and size
  */
 function drawRemote(config) {
-    // draw on whiteboard
-    if (isWhiteboardVisible) {
-        ctx.strokeStyle = config.color;
-        ctx.lineWidth = config.size;
-        ctx.beginPath();
-        ctx.moveTo(config.prevx, config.prevy);
-        ctx.lineTo(config.newx, config.newy);
-        ctx.stroke();
-        ctx.closePath();
-    }
+    if (!isWhiteboardVisible) return;
+
+    ctx.strokeStyle = config.color;
+    ctx.lineWidth = config.size;
+    ctx.beginPath();
+    ctx.moveTo(config.prevx, config.prevy);
+    ctx.lineTo(config.newx, config.newy);
+    ctx.stroke();
+    ctx.closePath();
 }
 
 /**
@@ -3744,30 +3739,31 @@ function setupCanvas() {
     canvas.addEventListener('mousedown', (e) => {
         x = e.offsetX;
         y = e.offsetY;
-        isDrawing = 1;
+        isDrawing = true;
     });
     canvas.addEventListener('mousemove', (e) => {
-        if (isDrawing) {
-            draw(e.offsetX, e.offsetY, x, y);
-            // send draw to other peers in the room
-            if (thereIsPeerConnections()) {
-                signalingSocket.emit('wb', {
-                    peerConnections: peerConnections,
-                    act: 'draw',
-                    newx: e.offsetX,
-                    newy: e.offsetY,
-                    prevx: x,
-                    prevy: y,
-                    color: color,
-                    size: drawsize,
-                });
-            }
-            x = e.offsetX;
-            y = e.offsetY;
+        if (!isDrawing) return;
+
+        draw(e.offsetX, e.offsetY, x, y);
+        // send draw to other peers in the room
+        if (thereIsPeerConnections()) {
+            signalingSocket.emit('wb', {
+                peerConnections: peerConnections,
+                peer_name: myPeerName,
+                act: 'draw',
+                newx: e.offsetX,
+                newy: e.offsetY,
+                prevx: x,
+                prevy: y,
+                color: color,
+                size: drawsize,
+            });
         }
+        x = e.offsetX;
+        y = e.offsetY;
     });
-    window.addEventListener('mouseup', (e) => {
-        if (isDrawing) isDrawing = 0;
+    canvas.addEventListener('mouseup', (e) => {
+        if (isDrawing) isDrawing = false;
     });
 
     window.onresize = reportWindowSize;
