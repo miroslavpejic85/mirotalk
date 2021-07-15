@@ -790,7 +790,7 @@ function handleRTCDataChannel(peer_id) {
                         dataMessage = JSON.parse(msg.data);
                         handleDataChannelChat(dataMessage);
                     } catch (err) {
-                        console.log(err);
+                        console.error('handleDataChannelChat', err);
                     }
                     break;
                 case 'mirotalk_file_sharing_channel':
@@ -2867,11 +2867,17 @@ function sendChatMessage() {
         return;
     }
 
-    const msg = msgerInput.value;
-    // empity msg or chat data ch. not opened
-    if (!msg || !chatDataChannelOpen) return;
+    // channel closed O.o
+    if (!chatDataChannelOpen) {
+        userLog('error', 'Unable to Send messages, Data Channel seems closed');
+        return;
+    }
 
-    emitMsg(myPeerName, 'toAll', msg, false, '');
+    const msg = msgerInput.value;
+    // empity msg or
+    if (!msg) return;
+
+    emitMsg(myPeerName, 'toAll', msg, false);
     appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
     msgerInput.value = '';
 }
@@ -3031,7 +3037,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
         if (!pMsg) return;
         let toPeerName = msgerPrivateBtn.value;
         // userLog("info", toPeerName + ":" + peer_id);
-        emitMsg(myPeerName, toPeerName, pMsg, true, peer_id);
+        emitMsg(myPeerName, toPeerName, pMsg, true);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<br/><hr>Private message to ' + toPeerName, true);
         msgerPrivateMsgInput.value = '';
         msgerCP.style.display = 'none';
@@ -3077,21 +3083,23 @@ function getFormatDate(date) {
  * @param {*} toName
  * @param {*} msg
  * @param {*} privateMsg private message true/false
- * @param {*} peer_id to sent private message
  */
-function emitMsg(name, toName, msg, privateMsg, peer_id) {
+function emitMsg(name, toName, msg, privateMsg) {
     if (!msg) return;
 
-    const chatMessage = {
+    let chatMessage = {
         type: 'chat',
         name: name,
         toName: toName,
         msg: msg,
         privateMsg: privateMsg,
     };
-    // peer to peer over DataChannels
-    Object.keys(chatDataChannels).map((peerId) => chatDataChannels[peerId].send(JSON.stringify(chatMessage)));
     console.log('Send msg', chatMessage);
+
+    // peer to peer over DataChannels
+    for (let peer_id in chatDataChannels) {
+        chatDataChannels[peer_id].send(JSON.stringify(chatMessage));
+    }
 }
 
 /**
@@ -3932,9 +3940,9 @@ function sendFileData() {
  * Send Data if channel open
  * @param {*} data fileReader e.target.result
  */
-function sendFSData(data) {
+async function sendFSData(data) {
     for (let peer_id in fileDataChannels) {
-        if (fileDataChannels[peer_id].readyState === 'open') fileDataChannels[peer_id].send(data);
+        if (fileDataChannels[peer_id].readyState === 'open') await fileDataChannels[peer_id].send(data);
     }
 }
 
@@ -3987,7 +3995,7 @@ function selectFileToShare() {
                 }
                 // something wrong channel not open
                 if (!fsDataChannelOpen) {
-                    userLog('error', 'Unable to Sharing the file, DataChannel seems closed.');
+                    userLog('error', 'Unable to Sharing the file, Data Channel seems closed');
                     return;
                 }
                 // send some metadata about our file to peers in the room
