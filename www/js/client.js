@@ -212,7 +212,8 @@ let sendProgress;
 let sendAbortBtn;
 let sendInProgress = false;
 let fsDataChannelOpen = false;
-const chunkSize = 16 * 1024; //16kb
+// MTU 1kb to prevent drop.
+const chunkSize = 1024;
 
 /**
  * Load all Html elements by Id
@@ -3070,18 +3071,18 @@ function getFormatDate(date) {
  * @param {*} peer_id to sent private message
  */
 function emitMsg(name, toName, msg, privateMsg, peer_id) {
-    if (msg) {
-        const chatMessage = {
-            type: 'chat',
-            name: name,
-            toName: toName,
-            msg: msg,
-            privateMsg: privateMsg,
-        };
-        // peer to peer over DataChannels
-        Object.keys(chatDataChannels).map((peerId) => chatDataChannels[peerId].send(JSON.stringify(chatMessage)));
-        console.log('Send msg', chatMessage);
-    }
+    if (!msg) return;
+
+    const chatMessage = {
+        type: 'chat',
+        name: name,
+        toName: toName,
+        msg: msg,
+        privateMsg: privateMsg,
+    };
+    // peer to peer over DataChannels
+    Object.keys(chatDataChannels).map((peerId) => chatDataChannels[peerId].send(JSON.stringify(chatMessage)));
+    console.log('Send msg', chatMessage);
 }
 
 /**
