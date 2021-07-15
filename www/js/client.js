@@ -137,6 +137,7 @@ let msgerChat;
 let msgerEmojiBtn;
 let msgerInput;
 let msgerSendBtn;
+let chatDataChannelOpen = false;
 // chat room connected peers
 let msgerCP;
 let msgerCPHeader;
@@ -1818,6 +1819,9 @@ function setMyWhiteboardBtn() {
  * File Transfer button event click
  */
 function setMyFileShareBtn() {
+    // make send file div draggable
+    dragElement(getId('sendFileDiv'), getId('imgShare'));
+
     fileShareBtn.addEventListener('click', (e) => {
         //window.open("https://fromsmash.com"); // for Big Data
         selectFileToShare();
@@ -2748,6 +2752,11 @@ function createChatDataChannel(peer_id) {
  */
 function onChatChannelStateChange(event) {
     console.log('onChatChannelStateChange', event.type);
+    if (event.type === 'close') {
+        chatDataChannelOpen = false;
+        return;
+    }
+    chatDataChannelOpen = true;
 }
 
 /**
@@ -2859,8 +2868,8 @@ function sendChatMessage() {
     }
 
     const msg = msgerInput.value;
-    // empity msg
-    if (!msg) return;
+    // empity msg or chat data ch. not opened
+    if (!msg || !chatDataChannelOpen) return;
 
     emitMsg(myPeerName, 'toAll', msg, false, '');
     appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
@@ -3936,6 +3945,7 @@ function abortFileTransfer() {
     if (fileReader && fileReader.readyState === 1) {
         fileReader.abort();
         sendFileDiv.style.display = 'none';
+        sendInProgress = false;
     }
 }
 

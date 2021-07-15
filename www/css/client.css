@@ -1080,6 +1080,7 @@ video:fullscreen {
 #sendFileDiv {
     z-index: 16;
     display: none;
+    min-width: 320px;
     /* center */
     position: absolute;
     top: 50%;
@@ -1123,6 +1124,10 @@ video:fullscreen {
 progress {
     width: 0;
     min-width: 100%;
+}
+
+#imgShare:hover {
+    cursor: move;
 }
 
 /*--------------------------------------------------------------
