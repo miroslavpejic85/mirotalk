@@ -730,15 +730,14 @@ function handleAddPeer(config) {
  */
 function handleOnIceCandidate(peer_id) {
     peerConnections[peer_id].onicecandidate = (event) => {
-        if (event.candidate) {
-            signalingSocket.emit('relayICE', {
-                peer_id: peer_id,
-                ice_candidate: {
-                    sdpMLineIndex: event.candidate.sdpMLineIndex,
-                    candidate: event.candidate.candidate,
-                },
-            });
-        }
+        if (!event.candidate) return;
+        signalingSocket.emit('relayICE', {
+            peer_id: peer_id,
+            ice_candidate: {
+                sdpMLineIndex: event.candidate.sdpMLineIndex,
+                candidate: event.candidate.candidate,
+            },
+        });
     };
 }
 
@@ -3855,9 +3854,13 @@ function onFsError(event) {
     sendFileDiv.style.display = 'none';
     // Popup what wrong
     if (sendInProgress) {
-        console.error('onFsError', event);
+        console.error('onFsError sendInProgress', event);
         userLog('error', 'File Sharing ' + event.error);
         sendInProgress = false;
+    } else {
+        const errMessage = event.error.message;
+        if (errMessage.includes('closed')) return;
+        console.error('onFsError', event);
     }
 }
 
