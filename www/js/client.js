@@ -138,7 +138,6 @@ let msgerChat;
 let msgerEmojiBtn;
 let msgerInput;
 let msgerSendBtn;
-let chatDataChannelOpen = false;
 // chat room connected peers
 let msgerCP;
 let msgerCPHeader;
@@ -213,7 +212,6 @@ let sendFileInfo;
 let sendProgress;
 let sendAbortBtn;
 let sendInProgress = false;
-let fsDataChannelOpen = false;
 // MTU 1kb to prevent drop.
 const chunkSize = 1024;
 
@@ -547,7 +545,7 @@ function initClientPeer() {
     signalingSocket = io(signalingServer);
 
     signalingSocket.on('connect', handleConnect);
-    signalingSocket.on('roomIsLocked', roomIsLocked);
+    signalingSocket.on('roomIsLocked', handleRoomLocked);
     signalingSocket.on('roomStatus', handleRoomStatus);
     signalingSocket.on('addPeer', handleAddPeer);
     signalingSocket.on('sessionDescription', handleSessionDescription);
@@ -556,8 +554,9 @@ function initClientPeer() {
     signalingSocket.on('peerStatus', handlePeerStatus);
     signalingSocket.on('peerAction', handlePeerAction);
     signalingSocket.on('wb', handleWhiteboard);
-    signalingSocket.on('kickOut', kickedOut);
+    signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('fileInfo', handleFileInfo);
+    signalingSocket.on('fileAbort', handleFileAbort);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
@@ -753,7 +752,7 @@ function handleOnIceCandidate(peer_id) {
 function handleOnTrack(peer_id, peers) {
     let ontrackCount = 0;
     peerConnections[peer_id].ontrack = (event) => {
-        console.log('ontrack', event);
+        console.log('handleOnTrack', event);
         ontrackCount++;
         // 2 means audio + video
         if (ontrackCount === 2) loadRemoteMediaStream(event.streams[0], peers, peer_id);
@@ -782,7 +781,7 @@ function handleAddTracks(peer_id) {
  */
 function handleRTCDataChannels(peer_id) {
     peerConnections[peer_id].ondatachannel = (event) => {
-        console.log('Datachannel event ' + peer_id, event);
+        console.log('handleRTCDataChannels' + peer_id, event);
         event.channel.onmessage = (msg) => {
             switch (event.channel.label) {
                 case 'mirotalk_chat_channel':
@@ -1825,7 +1824,7 @@ function setMyWhiteboardBtn() {
  */
 function setMyFileShareBtn() {
     // make send file div draggable
-    dragElement(getId('sendFileDiv'), getId('imgShare'));
+    if (!isMobileDevice) dragElement(getId('sendFileDiv'), getId('imgShare'));
 
     fileShareBtn.addEventListener('click', (e) => {
         //window.open("https://fromsmash.com"); // for Big Data
@@ -1853,10 +1852,8 @@ function setMySettingsBtn() {
     myPeerNameSetBtn.addEventListener('click', (e) => {
         updateMyPeerName();
     });
-    if (!isMobileDevice) {
-        // make chat room draggable for desktop
-        dragElement(mySettings, mySettingsHeader);
-    }
+    // make chat room draggable for desktop
+    if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
 }
 
 /**
@@ -2746,34 +2743,7 @@ function disableElements(b) {
  */
 function createChatDataChannel(peer_id) {
     chatDataChannels[peer_id] = peerConnections[peer_id].createDataChannel('mirotalk_chat_channel');
-    chatDataChannels[peer_id].addEventListener('open', onChatChannelStateChange);
-    chatDataChannels[peer_id].addEventListener('close', onChatChannelStateChange);
-    chatDataChannels[peer_id].addEventListener('error', onChatError);
-}
-
-/**
- * Handle Chat Room channel state
- * @param {*} event
- */
-function onChatChannelStateChange(event) {
-    console.log('onChatChannelStateChange', event.type);
-    if (event.type === 'close') {
-        chatDataChannelOpen = false;
-        return;
-    }
-    chatDataChannelOpen = true;
-}
-
-/**
- * Something wrong on Chat Data Channel
- * @param {*} event
- */
-function onChatError(event) {
-    const errMessage = event.error.message;
-    // Transport channel closed ignore it...
-    if (errMessage.includes('closed')) return;
-    console.error('onChatError', event);
-    userLog('error', 'Chat data channel error: ' + errMessage);
+    console.log('chatDataChannels created', chatDataChannels);
 }
 
 /**
@@ -2869,12 +2839,6 @@ function sendChatMessage() {
     if (!thereIsPeerConnections()) {
         userLog('info', "Can't send message, no participants in the room");
         msgerInput.value = '';
-        return;
-    }
-
-    // channel closed O.o
-    if (!chatDataChannelOpen) {
-        userLog('error', 'Unable to Send messages, Data Channel seems closed');
         return;
     }
 
@@ -3097,9 +3061,10 @@ function emitMsg(from, to, msg, privateMsg) {
     };
     console.log('Send msg', chatMessage);
 
-    // peer to peer over Data Channels
+    // Send chat msg through RTC Data Channels
     for (let peer_id in chatDataChannels) {
-        chatDataChannels[peer_id].send(JSON.stringify(chatMessage));
+        if (chatDataChannels[peer_id].readyState === 'open')
+            chatDataChannels[peer_id].send(JSON.stringify(chatMessage));
     }
 }
 
@@ -3518,7 +3483,7 @@ function handleRoomStatus(config) {
 /**
  * Room is Locked can't access...
  */
-function roomIsLocked() {
+function handleRoomLocked() {
     playSound('kickedOut');
 
     Swal.fire({
@@ -3820,9 +3785,7 @@ function remoteWbAction(action) {
 function createFileSharingDataChannel(peer_id) {
     fileDataChannels[peer_id] = peerConnections[peer_id].createDataChannel('mirotalk_file_sharing_channel');
     fileDataChannels[peer_id].binaryType = 'arraybuffer';
-    fileDataChannels[peer_id].addEventListener('open', onFSChannelStateChange);
-    fileDataChannels[peer_id].addEventListener('close', onFSChannelStateChange);
-    fileDataChannels[peer_id].addEventListener('error', onFsError);
+    console.log('fileDataChannels created', fileDataChannels);
 }
 
 /**
@@ -3840,46 +3803,6 @@ function handleDataChannelFileSharing(data) {
         incomingFileData = receiveBuffer;
         receiveBuffer = [];
         endDownload();
-    }
-}
-
-/**
- * Handle File Sharing data channel state
- * @param {*} event
- */
-function onFSChannelStateChange(event) {
-    console.log('onFSChannelStateChange', event.type);
-    if (event.type === 'close') {
-        if (sendInProgress) {
-            userLog('error', 'File Sharing channel closed');
-            sendFileDiv.style.display = 'none';
-            sendInProgress = false;
-        }
-        fsDataChannelOpen = false;
-        return;
-    }
-    fsDataChannelOpen = true;
-}
-
-/**
- * Handle File sharing data channel error
- * @param {*} event
- */
-function onFsError(event) {
-    // cleanup
-    receiveBuffer = [];
-    incomingFileData = [];
-    receivedSize = 0;
-    sendFileDiv.style.display = 'none';
-    // Popup what wrong
-    if (sendInProgress) {
-        console.error('onFsError sendInProgress', event);
-        userLog('error', 'File Sharing ' + event.error);
-        sendInProgress = false;
-    } else {
-        const errMessage = event.error.message;
-        if (errMessage.includes('closed')) return;
-        console.error('onFsError', event);
     }
 }
 
@@ -3912,7 +3835,7 @@ function sendFileData() {
     fileReader.addEventListener('error', (err) => console.error('fileReader error', err));
     fileReader.addEventListener('abort', (e) => console.log('fileReader aborted', e));
     fileReader.addEventListener('load', (e) => {
-        if (!sendInProgress || !fsDataChannelOpen) return;
+        if (!sendInProgress) return;
 
         // peer to peer over DataChannels
         sendFSData(e.target.result);
@@ -3938,12 +3861,12 @@ function sendFileData() {
 }
 
 /**
- * Send Data if channel open
+ * Send File through RTC Data Channels
  * @param {*} data fileReader e.target.result
  */
-async function sendFSData(data) {
+function sendFSData(data) {
     for (let peer_id in fileDataChannels) {
-        if (fileDataChannels[peer_id].readyState === 'open') await fileDataChannels[peer_id].send(data);
+        if (fileDataChannels[peer_id].readyState === 'open') fileDataChannels[peer_id].send(data);
     }
 }
 
@@ -3955,7 +3878,23 @@ function abortFileTransfer() {
         fileReader.abort();
         sendFileDiv.style.display = 'none';
         sendInProgress = false;
+        signalingSocket.emit('fileAbort', {
+            peerConnections: peerConnections,
+            peer_name: myPeerName,
+            room_id: roomId,
+        });
     }
+}
+
+/**
+ * File Transfer aborted by peer
+ */
+function handleFileAbort() {
+    receiveBuffer = [];
+    incomingFileData = [];
+    receivedSize = 0;
+    console.log('File transfer aborted');
+    userLog('toast', '⚠️ File transfer aborted');
 }
 
 /**
@@ -3992,11 +3931,6 @@ function selectFileToShare() {
                 // no peers in the room
                 if (!thereIsPeerConnections()) {
                     userLog('info', 'No participants detected');
-                    return;
-                }
-                // something wrong channel not open
-                if (!fsDataChannelOpen) {
-                    userLog('error', 'Unable to Sharing the file, Data Channel seems closed');
                     return;
                 }
                 // send some metadata about our file to peers in the room
@@ -4170,7 +4104,7 @@ function kickOut(peer_id, peerKickOutBtn) {
  * You will be kicked out from the room and popup the peer name that performed this action
  * @param {*} config
  */
-function kickedOut(config) {
+function handleKickedOut(config) {
     let peer_name = config.peer_name;
 
     playSound('kickedOut');

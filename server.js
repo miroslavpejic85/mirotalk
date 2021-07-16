@@ -632,6 +632,23 @@ io.sockets.on('connect', (socket) => {
     });
 
     /**
+     * Abort file sharing
+     */
+    socket.on('fileAbort', (config) => {
+        let peerConnections = config.peerConnections;
+        let room_id = config.room_id;
+        let peer_name = config.peer_name;
+        if (Object.keys(peerConnections).length != 0) {
+            logme('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
+            for (let peer_id in peerConnections) {
+                if (sockets[peer_id]) {
+                    sockets[peer_id].emit('fileAbort');
+                }
+            }
+        }
+    });
+
+    /**
      * Whiteboard actions for all user in the same room
      */
     socket.on('wb', (config) => {
