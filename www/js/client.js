@@ -29,7 +29,6 @@ const signalingServerPort = 3000; // must be the same to server.js PORT
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerInfo = getPeerInfo();
-
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/';
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const welcomeImg = '../images/image-placeholder.svg';
@@ -37,9 +36,11 @@ const shareUrlImg = '../images/image-placeholder.svg';
 const leaveRoomImg = '../images/leave-room.png';
 const confirmImg = '../images/image-placeholder.svg';
 const fileSharingImg = '../images/image-placeholder.svg';
+// nice free icon: https://www.iconfinder.com
 const roomLockedImg = '../images/locked.png';
 const camOffImg = '../images/cam-off.png';
 const audioOffImg = '../images/audio-off.png';
+const deleteImg = '../images/delete.png';
 const kickedOutImg = '../images/leave-room.png';
 const aboutImg = '../images/about.png';
 const notifyBySound = true; // turn on - off sound notifications
@@ -718,7 +719,7 @@ function handleAddPeer(config) {
     handleOnIceCandidate(peer_id);
     handleOnTrack(peer_id, peers);
     handleAddTracks(peer_id);
-    handleRTCDataChannel(peer_id);
+    handleRTCDataChannels(peer_id);
 
     if (should_create_offer) handleRtcOffer(peer_id);
 
@@ -779,22 +780,26 @@ function handleAddTracks(peer_id) {
  *
  * @param {*} peer_id
  */
-function handleRTCDataChannel(peer_id) {
+function handleRTCDataChannels(peer_id) {
     peerConnections[peer_id].ondatachannel = (event) => {
         console.log('Datachannel event ' + peer_id, event);
         event.channel.onmessage = (msg) => {
             switch (event.channel.label) {
                 case 'mirotalk_chat_channel':
-                    let dataMessage = {};
                     try {
-                        dataMessage = JSON.parse(msg.data);
+                        let dataMessage = JSON.parse(msg.data);
                         handleDataChannelChat(dataMessage);
                     } catch (err) {
                         console.error('handleDataChannelChat', err);
                     }
                     break;
                 case 'mirotalk_file_sharing_channel':
-                    handleDataChannelFileSharing(msg.data);
+                    try {
+                        let dataFile = msg.data;
+                        handleDataChannelFileSharing(dataFile);
+                    } catch (err) {
+                        console.error('handleDataChannelFS', err);
+                    }
                     break;
             }
         };
@@ -2815,7 +2820,7 @@ function cleanMessages() {
         background: swalBackground,
         position: 'center',
         title: 'Clean up chat Messages?',
-        icon: 'warning',
+        imageUrl: deleteImg,
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
@@ -2834,7 +2839,7 @@ function cleanMessages() {
                 msgs = msgerChat.firstChild;
             }
             // clean object
-            chatMessages = [];
+            chatMenpssages = [];
         }
     });
 }
@@ -2862,7 +2867,7 @@ function hideChatRoomAndEmojiPicker() {
  */
 function sendChatMessage() {
     if (!thereIsPeerConnections()) {
-        userLog('info', "Can't send message, no peer connection detected");
+        userLog('info', "Can't send message, no participants in the room");
         msgerInput.value = '';
         return;
     }
@@ -2884,28 +2889,28 @@ function sendChatMessage() {
 
 /**
  * handle Incoming Data Channel Chat Messages
- * @param {*} dataMessages
+ * @param {*} dataMessage
  */
-function handleDataChannelChat(dataMessages) {
-    switch (dataMessages.type) {
-        case 'chat':
-            // private message but not for me return
-            if (dataMessages.privateMsg && dataMessages.toName != myPeerName) return;
-            // log incoming dataMessages json
-            console.log('handleDataChannelChat', dataMessages);
-            // chat message for me also
-            if (!isChatRoomVisible) {
-                showChatRoomDraggable();
-                chatRoomBtn.className = 'fas fa-comment-slash';
-            }
-            playSound('chatMessage');
-            setPeerChatAvatarImgName('left', dataMessages.name);
-            appendMessage(dataMessages.name, leftChatAvatar, 'left', dataMessages.msg, dataMessages.privateMsg);
-            break;
-        // .........
-        default:
-            break;
+function handleDataChannelChat(dataMessage) {
+    if (!dataMessage) return;
+
+    let msgFrom = dataMessage.from;
+    let msgTo = dataMessage.to;
+    let msg = dataMessage.msg;
+    let msgPrivate = dataMessage.privateMsg;
+
+    // private message but not for me return
+    if (msgPrivate && msgTo != myPeerName) return;
+
+    console.log('handleDataChannelChat', dataMessage);
+    // chat message for me also
+    if (!isChatRoomVisible) {
+        showChatRoomDraggable();
+        chatRoomBtn.className = 'fas fa-comment-slash';
     }
+    playSound('chatMessage');
+    setPeerChatAvatarImgName('left', msgFrom);
+    appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate);
 }
 
 /**
@@ -2918,36 +2923,36 @@ function escapeSpecialChars(regex) {
 
 /**
  * Append Message to msger chat room
- * @param {*} name
+ * @param {*} from
  * @param {*} img
  * @param {*} side
- * @param {*} text
+ * @param {*} msg
  * @param {*} privateMsg
  */
-function appendMessage(name, img, side, text, privateMsg) {
+function appendMessage(from, img, side, msg, privateMsg) {
     let time = getFormatDate(new Date());
     // collect chat msges to save it later
     chatMessages.push({
         time: time,
-        name: name,
-        text: text,
-        private_msg: privateMsg,
+        from: from,
+        msg: msg,
+        privateMsg: privateMsg,
     });
 
     // check if i receive a private message
     let msgBubble = privateMsg ? 'private-msg-bubble' : 'msg-bubble';
 
     // console.log("chatMessages", chatMessages);
-    let ctext = detectUrl(text);
+    let cMsg = detectUrl(msg);
     const msgHTML = `
 	<div class="msg ${side}-msg">
 		<div class="msg-img" style="background-image: url('${img}')"></div>
 		<div class=${msgBubble}>
             <div class="msg-info">
-                <div class="msg-info-name">${name}</div>
+                <div class="msg-info-name">${from}</div>
                 <div class="msg-info-time">${time}</div>
             </div>
-            <div class="msg-text">${ctext}</div>
+            <div class="msg-text">${cMsg}</div>
         </div>
 	</div>
     `;
@@ -2985,7 +2990,7 @@ function msgerAddPeers(peers) {
 
                 let msgerPrivateMsgInput = getId(peer_id + '_pMsgInput');
                 let msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
-                addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id);
+                addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput);
             }
         }
     }
@@ -3027,16 +3032,14 @@ function msgerRemovePeer(peer_id) {
  * Setup msger buttons to send private messages
  * @param {*} msgerPrivateBtn
  * @param {*} msgerPrivateMsgInput
- * @param {*} peer_id
  */
-function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peer_id) {
+function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
     // add button to send private messages
     msgerPrivateBtn.addEventListener('click', (e) => {
         e.preventDefault();
         let pMsg = msgerPrivateMsgInput.value;
         if (!pMsg) return;
         let toPeerName = msgerPrivateBtn.value;
-        // userLog("info", toPeerName + ":" + peer_id);
         emitMsg(myPeerName, toPeerName, pMsg, true);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<br/><hr>Private message to ' + toPeerName, true);
         msgerPrivateMsgInput.value = '';
@@ -3078,25 +3081,23 @@ function getFormatDate(date) {
 
 /**
  * Send message over Secure dataChannels
- * otherwise over signaling server
- * @param {*} name
- * @param {*} toName
+ * @param {*} from
+ * @param {*} to
  * @param {*} msg
- * @param {*} privateMsg private message true/false
+ * @param {*} privateMsg true/false
  */
-function emitMsg(name, toName, msg, privateMsg) {
+function emitMsg(from, to, msg, privateMsg) {
     if (!msg) return;
 
     let chatMessage = {
-        type: 'chat',
-        name: name,
-        toName: toName,
+        from: from,
+        to: to,
         msg: msg,
         privateMsg: privateMsg,
     };
     console.log('Send msg', chatMessage);
 
-    // peer to peer over DataChannels
+    // peer to peer over Data Channels
     for (let peer_id in chatDataChannels) {
         chatDataChannels[peer_id].send(JSON.stringify(chatMessage));
     }
@@ -4181,7 +4182,7 @@ function kickedOut(config) {
         background: swalBackground,
         position: 'center',
         imageUrl: kickedOutImg,
-        title: 'You will be kicked out!',
+        title: 'Kicked out!',
         html:
             `<h2 style="color: red;">` +
             `User ` +
