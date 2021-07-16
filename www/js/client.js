@@ -2595,35 +2595,43 @@ function startRecordingTime() {
 }
 
 /**
+ * Get MediaRecorder MimeTypes
+ * @returns mimeType
+ */
+function getSupportedMimeTypes() {
+    const possibleTypes = [
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm;codecs=h264,opus',
+        'video/mp4;codecs=h264,aac',
+        'video/mp4',
+    ];
+    return possibleTypes.filter((mimeType) => {
+        return MediaRecorder.isTypeSupported(mimeType);
+    });
+}
+
+/**
  * Start Recording
  * https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/record
  */
 function startStreamRecording() {
     recordedBlobs = [];
-    let options = { mimeType: 'video/webm;codecs=vp9,opus' };
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.error(`${options.mimeType} is not supported`);
-        options = { mimeType: 'video/webm;codecs=vp8,opus' };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-            console.error(`${options.mimeType} is not supported`);
-            options = { mimeType: 'video/webm' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                console.error(`${options.mimeType} is not supported`);
-                options = { mimeType: '' };
-            }
-        }
-    }
+    let options = getSupportedMimeTypes();
+    console.log('MediaRecorder options supported', options);
+    // select the first available as mimeType
+    options = { mimeType: options[0] };
 
     try {
         // record only my local Media Stream
         mediaRecorder = new MediaRecorder(localMediaStream, options);
+        console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
     } catch (err) {
         console.error('Exception while creating MediaRecorder:', err);
         userLog('error', "Can't start stream recording: " + err);
         return;
     }
 
-    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
     mediaRecorder.onstop = (event) => {
         console.log('MediaRecorder stopped: ', event);
         console.log('MediaRecorder Blobs: ', recordedBlobs);
@@ -2689,8 +2697,9 @@ function handleDataAvailable(event) {
  */
 function downloadRecordedStream() {
     try {
-        const blob = new Blob(recordedBlobs, { type: 'video/webm' });
-        const recFileName = getDataTimeString() + '-REC.webm';
+        const type = recordedBlobs[0].type.includes('mp4') ? 'mp4' : 'webm';
+        const blob = new Blob(recordedBlobs, { type: 'video/' + type });
+        const recFileName = getDataTimeString() + '-REC.' + type;
         const currentDevice = isMobileDevice ? 'MOBILE' : 'PC';
         const blobFileSize = bytesToSize(blob.size);
 
