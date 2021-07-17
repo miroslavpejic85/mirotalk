@@ -2707,18 +2707,7 @@ function downloadRecordedStream() {
             </div>`,
         );
 
-        // save the recorded file to device
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = recFileName;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 100);
+        saveFileFromBlob(blob, recFileName);
     } catch (err) {
         userLog('error', 'Recording save failed: ' + err);
     }
@@ -3968,10 +3957,15 @@ function handleFileInfo(config) {
     receiveBuffer = [];
     receivedSize = 0;
     let fileToReceiveInfo =
-        'incoming file: ' +
+        ' From: ' +
+        incomingFileInfo.peerName +
+        '\n' +
+        ' incoming file: ' +
         incomingFileInfo.fileName +
+        '\n' +
         ' size: ' +
         bytesToSize(incomingFileInfo.fileSize) +
+        '\n' +
         ' type: ' +
         incomingFileInfo.fileType;
     console.log(fileToReceiveInfo);
@@ -3987,6 +3981,8 @@ function endDownload() {
 
     // save received file into Blob
     const blob = new Blob(incomingFileData);
+    const file = incomingFileInfo.fileName;
+
     incomingFileData = [];
 
     // if file is image, show the preview
@@ -4011,7 +4007,7 @@ function endDownload() {
                     popup: 'animate__animated animate__fadeOutUp',
                 },
             }).then((result) => {
-                if (result.isConfirmed) saveFileFromBlob();
+                if (result.isConfirmed) saveFileFromBlob(blob, file);
             });
         };
         // blob where is stored downloaded file
@@ -4036,24 +4032,29 @@ function endDownload() {
                 popup: 'animate__animated animate__fadeOutUp',
             },
         }).then((result) => {
-            if (result.isConfirmed) saveFileFromBlob();
+            if (result.isConfirmed) saveFileFromBlob(blob, file);
         });
     }
+}
 
-    // save to PC / Mobile devices
-    function saveFileFromBlob() {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = incomingFileInfo.fileName;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 100);
-    }
+/**
+ * Save to PC / Mobile devices
+ * https://developer.mozilla.org/en-US/docs/Web/API/Blob
+ * @param {*} blob
+ * @param {*} file
+ */
+function saveFileFromBlob(blob, file) {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = file;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }, 100);
 }
 
 /**
@@ -4133,9 +4134,7 @@ function handleKickedOut(config) {
                 const content = Swal.getHtmlContainer();
                 if (content) {
                     const b = content.querySelector('b');
-                    if (b) {
-                        b.textContent = Swal.getTimerLeft();
-                    }
+                    if (b) b.textContent = Swal.getTimerLeft();
                 }
             }, 100);
         },

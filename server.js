@@ -609,6 +609,8 @@ io.sockets.on('connect', (socket) => {
         let peer_name = config.peer_name;
         let file = config.file;
 
+        file['peerName'] = peer_name;
+
         logme('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
             fileName: file.fileName,
             fileSize: bytesToSize(file.fileSize),
