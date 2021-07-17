@@ -781,7 +781,7 @@ function handleAddTracks(peer_id) {
  */
 function handleRTCDataChannels(peer_id) {
     peerConnections[peer_id].ondatachannel = (event) => {
-        console.log('handleRTCDataChannels' + peer_id, event);
+        console.log('handleRTCDataChannels ' + peer_id, event);
         event.channel.onmessage = (msg) => {
             switch (event.channel.label) {
                 case 'mirotalk_chat_channel':
@@ -2617,25 +2617,48 @@ function getSupportedMimeTypes() {
  */
 function startStreamRecording() {
     recordedBlobs = [];
+
     let options = getSupportedMimeTypes();
     console.log('MediaRecorder options supported', options);
-    // select the first available as mimeType
-    options = { mimeType: options[0] };
+    options = { mimeType: options[0] }; // select the first available as mimeType
 
     try {
         // record only my local Media Stream
         mediaRecorder = new MediaRecorder(localMediaStream, options);
         console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+        mediaRecorder.start();
     } catch (err) {
-        console.error('Exception while creating MediaRecorder:', err);
+        console.error('Exception while creating MediaRecorder: ', err);
         userLog('error', "Can't start stream recording: " + err);
         return;
     }
+
+    mediaRecorder.onstart = (event) => {
+        console.log('MediaRecorder started: ', event);
+        isStreamRecording = true;
+        recordStreamBtn.style.setProperty('background-color', 'red');
+        startRecordingTime();
+        disableElements(true);
+        // only for desktop
+        if (!isMobileDevice) {
+            tippy(recordStreamBtn, {
+                content: 'STOP recording',
+                placement: 'right-start',
+            });
+        }
+    };
+
+    mediaRecorder.ondataavailable = (event) => {
+        console.log('MediaRecorder data: ', event);
+        if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
+    };
 
     mediaRecorder.onstop = (event) => {
         console.log('MediaRecorder stopped: ', event);
         console.log('MediaRecorder Blobs: ', recordedBlobs);
         myVideoParagraph.innerHTML = myPeerName + ' (me)';
+        isStreamRecording = false;
+        setRecordButtonUi();
         disableElements(false);
         downloadRecordedStream();
         // only for desktop
@@ -2646,21 +2669,6 @@ function startStreamRecording() {
             });
         }
     };
-
-    mediaRecorder.ondataavailable = handleDataAvailable;
-    mediaRecorder.start();
-    console.log('MediaRecorder started', mediaRecorder);
-    isStreamRecording = true;
-    recordStreamBtn.style.setProperty('background-color', 'red');
-    startRecordingTime();
-    disableElements(true);
-    // only for desktop
-    if (!isMobileDevice) {
-        tippy(recordStreamBtn, {
-            content: 'STOP recording',
-            placement: 'right-start',
-        });
-    }
 }
 
 /**
@@ -2668,28 +2676,14 @@ function startStreamRecording() {
  */
 function stopStreamRecording() {
     mediaRecorder.stop();
-    isStreamRecording = false;
-    setRecordButtonUi();
 }
 
 /**
  * Set Record Button UI on change theme
  */
 function setRecordButtonUi() {
-    if (mirotalkTheme == 'ghost') {
-        recordStreamBtn.style.setProperty('background-color', 'transparent');
-    } else {
-        recordStreamBtn.style.setProperty('background-color', 'white');
-    }
-}
-
-/**
- * recordind stream data
- * @param {*} event
- */
-function handleDataAvailable(event) {
-    console.log('handleDataAvailable', event);
-    if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
+    recordStreamBtn.style.setProperty('background-color', 'white');
+    if (mirotalkTheme == 'ghost') recordStreamBtn.style.setProperty('background-color', 'transparent');
 }
 
 /**
