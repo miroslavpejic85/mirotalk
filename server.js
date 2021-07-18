@@ -290,7 +290,7 @@ server.listen(port, null, () => {
  * On peer connected
  */
 io.sockets.on('connect', (socket) => {
-    logme('[' + socket.id + '] --> connection accepted');
+    logme('[' + socket.id + '] connection accepted');
 
     socket.channels = {};
     sockets[socket.id] = socket;
@@ -302,7 +302,7 @@ io.sockets.on('connect', (socket) => {
         for (let channel in socket.channels) {
             removePeerFrom(channel);
         }
-        logme('[' + socket.id + '] <--> disconnected');
+        logme('[' + socket.id + '] disconnected');
         delete sockets[socket.id];
     });
 
@@ -310,7 +310,7 @@ io.sockets.on('connect', (socket) => {
      * On peer join
      */
     socket.on('join', (config) => {
-        logme('[' + socket.id + '] --> join ', config);
+        logme('[' + socket.id + '] join ', config);
 
         let channel = config.channel;
         let peer_name = config.peer_name;
@@ -404,11 +404,11 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let ice_candidate = config.ice_candidate;
 
-        // logme('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
-        //     address: config.ice_candidate,
-        // });
-
         if (peer_id in sockets) {
+            // logme('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
+            //     address: config.ice_candidate,
+            // });
+
             sockets[peer_id].emit('iceCandidate', {
                 peer_id: socket.id,
                 ice_candidate: ice_candidate,
@@ -423,11 +423,11 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let session_description = config.session_description;
 
-        logme('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
-            type: session_description.type,
-        });
-
         if (peer_id in sockets) {
+            logme('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
+                type: session_description.type,
+            });
+            //
             sockets[peer_id].emit('sessionDescription', {
                 peer_id: socket.id,
                 session_description: session_description,
@@ -448,6 +448,7 @@ io.sockets.on('connect', (socket) => {
 
         if (peer_id in sockets) {
             logme('[' + socket.id + '] emit roomStatus' + ' to [room_id: ' + room_id + ' locked: ' + room_locked + ']');
+            //
             sockets[peer_id].emit('roomStatus', {
                 peer_name: peer_name,
                 room_locked: room_locked,
@@ -465,26 +466,19 @@ io.sockets.on('connect', (socket) => {
         let peer_name_new = config.peer_name_new;
         let peer_id_to_update = null;
 
-        // update peers new name in the specified room
         for (let peer_id in peers[room_id]) {
             if (peers[room_id][peer_id]['peer_name'] == peer_name_old) {
                 peers[room_id][peer_id]['peer_name'] = peer_name_new;
                 peer_id_to_update = peer_id;
-
-                // logme('[' + socket.id + '] change peer name', {
-                //     room_id: room_id,
-                //     peer_id: peer_id,
-                //     peer_name_old: peer_name_old,
-                //     peer_name_new: peer_name_new,
-                // });
             }
         }
-        //
+
         if (peer_id in sockets) {
             logme('[' + socket.id + '] emit peerName to [room_id: ' + room_id + ']', {
                 peer_id: peer_id_to_update,
                 peer_name: peer_name_new,
             });
+            //
             sockets[peer_id].emit('peerName', {
                 peer_id: peer_id_to_update,
                 peer_name: peer_name_new,
@@ -502,7 +496,6 @@ io.sockets.on('connect', (socket) => {
         let element = config.element;
         let status = config.status;
 
-        // update peers video-audio status in the specified room
         for (let peer_id in peers[room_id]) {
             if (peers[room_id][peer_id]['peer_name'] == peer_name) {
                 switch (element) {
@@ -516,16 +509,9 @@ io.sockets.on('connect', (socket) => {
                         peers[room_id][peer_id]['peer_hand'] = status;
                         break;
                 }
-
-                // logme('[' + socket.id + '] change ' + element + ' status', {
-                //     room_id: room_id,
-                //     peer_name: peer_name,
-                //     element: element,
-                //     status: status,
-                // });
             }
         }
-        //
+
         if (peer_id in sockets) {
             logme('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
                 peer_id: socket.id,
@@ -550,7 +536,7 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let peer_name = config.peer_name;
         let peer_action = config.peer_action;
-        //
+
         if (peer_id in sockets) {
             logme('[' + socket.id + '] emit peerAction to [room_id: ' + room_id + ']', {
                 peer_id: socket.id,
@@ -572,9 +558,10 @@ io.sockets.on('connect', (socket) => {
         let room_id = config.room_id;
         let peer_id = config.peer_id;
         let peer_name = config.peer_name;
-        //
+
         if (peer_id in sockets) {
             logme('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
+            //
             sockets[peer_id].emit('kickOut', {
                 peer_name: peer_name,
             });
@@ -590,8 +577,6 @@ io.sockets.on('connect', (socket) => {
         let peer_name = config.peer_name;
         let file = config.file;
 
-        file['peerName'] = peer_name;
-
         function bytesToSize(bytes) {
             let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             if (bytes == 0) return '0 Byte';
@@ -600,7 +585,10 @@ io.sockets.on('connect', (socket) => {
         }
 
         if (peer_id in sockets) {
+            file['peerName'] = peer_name;
+
             logme('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
+                peerName: file.peerName,
                 fileName: file.fileName,
                 fileSize: bytesToSize(file.fileSize),
                 fileType: file.fileType,
@@ -617,8 +605,10 @@ io.sockets.on('connect', (socket) => {
         let room_id = config.room_id;
         let peer_id = config.peer_id;
         let peer_name = config.peer_name;
+
         if (peer_id in sockets) {
             logme('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
+            //
             sockets[peer_id].emit('fileAbort');
         }
     });
