@@ -50,6 +50,8 @@ const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
+let myPeerId;
+
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
@@ -700,6 +702,8 @@ function handleAddPeer(config) {
     let peers = config.peers;
     let should_create_offer = config.should_create_offer;
     let iceServers = config.iceServers;
+
+    myPeerId = peer_id;
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
@@ -3146,8 +3150,8 @@ function updateMyPeerName() {
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
 
     signalingSocket.emit('peerName', {
-        peerConnections: peerConnections,
         room_id: roomId,
+        peer_id: myPeerId,
         peer_name_old: myOldPeerName,
         peer_name_new: myPeerName,
     });
@@ -3186,8 +3190,8 @@ function handlePeerName(config) {
  */
 function emitPeerStatus(element, status) {
     signalingSocket.emit('peerStatus', {
-        peerConnections: peerConnections,
         room_id: roomId,
+        peer_id: myPeerId,
         peer_name: myPeerName,
         element: element,
         status: status,
@@ -3337,8 +3341,8 @@ function setPeerVideoStatus(peer_id, status) {
  */
 function emitPeerAction(peerAction) {
     signalingSocket.emit('peerAction', {
-        peerConnections: peerConnections,
         room_id: roomId,
+        peer_id: myPeerId,
         peer_name: myPeerName,
         peer_action: peerAction,
     });
@@ -3453,8 +3457,8 @@ function emitRoomStatus() {
     userLog('toast', rStatus);
 
     signalingSocket.emit('roomStatus', {
-        peerConnections: peerConnections,
         room_id: roomId,
+        peer_id: myPeerId,
         room_locked: roomLocked,
         peer_name: myPeerName,
     });
@@ -3723,7 +3727,7 @@ function setupCanvas() {
         // send draw to other peers in the room
         if (thereIsPeerConnections()) {
             signalingSocket.emit('wb', {
-                peerConnections: peerConnections,
+                peer_id: myPeerId,
                 peer_name: myPeerName,
                 act: 'draw',
                 newx: e.offsetX,
@@ -3763,7 +3767,7 @@ function saveWbCanvas() {
 function remoteWbAction(action) {
     if (thereIsPeerConnections()) {
         signalingSocket.emit('wb', {
-            peerConnections: peerConnections,
+            peer_id: myPeerId,
             peer_name: myPeerName,
             act: action,
         });
@@ -3871,9 +3875,9 @@ function abortFileTransfer() {
         sendFileDiv.style.display = 'none';
         sendInProgress = false;
         signalingSocket.emit('fileAbort', {
-            peerConnections: peerConnections,
-            peer_name: myPeerName,
             room_id: roomId,
+            peer_id: myPeerId,
+            peer_name: myPeerName,
         });
     }
 }
@@ -3927,9 +3931,9 @@ function selectFileToShare() {
                 }
                 // send some metadata about our file to peers in the room
                 signalingSocket.emit('fileInfo', {
-                    peerConnections: peerConnections,
-                    peer_name: myPeerName,
                     room_id: roomId,
+                    peer_id: myPeerId,
+                    peer_name: myPeerName,
                     file: {
                         fileName: fileToSend.name,
                         fileSize: fileToSend.size,

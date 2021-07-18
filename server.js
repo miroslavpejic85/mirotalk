@@ -370,7 +370,7 @@ io.sockets.on('connect', (socket) => {
      * Remove peers from channel aka room
      * @param {*} channel
      */
-    async function removePeerFrom(channel) {
+    function removePeerFrom(channel) {
         if (!(channel in socket.channels)) {
             logme('[' + socket.id + '] [Warning] not in ', channel);
             return;
@@ -392,12 +392,11 @@ io.sockets.on('connect', (socket) => {
         }
 
         for (let id in channels[channel]) {
-            await channels[channel][id].emit('removePeer', { peer_id: socket.id });
-            await socket.emit('removePeer', { peer_id: id });
+            channels[channel][id].emit('removePeer', { peer_id: socket.id });
+            socket.emit('removePeer', { peer_id: id });
             logme('[' + socket.id + '] emit removePeer [' + id + ']');
         }
     }
-
     /**
      * Relay ICE to peers
      */
@@ -440,23 +439,19 @@ io.sockets.on('connect', (socket) => {
      * Refresh Room Status (Locked/Unlocked)
      */
     socket.on('roomStatus', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
+        let peer_id = config.peer_id;
         let room_locked = config.room_locked;
         let peer_name = config.peer_name;
 
         peers[room_id]['Locked'] = room_locked;
 
-        if (Object.keys(peerConnections).length != 0) {
+        if (peer_id in sockets) {
             logme('[' + socket.id + '] emit roomStatus' + ' to [room_id: ' + room_id + ' locked: ' + room_locked + ']');
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('roomStatus', {
-                        peer_name: peer_name,
-                        room_locked: room_locked,
-                    });
-                }
-            }
+            sockets[peer_id].emit('roomStatus', {
+                peer_name: peer_name,
+                room_locked: room_locked,
+            });
         }
     });
 
@@ -464,8 +459,8 @@ io.sockets.on('connect', (socket) => {
      * Relay NAME to peers
      */
     socket.on('peerName', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
+        let peer_id = config.peer_id;
         let peer_name_old = config.peer_name_old;
         let peer_name_new = config.peer_name_new;
         let peer_id_to_update = null;
@@ -484,21 +479,16 @@ io.sockets.on('connect', (socket) => {
                 // });
             }
         }
-
-        // refresh if found
-        if (peer_id_to_update && Object.keys(peerConnections).length != 0) {
+        //
+        if (peer_id in sockets) {
             logme('[' + socket.id + '] emit peerName to [room_id: ' + room_id + ']', {
                 peer_id: peer_id_to_update,
                 peer_name: peer_name_new,
             });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('peerName', {
-                        peer_id: peer_id_to_update,
-                        peer_name: peer_name_new,
-                    });
-                }
-            }
+            sockets[peer_id].emit('peerName', {
+                peer_id: peer_id_to_update,
+                peer_name: peer_name_new,
+            });
         }
     });
 
@@ -506,8 +496,8 @@ io.sockets.on('connect', (socket) => {
      * Relay Audio Video Hand ... Status to peers
      */
     socket.on('peerStatus', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
+        let peer_id = config.peer_id;
         let peer_name = config.peer_name;
         let element = config.element;
         let status = config.status;
@@ -535,24 +525,20 @@ io.sockets.on('connect', (socket) => {
                 // });
             }
         }
-
-        // socket.id aka peer that send this status
-        if (Object.keys(peerConnections).length != 0) {
+        //
+        if (peer_id in sockets) {
             logme('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
                 peer_id: socket.id,
                 element: element,
                 status: status,
             });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('peerStatus', {
-                        peer_id: socket.id,
-                        peer_name: peer_name,
-                        element: element,
-                        status: status,
-                    });
-                }
-            }
+            //
+            sockets[peer_id].emit('peerStatus', {
+                peer_id: socket.id,
+                peer_name: peer_name,
+                element: element,
+                status: status,
+            });
         }
     });
 
@@ -560,26 +546,22 @@ io.sockets.on('connect', (socket) => {
      * Relay actions to peers in the same room
      */
     socket.on('peerAction', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
+        let peer_id = config.peer_id;
         let peer_name = config.peer_name;
         let peer_action = config.peer_action;
-
-        // socket.id aka peer that send this status
-        if (Object.keys(peerConnections).length != 0) {
+        //
+        if (peer_id in sockets) {
             logme('[' + socket.id + '] emit peerAction to [room_id: ' + room_id + ']', {
                 peer_id: socket.id,
                 peer_name: peer_name,
                 peer_action: peer_action,
             });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('peerAction', {
-                        peer_name: peer_name,
-                        peer_action: peer_action,
-                    });
-                }
-            }
+            //
+            sockets[peer_id].emit('peerAction', {
+                peer_name: peer_name,
+                peer_action: peer_action,
+            });
         }
     });
 
@@ -590,10 +572,9 @@ io.sockets.on('connect', (socket) => {
         let room_id = config.room_id;
         let peer_id = config.peer_id;
         let peer_name = config.peer_name;
-
-        logme('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
-
+        //
         if (peer_id in sockets) {
+            logme('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
             sockets[peer_id].emit('kickOut', {
                 peer_name: peer_name,
             });
@@ -604,18 +585,12 @@ io.sockets.on('connect', (socket) => {
      * Relay File info
      */
     socket.on('fileInfo', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
+        let peer_id = config.peer_id;
         let peer_name = config.peer_name;
         let file = config.file;
 
         file['peerName'] = peer_name;
-
-        logme('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
-            fileName: file.fileName,
-            fileSize: bytesToSize(file.fileSize),
-            fileType: file.fileType,
-        });
 
         function bytesToSize(bytes) {
             let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -624,12 +599,14 @@ io.sockets.on('connect', (socket) => {
             return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
         }
 
-        if (Object.keys(peerConnections).length != 0) {
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('fileInfo', file);
-                }
-            }
+        if (peer_id in sockets) {
+            logme('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
+                fileName: file.fileName,
+                fileSize: bytesToSize(file.fileSize),
+                fileType: file.fileType,
+            });
+            //
+            sockets[peer_id].emit('fileInfo', file);
         }
     });
 
@@ -637,16 +614,12 @@ io.sockets.on('connect', (socket) => {
      * Abort file sharing
      */
     socket.on('fileAbort', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
+        let peer_id = config.peer_id;
         let peer_name = config.peer_name;
-        if (Object.keys(peerConnections).length != 0) {
+        if (peer_id in sockets) {
             logme('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('fileAbort');
-                }
-            }
+            sockets[peer_id].emit('fileAbort');
         }
     });
 
@@ -654,15 +627,10 @@ io.sockets.on('connect', (socket) => {
      * Whiteboard actions for all user in the same room
      */
     socket.on('wb', (config) => {
-        let peerConnections = config.peerConnections;
-        delete config.peerConnections;
-        if (Object.keys(peerConnections).length != 0) {
+        let peer_id = config.peer_id;
+        if (peer_id in sockets) {
             // logme("[" + socket.id + "] whiteboard config", config);
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('wb', config);
-                }
-            }
+            sockets[peer_id].emit('wb', config);
         }
     });
 }); // end [sockets.on-connect]
