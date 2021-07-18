@@ -34,9 +34,9 @@ Open the app in one of following **supported browser**
 -   No download, plug-in or login required, entirely browser based
 -   Unlimited number of conference rooms without call time limitation
 -   Desktop and Mobile compatible
--   Optimized Room Url Sharing (share it to your participants, wait them to join)
--   WebCam Streaming (Front - Rear for mobile)
--   Audio Streaming
+-   Optimized Room URL Sharing (share it to your participants, wait them to join)
+-   Webcam Streaming (Front - Rear for mobile)
+-   Audio Streaming crystal clear
 -   Screen Sharing to present documents, slides, and more...
 -   File Sharing, share any files to your participants in the room
 -   Select Audio Input - Output && Video source
@@ -46,65 +46,39 @@ Open the app in one of following **supported browser**
 -   Simple collaborative whiteboard for the teachers
 -   Full Screen Mode on mouse click on the Video element
 -   Possibility to Change UI Themes
--   Right click on the Video elements for more options
--   Direct `peer-to-peer` connection ensures lowest latency thanks to `webrtc`
+-   Right-click on the Video elements for more options
+-   Direct `peer-to-peer` connection ensures the lowest latency thanks to `WebRTC`
 -   Supports [REST API](api/README.md) (Application Programming Interface)
 
 ## Demo
 
--   `Open` https://mirotalk.herokuapp.com/newcall `or` https://mirotalk.up.railway.app/newcall
+-   `Open` https://mirotalk.up.railway.app/newcall `or` https://mirotalk.herokuapp.com/newcall
 -   `Pick` your personal Room name and `Join To Room`
 -   `Allow` to use the camera and microphone
 -   `Share` the Room URL and `Wait` someone to join for video conference
 
 ## Room join
 
--   You can also `join` directly to your `room` by going to https://mirotalk.herokuapp.com/join/your-room-name-goes-here `or` https://mirotalk.up.railway.app/join/your-room-name-goes-here
+-   You can also `join` directly to your `room` by going to https://mirotalk.up.railway.app/join/your-room-name-goes-here `or` https://mirotalk.herokuapp.com/join/your-room-name-goes-here
 
 ## Quick start
 
--   You will need to have [Node.js](https://nodejs.org/en/blog/release/v12.22.1/) installed, this project has been tested with Node version 12.X
--   Clone this repo
+-   You will need to have [Node.js](https://nodejs.org/en/blog/release/v12.22.1/) installed, this project has been tested with Node version `12.X` and `14.X`
 
 ```bash
+# clone this repo
 git clone https://github.com/miroslavpejic85/mirotalk.git
+
+# mirotalk dir
 cd mirotalk
-```
 
-## Setup Turn and Ngrok
-
--   Copy .env.template to .env
-
-```bash
+# copy .env.template to .env
 cp .env.template .env
-```
 
-`Turn`
-
-Not mandatory but `recommended`.
-
--   Create an account on http://numb.viagenie.ca
--   Get your Account USERNAME and PASSWORD
--   Fill in your credentials in the `.env` file
--   Set `TURN_ENABLED=true`, if you want enable the Turn Server.
-
-`Ngrok`
-
-Not mandatory at all, but useful for tests and debug.
-
--   Get started for free https://ngrok.com/
--   Fill in your authtoken in the `.env` file
--   Set `NGROK_ENABLED=true`, if you want to expose the server using the https tunnel, starting it from your local PC.
-
-## Install dependencies
-
-```js
+# install dependencies
 npm install
-```
 
-## Start the server
-
-```js
+# start the server
 npm start
 ```
 
@@ -117,24 +91,22 @@ npm start
 Install: https://docs.docker.com/compose/install/
 
 ```bash
+# copy .env.template to .env
 cp .env.template .env
-docker-compose up       # or
-docker-compose up -d    # to run in background
+
+# build or rebuild services
+docker-compose build
+
+# create and start containers
+docker-compose up # -d
+
+# stop and remove resources
+docker-compose down
 ```
 
 -   Open http://localhost:3000 in browser
 
-To `Update` image after some mirotalk `changes` or `updates`.
-
-```bash
-docker-compose build
-```
-
-To `Stops` containers and removes containers, networks, volumes, and images created by `up`
-
-```bash
-docker-compose down
-```
+---
 
 ## API
 
@@ -152,8 +124,7 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 
 ---
 
-If you want to use a client on another computer/network, make sure you publish your server on an `HTTPS` connection.
-You can use a service like [ngrok](https://ngrok.com/) or deploy it on:
+If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the `Ngrok` part on `.env` file) or deploy it on:
 
 <br>
 
