@@ -95,13 +95,13 @@ Install: https://docs.docker.com/compose/install/
 cp .env.template .env
 
 # build or rebuild services
-docker-compose build
+docker compose build
 
 # create and start containers
-docker-compose up # -d
+docker compose up # -d
 
 # stop and remove resources
-docker-compose down
+docker compose down
 ```
 
 -   Open http://localhost:3000 in browser
