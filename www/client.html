@@ -192,6 +192,7 @@ access to use this app.
 
                 <div class="msger-inputarea">
                     <input id="msgerInput" class="msger-input" type="text" placeholder="Enter your message..." />
+                    <button id="msgerVideoUrlBtn" class="fab fa-youtube"></button>
                     <button id="msgerEmojiBtn" class="fas fa-smile"></button>
                     <button id="msgerSendBtn" class="fas fa-paper-plane"></button>
                 </div>
@@ -386,6 +387,25 @@ access to use this app.
         </div>
 
         <!-- End File Send -->
+
+        <!-- Start video URL iframe -->
+
+        <div id="videoUrlCont">
+            <div id="videoUrlHeader">
+                <button id="videoUrlCloseBtn" class="fas fa-times"></button>
+            </div>
+            <br />
+            <iframe
+                id="videoUrlIframe"
+                title="Video Url Player"
+                src="https://www.youtube.com/embed/RT6_Id5-7-s"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+            ></iframe>
+        </div>
+
+        <!-- End Youtube Iframe -->
 
         <!-- Js scripts -->
 

@@ -50,8 +50,6 @@ const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
-let myPeerId;
-
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
@@ -84,6 +82,7 @@ let isMySettingsVisible = false;
 let isVideoOnFullScreen = false;
 let isDocumentOnFullScreen = false;
 let isWhiteboardFs = false;
+let isVideoUrlPlayerOpen = false;
 let signalingSocket; // socket.io connection to our webserver
 let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
@@ -216,6 +215,11 @@ let sendAbortBtn;
 let sendInProgress = false;
 // MTU 1kb to prevent drop.
 const chunkSize = 1024;
+// video URL player
+let videoUrlCont;
+let videoUrlHeader;
+let videoUrlCloseBtn;
+let videoUrlIframe;
 
 /**
  * Load all Html elements by Id
@@ -305,6 +309,11 @@ function getHtmlElementsById() {
     sendFileInfo = getId('sendFileInfo');
     sendProgress = getId('sendProgress');
     sendAbortBtn = getId('sendAbortBtn');
+    // video url player
+    videoUrlCont = getId('videoUrlCont');
+    videoUrlHeader = getId('videoUrlHeader');
+    videoUrlCloseBtn = getId('videoUrlCloseBtn');
+    videoUrlIframe = getId('videoUrlIframe');
 }
 
 /**
@@ -446,6 +455,14 @@ function setButtonsTitle() {
         content: 'ABORT file transfer',
         placement: 'right-start',
     });
+
+    // video URL player
+    tippy(videoUrlCloseBtn, {
+        content: 'Close the videoPlayer',
+    });
+    tippy(msgerVideoUrlBtn, {
+        content: 'Share Youtube video',
+    });
 }
 
 /**
@@ -559,6 +576,7 @@ function initClientPeer() {
     signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('fileAbort', handleFileAbort);
+    signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
@@ -702,8 +720,6 @@ function handleAddPeer(config) {
     let peers = config.peers;
     let should_create_offer = config.should_create_offer;
     let iceServers = config.iceServers;
-
-    myPeerId = peer_id;
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
@@ -1221,6 +1237,7 @@ function loadLocalMedia(stream) {
     manageLeftButtons();
     handleBodyOnMouseMove();
     setupMySettings();
+    setupVideoUrlPlayer();
     startCountTime();
     handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
 }
@@ -1712,6 +1729,11 @@ function setChatRoomBtn() {
         showLeftButtonsAndMenu();
     });
 
+    // open Video Url Player
+    msgerVideoUrlBtn.addEventListener('click', (e) => {
+        sendVideoUrl();
+    });
+
     // Execute a function when the user releases a key on the keyboard
     msgerInput.addEventListener('keyup', (e) => {
         // Number 13 is the "Enter" key on the keyboard
@@ -1960,6 +1982,24 @@ function setupMySettings() {
     });
     lockUnlockRoomBtn.addEventListener('click', (e) => {
         lockUnlockRoom();
+    });
+}
+
+/**
+ * Make video Url player draggable
+ */
+function setupVideoUrlPlayer() {
+    if (isMobileDevice) {
+        // adapt video player iframe for mobile
+        document.documentElement.style.setProperty('--iframe-width', '320px');
+        document.documentElement.style.setProperty('--iframe-height', '240px');
+    } else {
+        dragElement(videoUrlCont, videoUrlHeader);
+    }
+    videoUrlCloseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeVideoUrlPlayer();
+        emitVideoPlayer('close');
     });
 }
 
@@ -3150,8 +3190,8 @@ function updateMyPeerName() {
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
 
     signalingSocket.emit('peerName', {
+        peerConnections: peerConnections,
         room_id: roomId,
-        peer_id: myPeerId,
         peer_name_old: myOldPeerName,
         peer_name_new: myPeerName,
     });
@@ -3190,8 +3230,8 @@ function handlePeerName(config) {
  */
 function emitPeerStatus(element, status) {
     signalingSocket.emit('peerStatus', {
+        peerConnections: peerConnections,
         room_id: roomId,
-        peer_id: myPeerId,
         peer_name: myPeerName,
         element: element,
         status: status,
@@ -3341,8 +3381,8 @@ function setPeerVideoStatus(peer_id, status) {
  */
 function emitPeerAction(peerAction) {
     signalingSocket.emit('peerAction', {
+        peerConnections: peerConnections,
         room_id: roomId,
-        peer_id: myPeerId,
         peer_name: myPeerName,
         peer_action: peerAction,
     });
@@ -3457,8 +3497,8 @@ function emitRoomStatus() {
     userLog('toast', rStatus);
 
     signalingSocket.emit('roomStatus', {
+        peerConnections: peerConnections,
         room_id: roomId,
-        peer_id: myPeerId,
         room_locked: roomLocked,
         peer_name: myPeerName,
     });
@@ -3727,7 +3767,7 @@ function setupCanvas() {
         // send draw to other peers in the room
         if (thereIsPeerConnections()) {
             signalingSocket.emit('wb', {
-                peer_id: myPeerId,
+                peerConnections: peerConnections,
                 peer_name: myPeerName,
                 act: 'draw',
                 newx: e.offsetX,
@@ -3767,7 +3807,7 @@ function saveWbCanvas() {
 function remoteWbAction(action) {
     if (thereIsPeerConnections()) {
         signalingSocket.emit('wb', {
-            peer_id: myPeerId,
+            peerConnections: peerConnections,
             peer_name: myPeerName,
             act: action,
         });
@@ -3875,8 +3915,8 @@ function abortFileTransfer() {
         sendFileDiv.style.display = 'none';
         sendInProgress = false;
         signalingSocket.emit('fileAbort', {
+            peerConnections: peerConnections,
             room_id: roomId,
-            peer_id: myPeerId,
             peer_name: myPeerName,
         });
     }
@@ -3931,8 +3971,8 @@ function selectFileToShare() {
                 }
                 // send some metadata about our file to peers in the room
                 signalingSocket.emit('fileInfo', {
+                    peerConnections: peerConnections,
                     room_id: roomId,
-                    peer_id: myPeerId,
                     peer_name: myPeerName,
                     file: {
                         fileName: fileToSend.name,
@@ -4059,6 +4099,119 @@ function saveFileFromBlob(blob, file) {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
     }, 100);
+}
+
+/**
+ * Opend and send Video URL to all peers in the room
+ */
+function sendVideoUrl() {
+    playSound('newMessage');
+
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        imageUrl: confirmImg,
+        title: 'Share Youtube Video',
+        text: 'Past youtube video URL',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: `Open`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.value) {
+            if (!thereIsPeerConnections()) {
+                userLog('info', 'No participants detected');
+                return;
+            }
+            console.log('Video URL: ' + result.value);
+            let config = { video_src: result.value };
+            openVideoUrlPlayer(config);
+            emitVideoPlayer('open', config);
+        }
+    });
+}
+
+/**
+ * Open video url Player
+ */
+function openVideoUrlPlayer(config) {
+    let videoSrc = config.video_src;
+    let videoEmbed = getYoutubeEmbed(videoSrc);
+    //
+    if (!isVideoUrlPlayerOpen) {
+        if (videoEmbed) {
+            playSound('newMessage');
+            videoUrlIframe.src = videoEmbed;
+            videoUrlCont.style.display = 'flex';
+            isVideoUrlPlayerOpen = true;
+        } else {
+            userLog('error', 'Something wrong, try with another Youtube URL');
+        }
+    } else {
+        // video player seems open
+        videoUrlIframe.src = videoEmbed;
+    }
+}
+
+/**
+ * Get youtube embed URL
+ * @param {*} url
+ * @returns Youtube Embed URL
+ */
+function getYoutubeEmbed(url) {
+    let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    let match = url.match(regExp);
+    return match && match[7].length == 11 ? 'https://www.youtube.com/embed/' + match[7] : false;
+}
+
+/**
+ * Close Video Url Player
+ */
+function closeVideoUrlPlayer() {
+    // Reload all iframes again to stop videos
+    videoUrlIframe.src = videoUrlIframe.src;
+    videoUrlCont.style.display = 'none';
+    isVideoUrlPlayerOpen = false;
+}
+
+/**
+ * Emit video palyer to peers
+ * @param {*} video_action
+ * @param {*} config
+ */
+function emitVideoPlayer(video_action, config = {}) {
+    signalingSocket.emit('videoPlayer', {
+        peerConnections: peerConnections,
+        room_id: roomId,
+        peer_name: myPeerName,
+        video_action: video_action,
+        video_src: config.video_src,
+    });
+}
+
+/**
+ * Handle Video Player
+ * @param {*} config
+ */
+function handleVideoPlayer(config) {
+    let peer_name = config.peer_name;
+    let video_action = config.video_action;
+    //
+    switch (video_action) {
+        case 'open':
+            userLog('toast', peer_name + ' open video player');
+            openVideoUrlPlayer(config);
+            break;
+        case 'close':
+            userLog('toast', peer_name + ' close video player');
+            closeVideoUrlPlayer();
+            break;
+    }
 }
 
 /**

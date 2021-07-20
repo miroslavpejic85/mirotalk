@@ -40,6 +40,10 @@
     --msger-height: 680px;
     --msger-width: 420px;
 
+    /* video iframe */
+    --iframe-width: 640px;
+    --iframe-height: 480px;
+
     /* whiteboard resize */
     --wb-width: 800px;
     --wb-height: 600px;
@@ -621,6 +625,7 @@ body {
     background: rgb(0, 0, 0);
 }
 
+#msgerVideoUrlBtn,
 #msgerEmojiBtn,
 #msgerSendBtn {
     background: rgb(0, 0, 0);
@@ -628,6 +633,7 @@ body {
     transition: background 0.23s;
 }
 
+#msgerVideoUrlBtn:hover,
 #msgerEmojiBtn:hover,
 #msgerSendBtn:hover {
     color: rgb(0, 180, 50);
@@ -1131,6 +1137,60 @@ progress {
 }
 
 /*--------------------------------------------------------------
+# Video IFrame
+--------------------------------------------------------------*/
+
+#videoUrlCont {
+    z-index: 17;
+    display: none;
+    /* center */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* fade in */
+    -webkit-animation: fadeIn ease-in 1;
+    -moz-animation: fadeIn ease-in 1;
+    animation: fadeIn ease-in 1;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-duration: 1s;
+    -moz-animation-duration: 1s;
+    animation-duration: 1s;
+    box-shadow: var(--box-shadow);
+    border-radius: 5px;
+}
+#videoUrlHeader {
+    position: absolute;
+    display: flex;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    cursor: move;
+    border-radius: 5px;
+}
+#videoUrlHeader button {
+    height: 30px;
+    width: 30px;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    margin-left: 10px;
+    border: none;
+    color: white;
+    background: transparent;
+}
+#videoUrlHeader button:hover {
+    color: rgb(0, 180, 50);
+    transform: var(--btns-hover-scale);
+    transition: all 0.3s ease-in-out;
+}
+#videoUrlIframe {
+    width: var(--iframe-width);
+    height: var(--iframe-height);
+}
+
+/*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
 
@@ -1205,4 +1265,5 @@ z-index
 14 whiteboard
 15 settings
 16 send File Div
+17 video iframe
 */
