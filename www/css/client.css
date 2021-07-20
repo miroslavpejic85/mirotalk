@@ -1169,6 +1169,7 @@ progress {
     width: 100%;
     cursor: move;
     border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
 }
 #videoUrlHeader button {
     height: 30px;
@@ -1178,7 +1179,7 @@ progress {
     margin-left: 10px;
     border: none;
     color: white;
-    background: transparent;
+    background: black;
 }
 #videoUrlHeader button:hover {
     color: rgb(0, 180, 50);
