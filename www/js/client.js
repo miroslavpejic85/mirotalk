@@ -41,8 +41,10 @@ const roomLockedImg = '../images/locked.png';
 const camOffImg = '../images/cam-off.png';
 const audioOffImg = '../images/audio-off.png';
 const deleteImg = '../images/delete.png';
+const youtubeImg = '../images/youtube.png';
 const kickedOutImg = '../images/leave-room.png';
 const aboutImg = '../images/about.png';
+
 const notifyBySound = true; // turn on - off sound notifications
 const fileSharingInput = '*'; // allow all file extensions
 
@@ -4110,7 +4112,7 @@ function sendVideoUrl() {
     Swal.fire({
         background: swalBackground,
         position: 'center',
-        imageUrl: confirmImg,
+        imageUrl: youtubeImg,
         title: 'Share Youtube Video',
         text: 'Past youtube video URL',
         input: 'text',
