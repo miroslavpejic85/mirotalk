@@ -4117,7 +4117,7 @@ function sendVideoUrl() {
         text: 'Past youtube video URL',
         input: 'text',
         showCancelButton: true,
-        confirmButtonText: `Open`,
+        confirmButtonText: `Share`,
         showClass: {
             popup: 'animate__animated animate__fadeInDown',
         },
