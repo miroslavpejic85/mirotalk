@@ -869,7 +869,7 @@ video:fullscreen {
 
 #mySettings {
     display: none;
-    z-index: 15;
+    z-index: 16;
     min-width: 320px;
     /* center */
     position: absolute;
@@ -1084,7 +1084,7 @@ video:fullscreen {
 --------------------------------------------------------------*/
 
 #sendFileDiv {
-    z-index: 16;
+    z-index: 17;
     display: none;
     min-width: 320px;
     /* center */
@@ -1141,7 +1141,7 @@ progress {
 --------------------------------------------------------------*/
 
 #videoUrlCont {
-    z-index: 17;
+    z-index: 15;
     display: none;
     /* center */
     position: absolute;
@@ -1189,6 +1189,7 @@ progress {
 #videoUrlIframe {
     width: var(--iframe-width);
     height: var(--iframe-height);
+    border-radius: 5px;
 }
 
 /*--------------------------------------------------------------
@@ -1264,7 +1265,7 @@ z-index
 12 left buttons
 13 chat emoji
 14 whiteboard
-15 settings
-16 send File Div
-17 video iframe
+15 video iframe
+16 settings
+17 send File Div
 */
