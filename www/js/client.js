@@ -4175,8 +4175,8 @@ function getYoutubeEmbed(url) {
  * Close Video Url Player
  */
 function closeVideoUrlPlayer() {
-    // Reload all iframes again to stop videos
-    videoUrlIframe.src = videoUrlIframe.src;
+    // Reload all iframes again to stop videos & disable autoplay
+    videoUrlIframe.src = videoUrlIframe.src.replace('?autoplay=1', '');
     videoUrlCont.style.display = 'none';
     isVideoUrlPlayerOpen = false;
 }
