@@ -926,7 +926,6 @@ function handleIceCandidate(config) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate
     peerConnections[peer_id].addIceCandidate(new RTCIceCandidate(ice_candidate)).catch((err) => {
         console.error('[Error] addIceCandidate', err);
-        userLog('error', 'addIceCandidate failed ' + err);
     });
 }
 
@@ -2781,7 +2780,9 @@ function disableElements(b) {
  */
 function createChatDataChannel(peer_id) {
     chatDataChannels[peer_id] = peerConnections[peer_id].createDataChannel('mirotalk_chat_channel');
-    console.log('chatDataChannels created', chatDataChannels);
+    chatDataChannels[peer_id].onopen = (event) => {
+        console.log('chatDataChannels created', event);
+    };
 }
 
 /**
@@ -3823,7 +3824,9 @@ function remoteWbAction(action) {
 function createFileSharingDataChannel(peer_id) {
     fileDataChannels[peer_id] = peerConnections[peer_id].createDataChannel('mirotalk_file_sharing_channel');
     fileDataChannels[peer_id].binaryType = 'arraybuffer';
-    console.log('fileDataChannels created', fileDataChannels);
+    fileDataChannels[peer_id].onopen = (event) => {
+        console.log('fileDataChannels created', event);
+    };
 }
 
 /**

@@ -44,7 +44,7 @@ Open the app in one of following **supported browser**
 -   Recording your Screen, Audio and Video
 -   Chat with Emoji Picker & Private messages & Save the conversations
 -   Simple collaborative whiteboard for the teachers
--	Share any YouTube video in real time
+-   Share any YouTube video in real time
 -   Full Screen Mode on mouse click on the Video element
 -   Possibility to Change UI Themes
 -   Right-click on the Video elements for more options
