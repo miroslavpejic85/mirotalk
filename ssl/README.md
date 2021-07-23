@@ -31,7 +31,7 @@ const options = {
 const server = https.createServer(options, app);
 const { Server } = require('socket.io');
 const io = new Server().listen(server);
-const localHost = 'https://localhost' + ':' + port;
+const localHost = 'https://' + 'localhost' + ':' + port;
 ```
 
 3. Change on `client.js`

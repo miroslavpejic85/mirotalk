@@ -57,7 +57,7 @@ const swaggerDocument = yamlJS.load(__dirname + '/api/swagger.yaml');
 
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 
-const localHost = 'http://localhost' + ':' + port; // http
+const localHost = 'http://' + 'localhost' + ':' + port; // http
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = localHost + apiBasePath + '/docs'; // api docs
 const api_key_secret = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
