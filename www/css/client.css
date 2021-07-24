@@ -510,7 +510,7 @@ body {
     background: transparent;
 }
 .msger-chat::-webkit-scrollbar-thumb {
-    background: black;
+    background: black; /*aqua;*/
 }
 
 .msg {

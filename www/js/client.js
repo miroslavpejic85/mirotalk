@@ -3388,7 +3388,7 @@ function setPeerVideoStatus(peer_id, status) {
 
 /**
  * Emit actions to all peers in the same room except yourself
- * @param {*} peerAction muteEveryone hideEveryone ...
+ * @param {*} peerAction muteAudio hideVideo ...
  */
 function emitPeerAction(peerAction) {
     sendToServer('peerAction', {
@@ -3407,10 +3407,10 @@ function handlePeerAction(config) {
     let peer_action = config.peer_action;
 
     switch (peer_action) {
-        case 'muteEveryone':
+        case 'muteAudio':
             setMyAudioOff(peer_name);
             break;
-        case 'hideEveryone':
+        case 'hideVideo':
             setMyVideoOff(peer_name);
             break;
     }
@@ -3472,11 +3472,11 @@ function disableAllPeers(element) {
             switch (element) {
                 case 'audio':
                     userLog('toast', 'Mute everyone 👍');
-                    emitPeerAction('muteEveryone');
+                    emitPeerAction('muteAudio');
                     break;
                 case 'video':
                     userLog('toast', 'Hide everyone 👍');
-                    emitPeerAction('hideEveryone');
+                    emitPeerAction('hideVideo');
                     break;
             }
         }
