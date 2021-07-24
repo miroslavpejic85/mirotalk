@@ -404,16 +404,14 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let ice_candidate = config.ice_candidate;
 
-        if (peer_id in sockets) {
-            // logme('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
-            //     address: config.ice_candidate,
-            // });
+        // logme('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
+        //     address: config.ice_candidate,
+        // });
 
-            sockets[peer_id].emit('iceCandidate', {
-                peer_id: socket.id,
-                ice_candidate: ice_candidate,
-            });
-        }
+        sendToPeer(peer_id, sockets, 'iceCandidate', {
+            peer_id: socket.id,
+            ice_candidate: ice_candidate,
+        });
     });
 
     /**
@@ -423,47 +421,38 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let session_description = config.session_description;
 
-        if (peer_id in sockets) {
-            logme('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
-                type: session_description.type,
-            });
-            //
-            sockets[peer_id].emit('sessionDescription', {
-                peer_id: socket.id,
-                session_description: session_description,
-            });
-        }
+        logme('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
+            type: session_description.type,
+        });
+
+        sendToPeer(peer_id, sockets, 'sessionDescription', {
+            peer_id: socket.id,
+            session_description: session_description,
+        });
     });
 
     /**
      * Refresh Room Status (Locked/Unlocked)
      */
     socket.on('roomStatus', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
         let room_locked = config.room_locked;
         let peer_name = config.peer_name;
 
         peers[room_id]['Locked'] = room_locked;
 
-        if (Object.keys(peerConnections).length != 0) {
-            logme('[' + socket.id + '] emit roomStatus' + ' to [room_id: ' + room_id + ' locked: ' + room_locked + ']');
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('roomStatus', {
-                        peer_name: peer_name,
-                        room_locked: room_locked,
-                    });
-                }
-            }
-        }
+        logme('[' + socket.id + '] emit roomStatus' + ' to [room_id: ' + room_id + ' locked: ' + room_locked + ']');
+
+        sendToRoom(room_id, socket.id, 'roomStatus', {
+            peer_name: peer_name,
+            room_locked: room_locked,
+        });
     });
 
     /**
      * Relay NAME to peers
      */
     socket.on('peerName', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
         let peer_name_old = config.peer_name_old;
         let peer_name_new = config.peer_name_new;
@@ -476,19 +465,16 @@ io.sockets.on('connect', (socket) => {
             }
         }
 
-        if (peer_id_to_update && Object.keys(peerConnections).length != 0) {
+        if (peer_id_to_update) {
             logme('[' + socket.id + '] emit peerName to [room_id: ' + room_id + ']', {
                 peer_id: peer_id_to_update,
                 peer_name: peer_name_new,
             });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('peerName', {
-                        peer_id: peer_id_to_update,
-                        peer_name: peer_name_new,
-                    });
-                }
-            }
+
+            sendToRoom(room_id, socket.id, 'peerName', {
+                peer_id: peer_id_to_update,
+                peer_name: peer_name_new,
+            });
         }
     });
 
@@ -496,7 +482,6 @@ io.sockets.on('connect', (socket) => {
      * Relay Audio Video Hand ... Status to peers
      */
     socket.on('peerStatus', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
         let peer_name = config.peer_name;
         let element = config.element;
@@ -518,49 +503,38 @@ io.sockets.on('connect', (socket) => {
             }
         }
 
-        if (Object.keys(peerConnections).length != 0) {
-            logme('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
-                peer_id: socket.id,
-                element: element,
-                status: status,
-            });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('peerStatus', {
-                        peer_id: socket.id,
-                        peer_name: peer_name,
-                        element: element,
-                        status: status,
-                    });
-                }
-            }
-        }
+        logme('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
+            peer_id: socket.id,
+            element: element,
+            status: status,
+        });
+
+        sendToRoom(room_id, socket.id, 'peerStatus', {
+            peer_id: socket.id,
+            peer_name: peer_name,
+            element: element,
+            status: status,
+        });
     });
 
     /**
      * Relay actions to peers in the same room
      */
     socket.on('peerAction', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
         let peer_name = config.peer_name;
         let peer_action = config.peer_action;
 
-        if (Object.keys(peerConnections).length != 0) {
-            logme('[' + socket.id + '] emit peerAction to [room_id: ' + room_id + ']', {
-                peer_id: socket.id,
-                peer_name: peer_name,
-                peer_action: peer_action,
-            });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('peerAction', {
-                        peer_name: peer_name,
-                        peer_action: peer_action,
-                    });
-                }
-            }
-        }
+        logme('[' + socket.id + '] emit peerAction to [room_id: ' + room_id + ']', {
+            peer_id: socket.id,
+            peer_name: peer_name,
+            peer_action: peer_action,
+        });
+
+        sendToRoom(room_id, socket.id, 'peerAction', {
+            peer_name: peer_name,
+            peer_action: peer_action,
+        });
     });
 
     /**
@@ -571,20 +545,17 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let peer_name = config.peer_name;
 
-        if (peer_id in sockets) {
-            logme('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
-            //
-            sockets[peer_id].emit('kickOut', {
-                peer_name: peer_name,
-            });
-        }
+        logme('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
+
+        sendToPeer(peer_id, sockets, 'kickOut', {
+            peer_name: peer_name,
+        });
     });
 
     /**
      * Relay File info
      */
     socket.on('fileInfo', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
         let peer_name = config.peer_name;
         let file = config.file;
@@ -596,87 +567,89 @@ io.sockets.on('connect', (socket) => {
             return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
         }
 
-        if (Object.keys(peerConnections).length != 0) {
-            file['peerName'] = peer_name;
+        file['peerName'] = peer_name;
 
-            logme('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
-                peerName: file.peerName,
-                fileName: file.fileName,
-                fileSize: bytesToSize(file.fileSize),
-                fileType: file.fileType,
-            });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('fileInfo', file);
-                }
-            }
-        }
+        logme('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
+            peerName: file.peerName,
+            fileName: file.fileName,
+            fileSize: bytesToSize(file.fileSize),
+            fileType: file.fileType,
+        });
+
+        sendToRoom(room_id, socket.id, 'fileInfo', file);
     });
 
     /**
      * Abort file sharing
      */
     socket.on('fileAbort', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
         let peer_name = config.peer_name;
 
-        if (Object.keys(peerConnections).length != 0) {
-            logme('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
-            //
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('fileAbort');
-                }
-            }
-        }
+        logme('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
+        sendToRoom(room_id, socket.id, 'fileAbort');
     });
 
     /**
      * Relay video player action
      */
     socket.on('videoPlayer', (config) => {
-        let peerConnections = config.peerConnections;
         let room_id = config.room_id;
         let peer_name = config.peer_name;
         let video_action = config.video_action;
         let video_src = config.video_src;
 
-        if (Object.keys(peerConnections).length != 0) {
-            logme('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', {
-                peer_id: socket.id,
-                peer_name: peer_name,
-                video_action: video_action,
-                video_src: video_src,
-            });
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('videoPlayer', {
-                        peer_name: peer_name,
-                        video_action: video_action,
-                        video_src: video_src,
-                    });
-                }
-            }
-        }
+        logme('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', {
+            peer_id: socket.id,
+            peer_name: peer_name,
+            video_action: video_action,
+            video_src: video_src,
+        });
+
+        sendToRoom(room_id, socket.id, 'videoPlayer', {
+            peer_name: peer_name,
+            video_action: video_action,
+            video_src: video_src,
+        });
     });
 
     /**
      * Whiteboard actions for all user in the same room
      */
     socket.on('wb', (config) => {
-        let peerConnections = config.peerConnections;
-        delete config.peerConnections;
-        if (Object.keys(peerConnections).length != 0) {
-            // logme("[" + socket.id + "] whiteboard config", config);
-            for (let peer_id in peerConnections) {
-                if (sockets[peer_id]) {
-                    sockets[peer_id].emit('wb', config);
-                }
-            }
-        }
+        let room_id = config.room_id;
+        sendToRoom(room_id, socket.id, 'wb', config);
     });
 }); // end [sockets.on-connect]
+
+/**
+ * Send async data to all peers in the same room except yourself
+ * @param {*} room_id id of the room to send data
+ * @param {*} socket_id socket id of peer that send data
+ * @param {*} msg message to send to the peers in the same room
+ * @param {*} config JSON data to send to the peers in the same room
+ */
+async function sendToRoom(room_id, socket_id, msg, config = {}) {
+    for (let peer_id in channels[room_id]) {
+        // not send data to myself
+        if (peer_id != socket_id) {
+            await channels[room_id][peer_id].emit(msg, config);
+        }
+    }
+}
+
+/**
+ * Send async data to specified peer
+ * @param {*} peer_id id of the peer to send data
+ * @param {*} sockets all peers connections
+ * @param {*} msg message to send to the peer in the same room
+ * @param {*} config JSON data to send to the peer in the same room
+ */
+async function sendToPeer(peer_id, sockets, msg, config = {}) {
+    if (peer_id in sockets) {
+        await sockets[peer_id].emit(msg, config);
+    }
+}
 
 /**
  * log with UTC data time

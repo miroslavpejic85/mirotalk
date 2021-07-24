@@ -565,6 +565,7 @@ function initClientPeer() {
     console.log('Connecting to signaling server');
     signalingSocket = io(signalingServer);
 
+    // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
     signalingSocket.on('roomIsLocked', handleRoomLocked);
     signalingSocket.on('roomStatus', handleRoomStatus);
@@ -582,6 +583,15 @@ function initClientPeer() {
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
+
+/**
+ * Send async data to signaling server (server.js)
+ * @param {*} msg msg to send to signaling server
+ * @param {*} config JSON data to send to signaling server
+ */
+async function sendToServer(msg, config = {}) {
+    await signalingSocket.emit(msg, config);
+}
 
 /**
  * Connected to Signaling Server. Once the user has given us access to their
@@ -654,7 +664,7 @@ function whoAreYou() {
  */
 function joinToChannel() {
     console.log('join to channel', roomId);
-    signalingSocket.emit('join', {
+    sendToServer('join', {
         channel: roomId,
         peer_info: peerInfo,
         peer_geo: peerGeo,
@@ -755,7 +765,7 @@ function handleAddPeer(config) {
 function handleOnIceCandidate(peer_id) {
     peerConnections[peer_id].onicecandidate = (event) => {
         if (!event.candidate) return;
-        signalingSocket.emit('relayICE', {
+        sendToServer('relayICE', {
             peer_id: peer_id,
             ice_candidate: {
                 sdpMLineIndex: event.candidate.sdpMLineIndex,
@@ -846,7 +856,7 @@ function handleRtcOffer(peer_id) {
             peerConnections[peer_id]
                 .setLocalDescription(local_description)
                 .then(() => {
-                    signalingSocket.emit('relaySDP', {
+                    sendToServer('relaySDP', {
                         peer_id: peer_id,
                         session_description: local_description,
                     });
@@ -893,7 +903,7 @@ function handleSessionDescription(config) {
                         peerConnections[peer_id]
                             .setLocalDescription(local_description)
                             .then(() => {
-                                signalingSocket.emit('relaySDP', {
+                                sendToServer('relaySDP', {
                                     peer_id: peer_id,
                                     session_description: local_description,
                                 });
@@ -3192,8 +3202,7 @@ function updateMyPeerName() {
     myPeerName = myNewPeerName;
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
 
-    signalingSocket.emit('peerName', {
-        peerConnections: peerConnections,
+    sendToServer('peerName', {
         room_id: roomId,
         peer_name_old: myOldPeerName,
         peer_name_new: myPeerName,
@@ -3232,8 +3241,7 @@ function handlePeerName(config) {
  * @param {*} status
  */
 function emitPeerStatus(element, status) {
-    signalingSocket.emit('peerStatus', {
-        peerConnections: peerConnections,
+    sendToServer('peerStatus', {
         room_id: roomId,
         peer_name: myPeerName,
         element: element,
@@ -3383,8 +3391,7 @@ function setPeerVideoStatus(peer_id, status) {
  * @param {*} peerAction muteEveryone hideEveryone ...
  */
 function emitPeerAction(peerAction) {
-    signalingSocket.emit('peerAction', {
-        peerConnections: peerConnections,
+    sendToServer('peerAction', {
         room_id: roomId,
         peer_name: myPeerName,
         peer_action: peerAction,
@@ -3499,8 +3506,7 @@ function emitRoomStatus() {
     let rStatus = roomLocked ? '🔒 LOCKED the room, no one can access!' : '🔓 UNLOCKED the room';
     userLog('toast', rStatus);
 
-    signalingSocket.emit('roomStatus', {
-        peerConnections: peerConnections,
+    sendToServer('roomStatus', {
         room_id: roomId,
         room_locked: roomLocked,
         peer_name: myPeerName,
@@ -3769,8 +3775,8 @@ function setupCanvas() {
         draw(e.offsetX, e.offsetY, x, y);
         // send draw to other peers in the room
         if (thereIsPeerConnections()) {
-            signalingSocket.emit('wb', {
-                peerConnections: peerConnections,
+            sendToServer('wb', {
+                room_id: roomId,
                 peer_name: myPeerName,
                 act: 'draw',
                 newx: e.offsetX,
@@ -3809,8 +3815,8 @@ function saveWbCanvas() {
  */
 function remoteWbAction(action) {
     if (thereIsPeerConnections()) {
-        signalingSocket.emit('wb', {
-            peerConnections: peerConnections,
+        sendToServer('wb', {
+            room_id: roomId,
             peer_name: myPeerName,
             act: action,
         });
@@ -3919,8 +3925,7 @@ function abortFileTransfer() {
         fileReader.abort();
         sendFileDiv.style.display = 'none';
         sendInProgress = false;
-        signalingSocket.emit('fileAbort', {
-            peerConnections: peerConnections,
+        sendToServer('fileAbort', {
             room_id: roomId,
             peer_name: myPeerName,
         });
@@ -3975,8 +3980,7 @@ function selectFileToShare() {
                     return;
                 }
                 // send some metadata about our file to peers in the room
-                signalingSocket.emit('fileInfo', {
-                    peerConnections: peerConnections,
+                sendToServer('fileInfo', {
                     room_id: roomId,
                     peer_name: myPeerName,
                     file: {
@@ -4190,8 +4194,7 @@ function closeVideoUrlPlayer() {
  * @param {*} config
  */
 function emitVideoPlayer(video_action, config = {}) {
-    signalingSocket.emit('videoPlayer', {
-        peerConnections: peerConnections,
+    sendToServer('videoPlayer', {
         room_id: roomId,
         peer_name: myPeerName,
         video_action: video_action,
@@ -4256,7 +4259,7 @@ function kickOut(peer_id, peerKickOutBtn) {
     }).then((result) => {
         if (result.isConfirmed) {
             // send peer to kick out from room
-            signalingSocket.emit('kickOut', {
+            sendToServer('kickOut', {
                 room_id: roomId,
                 peer_id: peer_id,
                 peer_name: myPeerName,
