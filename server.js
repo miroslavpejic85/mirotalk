@@ -50,10 +50,11 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server().listen(server);
+
 const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = yamlJS.load(__dirname + '/api/swagger.yaml');
+const swaggerDocument = yamlJS.load(path.join(__dirname + '/api/swagger.yaml'));
 
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 

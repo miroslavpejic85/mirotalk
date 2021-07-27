@@ -1148,7 +1148,9 @@ function loadLocalMedia(stream) {
 
     localMediaStream = stream;
 
+    // local video elemets
     const videoWrap = document.createElement('div');
+    const localMedia = document.createElement('video');
 
     // handle my peer name video audio status
     const myStatusMenu = document.createElement('div');
@@ -1220,17 +1222,9 @@ function loadLocalMedia(stream) {
     myStatusMenu.appendChild(myAudioStatusIcon);
     myStatusMenu.appendChild(myVideoFullScreenBtn);
 
-    // add elements to video wrap div
-    videoWrap.appendChild(myStatusMenu);
-    videoWrap.appendChild(myVideoAvatarImage);
-
     // hand display none on default menad is raised == false
     myHandStatusIcon.style.display = 'none';
 
-    const localMedia = document.createElement('video');
-    videoWrap.className = 'video';
-    videoWrap.setAttribute('id', 'myVideoWrap');
-    videoWrap.appendChild(localMedia);
     localMedia.setAttribute('id', 'myVideo');
     localMedia.setAttribute('playsinline', true);
     localMedia.className = 'mirror';
@@ -1238,6 +1232,15 @@ function loadLocalMedia(stream) {
     localMedia.muted = true;
     localMedia.volume = 0;
     localMedia.controls = false;
+
+    videoWrap.className = 'video';
+    videoWrap.setAttribute('id', 'myVideoWrap');
+
+    // add elements to video wrap div
+    videoWrap.appendChild(myStatusMenu);
+    videoWrap.appendChild(myVideoAvatarImage);
+    videoWrap.appendChild(localMedia);
+
     document.body.appendChild(videoWrap);
 
     logStreamSettingsInfo('localMediaStream', localMediaStream);
@@ -1262,7 +1265,9 @@ function loadLocalMedia(stream) {
 function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteMediaStream = stream;
 
-    const videoWrap = document.createElement('div');
+    // remote video elements
+    const remoteVideoWrap = document.createElement('div');
+    const remoteMedia = document.createElement('video');
 
     // handle peers name video audio status
     const remoteStatusMenu = document.createElement('div');
@@ -1333,13 +1338,6 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteStatusMenu.appendChild(remotePeerKickOut);
     remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
 
-    // add elements to videoWrap div
-    videoWrap.appendChild(remoteStatusMenu);
-    videoWrap.appendChild(remoteVideoAvatarImage);
-
-    const remoteMedia = document.createElement('video');
-    videoWrap.className = 'video';
-    videoWrap.appendChild(remoteMedia);
     remoteMedia.setAttribute('id', peer_id + '_video');
     remoteMedia.setAttribute('playsinline', true);
     remoteMedia.mediaGroup = 'remotevideo';
@@ -1347,7 +1345,15 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
     remoteMedia.controls = remoteMediaControls;
     peerMediaElements[peer_id] = remoteMedia;
-    document.body.appendChild(videoWrap);
+
+    remoteVideoWrap.className = 'video';
+
+    // add elements to videoWrap div
+    remoteVideoWrap.appendChild(remoteStatusMenu);
+    remoteVideoWrap.appendChild(remoteVideoAvatarImage);
+    remoteVideoWrap.appendChild(remoteMedia);
+
+    document.body.appendChild(remoteVideoWrap);
 
     // attachMediaStream is a part of the adapter.js library
     attachMediaStream(remoteMedia, remoteMediaStream);
