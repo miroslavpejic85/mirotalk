@@ -154,7 +154,7 @@
 
 body {
     background: var(--body-bg);
-    background-image: url('../images/bg.jpg');
+    background-image: url('../images/bg.svg');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
