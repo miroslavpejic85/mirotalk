@@ -760,7 +760,6 @@ function handleAddPeer(config) {
     handleOnTrack(peer_id, peers);
     handleAddTracks(peer_id);
     handleRTCDataChannels(peer_id);
-
     if (should_create_offer) handleRtcOffer(peer_id);
 
     playSound('addPeer');
