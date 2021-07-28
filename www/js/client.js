@@ -171,6 +171,7 @@ let themeSelect;
 let selectors;
 // my video element
 let myVideo;
+let myVideoWrap;
 let myVideoAvatarImage;
 // name && hand video audio status
 let myVideoParagraph;
@@ -230,6 +231,7 @@ function getHtmlElementsById() {
     countTime = getId('countTime');
     // my video
     myVideo = getId('myVideo');
+    myVideoWrap = getId('myVideoWrap');
     myVideoAvatarImage = getId('myVideoAvatarImage');
     // left buttons
     leftButtons = getId('leftButtons');
@@ -633,6 +635,13 @@ function whoAreYou() {
         },
         inputValidator: (value) => {
             if (!value) return 'Please enter your name';
+
+            document.body.style.backgroundImage = 'none';
+            myVideoWrap.style.display = 'inline';
+
+            logStreamSettingsInfo('localMediaStream', localMediaStream);
+            attachMediaStream(myVideo, localMediaStream);
+            resizeVideos();
 
             myPeerName = value;
             myVideoParagraph.innerHTML = myPeerName + ' (me)';
@@ -1142,8 +1151,7 @@ function setupLocalMedia(callback, errorback) {
  */
 function loadLocalMedia(stream) {
     console.log('Access granted to audio/video');
-    // hide img bg and loading div
-    document.body.style.backgroundImage = 'none';
+    // hide loading div
     getId('loadingDiv').style.display = 'none';
 
     localMediaStream = stream;
@@ -1242,10 +1250,8 @@ function loadLocalMedia(stream) {
     videoWrap.appendChild(localMedia);
 
     document.body.appendChild(videoWrap);
+    videoWrap.style.display = 'none';
 
-    logStreamSettingsInfo('localMediaStream', localMediaStream);
-    attachMediaStream(localMedia, localMediaStream);
-    resizeVideos();
     getHtmlElementsById();
     setButtonsTitle();
     manageLeftButtons();
