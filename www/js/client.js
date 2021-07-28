@@ -791,12 +791,11 @@ function handleOnIceCandidate(peer_id) {
  * @param {*} peers
  */
 function handleOnTrack(peer_id, peers) {
-    let ontrackCount = 0;
     peerConnections[peer_id].ontrack = (event) => {
         console.log('handleOnTrack', event);
-        ontrackCount++;
-        // 2 means audio + video
-        if (ontrackCount === 2) loadRemoteMediaStream(event.streams[0], peers, peer_id);
+        if (event.track.kind === 'video') {
+            loadRemoteMediaStream(event.streams[0], peers, peer_id);
+        }
     };
 }
 
