@@ -318,6 +318,7 @@ io.sockets.on('connect', (socket) => {
         let peer_video = config.peer_video;
         let peer_audio = config.peer_audio;
         let peer_hand = config.peer_hand;
+        let peer_rec = config.peer_rec;
 
         if (channel in socket.channels) {
             logme('[' + socket.id + '] [Warning] already joined', channel);
@@ -342,6 +343,7 @@ io.sockets.on('connect', (socket) => {
             peer_video: peer_video,
             peer_audio: peer_audio,
             peer_hand: peer_hand,
+            peer_rec: peer_rec,
         };
         logme('connected peers grp by roomId', peers);
 
@@ -499,6 +501,9 @@ io.sockets.on('connect', (socket) => {
                         break;
                     case 'hand':
                         peers[room_id][peer_id]['peer_hand'] = status;
+                        break;
+                    case 'rec':
+                        peers[room_id][peer_id]['peer_rec'] = status;
                         break;
                 }
             }

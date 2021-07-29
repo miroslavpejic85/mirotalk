@@ -85,9 +85,11 @@ let isVideoOnFullScreen = false;
 let isDocumentOnFullScreen = false;
 let isWhiteboardFs = false;
 let isVideoUrlPlayerOpen = false;
+let isRecScreenSream = false;
 let signalingSocket; // socket.io connection to our webserver
 let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
+let recScreenStream; // recorded screen stream
 let remoteMediaControls = false; // enable - disable peers video player controls (default false)
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
@@ -681,6 +683,7 @@ function joinToChannel() {
         peer_video: myVideoStatus,
         peer_audio: myAudioStatus,
         peer_hand: myHandStatus,
+        peer_rec: isRecScreenSream,
     });
 }
 
@@ -1124,7 +1127,11 @@ function setupLocalMedia(callback, errorback) {
         myBrowserName === 'Firefox' ? getVideoConstraints('useVideo') : getVideoConstraints('default');
 
     const constraints = {
-        audio: useAudio,
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100,
+        },
         video: videoConstraints,
     };
 
@@ -1267,6 +1274,13 @@ function loadLocalMedia(stream) {
  * @param {*} peer_id
  */
 function loadRemoteMediaStream(stream, peers, peer_id) {
+    // get data from peers obj
+    let peer_name = peers[peer_id]['peer_name'];
+    let peer_video = peers[peer_id]['peer_video'];
+    let peer_audio = peers[peer_id]['peer_audio'];
+    let peer_hand = peers[peer_id]['peer_hand'];
+    let peer_rec = peers[peer_id]['peer_rec'];
+
     remoteMediaStream = stream;
 
     // remote video elements
@@ -1368,15 +1382,17 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     // handle kick out button event
     handlePeerKickOutBtn(peer_id);
     // refresh remote peers avatar name
-    setPeerAvatarImgName(peer_id + '_avatar', peers[peer_id]['peer_name']);
+    setPeerAvatarImgName(peer_id + '_avatar', peer_name);
     // refresh remote peers hand icon status and title
-    setPeerHandStatus(peer_id, peers[peer_id]['peer_name'], peers[peer_id]['peer_hand']);
+    setPeerHandStatus(peer_id, peer_name, peer_hand);
     // refresh remote peers video icon status and title
-    setPeerVideoStatus(peer_id, peers[peer_id]['peer_video']);
+    setPeerVideoStatus(peer_id, peer_video);
     // refresh remote peers audio icon status and title
-    setPeerAudioStatus(peer_id, peers[peer_id]['peer_audio']);
+    setPeerAudioStatus(peer_id, peer_audio);
     // show status menu
     toggleClassElements('statusMenu', 'inline');
+    // notify if peer started to recording own screen + audio
+    if (peer_rec) notifyRecording(peer_name, 'Started');
 }
 
 /**
@@ -1646,10 +1662,8 @@ function setScreenShareBtn() {
 function setRecordStreamBtn() {
     recordStreamBtn.addEventListener('click', (e) => {
         if (isStreamRecording) {
-            playSound('recStop');
             stopStreamRecording();
         } else {
-            playSound('recStart');
             startStreamRecording();
         }
     });
@@ -2045,7 +2059,12 @@ function getAudioVideoConstraints() {
     let videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     videoConstraints['deviceId'] = videoSource ? { exact: videoSource } : undefined;
     const constraints = {
-        audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+        audio: {
+            deviceId: audioSource ? { exact: audioSource } : undefined,
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100,
+        },
         video: videoConstraints,
     };
     return constraints;
@@ -2481,6 +2500,7 @@ function stopLocalAudioTrack() {
 
 /**
  * Enable - disable screen sharing
+ * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
  */
 function toggleScreenSharing() {
     screenMaxFrameRate = parseInt(screenFpsSelect.value);
@@ -2492,12 +2512,10 @@ function toggleScreenSharing() {
 
     if (!isScreenStreaming) {
         // on screen sharing start
-        // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
         screenMediaPromise = navigator.mediaDevices.getDisplayMedia(constraints);
     } else {
         // on screen sharing stop
         screenMediaPromise = navigator.mediaDevices.getUserMedia(getAudioVideoConstraints());
-        if (isStreamRecording) stopStreamRecording();
     }
     screenMediaPromise
         .then((screenStream) => {
@@ -2679,6 +2697,8 @@ function getSupportedMimeTypes() {
 /**
  * Start Recording
  * https://github.com/webrtc/samples/tree/gh-pages/src/content/getusermedia/record
+ * https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder
+ * https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
  */
 function startStreamRecording() {
     recordedBlobs = [];
@@ -2688,52 +2708,129 @@ function startStreamRecording() {
     options = { mimeType: options[0] }; // select the first available as mimeType
 
     try {
-        // record only my local Media Stream
-        mediaRecorder = new MediaRecorder(localMediaStream, options);
-        console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-        mediaRecorder.start();
+        if (isMobileDevice) {
+            // on mobile devices recording camera + audio
+            mediaRecorder = new MediaRecorder(localMediaStream, options);
+            console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+            handleMediaRecorder(mediaRecorder);
+        } else {
+            // on desktop devices recording screen + audio
+            screenMaxFrameRate = parseInt(screenFpsSelect.value);
+            const constraints = {
+                video: { frameRate: { max: screenMaxFrameRate } },
+            };
+            let recScreenStreamPromise = navigator.mediaDevices.getDisplayMedia(constraints);
+            recScreenStreamPromise
+                .then((screenStream) => {
+                    const newStream = new MediaStream([
+                        screenStream.getVideoTracks()[0],
+                        localMediaStream.getAudioTracks()[0],
+                    ]);
+                    recScreenStream = newStream;
+                    mediaRecorder = new MediaRecorder(recScreenStream, options);
+                    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+                    isRecScreenSream = true;
+                    handleMediaRecorder(mediaRecorder);
+                })
+                .catch((err) => {
+                    console.error('[Error] Unable to recording the screen + audio', err);
+                    userLog('error', 'Unable to recording the screen + audio ' + err);
+                });
+        }
     } catch (err) {
         console.error('Exception while creating MediaRecorder: ', err);
         userLog('error', "Can't start stream recording: " + err);
         return;
     }
+}
 
-    mediaRecorder.onstart = (event) => {
-        console.log('MediaRecorder started: ', event);
-        isStreamRecording = true;
-        recordStreamBtn.style.setProperty('background-color', 'red');
-        startRecordingTime();
-        disableElements(true);
-        // only for desktop
-        if (!isMobileDevice) {
-            tippy(recordStreamBtn, {
-                content: 'STOP recording',
-                placement: 'right-start',
-            });
-        }
+/**
+ * Notify me if someone start to recording they screen + audio
+ * @param {*} from peer_name
+ * @param {*} action Started Stopped
+ */
+function notifyRecording(from, action) {
+    let msg = '[ 🔴 REC ] : ' + action + ' to recording his own screen and audio';
+    let chatMessage = {
+        from: from,
+        to: myPeerName,
+        msg: msg,
+        privateMsg: false,
     };
+    handleDataChannelChat(chatMessage);
+    userLog('toast', from + ' ' + msg);
+}
 
-    mediaRecorder.ondataavailable = (event) => {
-        console.log('MediaRecorder data: ', event);
-        if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
-    };
+/**
+ * Handle Media Recorder obj
+ * @param {*} mediaRecorder
+ */
+function handleMediaRecorder(mediaRecorder) {
+    mediaRecorder.start();
+    mediaRecorder.addEventListener('start', handleMediaRecorderStart);
+    mediaRecorder.addEventListener('dataavailable', handleMediaRecorderData);
+    mediaRecorder.addEventListener('stop', handleMediaRecorderStop);
+}
 
-    mediaRecorder.onstop = (event) => {
-        console.log('MediaRecorder stopped: ', event);
-        console.log('MediaRecorder Blobs: ', recordedBlobs);
-        myVideoParagraph.innerHTML = myPeerName + ' (me)';
-        isStreamRecording = false;
-        setRecordButtonUi();
-        disableElements(false);
-        downloadRecordedStream();
-        // only for desktop
-        if (!isMobileDevice) {
-            tippy(recordStreamBtn, {
-                content: 'START recording',
-                placement: 'right-start',
-            });
-        }
-    };
+/**
+ * Handle Media Recorder onstart event
+ * @param {*} event
+ */
+function handleMediaRecorderStart(event) {
+    playSound('recStart');
+    if (isRecScreenSream) {
+        emitPeerAction('recStart');
+        emitPeerStatus('rec', isRecScreenSream);
+    }
+    console.log('MediaRecorder started: ', event);
+    isStreamRecording = true;
+    recordStreamBtn.style.setProperty('background-color', 'red');
+    startRecordingTime();
+    // only for desktop
+    if (!isMobileDevice) {
+        tippy(recordStreamBtn, {
+            content: 'STOP recording',
+            placement: 'right-start',
+        });
+    }
+}
+
+/**
+ * Handle Media Recorder ondata event
+ * @param {*} event
+ */
+function handleMediaRecorderData(event) {
+    console.log('MediaRecorder data: ', event);
+    if (event.data && event.data.size > 0) recordedBlobs.push(event.data);
+}
+
+/**
+ * Handle Media Recorder onstop event
+ * @param {*} event
+ */
+function handleMediaRecorderStop(event) {
+    playSound('recStop');
+    console.log('MediaRecorder stopped: ', event);
+    console.log('MediaRecorder Blobs: ', recordedBlobs);
+    myVideoParagraph.innerHTML = myPeerName + ' (me)';
+    isStreamRecording = false;
+    if (isRecScreenSream) {
+        recScreenStream.getTracks().forEach((track) => {
+            if (track.kind === 'video') track.stop();
+        });
+        isRecScreenSream = false;
+        emitPeerAction('recStop');
+        emitPeerStatus('rec', isRecScreenSream);
+    }
+    setRecordButtonUi();
+    downloadRecordedStream();
+    // only for desktop
+    if (!isMobileDevice) {
+        tippy(recordStreamBtn, {
+            content: 'START recording',
+            placement: 'right-start',
+        });
+    }
 }
 
 /**
@@ -2772,26 +2869,10 @@ function downloadRecordedStream() {
             </div>`,
         );
 
-        saveFileFromBlob(blob, recFileName);
+        saveBlobToFile(blob, recFileName);
     } catch (err) {
         userLog('error', 'Recording save failed: ' + err);
     }
-}
-
-/**
- * Disable - enable some elements on Recording. I can Record One Media Stream at time
- * @param {*} b boolean true/false
- */
-function disableElements(b) {
-    swapCameraBtn.disabled = b;
-    screenShareBtn.disabled = b;
-    audioSource.disabled = b;
-    videoSource.disabled = b;
-    videoQualitySelect.disabled = b;
-    // FireFox not support set video Fps make it always disabled
-    videoFpsSelect.disabled = myBrowserName === 'Firefox' ? true : b;
-    // Mobile devices not support screen sharing so disable it always
-    screenFpsSelect.disabled = isMobileDevice ? true : b;
 }
 
 /**
@@ -3398,9 +3479,11 @@ function setPeerVideoStatus(peer_id, status) {
 
 /**
  * Emit actions to all peers in the same room except yourself
- * @param {*} peerAction muteAudio hideVideo ...
+ * @param {*} peerAction muteAudio hideVideo start/stop recording ...
  */
 function emitPeerAction(peerAction) {
+    if (!thereIsPeerConnections()) return;
+
     sendToServer('peerAction', {
         room_id: roomId,
         peer_name: myPeerName,
@@ -3422,6 +3505,12 @@ function handlePeerAction(config) {
             break;
         case 'hideVideo':
             setMyVideoOff(peer_name);
+            break;
+        case 'recStart':
+            notifyRecording(peer_name, 'Started');
+            break;
+        case 'recStop':
+            notifyRecording(peer_name, 'Stopped');
             break;
     }
 }
@@ -4070,7 +4159,7 @@ function endDownload() {
                     popup: 'animate__animated animate__fadeOutUp',
                 },
             }).then((result) => {
-                if (result.isConfirmed) saveFileFromBlob(blob, file);
+                if (result.isConfirmed) saveBlobToFile(blob, file);
             });
         };
         // blob where is stored downloaded file
@@ -4095,7 +4184,7 @@ function endDownload() {
                 popup: 'animate__animated animate__fadeOutUp',
             },
         }).then((result) => {
-            if (result.isConfirmed) saveFileFromBlob(blob, file);
+            if (result.isConfirmed) saveBlobToFile(blob, file);
         });
     }
 }
@@ -4106,7 +4195,7 @@ function endDownload() {
  * @param {*} blob
  * @param {*} file
  */
-function saveFileFromBlob(blob, file) {
+function saveBlobToFile(blob, file) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.style.display = 'none';
