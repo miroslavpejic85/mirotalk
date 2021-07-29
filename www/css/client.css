@@ -671,6 +671,16 @@ body {
     overflow: hidden;
 }
 
+#msgerCPChat {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--msger-bg);
+}
+
+#msgerCPList {
+    border: grey 1px solid;
+}
+
 #msgerCPList button {
     border: none;
     font-size: 1rem;
@@ -688,7 +698,7 @@ body {
 }
 
 #searchPeerBarName {
-    width: 94%;
+    width: 94.5%;
     padding: 10px;
     font-size: 1rem;
     background-color: transparent;
