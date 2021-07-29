@@ -2792,6 +2792,8 @@ function handleMediaRecorderStart(event) {
             content: 'STOP recording',
             placement: 'right-start',
         });
+    } else {
+        swapCameraBtn.style.display = 'none';
     }
 }
 
@@ -2830,6 +2832,8 @@ function handleMediaRecorderStop(event) {
             content: 'START recording',
             placement: 'right-start',
         });
+    } else {
+        swapCameraBtn.style.display = 'block';
     }
 }
 
