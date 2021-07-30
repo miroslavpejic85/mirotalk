@@ -249,14 +249,14 @@ body {
     display: none;
     position: absolute;
     padding: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(61, 61, 61, 0.7);
     font-size: small; /* 4 mobile */
     font-weight: bold;
     text-align: center;
     width: 100%;
     cursor: default;
     /* center */
-    top: 22px;
+    top: 18px;
     left: 50%;
     transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
@@ -784,10 +784,11 @@ video {
     width: 100%;
     height: 100%;
     object-fit: var(--video-object-fit);
-    border: 5px solid transparent;
 }
 video:fullscreen {
-    object-fit: contain;
+    /*object-fit: contain;*/
+    object-fit: cover;
+    border: grey 1px solid;
 }
 .video {
     float: left;
@@ -801,31 +802,36 @@ video:fullscreen {
     height: 100vh;
 }
 .video.two {
-    width: 50vw;
-    height: 100vh;
+    width: 49vw;
+    height: 99vh;
     --video-object-fit: cover;
+    border: grey 1px solid;
     /* --video-object-fit: contain; */
 }
 .video.three {
-    /* width: 33.33vw;
-  height: 100vh; */
-    width: 50vw;
+    /* width: 33vw;
+  height: 99vh; */
+    width: 49vw;
     --video-object-fit: cover;
+    border: grey 1px solid;
 }
 .video.four {
-    width: 50vw;
-    height: 50vh;
+    width: 49vw;
+    height: 49vh;
     --video-object-fit: cover;
+    border: grey 1px solid;
 }
 .video.five {
-    width: 33.33vw;
-    height: 50vh;
+    width: 33vw;
+    height: 49vh;
     --video-object-fit: cover;
+    border: grey 1px solid;
 }
 .video.six {
-    width: 33.33vw;
-    height: 50vh;
+    width: 33vw;
+    height: 49vh;
     --video-object-fit: cover;
+    border: grey 1px solid;
 }
 
 /*--------------------------------------------------------------
@@ -841,24 +847,28 @@ video:fullscreen {
         overflow: hidden;
     }
     .video.two {
-        width: 100vw;
-        height: 50vh;
+        width: 99vw;
+        height: 49vh;
         --video-object-fit: cover;
+        border: grey 1px solid;
     }
     .video.three {
-        width: 100vw;
-        height: 33.33vh;
+        width: 99vw;
+        height: 33vh;
         --video-object-fit: cover;
+        border: grey 1px solid;
     }
     .video.five {
-        width: 50vw;
-        height: 33.33vh;
+        width: 49vw;
+        height: 33vh;
         --video-object-fit: cover;
+        border: grey 1px solid;
     }
     .video.six {
-        width: 50vw;
-        height: 33.33vh;
+        width: 49vw;
+        height: 33vh;
         --video-object-fit: cover;
+        border: grey 1px solid;
     }
 }
 
