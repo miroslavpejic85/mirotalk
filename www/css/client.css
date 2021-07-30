@@ -54,6 +54,9 @@
     /* btns hover scale 110% zoom */
     --btns-hover-scale: scale(1.1);
 
+    /* video elem border color */
+    --elem-border-color: grey 1px solid;
+
     /* neon theme default */
     --body-bg: black;
     --msger-bg: black;
@@ -788,7 +791,7 @@ video {
 video:fullscreen {
     /*object-fit: contain;*/
     object-fit: cover;
-    border: grey 1px solid;
+    border: var(--elem-border-color);
 }
 .video {
     float: left;
@@ -802,36 +805,36 @@ video:fullscreen {
     height: 100vh;
 }
 .video.two {
-    width: 49vw;
+    width: 49.6vw;
     height: 99vh;
     --video-object-fit: cover;
-    border: grey 1px solid;
+    border: var(--elem-border-color);
     /* --video-object-fit: contain; */
 }
 .video.three {
     /* width: 33vw;
   height: 99vh; */
-    width: 49vw;
+    width: 49.6vw;
     --video-object-fit: cover;
-    border: grey 1px solid;
+    border: var(--elem-border-color);
 }
 .video.four {
-    width: 49vw;
+    width: 49.6vw;
     height: 49vh;
     --video-object-fit: cover;
-    border: grey 1px solid;
+    border: var(--elem-border-color);
 }
 .video.five {
     width: 33vw;
     height: 49vh;
     --video-object-fit: cover;
-    border: grey 1px solid;
+    border: var(--elem-border-color);
 }
 .video.six {
     width: 33vw;
     height: 49vh;
     --video-object-fit: cover;
-    border: grey 1px solid;
+    border: var(--elem-border-color);
 }
 
 /*--------------------------------------------------------------
@@ -850,25 +853,25 @@ video:fullscreen {
         width: 99vw;
         height: 49vh;
         --video-object-fit: cover;
-        border: grey 1px solid;
+        border: var(--elem-border-color);
     }
     .video.three {
         width: 99vw;
         height: 33vh;
         --video-object-fit: cover;
-        border: grey 1px solid;
+        border: var(--elem-border-color);
     }
     .video.five {
-        width: 49vw;
+        width: 49.6vw;
         height: 33vh;
         --video-object-fit: cover;
-        border: grey 1px solid;
+        border: var(--elem-border-color);
     }
     .video.six {
-        width: 49vw;
+        width: 49.6vw;
         height: 33vh;
         --video-object-fit: cover;
-        border: grey 1px solid;
+        border: var(--elem-border-color);
     }
 }
 

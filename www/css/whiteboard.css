@@ -23,7 +23,6 @@
     border-radius: 5px;
 }
 .whiteboard-cont #whiteboard {
-    z-index: 99;
     background-color: var(--wb-bg);
     border-radius: 5px;
 }
