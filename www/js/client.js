@@ -640,7 +640,6 @@ function whoAreYou() {
 
             document.body.style.backgroundImage = 'none';
             myVideoWrap.style.display = 'inline';
-
             logStreamSettingsInfo('localMediaStream', localMediaStream);
             attachMediaStream(myVideo, localMediaStream);
             resizeVideos();
