@@ -176,7 +176,7 @@ body {
     -webkit-animation-duration: 0.3s;
     -moz-animation-duration: 0.3s;
     animation-duration: 0.3s;
-    /*overflow: hidden;*/
+    overflow: hidden;
 }
 
 /*--------------------------------------------------------------
