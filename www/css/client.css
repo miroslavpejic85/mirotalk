@@ -787,6 +787,7 @@ video {
     width: 100%;
     height: 100%;
     object-fit: var(--video-object-fit);
+    cursor: pointer;
 }
 video:fullscreen {
     /*object-fit: contain;*/

@@ -25,6 +25,7 @@
 .whiteboard-cont #whiteboard {
     background-color: var(--wb-bg);
     border-radius: 5px;
+    cursor: crosshair;
 }
 .whiteboard-cont .colors-cont {
     position: absolute;
