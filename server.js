@@ -69,8 +69,8 @@ const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
-const Logger = require('./Logger');
-const log = new Logger('server');
+const logger = require('./logger');
+const log = new logger('server');
 
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets

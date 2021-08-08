@@ -8,16 +8,16 @@ module.exports = class Logger {
 
     debug(msg, op = '') {
         let dataTime = new Date().toISOString().replace(/T/, ' ').replace(/Z/, '');
-        console.log('[' + dataTime + '] [ ' + this.appName + ' ] ' + msg, op);
+        console.log('[' + dataTime + '] [' + this.appName + '] ' + msg, op);
     }
 
     warn(msg, op = '') {
         let dataTime = new Date().toISOString().replace(/T/, ' ').replace(/Z/, '');
-        console.warn('[' + dataTime + '] [ ' + this.appName + ' ] ' + msg, op);
+        console.warn('[' + dataTime + '] [' + this.appName + '] ' + msg, op);
     }
 
     error(msg, op = '') {
         let dataTime = new Date().toISOString().replace(/T/, ' ').replace(/Z/, '');
-        console.error('[' + dataTime + '] [ ' + this.appName + ' ] ' + msg, op);
+        console.error('[' + dataTime + '] [' + this.appName + '] ' + msg, op);
     }
 };
