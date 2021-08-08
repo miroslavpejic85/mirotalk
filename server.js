@@ -69,6 +69,9 @@ const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
+const Logger = require('./Logger');
+const log = new Logger('server');
+
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
@@ -82,7 +85,7 @@ app.use(express.json());
 // Remove trailing slashes in url handle bad requests
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-        logme('Request Error', {
+        log.debug('Request Error', {
             header: req.headers,
             body: req.body,
             error: err.message,
@@ -130,7 +133,7 @@ app.get('/join/', (req, res) => {
 // join to room
 app.get('/join/*', (req, res) => {
     if (Object.keys(req.query).length > 0) {
-        logme('redirect:' + req.url + ' to ' + url.parse(req.url).pathname);
+        log.debug('redirect:' + req.url + ' to ' + url.parse(req.url).pathname);
         res.redirect(url.parse(req.url).pathname);
     } else {
         res.sendFile(path.join(__dirname, 'www/client.html'));
@@ -151,7 +154,7 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
     // check if user was authorized for the api call
     let authorization = req.headers.authorization;
     if (authorization != api_key_secret) {
-        logme('MiroTalk get meeting - Unauthorized', {
+        log.debug('MiroTalk get meeting - Unauthorized', {
             header: req.headers,
             body: req.body,
         });
@@ -163,8 +166,8 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ meeting: meetingURL }));
 
-    // logme the output if all done
-    logme('MiroTalk get meeting - Authorized', {
+    // log.debug the output if all done
+    log.debug('MiroTalk get meeting - Authorized', {
         header: req.headers,
         body: req.body,
         meeting: meetingURL,
@@ -231,7 +234,7 @@ async function ngrokStart() {
         let pu1 = data.tunnels[1].public_url;
         let tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
         // server settings
-        logme('settings', {
+        log.debug('settings', {
             http: localHost,
             https: tunnelHttps,
             api_docs: api_docs,
@@ -251,7 +254,7 @@ async function ngrokStart() {
  * Start Local Server with ngrok https tunnel (optional)
  */
 server.listen(port, null, () => {
-    logme(
+    log.debug(
         `%c
 
 	███████╗██╗ ██████╗ ███╗   ██╗      ███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗ 
@@ -270,7 +273,7 @@ server.listen(port, null, () => {
         ngrokStart();
     } else {
         // server settings
-        logme('settings', {
+        log.debug('settings', {
             http: localHost,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
@@ -291,7 +294,7 @@ server.listen(port, null, () => {
  * On peer connected
  */
 io.sockets.on('connect', (socket) => {
-    logme('[' + socket.id + '] connection accepted');
+    log.debug('[' + socket.id + '] connection accepted');
 
     socket.channels = {};
     sockets[socket.id] = socket;
@@ -303,7 +306,7 @@ io.sockets.on('connect', (socket) => {
         for (let channel in socket.channels) {
             removePeerFrom(channel);
         }
-        logme('[' + socket.id + '] disconnected');
+        log.debug('[' + socket.id + '] disconnected');
         delete sockets[socket.id];
     });
 
@@ -311,7 +314,7 @@ io.sockets.on('connect', (socket) => {
      * On peer join
      */
     socket.on('join', (config) => {
-        logme('[' + socket.id + '] join ', config);
+        log.debug('[' + socket.id + '] join ', config);
 
         let channel = config.channel;
         let peer_name = config.peer_name;
@@ -321,7 +324,7 @@ io.sockets.on('connect', (socket) => {
         let peer_rec = config.peer_rec;
 
         if (channel in socket.channels) {
-            logme('[' + socket.id + '] [Warning] already joined', channel);
+            log.debug('[' + socket.id + '] [Warning] already joined', channel);
             return;
         }
         // no channel aka room in channels init
@@ -332,7 +335,7 @@ io.sockets.on('connect', (socket) => {
 
         // room locked by the participants can't join
         if (peers[channel]['Locked'] === true) {
-            logme('[' + socket.id + '] [Warning] Room Is Locked', channel);
+            log.debug('[' + socket.id + '] [Warning] Room Is Locked', channel);
             socket.emit('roomIsLocked');
             return;
         }
@@ -345,11 +348,22 @@ io.sockets.on('connect', (socket) => {
             peer_hand: peer_hand,
             peer_rec: peer_rec,
         };
-        logme('connected peers grp by roomId', peers);
+        log.debug('connected peers grp by roomId', peers);
 
+        addPeerTo(channel);
+
+        channels[channel][socket.id] = socket;
+        socket.channels[channel] = channel;
+    });
+
+    /**
+     * Add peers to channel aka room
+     * @param {*} channel
+     */
+    async function addPeerTo(channel) {
         for (let id in channels[channel]) {
             // offer false
-            channels[channel][id].emit('addPeer', {
+            await channels[channel][id].emit('addPeer', {
                 peer_id: socket.id,
                 peers: peers[channel],
                 should_create_offer: false,
@@ -362,20 +376,17 @@ io.sockets.on('connect', (socket) => {
                 should_create_offer: true,
                 iceServers: iceServers,
             });
-            logme('[' + socket.id + '] emit addPeer [' + id + ']');
+            log.debug('[' + socket.id + '] emit addPeer [' + id + ']');
         }
-
-        channels[channel][socket.id] = socket;
-        socket.channels[channel] = channel;
-    });
+    }
 
     /**
      * Remove peers from channel aka room
      * @param {*} channel
      */
-    function removePeerFrom(channel) {
+    async function removePeerFrom(channel) {
         if (!(channel in socket.channels)) {
-            logme('[' + socket.id + '] [Warning] not in ', channel);
+            log.debug('[' + socket.id + '] [Warning] not in ', channel);
             return;
         }
 
@@ -395,11 +406,12 @@ io.sockets.on('connect', (socket) => {
         }
 
         for (let id in channels[channel]) {
-            channels[channel][id].emit('removePeer', { peer_id: socket.id });
+            await channels[channel][id].emit('removePeer', { peer_id: socket.id });
             socket.emit('removePeer', { peer_id: id });
-            logme('[' + socket.id + '] emit removePeer [' + id + ']');
+            log.debug('[' + socket.id + '] emit removePeer [' + id + ']');
         }
     }
+
     /**
      * Relay ICE to peers
      */
@@ -407,7 +419,7 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let ice_candidate = config.ice_candidate;
 
-        // logme('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
+        // log.debug('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
         //     address: config.ice_candidate,
         // });
 
@@ -424,7 +436,7 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let session_description = config.session_description;
 
-        logme('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
+        log.debug('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
             type: session_description.type,
         });
 
@@ -444,7 +456,7 @@ io.sockets.on('connect', (socket) => {
 
         peers[room_id]['Locked'] = room_locked;
 
-        logme('[' + socket.id + '] emit roomStatus' + ' to [room_id: ' + room_id + ' locked: ' + room_locked + ']');
+        log.debug('[' + socket.id + '] emit roomStatus' + ' to [room_id: ' + room_id + ' locked: ' + room_locked + ']');
 
         sendToRoom(room_id, socket.id, 'roomStatus', {
             peer_name: peer_name,
@@ -469,7 +481,7 @@ io.sockets.on('connect', (socket) => {
         }
 
         if (peer_id_to_update) {
-            logme('[' + socket.id + '] emit peerName to [room_id: ' + room_id + ']', {
+            log.debug('[' + socket.id + '] emit peerName to [room_id: ' + room_id + ']', {
                 peer_id: peer_id_to_update,
                 peer_name: peer_name_new,
             });
@@ -509,7 +521,7 @@ io.sockets.on('connect', (socket) => {
             }
         }
 
-        logme('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
+        log.debug('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
             peer_id: socket.id,
             element: element,
             status: status,
@@ -524,23 +536,33 @@ io.sockets.on('connect', (socket) => {
     });
 
     /**
-     * Relay actions to peers in the same room
+     * Relay actions to peers or specific peer in the same room
      */
     socket.on('peerAction', (config) => {
         let room_id = config.room_id;
         let peer_name = config.peer_name;
         let peer_action = config.peer_action;
+        let peer_id = config.peer_id;
 
-        logme('[' + socket.id + '] emit peerAction to [room_id: ' + room_id + ']', {
-            peer_id: socket.id,
-            peer_name: peer_name,
-            peer_action: peer_action,
-        });
+        if (peer_id !== null) {
+            log.debug('[' + socket.id + '] emit peerAction to [' + peer_id + '] from room_id [' + room_id + ']');
 
-        sendToRoom(room_id, socket.id, 'peerAction', {
-            peer_name: peer_name,
-            peer_action: peer_action,
-        });
+            sendToPeer(peer_id, sockets, 'peerAction', {
+                peer_name: peer_name,
+                peer_action: peer_action,
+            });
+        } else {
+            log.debug('[' + socket.id + '] emit peerAction to [room_id: ' + room_id + ']', {
+                peer_id: socket.id,
+                peer_name: peer_name,
+                peer_action: peer_action,
+            });
+
+            sendToRoom(room_id, socket.id, 'peerAction', {
+                peer_name: peer_name,
+                peer_action: peer_action,
+            });
+        }
     });
 
     /**
@@ -551,7 +573,7 @@ io.sockets.on('connect', (socket) => {
         let peer_id = config.peer_id;
         let peer_name = config.peer_name;
 
-        logme('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
+        log.debug('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
 
         sendToPeer(peer_id, sockets, 'kickOut', {
             peer_name: peer_name,
@@ -575,7 +597,7 @@ io.sockets.on('connect', (socket) => {
 
         file['peerName'] = peer_name;
 
-        logme('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
+        log.debug('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
             peerName: file.peerName,
             fileName: file.fileName,
             fileSize: bytesToSize(file.fileSize),
@@ -592,7 +614,7 @@ io.sockets.on('connect', (socket) => {
         let room_id = config.room_id;
         let peer_name = config.peer_name;
 
-        logme('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
+        log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
         sendToRoom(room_id, socket.id, 'fileAbort');
     });
 
@@ -605,7 +627,7 @@ io.sockets.on('connect', (socket) => {
         let video_action = config.video_action;
         let video_src = config.video_src;
 
-        logme('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', {
+        log.debug('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', {
             peer_id: socket.id,
             peer_name: peer_name,
             video_action: video_action,
@@ -655,14 +677,4 @@ async function sendToPeer(peer_id, sockets, msg, config = {}) {
     if (peer_id in sockets) {
         await sockets[peer_id].emit(msg, config);
     }
-}
-
-/**
- * log with UTC data time
- * @param {*} msg message any
- * @param {*} op optional params
- */
-function logme(msg, op = '') {
-    let dataTime = new Date().toISOString().replace(/T/, ' ').replace(/Z/, '');
-    console.log('[' + dataTime + '] ' + msg, op);
 }

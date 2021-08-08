@@ -1388,6 +1388,10 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     setPeerVideoStatus(peer_id, peer_video);
     // refresh remote peers audio icon status and title
     setPeerAudioStatus(peer_id, peer_audio);
+    // handle remote peers audio on-off
+    handlePeerAudioBtn(peer_id);
+    // handle remote peers video on-off
+    handlePeerVideoBtn(peer_id);
     // show status menu
     toggleClassElements('statusMenu', 'inline');
     // notify if peer started to recording own screen + audio
@@ -2778,7 +2782,7 @@ function handleMediaRecorder(mediaRecorder) {
 function handleMediaRecorderStart(event) {
     playSound('recStart');
     if (isRecScreenSream) {
-        emitPeerAction('recStart');
+        emitPeersAction('recStart');
         emitPeerStatus('rec', isRecScreenSream);
     }
     console.log('MediaRecorder started: ', event);
@@ -2820,7 +2824,7 @@ function handleMediaRecorderStop(event) {
             if (track.kind === 'video') track.stop();
         });
         isRecScreenSream = false;
-        emitPeerAction('recStop');
+        emitPeersAction('recStop');
         emitPeerStatus('rec', isRecScreenSream);
     }
     setRecordButtonUi();
@@ -3382,6 +3386,7 @@ function setMyAudioStatus(status) {
     tippy(myAudioStatusIcon, {
         content: status ? 'My audio is ON' : 'My audio is OFF',
     });
+    status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
         tippy(audioBtn, {
@@ -3404,6 +3409,7 @@ function setMyVideoStatus(status) {
     tippy(myVideoStatusIcon, {
         content: status ? 'My video is ON' : 'My video is OFF',
     });
+    status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
         tippy(videoBtn, {
@@ -3463,6 +3469,29 @@ function setPeerAudioStatus(peer_id, status) {
     tippy(peerAudioStatus, {
         content: status ? 'Participant audio is ON' : 'Participant audio is OFF',
     });
+    status ? playSound('on') : playSound('off');
+}
+
+/**
+ * Mute Audio to specific user in the room
+ * @param {*} peer_id
+ */
+function handlePeerAudioBtn(peer_id) {
+    let peerAudioBtn = getId(peer_id + '_audioStatus');
+    peerAudioBtn.onclick = () => {
+        disablePeer(peer_id, 'audio');
+    };
+}
+
+/**
+ * Hide Video to specific user in the room
+ * @param {*} peer_id
+ */
+function handlePeerVideoBtn(peer_id) {
+    let peerVideoBtn = getId(peer_id + '_videoStatus');
+    peerVideoBtn.onclick = () => {
+        disablePeer(peer_id, 'video');
+    };
 }
 
 /**
@@ -3478,17 +3507,35 @@ function setPeerVideoStatus(peer_id, status) {
     tippy(peerVideoStatus, {
         content: status ? 'Participant video is ON' : 'Participant video is OFF',
     });
+    status ? playSound('on') : playSound('off');
 }
 
 /**
  * Emit actions to all peers in the same room except yourself
  * @param {*} peerAction muteAudio hideVideo start/stop recording ...
  */
-function emitPeerAction(peerAction) {
+function emitPeersAction(peerAction) {
     if (!thereIsPeerConnections()) return;
 
     sendToServer('peerAction', {
         room_id: roomId,
+        peer_name: myPeerName,
+        peer_id: null,
+        peer_action: peerAction,
+    });
+}
+
+/**
+ * Emit actions to specified peers in the same room
+ * @param {*} peer_id
+ * @param {*} peerAction
+ */
+function emitPeerAction(peer_id, peerAction) {
+    if (!thereIsPeerConnections()) return;
+
+    sendToServer('peerAction', {
+        room_id: roomId,
+        peer_id: peer_id,
         peer_name: myPeerName,
         peer_action: peerAction,
     });
@@ -3521,13 +3568,14 @@ function handlePeerAction(config) {
 /**
  * Set my Audio off and Popup the peer name that performed this action
  */
-function setMyAudioOff() {
+function setMyAudioOff(peer_name) {
     if (myAudioStatus === false) return;
     localMediaStream.getAudioTracks()[0].enabled = false;
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
     audioBtn.className = 'fas fa-microphone-slash';
     setMyAudioStatus(myAudioStatus);
     userLog('toast', peer_name + ' has disabled your audio');
+    playSound('off');
 }
 
 /**
@@ -3540,6 +3588,7 @@ function setMyVideoOff(peer_name) {
     videoBtn.className = 'fas fa-video-slash';
     setMyVideoStatus(myVideoStatus);
     userLog('toast', peer_name + ' has disabled your video');
+    playSound('off');
 }
 
 /**
@@ -3574,11 +3623,55 @@ function disableAllPeers(element) {
             switch (element) {
                 case 'audio':
                     userLog('toast', 'Mute everyone 👍');
-                    emitPeerAction('muteAudio');
+                    emitPeersAction('muteAudio');
                     break;
                 case 'video':
                     userLog('toast', 'Hide everyone 👍');
-                    emitPeerAction('hideVideo');
+                    emitPeersAction('hideVideo');
+                    break;
+            }
+        }
+    });
+}
+
+/**
+ * Mute or Hide specific peer
+ * @param {*} peer_id
+ * @param {*} element audio/video
+ */
+function disablePeer(peer_id, element) {
+    if (!thereIsPeerConnections()) {
+        userLog('info', 'No participants detected');
+        return;
+    }
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        imageUrl: element == 'audio' ? audioOffImg : camOffImg,
+        title: element == 'audio' ? 'Mute this participant?' : 'Hide this participant?',
+        text:
+            element == 'audio'
+                ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
+                : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+        showDenyButton: true,
+        confirmButtonText: element == 'audio' ? `Mute` : `Hide`,
+        denyButtonText: `Cancel`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            switch (element) {
+                case 'audio':
+                    userLog('toast', 'Mute audio 👍');
+                    emitPeerAction(peer_id, 'muteAudio');
+                    break;
+                case 'video':
+                    userLog('toast', 'Hide video 👍');
+                    emitPeerAction(peer_id, 'hideVideo');
                     break;
             }
         }
@@ -4636,8 +4729,8 @@ function userLog(type, message) {
  */
 async function playSound(name) {
     if (!notifyBySound) return;
-    let file_audio = '../audio/' + name + '.mp3';
-    let audioToPlay = new Audio(file_audio);
+    let sound = '../sounds/' + name + '.mp3';
+    let audioToPlay = new Audio(sound);
     try {
         await audioToPlay.play();
     } catch (err) {
