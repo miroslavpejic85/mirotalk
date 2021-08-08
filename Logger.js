@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = class Logger {
+module.exports = class logger {
     constructor(appName) {
         if (appName) this.appName = appName;
         else this.appName = 'mirotalk';
