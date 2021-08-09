@@ -42,6 +42,7 @@ const camOffImg = '../images/cam-off.png';
 const audioOffImg = '../images/audio-off.png';
 const deleteImg = '../images/delete.png';
 const youtubeImg = '../images/youtube.png';
+const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
 const aboutImg = '../images/about.png';
 
@@ -1293,6 +1294,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     const remoteHandStatusIcon = document.createElement('button');
     const remoteVideoStatusIcon = document.createElement('button');
     const remoteAudioStatusIcon = document.createElement('button');
+    const remotePrivateMsgBtn = document.createElement('button');
     const remotePeerKickOut = document.createElement('button');
     const remoteVideoFullScreenBtn = document.createElement('button');
     const remoteVideoAvatarImage = document.createElement('img');
@@ -1330,6 +1332,12 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     tippy(remoteAudioStatusIcon, {
         content: 'Participant audio is ON',
     });
+    // remote private message
+    remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
+    remotePrivateMsgBtn.className = 'fas fa-paper-plane';
+    tippy(remotePrivateMsgBtn, {
+        content: 'Send private message',
+    });
     // remote peer kick out
     remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
     remotePeerKickOut.className = 'fas fa-sign-out-alt';
@@ -1352,6 +1360,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteStatusMenu.appendChild(remoteHandStatusIcon);
     remoteStatusMenu.appendChild(remoteVideoStatusIcon);
     remoteStatusMenu.appendChild(remoteAudioStatusIcon);
+    remoteStatusMenu.appendChild(remotePrivateMsgBtn);
     remoteStatusMenu.appendChild(remotePeerKickOut);
     remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
 
@@ -1392,6 +1401,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     handlePeerAudioBtn(peer_id);
     // handle remote peers video on-off
     handlePeerVideoBtn(peer_id);
+    // handle remote private messages
+    handlePeerPrivateMsg(peer_id, peer_name);
     // show status menu
     toggleClassElements('statusMenu', 'inline');
     // notify if peer started to recording own screen + audio
@@ -3491,6 +3502,46 @@ function handlePeerVideoBtn(peer_id) {
     let peerVideoBtn = getId(peer_id + '_videoStatus');
     peerVideoBtn.onclick = () => {
         disablePeer(peer_id, 'video');
+    };
+}
+
+/**
+ * Send Private Message to specific peer
+ * @param {*} peer_id
+ * @param {*} toPeerName
+ */
+function handlePeerPrivateMsg(peer_id, toPeerName) {
+    let peerPrivateMsg = getId(peer_id + '_privateMsg');
+    peerPrivateMsg.onclick = (e) => {
+        e.preventDefault();
+        Swal.fire({
+            background: swalBackground,
+            position: 'center',
+            imageUrl: messageImg,
+            title: 'Send private message',
+            input: 'text',
+            showCancelButton: true,
+            confirmButtonText: `Send`,
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown',
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp',
+            },
+        }).then((result) => {
+            if (result.value) {
+                let pMsg = result.value;
+                emitMsg(myPeerName, toPeerName, pMsg, true);
+                appendMessage(
+                    myPeerName,
+                    rightChatAvatar,
+                    'right',
+                    pMsg + '<br/><hr>Private message to ' + toPeerName,
+                    true,
+                );
+                userLog('toast', 'Message sent to ' + toPeerName + ' 👍');
+            }
+        });
     };
 }
 
