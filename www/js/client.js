@@ -1386,7 +1386,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     // resize video elements
     resizeVideos();
     // handle video full screen mode
-    handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen');
+    handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen', peer_id);
     // handle kick out button event
     handlePeerKickOutBtn(peer_id);
     // refresh remote peers avatar name
@@ -1482,8 +1482,9 @@ function setPeerChatAvatarImgName(avatar, peerName) {
  *
  * @param {*} videoId
  * @param {*} videoFullScreenBtnId
+ * @param {*} peer_id
  */
-function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
+function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
     let videoPlayer = getId(videoId);
     let videoFullScreenBtn = getId(videoFullScreenBtnId);
 
@@ -1511,21 +1512,44 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId) {
         }
     });
 
-    // on button click go on FS
+    // on button click go on FS mobile/desktop
     videoFullScreenBtn.addEventListener('click', (e) => {
-        handleFSVideo();
+        gotoFS();
     });
 
     // on video click go on FS
     videoPlayer.addEventListener('click', (e) => {
         // not mobile on click go on FS or exit from FS
         if (!isMobileDevice) {
-            handleFSVideo();
+            gotoFS();
         } else {
             // mobile on click exit from FS, for enter use videoFullScreenBtn
             if (isVideoOnFullScreen) handleFSVideo();
         }
     });
+
+    function gotoFS() {
+        // handle remote peer video fs
+        if (peer_id !== null) {
+            let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+            if (remoteVideoStatusBtn.className === 'fas fa-video') {
+                handleFSVideo();
+            } else {
+                showMsg();
+            }
+        } else {
+            // handle local video fs
+            if (myVideoStatusIcon.className === 'fas fa-video') {
+                handleFSVideo();
+            } else {
+                showMsg();
+            }
+        }
+    }
+
+    function showMsg() {
+        userLog('toast', 'Full screen mode work when video is on');
+    }
 
     function handleFSVideo() {
         // if Controls enabled, or document on FS do nothing
@@ -3490,7 +3514,7 @@ function setPeerAudioStatus(peer_id, status) {
 function handlePeerAudioBtn(peer_id) {
     let peerAudioBtn = getId(peer_id + '_audioStatus');
     peerAudioBtn.onclick = () => {
-        disablePeer(peer_id, 'audio');
+        if (peerAudioBtn.className === 'fas fa-microphone') disablePeer(peer_id, 'audio');
     };
 }
 
@@ -3501,7 +3525,7 @@ function handlePeerAudioBtn(peer_id) {
 function handlePeerVideoBtn(peer_id) {
     let peerVideoBtn = getId(peer_id + '_videoStatus');
     peerVideoBtn.onclick = () => {
-        disablePeer(peer_id, 'video');
+        if (peerVideoBtn.className === 'fas fa-video') disablePeer(peer_id, 'video');
     };
 }
 
