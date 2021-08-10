@@ -468,7 +468,7 @@ function setButtonsTitle() {
         content: 'Close the videoPlayer',
     });
     tippy(msgerVideoUrlBtn, {
-        content: 'Share Youtube video',
+        content: 'Share YouTube video to all participants',
     });
 }
 
@@ -1295,6 +1295,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     const remoteVideoStatusIcon = document.createElement('button');
     const remoteAudioStatusIcon = document.createElement('button');
     const remotePrivateMsgBtn = document.createElement('button');
+    const remoteYoutubeBtnBtn = document.createElement('button');
     const remotePeerKickOut = document.createElement('button');
     const remoteVideoFullScreenBtn = document.createElement('button');
     const remoteVideoAvatarImage = document.createElement('img');
@@ -1332,6 +1333,12 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     tippy(remoteAudioStatusIcon, {
         content: 'Participant audio is ON',
     });
+    // remote peer YouTube video
+    remoteYoutubeBtnBtn.setAttribute('id', peer_id + '_youtube');
+    remoteYoutubeBtnBtn.className = 'fab fa-youtube';
+    tippy(remoteYoutubeBtnBtn, {
+        content: 'Send YouTube video',
+    });
     // remote private message
     remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
     remotePrivateMsgBtn.className = 'fas fa-paper-plane';
@@ -1360,6 +1367,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteStatusMenu.appendChild(remoteHandStatusIcon);
     remoteStatusMenu.appendChild(remoteVideoStatusIcon);
     remoteStatusMenu.appendChild(remoteAudioStatusIcon);
+    remoteStatusMenu.appendChild(remoteYoutubeBtnBtn);
     remoteStatusMenu.appendChild(remotePrivateMsgBtn);
     remoteStatusMenu.appendChild(remotePeerKickOut);
     remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
@@ -1403,6 +1411,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     handlePeerVideoBtn(peer_id);
     // handle remote private messages
     handlePeerPrivateMsg(peer_id, peer_name);
+    // handle remote youtube video
+    handlePeerYouTube(peer_id);
     // show status menu
     toggleClassElements('statusMenu', 'inline');
     // notify if peer started to recording own screen + audio
@@ -3570,6 +3580,17 @@ function handlePeerPrivateMsg(peer_id, toPeerName) {
 }
 
 /**
+ * Send YouTube video to specific peer
+ * @param {*} peer_id
+ */
+function handlePeerYouTube(peer_id) {
+    let peerYoutubeBtn = getId(peer_id + '_youtube');
+    peerYoutubeBtn.onclick = () => {
+        sendVideoUrl(peer_id);
+    };
+}
+
+/**
  * Set Participant Video Status Icon and Title
  * @param {*} peer_id
  * @param {*} status
@@ -4382,16 +4403,17 @@ function saveBlobToFile(blob, file) {
 
 /**
  * Opend and send Video URL to all peers in the room
+ *
  */
-function sendVideoUrl() {
+function sendVideoUrl(peer_id = null) {
     playSound('newMessage');
 
     Swal.fire({
         background: swalBackground,
         position: 'center',
         imageUrl: youtubeImg,
-        title: 'Share Youtube Video',
-        text: 'Past youtube video URL',
+        title: 'Share YouTube Video',
+        text: 'Past YouTube video URL',
         input: 'text',
         showCancelButton: true,
         confirmButtonText: `Share`,
@@ -4408,7 +4430,10 @@ function sendVideoUrl() {
                 return;
             }
             console.log('Video URL: ' + result.value);
-            let config = { video_src: result.value };
+            let config = {
+                video_src: result.value,
+                peer_id: peer_id,
+            };
             openVideoUrlPlayer(config);
             emitVideoPlayer('open', config);
         }
@@ -4469,6 +4494,7 @@ function emitVideoPlayer(video_action, config = {}) {
         peer_name: myPeerName,
         video_action: video_action,
         video_src: config.video_src,
+        peer_id: config.peer_id,
     });
 }
 

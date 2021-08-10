@@ -544,7 +544,7 @@ io.sockets.on('connect', (socket) => {
         let peer_action = config.peer_action;
         let peer_id = config.peer_id;
 
-        if (peer_id !== null) {
+        if (peer_id) {
             log.debug('[' + socket.id + '] emit peerAction to [' + peer_id + '] from room_id [' + room_id + ']');
 
             sendToPeer(peer_id, sockets, 'peerAction', {
@@ -626,19 +626,32 @@ io.sockets.on('connect', (socket) => {
         let peer_name = config.peer_name;
         let video_action = config.video_action;
         let video_src = config.video_src;
+        let peer_id = config.peer_id;
 
-        log.debug('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', {
+        let sendConfig = {
+            peer_name: peer_name,
+            video_action: video_action,
+            video_src: video_src,
+        };
+        let logme = {
             peer_id: socket.id,
             peer_name: peer_name,
             video_action: video_action,
             video_src: video_src,
-        });
+        };
 
-        sendToRoom(room_id, socket.id, 'videoPlayer', {
-            peer_name: peer_name,
-            video_action: video_action,
-            video_src: video_src,
-        });
+        if (peer_id) {
+            log.debug(
+                '[' + socket.id + '] emit videoPlayer to [' + peer_id + '] from room_id [' + room_id + ']',
+                logme,
+            );
+
+            sendToPeer(peer_id, sockets, 'videoPlayer', sendConfig);
+        } else {
+            log.debug('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', logme);
+
+            sendToRoom(room_id, socket.id, 'videoPlayer', sendConfig);
+        }
     });
 
     /**
