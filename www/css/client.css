@@ -790,8 +790,7 @@ video {
     cursor: pointer;
 }
 video:fullscreen {
-    /*object-fit: contain;*/
-    object-fit: cover;
+    object-fit: contain; /* cover; */
     border: var(--elem-border-color);
 }
 .video {
