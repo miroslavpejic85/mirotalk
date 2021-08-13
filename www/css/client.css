@@ -746,7 +746,7 @@ body {
 
 emoji-picker {
     width: 420px;
-    height: 630px;    
+    height: 630px;
     --num-columns: 9;
     --emoji-size: 1.5rem;
     --background: var(--msger-bg);

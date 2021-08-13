@@ -1837,23 +1837,18 @@ function setChatRoomBtn() {
  * Emoji picker chat room button click event
  */
 function setChatEmojiBtn() {
-    if (isMobileDevice) {
-        // mobile already have it
-        msgerEmojiBtn.style.display = 'none';
-    } else {
-        msgerEmojiBtn.addEventListener('click', (e) => {
-            // prevent refresh page
-            e.preventDefault();
-            hideShowEmojiPicker();
-        });
+    msgerEmojiBtn.addEventListener('click', (e) => {
+        // prevent refresh page
+        e.preventDefault();
+        hideShowEmojiPicker();
+    });
 
-        emojiPicker.addEventListener('emoji-click', (e) => {
-            //console.log(e.detail);
-            //console.log(e.detail.emoji.unicode);
-            msgerInput.value += e.detail.emoji.unicode;
-            hideShowEmojiPicker();
-        });
-    }
+    emojiPicker.addEventListener('emoji-click', (e) => {
+        //console.log(e.detail);
+        //console.log(e.detail.emoji.unicode);
+        msgerInput.value += e.detail.emoji.unicode;
+        hideShowEmojiPicker();
+    });
 }
 
 /**
