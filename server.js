@@ -180,7 +180,7 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
 });
 
 /**
- * Get get Meeting Room URL
+ * Get Meeting Room URL
  * @param {*} host string
  * @returns meeting Room URL
  */

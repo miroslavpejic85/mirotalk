@@ -730,12 +730,7 @@ body {
 #msgerEmojiPicker {
     z-index: 13;
     display: none;
-    box-shadow: var(--box-shadow);
-    /* center */
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     /* fade in */
     -webkit-animation: fadeIn ease-in 1;
     -moz-animation: fadeIn ease-in 1;
@@ -749,29 +744,9 @@ body {
     overflow: hidden;
 }
 
-#msgerEmojiHeader {
-    background: rgb(0, 0, 0);
-    cursor: move;
-}
-
-#msgerCloseEmojiBtn {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    background: rgb(0, 0, 0);
-    border: none;
-    color: #fff;
-    font-size: 1.2rem;
-    transition: all 0.3s ease-in-out;
-}
-
-#msgerCloseEmojiBtn:hover {
-    color: rgb(0, 180, 50);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-
 emoji-picker {
+    width: 420px;
+    height: 630px;    
     --num-columns: 9;
     --emoji-size: 1.5rem;
     --background: var(--msger-bg);
