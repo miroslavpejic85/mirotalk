@@ -731,6 +731,8 @@ body {
     z-index: 13;
     display: none;
     position: absolute;
+    width: var(--msger-width);
+    height: var(--msger-height);
     /* fade in */
     -webkit-animation: fadeIn ease-in 1;
     -moz-animation: fadeIn ease-in 1;
@@ -745,8 +747,8 @@ body {
 }
 
 emoji-picker {
-    width: 420px;
-    height: 630px;
+    width: 100%;
+    height: 100%;
     --num-columns: 9;
     --emoji-size: 1.5rem;
     --background: var(--msger-bg);
