@@ -158,7 +158,10 @@ From where I took inspiration for this project. ❤️
 ## Contributing
 
 -   Pull Requests are very welcome! :slightly_smiling_face:
--   Just run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with `npx prettier --write .`
+-   Just run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with the following comand:
+    ```js
+    npm run lint
+    ```
 -   For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/TAeWXJCvBr)

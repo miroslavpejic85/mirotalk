@@ -754,6 +754,10 @@ emoji-picker {
     --background: var(--msger-bg);
 }
 
+/*--------------------------------------------------------------
+# Video Grid
+--------------------------------------------------------------*/
+
 #myVideo.mirror {
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);
@@ -1199,25 +1203,27 @@ progress {
     cursor: default;
     /*text-decoration: none;*/
 }
+
 #about b {
     color: rgb(0, 180, 50);
 }
-#author a {
+
+#about a {
     color: white;
     text-decoration: none;
 }
+
+#about a:hover {
+    color: rgb(0, 180, 50);
+    transition: all 0.3s ease-in-out;
+}
+
 #about img {
     cursor: pointer;
     border-radius: 10px;
 }
 
-#author a:hover {
-    color: rgb(0, 180, 50);
-    transition: all 0.3s ease-in-out;
-}
-
-/* about Sponsor btn */
-#sponsorBtn {
+#about button {
     border: none;
     width: 170px;
     height: 40px;
@@ -1228,7 +1234,8 @@ progress {
     transition: background 0.23s;
     cursor: pointer;
 }
-#sponsorBtn:hover {
+
+#about button:hover {
     font-weight: bold;
 }
 
