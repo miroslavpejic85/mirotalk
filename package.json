@@ -20,6 +20,7 @@
         "cors": "^2.8.5",
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
+        "helmet": "^4.6.0",
         "ngrok": "^4.0.1",
         "socket.io": "^4.1.2",
         "swagger-ui-express": "^4.1.6",
