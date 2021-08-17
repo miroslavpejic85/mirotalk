@@ -160,9 +160,9 @@ From where I took inspiration for this project. ❤️
 -   Pull Requests are very welcome! :slightly_smiling_face:
 -   Just run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with the following comand:
 
-    ```js
-    npm run lint
-    ```
+```js
+npm run lint
+```
 
 -   For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
