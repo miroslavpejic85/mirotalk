@@ -12,7 +12,6 @@ dependencies: {
     cors        : https://www.npmjs.com/package/cors
     dotenv      : https://www.npmjs.com/package/dotenv
     express     : https://www.npmjs.com/package/express
-    helmet      : https://www.npmjs.com/package/helmet
     ngrok       : https://www.npmjs.com/package/ngrok
     socket.io   : https://www.npmjs.com/package/socket.io
     swagger     : https://www.npmjs.com/package/swagger-ui-express
@@ -43,13 +42,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 require('dotenv').config();
 
 const compression = require('compression');
-const helmet = require('helmet');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const app = express();
 
-app.use(helmet()); // The X-powered header is sent within the response header. (unnecessary)
 app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
 
