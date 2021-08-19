@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500&display=swap');
+
 /*--------------------------------------------------------------
 # Fade in page on load 
 --------------------------------------------------------------*/
@@ -72,6 +74,7 @@
     --wb-bg: #000000;
     --wb-hbg: #000000;
     --my-settings-label-color: limegreen;
+    --hover-color: rgb(8, 189, 89);
 
     /* dark theme
     --body-bg: #16171b;
@@ -147,8 +150,7 @@
 
 * {
     outline: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
-        'Helvetica Neue', sans-serif;
+    font-family: 'Josefin Sans';
 }
 
 /*--------------------------------------------------------------
@@ -295,7 +297,7 @@ body {
 .statusMenu p:hover,
 .statusMenu h4:hover,
 .statusMenu button:hover {
-    color: rgb(0, 255, 0);
+    color: var(--hover-color);
     transition: all 0.3s ease-in-out;
 }
 
@@ -332,7 +334,7 @@ body {
     padding: 15px;
     flex-direction: column;
     justify-content: space-around;
-    grid-gap: 0.3rem;
+    grid-gap: 0.4rem;
     width: 40px;
     -webkit-animation: fadeIn ease-in 1;
     -moz-animation: fadeIn ease-in 1;
@@ -404,7 +406,7 @@ body {
 #whiteboardBtn:hover,
 #mySettingsBtn:hover,
 #aboutBtn:hover {
-    color: rgb(8, 189, 89);
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
 }
 #leaveRoomBtn:hover {
@@ -490,7 +492,7 @@ body {
     transition: background 0.23s;
 }
 .msger-header-options button:hover {
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
@@ -638,7 +640,7 @@ body {
 #msgerVideoUrlBtn:hover,
 #msgerEmojiBtn:hover,
 #msgerSendBtn:hover {
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
@@ -695,7 +697,7 @@ body {
 }
 
 #msgerCPList button:hover {
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
@@ -925,7 +927,7 @@ video:fullscreen {
 }
 
 #mySettingsCloseBtn:hover {
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
@@ -948,7 +950,7 @@ video:fullscreen {
 
 #myPeerNameSetBtn:hover,
 #lockUnlockRoomBtn:hover {
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
@@ -982,7 +984,7 @@ video:fullscreen {
 /* Change background color of buttons on hover */
 .tab button:hover {
     background-color: transparent;
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transition: all 0.3s ease-in-out;
 }
 
@@ -1185,7 +1187,7 @@ progress {
     background: black;
 }
 #videoUrlHeader button:hover {
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
@@ -1214,7 +1216,7 @@ progress {
 }
 
 #about a:hover {
-    color: rgb(0, 180, 50);
+    color: var(--hover-color);
     transition: all 0.3s ease-in-out;
 }
 
