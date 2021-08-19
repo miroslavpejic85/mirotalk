@@ -292,7 +292,8 @@ html {
 }
 
 body {
-    background: #16171b;
+    /* background: #16171b; */
+    background: black;
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
 }
@@ -2156,7 +2157,8 @@ textarea.form-input {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #16171b;
+    /* background: #16171b; */
+    background: black;
     z-index: -3;
 }
 
