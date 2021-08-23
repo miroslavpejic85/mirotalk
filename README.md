@@ -64,7 +64,7 @@ Open the app with the following **supported browsers** & many more...
 
 ## Quick start
 
--   You will need to have [Node.js](https://nodejs.org/en/blog/release/v12.22.1/) installed, this project has been tested with Node version `12.X` and `14.X`
+-   You will need to have `Node.js` installed, this project has been tested with Node version [12.X](<(https://nodejs.org/en/blog/release/v12.22.1/)>) and [14.X](https://nodejs.org/en/blog/release/v14.17.5/) `not` with `16.X`.
 
 ```bash
 # clone this repo
