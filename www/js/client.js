@@ -2979,7 +2979,7 @@ function cleanMessages() {
                 msgs = msgerChat.firstChild;
             }
             // clean object
-            chatMenpssages = [];
+            chatMessages = [];
         }
     });
 }
