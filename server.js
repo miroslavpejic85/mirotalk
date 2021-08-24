@@ -238,6 +238,7 @@ async function ngrokStart() {
         });
     } catch (err) {
         console.error('[Error] ngrokStart', err);
+        process.exit(1);
     }
 }
 

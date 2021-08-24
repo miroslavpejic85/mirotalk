@@ -64,23 +64,19 @@ Open the app with the following **supported browsers** & many more...
 
 ## Quick start
 
--   You will need to have `Node.js` installed, this project has been tested with Node version [12.X](https://nodejs.org/en/blog/release/v12.22.1/) and [14.X](https://nodejs.org/en/blog/release/v14.17.5/) `not` with `16.X`.
+-   You will need to have `Node.js` installed, this project has been tested with Node version [12.X](https://nodejs.org/en/blog/release/v12.22.1/) and [14.X](https://nodejs.org/en/blog/release/v14.17.5/)
 
 ```bash
 # clone this repo
-git clone https://github.com/miroslavpejic85/mirotalk.git
-
-# mirotalk dir
-cd mirotalk
-
+$ git clone https://github.com/miroslavpejic85/mirotalk.git
+# go to mirotalk dir
+$ cd mirotalk
 # copy .env.template to .env
-cp .env.template .env
-
+$ cp .env.template .env
 # install dependencies
-npm install
-
+$ npm install
 # start the server
-npm start
+$ npm start
 ```
 
 -   Open http://localhost:3000 in browser
@@ -89,18 +85,17 @@ npm start
 
 ## Docker
 
+-   Install https://docs.docker.com/compose/install/
+
 ```bash
 # copy .env.template to .env
-cp .env.template .env
-
+$ cp .env.template .env
 # build or rebuild services
-docker compose build
-
+$ docker-compose build
 # create and start containers
-docker compose up # -d
-
+$ docker-compose up # -d
 # stop and remove resources
-docker compose down
+$ docker-compose down
 ```
 
 -   Open http://localhost:3000 in browser
@@ -109,12 +104,11 @@ docker compose down
 
 ## API
 
-The `response` will give you a `entrypoint / Room URL` for `your meeting`, where `authorization: API_KEY_SECRET`.
-
 ```bash
-curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
-curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
-curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
+# The response will give you a entrypoint / Room URL for your meeting, where authorization: API_KEY_SECRET.
+$ curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
+$ curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
+$ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 ```
 
 ## API Documentation
@@ -158,11 +152,7 @@ From where I took inspiration for this project. ❤️
 ## Contributing
 
 -   Pull Requests are very welcome! :slightly_smiling_face:
--   Just run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with the following comand:
-
-```js
-npm run lint
-```
+-   Just run [prettier](https://prettier.io) on all of your PRs before submitting, this can be done with the following comand: `npm run lint`
 
 -   For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 

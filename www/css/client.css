@@ -425,7 +425,7 @@ body {
 .msger-draggable {
     z-index: 10;
     display: none;
-    position: absolute;
+    position: fixed;
     /* center screen */
     top: var(--msger-top);
     left: var(--msger-left);
