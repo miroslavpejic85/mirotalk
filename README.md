@@ -33,6 +33,7 @@ Open the app with the following **supported browsers** & many more...
 -   Is `100% Free` and `Open Source`
 -   No download, plug-in or login required, entirely browser based
 -   Unlimited number of conference rooms without call time limitation
+-   Possibility to Lock/Unlock the Room for the meeting
 -   Desktop and Mobile compatible
 -   Optimized Room URL Sharing (share it to your participants, wait them to join)
 -   Webcam Streaming (Front - Rear for mobile)
