@@ -25,6 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 'use strict'; // https://www.w3schools.com/js/js_strict.asp
 
+const isHttps = false; // must be the same to server.js isHttps
 const signalingServerPort = 3000; // must be the same to server.js PORT
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
@@ -498,7 +499,10 @@ function getPeerGeoLocation() {
  * @return Signaling server URL
  */
 function getSignalingServer() {
-    // return 'https://' + 'localhost' + ':' + signalingServerPort;
+    if (isHttps) {
+        return 'https://' + 'localhost' + ':' + signalingServerPort;
+        // outside of localhost change it with YOUR-SERVER-DOMAIN
+    }
     return (
         'http' +
         (location.hostname == 'localhost' ? '' : 's') +

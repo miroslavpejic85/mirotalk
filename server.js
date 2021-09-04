@@ -41,6 +41,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 require('dotenv').config();
 
+const { Server } = require('socket.io');
+const http = require('http');
+const https = require('https');
 const compression = require('compression');
 const express = require('express');
 const cors = require('cors');
@@ -50,26 +53,25 @@ const app = express();
 app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
 
+const isHttps = false; // must be the same to client.js isHttps
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 
-const http = require('http');
-const server = http.createServer(app);
-const { Server } = require('socket.io');
-const io = new Server().listen(server);
-const localHost = 'http://' + 'localhost' + ':' + port; // http
+let io, server, host;
 
-/* https
-const https = require('https');
-const fs = require('fs');
-const options = {
-    key: fs.readFileSync(path.join(__dirname, '/ssl/key.pem'), 'utf-8'),
-    cert: fs.readFileSync(path.join(__dirname, '/ssl/cert.pem'), 'utf-8'),
-};
-const server = https.createServer(options, app);
-const { Server } = require('socket.io');
-const io = new Server().listen(server);
-const localHost = 'https://' + 'localhost' + ':' + port; // https
-*/
+if (isHttps) {
+    const fs = require('fs');
+    const options = {
+        key: fs.readFileSync(path.join(__dirname, '/ssl/key.pem'), 'utf-8'),
+        cert: fs.readFileSync(path.join(__dirname, '/ssl/cert.pem'), 'utf-8'),
+    };
+    server = https.createServer(options, app);
+    io = new Server().listen(server);
+    host = 'https://' + 'localhost' + ':' + port;
+} else {
+    server = http.createServer(app);
+    io = new Server().listen(server);
+    host = 'http://' + 'localhost' + ':' + port;
+}
 
 const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
@@ -78,7 +80,7 @@ const swaggerDocument = yamlJS.load(path.join(__dirname + '/api/swagger.yaml'));
 const { v4: uuidV4 } = require('uuid');
 
 const apiBasePath = '/api/v1'; // api endpoint path
-const api_docs = localHost + apiBasePath + '/docs'; // api docs
+const api_docs = host + apiBasePath + '/docs'; // api docs
 const api_key_secret = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
 const ngrokEnabled = process.env.NGROK_ENABLED;
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
@@ -239,8 +241,8 @@ async function ngrokStart() {
         let tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
         // server settings
         log.debug('settings', {
-            http: localHost,
-            https: tunnelHttps,
+            server: host,
+            server_tunnel: tunnelHttps,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             iceServers: iceServers,
@@ -279,7 +281,7 @@ server.listen(port, null, () => {
     } else {
         // server settings
         log.debug('settings', {
-            http: localHost,
+            server: host,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             iceServers: iceServers,

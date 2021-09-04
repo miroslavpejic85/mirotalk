@@ -22,23 +22,19 @@ rm csr.pem
 2. Expose `server.js` on `https`
 
 ```js
-const https = require('https');
-const fs = require('fs');
-const options = {
-    key: fs.readFileSync(path.join(__dirname, '/ssl/key.pem'), 'utf-8'),
-    cert: fs.readFileSync(path.join(__dirname, '/ssl/cert.pem'), 'utf-8'),
-};
-const server = https.createServer(options, app);
-const { Server } = require('socket.io');
-const io = new Server().listen(server);
-const localHost = 'https://' + 'localhost' + ':' + port;
+const isHttps = true;
 ```
 
 3. Change on `client.js`
 
 ```js
+const isHttps = true;
+
 function getSignalingServer() {
-    return 'https://' + 'localhost' + ':' + signalingServerPort;
-    // outside of localhost change it with YOUR-SERVER-DOMAIN
+    if (isHttps) {
+        return 'https://' + 'localhost' + ':' + signalingServerPort;
+        // outside of localhost change it with YOUR-SERVER-DOMAIN
+    }
+    ...
 }
 ```
