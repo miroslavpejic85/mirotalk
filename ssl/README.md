@@ -39,5 +39,6 @@ const localHost = 'https://' + 'localhost' + ':' + port;
 ```js
 function getSignalingServer() {
     return 'https://' + 'localhost' + ':' + signalingServerPort;
+    // outside of localhost change it with YOUR-SERVER-DOMAIN
 }
 ```

@@ -498,6 +498,7 @@ function getPeerGeoLocation() {
  * @return Signaling server URL
  */
 function getSignalingServer() {
+    // return 'https://' + 'localhost' + ':' + signalingServerPort;
     return (
         'http' +
         (location.hostname == 'localhost' ? '' : 's') +
@@ -4027,43 +4028,101 @@ function fitToContainer(canvas) {
 function reportWindowSize() {
     fitToContainer(canvas);
 }
+
 /**
  * Whiteboard setup
  */
 function setupCanvas() {
     fitToContainer(canvas);
 
-    canvas.addEventListener('mousedown', (e) => {
-        x = e.offsetX;
-        y = e.offsetY;
-        isDrawing = true;
-    });
-    canvas.addEventListener('mousemove', (e) => {
+    // whiteboard touch listeners
+    canvas.addEventListener('touchstart', touchStart);
+    canvas.addEventListener('touchmove', touchMove);
+    canvas.addEventListener('touchend', touchEnd);
+
+    // whiteboard mouse listeners
+    canvas.addEventListener('mousedown', mouseDown);
+    canvas.addEventListener('mousemove', mouseMove);
+    canvas.addEventListener('mouseup', mouseUp);
+
+    function mouseDown(e) {
+        startDrawing(e.offsetX, e.offsetY);
+    }
+
+    function touchStart(e) {
+        startDrawing(e.touches[0].pageX, e.touches[0].pageY);
+    }
+
+    function mouseMove(e) {
         if (!isDrawing) return;
 
         draw(e.offsetX, e.offsetY, x, y);
-        // send draw to other peers in the room
-        if (thereIsPeerConnections()) {
-            sendToServer('wb', {
-                room_id: roomId,
-                peer_name: myPeerName,
-                act: 'draw',
-                newx: e.offsetX,
-                newy: e.offsetY,
-                prevx: x,
-                prevy: y,
-                color: color,
-                size: drawsize,
-            });
-        }
+        sendDrawRemote(e.offsetX, e.offsetY, x, y);
+
         x = e.offsetX;
         y = e.offsetY;
-    });
-    canvas.addEventListener('mouseup', (e) => {
-        if (isDrawing) isDrawing = false;
-    });
+    }
+
+    function touchMove(e) {
+        if (!isDrawing) return;
+
+        draw(e.touches[0].pageX, e.touches[0].pageY, x, y);
+        sendDrawRemote(e.touches[0].pageX, e.touches[0].pageY, x, y);
+
+        x = e.touches[0].pageX;
+        y = e.touches[0].pageY;
+    }
+
+    function mouseUp() {
+        stopDrawing();
+    }
+
+    function touchEnd(e) {
+        stopDrawing();
+    }
 
     window.onresize = reportWindowSize;
+}
+
+/**
+ * Start to driwing
+ * @param {*} ex
+ * @param {*} ey
+ */
+function startDrawing(ex, ey) {
+    x = ex;
+    y = ey;
+    isDrawing = true;
+}
+
+/**
+ * Send drawing coordinates to other peers in the room
+ * @param {*} newx
+ * @param {*} newy
+ * @param {*} ex
+ * @param {*} ey
+ */
+function sendDrawRemote(newx, newy, ex, ey) {
+    if (thereIsPeerConnections()) {
+        sendToServer('wb', {
+            room_id: roomId,
+            peer_name: myPeerName,
+            act: 'draw',
+            newx: newx,
+            newy: newy,
+            prevx: ex,
+            prevy: ey,
+            color: color,
+            size: drawsize,
+        });
+    }
+}
+
+/**
+ * Stop to drawing
+ */
+function stopDrawing() {
+    if (isDrawing) isDrawing = false;
 }
 
 /**

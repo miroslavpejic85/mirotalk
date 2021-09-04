@@ -50,10 +50,26 @@ const app = express();
 app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
 
+const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
+
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server().listen(server);
+const localHost = 'http://' + 'localhost' + ':' + port; // http
+
+/* https
+const https = require('https');
+const fs = require('fs');
+const options = {
+    key: fs.readFileSync(path.join(__dirname, '/ssl/key.pem'), 'utf-8'),
+    cert: fs.readFileSync(path.join(__dirname, '/ssl/cert.pem'), 'utf-8'),
+};
+const server = https.createServer(options, app);
+const { Server } = require('socket.io');
+const io = new Server().listen(server);
+const localHost = 'https://' + 'localhost' + ':' + port; // https
+*/
 
 const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
@@ -61,9 +77,6 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = yamlJS.load(path.join(__dirname + '/api/swagger.yaml'));
 const { v4: uuidV4 } = require('uuid');
 
-const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
-
-const localHost = 'http://' + 'localhost' + ':' + port; // http
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = localHost + apiBasePath + '/docs'; // api docs
 const api_key_secret = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
