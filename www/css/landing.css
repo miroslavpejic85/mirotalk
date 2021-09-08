@@ -293,7 +293,7 @@ html {
 
 body {
     /* background: #16171b; */
-    background: black;
+    background: linear-gradient(to left, #171717, #000000);
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
 }

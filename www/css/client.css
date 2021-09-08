@@ -59,7 +59,7 @@
 
     /* neon theme default */
     --body-bg: black;
-    --msger-bg: black;
+    --msger-bg: linear-gradient(to left, #383838, #000000);
     --msger-private-bg: black;
     --left-msg-bg: #da05f3;
     --private-msg-bg: #f77070;
@@ -76,7 +76,7 @@
 
     /* dark theme
     --body-bg: #16171b;
-    --msger-bg: #16171b;
+    --msger-bg: linear-gradient(to left, #383838, #000000);
     --msger-private-bg: black;
     --left-msg-bg: #222328;
     --private-msg-bg: #f77070;
@@ -93,7 +93,7 @@
 
     /* forest theme
     --body-bg: black;
-    --msger-bg: black;
+    --msger-bg: linear-gradient(to left, #383838, #000000);
     --msger-private-bg: black;
     --left-msg-bg: #2e3500;
     --private-msg-bg: #f77070;
@@ -110,7 +110,7 @@
 
     /* sky theme
     --body-bg: black;
-    --msger-bg: black;
+    --msger-bg: linear-gradient(to left, #383838, #000000);
     --msger-private-bg: black;
     --left-msg-bg: #0c95b7;
     --private-msg-bg: #f77070;

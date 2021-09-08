@@ -623,8 +623,10 @@ function whoAreYou() {
         title: 'Enter your name',
         input: 'text',
         html: `<br>
-        <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
-        <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>`,
+        <div style="overflow: hidden;">
+            <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
+            <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>
+        </div>`,
         confirmButtonText: `Join meeting`,
         showClass: {
             popup: 'animate__animated animate__fadeInDown',
@@ -1007,8 +1009,11 @@ function setTheme(theme) {
             // neon theme
             swalBackground = 'rgba(0, 0, 0, 0.7)';
             document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty('--msger-bg', 'black');
-            document.documentElement.style.setProperty('--msger-private-bg', 'black');
+            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+            document.documentElement.style.setProperty(
+                '--msger-private-bg',
+                'linear-gradient(to left, #383838, #000000)',
+            );
             document.documentElement.style.setProperty('--left-msg-bg', '#da05f3');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#579ffb');
@@ -1025,8 +1030,11 @@ function setTheme(theme) {
             // dark theme
             swalBackground = 'rgba(0, 0, 0, 0.7)';
             document.documentElement.style.setProperty('--body-bg', '#16171b');
-            document.documentElement.style.setProperty('--msger-bg', '#16171b');
-            document.documentElement.style.setProperty('--msger-private-bg', '#16171b');
+            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+            document.documentElement.style.setProperty(
+                '--msger-private-bg',
+                'linear-gradient(to left, #383838, #000000)',
+            );
             document.documentElement.style.setProperty('--left-msg-bg', '#222328');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#0a0b0c');
@@ -1043,8 +1051,11 @@ function setTheme(theme) {
             // forest theme
             swalBackground = 'rgba(0, 0, 0, 0.7)';
             document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty('--msger-bg', 'black');
-            document.documentElement.style.setProperty('--msger-private-bg', 'black');
+            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+            document.documentElement.style.setProperty(
+                '--msger-private-bg',
+                'linear-gradient(to left, #383838, #000000)',
+            );
             document.documentElement.style.setProperty('--left-msg-bg', '#2e3500');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#004b1c');
@@ -1061,8 +1072,11 @@ function setTheme(theme) {
             // sky theme
             swalBackground = 'rgba(0, 0, 0, 0.7)';
             document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty('--msger-bg', 'black');
-            document.documentElement.style.setProperty('--msger-private-bg', 'black');
+            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+            document.documentElement.style.setProperty(
+                '--msger-private-bg',
+                'linear-gradient(to left, #383838, #000000)',
+            );
             document.documentElement.style.setProperty('--left-msg-bg', '#0c95b7');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#012a5f');
@@ -1080,7 +1094,10 @@ function setTheme(theme) {
             swalBackground = 'rgba(0, 0, 0, 0.150)';
             document.documentElement.style.setProperty('--body-bg', 'black');
             document.documentElement.style.setProperty('--msger-bg', 'transparent');
-            document.documentElement.style.setProperty('--msger-private-bg', 'black');
+            document.documentElement.style.setProperty(
+                '--msger-private-bg',
+                'linear-gradient(to left, #383838, #000000)',
+            );
             document.documentElement.style.setProperty('--wb-bg', '#000000');
             document.documentElement.style.setProperty('--wb-hbg', '#000000');
             document.documentElement.style.setProperty('--btn-bg', 'transparent');
@@ -1765,12 +1782,9 @@ function setChatRoomBtn() {
         if (e.target.className == 'fas fa-ghost') {
             e.target.className = 'fas fa-undo';
             document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
-            document.documentElement.style.setProperty('--msger-private-bg', 'black');
         } else {
             e.target.className = 'fas fa-ghost';
-            mirotalkTheme == 'dark'
-                ? document.documentElement.style.setProperty('--msger-bg', '#16171b')
-                : document.documentElement.style.setProperty('--msger-bg', 'black');
+            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
         }
     });
 
