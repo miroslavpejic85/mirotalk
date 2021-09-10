@@ -57,6 +57,23 @@
     /* video elem border color */
     --elem-border-color: grey 1px solid;
 
+    /* left buttons bar vertical default */
+    --btns-top: 50%;
+    --btns-right: 0%;
+    --btns-left: 20px;
+    --btns-margin-left: 0px;
+    --btns-width: 40px;
+    --btns-flex-direction: column;
+
+    /* left buttons bar horizontal
+    --btns-top: 95%;
+    --btns-right: 25%;
+    --btns-left: 50%;
+    --btns-margin-left: -300px;
+    --btns-width: 600px;
+    --btns-flex-direction: row;
+    */
+
     /* neon theme default */
     --body-bg: black;
     --msger-bg: linear-gradient(to left, #383838, #000000);
@@ -68,7 +85,6 @@
     --btn-bg: white;
     --btn-color: black;
     --btn-opc: 1;
-    --btns-left: 20px;
     --wb-bg: #000000;
     --wb-hbg: #000000;
     --my-settings-label-color: limegreen;
@@ -85,7 +101,6 @@
     --btn-bg: white;
     --btn-color: black;
     --btn-opc: 1;
-    --btns-left: 20px;
     --wb-bg: #000000;
     --wb-hbg: #000000;
     --my-settings-label-color: limegreen;
@@ -102,7 +117,6 @@
     --btn-bg: white;
     --btn-color: black;
     --btn-opc: 1;
-    --btns-left: 20px;
     --wb-bg: #000000;
     --wb-hbg: #000000;
     --my-settings-label-color: limegreen;
@@ -119,7 +133,6 @@
     --btn-bg: white;
     --btn-color: black;
     --btn-opc: 1;
-    --btns-left: 20px;
     --wb-bg: #000000;
     --wb-hbg: #000000;
     --my-settings-label-color: #03a5ce;
@@ -136,7 +149,6 @@
     --btn-bg: transparent;
     --btn-color: white;
     --btn-opc: 0.7;
-    --btns-left: 20px;
     --wb-bg: transparent;
     --wb-hbg: #000000;
     --my-settings-label-color: limegreen;
@@ -150,6 +162,10 @@
     outline: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
         'Helvetica Neue', sans-serif;
+}
+
+html {
+    min-height: 100%;
 }
 
 /*--------------------------------------------------------------
@@ -318,23 +334,30 @@ body {
 # Left buttons
 --------------------------------------------------------------*/
 
-#leftButtons {
+#buttonsBar {
     z-index: 12;
     display: none;
     position: absolute;
+    padding: 15px;
+
+    top: var(--btns-top);
+    right: var(--btns-right);
     left: var(--btns-left);
-    top: 50%;
+    margin-left: var(--btns-margin-left);
+    width: var(--btns-width);
+    flex-direction: var(--btns-flex-direction);
+
+    justify-content: space-around;
+    grid-gap: 0.4rem;
+
     -webkit-transform: translate(0%, -50%);
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
+
     border-radius: 20px;
     background: transparent;
     box-shadow: var(--box-shadow);
-    padding: 15px;
-    flex-direction: column;
-    justify-content: space-around;
-    grid-gap: 0.4rem;
-    width: 40px;
+
     -webkit-animation: fadeIn ease-in 1;
     -moz-animation: fadeIn ease-in 1;
     animation: fadeIn ease-in 1;
@@ -347,7 +370,7 @@ body {
     overflow: hidden;
 }
 
-#leftButtons button {
+#buttonsBar button {
     border: none;
     font-size: 1.5rem;
     transition: all 0.3s ease-in-out;
@@ -357,7 +380,7 @@ body {
     opacity: var(--btn-opc);
 }
 
-#leftButtons button:focus {
+#buttonsBar button:focus {
     outline: none;
 }
 
@@ -886,6 +909,7 @@ video:fullscreen {
     margin: auto;
     box-shadow: var(--box-shadow);
     padding: 10px;
+    min-width: 330px;
     /* fade in */
     -webkit-animation: fadeIn ease-in 1;
     -moz-animation: fadeIn ease-in 1;
