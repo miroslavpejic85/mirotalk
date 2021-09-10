@@ -221,7 +221,8 @@ let sendProgress;
 let sendAbortBtn;
 let sendInProgress = false;
 // MTU 1kb to prevent drop.
-const chunkSize = 1024;
+// const chunkSize = 1024;
+const chunkSize = 1024 * 16; // 16kb/s
 // video URL player
 let videoUrlCont;
 let videoUrlHeader;

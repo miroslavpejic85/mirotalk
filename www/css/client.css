@@ -866,14 +866,20 @@ video:fullscreen {
         --video-object-fit: cover;
         border: var(--elem-border-color);
     }
+    .video.four {
+        width: 49vw;
+        height: 49vh;
+        --video-object-fit: cover;
+        border: var(--elem-border-color);
+    }
     .video.five {
-        width: 49.6vw;
+        width: 49vw;
         height: 33vh;
         --video-object-fit: cover;
         border: var(--elem-border-color);
     }
     .video.six {
-        width: 49.6vw;
+        width: 49vw;
         height: 33vh;
         --video-object-fit: cover;
         border: var(--elem-border-color);
