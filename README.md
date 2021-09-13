@@ -46,6 +46,7 @@ Open the app with the following **supported browsers** & many more...
 -   Chat with Emoji Picker & Private messages & Save the conversations
 -   Simple collaborative whiteboard for the teachers
 -   Share any YouTube video in real time
+-   Start a tetris game in waiting your participants :)
 -   Full Screen Mode on mouse click on the Video element
 -   Possibility to Change UI Themes
 -   Right-click on the Video elements for more options
