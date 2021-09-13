@@ -1093,15 +1093,18 @@ function setTheme(theme) {
             // ghost theme
             swalBackground = 'rgba(0, 0, 0, 0.150)';
             document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty('--msger-bg', 'transparent');
+            document.documentElement.style.setProperty(
+                '--msger-bg',
+                'linear-gradient(to left, transparent, rgba(0, 0, 0, 0.7))',
+            );
             document.documentElement.style.setProperty(
                 '--msger-private-bg',
                 'linear-gradient(to left, #383838, #000000)',
             );
             document.documentElement.style.setProperty('--wb-bg', '#000000');
             document.documentElement.style.setProperty('--wb-hbg', '#000000');
-            document.documentElement.style.setProperty('--btn-bg', 'transparent');
-            document.documentElement.style.setProperty('--btn-color', 'white');
+            document.documentElement.style.setProperty('--btn-bg', 'white');
+            document.documentElement.style.setProperty('--btn-color', 'black');
             document.documentElement.style.setProperty('--btn-opc', '0.7');
             document.documentElement.style.setProperty('--box-shadow', '0px');
             document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
@@ -2932,7 +2935,6 @@ function stopStreamRecording() {
  */
 function setRecordButtonUi() {
     recordStreamBtn.style.setProperty('background-color', 'white');
-    if (mirotalkTheme == 'ghost') recordStreamBtn.style.setProperty('background-color', 'transparent');
 }
 
 /**

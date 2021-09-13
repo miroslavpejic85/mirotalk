@@ -139,17 +139,17 @@
     */
 
     /* ghost theme
-    --body-bg: #16171b;
-    --msger-bg: transparent;
+    --body-bg: black;
+    --msger-bg: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.7));
     --msger-private-bg: black;
     --left-msg-bg: rgba(0, 0, 0, 0.7);
     --private-msg-bg: rgba(252, 110, 110, 0.7);
     --right-msg-bg: rgba(0, 0, 0, 0.7);
     --box-shadow: "0px"; 
-    --btn-bg: transparent;
-    --btn-color: white;
+    --btn-bg: white;
+    --btn-color: black;
     --btn-opc: 0.7;
-    --wb-bg: transparent;
+    --wb-bg: #000000;
     --wb-hbg: #000000;
     --my-settings-label-color: limegreen;
     */
