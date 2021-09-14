@@ -1185,6 +1185,8 @@ progress {
     display: none;
     width: var(--iframe-width);
     height: var(--iframe-height);
+    box-shadow: var(--box-shadow);
+    border-radius: 5px;
     /* center */
     position: absolute;
     top: 50%;
@@ -1200,8 +1202,6 @@ progress {
     -webkit-animation-duration: 1s;
     -moz-animation-duration: 1s;
     animation-duration: 1s;
-    box-shadow: var(--box-shadow);
-    border-radius: 5px;
 }
 #videoUrlHeader {
     position: absolute;
@@ -1243,6 +1243,8 @@ progress {
     display: none;
     width: var(--game-iframe-width);
     height: var(--game-iframe-height);
+    box-shadow: var(--box-shadow);
+    border-radius: 10px;
     /* center */
     position: absolute;
     top: 50%;
@@ -1258,8 +1260,6 @@ progress {
     -webkit-animation-duration: 1s;
     -moz-animation-duration: 1s;
     animation-duration: 1s;
-    box-shadow: var(--box-shadow);
-    border-radius: 5px;
 }
 #gameHeader {
     position: absolute;
