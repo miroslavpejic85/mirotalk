@@ -1047,6 +1047,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--wb-hbg', '#000000');
             document.documentElement.style.setProperty('--btn-bg', 'white');
             document.documentElement.style.setProperty('--btn-color', 'black');
+            document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
             document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0500ff, -3px -3px 6px #da05f3');
@@ -1067,6 +1068,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--wb-hbg', '#000000');
             document.documentElement.style.setProperty('--btn-bg', 'white');
             document.documentElement.style.setProperty('--btn-color', 'black');
+            document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
             document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0a0b0c, -3px -3px 6px #222328');
@@ -1087,6 +1089,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--wb-hbg', '#000000');
             document.documentElement.style.setProperty('--btn-bg', 'white');
             document.documentElement.style.setProperty('--btn-color', 'black');
+            document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
             document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #27944f, -3px -3px 6px #14843d');
@@ -1107,6 +1110,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--wb-hbg', '#000000');
             document.documentElement.style.setProperty('--btn-bg', 'white');
             document.documentElement.style.setProperty('--btn-color', 'black');
+            document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
             document.documentElement.style.setProperty('--my-settings-label-color', '#03a5ce');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #03a5ce, -3px -3px 6px #03a5ce');
@@ -1127,6 +1131,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--wb-hbg', '#000000');
             document.documentElement.style.setProperty('--btn-bg', 'white');
             document.documentElement.style.setProperty('--btn-color', 'black');
+            document.documentElement.style.setProperty('--btns-left', '5px');
             document.documentElement.style.setProperty('--btn-opc', '0.7');
             document.documentElement.style.setProperty('--box-shadow', '0px');
             document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
@@ -1150,9 +1155,10 @@ function setButtonsBarPosition(position) {
     mirotalkBtnsBar = position;
     switch (mirotalkBtnsBar) {
         case 'vertical':
+            let btnsLeft = mirotalkTheme === 'ghost' ? '5px' : '20px';
             document.documentElement.style.setProperty('--btns-top', '50%');
             document.documentElement.style.setProperty('--btns-right', '0px');
-            document.documentElement.style.setProperty('--btns-left', '20px');
+            document.documentElement.style.setProperty('--btns-left', btnsLeft);
             document.documentElement.style.setProperty('--btns-margin-left', '0px');
             document.documentElement.style.setProperty('--btns-width', '40px');
             document.documentElement.style.setProperty('--btns-flex-direction', 'column');

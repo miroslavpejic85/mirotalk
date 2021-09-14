@@ -1272,11 +1272,11 @@ progress {
     background-color: transparent;
 }
 #gameHeader button {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     margin: 5px;
     border: none;
-    color: white;
-    background: rgba(0, 0, 0, 0.7);
+    color: black;
+    background: transparent;
     border-radius: 5px;
 }
 #gameHeader button:hover {
