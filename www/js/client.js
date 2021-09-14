@@ -4714,7 +4714,6 @@ function kickOut(peer_id, peerKickOutBtn) {
                 peer_id: peer_id,
                 peer_name: myPeerName,
             });
-            peerKickOutBtn.style.display = 'none';
         }
     });
 }

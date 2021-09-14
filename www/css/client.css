@@ -1269,13 +1269,14 @@ progress {
     width: 100%;
     cursor: move;
     border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: transparent;
 }
 #gameHeader button {
+    font-size: 1.2rem;
     margin: 5px;
     border: none;
     color: white;
-    background: transparent;
+    background: rgba(0, 0, 0, 0.7);
     border-radius: 5px;
 }
 #gameHeader button:hover {
