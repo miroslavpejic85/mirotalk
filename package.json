@@ -4,7 +4,7 @@
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js",
+        "start": "node app/src/server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "npx prettier --write ."
     },

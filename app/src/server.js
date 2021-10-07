@@ -61,8 +61,8 @@ let io, server, host;
 if (isHttps) {
     const fs = require('fs');
     const options = {
-        key: fs.readFileSync(path.join(__dirname, '/ssl/key.pem'), 'utf-8'),
-        cert: fs.readFileSync(path.join(__dirname, '/ssl/cert.pem'), 'utf-8'),
+        key: fs.readFileSync(path.join(__dirname, '../ssl/key.pem'), 'utf-8'),
+        cert: fs.readFileSync(path.join(__dirname, '../ssl/cert.pem'), 'utf-8'),
     };
     server = https.createServer(options, app);
     io = new Server().listen(server);
@@ -76,7 +76,7 @@ if (isHttps) {
 const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = yamlJS.load(path.join(__dirname + '/api/swagger.yaml'));
+const swaggerDocument = yamlJS.load(path.join(__dirname + '/../api/swagger.yaml'));
 const { v4: uuidV4 } = require('uuid');
 
 const apiBasePath = '/api/v1'; // api endpoint path
@@ -96,8 +96,8 @@ let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
 
-// Use all static files from the www folder
-app.use(express.static(path.join(__dirname, 'www')));
+// Use all static files from the public folder
+app.use(express.static(path.join(__dirname, '../../', 'public')));
 
 // Api parse body data as json
 app.use(express.json());
@@ -122,27 +122,27 @@ app.use((err, req, res, next) => {
 
 /*
 app.get(["/"], (req, res) => {
-    res.sendFile(path.join(__dirname, "www/client.html"))
+    res.sendFile(path.join(__dirname, "public/view/client.html"))
 }); */
 
 // all start from here
 app.get(['/'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'www/landing.html'));
+    res.sendFile(path.join(__dirname, '../../', 'public/view/landing.html'));
 });
 
 // set new room name and join
 app.get(['/newcall'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'www/newcall.html'));
+    res.sendFile(path.join(__dirname, '../../', 'public/view/newcall.html'));
 });
 
 // if not allow video/audio
 app.get(['/permission'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'www/permission.html'));
+    res.sendFile(path.join(__dirname, '../../', 'public/view/permission.html'));
 });
 
 // privacy policy
 app.get(['/privacy'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'www/privacy.html'));
+    res.sendFile(path.join(__dirname, '../../', 'public/view/privacy.html'));
 });
 
 // no room name specified to join
@@ -156,7 +156,7 @@ app.get('/join/*', (req, res) => {
         log.debug('redirect:' + req.url + ' to ' + url.parse(req.url).pathname);
         res.redirect(url.parse(req.url).pathname);
     } else {
-        res.sendFile(path.join(__dirname, 'www/client.html'));
+        res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
     }
 });
 
