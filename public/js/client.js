@@ -54,6 +54,10 @@ const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
+const wbImageInput = 'image/*';
+const wbWidth = 800;
+const wbHeight = 600;
+
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
@@ -208,9 +212,6 @@ let whiteboardEraserBtn;
 let whiteboardCleanBtn;
 let whiteboardCloseBtn;
 // whiteboard settings
-const wbImageInput = 'image/*';
-const wbWidth = 800;
-const wbHeight = 600;
 let wbCanvas = null;
 let wbIsDrawing = false;
 let wbIsOpen = false;
@@ -2550,8 +2551,8 @@ async function shareRoomUrl() {
             background: swalBackground,
             position: 'center',
             title: 'Share the Room',
-            imageAlt: 'mirotalk-share',
-            imageUrl: shareUrlImg,
+            // imageAlt: 'mirotalk-share',
+            // imageUrl: shareUrlImg,
             html:
                 `
             <br/>
@@ -2600,7 +2601,7 @@ function makeRoomQR() {
         value: window.location.href,
     });
     qr.set({
-        size: 128,
+        size: 256,
     });
 }
 
@@ -2613,8 +2614,8 @@ function copyRoomURL() {
     document.body.appendChild(tmpInput);
     tmpInput.value = roomURL;
     tmpInput.select();
-    tmpInput.setSelectionRange(0, 99999);
-    document.execCommand('copy');
+    tmpInput.setSelectionRange(0, 99999); // For mobile devices
+    navigator.clipboard.writeText(tmpInput.value);
     console.log('Copied to clipboard Join Link ', roomURL);
     document.body.removeChild(tmpInput);
     userLog('toast', 'Meeting URL is copied to clipboard 👍');
