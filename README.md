@@ -43,7 +43,7 @@ Open the app with the following **supported browsers** & many more...
 -   Ability to set video quality up to 4K and adapt the FPS
 -   Recording your Screen, Audio and Video
 -   Chat with Emoji Picker & Private messages & Save the conversations
--   Simple collaborative whiteboard for the teachers
+-   Advance collaborative whiteboard for the teachers
 -   Share any YouTube video in real time
 -   Start a tetris game in waiting your participants :)
 -   Full Screen Mode on mouse click on the Video element
@@ -145,7 +145,7 @@ Many Thanks to:
 -   ianramzy (html [template](https://cruip.com/demos/neon/))
 -   vasanthv (webrtc)
 -   Sajad (chat)
--   i-aryan (whiteboard)
+-   fabric.js (whiteboard)
 -   fmeringdal (rest api)
 
 From where I took inspiration for this project. ❤️

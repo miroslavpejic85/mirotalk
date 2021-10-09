@@ -1,9 +1,17 @@
-.whiteboard-cont {
+/*--------------------------------------------------------------
+# Whiteboard
+--------------------------------------------------------------*/
+
+#whiteboard {
     z-index: 14;
-    display: none;
+    position: fixed;
+    margin: auto;
+    padding: 10px;
     width: var(--wb-width);
     height: var(--wb-height);
-    position: absolute;
+    background: var(--wb-bg);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
     /* center */
     top: 50%;
     left: 50%;
@@ -18,216 +26,85 @@
     -webkit-animation-duration: 1s;
     -moz-animation-duration: 1s;
     animation-duration: 1s;
-    overflow: none;
-    box-shadow: var(--box-shadow);
-    border-radius: 5px;
+    overflow: hidden;
 }
-.whiteboard-cont #whiteboard {
-    background-color: var(--wb-bg);
-    border-radius: 5px;
-    cursor: crosshair;
-}
-.whiteboard-cont .colors-cont {
-    position: absolute;
+
+.whiteboard-header {
     display: flex;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-    background: var(--wb-hbg);
+    justify-content: space-between;
+    background: rgb(0, 0, 0);
+    border-radius: 10px;
+    color: white;
     cursor: move;
-    border-radius: 5px;
 }
-.whiteboard-cont .colors-cont .white {
-    height: 30px;
+
+#whiteboard button {
     width: 30px;
-    border-radius: 50px;
-    background-color: #ffffff;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .white:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .red {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #e74c3c;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .red:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .yellow {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #f1c40f;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .yellow:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .green {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #badc58;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .green:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .orange {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #e67e22;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .orange:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .purple {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #9b59b6;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .purple:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .blue {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #3498db;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .blue:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .pink {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #fd79a8;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .pink:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .brown {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #834c32;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .brown:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont .colors-cont .grey {
-    height: 30px;
-    width: 30px;
-    border-radius: 50px;
-    background-color: #afadad;
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.whiteboard-cont .colors-cont .grey:hover {
-    cursor: pointer;
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-.whiteboard-cont button {
-    height: 30px;
-    width: 30px;
-    font-size: 1.2rem;
-    margin-top: 10px;
-    margin-left: 10px;
+    height: 40px;
     border: none;
     color: white;
     background: transparent;
 }
-.whiteboard-cont button:hover {
-    color: rgb(0, 180, 50);
+
+#whiteboard button:hover {
+    color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
 
-#whiteboardColorPicker {
+.whiteboardColorPicker {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     padding: 0;
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 15px;
     border-radius: 50px;
     border: solid 0.5px #afadad38;
 }
-#whiteboardColorPicker:hover {
+.whiteboardColorPicker:hover {
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
-#whiteboardColorPicker::-webkit-color-swatch {
+.whiteboardColorPicker::-webkit-color-swatch {
     border: none;
-    border-radius: 50px;
+    border-radius: 20px;
     padding: 0;
 }
-#whiteboardColorPicker::-webkit-color-swatch-wrapper {
+.whiteboardColorPicker::-webkit-color-swatch-wrapper {
     border: none;
-    border-radius: 50px;
+    border-radius: 20px;
     padding: 0;
 }
-#whiteboardColorPicker::-moz-color-swatch {
+.whiteboardColorPicker::-moz-color-swatch {
     border: none;
-    border-radius: 50px;
+    border-radius: 20px;
     padding: 0;
 }
-#whiteboardColorPicker::-moz-color-swatch-wrapper {
+.whiteboardColorPicker::-moz-color-swatch-wrapper {
     border: none;
-    border-radius: 50px;
+    border-radius: 20px;
     padding: 0;
 }
-#whiteboardColorPicker::color-swatch {
+.whiteboardColorPicker::color-swatch {
     border: none;
-    border-radius: 50px;
+    border-radius: 20px;
     padding: 0;
 }
-#whiteboardColorPicker::color-swatch-wrapper {
+.whiteboardColorPicker::color-swatch-wrapper {
     border: none;
-    border-radius: 50px;
+    border-radius: 20px;
     padding: 0;
+}
+
+.hidden {
+    display: none;
+}
+
+.show {
+    display: block;
 }

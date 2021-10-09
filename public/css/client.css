@@ -51,6 +51,7 @@
     /* whiteboard resize */
     --wb-width: 800px;
     --wb-height: 600px;
+    --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
 
     /* my settings */
     --mySettings-select-w: 100%;

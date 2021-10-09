@@ -664,9 +664,15 @@ io.sockets.on('connect', (socket) => {
     /**
      * Whiteboard actions for all user in the same room
      */
-    socket.on('wb', (config) => {
+    socket.on('wbCanvasToJson', (config) => {
         let room_id = config.room_id;
-        sendToRoom(room_id, socket.id, 'wb', config);
+        sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
+    });
+
+    socket.on('whiteboardAction', (config) => {
+        log.debug('Whiteboard', config);
+        let room_id = config.room_id;
+        sendToRoom(room_id, socket.id, 'whiteboardAction', config);
     });
 }); // end [sockets.on-connect]
 
