@@ -4192,7 +4192,7 @@ function whiteboardAddObj(type) {
                         const text = new fabric.Text(wbCanvasText, {
                             top: 0,
                             left: 0,
-                            fontFamily: 'Verdana',
+                            fontFamily: 'Comfortaa',
                             fill: wbCanvas.freeDrawingBrush.color,
                             strokeWidth: wbCanvas.freeDrawingBrush.width,
                             stroke: wbCanvas.freeDrawingBrush.color,
