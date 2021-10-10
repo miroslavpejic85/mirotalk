@@ -16,7 +16,7 @@
 
         <!-- Title and Icon -->
 
-        <title>MiroTalk ~ Allow Video and Audio access to join in the Room.</title>
+        <title>MiroTalk ~ 404 Page not found.</title>
         <link rel="shortcut icon" href="../images/logo.svg" />
         <link rel="apple-touch-icon" href="../images/logo.svg" />
 
@@ -63,7 +63,8 @@
                                 <div class="split-item">
                                     <div class="hero-content split-item-content center-content-mobile">
                                         <h1 class="mt-0 mb-16 reveal-from-bottom" data-reveal-delay="150">
-                                            Access denied.
+                                            Oops! <br />
+                                            404 - PAGE NOT FOUND
                                         </h1>
                                         <p
                                             id="getUserMediaError"
@@ -71,20 +72,8 @@
                                             data-reveal-delay="300"
                                         ></p>
                                         <p class="mt-0 mb-32 reveal-from-bottom" data-reveal-delay="300">
-                                            This app will not work without camera/microphone access. Please Try again
-                                            and allow it.
+                                            This page you are looking not exsist.
                                         </p>
-                                        <script>
-                                            let qs = new URLSearchParams(window.location.search);
-                                            let roomId = qs.get('roomId');
-                                            let getUserMediaError = qs.get('getUserMediaError');
-                                            console.log('Allow Camera && Audio', {
-                                                roomId: roomId,
-                                                getUserMediaError: getUserMediaError,
-                                            });
-                                            // print getUserMedia error
-                                            document.getElementById('getUserMediaError').innerHTML = getUserMediaError;
-                                        </script>
                                         <div class="reveal-from-bottom" data-reveal-delay="450">
                                             <button
                                                 class="button button-primary button-wide-mobile pulse"
@@ -97,9 +86,9 @@
                                                         #ffc55a 100%
                                                     );
                                                 "
-                                                onclick="roomId ? window.location.href = '/join/' + roomId : window.location.href = '/newcall';"
+                                                onclick="window.location.href = '/';"
                                             >
-                                                Try again
+                                                Go to Homepage
                                             </button>
                                         </div>
                                     </div>

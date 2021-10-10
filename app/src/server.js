@@ -160,6 +160,11 @@ app.get('/join/*', (req, res) => {
     }
 });
 
+// not match any of page before, so 404 not found
+app.get('*', function (req, res) {
+    res.sendFile(path.join(__dirname, '../../', 'public/view/404.html'));
+});
+
 /**
     MiroTalk API v1
     The response will give you a entrypoint / Room URL for your meeting.
