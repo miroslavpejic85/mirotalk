@@ -3544,7 +3544,6 @@ function setMyHandStatus() {
         playSound('raiseHand');
     }
     myHandStatusIcon.style.display = myHandStatus ? 'inline' : 'none';
-    myHandBtn.className = myHandStatus ? 'fas fa-hand-paper' : 'fas fa-hand-rock';
     emitPeerStatus('hand', myHandStatus);
 }
 
