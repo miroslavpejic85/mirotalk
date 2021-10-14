@@ -1110,7 +1110,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--btn-color', 'black');
             document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
+            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0500ff, -3px -3px 6px #da05f3');
             break;
         case 'dark':
@@ -1131,7 +1131,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--btn-color', 'black');
             document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
+            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0a0b0c, -3px -3px 6px #222328');
             break;
         case 'forest':
@@ -1152,7 +1152,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--btn-color', 'black');
             document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
+            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #27944f, -3px -3px 6px #14843d');
             break;
         case 'sky':
@@ -1173,7 +1173,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--btn-color', 'black');
             document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', '#03a5ce');
+            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
             document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #03a5ce, -3px -3px 6px #03a5ce');
             break;
         case 'ghost':
@@ -1195,7 +1195,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--btns-left', '5px');
             document.documentElement.style.setProperty('--btn-opc', '0.7');
             document.documentElement.style.setProperty('--box-shadow', '0px');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'limegreen');
+            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
             document.documentElement.style.setProperty('--left-msg-bg', 'rgba(0, 0, 0, 0.7)');
             document.documentElement.style.setProperty('--private-msg-bg', 'rgba(252, 110, 110, 0.7)');
             document.documentElement.style.setProperty('--right-msg-bg', 'rgba(0, 0, 0, 0.7)');

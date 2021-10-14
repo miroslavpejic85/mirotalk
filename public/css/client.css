@@ -96,8 +96,8 @@
     --btn-opc: 1;
     --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
     --wb-hbg: #000000;
-    --my-settings-label-color: limegreen;
-    --hover-color: rgb(8, 189, 89);
+    --my-settings-label-color: white;
+    --hover-color: grey; /* rgb(8, 189, 89); */
 
     /* dark theme
     --body-bg: #16171b;
@@ -112,7 +112,7 @@
     --btn-opc: 1;
     --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
     --wb-hbg: #000000;
-    --my-settings-label-color: limegreen;
+    --my-settings-label-color: white;
     */
 
     /* forest theme
@@ -128,7 +128,7 @@
     --btn-opc: 1;
     --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
     --wb-hbg: #000000;
-    --my-settings-label-color: limegreen;
+    --my-settings-label-color: white;
     */
 
     /* sky theme
@@ -144,7 +144,7 @@
     --btn-opc: 1;
     --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
     --wb-hbg: #000000;
-    --my-settings-label-color: #03a5ce;
+    --my-settings-label-color: white;
     */
 
     /* ghost theme
@@ -160,7 +160,7 @@
     --btn-opc: 0.7;
     --wb-bg: transparent;
     --wb-hbg: #000000;
-    --my-settings-label-color: limegreen;
+    --my-settings-label-color: white;
     */
 
     /* https://developer.mozilla.org/it/docs/Web/CSS/object-fit */
