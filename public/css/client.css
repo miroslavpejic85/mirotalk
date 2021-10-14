@@ -48,10 +48,6 @@
     --iframe-width: 640px;
     --iframe-height: 480px;
 
-    /* game iframe */
-    --game-iframe-width: 520px;
-    --game-iframe-height: 780px;
-
     /* whiteboard resize */
     --wb-width: 800px;
     --wb-height: 600px;
@@ -415,7 +411,6 @@ body {
 #myHandBtn,
 #whiteboardBtn,
 #fileShareBtn,
-#gameBtn,
 #mySettingsBtn,
 #aboutBtn,
 #leaveRoomBtn {
@@ -434,7 +429,6 @@ body {
 #chatRoomBtn:hover,
 #myHandBtn:hover,
 #fileShareBtn:hover,
-#gameBtn:hover,
 #whiteboardBtn:hover,
 #mySettingsBtn:hover,
 #aboutBtn:hover {
@@ -917,7 +911,7 @@ video:fullscreen {
 
 #mySettings {
     display: none;
-    z-index: 17;
+    z-index: 16;
     min-width: 320px;
     /* center */
     position: absolute;
@@ -1133,7 +1127,7 @@ video:fullscreen {
 --------------------------------------------------------------*/
 
 #sendFileDiv {
-    z-index: 18;
+    z-index: 17;
     display: none;
     min-width: 320px;
     /* center */
@@ -1244,62 +1238,6 @@ progress {
 }
 
 /*--------------------------------------------------------------
-# Game IFrame
---------------------------------------------------------------*/
-
-#gameCont {
-    z-index: 16;
-    display: none;
-    width: var(--game-iframe-width);
-    height: var(--game-iframe-height);
-    box-shadow: var(--box-shadow);
-    border-radius: 10px;
-    /* center */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    /* fade in */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
-}
-#gameHeader {
-    position: absolute;
-    display: flex;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-    cursor: move;
-    border-radius: 5px;
-    background-color: transparent;
-}
-#gameHeader button {
-    font-size: 1.5rem;
-    margin: 5px;
-    border: none;
-    color: black;
-    background: transparent;
-    border-radius: 5px;
-}
-#gameHeader button:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
-}
-#gameIframe {
-    width: var(--game-iframe-width);
-    height: var(--game-iframe-height);
-    border-radius: 5px;
-}
-
-/*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
 
@@ -1376,7 +1314,6 @@ z-index
 13 chat emoji
 14 whiteboard
 15 video iframe
-16 game iframe
-17 settings
-18 send File Div
+16 settings
+17 send File Div
 */
