@@ -80,22 +80,6 @@
                                             login required. Just get straight to talking, messaging and sharing your
                                             screen.
                                         </p>
-                                        <div class="reveal-from-bottom" data-reveal-delay="450">
-                                            <a
-                                                class="button button-primary button-wide-mobile pulse"
-                                                style="
-                                                    border: 0;
-                                                    background: linear-gradient(
-                                                        100deg,
-                                                        #376df9 0,
-                                                        #ff5fa0 75%,
-                                                        #ffc55a 100%
-                                                    );
-                                                "
-                                                href="/newcall"
-                                                >Try now</a
-                                            >
-                                        </div>
                                     </div>
                                     <style>
                                         @media (min-width: 641px) {
@@ -104,6 +88,33 @@
                                             }
                                         }
                                     </style>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cta section center-content-mobile reveal-from-bottom">
+                    <div class="container">
+                        <div class="cta-inner section-inner cta-split">
+                            <div class="cta-slogan">
+                                <h3 class="m-0">
+                                    Pick a room name.<br />
+                                    How about this one?
+                                </h3>
+                            </div>
+                            <div class="cta-action">
+                                <div class="mb-24">
+                                    <label class="form-label screen-reader" for="roomName">mirotalk</label>
+                                    <div class="form-group-desktop">
+                                        <input class="form-input" type="text" id="roomName" value="mirotalk" />
+                                        <button
+                                            class="button button-primary pulse"
+                                            onclick="{window.location.href = '/join/' + document.getElementById('roomName').value}"
+                                        >
+                                            Join to room
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -466,6 +477,8 @@
                 </div>
             </footer>
         </div>
+
         <script defer src="../js/landing.js"></script>
+        <script defer src="../js/newroom.js"></script>
     </body>
 </html>
