@@ -17,7 +17,9 @@
 
 Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn. `MiroTalk` provides video quality and latency not available with traditional technology.
 
-[![worksOn](public/images/worksOn.png)](https://mirotalk.herokuapp.com/)
+Open the app with the following **supported browsers** & many more...
+
+[![browsers](public/images/browsers.png)](https://mirotalk.herokuapp.com/)
 
 ## https://mirotalk.herokuapp.com/
 
