@@ -30,7 +30,7 @@ const signalingServerPort = 3000; // must be the same to server.js PORT
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerInfo = getPeerInfo();
-const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/';
+const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo';
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const welcomeImg = '../images/image-placeholder.svg';
 const shareUrlImg = '../images/image-placeholder.svg';
@@ -4250,6 +4250,8 @@ function mouseMove() {
     if (wbIsEraser) {
         wbCanvas.hoverCursor = 'not-allowed';
         return;
+    } else {
+        wbCanvas.hoverCursor = 'move';
     }
     if (!wbIsDrawing) return;
 }
