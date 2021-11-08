@@ -633,7 +633,6 @@ body {
 }
 
 button:hover {
-    color: rgb(0, 180, 50);
     transform: var(--btns-hover-scale);
 }
 
