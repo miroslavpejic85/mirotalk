@@ -8,7 +8,7 @@
 
 [![Author](https://img.shields.io/badge/Author-Miroslav-brightgreen.svg)](https://www.linkedin.com/in/miroslav-pejic-976a07101/)
 ![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-brightgreen.svg)](https://paypal.me/MiroslavPejic?locale.x=it_IT)
+[![Support](https://img.shields.io/badge/Support-PayPal-brightgreen.svg)](https://paypal.me/MiroslavPejic?locale.x=it_IT)
 [![Repo Link](https://img.shields.io/badge/Repo-Link-black.svg)](https://github.com/miroslavpejic85/mirotalk)
 [![Digital Ocean](https://img.shields.io/badge/Tested%20on-DigitalOcean-blue)](https://m.do.co/c/1070207afbb1)
 [![Code style: prettier](https://img.shields.io/badge/Code_style-Prettier-ff69b4.svg?)](https://github.com/prettier/prettier)
@@ -161,6 +161,12 @@ From where I took inspiration for this project. ❤️
 ## License
 
 [![AGPLv3](public/images/AGPLv3.png)](LICENSE)
+
+<br/>
+
+### MiroTalk SFU
+
+You can try also [MiroTalk SFU](https://github.com/miroslavpejic85/mirotalksfu), The difference between the 2 projects you can found [here](https://github.com/miroslavpejic85/mirotalksfu/issues/14#issuecomment-932701999).
 
 ---
 
