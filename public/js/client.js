@@ -1236,6 +1236,8 @@ function setupLocalMedia(callback, errorback) {
 
     console.log('Requesting access to local audio / video inputs');
 
+    console.log('Supported constraints', navigator.mediaDevices.getSupportedConstraints());
+
     // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 4kVideo |
     let videoConstraints =
         myBrowserName === 'Firefox' ? getVideoConstraints('useVideo') : getVideoConstraints('default');
@@ -1259,7 +1261,8 @@ function setupLocalMedia(callback, errorback) {
             // https://blog.addpipe.com/common-getusermedia-errors/
             console.error('Access denied for audio/video', err);
             playSound('error');
-            window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${err.toString()}`;
+            window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> 
+                                    Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`;
             if (errorback) errorback();
         });
 } // end [setup_local_stream]
