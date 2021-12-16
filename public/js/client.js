@@ -1994,7 +1994,7 @@ function setMyWhiteboardBtn() {
     setupWhiteboard();
 
     whiteboardBtn.addEventListener('click', (e) => {
-        whiteboardAction(getWhiteboardAction('toggle'));
+        handleWhiteboardToggle();
     });
     whiteboardPencilBtn.addEventListener('click', (e) => {
         whiteboardIsDrawingMode(true);
@@ -2036,7 +2036,7 @@ function setMyWhiteboardBtn() {
         confirmCleanBoard();
     });
     whiteboardCloseBtn.addEventListener('click', (e) => {
-        whiteboardAction(getWhiteboardAction('toggle'));
+        handleWhiteboardToggle();
     });
     wbDrawingColorEl.addEventListener('change', (e) => {
         wbCanvas.freeDrawingBrush.color = wbDrawingColorEl.value;
@@ -3972,6 +3972,13 @@ function handleRoomLocked() {
     }).then((result) => {
         if (result.isConfirmed) window.location.href = '/newcall';
     });
+}
+
+/**
+ * Handle whiteboard toogle
+ */
+function handleWhiteboardToggle() {
+    thereIsPeerConnections() ? whiteboardAction(getWhiteboardAction('toggle')) : toggleWhiteboard();
 }
 
 /**
