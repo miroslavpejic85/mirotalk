@@ -828,6 +828,8 @@ function handleAddPeer(config) {
     handleRTCDataChannels(peer_id);
     if (should_create_offer) handleRtcOffer(peer_id);
 
+    wbUpdate();
+
     playSound('addPeer');
 }
 
@@ -1992,7 +1994,7 @@ function setMyWhiteboardBtn() {
     setupWhiteboard();
 
     whiteboardBtn.addEventListener('click', (e) => {
-        toggleWhiteboard();
+        whiteboardAction(getWhiteboardAction('toggle'));
     });
     whiteboardPencilBtn.addEventListener('click', (e) => {
         whiteboardIsDrawingMode(true);
@@ -2034,7 +2036,7 @@ function setMyWhiteboardBtn() {
         confirmCleanBoard();
     });
     whiteboardCloseBtn.addEventListener('click', (e) => {
-        whiteboardAction(getWhiteboardAction('close'));
+        whiteboardAction(getWhiteboardAction('toggle'));
     });
     wbDrawingColorEl.addEventListener('change', (e) => {
         wbCanvas.freeDrawingBrush.color = wbDrawingColorEl.value;
@@ -4346,6 +4348,13 @@ function wbCanvasToJson() {
 }
 
 /**
+ * If whiteboard opened, update canvas to all peers connected
+ */
+function wbUpdate() {
+    if (wbIsOpen && thereIsPeerConnections()) wbCanvasToJson();
+}
+
+/**
  * Whiteboard: json to canvas objects
  * @param {*} config
  */
@@ -4430,8 +4439,8 @@ function handleWhiteboardAction(config, logme = true) {
         case 'clear':
             wbCanvas.clear();
             break;
-        case 'close':
-            if (wbIsOpen) toggleWhiteboard();
+        case 'toggle':
+            toggleWhiteboard();
             break;
         //...
     }

@@ -671,6 +671,7 @@ io.sockets.on('connect', (socket) => {
      */
     socket.on('wbCanvasToJson', (config) => {
         let room_id = config.room_id;
+        // log.debug('Whiteboard send canvas', config);
         sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
     });
 
