@@ -2161,6 +2161,9 @@ function setupMySettings() {
         videoMaxFrameRate = parseInt(videoFpsSelect.value);
         setLocalMaxFps(videoMaxFrameRate);
     });
+    // default 30 fps
+    videoFpsSelect.selectedIndex = '1';
+
     // Firefox not support video cam Fps O.o
     if (myBrowserName === 'Firefox') {
         videoFpsSelect.value = null;
