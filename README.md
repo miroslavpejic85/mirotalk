@@ -40,7 +40,7 @@ Open the app with the following **supported browsers** & many more...
 -   Screen Sharing to present documents, slides, and more...
 -   File Sharing, share any files to your participants in the room
 -   Select Audio Input - Output && Video source
--   Ability to set video quality up to 4K and adapt the FPS
+-   Ability to set video quality up to 4K and 60 FPS
 -   Recording your Screen, Audio and Video
 -   Chat with Emoji Picker & Private messages & Save the conversations
 -   Advance collaborative whiteboard for the teachers
