@@ -2174,6 +2174,9 @@ function setupMySettings() {
         screenMaxFrameRate = parseInt(screenFpsSelect.value);
         if (isScreenStreaming) setLocalMaxFps(screenMaxFrameRate);
     });
+    // default 30 fps
+    screenFpsSelect.selectedIndex = '1';
+
     // Mobile not support screen sharing
     if (isMobileDevice) {
         screenFpsSelect.value = null;
