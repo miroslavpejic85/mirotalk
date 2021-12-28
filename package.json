@@ -19,15 +19,15 @@
         "compression": "^1.7.4",
         "cors": "^2.8.5",
         "dotenv": "^10.0.0",
-        "express": "^4.17.1",
+        "express": "^4.17.2",
         "ngrok": "^4.2.2",
         "socket.io": "^4.4.0",
-        "swagger-ui-express": "^4.1.6",
+        "swagger-ui-express": "^4.3.0",
         "uuid": "8.3.2",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "node-fetch": "^3.1.0",
-        "prettier": "2.5.0"
+        "prettier": "2.5.1"
     }
 }
