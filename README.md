@@ -58,9 +58,16 @@ Open the app with the following **supported browsers** & many more...
 -   `Allow` to use the camera and microphone
 -   `Share` the Room URL and `Wait` someone to join for video conference
 
-## Room join
+## Direct join
 
--   You can also `join` directly to your `room` by going to https://mirotalk.up.railway.app/join/your-room-name-goes-here `or` https://mirotalk.herokuapp.com/join/your-room-name-goes-here
+-   You can also `join` directly to your `room` by going to https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0 `or` https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0
+
+| Params  | Description              | Value             |
+| ------- | ------------------------ | ----------------- |
+| `room`  | `Room Id`                | test              |
+| `name`  | `Your name`              | mirotalk          |
+| `audio` | `Enable / Disable audio` | 0/1 or true/false |
+| `video` | `Enable / Disable video` | 0/1 or true/false |
 
 ## Quick start
 

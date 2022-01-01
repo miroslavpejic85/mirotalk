@@ -147,6 +147,21 @@ app.get(['/privacy'], (req, res) => {
 
 // no room name specified to join
 app.get('/join/', (req, res) => {
+    if (Object.keys(req.query).length > 0) {
+        log.debug('Request Query', req.query);
+        /* 
+            http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1
+            all params are mandatory for the direct room join 
+        */
+        let roomName = req.query.room;
+        let peerName = req.query.name;
+        let peerAudio = req.query.audio;
+        let peerVideo = req.query.video;
+        if (roomName && peerName && peerAudio && peerVideo) {
+            res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
+            return;
+        }
+    }
     res.redirect('/');
 });
 

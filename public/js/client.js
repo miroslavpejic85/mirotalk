@@ -74,7 +74,7 @@ let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let peerGeo;
 let peerConnection;
-let myPeerName;
+let myPeerName = getPeerName();
 let useAudio = true;
 let useVideo = true;
 let camera = 'user';
@@ -577,12 +577,17 @@ function getSignalingServer() {
 }
 
 /**
- * Generate random Room id
+ * Generate random Room id if not set
  * @return Room Id
  */
 function getRoomId() {
+    // chek if passed as params /join?room=id
+    let qs = new URLSearchParams(window.location.search);
+    let queryRoomId = qs.get('room');
+
     // skip /join/
-    let roomId = location.pathname.substring(6);
+    let roomId = queryRoomId ? queryRoomId : location.pathname.substring(6);
+
     // if not specified room id, create one random
     if (roomId == '') {
         roomId = makeId(12);
@@ -605,6 +610,15 @@ function makeId(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+/**
+ * Check if peer name is set
+ * @return Peer Name
+ */
+function getPeerName() {
+    let qs = new URLSearchParams(window.location.search);
+    return qs.get('name');
 }
 
 /**
@@ -676,6 +690,13 @@ function handleConnect() {
  * set your name for the conference
  */
 function whoAreYou() {
+    if (myPeerName) {
+        checkPeerAudioVideo();
+        whoAreYouJoin();
+        welcomeUser();
+        return;
+    }
+
     playSound('newMessage');
 
     Swal.fire({
@@ -701,18 +722,8 @@ function whoAreYou() {
         },
         inputValidator: (value) => {
             if (!value) return 'Please enter your name';
-
-            document.body.style.backgroundImage = 'none';
-            myVideoWrap.style.display = 'inline';
-            logStreamSettingsInfo('localMediaStream', localMediaStream);
-            attachMediaStream(myVideo, localMediaStream);
-            resizeVideos();
-
             myPeerName = value;
-            myVideoParagraph.innerHTML = myPeerName + ' (me)';
-            setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
-            setPeerChatAvatarImgName('right', myPeerName);
-            joinToChannel();
+            whoAreYouJoin();
         },
     }).then(() => {
         welcomeUser();
@@ -731,6 +742,35 @@ function whoAreYou() {
         content: 'Click to video OFF',
         placement: 'top',
     });
+}
+
+/**
+ * Check peer audio and video &audio=1&video=1
+ * 1/true = enabled / 0/false = disabled
+ */
+function checkPeerAudioVideo() {
+    let qs = new URLSearchParams(window.location.search);
+    let audio = qs.get('audio').toLowerCase();
+    let video = qs.get('video').toLowerCase();
+    let queryPeerAudio = audio === '1' || audio === 'true';
+    let queryPeerVideo = video === '1' || video === 'true';
+    if (queryPeerAudio != null) handleAudio(audioBtn, false, queryPeerAudio);
+    if (queryPeerVideo != null) handleVideo(videoBtn, false, queryPeerVideo);
+}
+
+/**
+ * Room and Peer name are ok Join Channel
+ */
+function whoAreYouJoin() {
+    document.body.style.backgroundImage = 'none';
+    myVideoWrap.style.display = 'inline';
+    logStreamSettingsInfo('localMediaStream', localMediaStream);
+    attachMediaStream(myVideo, localMediaStream);
+    resizeVideos();
+    myVideoParagraph.innerHTML = myPeerName + ' (me)';
+    setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
+    setPeerChatAvatarImgName('right', myPeerName);
+    joinToChannel();
 }
 
 /**
@@ -2604,11 +2644,14 @@ function shareRoomByEmail(message) {
  * @param {*} e event
  * @param {*} init bool true/false
  */
-function handleAudio(e, init) {
+function handleAudio(e, init, force = null) {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
-    localMediaStream.getAudioTracks()[0].enabled = !localMediaStream.getAudioTracks()[0].enabled;
+    localMediaStream.getAudioTracks()[0].enabled =
+        force != null ? force : !localMediaStream.getAudioTracks()[0].enabled;
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
-    e.target.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
+    force != null
+        ? (e.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'))
+        : (e.target.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'));
     if (init) {
         audioBtn.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
         if (!isMobileDevice) {
@@ -2626,11 +2669,14 @@ function handleAudio(e, init) {
  * @param {*} e event
  * @param {*} init bool true/false
  */
-function handleVideo(e, init) {
+function handleVideo(e, init, force = null) {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
-    localMediaStream.getVideoTracks()[0].enabled = !localMediaStream.getVideoTracks()[0].enabled;
+    localMediaStream.getVideoTracks()[0].enabled =
+        force != null ? force : !localMediaStream.getVideoTracks()[0].enabled;
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
-    e.target.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
+    force != null
+        ? (e.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'))
+        : (e.target.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'));
     if (init) {
         videoBtn.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
         if (!isMobileDevice) {
@@ -3648,11 +3694,13 @@ function setPeerHandStatus(peer_id, peer_name, status) {
  */
 function setPeerAudioStatus(peer_id, status) {
     let peerAudioStatus = getId(peer_id + '_audioStatus');
-    peerAudioStatus.className = 'fas fa-microphone' + (status ? '' : '-slash');
-    tippy(peerAudioStatus, {
-        content: status ? 'Participant audio is ON' : 'Participant audio is OFF',
-    });
-    status ? playSound('on') : playSound('off');
+    if (peerAudioStatus) {
+        peerAudioStatus.className = 'fas fa-microphone' + (status ? '' : '-slash');
+        tippy(peerAudioStatus, {
+            content: status ? 'Participant audio is ON' : 'Participant audio is OFF',
+        });
+        status ? playSound('on') : playSound('off');
+    }
 }
 
 /**
@@ -3736,12 +3784,14 @@ function handlePeerYouTube(peer_id) {
 function setPeerVideoStatus(peer_id, status) {
     let peerVideoAvatarImage = getId(peer_id + '_avatar');
     let peerVideoStatus = getId(peer_id + '_videoStatus');
-    peerVideoStatus.className = 'fas fa-video' + (status ? '' : '-slash');
-    peerVideoAvatarImage.style.display = status ? 'none' : 'block';
-    tippy(peerVideoStatus, {
-        content: status ? 'Participant video is ON' : 'Participant video is OFF',
-    });
-    status ? playSound('on') : playSound('off');
+    if (peerVideoAvatarImage) peerVideoAvatarImage.style.display = status ? 'none' : 'block';
+    if (peerVideoStatus) {
+        peerVideoStatus.className = 'fas fa-video' + (status ? '' : '-slash');
+        tippy(peerVideoStatus, {
+            content: status ? 'Participant video is ON' : 'Participant video is OFF',
+        });
+        status ? playSound('on') : playSound('off');
+    }
 }
 
 /**
