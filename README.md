@@ -5,11 +5,8 @@
 [![Author](https://img.shields.io/badge/Author-Miroslav-brightgreen.svg)](https://www.linkedin.com/in/miroslav-pejic-976a07101/)
 ![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)
 [![Support](https://img.shields.io/badge/Support-PayPal-brightgreen.svg)](https://paypal.me/MiroslavPejic?locale.x=it_IT)
-[![Repo Link](https://img.shields.io/badge/Repo-Link-black.svg)](https://github.com/miroslavpejic85/mirotalk)
 [![Digital Ocean](https://img.shields.io/badge/Tested%20on-DigitalOcean-blue)](https://m.do.co/c/1070207afbb1)
 [![Code style: prettier](https://img.shields.io/badge/Code_style-Prettier-ff69b4.svg?)](https://github.com/prettier/prettier)
-[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Discord](https://img.shields.io/badge/Chat-Discord-green)](https://discord.gg/TAeWXJCvBr)
 
 Free `WebRTC` browser-based video calls, chat, and screen sharing, using google Stun and [numb](http://numb.viagenie.ca/) Turn. `MiroTalk` provides video quality and latency not available with traditional technology.
 
@@ -25,7 +22,7 @@ Open the app with the following **supported browsers** and many more.
 
 ## Features
 
--   Is `100% Free` and `Open Source`
+-   Is `100% Free` - `Open Source` - `Self-hosted`
 -   No download, plug-in, or login required, entirely browser-based
 -   Unlimited number of conference rooms without call time limitation
 -   Possibility to Lock/Unlock the Room for the meeting
