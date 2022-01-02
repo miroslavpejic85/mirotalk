@@ -46,10 +46,10 @@ Open the app with the following **supported browsers** and many more.
 
 ## Demo
 
--   `Open` https://mirotalk.up.railway.app/newcall `or` https://mirotalk.herokuapp.com/newcall
--   `Pick` your personal Room name and `Join To Room`
--   `Allow` to use the camera and microphone
--   `Share` the Room URL and `Wait` someone to join for video conference
+-   `Open` https://mirotalk.up.railway.app/newcall or https://mirotalk.herokuapp.com/newcall
+-   `Pick` your Room name and Join
+-   `Allow` using the camera and microphone
+-   `Share` the Room URL and Wait for someone to join for the video conference
 
 ## Direct join
 
