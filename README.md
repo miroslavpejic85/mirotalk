@@ -64,12 +64,12 @@ Open the app with the following **supported browsers** & many more...
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0
 -   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0
 
-| Params  | Description              | Value             |
-| ------- | ------------------------ | ----------------- |
-| `room`  | `Room Id`                | test              |
-| `name`  | `Your name`              | mirotalk          |
-| `audio` | `Enable / Disable audio` | 0/1 or true/false |
-| `video` | `Enable / Disable video` | 0/1 or true/false |
+| Params  | Description            | Value             |
+| ------- | ---------------------- | ----------------- |
+| `room`  | Room Id                | test              |
+| `name`  | Your name              | mirotalk          |
+| `audio` | Enable / Disable audio | 0/1 or true/false |
+| `video` | Enable / Disable video | 0/1 or true/false |
 
 ## Quick start
 
