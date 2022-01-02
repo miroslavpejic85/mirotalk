@@ -1,9 +1,5 @@
 # MiroTalk P2P
 
-🚀 `A free WebRTC browser-based video call, chat, and screen sharing`
-
-<br>
-
 [//]: https://img.shields.io/badge/<LABEL>-<MESSAGE>-<COLOR>
 
 [![Author](https://img.shields.io/badge/Author-Miroslav-brightgreen.svg)](https://www.linkedin.com/in/miroslav-pejic-976a07101/)
@@ -15,7 +11,7 @@
 [![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Discord](https://img.shields.io/badge/Chat-Discord-green)](https://discord.gg/TAeWXJCvBr)
 
-Powered by `WebRTC` using google Stun and [numb](http://numb.viagenie.ca/) Turn. `MiroTalk` provides video quality and latency not available with traditional technology.
+Free `WebRTC` browser-based video calls, chat, and screen sharing, using google Stun and [numb](http://numb.viagenie.ca/) Turn. `MiroTalk` provides video quality and latency not available with traditional technology.
 
 Open the app with the following **supported browsers** and many more.
 
