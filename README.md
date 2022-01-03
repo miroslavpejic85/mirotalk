@@ -57,12 +57,12 @@ Open the app with the following **supported browsers** and many more.
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0
 -   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0
 
-| Params | Type    | Description      |
-| ------ | ------- | ---------------- |
-| room   | string  | room Id          |
-| name   | string  | your name        |
-| audio  | boolean | enable / disable |
-| video  | boolean | enable / disable |
+    | Params | Type    | Description      |
+    | ------ | ------- | ---------------- |
+    | room   | string  | room Id          |
+    | name   | string  | your name        |
+    | audio  | boolean | enable / disable |
+    | video  | boolean | enable / disable |
 
 ## Quick start
 
