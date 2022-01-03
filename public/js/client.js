@@ -5016,7 +5016,7 @@ function showAbout() {
     Swal.fire({
         background: swalBackground,
         position: 'center',
-        title: '<strong>WebRTC Made with ❤️</strong>',
+        title: '<strong>MiroTalk WebRTC P2P</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: aboutImg,
         html: `
