@@ -152,7 +152,7 @@ If you want `MiroTalk` to be `reachable` from the `outside` of your local networ
 -   Just run before `npm run lint`
 -   For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
-[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/TAeWXJCvBr)
+[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/gYy3KgDn9R)
 
 ## License
 
