@@ -20,6 +20,7 @@
         "cors": "^2.8.5",
         "dotenv": "^10.0.0",
         "express": "^4.17.2",
+        "nedb": "^1.8.0",
         "ngrok": "^4.2.2",
         "socket.io": "^4.4.0",
         "swagger-ui-express": "^4.3.0",

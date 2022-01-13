@@ -1,209 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
 
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3XM60XK9RQ"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag('js', new Date());
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
 
-            gtag('config', 'G-3XM60XK9RQ');
-        </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3XM60XK9RQ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-        <!-- Title and Icon -->
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
 
-        <title>MiroTalk WebRTC Video call, Chat Room & Screen Sharing.</title>
-        <link rel="shortcut icon" href="../images/logo.svg" />
-        <link rel="apple-touch-icon" href="../images/logo.svg" />
+        gtag('config', 'G-3XM60XK9RQ');
+    </script>
 
-        <!-- Meta Information -->
+    <!-- Title and Icon -->
 
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-        />
-        <meta
-            name="description"
-            content="MiroTalk powered by WebRTC, Real-time Simple Secure Fast video calls, chat and screen sharing capabilities in the browser, from your mobile or desktop."
-        />
-        <meta
-            name="keywords"
-            content="webrtc, webrtc stun, webrtc turn, video meeting, video chat, multi video chat, peer to peer, p2p, zoom"
-        />
+    <title>MiroTalk WebRTC Video call, Chat Room & Screen Sharing.</title>
+    <link rel="shortcut icon" href="../images/logo.svg" />
+    <link rel="apple-touch-icon" href="../images/logo.svg" />
 
-        <!-- https://ogp.me -->
+    <!-- Meta Information -->
 
-        <meta property="og:type" content="app-webrtc" />
-        <meta property="og:site_name" content="MiroTalk" />
-        <meta property="og:title" content="Click the link to join this call." />
-        <meta property="og:description" content="Free WebRTC browser-based video call." />
-        <meta property="og:image" content="https://mirotalk.up.railway.app/images/preview.png" />
-        <meta property="og:url" content="https://mirotalk.herokuapp.com/" />
-        <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="description" content="MiroTalk powered by WebRTC, Real-time Simple Secure Fast video calls, chat and screen sharing capabilities in the browser, from your mobile or desktop." />
+    <meta name="keywords" content="webrtc, webrtc stun, webrtc turn, video meeting, video chat, multi video chat, peer to peer, p2p, zoom" />
 
-        <!-- StyleSheet -->
+    <!-- https://ogp.me -->
 
-        <link rel="stylesheet" href="../css/client.css" />
-        <link rel="stylesheet" href="../css/whiteboard.css" />
+    <meta property="og:type" content="app-webrtc" />
+    <meta property="og:site_name" content="MiroTalk" />
+    <meta property="og:title" content="Click the link to join this call." />
+    <meta property="og:description" content="Free WebRTC browser-based video call." />
+    <meta property="og:image" content="https://mirotalk.up.railway.app/images/preview.png" />
+    <meta property="og:url" content="https://mirotalk.herokuapp.com/" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png" />
 
-        <!-- https://animate.style 4 using for swal fadeIn-Out -->
+    <!-- StyleSheet -->
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    </head>
+    <link rel="stylesheet" href="../css/client.css" />
+    <link rel="stylesheet" href="../css/whiteboard.css" />
+    <!-- <link rel="stylesheet" href="../css/w3css.css"> -->
+    <!-- https://animate.style 4 using for swal fadeIn-Out -->
 
-    <body onload="initClientPeer()">
-        <noscript>You need to enable JavaScript to run this app.</noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+</head>
 
-        <!-- just 4SEO Optimization -->
+<body onload="initClientPeer()">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
 
-        <div id="webRTCSeo"><h1>WebRTC</h1></div>
+    <!-- just 4SEO Optimization -->
 
-        <!-- show this before to join -->
+    <div id="webRTCSeo">
+        <h1>WebRTC</h1>
+    </div>
 
-        <div id="loadingDiv">
-            <h1 class="pulsate">Loading...</h1>
-            <pre>
+    <!-- show this before to join -->
+
+    <div id="loadingDiv">
+        <h1 class="pulsate">Loading...</h1>
+        <pre>
 Please allow camera & microphone
 access to use this app.
             </pre>
-        </div>
+    </div>
 
-        <!-- Start buttons bar
+    <!-- Start buttons bar
         https://fontawesome.com/icons?d=gallery
         -->
 
-        <div id="buttonsBar">
-            <button id="shareRoomBtn" class="fas fa-users"></button>
-            <button id="audioBtn" class="fas fa-microphone"></button>
-            <button id="videoBtn" class="fas fa-video"></button>
-            <button id="swapCameraBtn" class="fas fa-sync-alt"></button>
-            <button id="screenShareBtn" class="fas fa-desktop"></button>
-            <button id="recordStreamBtn" class="fas fa-record-vinyl"></button>
-            <button id="fullScreenBtn" class="fas fa-expand-alt"></button>
-            <button id="chatRoomBtn" class="fas fa-comment"></button>
-            <button id="myHandBtn" class="fas fa-hand-paper"></button>
-            <button id="whiteboardBtn" class="fas fa-chalkboard-teacher"></button>
-            <button id="fileShareBtn" class="fas fa-folder-open"></button>
-            <button id="mySettingsBtn" class="fas fa-cogs"></button>
-            <button id="aboutBtn" class="fas fa-question"></button>
-            <button id="leaveRoomBtn" class="fas fa-phone-slash"></button>
-        </div>
+    <div id="buttonsBar">
+        <button id="shareRoomBtn" class="fas fa-users"></button>
+        <button id="audioBtn" class="fas fa-microphone"></button>
+        <button id="videoBtn" class="fas fa-video"></button>
+        <button id="swapCameraBtn" class="fas fa-sync-alt"></button>
+        <button id="screenShareBtn" class="fas fa-desktop"></button>
+        <button id="recordStreamBtn" class="fas fa-record-vinyl"></button>
+        <button id="fullScreenBtn" class="fas fa-expand-alt"></button>
+        <button id="chatRoomBtn" class="fas fa-comment"></button>
+        <button id="captionBtn" class="fas fa-closed-captioning"></button>
+        <button id="myHandBtn" class="fas fa-hand-paper"></button>
+        <button id="whiteboardBtn" class="fas fa-chalkboard-teacher"></button>
+        <button id="fileShareBtn" class="fas fa-folder-open"></button>
+        <button id="mySettingsBtn" class="fas fa-cogs"></button>
+        <button id="aboutBtn" class="fas fa-question"></button>
+        <button id="leaveRoomBtn" class="fas fa-phone-slash"></button>
+    </div>
 
-        <!-- End left buttons -->
+    <!-- End left buttons -->
 
-        <!-- Start chat room 
+    <!-- Start chat room 
         https://codepen.io/sajadhsm/pen/odaBdd
         https://getemoji.com
         -->
 
-        <section id="msgerDraggable" class="msger-draggable">
-            <section id="msger" class="msger">
-                <header id="msgerHeader" class="msger-header">
-                    <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Chat</div>
-                    <div class="msger-header-options">
-                        <button id="msgerTheme" class="fas fa-ghost"></button>
-                        <button id="msgerCPBtn" class="fas fa-users"></button>
-                        <button id="msgerClean" class="fas fa-trash"></button>
-                        <button id="msgerSaveBtn" class="fas fa-save"></button>
-                        <button id="msgerClose" class="fas fa-times"></button>
-                    </div>
-                </header>
+    <section id="msgerDraggable" class="msger-draggable">
+        <section id="msger" class="msger">
+            <header id="msgerHeader" class="msger-header">
+                <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Chat</div>
+                <div class="msger-header-options">
+                    <button id="msgerTheme" class="fas fa-ghost"></button>
+                    <button id="msgerCPBtn" class="fas fa-users"></button>
+                    <button id="msgerClean" class="fas fa-trash"></button>
+                    <button id="msgerSaveBtn" class="fas fa-save"></button>
+                    <button id="msgerClose" class="fas fa-times"></button>
+                </div>
+            </header>
 
-                <main id="msgerChat" class="msger-chat"></main>
+            <main id="msgerChat" class="msger-chat"></main>
 
-                <!-- Start emoji picker 
+            <!-- Start emoji picker 
                 https://github.com/nolanlawson/emoji-picker-element ] 
                 -->
 
-                <section id="msgerEmojiPicker">
-                    <emoji-picker class="dark"></emoji-picker>
-                    <!-- <emoji-picker class="light"></emoji-picker> -->
-                </section>
-
-                <!-- End emoji picker -->
-
-                <div class="msger-inputarea">
-                    <input id="msgerInput" class="msger-input" type="text" placeholder="💬 Enter your message..." />
-                    <button id="msgerVideoUrlBtn" class="fab fa-youtube"></button>
-                    <button id="msgerEmojiBtn" class="fas fa-smile"></button>
-                    <button id="msgerSendBtn" class="fas fa-paper-plane"></button>
-                </div>
+            <section id="msgerEmojiPicker">
+                <emoji-picker class="dark"></emoji-picker>
+                <!-- <emoji-picker class="light"></emoji-picker> -->
             </section>
 
-            <!-- Start private msg -->
+            <!-- End emoji picker -->
 
-            <section id="msgerCP">
-                <section id="msgerCPSec" class="msger">
-                    <header id="msgerCPHeader" class="msger-private-header">
-                        <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Send Private messages</div>
-                        <div class="msger-header-options">
-                            <button id="msgerCPCloseBtn" class="fas fa-times"></button>
-                        </div>
-                    </header>
-                    <main id="msgerCPChat" class="msger-chat">
-                        <div class="search-container">
-                            <input
-                                id="searchPeerBarName"
-                                type="text"
-                                placeholder=" 🔍 Search peer by name..."
-                                name="search"
-                                onkeyup="searchPeer()"
-                            />
-                        </div>
-                        <br />
-                        <div id="msgerCPList"></div>
-                    </main>
-                </section>
-            </section>
-
-            <!-- End private msg -->
+            <div class="msger-inputarea">
+                <input id="msgerInput" class="msger-input" type="text" placeholder="💬 Enter your message..." />
+                <button id="msgerVideoUrlBtn" class="fab fa-youtube"></button>
+                <button id="msgerEmojiBtn" class="fas fa-smile"></button>
+                <button id="msgerSendBtn" class="fas fa-paper-plane"></button>
+            </div>
         </section>
 
-        <!-- End chat room -->
+        <!-- Start private msg -->
 
-        <!-- Start my settings -->
+        <section id="msgerCP">
+            <section id="msgerCPSec" class="msger">
+                <header id="msgerCPHeader" class="msger-private-header">
+                    <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Send Private messages</div>
+                    <div class="msger-header-options">
+                        <button id="msgerCPCloseBtn" class="fas fa-times"></button>
+                    </div>
+                </header>
+                <main id="msgerCPChat" class="msger-chat">
+                    <div class="search-container">
+                        <input id="searchPeerBarName" type="text" placeholder=" 🔍 Search peer by name..." name="search" onkeyup="searchPeer()" />
+                    </div>
+                    <br />
+                    <div id="msgerCPList"></div>
+                </main>
+            </section>
+        </section>
 
-        <section id="mySettings">
-            <header id="mySettingsHeader">
-                <button id="mySettingsCloseBtn" class="fas fa-times"></button>
+        <!-- End private msg -->
+    </section>
+
+    <!-- End chat room -->
+
+    <!-- start of caption section -->
+    <section id="captionDraggable" class="msger-draggable">
+        <section id="caption" class="msger">
+            <header id="captionHeader" class="msger-header">
+                <div class="caption-header-title"><i class="fas fa-comment-alt"></i>Captions</div>
+                <div class="caption-header-options">
+                    <button id="captionTheme" class="fas fa-ghost"></button>
+                    <button id="captionClean" class="fas fa-trash"></button>
+                    <button id="captionSaveBtn" class="fas fa-save"></button>
+                    <button id="captionClose" class="fas fa-times"></button>
+                </div>
             </header>
-            <main>
+
+            <main id="captionChat" class="msger-chat"></main>
+        </section>
+    </section>
+    <!-- End of caption section -->
+
+    <!-- Start my settings -->
+
+    <section id="mySettings">
+        <header id="mySettingsHeader">
+            <button id="mySettingsCloseBtn" class="fas fa-times"></button>
+        </header>
+        <main>
+            <br />
+            <div class="tab">
+                <button id="tabDevicesBtn" class="tablinks">Devices</button>
+                <button id="tabBandwidthBtn" class="tablinks">Bandwidth</button>
+                <button id="tabRoomBtn" class="tablinks">Room</button>
+                <button id="tabStylingBtn" class="tablinks">Styling</button>
+            </div>
+
+            <div id="tabDevices" class="tabcontent">
                 <br />
-                <div class="tab">
-                    <button id="tabDevicesBtn" class="tablinks">Devices</button>
-                    <button id="tabBandwidthBtn" class="tablinks">Bandwidth</button>
-                    <button id="tabRoomBtn" class="tablinks">Room</button>
-                    <button id="tabStylingBtn" class="tablinks">Styling</button>
+                <div>
+                    <label for="videoSource">Camera</label><br />
+                    <select id="videoSource"></select>
                 </div>
-
-                <div id="tabDevices" class="tabcontent">
-                    <br />
-                    <div>
-                        <label for="videoSource">Camera</label><br />
-                        <select id="videoSource"></select>
-                    </div>
-                    <br />
-                    <div>
-                        <label for="audioSource">Microphone</label><br />
-                        <select id="audioSource"></select>
-                    </div>
-                    <br />
-                    <div>
-                        <label for="audioOutput">Speaker</label><br />
-                        <select id="audioOutput"></select>
-                    </div>
+                <br />
+                <div>
+                    <label for="audioSource">Microphone</label><br />
+                    <select id="audioSource"></select>
                 </div>
+                <br />
+                <div>
+                    <label for="audioOutput">Speaker</label><br />
+                    <select id="audioOutput"></select>
+                </div>
+            </div>
 
-                <div id="tabBandwidth" class="tabcontent">
-                    <br />
-                    <label for="videoQuality">Video quality</label>
-                    <br />
-                    <select id="videoQuality">
+            <div id="tabBandwidth" class="tabcontent">
+                <br />
+                <label for="videoQuality">Video quality</label>
+                <br />
+                <select id="videoQuality">
                         <option value="default">Default</option>
                         <option value="qvgaVideo">QVGA</option>
                         <option value="vgaVideo">VGA</option>
@@ -211,10 +219,10 @@ access to use this app.
                         <option value="fhdVideo">FULL HD</option>
                         <option value="4kVideo">4K</option>
                     </select>
-                    <br /><br />
-                    <label for="videoFps">Camera fps</label>
-                    <br />
-                    <select id="videoFps">
+                <br /><br />
+                <label for="videoFps">Camera fps</label>
+                <br />
+                <select id="videoFps">
                         <option value="60">60 fps</option>
                         <option value="30">30 fps</option>
                         <option value="25">25 fps</option>
@@ -223,10 +231,10 @@ access to use this app.
                         <option value="10">10 fps</option>
                         <option value="5">5 fps</option>
                     </select>
-                    <br /><br />
-                    <label for="screenFps">Screen fps</label>
-                    <br />
-                    <select id="screenFps">
+                <br /><br />
+                <label for="screenFps">Screen fps</label>
+                <br />
+                <select id="screenFps">
                         <option value="60">60 fps</option>
                         <option value="30">30 fps</option>
                         <option value="25">25 fps</option>
@@ -235,133 +243,129 @@ access to use this app.
                         <option value="10">10 fps</option>
                         <option value="5">5 fps</option>
                     </select>
-                </div>
+            </div>
 
-                <div id="tabRoom" class="tabcontent">
-                    <br />
-                    <div>
-                        <label>My name</label><br />
-                        <input id="myPeerNameSet" type="text" placeholder="Change name..." />&nbsp;&nbsp;
-                        <button id="myPeerNameSetBtn" class="fas fa-user-edit">&nbsp;Change</button>
-                    </div>
-                    <br />
-                    <div>
-                        <label>Participants</label><br />
-                        <button id="muteEveryoneBtn" class="fas fa-microphone">&nbsp;Mute everyone</button>&nbsp;&nbsp;
-                        <button id="hideEveryoneBtn" class="fas fa-video">&nbsp;Hide everyone</button>
-                        <br /><br />
-                        <label>Security</label><br />
-                        <button id="lockUnlockRoomBtn" class="fas fa-lock-open"></button>
-                    </div>
+            <div id="tabRoom" class="tabcontent">
+                <br />
+                <div>
+                    <label>My name</label><br />
+                    <input id="myPeerNameSet" type="text" placeholder="Change name..." />&nbsp;&nbsp;
+                    <button id="myPeerNameSetBtn" class="fas fa-user-edit">&nbsp;Change</button>
                 </div>
+                <br />
+                <div>
+                    <label>Participants</label><br />
+                    <button id="muteEveryoneBtn" class="fas fa-microphone">&nbsp;Mute everyone</button>&nbsp;&nbsp;
+                    <button id="hideEveryoneBtn" class="fas fa-video">&nbsp;Hide everyone</button>
+                    <br /><br />
+                    <label>Security</label><br />
+                    <button id="lockUnlockRoomBtn" class="fas fa-lock-open"></button>
+                </div>
+            </div>
 
-                <div id="tabStyling" class="tabcontent">
-                    <br />
-                    <label for="mirotalkTheme">Theme color</label>
-                    <br />
-                    <select id="mirotalkTheme">
+            <div id="tabStyling" class="tabcontent">
+                <br />
+                <label for="mirotalkTheme">Theme color</label>
+                <br />
+                <select id="mirotalkTheme">
                         <option value="neon">🟣 MiroTalk - neon</option>
                         <option value="dark">⚫️ MiroTalk - dark</option>
                         <option value="forest">🟢 MiroTalk - forest</option>
                         <option value="sky">🔵 MiroTalk - sky</option>
                         <option value="ghost">⚪️ MiroTalk - ghost</option>
                     </select>
-                    <br /><br />
-                    <label for="mirotalkBtnsBar">Buttons bar</label>
-                    <br />
-                    <select id="mirotalkBtnsBar">
+                <br /><br />
+                <label for="mirotalkBtnsBar">Buttons bar</label>
+                <br />
+                <select id="mirotalkBtnsBar">
                         <option value="vertical">🚦 Vertical</option>
                         <option value="horizontal">🚥 Horizontal</option>
                     </select>
-                </div>
-            </main>
-        </section>
-
-        <!-- End my settings -->
-
-        <!-- Start whiteboard -->
-
-        <section id="whiteboard" class="hidden">
-            <header id="whiteboardHeader" class="whiteboard-header">
-                <div id="whiteboardTitle" class="whiteboard-header-title"></div>
-                <div class="whiteboard-header-options">
-                    pencil
-                    <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" />
-                    background
-                    <input id="wbBackgroundColorEl" class="whiteboardColorPicker" type="color" value="#000000" />
-                    <button id="whiteboardPencilBtn" class="fas fa-pencil-alt"></button>
-                    <button id="whiteboardObjectBtn" class="fas fa-mouse-pointer"></button>
-                    <button id="whiteboardUndoBtn" class="fas fa-undo"></button>
-                    <button id="whiteboardRedoBtn" class="fas fa-redo"></button>
-                    <button id="whiteboardImgFileBtn" class="far fa-image"></button>
-                    <button id="whiteboardImgUrlBtn" class="fas fa-link"></button>
-                    <button id="whiteboardTextBtn" class="fas fa-spell-check"></button>
-                    <button id="whiteboardLineBtn" class="fas fa-slash"></button>
-                    <button id="whiteboardRectBtn" class="far fa-square"></button>
-                    <button id="whiteboardCircleBtn" class="far fa-circle"></button>
-                    <button id="whiteboardSaveBtn" class="fas fa-save"></button>
-                    <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
-                    <button id="whiteboardCleanBtn" class="fas fa-trash"></button>
-                    <button id="whiteboardCloseBtn" class="fas fa-times"></button>
-                </div>
-            </header>
-            <main>
-                <canvas id="wbCanvas"></canvas>
-            </main>
-        </section>
-
-        <!-- End whiteboard -->
-
-        <!-- Start File Send -->
-
-        <div id="sendFileDiv">
-            <img id="imgShare" src="../images/share.png" alt="mirotalk-share" class="center" /><br />
-            <div id="sendFileInfo"></div>
-            <div id="sendFilePercentage"></div>
-            <progress id="sendProgress" max="0" value="0"></progress>
-            <button id="sendAbortBtn" class="fas fa-stop-circle">&nbsp;Abort</button>
-        </div>
-
-        <!-- End File Send -->
-
-        <!-- Start video URL iframe -->
-
-        <div id="videoUrlCont">
-            <div id="videoUrlHeader">
-                <button id="videoUrlCloseBtn" class="fas fa-times"></button>
             </div>
-            <br />
-            <iframe
-                id="videoUrlIframe"
-                title="Video Url Player"
-                src="https://www.youtube.com/embed/RT6_Id5-7-s"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-            ></iframe>
+        </main>
+    </section>
+
+    <!-- End my settings -->
+
+    <!-- Start whiteboard -->
+
+    <section id="whiteboard" class="hidden">
+        <header id="whiteboardHeader" class="whiteboard-header">
+            <div id="whiteboardTitle" class="whiteboard-header-title"></div>
+            <div class="whiteboard-header-options">
+                pencil
+                <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" /> background
+                <input id="wbBackgroundColorEl" class="whiteboardColorPicker" type="color" value="#000000" />
+                <button id="whiteboardPencilBtn" class="fas fa-pencil-alt"></button>
+                <button id="whiteboardObjectBtn" class="fas fa-mouse-pointer"></button>
+                <button id="whiteboardUndoBtn" class="fas fa-undo"></button>
+                <button id="whiteboardRedoBtn" class="fas fa-redo"></button>
+                <button id="whiteboardImgFileBtn" class="far fa-image"></button>
+                <button id="whiteboardImgUrlBtn" class="fas fa-link"></button>
+                <button id="whiteboardTextBtn" class="fas fa-spell-check"></button>
+                <button id="whiteboardLineBtn" class="fas fa-slash"></button>
+                <button id="whiteboardRectBtn" class="far fa-square"></button>
+                <button id="whiteboardCircleBtn" class="far fa-circle"></button>
+                <button id="whiteboardSaveBtn" class="fas fa-save"></button>
+                <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
+                <button id="whiteboardCleanBtn" class="fas fa-trash"></button>
+                <button id="whiteboardCloseBtn" class="fas fa-times"></button>
+            </div>
+        </header>
+        <main>
+            <canvas id="wbCanvas"></canvas>
+        </main>
+    </section>
+
+    <!-- End whiteboard -->
+
+    <!-- Start File Send -->
+
+    <div id="sendFileDiv">
+        <img id="imgShare" src="../images/share.png" alt="mirotalk-share" class="center" /><br />
+        <div id="sendFileInfo"></div>
+        <div id="sendFilePercentage"></div>
+        <progress id="sendProgress" max="0" value="0"></progress>
+        <button id="sendAbortBtn" class="fas fa-stop-circle">&nbsp;Abort</button>
+    </div>
+
+    <!-- End File Send -->
+
+    <!-- Start video URL iframe -->
+
+    <div id="videoUrlCont">
+        <div id="videoUrlHeader">
+            <button id="videoUrlCloseBtn" class="fas fa-times"></button>
         </div>
+        <br />
+        <iframe id="videoUrlIframe" title="Video Url Player" src="https://www.youtube.com/embed/RT6_Id5-7-s" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
 
-        <!-- End Youtube Iframe -->
+    <!-- End Youtube Iframe -->
 
-        <!-- Js scripts -->
+    <!-- Js scripts -->
 
-        <script defer src="https://kit.fontawesome.com/d2f1016e6f.js" crossorigin="anonymous"></script>
-        <script defer src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-        <script defer src="https://cdn.rawgit.com/muaz-khan/DetectRTC/master/DetectRTC.js"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20"></script>
-        <script defer type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/460/fabric.min.js"></script>
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-        <script defer src="https://unpkg.com/@popperjs/core@2"></script>
-        <script defer src="https://unpkg.com/tippy.js@6"></script>
-        <script defer src="/socket.io/socket.io.js"></script>
-        <script defer src="../js/client.js"></script>
+    <script defer src="https://kit.fontawesome.com/d2f1016e6f.js" crossorigin="anonymous"></script>
+    <script defer src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script defer src="https://cdn.rawgit.com/muaz-khan/DetectRTC/master/DetectRTC.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20"></script>
+    <script defer type="module" src="https://unpkg.com/emoji-picker-element@1"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/460/fabric.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script defer src="https://unpkg.com/@popperjs/core@2"></script>
+    <script defer src="https://unpkg.com/tippy.js@6"></script>
+    <script defer src="/socket.io/socket.io.js"></script>
+    <script defer src="../js/client.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../js/volume_meter.js"></script>
+    <script src="../js/speech_recognition.js"></script>
 
-        <!-- end of Js scripts -->
+    <!-- end of Js scripts -->
 
-        <!-- 
+    <!-- 
 		the <video> and <audio> tags are all added and removed dynamically
 		in 'onAddStream', 'setupLocalMedia', and 'removePeer'/'disconnect'
 		-->
-    </body>
+</body>
+
 </html>

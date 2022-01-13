@@ -85,6 +85,7 @@ let myVideoStatus = true;
 let myAudioStatus = true;
 let isScreenStreaming = false;
 let isChatRoomVisible = false;
+let isCaptionBoxVisible = false; //added for caption button
 let isChatEmojiVisible = false;
 let isButtonsVisible = false;
 let isMySettingsVisible = false;
@@ -132,6 +133,7 @@ let screenShareBtn;
 let recordStreamBtn;
 let fullScreenBtn;
 let chatRoomBtn;
+let captionBtn; //for text transcript
 let myHandBtn;
 let whiteboardBtn;
 let fileShareBtn;
@@ -150,6 +152,14 @@ let msgerChat;
 let msgerEmojiBtn;
 let msgerInput;
 let msgerSendBtn;
+//caption section
+let captionDraggable;
+let captionHeader;
+let captionTheme;
+let captionClean;
+let captionSaveBtn;
+let captionClose;
+let captionChat;
 // chat room connected peers
 let msgerCP;
 let msgerCPHeader;
@@ -259,6 +269,7 @@ function getHtmlElementsById() {
     screenShareBtn = getId('screenShareBtn');
     recordStreamBtn = getId('recordStreamBtn');
     fullScreenBtn = getId('fullScreenBtn');
+    captionBtn = getId('captionBtn'); //for getting caption buttons
     chatRoomBtn = getId('chatRoomBtn');
     whiteboardBtn = getId('whiteboardBtn');
     fileShareBtn = getId('fileShareBtn');
@@ -286,6 +297,14 @@ function getHtmlElementsById() {
     // chat room emoji picker
     msgerEmojiPicker = getId('msgerEmojiPicker');
     emojiPicker = getSl('emoji-picker');
+    //caption box elements
+    captionDraggable = getId('captionDraggable');
+    captionHeader = getId('captionHeader');
+    captionTheme = getId('captionTheme');
+    captionClean = getId('captionClean');
+    captionSaveBtn = getId('captionSaveBtn');
+    captionClose = getId('captionClose');
+    captionChat = getId('captionChat');
     // my settings
     mySettings = getId('mySettings');
     mySettingsHeader = getId('mySettingsHeader');
@@ -379,6 +398,11 @@ function setButtonsTitle() {
     });
     tippy(chatRoomBtn, {
         content: 'OPEN the chat',
+        placement: 'right-start',
+    });
+    //for hover pop-over
+    tippy(captionBtn, {
+        content: 'See Caption',
         placement: 'right-start',
     });
     tippy(myHandBtn, {
@@ -662,6 +686,7 @@ function initClientPeer() {
     signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
+    signalingSocket.on('speech_transcript', handleSpeechTranscript);
 } // end [initClientPeer]
 
 /**
@@ -677,7 +702,7 @@ async function sendToServer(msg, config = {}) {
  * Connected to Signaling Server. Once the user has given us access to their
  * microphone/cam, join the channel and start peering up
  */
-function handleConnect() {
+function handleConnect(socket) {
     console.log('Connected to signaling server');
     if (localMediaStream) joinToChannel();
     else
@@ -802,8 +827,7 @@ function welcomeUser() {
         title: '<strong>Welcome ' + myPeerName + '</strong>',
         imageAlt: 'mirotalk-welcome',
         imageUrl: welcomeImg,
-        html:
-            `
+        html: `
         <br/> 
         <p style="color:white;">Share this meeting invite others to join.</p>
         <p style="color:rgb(8, 189, 89);">` +
@@ -1220,7 +1244,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--private-msg-bg', 'rgba(252, 110, 110, 0.7)');
             document.documentElement.style.setProperty('--right-msg-bg', 'rgba(0, 0, 0, 0.7)');
             break;
-        // ...
+            // ...
         default:
             console.log('No theme found');
     }
@@ -1811,7 +1835,7 @@ function manageLeftButtons() {
  * Copy - share room url button click event
  */
 function setShareRoomBtn() {
-    shareRoomBtn.addEventListener('click', async (e) => {
+    shareRoomBtn.addEventListener('click', async(e) => {
         shareRoomUrl();
     });
 }
@@ -1961,6 +1985,23 @@ function setChatRoomBtn() {
         }
         userLog('info', 'No chat messages to save');
     });
+    // open hide chat room
+    captionBtn.addEventListener('click', (e) => {
+        if (!isCaptionBoxVisible) {
+            showCaptionDraggable();
+        } else {
+            //hideChatRoomAndEmojiPicker();
+            e.target.className = 'fas fa-closed-captioning';
+        }
+    });
+    //save transcript to a file
+    captionSaveBtn.addEventListener('click', (e) => {
+        if (captionTexts.length != 0) {
+            downloadChatMsgs();
+            return;
+        }
+        userLog('info', 'No captions to save');
+    });
 
     // close chat room - show left button and status menu if hide
     msgerClose.addEventListener('click', (e) => {
@@ -1983,7 +2024,7 @@ function setChatRoomBtn() {
     });
 
     // on input check 4emoji from map
-    msgerInput.oninput = function () {
+    msgerInput.oninput = function() {
         for (let i in chatInputEmoji) {
             let regex = new RegExp(escapeSpecialChars(i), 'gim');
             this.value = this.value.replace(regex, chatInputEmoji[i]);
@@ -2020,7 +2061,7 @@ function setChatEmojiBtn() {
  * Set my hand button click event
  */
 function setMyHandBtn() {
-    myHandBtn.addEventListener('click', async (e) => {
+    myHandBtn.addEventListener('click', async(e) => {
         setMyHandStatus();
     });
 }
@@ -2308,10 +2349,10 @@ function getVideoConstraints(videoQuality) {
     switch (videoQuality) {
         case 'useVideo':
             return useVideo;
-        // Firefox not support set frameRate (OverconstrainedError) O.o
+            // Firefox not support set frameRate (OverconstrainedError) O.o
         case 'default':
             return { frameRate: frameRate };
-        // video cam constraints default
+            // video cam constraints default
         case 'qvgaVideo':
             return {
                 width: { exact: 320 },
@@ -2560,8 +2601,7 @@ async function shareRoomUrl() {
             title: 'Share the Room',
             // imageAlt: 'mirotalk-share',
             // imageUrl: shareUrlImg,
-            html:
-                `
+            html: `
             <br/>
             <div id="qrRoomContainer">
                 <canvas id="qrRoom"></canvas>
@@ -2649,9 +2689,9 @@ function handleAudio(e, init, force = null) {
     localMediaStream.getAudioTracks()[0].enabled =
         force != null ? force : !localMediaStream.getAudioTracks()[0].enabled;
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
-    force != null
-        ? (e.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'))
-        : (e.target.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'));
+    force != null ?
+        (e.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash')) :
+        (e.target.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'));
     if (init) {
         audioBtn.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
         if (!isMobileDevice) {
@@ -2662,6 +2702,12 @@ function handleAudio(e, init, force = null) {
         }
     }
     setMyAudioStatus(myAudioStatus);
+    if (myAudioStatus) {
+        start_stop_speech(true); //speech to text transcript function
+    } else {
+        start_stop_speech(false); //speech to text transcript function
+    }
+
 }
 
 /**
@@ -2674,9 +2720,9 @@ function handleVideo(e, init, force = null) {
     localMediaStream.getVideoTracks()[0].enabled =
         force != null ? force : !localMediaStream.getVideoTracks()[0].enabled;
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
-    force != null
-        ? (e.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'))
-        : (e.target.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'));
+    force != null ?
+        (e.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash')) :
+        (e.target.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'));
     if (init) {
         videoBtn.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
         if (!isMobileDevice) {
@@ -3158,6 +3204,29 @@ function showChatRoomDraggable() {
     }
 }
 
+
+/**
+ * Show caption box draggable on center screen position
+ */
+function showCaptionDraggable() {
+    playSound('newMessage');
+    if (isMobileDevice) {
+        buttonsBar.style.display = 'none';
+        isButtonsVisible = false;
+    }
+    captionBtn.className = 'far fa-closed-captioning';
+    captionDraggable.style.top = '50%';
+    captionDraggable.style.left = '50%';
+    captionDraggable.style.display = 'flex';
+    isCaptionBoxVisible = true;
+    // only for desktop
+    if (!isMobileDevice) {
+        tippy(captionBtn, {
+            content: 'CLOSE the caption',
+            placement: 'right-start',
+        });
+    }
+}
 /**
  * Clean chat messages
  */
@@ -3889,10 +3958,8 @@ function disableAllPeers(element) {
         position: 'center',
         imageUrl: element == 'audio' ? audioOffImg : camOffImg,
         title: element == 'audio' ? 'Mute everyone except yourself?' : 'Hide everyone except yourself?',
-        text:
-            element == 'audio'
-                ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
-                : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+        text: element == 'audio' ?
+            "Once muted, you won't be able to unmute them, but they can unmute themselves at any time." : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
         showDenyButton: true,
         confirmButtonText: element == 'audio' ? `Mute` : `Hide`,
         denyButtonText: `Cancel`,
@@ -3933,10 +4000,8 @@ function disablePeer(peer_id, element) {
         position: 'center',
         imageUrl: element == 'audio' ? audioOffImg : camOffImg,
         title: element == 'audio' ? 'Mute this participant?' : 'Hide this participant?',
-        text:
-            element == 'audio'
-                ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
-                : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+        text: element == 'audio' ?
+            "Once muted, you won't be able to unmute them, but they can unmute themselves at any time." : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
         showDenyButton: true,
         confirmButtonText: element == 'audio' ? `Mute` : `Hide`,
         denyButtonText: `Cancel`,
@@ -4157,7 +4222,7 @@ function whiteboardAddObj(type) {
                 if (result.isConfirmed) {
                     let wbCanvasImgURL = result.value;
                     if (isImageURL(wbCanvasImgURL)) {
-                        fabric.Image.fromURL(wbCanvasImgURL, function (myImg) {
+                        fabric.Image.fromURL(wbCanvasImgURL, function(myImg) {
                             addWbCanvasObj(myImg);
                         });
                     } else {
@@ -4185,10 +4250,10 @@ function whiteboardAddObj(type) {
                     let wbCanvasImg = result.value;
                     if (wbCanvasImg && wbCanvasImg.size > 0) {
                         let reader = new FileReader();
-                        reader.onload = function (event) {
+                        reader.onload = function(event) {
                             let imgObj = new Image();
                             imgObj.src = event.target.result;
-                            imgObj.onload = function () {
+                            imgObj.onload = function() {
                                 let image = new fabric.Image(imgObj);
                                 image.set({ top: 0, left: 0 }).scale(0.3);
                                 addWbCanvasObj(image);
@@ -4275,16 +4340,16 @@ function addWbCanvasObj(obj) {
  * Whiteboard: Local listners
  */
 function setupWhiteboardLocalListners() {
-    wbCanvas.on('mouse:down', function (e) {
+    wbCanvas.on('mouse:down', function(e) {
         mouseDown(e);
     });
-    wbCanvas.on('mouse:up', function () {
+    wbCanvas.on('mouse:up', function() {
         mouseUp();
     });
-    wbCanvas.on('mouse:move', function () {
+    wbCanvas.on('mouse:move', function() {
         mouseMove();
     });
-    wbCanvas.on('object:added', function () {
+    wbCanvas.on('object:added', function() {
         objectAdded();
     });
 }
@@ -4505,7 +4570,7 @@ function handleWhiteboardAction(config, logme = true) {
         case 'toggle':
             toggleWhiteboard();
             break;
-        //...
+            //...
     }
 }
 
@@ -4976,8 +5041,7 @@ function handleKickedOut(config) {
         position: 'center',
         imageUrl: kickedOutImg,
         title: 'Kicked out!',
-        html:
-            `<h2 style="color: red;">` +
+        html: `<h2 style="color: red;">` +
             `User ` +
             peer_name +
             `</h2> will kick out you after <b style="color: red;"></b> milliseconds.`,
@@ -5084,6 +5148,7 @@ function dragElement(elmnt, dragObj) {
         // otherwise, move the DIV from anywhere inside the DIV:
         elmnt.onmousedown = dragMouseDown;
     }
+
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
@@ -5094,6 +5159,7 @@ function dragElement(elmnt, dragObj) {
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
     }
+
     function elementDrag(e) {
         e = e || window.event;
         e.preventDefault();
@@ -5106,6 +5172,7 @@ function dragElement(elmnt, dragObj) {
         elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
         elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
     }
+
     function closeDragElement() {
         // stop moving when mouse button is released:
         document.onmouseup = null;
@@ -5212,7 +5279,7 @@ function userLog(type, message) {
                 title: message,
             });
             break;
-        // ......
+            // ......
         default:
             alert(message);
     }
@@ -5269,4 +5336,16 @@ function getSl(selector) {
  */
 function getEcN(className) {
     return document.getElementsByClassName(className);
+}
+
+/**
+ * Handle text transcipt getting from peers
+ * @param {*} data
+ */
+function handleSpeechTranscript(config) {
+    let peer_id = config.peer_id;
+    let time_stamp = config.time_stamp;
+    let name = config.user_name;
+    let transcipt = config.text_data;
+    console.log(config);
 }

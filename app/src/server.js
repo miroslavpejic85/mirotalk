@@ -221,7 +221,7 @@ function getMeetingURL(host) {
 // end of MiroTalk API v1
 
 // not match any of page before, so 404 not found
-app.get('*', function (req, res) {
+app.get('*', function(req, res) {
     res.sendFile(path.join(__dirname, '../../', 'public/view/404.html'));
 });
 
@@ -694,6 +694,13 @@ io.sockets.on('connect', (socket) => {
         log.debug('Whiteboard', config);
         let room_id = config.room_id;
         sendToRoom(room_id, socket.id, 'whiteboardAction', config);
+    });
+
+    // for live subtitle or transcripts
+    socket.on('speech_transcript', (config) => {
+        log.debug(config);
+        let room_id = config.room_id;
+        sendToRoom(room_id, socket.id, 'speech_transcript', config);
     });
 }); // end [sockets.on-connect]
 
