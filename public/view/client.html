@@ -6,6 +6,7 @@
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3XM60XK9RQ"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
+
             function gtag() {
                 dataLayer.push(arguments);
             }
@@ -50,7 +51,6 @@
 
         <link rel="stylesheet" href="../css/client.css" />
         <link rel="stylesheet" href="../css/whiteboard.css" />
-
         <!-- https://animate.style 4 using for swal fadeIn-Out -->
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -61,7 +61,9 @@
 
         <!-- just 4SEO Optimization -->
 
-        <div id="webRTCSeo"><h1>WebRTC</h1></div>
+        <div id="webRTCSeo">
+            <h1>WebRTC</h1>
+        </div>
 
         <!-- show this before to join -->
 
@@ -86,6 +88,7 @@ access to use this app.
             <button id="recordStreamBtn" class="fas fa-record-vinyl"></button>
             <button id="fullScreenBtn" class="fas fa-expand-alt"></button>
             <button id="chatRoomBtn" class="fas fa-comment"></button>
+            <button id="captionBtn" class="fas fa-closed-captioning"></button>
             <button id="myHandBtn" class="fas fa-hand-paper"></button>
             <button id="whiteboardBtn" class="fas fa-chalkboard-teacher"></button>
             <button id="fileShareBtn" class="fas fa-folder-open"></button>
@@ -166,6 +169,31 @@ access to use this app.
 
         <!-- End chat room -->
 
+        <!-- Start of caption section -->
+
+        <section id="captionDraggable" class="msger-draggable">
+            <section id="caption" class="msger">
+                <header id="captionHeader" class="msger-header">
+                    <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Captions</div>
+                    <div class="msger-header-options">
+                        <button id="captionTheme" class="fas fa-ghost"></button>
+                        <button id="captionClean" class="fas fa-trash"></button>
+                        <button id="captionSaveBtn" class="fas fa-save"></button>
+                        <button id="captionClose" class="fas fa-times"></button>
+                    </div>
+                </header>
+
+                <main id="captionChat" class="msger-chat"></main>
+                <div class="msger-inputarea">
+                    <label>Speech recognition</label>
+                    <button type="button" id="speechRecognitionStart" class="fas fa-play">&nbsp;Start</button>
+                    <button type="button" id="speechRecognitionStop" class="fas fa-stop">&nbsp;Stop</button>
+                </div>
+            </section>
+        </section>
+
+        <!-- End of caption section -->
+
         <!-- Start my settings -->
 
         <section id="mySettings">
@@ -175,10 +203,10 @@ access to use this app.
             <main>
                 <br />
                 <div class="tab">
-                    <button id="tabDevicesBtn" class="tablinks">Devices</button>
-                    <button id="tabBandwidthBtn" class="tablinks">Bandwidth</button>
-                    <button id="tabRoomBtn" class="tablinks">Room</button>
-                    <button id="tabStylingBtn" class="tablinks">Styling</button>
+                    <button id="tabDevicesBtn" class="fas fa-cog tablinks"></button>
+                    <button id="tabBandwidthBtn" class="fas fa-wifi tablinks"></button>
+                    <button id="tabRoomBtn" class="fas fa-home tablinks"></button>
+                    <button id="tabStylingBtn" class="fas fa-palette tablinks"></button>
                 </div>
 
                 <div id="tabDevices" class="tabcontent">
@@ -356,6 +384,7 @@ access to use this app.
         <script defer src="https://unpkg.com/tippy.js@6"></script>
         <script defer src="/socket.io/socket.io.js"></script>
         <script defer src="../js/client.js"></script>
+        <script defer src="../js/speechRecognition.js"></script>
 
         <!-- end of Js scripts -->
 

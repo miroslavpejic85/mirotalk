@@ -85,6 +85,7 @@ let myVideoStatus = true;
 let myAudioStatus = true;
 let isScreenStreaming = false;
 let isChatRoomVisible = false;
+let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
 let isButtonsVisible = false;
 let isMySettingsVisible = false;
@@ -103,6 +104,7 @@ let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 let chatMessages = []; // collect chat messages to save it later if want
+let transcripts = []; //collect all the transcripts to save it later if you need
 let backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
 
 let chatInputEmoji = {
@@ -132,6 +134,7 @@ let screenShareBtn;
 let recordStreamBtn;
 let fullScreenBtn;
 let chatRoomBtn;
+let captionBtn;
 let myHandBtn;
 let whiteboardBtn;
 let fileShareBtn;
@@ -150,6 +153,14 @@ let msgerChat;
 let msgerEmojiBtn;
 let msgerInput;
 let msgerSendBtn;
+//caption section
+let captionDraggable;
+let captionHeader;
+let captionTheme;
+let captionClean;
+let captionSaveBtn;
+let captionClose;
+let captionChat;
 // chat room connected peers
 let msgerCP;
 let msgerCPHeader;
@@ -177,6 +188,8 @@ let screenFpsSelect;
 let themeSelect;
 let btnsBarSelect;
 let selectors;
+let speechRecognitionStart;
+let speechRecognitionStop;
 // my video element
 let myVideo;
 let myVideoWrap;
@@ -259,6 +272,7 @@ function getHtmlElementsById() {
     screenShareBtn = getId('screenShareBtn');
     recordStreamBtn = getId('recordStreamBtn');
     fullScreenBtn = getId('fullScreenBtn');
+    captionBtn = getId('captionBtn');
     chatRoomBtn = getId('chatRoomBtn');
     whiteboardBtn = getId('whiteboardBtn');
     fileShareBtn = getId('fileShareBtn');
@@ -286,6 +300,14 @@ function getHtmlElementsById() {
     // chat room emoji picker
     msgerEmojiPicker = getId('msgerEmojiPicker');
     emojiPicker = getSl('emoji-picker');
+    //caption box elements
+    captionDraggable = getId('captionDraggable');
+    captionHeader = getId('captionHeader');
+    captionTheme = getId('captionTheme');
+    captionClean = getId('captionClean');
+    captionSaveBtn = getId('captionSaveBtn');
+    captionClose = getId('captionClose');
+    captionChat = getId('captionChat');
     // my settings
     mySettings = getId('mySettings');
     mySettingsHeader = getId('mySettingsHeader');
@@ -304,6 +326,8 @@ function getHtmlElementsById() {
     screenFpsSelect = getId('screenFps');
     themeSelect = getId('mirotalkTheme');
     btnsBarSelect = getId('mirotalkBtnsBar');
+    speechRecognitionStart = getId('speechRecognitionStart');
+    speechRecognitionStop = getId('speechRecognitionStop');
     // my conference name, hand, video - audio status
     myVideoParagraph = getId('myVideoParagraph');
     myHandStatusIcon = getId('myHandStatusIcon');
@@ -381,6 +405,10 @@ function setButtonsTitle() {
         content: 'OPEN the chat',
         placement: 'right-start',
     });
+    tippy(captionBtn, {
+        content: 'OPEN the caption',
+        placement: 'right-start',
+    });
     tippy(myHandBtn, {
         content: 'RAISE your hand',
         placement: 'right-start',
@@ -420,7 +448,7 @@ function setButtonsTitle() {
         content: 'Save messages',
     });
     tippy(msgerClose, {
-        content: 'Close the chat',
+        content: 'Close',
     });
     tippy(msgerEmojiBtn, {
         content: 'Emoji',
@@ -429,12 +457,40 @@ function setButtonsTitle() {
         content: 'Send',
     });
 
+    // caption buttons
+    tippy(captionTheme, {
+        content: 'Ghost theme',
+    });
+    tippy(captionClean, {
+        content: 'Clean messages',
+    });
+    tippy(captionSaveBtn, {
+        content: 'Save messages',
+    });
+    tippy(msgerClose, {
+        content: 'Close',
+    });
+
     // settings
     tippy(mySettingsCloseBtn, {
         content: 'Close settings',
     });
     tippy(myPeerNameSetBtn, {
         content: 'Change name',
+    });
+
+    // tab btns
+    tippy(tabDevicesBtn, {
+        content: 'Devices',
+    });
+    tippy(tabBandwidthBtn, {
+        content: 'Bandwidth',
+    });
+    tippy(tabRoomBtn, {
+        content: 'Room',
+    });
+    tippy(tabStylingBtn, {
+        content: 'Styling',
     });
 
     // whiteboard btns
@@ -934,9 +990,16 @@ function handleRTCDataChannels(peer_id) {
                 case 'mirotalk_chat_channel':
                     try {
                         let dataMessage = JSON.parse(msg.data);
-                        handleDataChannelChat(dataMessage);
+                        switch (dataMessage.type) {
+                            case 'chat':
+                                handleDataChannelChat(dataMessage);
+                                break;
+                            case 'speech':
+                                handleDataChannelSpeechTranscript(dataMessage);
+                                break;
+                        }
                     } catch (err) {
-                        console.error('handleDataChannelChat', err);
+                        console.error('mirotalk_chat_channel', err);
                     }
                     break;
                 case 'mirotalk_file_sharing_channel':
@@ -944,7 +1007,7 @@ function handleRTCDataChannels(peer_id) {
                         let dataFile = msg.data;
                         handleDataChannelFileSharing(dataFile);
                     } catch (err) {
-                        console.error('handleDataChannelFS', err);
+                        console.error('mirotalk_file_sharing_channel', err);
                     }
                     break;
             }
@@ -1797,6 +1860,7 @@ function manageLeftButtons() {
     setRecordStreamBtn();
     setFullScreenBtn();
     setChatRoomBtn();
+    setCaptionRoomBtn();
     setChatEmojiBtn();
     setMyHandBtn();
     setMyWhiteboardBtn();
@@ -1909,7 +1973,7 @@ function setFullScreenBtn() {
  */
 function setChatRoomBtn() {
     // adapt chat room size for mobile
-    setChatRoomForMobile();
+    setChatRoomAndCaptionForMobile();
 
     // open hide chat room
     chatRoomBtn.addEventListener('click', (e) => {
@@ -1995,6 +2059,70 @@ function setChatRoomBtn() {
         // prevent refresh page
         e.preventDefault();
         sendChatMessage();
+    });
+}
+
+/**
+ * Caption room buttons click event
+ */
+function setCaptionRoomBtn() {
+    if ('webkitSpeechRecognition' in window) {
+        // open hide caption
+        captionBtn.addEventListener('click', (e) => {
+            if (!isCaptionBoxVisible) {
+                showCaptionDraggable();
+            } else {
+                hideCaptionBox();
+            }
+        });
+    } else {
+        captionBtn.style.display = 'none';
+        // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility
+    }
+
+    // ghost theme + undo
+    captionTheme.addEventListener('click', (e) => {
+        if (mirotalkTheme == 'ghost') return;
+
+        if (e.target.className == 'fas fa-ghost') {
+            e.target.className = 'fas fa-undo';
+            document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
+        } else {
+            e.target.className = 'fas fa-ghost';
+            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+        }
+    });
+
+    // clean caption transcripts
+    captionClean.addEventListener('click', (e) => {
+        cleanCaptions();
+    });
+
+    // save caption transcripts to file
+    captionSaveBtn.addEventListener('click', (e) => {
+        if (transcripts.length != 0) {
+            downloadCaptions();
+            return;
+        }
+        userLog('info', 'No captions to save');
+    });
+
+    // close caption box - show left button and status menu if hide
+    captionClose.addEventListener('click', (e) => {
+        hideCaptionBox();
+        showButtonsBarAndMenu();
+    });
+
+    // hide it
+    speechRecognitionStop.style.display = 'none';
+
+    // start recognition speech
+    speechRecognitionStart.addEventListener('click', (e) => {
+        startSpeech(true);
+    });
+    // stop recognition speech
+    speechRecognitionStop.addEventListener('click', (e) => {
+        startSpeech(false);
     });
 }
 
@@ -2513,7 +2641,13 @@ function attachMediaStream(element, stream) {
  * if mobile and mySettings open do nothing return
  */
 function showButtonsBarAndMenu() {
-    if (isButtonsVisible || (isMobileDevice && isChatRoomVisible) || (isMobileDevice && isMySettingsVisible)) return;
+    if (
+        isButtonsVisible ||
+        (isMobileDevice && isChatRoomVisible) ||
+        (isMobileDevice && isCaptionBoxVisible) ||
+        (isMobileDevice && isMySettingsVisible)
+    )
+        return;
     toggleClassElements('statusMenu', 'inline');
     buttonsBar.style.display = 'flex';
     isButtonsVisible = true;
@@ -3125,13 +3259,15 @@ function createChatDataChannel(peer_id) {
 /**
  * Set the chat room on full screen mode for mobile
  */
-function setChatRoomForMobile() {
+function setChatRoomAndCaptionForMobile() {
     if (isMobileDevice) {
         document.documentElement.style.setProperty('--msger-height', '99%');
         document.documentElement.style.setProperty('--msger-width', '99%');
     } else {
         // make chat room draggable for desktop
         dragElement(msgerDraggable, msgerHeader);
+        // make caption draggable for desktop
+        dragElement(captionDraggable, captionHeader);
     }
 }
 
@@ -3158,6 +3294,28 @@ function showChatRoomDraggable() {
     }
 }
 
+/**
+ * Show caption box draggable on center screen position
+ */
+function showCaptionDraggable() {
+    playSound('newMessage');
+    if (isMobileDevice) {
+        buttonsBar.style.display = 'none';
+        isButtonsVisible = false;
+    }
+    captionBtn.className = 'far fa-closed-captioning';
+    captionDraggable.style.top = '50%';
+    captionDraggable.style.left = '50%';
+    captionDraggable.style.display = 'flex';
+    isCaptionBoxVisible = true;
+    // only for desktop
+    if (!isMobileDevice) {
+        tippy(captionBtn, {
+            content: 'CLOSE the caption',
+            placement: 'right-start',
+        });
+    }
+}
 /**
  * Clean chat messages
  */
@@ -3191,6 +3349,38 @@ function cleanMessages() {
 }
 
 /**
+ * Clean captions
+ */
+function cleanCaptions() {
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        title: 'Clean up all caption transcripts ?',
+        imageUrl: deleteImg,
+        showDenyButton: true,
+        confirmButtonText: `Yes`,
+        denyButtonText: `No`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        // clean chat messages
+        if (result.isConfirmed) {
+            let captions = captionChat.firstChild;
+            while (captions) {
+                captionChat.removeChild(captions);
+                captions = captionChat.firstChild;
+            }
+            // clean object
+            transcripts = [];
+        }
+    });
+}
+
+/**
  * Hide chat room and emoji picker
  */
 function hideChatRoomAndEmojiPicker() {
@@ -3203,6 +3393,22 @@ function hideChatRoomAndEmojiPicker() {
     if (!isMobileDevice) {
         tippy(chatRoomBtn, {
             content: 'OPEN the chat',
+            placement: 'right-start',
+        });
+    }
+}
+
+/**
+ * Hide chat room and emoji picker
+ */
+function hideCaptionBox() {
+    captionDraggable.style.display = 'none';
+    captionBtn.className = 'fas fa-closed-captioning';
+    isCaptionBoxVisible = false;
+    // only for desktop
+    if (!isMobileDevice) {
+        tippy(captionBtn, {
+            content: 'OPEN the caption',
             placement: 'right-start',
         });
     }
@@ -3251,6 +3457,49 @@ function handleDataChannelChat(dataMessage) {
     playSound('chatMessage');
     setPeerChatAvatarImgName('left', msgFrom);
     appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate);
+}
+
+/**
+ * Handle text transcipt getting from peers
+ * @param {*} config
+ */
+function handleDataChannelSpeechTranscript(config) {
+    handleSpeechTranscript(config);
+}
+
+/**
+ * Handle text transcipt getting from peers
+ * @param {*} data
+ */
+function handleSpeechTranscript(config) {
+    if (!config) return;
+
+    let time_stamp = getFormatDate(new Date());
+    let name = config.peer_name;
+    let avatar_image = avatarApiUrl + '?name=' + name + '&size=32' + '&background=random&rounded=true';
+    let transcipt = config.text_data;
+
+    console.log('Handle speech transcript', config);
+
+    const msgHTML = `
+	<div class="msg left-msg">
+		<div class="msg-img" style="background-image: url('${avatar_image}')"></div>
+		<div>
+            <div class="msg-info">
+                <div class="msg-info-name" style="color:white;">${name} : ${time_stamp}</div>
+            </div>
+            <div class="msg-text" style="color:white;">${transcipt}</div>
+        </div>
+	</div>
+    `;
+    captionChat.insertAdjacentHTML('beforeend', msgHTML);
+    captionChat.scrollTop += 500;
+    transcripts.push({
+        time: time_stamp,
+        name: name,
+        caption: transcipt,
+    });
+    playSound('speech');
 }
 
 /**
@@ -3430,6 +3679,7 @@ function emitMsg(from, to, msg, privateMsg) {
     if (!msg) return;
 
     let chatMessage = {
+        type: 'chat',
         from: from,
         to: to,
         msg: msg,
@@ -3466,6 +3716,19 @@ function downloadChatMsgs() {
     let a = document.createElement('a');
     a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(chatMessages, null, 1));
     a.download = getDataTimeString() + '-CHAT.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+/**
+ * Download Captions in json format
+ * https://developer.mozilla.org/it/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+ */
+function downloadCaptions() {
+    let a = document.createElement('a');
+    a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(transcripts, null, 1));
+    a.download = getDataTimeString() + roomId + '-CAPTIONS.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -5084,6 +5347,7 @@ function dragElement(elmnt, dragObj) {
         // otherwise, move the DIV from anywhere inside the DIV:
         elmnt.onmousedown = dragMouseDown;
     }
+
     function dragMouseDown(e) {
         e = e || window.event;
         e.preventDefault();
@@ -5094,6 +5358,7 @@ function dragElement(elmnt, dragObj) {
         // call a function whenever the cursor moves:
         document.onmousemove = elementDrag;
     }
+
     function elementDrag(e) {
         e = e || window.event;
         e.preventDefault();
@@ -5106,6 +5371,7 @@ function dragElement(elmnt, dragObj) {
         elmnt.style.top = elmnt.offsetTop - pos2 + 'px';
         elmnt.style.left = elmnt.offsetLeft - pos1 + 'px';
     }
+
     function closeDragElement() {
         // stop moving when mouse button is released:
         document.onmouseup = null;
