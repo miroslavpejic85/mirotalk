@@ -13,7 +13,7 @@ recognition.onresult = e => {
         room_id: roomId,
         peer_name: myPeerName,
         text_data: transcript,
-        time_stamp: new Date()
+        time_stamp: new Date(),
     };
     sendToServer('speech_transcript', config); //sending data to signaling server for specific room
 }

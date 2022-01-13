@@ -104,6 +104,7 @@ let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 let chatMessages = []; // collect chat messages to save it later if want
+let transcripts = []; //collect all the transcripts to save it later if you need
 let backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
 
 let chatInputEmoji = {
@@ -1958,6 +1959,19 @@ function setChatRoomBtn() {
         }
     });
 
+    // ghost theme + undo
+    captionTheme.addEventListener('click', (e) => {
+        if (mirotalkTheme == 'ghost') return;
+
+        if (e.target.className == 'fas fa-ghost') {
+            e.target.className = 'fas fa-undo';
+            document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
+        } else {
+            e.target.className = 'fas fa-ghost';
+            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+        }
+    });
+
     // show msger participants section
     msgerCPBtn.addEventListener('click', (e) => {
         if (!thereIsPeerConnections()) {
@@ -1977,6 +1991,11 @@ function setChatRoomBtn() {
         cleanMessages();
     });
 
+    // clean caption transcripts
+    captionClean.addEventListener('click', (e) => {
+        cleanCaptions();
+    });
+
     // save chat messages to file
     msgerSaveBtn.addEventListener('click', (e) => {
         if (chatMessages.length != 0) {
@@ -1985,6 +2004,16 @@ function setChatRoomBtn() {
         }
         userLog('info', 'No chat messages to save');
     });
+
+    // save caption transcripts to file
+    captionSaveBtn.addEventListener('click', (e) => {
+        if (transcripts.length != 0) {
+            downloadCaptions();
+            return;
+        }
+        userLog('info', 'No captions to save');
+    });
+
     // open hide chat room
     captionBtn.addEventListener('click', (e) => {
         if (!isCaptionBoxVisible) {
@@ -1994,14 +2023,7 @@ function setChatRoomBtn() {
             e.target.className = 'fas fa-closed-captioning';
         }
     });
-    //save transcript to a file
-    captionSaveBtn.addEventListener('click', (e) => {
-        if (captionTexts.length != 0) {
-            downloadChatMsgs();
-            return;
-        }
-        userLog('info', 'No captions to save');
-    });
+
 
     // close chat room - show left button and status menu if hide
     msgerClose.addEventListener('click', (e) => {
@@ -2009,6 +2031,11 @@ function setChatRoomBtn() {
         showButtonsBarAndMenu();
     });
 
+    // close caption box - show left button and status menu if hide
+    captionClose.addEventListener('click', (e) => {
+        hideCaptionBox();
+        showButtonsBarAndMenu();
+    });
     // open Video Url Player
     msgerVideoUrlBtn.addEventListener('click', (e) => {
         sendVideoUrl();
@@ -3260,6 +3287,40 @@ function cleanMessages() {
 }
 
 /**
+ * Clean captions
+ */
+function cleanCaptions() {
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        title: 'Clean up all caption transcripts ?',
+        imageUrl: deleteImg,
+        showDenyButton: true,
+        confirmButtonText: `Yes`,
+        denyButtonText: `No`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        // clean chat messages
+        if (result.isConfirmed) {
+            let captions = captionChat.firstChild;
+            while (captions) {
+                captionChat.removeChild(captions);
+                captions = captionChat.firstChild;
+            }
+            // clean object
+            transcripts = [];
+        }
+    });
+}
+
+
+
+/**
  * Hide chat room and emoji picker
  */
 function hideChatRoomAndEmojiPicker() {
@@ -3272,6 +3333,24 @@ function hideChatRoomAndEmojiPicker() {
     if (!isMobileDevice) {
         tippy(chatRoomBtn, {
             content: 'OPEN the chat',
+            placement: 'right-start',
+        });
+    }
+}
+
+/**
+ * Hide chat room and emoji picker
+ */
+function hideCaptionBox() {
+    captionDraggable.style.display = 'none';
+    msgerEmojiPicker.style.display = 'none';
+    captionBtn.className = 'far fa-closed-captioning';
+    isCaptionBoxVisible = false;
+    isChatEmojiVisible = false;
+    // only for desktop
+    if (!isMobileDevice) {
+        tippy(captionBtn, {
+            content: 'OPEN the caption box',
             placement: 'right-start',
         });
     }
@@ -3535,6 +3614,19 @@ function downloadChatMsgs() {
     let a = document.createElement('a');
     a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(chatMessages, null, 1));
     a.download = getDataTimeString() + '-CHAT.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+/**
+ * Download Captions in json format
+ * https://developer.mozilla.org/it/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+ */
+function downloadCaptions() {
+    let a = document.createElement('a');
+    a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(transcripts, null, 1));
+    a.download = getDataTimeString() + roomId + '-CAPTIONS.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -5344,8 +5436,29 @@ function getEcN(className) {
  */
 function handleSpeechTranscript(config) {
     let peer_id = config.peer_id;
-    let time_stamp = config.time_stamp;
-    let name = config.user_name;
+    let time_stamp = getFormatDate(new Date());;
+    let name = config.peer_name;
+    let avatar_image = avatarApiUrl + '?name=' + name + '&size=32' + '&background=random&rounded=true';
     let transcipt = config.text_data;
     console.log(config);
+
+    const msgHTML = `
+	<div class="msg left-msg">
+		<div class="msg-img" style="background-image: url('${avatar_image}')"></div>
+		<div>
+            <div class="msg-info">
+                <div class="msg-info-name" style="color:white;">${name}</div>
+                <div class="msg-info-time" style="color:white;">${time_stamp}</div>
+            </div>
+            <div class="msg-text" style="color:white;">${transcipt}</div>
+        </div>
+	</div>
+    `;
+    captionChat.insertAdjacentHTML('beforeend', msgHTML);
+    captionChat.scrollTop += 500;
+    transcripts.push({
+        time: time_stamp,
+        name: name,
+        caption: transcipt,
+    });
 }
