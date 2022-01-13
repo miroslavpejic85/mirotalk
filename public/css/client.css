@@ -618,7 +618,7 @@ button {
 }
 
 .msg-caption-bubble {
-    max-width: 250px;
+    max-width: 70%;
     padding: 15px;
     border-radius: 15px;
 }
