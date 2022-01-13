@@ -982,7 +982,9 @@ video:fullscreen {
 #myPeerNameSetBtn,
 #muteEveryoneBtn,
 #hideEveryoneBtn,
-#lockUnlockRoomBtn {
+#lockUnlockRoomBtn,
+#speechRecognitionStart,
+#speechRecognitionStop {
     padding: 5px;
     border-radius: 5px;
     color: white;
@@ -990,7 +992,9 @@ video:fullscreen {
 }
 
 #myPeerNameSetBtn:hover,
-#lockUnlockRoomBtn:hover {
+#lockUnlockRoomBtn:hover,
+#speechRecognitionStart:hover,
+#speechRecognitionStop:hover {
     color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
@@ -1007,7 +1011,7 @@ video:fullscreen {
 .tab {
     overflow: hidden;
     border: 1px solid rgb(0, 0, 0);
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0);
 }
 
 /* Style the buttons inside the tab */
@@ -1031,7 +1035,7 @@ video:fullscreen {
 
 /* Create an active/current tablink class */
 .tab button.active {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgb(30 29 29);
 }
 
 /* Style the tab content */
