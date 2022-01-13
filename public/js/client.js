@@ -1184,7 +1184,7 @@ function setTheme(theme) {
                 '--msger-private-bg',
                 'linear-gradient(to left, #383838, #000000)',
             );
-            document.documentElement.style.setProperty('--left-msg-bg', '#da05f3');
+            document.documentElement.style.setProperty('--left-msg-bg', '#9400a5');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#579ffb');
             document.documentElement.style.setProperty('--wb-bg', 'linear-gradient(to left, #1f1e1e, #000000)');
@@ -1194,7 +1194,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
             document.documentElement.style.setProperty('--my-settings-label-color', 'white');
-            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0500ff, -3px -3px 6px #da05f3');
+            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0500ff, -3px -3px 6px #9400a5');
             break;
         case 'dark':
             // dark theme
@@ -3484,11 +3484,11 @@ function handleSpeechTranscript(config) {
     const msgHTML = `
 	<div class="msg left-msg">
 		<div class="msg-img" style="background-image: url('${avatar_image}')"></div>
-		<div>
+		<div class="msg-caption-bubble">
             <div class="msg-info">
-                <div class="msg-info-name" style="color:white;">${name} : ${time_stamp}</div>
+                <div class="msg-info-name">${name} : ${time_stamp}</div>
             </div>
-            <div class="msg-text" style="color:white;">${transcipt}</div>
+            <div class="msg-text">${transcipt}</div>
         </div>
 	</div>
     `;

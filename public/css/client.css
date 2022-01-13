@@ -573,6 +573,12 @@ button {
     color: #fff;
 }
 
+.left-msg .msg-caption-bubble {
+    background: var(--left-msg-bg);
+    border-bottom-left-radius: 0;
+    color: #fff;
+}
+
 /* right side */
 
 .right-msg {
@@ -607,6 +613,12 @@ button {
 .private-msg-bubble,
 .msg-bubble {
     max-width: 200px;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.msg-caption-bubble {
+    max-width: 250px;
     padding: 15px;
     border-radius: 15px;
 }
