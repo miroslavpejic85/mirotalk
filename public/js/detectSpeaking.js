@@ -1,13 +1,11 @@
-function startPitchDetection() {
+'use strict';
+
+function startPitchDetection(stream) {
     pitchDetectionStatus = true;
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            mediaStreamSource = audioContext.createMediaStreamSource(stream);
-            meter = createAudioMeter(audioContext);
-            mediaStreamSource.connect(meter);
-        });
-    }
+    mediaStreamSource = audioContext.createMediaStreamSource(stream);
+    meter = createAudioMeter(audioContext);
+    mediaStreamSource.connect(meter);
 }
 
 function createAudioMeter(audioContext, clipLevel, averaging, clipLag) {
@@ -67,10 +65,13 @@ function volumeAudioProcess(event) {
     this.volume = Math.max(rms, this.volume * this.averaging);
     let final_volume = Math.round(this.volume * 100);
     if (myAudioStatus && final_volume > 5) {
-        config = {
+        let config = {
             type: 'micVolume',
             volume: final_volume,
         };
+
+        handleMyVolume(config);
+
         if (thereIsPeerConnections()) {
             // Send speech transcript through RTC Data Channels
             for (let peer_id in chatDataChannels) {

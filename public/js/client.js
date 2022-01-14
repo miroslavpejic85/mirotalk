@@ -83,7 +83,10 @@ let myVideoChange = false;
 let myHandStatus = false;
 let myVideoStatus = true;
 let myAudioStatus = true;
-let pitchDetectionStatus = false; //for pitchDetction
+let pitchDetectionStatus = false;
+let audioContext;
+let mediaStreamSource;
+let meter;
 let isScreenStreaming = false;
 let isChatRoomVisible = false;
 let isCaptionBoxVisible = false;
@@ -800,7 +803,6 @@ function whoAreYou() {
         content: 'Click to video OFF',
         placement: 'top',
     });
-    startPitchDetection(); //for starting pitch detection
 }
 
 /**
@@ -1367,6 +1369,7 @@ function setupLocalMedia(callback, errorback) {
         .getUserMedia(constraints)
         .then((stream) => {
             loadLocalMedia(stream);
+            startPitchDetection(stream);
             if (callback) callback();
         })
         .catch((err) => {
@@ -1404,6 +1407,8 @@ function loadLocalMedia(stream) {
     const myAudioStatusIcon = document.createElement('button');
     const myVideoFullScreenBtn = document.createElement('button');
     const myVideoAvatarImage = document.createElement('img');
+    const myPitchMeter = document.createElement('div');
+    const myPitchBar = document.createElement('div');
 
     // menu Status
     myStatusMenu.setAttribute('id', 'myStatusMenu');
@@ -1453,6 +1458,13 @@ function loadLocalMedia(stream) {
     myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
     myVideoAvatarImage.className = 'videoAvatarImage pulsate';
 
+    // my pitch meter
+    myPitchMeter.setAttribute('id', 'myPitch');
+    myPitchBar.setAttribute('id', 'myPitchBar');
+    myPitchMeter.className = 'speechbar';
+    myPitchBar.className = 'bar';
+    myPitchBar.style.height = '1%';
+
     // add elements to myStatusMenu div
     myStatusMenu.appendChild(myCountTimeImg);
     myStatusMenu.appendChild(myCountTime);
@@ -1462,6 +1474,9 @@ function loadLocalMedia(stream) {
     myStatusMenu.appendChild(myVideoStatusIcon);
     myStatusMenu.appendChild(myAudioStatusIcon);
     myStatusMenu.appendChild(myVideoFullScreenBtn);
+
+    // add my pitchBar
+    myPitchMeter.appendChild(myPitchBar);
 
     // hand display none on default menad is raised == false
     myHandStatusIcon.style.display = 'none';
@@ -1481,6 +1496,7 @@ function loadLocalMedia(stream) {
     videoWrap.appendChild(myStatusMenu);
     videoWrap.appendChild(myVideoAvatarImage);
     videoWrap.appendChild(localMedia);
+    videoWrap.appendChild(myPitchMeter);
 
     document.body.appendChild(videoWrap);
     videoWrap.style.display = 'none';
@@ -1525,8 +1541,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     const remotePrivateMsgBtn = document.createElement('button');
     const remoteYoutubeBtnBtn = document.createElement('button');
     const remotePeerKickOut = document.createElement('button');
-    const pitchMeter = document.createElement('div');
-    const pitchBar = document.createElement('div');
+    const remotePitchMeter = document.createElement('div');
+    const remotePitchBar = document.createElement('div');
     const remoteVideoFullScreenBtn = document.createElement('button');
     const remoteVideoAvatarImage = document.createElement('img');
 
@@ -1591,12 +1607,12 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
     remoteVideoAvatarImage.className = 'videoAvatarImage pulsate';
 
-    //for pitch meter
-    pitchMeter.setAttribute('id', peer_id + '_pitch');
-    pitchBar.setAttribute('id', peer_id + '_pitch_bar');
-    pitchMeter.className = 'speechbar';
-    pitchBar.className = 'bar';
-    pitchBar.style.height = '1%';
+    // remote pitch meter
+    remotePitchMeter.setAttribute('id', peer_id + '_pitch');
+    remotePitchBar.setAttribute('id', peer_id + '_pitch_bar');
+    remotePitchMeter.className = 'speechbar';
+    remotePitchBar.className = 'bar';
+    remotePitchBar.style.height = '1%';
 
     // add elements to remoteStatusMenu div
     remoteStatusMenu.appendChild(remoteVideoParagraphImg);
@@ -1622,8 +1638,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     // add elements to videoWrap div
     remoteVideoWrap.appendChild(remoteStatusMenu);
     remoteVideoWrap.appendChild(remoteVideoAvatarImage);
-    pitchMeter.appendChild(pitchBar);
-    remoteVideoWrap.appendChild(pitchMeter);
+    remotePitchMeter.appendChild(remotePitchBar);
+    remoteVideoWrap.appendChild(remotePitchMeter);
     remoteVideoWrap.appendChild(remoteMedia);
 
     document.body.appendChild(remoteVideoWrap);
@@ -5421,6 +5437,40 @@ function bytesToSize(bytes) {
 }
 
 /**
+ * Handle peer audio volume
+ */
+function handlePeerVolume(data) {
+    let peer_id = data.peer_id;
+    let element = document.getElementById(peer_id + '_pitch_bar');
+    let volume = data.volume + 25; //for design purpose
+    if (volume > 50) {
+        element.style.backgroundColor = 'orange';
+    }
+
+    element.style.height = volume + '%';
+    setTimeout(function () {
+        element.style.backgroundColor = '#19bb5c';
+        element.style.height = '1%';
+    }, 700);
+}
+
+/**
+ * Handle my audio volume
+ */
+function handleMyVolume(data) {
+    let element = document.getElementById('myPitchBar');
+    let volume = data.volume + 25; //for design purpose
+    if (volume > 50) {
+        element.style.backgroundColor = 'orange';
+    }
+    element.style.height = volume + '%';
+    setTimeout(function () {
+        element.style.backgroundColor = '#19bb5c';
+        element.style.height = '1%';
+    }, 700);
+}
+
+/**
  * Basic user logging using https://sweetalert2.github.io
  * @param {*} type
  * @param {*} message
@@ -5552,20 +5602,4 @@ function getSl(selector) {
  */
 function getEcN(className) {
     return document.getElementsByClassName(className);
-}
-
-// for detecting mic volume
-function handlePeerVolume(data) {
-    let peer_id = data.peer_id;
-    let element = document.getElementById(peer_id + '_pitch_bar');
-    let volume = data.volume + 25; //for design purpose
-    if (volume > 50) {
-        element.style.backgroundColor = 'orange';
-    }
-
-    element.style.height = volume + '%';
-    setTimeout(function () {
-        element.style.backgroundColor = '#19bb5c';
-        element.style.height = '1%';
-    }, 700);
 }
