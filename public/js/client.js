@@ -1614,6 +1614,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remotePitchBar.className = 'bar';
     remotePitchBar.style.height = '1%';
 
+    remotePitchMeter.appendChild(remotePitchBar);
+
     // add elements to remoteStatusMenu div
     remoteStatusMenu.appendChild(remoteVideoParagraphImg);
     remoteStatusMenu.appendChild(remoteVideoParagraph);
@@ -1638,7 +1640,6 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     // add elements to videoWrap div
     remoteVideoWrap.appendChild(remoteStatusMenu);
     remoteVideoWrap.appendChild(remoteVideoAvatarImage);
-    remotePitchMeter.appendChild(remotePitchBar);
     remoteVideoWrap.appendChild(remotePitchMeter);
     remoteVideoWrap.appendChild(remoteMedia);
 
