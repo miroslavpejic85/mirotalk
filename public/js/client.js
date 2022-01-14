@@ -1191,7 +1191,7 @@ function setTheme(theme) {
                 '--msger-private-bg',
                 'linear-gradient(to left, #383838, #000000)',
             );
-            document.documentElement.style.setProperty('--left-msg-bg', '#da05f3');
+            document.documentElement.style.setProperty('--left-msg-bg', '#9400a5');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#579ffb');
             document.documentElement.style.setProperty('--wb-bg', 'linear-gradient(to left, #1f1e1e, #000000)');
@@ -1201,7 +1201,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--btns-left', '20px');
             document.documentElement.style.setProperty('--btn-opc', '1');
             document.documentElement.style.setProperty('--my-settings-label-color', 'white');
-            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0500ff, -3px -3px 6px #da05f3');
+            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0500ff, -3px -3px 6px #9400a5');
             break;
         case 'dark':
             // dark theme
@@ -1370,7 +1370,6 @@ function setupLocalMedia(callback, errorback) {
             if (callback) callback();
         })
         .catch((err) => {
-            // https://blog.addpipe.com/common-getusermedia-errors/
             console.error('Access denied for audio/video', err);
             playSound('error');
             window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> 
@@ -2093,55 +2092,55 @@ function setCaptionRoomBtn() {
                 hideCaptionBox();
             }
         });
+
+        // ghost theme + undo
+        captionTheme.addEventListener('click', (e) => {
+            if (mirotalkTheme == 'ghost') return;
+
+            if (e.target.className == 'fas fa-ghost') {
+                e.target.className = 'fas fa-undo';
+                document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
+            } else {
+                e.target.className = 'fas fa-ghost';
+                document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+            }
+        });
+
+        // clean caption transcripts
+        captionClean.addEventListener('click', (e) => {
+            cleanCaptions();
+        });
+
+        // save caption transcripts to file
+        captionSaveBtn.addEventListener('click', (e) => {
+            if (transcripts.length != 0) {
+                downloadCaptions();
+                return;
+            }
+            userLog('info', 'No captions to save');
+        });
+
+        // close caption box - show left button and status menu if hide
+        captionClose.addEventListener('click', (e) => {
+            hideCaptionBox();
+            showButtonsBarAndMenu();
+        });
+
+        // hide it
+        speechRecognitionStop.style.display = 'none';
+
+        // start recognition speech
+        speechRecognitionStart.addEventListener('click', (e) => {
+            startSpeech(true);
+        });
+        // stop recognition speech
+        speechRecognitionStop.addEventListener('click', (e) => {
+            startSpeech(false);
+        });
     } else {
         captionBtn.style.display = 'none';
         // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility
     }
-
-    // ghost theme + undo
-    captionTheme.addEventListener('click', (e) => {
-        if (mirotalkTheme == 'ghost') return;
-
-        if (e.target.className == 'fas fa-ghost') {
-            e.target.className = 'fas fa-undo';
-            document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
-        } else {
-            e.target.className = 'fas fa-ghost';
-            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
-        }
-    });
-
-    // clean caption transcripts
-    captionClean.addEventListener('click', (e) => {
-        cleanCaptions();
-    });
-
-    // save caption transcripts to file
-    captionSaveBtn.addEventListener('click', (e) => {
-        if (transcripts.length != 0) {
-            downloadCaptions();
-            return;
-        }
-        userLog('info', 'No captions to save');
-    });
-
-    // close caption box - show left button and status menu if hide
-    captionClose.addEventListener('click', (e) => {
-        hideCaptionBox();
-        showButtonsBarAndMenu();
-    });
-
-    // hide it
-    speechRecognitionStop.style.display = 'none';
-
-    // start recognition speech
-    speechRecognitionStart.addEventListener('click', (e) => {
-        startSpeech(true);
-    });
-    // stop recognition speech
-    speechRecognitionStop.addEventListener('click', (e) => {
-        startSpeech(false);
-    });
 }
 
 /**
@@ -3502,11 +3501,11 @@ function handleSpeechTranscript(config) {
     const msgHTML = `
 	<div class="msg left-msg">
 		<div class="msg-img" style="background-image: url('${avatar_image}')"></div>
-		<div>
+		<div class="msg-caption-bubble">
             <div class="msg-info">
-                <div class="msg-info-name" style="color:white;">${name} : ${time_stamp}</div>
+                <div class="msg-info-name">${name} : ${time_stamp}</div>
             </div>
-            <div class="msg-text" style="color:white;">${transcipt}</div>
+            <div class="msg-text">${transcipt}</div>
         </div>
 	</div>
     `;
