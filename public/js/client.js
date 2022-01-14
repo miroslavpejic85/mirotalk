@@ -170,6 +170,7 @@ let msgerCPList;
 let msgerEmojiPicker;
 let emojiPicker;
 // my settings
+let myPeerId;
 let mySettings;
 let mySettingsHeader;
 let tabDevicesBtn;
@@ -997,6 +998,10 @@ function handleRTCDataChannels(peer_id) {
                             case 'speech':
                                 handleDataChannelSpeechTranscript(dataMessage);
                                 break;
+                            case 'micVolume':
+                                dataMessage.peer_id = peer_id; // to create animation on specific video element
+                                handlePeerVolume(dataMessage);
+                                break;
                         }
                     } catch (err) {
                         console.error('mirotalk_chat_channel', err);
@@ -1519,6 +1524,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     const remotePrivateMsgBtn = document.createElement('button');
     const remoteYoutubeBtnBtn = document.createElement('button');
     const remotePeerKickOut = document.createElement('button');
+    const pitchMeter = document.createElement('div');
+    const pitchBar = document.createElement('div');
     const remoteVideoFullScreenBtn = document.createElement('button');
     const remoteVideoAvatarImage = document.createElement('img');
 
@@ -1583,6 +1590,13 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
     remoteVideoAvatarImage.className = 'videoAvatarImage pulsate';
 
+    //for pitch meter
+    pitchMeter.setAttribute('id', peer_id + '_pitch');
+    pitchBar.setAttribute('id', peer_id + '_pitch_bar');
+    pitchMeter.className = 'speechbar';
+    pitchBar.className = 'bar';
+    pitchBar.style.height = '1%';
+
     // add elements to remoteStatusMenu div
     remoteStatusMenu.appendChild(remoteVideoParagraphImg);
     remoteStatusMenu.appendChild(remoteVideoParagraph);
@@ -1607,6 +1621,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     // add elements to videoWrap div
     remoteVideoWrap.appendChild(remoteStatusMenu);
     remoteVideoWrap.appendChild(remoteVideoAvatarImage);
+    pitchMeter.appendChild(pitchBar);
+    remoteVideoWrap.appendChild(pitchMeter);
     remoteVideoWrap.appendChild(remoteMedia);
 
     document.body.appendChild(remoteVideoWrap);
@@ -1886,6 +1902,7 @@ function setShareRoomBtn() {
 function setAudioBtn() {
     audioBtn.addEventListener('click', (e) => {
         handleAudio(e, false);
+        startPitchDetection();
     });
 }
 
@@ -5535,4 +5552,20 @@ function getSl(selector) {
  */
 function getEcN(className) {
     return document.getElementsByClassName(className);
+}
+
+// for detecting mic volume
+function handlePeerVolume(data) {
+    let peer_id = data.peer_id;
+    let element = document.getElementById(peer_id + '_pitch_bar');
+    let volume = data.volume + 25; //for design purpose
+    if (volume > 50) {
+        element.style.backgroundColor = 'orange';
+    }
+
+    element.style.height = volume + '%';
+    setTimeout(function () {
+        element.style.backgroundColor = '#19bb5c';
+        element.style.height = '1%';
+    }, 700);
 }
