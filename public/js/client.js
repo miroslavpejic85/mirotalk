@@ -83,6 +83,7 @@ let myVideoChange = false;
 let myHandStatus = false;
 let myVideoStatus = true;
 let myAudioStatus = true;
+let pitchDetectionStatus = false; //for pitchDetction
 let isScreenStreaming = false;
 let isChatRoomVisible = false;
 let isCaptionBoxVisible = false;
@@ -799,6 +800,7 @@ function whoAreYou() {
         content: 'Click to video OFF',
         placement: 'top',
     });
+    startPitchDetection(); //for starting pitch detection
 }
 
 /**
@@ -1902,7 +1904,6 @@ function setShareRoomBtn() {
 function setAudioBtn() {
     audioBtn.addEventListener('click', (e) => {
         handleAudio(e, false);
-        startPitchDetection();
     });
 }
 

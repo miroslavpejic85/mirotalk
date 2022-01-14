@@ -1,4 +1,5 @@
 function startPitchDetection() {
+    pitchDetectionStatus = true;
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
