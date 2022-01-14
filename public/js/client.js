@@ -83,6 +83,10 @@ let myVideoChange = false;
 let myHandStatus = false;
 let myVideoStatus = true;
 let myAudioStatus = true;
+let pitchDetectionStatus = false;
+let audioContext;
+let mediaStreamSource;
+let meter;
 let isScreenStreaming = false;
 let isChatRoomVisible = false;
 let isCaptionBoxVisible = false;
@@ -170,6 +174,7 @@ let msgerCPList;
 let msgerEmojiPicker;
 let emojiPicker;
 // my settings
+let myPeerId;
 let mySettings;
 let mySettingsHeader;
 let tabDevicesBtn;
@@ -997,6 +1002,10 @@ function handleRTCDataChannels(peer_id) {
                             case 'speech':
                                 handleDataChannelSpeechTranscript(dataMessage);
                                 break;
+                            case 'micVolume':
+                                dataMessage.peer_id = peer_id; // to create animation on specific video element
+                                handlePeerVolume(dataMessage);
+                                break;
                         }
                     } catch (err) {
                         console.error('mirotalk_chat_channel', err);
@@ -1360,6 +1369,7 @@ function setupLocalMedia(callback, errorback) {
         .getUserMedia(constraints)
         .then((stream) => {
             loadLocalMedia(stream);
+            startPitchDetection(stream);
             if (callback) callback();
         })
         .catch((err) => {
@@ -1397,6 +1407,8 @@ function loadLocalMedia(stream) {
     const myAudioStatusIcon = document.createElement('button');
     const myVideoFullScreenBtn = document.createElement('button');
     const myVideoAvatarImage = document.createElement('img');
+    const myPitchMeter = document.createElement('div');
+    const myPitchBar = document.createElement('div');
 
     // menu Status
     myStatusMenu.setAttribute('id', 'myStatusMenu');
@@ -1446,6 +1458,13 @@ function loadLocalMedia(stream) {
     myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
     myVideoAvatarImage.className = 'videoAvatarImage pulsate';
 
+    // my pitch meter
+    myPitchMeter.setAttribute('id', 'myPitch');
+    myPitchBar.setAttribute('id', 'myPitchBar');
+    myPitchMeter.className = 'speechbar';
+    myPitchBar.className = 'bar';
+    myPitchBar.style.height = '1%';
+
     // add elements to myStatusMenu div
     myStatusMenu.appendChild(myCountTimeImg);
     myStatusMenu.appendChild(myCountTime);
@@ -1455,6 +1474,9 @@ function loadLocalMedia(stream) {
     myStatusMenu.appendChild(myVideoStatusIcon);
     myStatusMenu.appendChild(myAudioStatusIcon);
     myStatusMenu.appendChild(myVideoFullScreenBtn);
+
+    // add my pitchBar
+    myPitchMeter.appendChild(myPitchBar);
 
     // hand display none on default menad is raised == false
     myHandStatusIcon.style.display = 'none';
@@ -1474,6 +1496,7 @@ function loadLocalMedia(stream) {
     videoWrap.appendChild(myStatusMenu);
     videoWrap.appendChild(myVideoAvatarImage);
     videoWrap.appendChild(localMedia);
+    videoWrap.appendChild(myPitchMeter);
 
     document.body.appendChild(videoWrap);
     videoWrap.style.display = 'none';
@@ -1518,6 +1541,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     const remotePrivateMsgBtn = document.createElement('button');
     const remoteYoutubeBtnBtn = document.createElement('button');
     const remotePeerKickOut = document.createElement('button');
+    const remotePitchMeter = document.createElement('div');
+    const remotePitchBar = document.createElement('div');
     const remoteVideoFullScreenBtn = document.createElement('button');
     const remoteVideoAvatarImage = document.createElement('img');
 
@@ -1582,6 +1607,13 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
     remoteVideoAvatarImage.className = 'videoAvatarImage pulsate';
 
+    // remote pitch meter
+    remotePitchMeter.setAttribute('id', peer_id + '_pitch');
+    remotePitchBar.setAttribute('id', peer_id + '_pitch_bar');
+    remotePitchMeter.className = 'speechbar';
+    remotePitchBar.className = 'bar';
+    remotePitchBar.style.height = '1%';
+
     // add elements to remoteStatusMenu div
     remoteStatusMenu.appendChild(remoteVideoParagraphImg);
     remoteStatusMenu.appendChild(remoteVideoParagraph);
@@ -1606,6 +1638,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     // add elements to videoWrap div
     remoteVideoWrap.appendChild(remoteStatusMenu);
     remoteVideoWrap.appendChild(remoteVideoAvatarImage);
+    remotePitchMeter.appendChild(remotePitchBar);
+    remoteVideoWrap.appendChild(remotePitchMeter);
     remoteVideoWrap.appendChild(remoteMedia);
 
     document.body.appendChild(remoteVideoWrap);
@@ -5400,6 +5434,40 @@ function bytesToSize(bytes) {
     if (bytes == 0) return '0 Byte';
     let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+}
+
+/**
+ * Handle peer audio volume
+ */
+function handlePeerVolume(data) {
+    let peer_id = data.peer_id;
+    let element = document.getElementById(peer_id + '_pitch_bar');
+    let volume = data.volume + 25; //for design purpose
+    if (volume > 50) {
+        element.style.backgroundColor = 'orange';
+    }
+
+    element.style.height = volume + '%';
+    setTimeout(function () {
+        element.style.backgroundColor = '#19bb5c';
+        element.style.height = '1%';
+    }, 700);
+}
+
+/**
+ * Handle my audio volume
+ */
+function handleMyVolume(data) {
+    let element = document.getElementById('myPitchBar');
+    let volume = data.volume + 25; //for design purpose
+    if (volume > 50) {
+        element.style.backgroundColor = 'orange';
+    }
+    element.style.height = volume + '%';
+    setTimeout(function () {
+        element.style.backgroundColor = '#19bb5c';
+        element.style.height = '1%';
+    }, 700);
 }
 
 /**
