@@ -1344,24 +1344,25 @@ progress {
 }
 
 .speechbar {
-    width: 1%;
-    height: 100%;
     position: absolute;
+    top: 0;
     bottom: 0;
-    right: 0;
-    border-radius: 10%;
-    opacity: 0.5;
+    right: 2px;
+    width: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
 }
 
 .bar {
-    width: 100%;
-    display: block;
-    font-family: arial;
-    font-size: 12px;
-    background-color: #19bb5c;
-    color: #fff;
-    position: absolute;
-    bottom: 0;
+    width: 6px;
+    border-radius: 6px;
+    background: rgba(#19bb5c, 0.65);
+    transition-property: height background-color;
+    transition-duration: 0.25s;
+    /*box-shadow: var(--box-shadow);*/
 }
 
 /*

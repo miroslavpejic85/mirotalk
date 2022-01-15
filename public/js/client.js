@@ -1495,6 +1495,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     peerMediaElements[peer_id] = remoteMedia;
 
     remoteVideoWrap.className = 'video';
+    remoteVideoWrap.setAttribute('id', peer_id + '_videoWrap');
 
     // add elements to videoWrap div
     remoteVideoWrap.appendChild(remoteStatusMenu);
@@ -5242,16 +5243,18 @@ function bytesToSize(bytes) {
  */
 function handlePeerVolume(data) {
     let peer_id = data.peer_id;
-    let element = document.getElementById(peer_id + '_pitch_bar');
+    let element = getId(peer_id + '_pitch_bar');
+    //let remoteVideoWrap = getId(peer_id + '_videoWrap');
     let volume = data.volume + 25; //for design purpose
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }
-
     element.style.height = volume + '%';
+    //remoteVideoWrap.style.border = '1px solid lime';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
-        element.style.height = '1%';
+        element.style.height = '0%';
+        //remoteVideoWrap.style.border = 'none';
     }, 700);
 }
 
@@ -5259,15 +5262,17 @@ function handlePeerVolume(data) {
  * Handle my audio volume
  */
 function handleMyVolume(data) {
-    let element = document.getElementById('myPitchBar');
-    let volume = data.volume + 25; //for design purpose
+    let element = getId('myPitchBar');
+    let volume = data.volume + 25;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
+    //myVideoWrap.style.border = '1px solid lime';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
-        element.style.height = '1%';
+        element.style.height = '0%';
+        //myVideoWrap.style.border = 'none';
     }, 700);
 }
 
