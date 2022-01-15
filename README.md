@@ -131,34 +131,21 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 
 If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the `Ngrok` part on `.env` file) or expose it directly on [https](ssl/README.md) or deploy it on:
 
-<!DOCTYPE html>
-<html>
-    <head></head>
-    <body>
-        <div style=" display: inline-block; width: 240px; margin-top: 25px; margin-right: 25px; border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px;">
-            <div style="padding: 5px; height: 50px">
-                <a target="_blank" href="https://www.heroku.com/"><img src="https://www.herokucdn.com/deploy/button.svg" style="width: 240px;"></a>
-            </div>
-            <div style="padding: 5px; margin-top: 15px; overflow: auto;">
-                <a target="_blank" href="https://mirotalk.herokuapp.com/"><img src="public/images/mirotalk-heroku-qr.png" style="width: 240px;"></a>
-            </div>
-            <div style="padding: 5px; height: 20px;">
-                <a target="_blank" href="https://mirotalk.herokuapp.com/">https://mirotalk.herokuapp.com/</a>
-            </div>
-        </div>
-        <div style=" display: inline-block; width: 240px; margin-top: 25px; margin-right: 25px; border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px;">
-            <div style="padding: 5px; height: 50px">
-                <a target="_blank" href="https://railway.app"><img src="https://railway.app/button.svg" style="width: 240px;"></a>
-            </div>
-            <div style="padding: 5px; margin-top: 15px; overflow: auto;">
-                <a target="_blank" href="https://mirotalk.up.railway.app/"><img src="public/images/mirotalk-railway-qr.png" style="width: 240px;"></a>
-            </div>
-            <div style="padding: 5px; height: 20px;">
-                <a target="_blank" href="https://mirotalk.up.railway.app/">https://mirotalk.up.railway.app/</a>
-            </div>
-        </div>
-    </body>
-</html>
+<br>
+
+<a target="_blank" href="https://www.heroku.com/"><img src="https://www.herokucdn.com/deploy/button.svg" style="width: 220px;"></a>
+
+https://mirotalk.herokuapp.com/
+
+[![heroku-qr](public/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com/)
+
+<br>
+
+<a target="_blank" href="https://railway.app"><img src="https://railway.app/button.svg" style="width: 220px;"></a>
+
+https://mirotalk.up.railway.app/
+
+[![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app/)
 
 ---
 
