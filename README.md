@@ -36,7 +36,7 @@ Open the app with the following **supported browsers** and many more.
 -   Ability to set video quality up to 4K and 60 FPS
 -   Recording your Screen, Audio and Video
 -   Chat with Emoji Picker & Private messages & Save the conversations
--   Speech recognition to send messages without touching the keyboard
+-   Speech recognition to send the speeches
 -   Advance collaborative whiteboard for the teachers
 -   Share any YouTube video in real-time
 -   Full-Screen Mode on mouse click on the Video element
@@ -131,21 +131,65 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 
 If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the `Ngrok` part on `.env` file) or expose it directly on [https](ssl/README.md) or deploy it on:
 
-<br>
-
-[![Deploy on Heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/)
-
-`demo` https://mirotalk.herokuapp.com/
-
-[![heroku-qr](public/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com/)
-
-<br>
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
-
-`demo` https://mirotalk.up.railway.app/
-
-[![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app/)
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+        .container {
+            display: inline-block;
+            width: 240px;
+            margin-top: 25px;
+            margin-right: 25px;
+            border-radius: 10px;
+            -moz-border-radius: 10px;
+            -webkit-border-radius: 10px;
+        }
+        .mainbody,
+        .header,
+        .footer {
+            padding: 5px;
+        }
+        .mainbody {
+            margin-top: 15px;
+            overflow: auto;
+        }
+        .header {
+            height: 50px;
+        }
+        .footer {
+            height: 20px;
+        }
+        .img-size {
+            width: 240px;
+            height: auto;
+        }
+        </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <a target="_blank" href="https://www.heroku.com/"><img src="https://www.herokucdn.com/deploy/button.svg" class="img-size"></a>
+                </div>
+                <div class="mainbody">
+                    <a target="_blank" href="https://mirotalk.herokuapp.com/"><img src="public/images/mirotalk-heroku-qr.png" class="img-size"></a>
+                </div>
+                <div class="footer">
+                    <a target="_blank" href="https://mirotalk.herokuapp.com/">https://mirotalk.herokuapp.com/</a>
+                </div>
+            </div>
+            <div class="container">
+                <div class="header">
+                    <a target="_blank" href="https://railway.app"><img src="https://railway.app/button.svg" class="img-size"></a>
+                </div>
+                <div class="mainbody">
+                    <a target="_blank" href="https://mirotalk.up.railway.app/"><img src="public/images/mirotalk-railway-qr.png" class="img-size"></a>
+                </div>
+                <div class="footer">
+                    <a target="_blank" href="https://mirotalk.up.railway.app/">https://mirotalk.up.railway.app/</a>
+                </div>
+            </div>
+    </body>
+</html>
 
 ---
 
