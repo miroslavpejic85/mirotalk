@@ -108,14 +108,7 @@ $ docker-compose down
 
 ## Setup Turn
 
-`Recommended`, more info about Turn you can find [here](https://webrtc.org/getting-started/turn-server).
-
-```bash
-# copy .env.template to .env
-$ cp .env.template .env
-```
-
-Then edit [this part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L9) on your `.env`.
+`Recommended`, for more info about the Turn check out [here](https://webrtc.org/getting-started/turn-server). Just edit [this part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L9) on your `.env`.
 
 ---
 
