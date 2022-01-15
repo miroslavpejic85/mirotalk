@@ -69,15 +69,7 @@ function volumeAudioProcess(event) {
             type: 'micVolume',
             volume: final_volume,
         };
-
         handleMyVolume(config);
-
-        if (thereIsPeerConnections()) {
-            // Send speech transcript through RTC Data Channels
-            for (let peer_id in chatDataChannels) {
-                if (chatDataChannels[peer_id].readyState === 'open')
-                    chatDataChannels[peer_id].send(JSON.stringify(config));
-            }
-        }
+        sendToDataChannel(config);
     }
 }

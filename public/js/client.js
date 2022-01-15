@@ -377,215 +377,81 @@ function getHtmlElementsById() {
  * Using tippy aka very nice tooltip!
  * https://atomiks.github.io/tippyjs/
  */
-function setButtonsTitle() {
+function setButtonsToolTip() {
     // not need for mobile
     if (isMobileDevice) return;
-
-    // left buttons
-    tippy(shareRoomBtn, {
-        content: 'Invite people to join',
-        placement: 'right-start',
-    });
-    tippy(audioBtn, {
-        content: 'Click to audio OFF',
-        placement: 'right-start',
-    });
-    tippy(videoBtn, {
-        content: 'Click to video OFF',
-        placement: 'right-start',
-    });
-    tippy(screenShareBtn, {
-        content: 'START screen sharing',
-        placement: 'right-start',
-    });
-    tippy(recordStreamBtn, {
-        content: 'START recording',
-        placement: 'right-start',
-    });
-    tippy(fullScreenBtn, {
-        content: 'VIEW full screen',
-        placement: 'right-start',
-    });
-    tippy(chatRoomBtn, {
-        content: 'OPEN the chat',
-        placement: 'right-start',
-    });
-    tippy(captionBtn, {
-        content: 'OPEN the caption',
-        placement: 'right-start',
-    });
-    tippy(myHandBtn, {
-        content: 'RAISE your hand',
-        placement: 'right-start',
-    });
-    tippy(whiteboardBtn, {
-        content: 'OPEN the whiteboard',
-        placement: 'right-start',
-    });
-    tippy(fileShareBtn, {
-        content: 'SHARE the file',
-        placement: 'right-start',
-    });
-    tippy(mySettingsBtn, {
-        content: 'Show settings',
-        placement: 'right-start',
-    });
-    tippy(aboutBtn, {
-        content: 'Show about',
-        placement: 'right-start',
-    });
-    tippy(leaveRoomBtn, {
-        content: 'Leave this room',
-        placement: 'right-start',
-    });
-
+    // main buttons
+    setTippy(shareRoomBtn, 'Invite people to join', 'right-start');
+    setTippy(audioBtn, 'Click to audio OFF', 'right-start');
+    setTippy(videoBtn, 'Click to video OFF', 'right-start');
+    setTippy(screenShareBtn, 'START screen sharing', 'right-start');
+    setTippy(recordStreamBtn, 'START recording', 'right-start');
+    setTippy(fullScreenBtn, 'VIEW full screen', 'right-start');
+    setTippy(chatRoomBtn, 'OPEN the chat', 'right-start');
+    setTippy(captionBtn, 'OPEN the caption', 'right-start');
+    setTippy(myHandBtn, 'RAISE your hand', 'right-start');
+    setTippy(whiteboardBtn, 'OPEN the whiteboard', 'right-start');
+    setTippy(fileShareBtn, 'SHARE the file', 'right-start');
+    setTippy(mySettingsBtn, 'Show settings', 'right-start');
+    setTippy(aboutBtn, 'Show about', 'right-start');
+    setTippy(leaveRoomBtn, 'Leave this room', 'right-start');
     // chat room buttons
-    tippy(msgerTheme, {
-        content: 'Ghost theme',
-    });
-    tippy(msgerCPBtn, {
-        content: 'Private messages',
-    });
-    tippy(msgerClean, {
-        content: 'Clean messages',
-    });
-    tippy(msgerSaveBtn, {
-        content: 'Save messages',
-    });
-    tippy(msgerClose, {
-        content: 'Close',
-    });
-    tippy(msgerEmojiBtn, {
-        content: 'Emoji',
-    });
-    tippy(msgerSendBtn, {
-        content: 'Send',
-    });
-
+    setTippy(msgerTheme, 'Ghost theme', 'top');
+    setTippy(msgerCPBtn, 'Private messages', 'top');
+    setTippy(msgerClean, 'Clean messages', 'top');
+    setTippy(msgerSaveBtn, 'Save messages', 'top');
+    setTippy(msgerClose, 'Close', 'top');
+    setTippy(msgerEmojiBtn, 'Emoji', 'top');
+    setTippy(msgerSendBtn, 'Send', 'top');
     // caption buttons
-    tippy(captionTheme, {
-        content: 'Ghost theme',
-    });
-    tippy(captionClean, {
-        content: 'Clean messages',
-    });
-    tippy(captionSaveBtn, {
-        content: 'Save messages',
-    });
-    tippy(msgerClose, {
-        content: 'Close',
-    });
-
+    setTippy(captionTheme, 'Ghost theme', 'top');
+    setTippy(captionClean, 'Clean messages', 'top');
+    setTippy(captionSaveBtn, 'Save messages', 'top');
     // settings
-    tippy(mySettingsCloseBtn, {
-        content: 'Close settings',
-    });
-    tippy(myPeerNameSetBtn, {
-        content: 'Change name',
-    });
-
+    setTippy(mySettingsCloseBtn, 'Close settings', 'top');
+    setTippy(myPeerNameSetBtn, 'Change name', 'top');
     // tab btns
-    tippy(tabDevicesBtn, {
-        content: 'Devices',
-    });
-    tippy(tabBandwidthBtn, {
-        content: 'Bandwidth',
-    });
-    tippy(tabRoomBtn, {
-        content: 'Room',
-    });
-    tippy(tabStylingBtn, {
-        content: 'Styling',
-    });
-
+    setTippy(tabDevicesBtn, 'Devices', 'top');
+    setTippy(tabBandwidthBtn, 'Bandwidth', 'top');
+    setTippy(tabRoomBtn, 'Room', 'top');
+    setTippy(tabStylingBtn, 'Styling', 'top');
     // whiteboard btns
-    tippy(wbDrawingColorEl, {
-        content: 'DRAWING color',
-        placement: 'bottom',
-    });
-    tippy(wbBackgroundColorEl, {
-        content: 'BACKGROUND color',
-        placement: 'bottom',
-    });
-    tippy(whiteboardPencilBtn, {
-        content: 'DRAWING mode',
-        placement: 'bottom',
-    });
-    tippy(whiteboardObjectBtn, {
-        content: 'OBJECT mode',
-        placement: 'bottom',
-    });
-    tippy(whiteboardUndoBtn, {
-        content: 'UNDO the board',
-        placement: 'bottom',
-    });
-    tippy(whiteboardRedoBtn, {
-        content: 'REDO the board',
-        placement: 'bottom',
-    });
-    tippy(whiteboardImgFileBtn, {
-        content: 'ADD image from file',
-        placement: 'bottom',
-    });
-    tippy(whiteboardImgUrlBtn, {
-        content: 'ADD image from URL',
-        placement: 'bottom',
-    });
-    tippy(whiteboardTextBtn, {
-        content: 'ADD the text',
-        placement: 'bottom',
-    });
-    tippy(whiteboardLineBtn, {
-        content: 'ADD the line',
-        placement: 'bottom',
-    });
-    tippy(whiteboardRectBtn, {
-        content: 'ADD the rectangle',
-        placement: 'bottom',
-    });
-    tippy(whiteboardCircleBtn, {
-        content: 'ADD the circle',
-        placement: 'bottom',
-    });
-    tippy(whiteboardSaveBtn, {
-        content: 'SAVE the board',
-        placement: 'bottom',
-    });
-    tippy(whiteboardEraserBtn, {
-        content: 'ERASE the object',
-        placement: 'bottom',
-    });
-    tippy(whiteboardCleanBtn, {
-        content: 'CLEAN the board',
-        placement: 'bottom',
-    });
-    tippy(whiteboardCloseBtn, {
-        content: 'CLOSE the board',
-        placement: 'bottom',
-    });
-
+    setTippy(wbDrawingColorEl, 'DRAWING color', 'bottom');
+    setTippy(wbBackgroundColorEl, 'BACKGROUND color', 'bottom');
+    setTippy(whiteboardPencilBtn, 'DRAWING mode', 'bottom');
+    setTippy(whiteboardObjectBtn, 'OBJECT mode', 'bottom');
+    setTippy(whiteboardUndoBtn, 'UNDO the board', 'bottom');
+    setTippy(whiteboardRedoBtn, 'REDO the board', 'bottom');
+    setTippy(whiteboardImgFileBtn, 'ADD image from file', 'bottom');
+    setTippy(whiteboardImgUrlBtn, 'ADD image from URL', 'bottom');
+    setTippy(whiteboardTextBtn, 'ADD the text', 'bottom');
+    setTippy(whiteboardLineBtn, 'ADD the line', 'bottom');
+    setTippy(whiteboardRectBtn, 'ADD the rectangle', 'bottom');
+    setTippy(whiteboardCircleBtn, 'ADD the circle', 'bottom');
+    setTippy(whiteboardSaveBtn, 'SAVE the board', 'bottom');
+    setTippy(whiteboardEraserBtn, 'ERASE the object', 'bottom');
+    setTippy(whiteboardCleanBtn, 'CLEAN the board', 'bottom');
+    setTippy(whiteboardCloseBtn, 'CLOSE the board', 'bottom');
     // room actions btn
-    tippy(muteEveryoneBtn, {
-        content: 'MUTE everyone except yourself',
-        placement: 'top',
-    });
-    tippy(hideEveryoneBtn, {
-        content: 'HIDE everyone except yourself',
-        placement: 'top',
-    });
-
+    setTippy(muteEveryoneBtn, 'MUTE everyone except yourself', 'top');
+    setTippy(hideEveryoneBtn, 'HIDE everyone except yourself', 'top');
     // Suspend File transfer btn
-    tippy(sendAbortBtn, {
-        content: 'ABORT file transfer',
-        placement: 'right-start',
-    });
-
+    setTippy(sendAbortBtn, 'ABORT file transfer', 'right-start');
     // video URL player
-    tippy(videoUrlCloseBtn, {
-        content: 'Close the videoPlayer',
-    });
-    tippy(msgerVideoUrlBtn, {
-        content: 'Share YouTube video to all participants',
+    setTippy(videoUrlCloseBtn, 'Close the videoPlayer');
+    setTippy(msgerVideoUrlBtn, 'Share YouTube video to all participants');
+}
+
+/**
+ * Set nice tooltip to element
+ * @param {*} elem
+ * @param {*} content
+ * @param {*} placement
+ */
+function setTippy(elem, content, placement) {
+    tippy(elem, {
+        content: content,
+        placement: placement,
     });
 }
 
@@ -735,6 +601,19 @@ async function sendToServer(msg, config = {}) {
 }
 
 /**
+ * Send async data through RTC Data Channels
+ * @param {*} config JSON data
+ */
+async function sendToDataChannel(config) {
+    if (thereIsPeerConnections()) {
+        for (let peer_id in chatDataChannels) {
+            if (chatDataChannels[peer_id].readyState === 'open')
+                await chatDataChannels[peer_id].send(JSON.stringify(config));
+        }
+    }
+}
+
+/**
  * Connected to Signaling Server. Once the user has given us access to their
  * microphone/cam, join the channel and start peering up
  */
@@ -795,14 +674,8 @@ function whoAreYou() {
     initAudioBtn = getId('initAudioBtn');
     initVideoBtn = getId('initVideoBtn');
 
-    tippy(initAudioBtn, {
-        content: 'Click to audio OFF',
-        placement: 'top',
-    });
-    tippy(initVideoBtn, {
-        content: 'Click to video OFF',
-        placement: 'top',
-    });
+    setTippy(initAudioBtn, 'Click to audio OFF', 'top');
+    setTippy(initVideoBtn, 'Click to video OFF', 'top');
 }
 
 /**
@@ -1418,42 +1291,36 @@ function loadLocalMedia(stream) {
     myCountTimeImg.setAttribute('id', 'countTimeImg');
     myCountTimeImg.className = 'fas fa-clock';
     myCountTime.setAttribute('id', 'countTime');
-    tippy(myCountTime, {
-        content: 'Session Time',
-    });
+    setTippy(myCountTime, 'Session Time', 'bottom');
+
     // my peer name
     myVideoParagraphImg.setAttribute('id', 'myVideoParagraphImg');
     myVideoParagraphImg.className = 'fas fa-user';
     myVideoParagraph.setAttribute('id', 'myVideoParagraph');
     myVideoParagraph.className = 'videoPeerName';
-    tippy(myVideoParagraph, {
-        content: 'My name',
-    });
+    setTippy(myVideoParagraph, 'My name', 'bottom');
+
     // my hand status element
     myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
     myHandStatusIcon.className = 'fas fa-hand-paper pulsate';
     myHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
-    tippy(myHandStatusIcon, {
-        content: 'My hand is RAISED',
-    });
+    setTippy(myHandStatusIcon, 'My hand is RAISED', 'bottom');
+
     // my video status element
     myVideoStatusIcon.setAttribute('id', 'myVideoStatusIcon');
     myVideoStatusIcon.className = 'fas fa-video';
-    tippy(myVideoStatusIcon, {
-        content: 'My video is ON',
-    });
+    setTippy(myVideoStatusIcon, 'My video is ON', 'bottom');
+
     // my audio status element
     myAudioStatusIcon.setAttribute('id', 'myAudioStatusIcon');
     myAudioStatusIcon.className = 'fas fa-microphone';
-    tippy(myAudioStatusIcon, {
-        content: 'My audio is ON',
-    });
+    setTippy(myAudioStatusIcon, 'My audio is ON', 'bottom');
+
     // my video full screen mode
     myVideoFullScreenBtn.setAttribute('id', 'myVideoFullScreenBtn');
     myVideoFullScreenBtn.className = 'fas fa-expand';
-    tippy(myVideoFullScreenBtn, {
-        content: 'Full screen mode',
-    });
+    setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+
     // my video avatar image
     myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
     myVideoAvatarImage.className = 'videoAvatarImage pulsate';
@@ -1502,7 +1369,7 @@ function loadLocalMedia(stream) {
     videoWrap.style.display = 'none';
 
     getHtmlElementsById();
-    setButtonsTitle();
+    setButtonsToolTip();
     manageLeftButtons();
     handleBodyOnMouseMove();
     setupMySettings();
@@ -1555,54 +1422,46 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoParagraphImg.className = 'fas fa-user';
     remoteVideoParagraph.setAttribute('id', peer_id + '_name');
     remoteVideoParagraph.className = 'videoPeerName';
-    tippy(remoteVideoParagraph, {
-        content: 'Participant name',
-    });
+    setTippy(remoteVideoParagraph, 'Participant name', 'bottom');
+
     const peerVideoText = document.createTextNode(peers[peer_id]['peer_name']);
     remoteVideoParagraph.appendChild(peerVideoText);
     // remote hand status element
     remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
     remoteHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
     remoteHandStatusIcon.className = 'fas fa-hand-paper pulsate';
-    tippy(remoteHandStatusIcon, {
-        content: 'Participant hand is RAISED',
-    });
+    setTippy(remoteHandStatusIcon, 'Participant hand is RAISED', 'bottom');
+
     // remote video status element
     remoteVideoStatusIcon.setAttribute('id', peer_id + '_videoStatus');
     remoteVideoStatusIcon.className = 'fas fa-video';
-    tippy(remoteVideoStatusIcon, {
-        content: 'Participant video is ON',
-    });
+    setTippy(remoteVideoStatusIcon, 'Participant video is ON', 'bottom');
+
     // remote audio status element
     remoteAudioStatusIcon.setAttribute('id', peer_id + '_audioStatus');
     remoteAudioStatusIcon.className = 'fas fa-microphone';
-    tippy(remoteAudioStatusIcon, {
-        content: 'Participant audio is ON',
-    });
+    setTippy(remoteAudioStatusIcon, 'Participant audio is ON', 'bottom');
+
     // remote peer YouTube video
     remoteYoutubeBtnBtn.setAttribute('id', peer_id + '_youtube');
     remoteYoutubeBtnBtn.className = 'fab fa-youtube';
-    tippy(remoteYoutubeBtnBtn, {
-        content: 'Send YouTube video',
-    });
+    setTippy(remoteYoutubeBtnBtn, 'Send YouTube video', 'bottom');
+
     // remote private message
     remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
     remotePrivateMsgBtn.className = 'fas fa-paper-plane';
-    tippy(remotePrivateMsgBtn, {
-        content: 'Send private message',
-    });
+    setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+
     // remote peer kick out
     remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
     remotePeerKickOut.className = 'fas fa-sign-out-alt';
-    tippy(remotePeerKickOut, {
-        content: 'Kick out',
-    });
+    setTippy(remotePeerKickOut, 'Kick out', 'bottom');
+
     // remote video full screen mode
     remoteVideoFullScreenBtn.setAttribute('id', peer_id + '_fullScreen');
     remoteVideoFullScreenBtn.className = 'fas fa-expand';
-    tippy(remoteVideoFullScreenBtn, {
-        content: 'Full screen mode',
-    });
+    setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+
     // my video avatar image
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
     remoteVideoAvatarImage.className = 'videoAvatarImage pulsate';
@@ -1987,10 +1846,7 @@ function setFullScreenBtn() {
                 isDocumentOnFullScreen = false;
                 // only for desktop
                 if (!isMobileDevice) {
-                    tippy(fullScreenBtn, {
-                        content: 'VIEW full screen',
-                        placement: 'right-start',
-                    });
+                    setTippy(fullScreenBtn, 'VIEW full screen', 'right-start');
                 }
             }
         });
@@ -2823,10 +2679,7 @@ function handleAudio(e, init, force = null) {
     if (init) {
         audioBtn.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
         if (!isMobileDevice) {
-            tippy(initAudioBtn, {
-                content: myAudioStatus ? 'Click to audio OFF' : 'Click to audio ON',
-                placement: 'top',
-            });
+            setTippy(initAudioBtn, myAudioStatus ? 'Click to audio OFF' : 'Click to audio ON', 'top');
         }
     }
     setMyAudioStatus(myAudioStatus);
@@ -2848,10 +2701,7 @@ function handleVideo(e, init, force = null) {
     if (init) {
         videoBtn.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
         if (!isMobileDevice) {
-            tippy(initVideoBtn, {
-                content: myVideoStatus ? 'Click to video OFF' : 'Click to video ON',
-                placement: 'top',
-            });
+            setTippy(initVideoBtn, myVideoStatus ? 'Click to video OFF' : 'Click to video ON', 'top');
         }
     }
     setMyVideoStatus(myVideoStatus);
@@ -2942,10 +2792,7 @@ function setScreenSharingStatus(status) {
     screenShareBtn.className = status ? 'fas fa-stop-circle' : 'fas fa-desktop';
     // only for desktop
     if (!isMobileDevice) {
-        tippy(screenShareBtn, {
-            content: status ? 'STOP screen sharing' : 'START screen sharing',
-            placement: 'right-start',
-        });
+        setTippy(screenShareBtn, status ? 'STOP screen sharing' : 'START screen sharing', 'right-start');
     }
 }
 
@@ -2963,10 +2810,7 @@ function setMyVideoStatusTrue() {
     emitPeerStatus('video', myVideoStatus);
     // only for desktop
     if (!isMobileDevice) {
-        tippy(videoBtn, {
-            content: 'Click to video OFF',
-            placement: 'right-start',
-        });
+        setTippy(videoBtn, 'Click to video OFF', 'right-start');
     }
 }
 
@@ -2988,10 +2832,7 @@ function toggleFullScreen() {
     }
     // only for desktop
     if (!isMobileDevice) {
-        tippy(fullScreenBtn, {
-            content: isDocumentOnFullScreen ? 'EXIT full screen' : 'VIEW full screen',
-            placement: 'right-start',
-        });
+        setTippy(fullScreenBtn, isDocumentOnFullScreen ? 'EXIT full screen' : 'VIEW full screen', 'right-start');
     }
 }
 
@@ -3189,10 +3030,7 @@ function handleMediaRecorderStart(event) {
     startRecordingTime();
     // only for desktop
     if (!isMobileDevice) {
-        tippy(recordStreamBtn, {
-            content: 'STOP recording',
-            placement: 'right-start',
-        });
+        setTippy(recordStreamBtn, 'STOP recording', 'right-start');
     } else {
         swapCameraBtn.style.display = 'none';
     }
@@ -3229,10 +3067,7 @@ function handleMediaRecorderStop(event) {
     downloadRecordedStream();
     // only for desktop
     if (!isMobileDevice) {
-        tippy(recordStreamBtn, {
-            content: 'START recording',
-            placement: 'right-start',
-        });
+        setTippy(recordStreamBtn, 'START recording', 'right-start');
     } else {
         swapCameraBtn.style.display = 'block';
     }
@@ -3321,10 +3156,7 @@ function showChatRoomDraggable() {
     isChatRoomVisible = true;
     // only for desktop
     if (!isMobileDevice) {
-        tippy(chatRoomBtn, {
-            content: 'CLOSE the chat',
-            placement: 'right-start',
-        });
+        setTippy(chatRoomBtn, 'CLOSE the chat', 'right-start');
     }
 }
 
@@ -3344,10 +3176,7 @@ function showCaptionDraggable() {
     isCaptionBoxVisible = true;
     // only for desktop
     if (!isMobileDevice) {
-        tippy(captionBtn, {
-            content: 'CLOSE the caption',
-            placement: 'right-start',
-        });
+        setTippy(captionBtn, 'CLOSE the caption', 'right-start');
     }
 }
 /**
@@ -3425,10 +3254,7 @@ function hideChatRoomAndEmojiPicker() {
     isChatEmojiVisible = false;
     // only for desktop
     if (!isMobileDevice) {
-        tippy(chatRoomBtn, {
-            content: 'OPEN the chat',
-            placement: 'right-start',
-        });
+        setTippy(chatRoomBtn, 'OPEN the chat', 'right-start');
     }
 }
 
@@ -3441,10 +3267,7 @@ function hideCaptionBox() {
     isCaptionBoxVisible = false;
     // only for desktop
     if (!isMobileDevice) {
-        tippy(captionBtn, {
-            content: 'OPEN the caption',
-            placement: 'right-start',
-        });
+        setTippy(captionBtn, 'OPEN the caption', 'right-start');
     }
 }
 
@@ -3514,6 +3337,8 @@ function handleSpeechTranscript(config) {
     let transcipt = config.text_data;
 
     console.log('Handle speech transcript', config);
+
+    if (!isCaptionBoxVisible) showCaptionDraggable();
 
     const msgHTML = `
 	<div class="msg left-msg">
@@ -3720,12 +3545,7 @@ function emitMsg(from, to, msg, privateMsg) {
         privateMsg: privateMsg,
     };
     console.log('Send msg', chatMessage);
-
-    // Send chat msg through RTC Data Channels
-    for (let peer_id in chatDataChannels) {
-        if (chatDataChannels[peer_id].readyState === 'open')
-            chatDataChannels[peer_id].send(JSON.stringify(chatMessage));
-    }
+    sendToDataChannel(chatMessage);
 }
 
 /**
@@ -3881,19 +3701,13 @@ function setMyHandStatus() {
         // Raise hand
         myHandStatus = false;
         if (!isMobileDevice) {
-            tippy(myHandBtn, {
-                content: 'RAISE your hand',
-                placement: 'right-start',
-            });
+            setTippy(myHandBtn, 'RAISE your hand', 'right-start');
         }
     } else {
         // Lower hand
         myHandStatus = true;
         if (!isMobileDevice) {
-            tippy(myHandBtn, {
-                content: 'LOWER your hand',
-                placement: 'right-start',
-            });
+            setTippy(myHandBtn, 'LOWER your hand', 'right-start');
         }
         playSound('raiseHand');
     }
@@ -3909,16 +3723,11 @@ function setMyAudioStatus(status) {
     myAudioStatusIcon.className = 'fas fa-microphone' + (status ? '' : '-slash');
     // send my audio status to all peers in the room
     emitPeerStatus('audio', status);
-    tippy(myAudioStatusIcon, {
-        content: status ? 'My audio is ON' : 'My audio is OFF',
-    });
+    setTippy(myAudioStatusIcon, status ? 'My audio is ON' : 'My audio is OFF', 'bottom');
     status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
-        tippy(audioBtn, {
-            content: status ? 'Click to audio OFF' : 'Click to audio ON',
-            placement: 'right-start',
-        });
+        setTippy(audioBtn, status ? 'Click to audio OFF' : 'Click to audio ON', 'right-start');
     }
 }
 
@@ -3932,16 +3741,11 @@ function setMyVideoStatus(status) {
     myVideoStatusIcon.className = 'fas fa-video' + (status ? '' : '-slash');
     // send my video status to all peers in the room
     emitPeerStatus('video', status);
-    tippy(myVideoStatusIcon, {
-        content: status ? 'My video is ON' : 'My video is OFF',
-    });
+    setTippy(myVideoStatusIcon, status ? 'My video is ON' : 'My video is OFF', 'bottom');
     status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
-        tippy(videoBtn, {
-            content: status ? 'Click to video OFF' : 'Click to video ON',
-            placement: 'right-start',
-        });
+        setTippy(videoBtn, status ? 'Click to video OFF' : 'Click to video ON', 'right-start');
     }
 }
 
@@ -3993,9 +3797,7 @@ function setPeerAudioStatus(peer_id, status) {
     let peerAudioStatus = getId(peer_id + '_audioStatus');
     if (peerAudioStatus) {
         peerAudioStatus.className = 'fas fa-microphone' + (status ? '' : '-slash');
-        tippy(peerAudioStatus, {
-            content: status ? 'Participant audio is ON' : 'Participant audio is OFF',
-        });
+        setTippy(peerAudioStatus, status ? 'Participant audio is ON' : 'Participant audio is OFF', 'bottom');
         status ? playSound('on') : playSound('off');
     }
 }
@@ -4084,9 +3886,7 @@ function setPeerVideoStatus(peer_id, status) {
     if (peerVideoAvatarImage) peerVideoAvatarImage.style.display = status ? 'none' : 'block';
     if (peerVideoStatus) {
         peerVideoStatus.className = 'fas fa-video' + (status ? '' : '-slash');
-        tippy(peerVideoStatus, {
-            content: status ? 'Participant video is ON' : 'Participant video is OFF',
-        });
+        setTippy(peerVideoStatus, status ? 'Participant video is ON' : 'Participant video is OFF', 'bottom');
         status ? playSound('on') : playSound('off');
     }
 }

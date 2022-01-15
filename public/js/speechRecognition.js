@@ -23,7 +23,7 @@ if ('webkitSpeechRecognition' in window) {
         let current = e.resultIndex;
         // Get a transcript of what was said.
         let transcript = e.results[current][0].transcript;
-        config = {
+        let config = {
             type: 'speech',
             room_id: roomId,
             peer_name: myPeerName,
@@ -32,14 +32,7 @@ if ('webkitSpeechRecognition' in window) {
         };
         // save also my speech to text
         handleSpeechTranscript(config);
-
-        if (thereIsPeerConnections()) {
-            // Send speech transcript through RTC Data Channels
-            for (let peer_id in chatDataChannels) {
-                if (chatDataChannels[peer_id].readyState === 'open')
-                    chatDataChannels[peer_id].send(JSON.stringify(config));
-            }
-        }
+        sendToDataChannel(config);
     };
 
     recognition.onerror = function (event) {
