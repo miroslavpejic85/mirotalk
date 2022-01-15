@@ -5244,17 +5244,18 @@ function bytesToSize(bytes) {
 function handlePeerVolume(data) {
     let peer_id = data.peer_id;
     let element = getId(peer_id + '_pitch_bar');
-    //let remoteVideoWrap = getId(peer_id + '_videoWrap');
+    let remoteVideoWrap = getId(peer_id + '_videoWrap');
+    let remoteVideoBorder = document.documentElement.style.getPropertyValue('--elem-border-color');
     let volume = data.volume + 25; //for design purpose
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    //remoteVideoWrap.style.border = '1px solid lime';
+    remoteVideoWrap.style.border = '1px solid lime';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
-        //remoteVideoWrap.style.border = 'none';
+        remoteVideoWrap.style.border = remoteVideoBorder;
     }, 700);
 }
 
@@ -5263,16 +5264,17 @@ function handlePeerVolume(data) {
  */
 function handleMyVolume(data) {
     let element = getId('myPitchBar');
+    let myVideoBorder = document.documentElement.style.getPropertyValue('--elem-border-color');
     let volume = data.volume + 25;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    //myVideoWrap.style.border = '1px solid lime';
+    myVideoWrap.style.border = '1px solid lime';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
-        //myVideoWrap.style.border = 'none';
+        myVideoWrap.style.border = myVideoBorder;
     }, 700);
 }
 
