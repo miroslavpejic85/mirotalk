@@ -3556,10 +3556,12 @@ function hideShowEmojiPicker() {
     if (!isChatEmojiVisible) {
         playSound('newMessage');
         msgerEmojiPicker.style.display = 'block';
+        msgerEmojiBtn.style.color = '#FFFF00';
         isChatEmojiVisible = true;
         return;
     }
     msgerEmojiPicker.style.display = 'none';
+    msgerEmojiBtn.style.color = '#FFFFFF';
     isChatEmojiVisible = false;
 }
 

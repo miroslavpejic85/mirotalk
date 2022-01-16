@@ -777,31 +777,15 @@ button:hover {
 # Emoji picker
 --------------------------------------------------------------*/
 
-#msgerEmojiPicker {
-    z-index: 13;
-    display: none;
-    position: absolute;
-    width: var(--msger-width);
-    height: var(--msger-height);
-    /* fade in */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
-    overflow: hidden;
-}
-
 emoji-picker {
+    z-index: 0;
+    position: absolute;
+    bottom: 55px;
     width: 100%;
-    height: 100%;
-    --num-columns: 9;
+    height: 50%;
+    --background: #16171b;
+    --num-columns: 8;
     --emoji-size: 1.5rem;
-    --background: var(--msger-bg);
 }
 
 /*--------------------------------------------------------------
@@ -1328,20 +1312,8 @@ progress {
 }
 
 /*--------------------------------------------------------------
-# Other
+# Speech bar
 --------------------------------------------------------------*/
-
-#webRTCSeo {
-    /* just for SEO */
-    display: none;
-}
-
-.center {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
-}
 
 .speechbar {
     position: absolute;
@@ -1363,6 +1335,46 @@ progress {
     transition-property: height background-color;
     transition-duration: 0.25s;
     /*box-shadow: var(--box-shadow);*/
+}
+
+/*--------------------------------------------------------------
+# Other
+--------------------------------------------------------------*/
+
+#webRTCSeo {
+    /* just for SEO */
+    display: none;
+}
+
+/*--------------------------------------------------------------
+# Common
+--------------------------------------------------------------*/
+
+.hidden {
+    display: none;
+}
+
+.show {
+    display: block;
+}
+
+.center {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.fadein {
+    -webkit-animation: fadeIn ease-in 1;
+    -moz-animation: fadeIn ease-in 1;
+    animation: fadeIn ease-in 1;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-duration: 1s;
+    -moz-animation-duration: 1s;
+    animation-duration: 1s;
 }
 
 /*
