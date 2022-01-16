@@ -679,6 +679,7 @@ button:hover {
 
 #msgerVideoUrlBtn,
 #msgerEmojiBtn,
+#msgerCPBtn,
 #msgerSendBtn {
     background: rgb(0, 0, 0);
     color: #fff;
@@ -687,6 +688,7 @@ button:hover {
 
 #msgerVideoUrlBtn:hover,
 #msgerEmojiBtn:hover,
+#msgerCPBtn:hover,
 #msgerSendBtn:hover {
     color: var(--hover-color);
     transform: var(--btns-hover-scale);
@@ -700,17 +702,12 @@ button:hover {
 #msgerCP {
     z-index: 11;
     display: none;
-    cursor: default;
-    top: var(--msger-top);
-    left: var(--msger-left);
-    height: var(--msger-height);
-    width: var(--msger-width);
-    background: var(--msger-private-bg);
-    /* center */
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    bottom: 55px;
+    width: 100%;
+    height: 50%;
+    cursor: default;
+    background: var(--msger-private-bg);
     /* fade in */
     -webkit-animation: fadeIn ease-in 1;
     -moz-animation: fadeIn ease-in 1;
