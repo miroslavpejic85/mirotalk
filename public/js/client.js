@@ -3486,6 +3486,18 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
     // add button to send private messages
     msgerPrivateBtn.addEventListener('click', (e) => {
         e.preventDefault();
+        sendPrivateMessage();
+    });
+
+    // Number 13 is the "Enter" key on the keyboard
+    msgerPrivateMsgInput.addEventListener('keyup', (e) => {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            sendPrivateMessage();
+        }
+    });
+
+    function sendPrivateMessage() {
         let pMsg = msgerPrivateMsgInput.value;
         if (!pMsg) return;
         let toPeerName = msgerPrivateBtn.value;
@@ -3493,7 +3505,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<br/><hr>Private message to ' + toPeerName, true);
         msgerPrivateMsgInput.value = '';
         msgerCP.style.display = 'none';
-    });
+    }
 }
 
 /**
