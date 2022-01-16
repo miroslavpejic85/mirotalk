@@ -129,7 +129,7 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 
 ## Live demo
 
-If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the `Ngrok` part on `.env` file) or expose it directly on [https](ssl/README.md) or deploy it on:
+If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file) or expose it directly on [HTTPS](app/ssl/README.md) or deploy it on:
 
 <br>
 
@@ -167,8 +167,10 @@ https://mirotalk.up.railway.app/
 
 [![AGPLv3](public/images/AGPLv3.png)](LICENSE)
 
-<br/>
+<br>
 
-### MiroTalk SFU
+# MiroTalk SFU
 
 You can also try [MiroTalk SFU](https://github.com/miroslavpejic85/mirotalksfu), The difference between the two projects you can found [here](https://github.com/miroslavpejic85/mirotalksfu/issues/14#issuecomment-932701999).
+
+---
