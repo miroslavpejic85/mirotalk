@@ -602,10 +602,10 @@ async function sendToServer(msg, config = {}) {
 
 /**
  * Send async data through RTC Data Channels
- * @param {*} config JSON data
+ * @param {*} config obj data
  */
 async function sendToDataChannel(config) {
-    if (thereIsPeerConnections()) {
+    if (thereIsPeerConnections() && typeof config === 'object' && config !== null) {
         for (let peer_id in chatDataChannels) {
             if (chatDataChannels[peer_id].readyState === 'open')
                 await chatDataChannels[peer_id].send(JSON.stringify(config));
@@ -3250,6 +3250,7 @@ function cleanCaptions() {
 function hideChatRoomAndEmojiPicker() {
     msgerDraggable.style.display = 'none';
     msgerEmojiPicker.style.display = 'none';
+    msgerEmojiBtn.style.color = '#FFFFFF';
     chatRoomBtn.className = 'fas fa-comment';
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
