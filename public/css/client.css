@@ -1148,16 +1148,11 @@ video:fullscreen {
 # Send File
 --------------------------------------------------------------*/
 
-#sendFileDiv {
+#sendFileDiv,
+#receiveFileDiv {
     z-index: 17;
     display: none;
     min-width: 320px;
-    /* center */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    /* gui */
     background-color: rgba(0, 0, 0, 0.7);
     border-radius: 5px;
     margin: auto;
@@ -1165,20 +1160,11 @@ video:fullscreen {
     padding: 10px;
     color: white;
     font-size: 1rem;
-    /* fade in */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
     overflow: hidden;
 }
 
-#sendAbortBtn {
+#sendAbortBtn,
+#receiveHideBtn {
     padding: 5px;
     border-radius: 5px;
     font-size: 1rem;
@@ -1187,7 +1173,8 @@ video:fullscreen {
     transition: background 0.23s;
 }
 
-#sendAbortBtn:hover {
+#sendAbortBtn:hover,
+#receiveHideBtn:hover {
     color: rgb(255, 0, 0);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
@@ -1198,7 +1185,8 @@ progress {
     min-width: 100%;
 }
 
-#imgShare:hover {
+#imgShareSend:hover,
+#imgShareReceive:hover {
     cursor: move;
 }
 
@@ -1360,6 +1348,13 @@ progress {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.center-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
 }
 
 .fadein {

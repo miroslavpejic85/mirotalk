@@ -341,15 +341,27 @@ access to use this app.
 
         <!-- Start File Send -->
 
-        <div id="sendFileDiv">
-            <img id="imgShare" src="../images/share.png" alt="mirotalk-share" class="center" /><br />
+        <div id="sendFileDiv" class="center fadein">
+            <img id="imgShareSend" src="../images/share.png" alt="mirotalk-share-send" class="center-img" /><br />
             <div id="sendFileInfo"></div>
             <div id="sendFilePercentage"></div>
             <progress id="sendProgress" max="0" value="0"></progress>
-            <button id="sendAbortBtn" class="fas fa-stop-circle">&nbsp;Abort</button>
+            <button id="sendAbortBtn" class="fas fa-stop-circle">&nbsp; Abort</button>
         </div>
 
         <!-- End File Send -->
+
+        <!-- Start File Receive -->
+
+        <div id="receiveFileDiv" class="center fadein">
+            <img id="imgShareReceive" src="../images/share.png" alt="mirotalk-share-receive" class="center-img" /><br />
+            <div id="receiveFileInfo"></div>
+            <div id="receiveFilePercentage"></div>
+            <progress id="receiveProgress" max="0" value="0"></progress>
+            <button id="receiveHideBtn" class="fas fa-eye-slash">&nbsp; Hide</button>
+        </div>
+
+        <!-- Stop File Receive -->
 
         <!-- Start video URL iframe -->
 

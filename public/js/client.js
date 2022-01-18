@@ -246,11 +246,19 @@ let receiveBuffer = [];
 let receivedSize = 0;
 let incomingFileInfo;
 let incomingFileData;
+// send form
 let sendFileDiv;
 let sendFileInfo;
 let sendProgress;
 let sendAbortBtn;
 let sendInProgress = false;
+// receive form
+let receiveFileDiv;
+let receiveFileInfo;
+let receiveProgress;
+let receiveHideBtn;
+let receiveFilePercentage;
+let receiveInProgress = false;
 // MTU 1kb to prevent drop.
 // const chunkSize = 1024;
 const chunkSize = 1024 * 16; // 16kb/s
@@ -367,6 +375,12 @@ function getHtmlElementsById() {
     sendFileInfo = getId('sendFileInfo');
     sendProgress = getId('sendProgress');
     sendAbortBtn = getId('sendAbortBtn');
+    // file receive progress
+    receiveFileDiv = getId('receiveFileDiv');
+    receiveFileInfo = getId('receiveFileInfo');
+    receiveProgress = getId('receiveProgress');
+    receiveHideBtn = getId('receiveHideBtn');
+    receiveFilePercentage = getId('receiveFilePercentage');
     // video url player
     videoUrlCont = getId('videoUrlCont');
     videoUrlHeader = getId('videoUrlHeader');
@@ -436,8 +450,9 @@ function setButtonsToolTip() {
     // room actions btn
     setTippy(muteEveryoneBtn, 'MUTE everyone except yourself', 'top');
     setTippy(hideEveryoneBtn, 'HIDE everyone except yourself', 'top');
-    // Suspend File transfer btn
+    // Suspend/Hide File transfer btn
     setTippy(sendAbortBtn, 'ABORT file transfer', 'right-start');
+    setTippy(receiveHideBtn, 'HIDE file transfer', 'right-start');
     // video URL player
     setTippy(videoUrlCloseBtn, 'Close the videoPlayer');
     setTippy(msgerVideoUrlBtn, 'Share YouTube video to all participants');
@@ -1923,7 +1938,11 @@ function setChatRoomBtn() {
 
     // clean chat messages
     msgerClean.addEventListener('click', (e) => {
-        cleanMessages();
+        if (chatMessages.length != 0) {
+            cleanMessages();
+            return;
+        }
+        userLog('info', 'No chat messages to delete');
     });
 
     // save chat messages to file
@@ -2000,7 +2019,11 @@ function setCaptionRoomBtn() {
 
         // clean caption transcripts
         captionClean.addEventListener('click', (e) => {
-            cleanCaptions();
+            if (transcripts.length != 0) {
+                cleanCaptions();
+                return;
+            }
+            userLog('info', 'No captions to delete');
         });
 
         // save caption transcripts to file
@@ -2134,8 +2157,11 @@ function setMyWhiteboardBtn() {
  * File Transfer button event click
  */
 function setMyFileShareBtn() {
-    // make send file div draggable
-    if (!isMobileDevice) dragElement(getId('sendFileDiv'), getId('imgShare'));
+    // make send-receive file div draggable
+    if (!isMobileDevice) {
+        dragElement(getId('sendFileDiv'), getId('imgShareSend'));
+        dragElement(getId('receiveFileDiv'), getId('imgShareReceive'));
+    }
 
     fileShareBtn.addEventListener('click', (e) => {
         //window.open("https://fromsmash.com"); // for Big Data
@@ -2143,6 +2169,9 @@ function setMyFileShareBtn() {
     });
     sendAbortBtn.addEventListener('click', (e) => {
         abortFileTransfer();
+    });
+    receiveHideBtn.addEventListener('click', (e) => {
+        hideFileTransfer();
     });
 }
 
@@ -4657,13 +4686,14 @@ function createFileSharingDataChannel(peer_id) {
  * @param {*} data
  */
 function handleDataChannelFileSharing(data) {
+    if (!receiveInProgress) return;
     receiveBuffer.push(data);
     receivedSize += data.byteLength;
-
-    // let getPercentage = ((receivedSize / incomingFileInfo.fileSize) * 100).toFixed(2);
-    // console.log("Received progress: " + getPercentage + "%");
-
+    receiveProgress.value = receivedSize;
+    receiveFilePercentage.innerHTML =
+        'Receive progress: ' + ((receivedSize / incomingFileInfo.fileSize) * 100).toFixed(2) + '%';
     if (receivedSize === incomingFileInfo.fileSize) {
+        receiveFileDiv.style.display = 'none';
         incomingFileData = receiveBuffer;
         receiveBuffer = [];
         endDownload();
@@ -4756,8 +4786,17 @@ function handleFileAbort() {
     receiveBuffer = [];
     incomingFileData = [];
     receivedSize = 0;
+    receiveInProgress = false;
+    receiveFileDiv.style.display = 'none';
     console.log('File transfer aborted');
     userLog('toast', '⚠️ File transfer aborted');
+}
+
+/**
+ * Hide incoming file transfer
+ */
+function hideFileTransfer() {
+    receiveFileDiv.style.display = 'none';
 }
 
 /**
@@ -4829,16 +4868,20 @@ function handleFileInfo(config) {
     let fileToReceiveInfo =
         ' From: ' +
         incomingFileInfo.peerName +
-        '\n' +
-        ' incoming file: ' +
+        '<br />' +
+        ' Incoming file: ' +
         incomingFileInfo.fileName +
-        '\n' +
-        ' size: ' +
+        '<br />' +
+        ' File size: ' +
         bytesToSize(incomingFileInfo.fileSize) +
-        '\n' +
-        ' type: ' +
+        '<br />' +
+        ' File type: ' +
         incomingFileInfo.fileType;
     console.log(fileToReceiveInfo);
+    receiveFileInfo.innerHTML = fileToReceiveInfo;
+    receiveFileDiv.style.display = 'inline';
+    receiveProgress.max = incomingFileInfo.fileSize;
+    receiveInProgress = true;
     userLog('toast', fileToReceiveInfo);
 }
 
