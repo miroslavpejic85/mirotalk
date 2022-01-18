@@ -800,6 +800,7 @@ function handleAddPeer(config) {
     peerConnection = new RTCPeerConnection({ iceServers: iceServers });
     peerConnections[peer_id] = peerConnection;
 
+    handlePeersConnectionStatus(peer_id);
     msgerAddPeers(peers);
     handleOnIceCandidate(peer_id);
     handleOnTrack(peer_id, peers);
@@ -1004,11 +1005,29 @@ function handleIceCandidate(config) {
 }
 
 /**
- * Disconnected from Signaling Server. Tear down all of our peer connections
- * and remove all the media divs when we disconnect from signaling server
+ * Disconnected from Signaling Server.
  */
 function handleDisconnect() {
     console.log('Disconnected from signaling server');
+}
+
+/**
+ * Handle peers connection state
+ */
+function handlePeersConnectionStatus(peer_id) {
+    peerConnections[peer_id].onconnectionstatechange = function (event) {
+        const connectionStatus = event.currentTarget.connectionState;
+        if (['disconnected', 'failed', 'closed'].includes(connectionStatus)) {
+            console.log('Connection', { connectionStatus: connectionStatus });
+            removePeer();
+        }
+    };
+}
+
+/**
+ * Tear down all of our peer connections and remove all the media divs
+ */
+function removePeer() {
     for (let peer_id in peerMediaElements) {
         document.body.removeChild(peerMediaElements[peer_id].parentNode);
         resizeVideos();
