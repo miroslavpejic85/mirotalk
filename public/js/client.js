@@ -814,6 +814,16 @@ function handleAddPeer(config) {
 }
 
 /**
+ * Handle peers connection state
+ */
+function handlePeersConnectionStatus(peer_id) {
+    peerConnections[peer_id].onconnectionstatechange = function (event) {
+        const connectionStatus = event.currentTarget.connectionState;
+        console.log('Connection', { peer_id: peer_id, connectionStatus: connectionStatus });
+    };
+}
+
+/**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
  *
  * @param {*} peer_id
@@ -1006,28 +1016,10 @@ function handleIceCandidate(config) {
 
 /**
  * Disconnected from Signaling Server.
+ * Tear down all of our peer connections and remove all the media divs.
  */
 function handleDisconnect() {
     console.log('Disconnected from signaling server');
-    removePeer();
-}
-
-/**
- * Handle peers connection state
- */
-function handlePeersConnectionStatus(peer_id) {
-    peerConnections[peer_id].onconnectionstatechange = function (event) {
-        const connectionStatus = event.currentTarget.connectionState;
-        if (['disconnected', 'failed', 'closed'].includes(connectionStatus)) {
-            console.log('Connection', { peer_id: peer_id, connectionStatus: connectionStatus });
-        }
-    };
-}
-
-/**
- * Tear down all of our peer connections and remove all the media divs
- */
-function removePeer() {
     for (let peer_id in peerMediaElements) {
         document.body.removeChild(peerMediaElements[peer_id].parentNode);
         resizeVideos();
