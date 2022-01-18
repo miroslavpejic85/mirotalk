@@ -58,6 +58,8 @@ const wbImageInput = 'image/*';
 const wbWidth = 800;
 const wbHeight = 600;
 
+let myPeerId;
+
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
@@ -174,7 +176,6 @@ let msgerCPList;
 let msgerEmojiPicker;
 let emojiPicker;
 // my settings
-let myPeerId;
 let mySettings;
 let mySettingsHeader;
 let tabDevicesBtn;
@@ -619,6 +620,10 @@ async function sendToDataChannel(config) {
  */
 function handleConnect() {
     console.log('Connected to signaling server');
+
+    myPeerId = signalingSocket.id;
+    console.log('My peer id [ ' + myPeerId + ' ]');
+
     if (localMediaStream) joinToChannel();
     else
         setupLocalMedia(() => {
@@ -876,7 +881,6 @@ function handleRTCDataChannels(peer_id) {
                                 handleDataChannelSpeechTranscript(dataMessage);
                                 break;
                             case 'micVolume':
-                                dataMessage.peer_id = peer_id; // to create animation on specific video element
                                 handlePeerVolume(dataMessage);
                                 break;
                         }
