@@ -921,30 +921,33 @@ function handleRTCDataChannels(peer_id) {
  * @param {*} peer_id
  */
 function handleRtcOffer(peer_id) {
-    console.log('Creating RTC offer to', peer_id);
-    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
-    peerConnections[peer_id]
-        .createOffer()
-        .then((local_description) => {
-            console.log('Local offer description is', local_description);
-            // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
-            peerConnections[peer_id]
-                .setLocalDescription(local_description)
-                .then(() => {
-                    sendToServer('relaySDP', {
-                        peer_id: peer_id,
-                        session_description: local_description,
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onnegotiationneeded
+    peerConnections[peer_id].onnegotiationneeded = () => {
+        console.log('Creating RTC offer to', peer_id);
+        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
+        peerConnections[peer_id]
+            .createOffer()
+            .then((local_description) => {
+                console.log('Local offer description is', local_description);
+                // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
+                peerConnections[peer_id]
+                    .setLocalDescription(local_description)
+                    .then(() => {
+                        sendToServer('relaySDP', {
+                            peer_id: peer_id,
+                            session_description: local_description,
+                        });
+                        console.log('Offer setLocalDescription done!');
+                    })
+                    .catch((err) => {
+                        console.error('[Error] offer setLocalDescription', err);
+                        userLog('error', 'Offer setLocalDescription failed ' + err);
                     });
-                    console.log('Offer setLocalDescription done!');
-                })
-                .catch((err) => {
-                    console.error('[Error] offer setLocalDescription', err);
-                    userLog('error', 'Offer setLocalDescription failed ' + err);
-                });
-        })
-        .catch((err) => {
-            console.error('[Error] sending offer', err);
-        });
+            })
+            .catch((err) => {
+                console.error('[Error] sending offer', err);
+            });
+    };
 }
 
 /**
