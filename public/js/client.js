@@ -1009,6 +1009,7 @@ function handleIceCandidate(config) {
  */
 function handleDisconnect() {
     console.log('Disconnected from signaling server');
+    removePeer();
 }
 
 /**
@@ -1018,8 +1019,7 @@ function handlePeersConnectionStatus(peer_id) {
     peerConnections[peer_id].onconnectionstatechange = function (event) {
         const connectionStatus = event.currentTarget.connectionState;
         if (['disconnected', 'failed', 'closed'].includes(connectionStatus)) {
-            console.log('Connection', { connectionStatus: connectionStatus });
-            removePeer();
+            console.log('Connection', { peer_id: peer_id, connectionStatus: connectionStatus });
         }
     };
 }
