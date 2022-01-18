@@ -67,6 +67,7 @@ function volumeAudioProcess(event) {
     if (myAudioStatus && final_volume > 5) {
         let config = {
             type: 'micVolume',
+            peer_id: myPeerId,
             volume: final_volume,
         };
         handleMyVolume(config);

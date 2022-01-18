@@ -58,6 +58,8 @@ const wbImageInput = 'image/*';
 const wbWidth = 800;
 const wbHeight = 600;
 
+let myPeerId;
+
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
@@ -174,7 +176,6 @@ let msgerCPList;
 let msgerEmojiPicker;
 let emojiPicker;
 // my settings
-let myPeerId;
 let mySettings;
 let mySettingsHeader;
 let tabDevicesBtn;
@@ -602,10 +603,10 @@ async function sendToServer(msg, config = {}) {
 
 /**
  * Send async data through RTC Data Channels
- * @param {*} config JSON data
+ * @param {*} config obj data
  */
 async function sendToDataChannel(config) {
-    if (thereIsPeerConnections()) {
+    if (thereIsPeerConnections() && typeof config === 'object' && config !== null) {
         for (let peer_id in chatDataChannels) {
             if (chatDataChannels[peer_id].readyState === 'open')
                 await chatDataChannels[peer_id].send(JSON.stringify(config));
@@ -619,6 +620,10 @@ async function sendToDataChannel(config) {
  */
 function handleConnect() {
     console.log('Connected to signaling server');
+
+    myPeerId = signalingSocket.id;
+    console.log('My peer id [ ' + myPeerId + ' ]');
+
     if (localMediaStream) joinToChannel();
     else
         setupLocalMedia(() => {
@@ -876,7 +881,6 @@ function handleRTCDataChannels(peer_id) {
                                 handleDataChannelSpeechTranscript(dataMessage);
                                 break;
                             case 'micVolume':
-                                dataMessage.peer_id = peer_id; // to create animation on specific video element
                                 handlePeerVolume(dataMessage);
                                 break;
                         }
@@ -3250,6 +3254,7 @@ function cleanCaptions() {
 function hideChatRoomAndEmojiPicker() {
     msgerDraggable.style.display = 'none';
     msgerEmojiPicker.style.display = 'none';
+    msgerEmojiBtn.style.color = '#FFFFFF';
     chatRoomBtn.className = 'fas fa-comment';
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
