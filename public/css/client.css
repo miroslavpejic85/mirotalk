@@ -278,16 +278,6 @@ body {
     transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
     -moz-transform: translate(-50%, -50%);
-    /* fadeIn effect */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
     overflow: hidden;
 }
 
@@ -322,12 +312,12 @@ body {
 
 .videoAvatarImage {
     z-index: 8;
+    display: none;
     position: absolute;
     /*center*/
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: none;
 }
 
 /*--------------------------------------------------------------
@@ -353,15 +343,6 @@ body {
     border-radius: 20px;
     background: transparent;
     box-shadow: var(--box-shadow);
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
     overflow: hidden;
 }
 
@@ -373,6 +354,12 @@ body {
     padding: 4px;
     border-radius: 5px;
     opacity: var(--btn-opc);
+    color: var(--btn-color);
+}
+
+#buttonsBar button:hover {
+    color: var(--hover-color);
+    transform: var(--btns-hover-scale);
 }
 
 #buttonsBar button:focus {
@@ -391,45 +378,7 @@ body {
     transition: all 0.3s ease-in-out;
 }
 
-#shareRoomBtn,
-#audioBtn,
-#videoBtn,
-#screenShareBtn,
-#recordStreamBtn,
-#fullScreenBtn,
-#swapCameraBtn,
-#chatRoomBtn,
-#captionBtn,
-#myHandBtn,
-#whiteboardBtn,
-#fileShareBtn,
-#mySettingsBtn,
-#aboutBtn,
-#leaveRoomBtn {
-    color: var(--btn-color);
-}
-
-#initAudioBtn:hover,
-#initVideoBtn:hover,
-#shareRoomBtn:hover,
-#audioBtn:hover,
-#videoBtn:hover,
-#screenShareBtn:hover,
-#recordStreamBtn:hover,
-#fullScreenBtn:hover,
-#swapCameraBtn:hover,
-#chatRoomBtn:hover,
-#captionBtn:hover,
-#myHandBtn:hover,
-#fileShareBtn:hover,
-#whiteboardBtn:hover,
-#mySettingsBtn:hover,
-#aboutBtn:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-}
-
-#leaveRoomBtn:hover {
+#buttonsBar #leaveRoomBtn:hover {
     color: red;
     transform: var(--btns-hover-scale);
 }
@@ -437,10 +386,6 @@ body {
 .fa-microphone-slash,
 .fa-video-slash {
     color: #e74c3c !important;
-}
-
-button {
-    cursor: pointer;
 }
 
 /*--------------------------------------------------------------
@@ -460,15 +405,6 @@ button {
     width: var(--msger-width);
     background: var(--msger-bg);
     /* text-align: justify; */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
     overflow: hidden;
     border-radius: 5px;
     box-shadow: var(--box-shadow);
@@ -708,16 +644,6 @@ button:hover {
     height: 50%;
     cursor: default;
     background: var(--msger-private-bg);
-    /* fade in */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
     overflow: hidden;
 }
 
@@ -920,11 +846,6 @@ video:fullscreen {
     display: none;
     z-index: 16;
     min-width: 320px;
-    /* center */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     /* gui */
     background-color: rgba(0, 0, 0, 0.7);
     border-radius: 5px;
@@ -932,16 +853,6 @@ video:fullscreen {
     box-shadow: var(--box-shadow);
     padding: 10px;
     min-width: 330px;
-    /* fade in */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
     overflow: hidden;
 }
 
@@ -1084,11 +995,9 @@ video:fullscreen {
     background-color: transparent !important;
 }
 
-/* 
-.swal2-popup {
-    font-size: 0.8rem !important;
-}
-*/
+/* .swal2-popup {
+    font-size: 0.8 !important;
+} */
 
 .swal2-select {
     background-color: black !important;
@@ -1201,21 +1110,6 @@ progress {
     height: var(--iframe-height);
     box-shadow: var(--box-shadow);
     border-radius: 5px;
-    /* center */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    /* fade in */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 1s;
-    -moz-animation-duration: 1s;
-    animation-duration: 1s;
 }
 
 #videoUrlHeader {
@@ -1335,6 +1229,10 @@ progress {
 # Common
 --------------------------------------------------------------*/
 
+button {
+    cursor: pointer;
+}
+
 .hidden {
     display: none;
 }
@@ -1348,6 +1246,8 @@ progress {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
 }
 
 .center-img {

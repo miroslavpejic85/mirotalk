@@ -58,6 +58,19 @@ const wbImageInput = 'image/*';
 const wbWidth = 800;
 const wbHeight = 600;
 
+const chatInputEmoji = {
+    '<3': '\u2764\uFE0F',
+    '</3': '\uD83D\uDC94',
+    ':D': '\uD83D\uDE00',
+    ':)': '\uD83D\uDE03',
+    ';)': '\uD83D\uDE09',
+    ':(': '\uD83D\uDE12',
+    ':p': '\uD83D\uDE1B',
+    ';p': '\uD83D\uDE1C',
+    ":'(": '\uD83D\uDE22',
+    ':+1:': '\uD83D\uDC4D',
+}; // https://github.com/wooorm/gemoji/blob/main/support.md
+
 let myPeerId;
 
 // video cam - screen max frame rate
@@ -112,21 +125,7 @@ let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by p
 let chatMessages = []; // collect chat messages to save it later if want
 let transcripts = []; //collect all the transcripts to save it later if you need
 let backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
-
-let chatInputEmoji = {
-    '<3': '\u2764\uFE0F',
-    '</3': '\uD83D\uDC94',
-    ':D': '\uD83D\uDE00',
-    ':)': '\uD83D\uDE03',
-    ';)': '\uD83D\uDE09',
-    ':(': '\uD83D\uDE12',
-    ':p': '\uD83D\uDE1B',
-    ';p': '\uD83D\uDE1C',
-    ":'(": '\uD83D\uDE22',
-    ':+1:': '\uD83D\uDC4D',
-}; // https://github.com/wooorm/gemoji/blob/main/support.md
-
-let countTime;
+let countTime; // conference count time
 // init audio-video
 let initAudioBtn;
 let initVideoBtn;
@@ -1318,7 +1317,7 @@ function loadLocalMedia(stream) {
 
     // menu Status
     myStatusMenu.setAttribute('id', 'myStatusMenu');
-    myStatusMenu.className = 'statusMenu';
+    myStatusMenu.className = 'statusMenu fadein';
 
     // session time
     myCountTimeImg.setAttribute('id', 'countTimeImg');
@@ -1448,7 +1447,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
 
     // menu Status
     remoteStatusMenu.setAttribute('id', peer_id + '_menuStatus');
-    remoteStatusMenu.className = 'statusMenu';
+    remoteStatusMenu.className = 'statusMenu fadein';
 
     // remote peer name element
     remoteVideoParagraphImg.setAttribute('id', peer_id + '_nameImg');
