@@ -55,8 +55,8 @@ Open the app with the following **supported browsers** and many more.
 ## Direct join
 
 -   You can also `join` directly to your `room` by going to:
--   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0
--   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0
+-   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&notify=0
+-   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0$notify=0
 
     | Params | Type    | Description      |
     | ------ | ------- | ---------------- |
@@ -64,6 +64,7 @@ Open the app with the following **supported browsers** and many more.
     | name   | string  | your name        |
     | audio  | boolean | enable / disable |
     | video  | boolean | enable / disable |
+    | notify | boolean | enable / disable |
 
 ## Quick start
 

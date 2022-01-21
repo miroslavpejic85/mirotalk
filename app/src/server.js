@@ -157,7 +157,9 @@ app.get('/join/', (req, res) => {
         let peerName = req.query.name;
         let peerAudio = req.query.audio;
         let peerVideo = req.query.video;
-        if (roomName && peerName && peerAudio && peerVideo) {
+        let notify = req.query.notify;
+
+        if (roomName && peerName && peerAudio && peerVideo && notify) {
             res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
             return;
         }

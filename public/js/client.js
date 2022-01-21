@@ -90,6 +90,7 @@ let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let peerGeo;
 let peerConnection;
 let myPeerName = getPeerName();
+let notify = getNotify();
 let useAudio = true;
 let useVideo = true;
 let camera = 'user';
@@ -555,6 +556,19 @@ function makeId(length) {
 }
 
 /**
+ * Check if notify is set
+ */
+function getNotify() {
+    let qs = new URLSearchParams(window.location.search);
+    let notify = qs.get('notify');
+    if (notify) {
+        let queryNotify = notify === '1' || notify === 'true';
+        if (queryNotify != null) return queryNotify;
+    }
+    return true;
+}
+
+/**
  * Check if peer name is set
  * @return Peer Name
  */
@@ -652,7 +666,7 @@ function whoAreYou() {
     if (myPeerName) {
         checkPeerAudioVideo();
         whoAreYouJoin();
-        welcomeUser();
+        notify ? welcomeUser() : playSound('addPeer');
         return;
     }
 
@@ -685,7 +699,7 @@ function whoAreYou() {
             whoAreYouJoin();
         },
     }).then(() => {
-        welcomeUser();
+        notify ? welcomeUser() : playSound('addPeer');
     });
 
     if (isMobileDevice) return;
