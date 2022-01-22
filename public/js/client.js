@@ -1820,21 +1820,16 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
  */
 function takeSnapshot(video) {
     playSound('snapshot');
-
     let context, canvas;
     let width = video.offsetWidth,
         height = video.offsetHeight;
-
     canvas = canvas || document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
-
     context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, width, height);
-
     let dataURL = canvas.toDataURL('image/png'); // or image/jpeg
     console.log(dataURL);
-
     saveDataToFile(dataURL, getDataTimeString() + 'snapshot.png');
 }
 
