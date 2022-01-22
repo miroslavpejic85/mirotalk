@@ -1322,6 +1322,7 @@ function loadLocalMedia(stream) {
     const myVideoParagraphImg = document.createElement('i');
     const myVideoParagraph = document.createElement('h4');
     const myHandStatusIcon = document.createElement('button');
+    const myVideoToImgBtn = document.createElement('button');
     const myVideoStatusIcon = document.createElement('button');
     const myAudioStatusIcon = document.createElement('button');
     const myVideoFullScreenBtn = document.createElement('button');
@@ -1337,35 +1338,44 @@ function loadLocalMedia(stream) {
     myCountTimeImg.setAttribute('id', 'countTimeImg');
     myCountTimeImg.className = 'fas fa-clock';
     myCountTime.setAttribute('id', 'countTime');
-    setTippy(myCountTime, 'Session Time', 'bottom');
 
     // my peer name
     myVideoParagraphImg.setAttribute('id', 'myVideoParagraphImg');
     myVideoParagraphImg.className = 'fas fa-user';
     myVideoParagraph.setAttribute('id', 'myVideoParagraph');
     myVideoParagraph.className = 'videoPeerName';
-    setTippy(myVideoParagraph, 'My name', 'bottom');
 
     // my hand status element
     myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
     myHandStatusIcon.className = 'fas fa-hand-paper pulsate';
     myHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
-    setTippy(myHandStatusIcon, 'My hand is RAISED', 'bottom');
 
     // my video status element
     myVideoStatusIcon.setAttribute('id', 'myVideoStatusIcon');
     myVideoStatusIcon.className = 'fas fa-video';
-    setTippy(myVideoStatusIcon, 'My video is ON', 'bottom');
 
     // my audio status element
     myAudioStatusIcon.setAttribute('id', 'myAudioStatusIcon');
     myAudioStatusIcon.className = 'fas fa-microphone';
-    setTippy(myAudioStatusIcon, 'My audio is ON', 'bottom');
+
+    // my video to image
+    myVideoToImgBtn.setAttribute('id', 'myVideoToImgBtn');
+    myVideoToImgBtn.className = 'fas fa-camera-retro';
 
     // my video full screen mode
     myVideoFullScreenBtn.setAttribute('id', 'myVideoFullScreenBtn');
     myVideoFullScreenBtn.className = 'fas fa-expand';
-    setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+
+    // no mobile devices
+    if (!isMobileDevice) {
+        setTippy(myCountTime, 'Session Time', 'bottom');
+        setTippy(myVideoParagraph, 'My name', 'bottom');
+        setTippy(myHandStatusIcon, 'My hand is RAISED', 'bottom');
+        setTippy(myVideoStatusIcon, 'My video is ON', 'bottom');
+        setTippy(myAudioStatusIcon, 'My audio is ON', 'bottom');
+        setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
+        setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+    }
 
     // my video avatar image
     myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
@@ -1386,6 +1396,7 @@ function loadLocalMedia(stream) {
     myStatusMenu.appendChild(myHandStatusIcon);
     myStatusMenu.appendChild(myVideoStatusIcon);
     myStatusMenu.appendChild(myAudioStatusIcon);
+    myStatusMenu.appendChild(myVideoToImgBtn);
     myStatusMenu.appendChild(myVideoFullScreenBtn);
 
     // add my pitchBar
@@ -1422,6 +1433,7 @@ function loadLocalMedia(stream) {
     setupVideoUrlPlayer();
     startCountTime();
     handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
+    handleVideoToImg('myVideo', 'myVideoToImgBtn');
 }
 
 /**
@@ -1454,10 +1466,11 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     const remotePrivateMsgBtn = document.createElement('button');
     const remoteYoutubeBtnBtn = document.createElement('button');
     const remotePeerKickOut = document.createElement('button');
-    const remotePitchMeter = document.createElement('div');
-    const remotePitchBar = document.createElement('div');
+    const remoteVideoToImgBtn = document.createElement('button');
     const remoteVideoFullScreenBtn = document.createElement('button');
     const remoteVideoAvatarImage = document.createElement('img');
+    const remotePitchMeter = document.createElement('div');
+    const remotePitchBar = document.createElement('div');
 
     // menu Status
     remoteStatusMenu.setAttribute('id', peer_id + '_menuStatus');
@@ -1468,7 +1481,6 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoParagraphImg.className = 'fas fa-user';
     remoteVideoParagraph.setAttribute('id', peer_id + '_name');
     remoteVideoParagraph.className = 'videoPeerName';
-    setTippy(remoteVideoParagraph, 'Participant name', 'bottom');
 
     const peerVideoText = document.createTextNode(peers[peer_id]['peer_name']);
     remoteVideoParagraph.appendChild(peerVideoText);
@@ -1476,37 +1488,47 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
     remoteHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
     remoteHandStatusIcon.className = 'fas fa-hand-paper pulsate';
-    setTippy(remoteHandStatusIcon, 'Participant hand is RAISED', 'bottom');
 
     // remote video status element
     remoteVideoStatusIcon.setAttribute('id', peer_id + '_videoStatus');
     remoteVideoStatusIcon.className = 'fas fa-video';
-    setTippy(remoteVideoStatusIcon, 'Participant video is ON', 'bottom');
 
     // remote audio status element
     remoteAudioStatusIcon.setAttribute('id', peer_id + '_audioStatus');
     remoteAudioStatusIcon.className = 'fas fa-microphone';
-    setTippy(remoteAudioStatusIcon, 'Participant audio is ON', 'bottom');
 
     // remote peer YouTube video
     remoteYoutubeBtnBtn.setAttribute('id', peer_id + '_youtube');
     remoteYoutubeBtnBtn.className = 'fab fa-youtube';
-    setTippy(remoteYoutubeBtnBtn, 'Send YouTube video', 'bottom');
 
     // remote private message
     remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
     remotePrivateMsgBtn.className = 'fas fa-paper-plane';
-    setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+
+    // my video to image
+    remoteVideoToImgBtn.setAttribute('id', peer_id + '_snapshot');
+    remoteVideoToImgBtn.className = 'fas fa-camera-retro';
 
     // remote peer kick out
     remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
     remotePeerKickOut.className = 'fas fa-sign-out-alt';
-    setTippy(remotePeerKickOut, 'Kick out', 'bottom');
 
     // remote video full screen mode
     remoteVideoFullScreenBtn.setAttribute('id', peer_id + '_fullScreen');
     remoteVideoFullScreenBtn.className = 'fas fa-expand';
-    setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+
+    // no mobile devices
+    if (!isMobileDevice) {
+        setTippy(remoteVideoParagraph, 'Participant name', 'bottom');
+        setTippy(remoteHandStatusIcon, 'Participant hand is RAISED', 'bottom');
+        setTippy(remoteVideoStatusIcon, 'Participant video is ON', 'bottom');
+        setTippy(remoteAudioStatusIcon, 'Participant audio is ON', 'bottom');
+        setTippy(remoteYoutubeBtnBtn, 'Send YouTube video', 'bottom');
+        setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+        setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
+        setTippy(remotePeerKickOut, 'Kick out', 'bottom');
+        setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+    }
 
     // my video avatar image
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
@@ -1529,6 +1551,7 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteStatusMenu.appendChild(remoteAudioStatusIcon);
     remoteStatusMenu.appendChild(remoteYoutubeBtnBtn);
     remoteStatusMenu.appendChild(remotePrivateMsgBtn);
+    remoteStatusMenu.appendChild(remoteVideoToImgBtn);
     remoteStatusMenu.appendChild(remotePeerKickOut);
     remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
 
@@ -1555,6 +1578,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     attachMediaStream(remoteMedia, remoteMediaStream);
     // resize video elements
     resizeVideos();
+    // handle video to image
+    handleVideoToImg(peer_id + '_video', peer_id + '_snapshot', peer_id);
     // handle video full screen mode
     handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen', peer_id);
     // handle kick out button event
@@ -1757,6 +1782,60 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
             // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
         }
     }
+}
+
+/**
+ * Handle Video to Img click event
+ * @param {*} videoStream element
+ * @param {*} videoToImgBtn element
+ */
+function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
+    let videoBtn = getId(videoToImgBtn);
+    let video = getId(videoStream);
+    videoBtn.addEventListener('click', () => {
+        if (peer_id !== null) {
+            let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+            if (remoteVideoStatusBtn.className === 'fas fa-video') {
+                takeSnapshot(video);
+            } else {
+                showMsg();
+            }
+        } else {
+            // handle local video snapshot
+            if (myVideoStatusIcon.className === 'fas fa-video') {
+                takeSnapshot(video);
+            } else {
+                showMsg();
+            }
+        }
+        function showMsg() {
+            userLog('toast', 'Snapshot not work on video disabled');
+        }
+    });
+}
+
+/**
+ * Save Video Frame to Image
+ * @param {*} video video element
+ */
+function takeSnapshot(video) {
+    playSound('snapshot');
+
+    let context, canvas;
+    let width = video.offsetWidth,
+        height = video.offsetHeight;
+
+    canvas = canvas || document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, width, height);
+
+    let dataURL = canvas.toDataURL('image/png'); // or image/jpeg
+    console.log(dataURL);
+
+    saveDataToFile(dataURL, getDataTimeString() + 'snapshot.png');
 }
 
 /**
