@@ -1830,7 +1830,7 @@ function takeSnapshot(video) {
     context.drawImage(video, 0, 0, width, height);
     let dataURL = canvas.toDataURL('image/png'); // or image/jpeg
     console.log(dataURL);
-    saveDataToFile(dataURL, getDataTimeString() + 'snapshot.png');
+    saveDataToFile(dataURL, getDataTimeString() + '-SNAPSHOT.png');
 }
 
 /**

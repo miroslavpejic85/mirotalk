@@ -35,6 +35,7 @@ Open the app with the following **supported browsers** and many more.
 -   Select Audio Input - Output && Video source
 -   Ability to set video quality up to 4K and 60 FPS
 -   Recording your Screen, Audio and Video
+-   Snapshot the video frame and save it as image png
 -   Chat with Emoji Picker & Private messages & Save the conversations
 -   Speech recognition to send the speeches
 -   Advance collaborative whiteboard for the teachers
