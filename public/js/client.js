@@ -1823,8 +1823,8 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
 function takeSnapshot(video) {
     playSound('snapshot');
     let context, canvas, width, height, dataURL;
-    width = video.offsetWidth;
-    height = video.offsetHeight;
+    width = video.videoWidth;
+    height = video.videoHeight;
     canvas = canvas || document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
