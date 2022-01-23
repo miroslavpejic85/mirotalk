@@ -1786,14 +1786,16 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
 
 /**
  * Handle Video to Img click event
- * @param {*} videoStream element
- * @param {*} videoToImgBtn element
+ * @param {*} videoStream
+ * @param {*} videoToImgBtn
+ * @param {*} peer_id
  */
 function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
     let videoBtn = getId(videoToImgBtn);
     let video = getId(videoStream);
     videoBtn.addEventListener('click', () => {
         if (peer_id !== null) {
+            // handle remote video snapshot
             let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
             if (remoteVideoStatusBtn.className === 'fas fa-video') {
                 takeSnapshot(video);
@@ -1820,15 +1822,15 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
  */
 function takeSnapshot(video) {
     playSound('snapshot');
-    let context, canvas;
-    let width = video.offsetWidth,
-        height = video.offsetHeight;
+    let context, canvas, width, height, dataURL;
+    width = video.offsetWidth;
+    height = video.offsetHeight;
     canvas = canvas || document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, width, height);
-    let dataURL = canvas.toDataURL('image/png'); // or image/jpeg
+    dataURL = canvas.toDataURL('image/png'); // or image/jpeg
     console.log(dataURL);
     saveDataToFile(dataURL, getDataTimeString() + '-SNAPSHOT.png');
 }
