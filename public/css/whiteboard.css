@@ -32,21 +32,26 @@
 .whiteboard-header {
     display: flex;
     justify-content: space-between;
-    background: rgb(0, 0, 0);
+    padding: 10px;
     border-radius: 10px;
-    color: white;
+    background: rgb(0, 0, 0);
+    color: #ffffff;
     cursor: move;
 }
 
-#whiteboard button {
-    width: 30px;
-    height: 40px;
+.whiteboard-header-title button,
+.whiteboard-header-options button {
     border: none;
-    color: white;
-    background: transparent;
+    font-size: 1.2rem;
+    transition: all 0.3s ease-in-out;
+    background: rgb(0, 0, 0);
+    color: #fff;
+    border-radius: 5px;
+    transition: background 0.23s;
 }
 
-#whiteboard button:hover {
+.whiteboard-header-title button:hover,
+.whiteboard-header-options button:hover {
     color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;

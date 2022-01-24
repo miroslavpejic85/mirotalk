@@ -442,6 +442,7 @@ body {
     color: #666;
 }
 
+.msger-header-title button,
 .msger-header-options button {
     border: none;
     font-size: 1.2rem;
@@ -452,6 +453,7 @@ body {
     transition: background 0.23s;
 }
 
+.msger-header-title button:hover,
 .msger-header-options button:hover {
     color: var(--hover-color);
     transform: var(--btns-hover-scale);

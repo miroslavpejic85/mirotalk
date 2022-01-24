@@ -106,12 +106,11 @@ access to use this app.
         <section id="msgerDraggable" class="msger-draggable fadein">
             <section id="msger" class="msger">
                 <header id="msgerHeader" class="msger-header">
-                    <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Chat</div>
+                    <div class="msger-header-title"><button id="msgerClose" class="fas fa-times"></button> Chat</div>
                     <div class="msger-header-options">
                         <button id="msgerTheme" class="fas fa-ghost"></button>
                         <button id="msgerClean" class="fas fa-trash"></button>
                         <button id="msgerSaveBtn" class="fas fa-save"></button>
-                        <button id="msgerClose" class="fas fa-times"></button>
                     </div>
                 </header>
 
@@ -129,9 +128,9 @@ access to use this app.
                 <!-- End emoji picker -->
 
                 <div class="msger-inputarea">
+                    <button id="msgerEmojiBtn" class="fas fa-smile"></button>
                     <input id="msgerInput" class="msger-input" type="text" placeholder="💬 Enter your message..." />
                     <button id="msgerVideoUrlBtn" class="fab fa-youtube"></button>
-                    <button id="msgerEmojiBtn" class="fas fa-smile"></button>
                     <button id="msgerCPBtn" class="fas fa-users"></button>
                     <button id="msgerSendBtn" class="fas fa-paper-plane"></button>
                 </div>
@@ -173,12 +172,13 @@ access to use this app.
         <section id="captionDraggable" class="msger-draggable fadein">
             <section id="caption" class="msger">
                 <header id="captionHeader" class="msger-header">
-                    <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Captions</div>
+                    <div class="msger-header-title">
+                        <button id="captionClose" class="fas fa-times"></button> Captions
+                    </div>
                     <div class="msger-header-options">
                         <button id="captionTheme" class="fas fa-ghost"></button>
                         <button id="captionClean" class="fas fa-trash"></button>
                         <button id="captionSaveBtn" class="fas fa-save"></button>
-                        <button id="captionClose" class="fas fa-times"></button>
                     </div>
                 </header>
 
@@ -310,7 +310,9 @@ access to use this app.
 
         <section id="whiteboard" class="hidden">
             <header id="whiteboardHeader" class="whiteboard-header">
-                <div id="whiteboardTitle" class="whiteboard-header-title"></div>
+                <div id="whiteboardTitle" class="whiteboard-header-title">
+                    <button id="whiteboardCloseBtn" class="fas fa-times"></button>
+                </div>
                 <div class="whiteboard-header-options">
                     pencil
                     <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" />
@@ -329,7 +331,6 @@ access to use this app.
                     <button id="whiteboardSaveBtn" class="fas fa-save"></button>
                     <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
                     <button id="whiteboardCleanBtn" class="fas fa-trash"></button>
-                    <button id="whiteboardCloseBtn" class="fas fa-times"></button>
                 </div>
             </header>
             <main>
