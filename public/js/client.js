@@ -2077,6 +2077,9 @@ function setChatRoomBtn() {
         e.preventDefault();
         sendChatMessage();
     });
+
+    // adapt input font size 4 mobile
+    if (isMobileDevice) msgerInput.style.fontSize = 'xx-small';
 }
 
 /**
