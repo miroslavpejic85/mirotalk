@@ -446,10 +446,10 @@ body {
 .msger-header-options button {
     border: none;
     font-size: 1.2rem;
-    transition: all 0.3s ease-in-out;
     background: rgb(0, 0, 0);
     color: #fff;
     border-radius: 5px;
+    transition: all 0.3s ease-in-out;
     transition: background 0.23s;
 }
 
