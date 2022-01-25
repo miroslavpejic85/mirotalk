@@ -32,6 +32,7 @@ const roomId = getRoomId();
 const peerInfo = getPeerInfo();
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo';
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
+const surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 const welcomeImg = '../images/image-placeholder.svg';
 const shareUrlImg = '../images/image-placeholder.svg';
 const leaveRoomImg = '../images/leave-room.png';
@@ -47,6 +48,7 @@ const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
 const aboutImg = '../images/about.png';
 
+const surveyActive = true; // on leave room give me a surevey
 const notifyBySound = true; // turn on - off sound notifications
 const fileSharingInput = '*'; // allow all file extensions
 
@@ -1294,8 +1296,9 @@ function setupLocalMedia(callback, errorback) {
         .catch((err) => {
             console.error('Access denied for audio/video', err);
             playSound('error');
-            window.location.href = `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> 
-                                    Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`;
+            openURL(
+                `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
+            );
             if (errorback) errorback();
         });
 } // end [setup_local_stream]
@@ -4278,7 +4281,7 @@ function handleRoomLocked() {
             popup: 'animate__animated animate__fadeOutUp',
         },
     }).then((result) => {
-        if (result.isConfirmed) window.location.href = '/newcall';
+        if (result.isConfirmed) openURL('/newcall');
     });
 }
 
@@ -5269,7 +5272,7 @@ function handleKickedOut(config) {
             popup: 'animate__animated animate__fadeOutUp',
         },
     }).then(() => {
-        window.location.href = '/newcall';
+        openURL('/newcall');
     });
 }
 
@@ -5327,7 +5330,13 @@ function leaveRoom() {
             popup: 'animate__animated animate__fadeOutUp',
         },
     }).then((result) => {
-        if (result.isConfirmed) window.location.href = '/newcall';
+        if (result.isConfirmed) {
+            if (surveyActive) {
+                openURL(surveyURL);
+            } else {
+                openURL('/newcall');
+            }
+        }
     });
 }
 
@@ -5542,6 +5551,13 @@ async function playSound(name) {
         // Automatic playback failed. (safari)
         return;
     }
+}
+
+/**
+ * Open specified URL
+ */
+function openURL(url) {
+    window.location.href = url;
 }
 
 /**
