@@ -196,8 +196,6 @@ let screenFpsSelect;
 let themeSelect;
 let btnsBarSelect;
 let selectors;
-let speechRecognitionStart;
-let speechRecognitionStop;
 // my video element
 let myVideo;
 let myVideoWrap;
@@ -269,6 +267,9 @@ let videoUrlCont;
 let videoUrlHeader;
 let videoUrlCloseBtn;
 let videoUrlIframe;
+// speech recognition
+let speechRecognitionStart;
+let speechRecognitionStop;
 
 /**
  * Load all Html elements by Id
@@ -342,8 +343,6 @@ function getHtmlElementsById() {
     screenFpsSelect = getId('screenFps');
     themeSelect = getId('mirotalkTheme');
     btnsBarSelect = getId('mirotalkBtnsBar');
-    speechRecognitionStart = getId('speechRecognitionStart');
-    speechRecognitionStop = getId('speechRecognitionStop');
     // my conference name, hand, video - audio status
     myVideoParagraph = getId('myVideoParagraph');
     myHandStatusIcon = getId('myHandStatusIcon');
@@ -388,6 +387,9 @@ function getHtmlElementsById() {
     videoUrlHeader = getId('videoUrlHeader');
     videoUrlCloseBtn = getId('videoUrlCloseBtn');
     videoUrlIframe = getId('videoUrlIframe');
+    // speech recognition
+    speechRecognitionStart = getId('speechRecognitionStart');
+    speechRecognitionStop = getId('speechRecognitionStop');
 }
 
 /**

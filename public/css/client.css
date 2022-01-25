@@ -1216,6 +1216,19 @@ progress {
 }
 
 /*--------------------------------------------------------------
+# speech recognition languages
+--------------------------------------------------------------*/
+
+#recognitionDialect,
+#recognitionLanguage {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #ffffff;
+    font-size: small;
+    max-width: 135px;
+    border-radius: 5px;
+}
+
+/*--------------------------------------------------------------
 # Other
 --------------------------------------------------------------*/
 
