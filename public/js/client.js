@@ -33,11 +33,11 @@ const peerInfo = getPeerInfo();
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo';
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
-const welcomeImg = '../images/image-placeholder.svg';
-const shareUrlImg = '../images/image-placeholder.svg';
+const welcomeImg = '../images/image-placeholder.png';
+const shareUrlImg = '../images/image-placeholder.png';
 const leaveRoomImg = '../images/leave-room.png';
-const confirmImg = '../images/image-placeholder.svg';
-const fileSharingImg = '../images/image-placeholder.svg';
+const confirmImg = '../images/image-placeholder.png';
+const fileSharingImg = '../images/image-placeholder.png';
 // nice free icon: https://www.iconfinder.com
 const roomLockedImg = '../images/locked.png';
 const camOffImg = '../images/cam-off.png';
@@ -46,7 +46,7 @@ const deleteImg = '../images/delete.png';
 const youtubeImg = '../images/youtube.png';
 const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
-const aboutImg = '../images/about.png';
+const aboutImg = '../images/about.jpg';
 
 const surveyActive = true; // when leaving the room give a feedback
 const notifyBySound = true; // turn on - off sound notifications
@@ -5291,9 +5291,8 @@ function showAbout() {
         html: `
         <br/>
         <div id="about">
-            <b>Open Source</b> project on
-            <a href="https://github.com/miroslavpejic85/mirotalk" target="_blank"><br/></br>
-            <img alt="mirotalk github" src="../images/github.png"></a><br/><br/>
+            <b><a href="https://github.com/miroslavpejic85/mirotalk" target="_blank">Open Source</a></b> project
+            <br/><br/>
             <button class="far fa-heart pulsate" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"> Sponsor</button>
             <br /><br />
             Author:<a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> Miroslav Pejic</a>
