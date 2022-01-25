@@ -78,18 +78,6 @@ let recognition;
 let recognitionLanguage = getId('recognitionLanguage');
 let recognitionDialect = getId('recognitionDialect');
 
-// Update speech recognition country
-function updateCountry() {
-    for (let i = recognitionDialect.options.length - 1; i >= 0; i--) {
-        recognitionDialect.remove(i);
-    }
-    let list = langs[recognitionLanguage.selectedIndex];
-    for (let i = 1; i < list.length; i++) {
-        recognitionDialect.options.add(new Option(list[i][1], list[i][0]));
-    }
-    recognitionDialect.style.visibility = list[1].length == 1 ? 'hidden' : 'visible';
-}
-
 if ('webkitSpeechRecognition' in window) {
     handleRecognitionLanguages();
     // init webkitSpeechRecognition...
@@ -139,6 +127,20 @@ if ('webkitSpeechRecognition' in window) {
         'This browser not supports webkitSpeechRecognition, check out supported browsers: https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility',
     );
     captionBtn.style.display = 'none';
+}
+
+/**
+ * Update speech recognition country
+ */
+function updateCountry() {
+    for (let i = recognitionDialect.options.length - 1; i >= 0; i--) {
+        recognitionDialect.remove(i);
+    }
+    let list = langs[recognitionLanguage.selectedIndex];
+    for (let i = 1; i < list.length; i++) {
+        recognitionDialect.options.add(new Option(list[i][1], list[i][0]));
+    }
+    recognitionDialect.style.visibility = list[1].length == 1 ? 'hidden' : 'visible';
 }
 
 /**
