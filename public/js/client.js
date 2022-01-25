@@ -48,7 +48,7 @@ const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
 const aboutImg = '../images/about.png';
 
-const surveyActive = true; // on leave room give me a surevey
+const surveyActive = true; // when leaving the room give a feedback
 const notifyBySound = true; // turn on - off sound notifications
 const fileSharingInput = '*'; // allow all file extensions
 
