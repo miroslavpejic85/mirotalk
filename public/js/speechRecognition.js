@@ -72,16 +72,17 @@ const langs = [
     ['Lingua latīna', ['la']],
 ];
 
+const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let isWebkitSpeechRecognitionSupported = false;
 let recognitionRunning = false;
 let recognition;
 let recognitionLanguage = getId('recognitionLanguage');
 let recognitionDialect = getId('recognitionDialect');
 
-if ('webkitSpeechRecognition' in window) {
+if (speechRecognition) {
     handleRecognitionLanguages();
     // init webkitSpeechRecognition...
-    recognition = new webkitSpeechRecognition();
+    recognition = new speechRecognition();
     recognition.maxAlternatives = 1;
     recognition.continuous = true;
     recognition.lang = recognitionDialect.value;
@@ -126,7 +127,7 @@ if ('webkitSpeechRecognition' in window) {
     console.warn(
         'This browser not supports webkitSpeechRecognition, check out supported browsers: https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility',
     );
-    captionBtn.style.display = 'none';
+    getId('captionBtn').style.display = 'none';
 }
 
 /**

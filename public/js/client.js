@@ -2091,7 +2091,7 @@ function setChatRoomBtn() {
  * Caption room buttons click event
  */
 function setCaptionRoomBtn() {
-    if ('webkitSpeechRecognition' in window) {
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
         // open hide caption
         captionBtn.addEventListener('click', (e) => {
             if (!isCaptionBoxVisible) {
