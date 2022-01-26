@@ -5558,7 +5558,7 @@ async function playSound(name) {
  * Open specified URL
  */
 function openURL(url, blank = false) {
-    blank ? windows.open(url, '_blank') : (window.location.href = url);
+    blank ? window.open(url, '_blank') : (window.location.href = url);
 }
 
 /**
