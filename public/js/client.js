@@ -79,6 +79,8 @@ let myPeerId;
 let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
 
+let videoQualitySelectedIndex = 0; // default
+
 let leftChatAvatar;
 let rightChatAvatar;
 
@@ -2536,8 +2538,10 @@ function setLocalVideoQuality() {
         .applyConstraints(videoConstraints)
         .then(() => {
             logStreamSettingsInfo('setLocalVideoQuality', localMediaStream);
+            videoQualitySelectedIndex = videoQualitySelect.selectedIndex;
         })
         .catch((err) => {
+            videoQualitySelect.selectedIndex = videoQualitySelectedIndex;
             console.error('setLocalVideoQuality', err);
             userLog('error', "Your device doesn't support the selected video quality, please select the another one.");
         });
