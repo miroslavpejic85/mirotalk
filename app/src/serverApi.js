@@ -10,7 +10,7 @@ module.exports = class ServerApi {
     }
 
     /**
-     * Check if user are authorized
+     * Check if user is authorized
      * @returns true/false
      */
     isAuthorized() {
