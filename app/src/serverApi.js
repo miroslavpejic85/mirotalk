@@ -1,7 +1,5 @@
 'use strict';
 
-const { v4: uuidV4 } = require('uuid');
-
 module.exports = class ServerApi {
     constructor(host, authorization, api_key_secret) {
         this._host = host;
@@ -23,6 +21,7 @@ module.exports = class ServerApi {
      * @returns  entrypoint / Room URL for your meeting.
      */
     getMeetingURL() {
+        const { v4: uuidV4 } = require('uuid');
         return 'http' + (this._host.includes('localhost') ? '' : 's') + '://' + this._host + '/join/' + uuidV4();
     }
 };
