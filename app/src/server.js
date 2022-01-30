@@ -77,6 +77,7 @@ const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = yamlJS.load(path.join(__dirname + '/../api/swagger.yaml'));
+const { v4: uuidV4 } = require('uuid');
 
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = host + apiBasePath + '/docs'; // api docs
@@ -88,7 +89,6 @@ const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
-const ServerApi = require('./ServerApi');
 const Logger = require('./Logger');
 const log = new Logger('server');
 
@@ -190,10 +190,8 @@ app.use(apiBasePath + '/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)
 // request meeting room endpoint
 app.post([apiBasePath + '/meeting'], (req, res) => {
     // check if user was authorized for the api call
-    let host = req.headers.host;
     let authorization = req.headers.authorization;
-    const api = new ServerApi(host, authorization, api_key_secret);
-    if (!api.isAuthorized()) {
+    if (authorization != api_key_secret) {
         log.debug('MiroTalk get meeting - Unauthorized', {
             header: req.headers,
             body: req.body,
@@ -201,7 +199,8 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         return res.status(403).json({ error: 'Unauthorized!' });
     }
     // setup meeting URL
-    let meetingURL = api.getMeetingURL();
+    let host = req.headers.host;
+    let meetingURL = getMeetingURL(host);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ meeting: meetingURL }));
 
@@ -212,6 +211,14 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         meeting: meetingURL,
     });
 });
+
+/**
+ * Request meeting room endpoint
+ * @returns  entrypoint / Room URL for your meeting.
+ */
+function getMeetingURL(host) {
+    return 'http' + (host.includes('localhost') ? '' : 's') + '://' + host + '/join/' + uuidV4();
+}
 
 // end of MiroTalk API v1
 
