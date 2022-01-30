@@ -42,7 +42,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 require('dotenv').config();
 
 const { Server } = require('socket.io');
-const ServerApi = require('./ServerApi');
 const http = require('http');
 const https = require('https');
 const compression = require('compression');
@@ -88,6 +87,8 @@ const turnEnabled = process.env.TURN_ENABLED;
 const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
+
+const ServerApi = require('./ServerApi');
 
 const Logger = require('./Logger');
 const log = new Logger('server');
