@@ -89,6 +89,7 @@ const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
 const ServerApi = require('./ServerApi');
+const { v4: uuidV4 } = require('uuid');
 
 const Logger = require('./Logger');
 const log = new Logger('server');
@@ -202,7 +203,7 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         return res.status(403).json({ error: 'Unauthorized!' });
     }
     // setup meeting URL
-    let meetingURL = api.getMeetingURL();
+    let meetingURL = api.getMeetingURL(uuidV4());
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ meeting: meetingURL }));
 

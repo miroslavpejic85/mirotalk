@@ -20,8 +20,7 @@ module.exports = class ServerApi {
      * Request meeting room endpoint
      * @returns  entrypoint / Room URL for your meeting.
      */
-    getMeetingURL() {
-        const { v4: uuidV4 } = require('uuid');
-        return 'http' + (this._host.includes('localhost') ? '' : 's') + '://' + this._host + '/join/' + uuidV4();
+    getMeetingURL(uuid) {
+        return 'http' + (this._host.includes('localhost') ? '' : 's') + '://' + this._host + '/join/' + uuid;
     }
 };
