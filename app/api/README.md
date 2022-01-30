@@ -5,6 +5,7 @@
 Create a meeting with a `HTTP request` containing the `API_KEY` sent to MiroTalk’s server. The response contains a `meeting` URL that can be `embedded` in your client within an `iframe`.
 
 ```bash
+cd meeting
 # js
 node meeting.js
 # php

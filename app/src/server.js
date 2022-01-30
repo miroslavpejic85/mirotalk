@@ -42,6 +42,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 require('dotenv').config();
 
 const { Server } = require('socket.io');
+const ServerApi = require('./ServerApi');
 const http = require('http');
 const https = require('https');
 const compression = require('compression');
@@ -77,7 +78,6 @@ const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = yamlJS.load(path.join(__dirname + '/../api/swagger.yaml'));
-const { v4: uuidV4 } = require('uuid');
 
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = host + apiBasePath + '/docs'; // api docs
@@ -150,20 +150,22 @@ app.get('/join/', (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
         /* 
-            http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1
-            all params are mandatory for the direct room join 
+            http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&notify=1
+            https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&notify=1
+            https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=1&video=1&notify=1
         */
         let roomName = req.query.room;
         let peerName = req.query.name;
         let peerAudio = req.query.audio;
         let peerVideo = req.query.video;
         let notify = req.query.notify;
-
+        // all the params are mandatory for the direct room join
         if (roomName && peerName && peerAudio && peerVideo && notify) {
             res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
             return;
         }
     }
+    // res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
     res.redirect('/');
 });
 
@@ -179,7 +181,6 @@ app.get('/join/*', (req, res) => {
 
 /**
     MiroTalk API v1
-    The response will give you a entrypoint / Room URL for your meeting.
     For api docs we use: https://swagger.io/
 */
 
@@ -189,8 +190,10 @@ app.use(apiBasePath + '/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)
 // request meeting room endpoint
 app.post([apiBasePath + '/meeting'], (req, res) => {
     // check if user was authorized for the api call
+    let host = req.headers.host;
     let authorization = req.headers.authorization;
-    if (authorization != api_key_secret) {
+    let api = new ServerApi(host, authorization, api_key_secret);
+    if (!api.isAuthorized()) {
         log.debug('MiroTalk get meeting - Unauthorized', {
             header: req.headers,
             body: req.body,
@@ -198,8 +201,7 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         return res.status(403).json({ error: 'Unauthorized!' });
     }
     // setup meeting URL
-    let host = req.headers.host;
-    let meetingURL = getMeetingURL(host) + '/join/' + uuidV4();
+    let meetingURL = api.getMeetingURL();
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ meeting: meetingURL }));
 
@@ -210,15 +212,6 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         meeting: meetingURL,
     });
 });
-
-/**
- * Get Meeting Room URL
- * @param {*} host string
- * @returns meeting Room URL
- */
-function getMeetingURL(host) {
-    return 'http' + (host.includes('localhost') ? '' : 's') + '://' + host;
-}
 
 // end of MiroTalk API v1
 

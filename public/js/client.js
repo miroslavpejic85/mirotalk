@@ -480,7 +480,7 @@ function setTippy(elem, content, placement) {
 /**
  * Get peer info using DetecRTC
  * https://github.com/muaz-khan/DetectRTC
- * @return Obj peer info
+ * @returns Obj peer info
  */
 function getPeerInfo() {
     return {
@@ -496,7 +496,7 @@ function getPeerInfo() {
 
 /**
  * Get approximative peer geolocation
- * @return json
+ * @returns json
  */
 function getPeerGeoLocation() {
     fetch(peerLoockupUrl)
@@ -509,7 +509,7 @@ function getPeerGeoLocation() {
 
 /**
  * Get Signaling server URL
- * @return Signaling server URL
+ * @returns Signaling server URL
  */
 function getSignalingServer() {
     if (isHttps) {
@@ -527,7 +527,7 @@ function getSignalingServer() {
 
 /**
  * Generate random Room id if not set
- * @return Room Id
+ * @returns Room Id
  */
 function getRoomId() {
     // chek if passed as params /join?room=id
@@ -539,7 +539,7 @@ function getRoomId() {
 
     // if not specified room id, create one random
     if (roomId == '') {
-        roomId = makeId(12);
+        roomId = makeId(20);
         const newurl = signalingServer + '/join/' + roomId;
         window.history.pushState({ url: newurl }, roomId, newurl);
     }
@@ -576,7 +576,7 @@ function getNotify() {
 
 /**
  * Check if peer name is set
- * @return Peer Name
+ * @returns Peer Name
  */
 function getPeerName() {
     let qs = new URLSearchParams(window.location.search);
@@ -585,7 +585,7 @@ function getPeerName() {
 
 /**
  * Check if there is peer connections
- * @return true, false otherwise
+ * @returns true, false otherwise
  */
 function thereIsPeerConnections() {
     if (Object.keys(peerConnections).length === 0) return false;
@@ -1806,20 +1806,16 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
             let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
             if (remoteVideoStatusBtn.className === 'fas fa-video') {
                 takeSnapshot(video);
-            } else {
-                showMsg();
+                return;
             }
         } else {
             // handle local video snapshot
             if (myVideoStatusIcon.className === 'fas fa-video') {
                 takeSnapshot(video);
-            } else {
-                showMsg();
+                return;
             }
         }
-        function showMsg() {
-            userLog('toast', 'Snapshot not work on video disabled');
-        }
+        userLog('toast', 'Snapshot not work on video disabled');
     });
 }
 
