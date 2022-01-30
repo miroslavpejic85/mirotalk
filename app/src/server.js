@@ -88,11 +88,10 @@ const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
-const ServerApi = require('./ServerApi');
-const { v4: uuidV4 } = require('uuid');
-
 const Logger = require('./Logger');
 const log = new Logger('server');
+
+let ServerApi = require('./ServerApi');
 
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
@@ -203,7 +202,7 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         return res.status(403).json({ error: 'Unauthorized!' });
     }
     // setup meeting URL
-    let meetingURL = api.getMeetingURL(uuidV4());
+    let meetingURL = api.getMeetingURL();
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ meeting: meetingURL }));
 
