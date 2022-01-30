@@ -165,7 +165,6 @@ app.get('/join/', (req, res) => {
             return;
         }
     }
-    // res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
     res.redirect('/');
 });
 

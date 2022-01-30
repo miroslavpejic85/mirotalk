@@ -604,10 +604,10 @@ button:hover {
 
 .msger-inputarea * {
     padding: 10px;
-    margin-right: 4px;
     border: none;
     border-radius: 3px;
     font-size: 1em;
+    margin: 2px;
     color: white;
 }
 
