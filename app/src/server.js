@@ -88,10 +88,9 @@ const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
+const ServerApi = require('./ServerApi');
 const Logger = require('./Logger');
 const log = new Logger('server');
-
-let ServerApi = require('./ServerApi');
 
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
@@ -193,7 +192,7 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
     // check if user was authorized for the api call
     let host = req.headers.host;
     let authorization = req.headers.authorization;
-    let api = new ServerApi(host, authorization, api_key_secret);
+    const api = new ServerApi(host, authorization, api_key_secret);
     if (!api.isAuthorized()) {
         log.debug('MiroTalk get meeting - Unauthorized', {
             header: req.headers,
