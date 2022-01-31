@@ -30,7 +30,7 @@ const signalingServerPort = 3000; // must be the same to server.js PORT
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerInfo = getPeerInfo();
-const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo';
+const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2';
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 const welcomeImg = '../images/image-placeholder.png';
