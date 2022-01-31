@@ -817,6 +817,10 @@ function handleAddPeer(config) {
     // console.log("addPeer", JSON.stringify(config));
 
     let peer_id = config.peer_id;
+
+    // already connected
+    if (peer_id in peerConnections) return;
+
     let peers = config.peers;
     let should_create_offer = config.should_create_offer;
     let iceServers = config.iceServers;
