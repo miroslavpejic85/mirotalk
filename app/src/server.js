@@ -432,6 +432,7 @@ io.sockets.on('connect', (socket) => {
                 if ('Locked' in peers[channel]) delete peers[channel];
                 break;
         }
+        log.debug('connected peers grp by roomId', peers);
 
         for (let id in channels[channel]) {
             await channels[channel][id].emit('removePeer', { peer_id: socket.id });

@@ -1834,7 +1834,7 @@ function takeSnapshot(video) {
     context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, width, height);
     dataURL = canvas.toDataURL('image/png'); // or image/jpeg
-    console.log(dataURL);
+    // console.log(dataURL);
     saveDataToFile(dataURL, getDataTimeString() + '-SNAPSHOT.png');
 }
 
