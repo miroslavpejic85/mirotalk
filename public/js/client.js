@@ -402,9 +402,9 @@ function setButtonsToolTip() {
     // not need for mobile
     if (isMobileDevice) return;
     // main buttons
-    setTippy(shareRoomBtn, 'Invite people to join', 'right-start');
-    setTippy(audioBtn, 'Click to audio OFF', 'right-start');
-    setTippy(videoBtn, 'Click to video OFF', 'right-start');
+    setTippy(shareRoomBtn, 'INVITE others to join', 'right-start');
+    setTippy(audioBtn, 'CLICK Audio OFF', 'right-start');
+    setTippy(videoBtn, 'CLICK Video OFF', 'right-start');
     setTippy(screenShareBtn, 'START screen sharing', 'right-start');
     setTippy(recordStreamBtn, 'START recording', 'right-start');
     setTippy(fullScreenBtn, 'VIEW full screen', 'right-start');
@@ -412,10 +412,10 @@ function setButtonsToolTip() {
     setTippy(captionBtn, 'OPEN the caption', 'right-start');
     setTippy(myHandBtn, 'RAISE your hand', 'right-start');
     setTippy(whiteboardBtn, 'OPEN the whiteboard', 'right-start');
-    setTippy(fileShareBtn, 'SHARE the file', 'right-start');
-    setTippy(mySettingsBtn, 'Show settings', 'right-start');
-    setTippy(aboutBtn, 'Show about', 'right-start');
-    setTippy(leaveRoomBtn, 'Leave this room', 'right-start');
+    setTippy(fileShareBtn, 'SHARE file', 'right-start');
+    setTippy(mySettingsBtn, 'SHOW settings', 'right-start');
+    setTippy(aboutBtn, 'SHOW about', 'right-start');
+    setTippy(leaveRoomBtn, 'LEAVE this room', 'right-start');
     // chat room buttons
     setTippy(msgerTheme, 'Ghost theme', 'top');
     setTippy(msgerCPBtn, 'Private messages', 'top');
@@ -713,8 +713,8 @@ function whoAreYou() {
     initAudioBtn = getId('initAudioBtn');
     initVideoBtn = getId('initVideoBtn');
 
-    setTippy(initAudioBtn, 'Click to audio OFF', 'top');
-    setTippy(initVideoBtn, 'Click to video OFF', 'top');
+    setTippy(initAudioBtn, 'Click Audio OFF', 'top');
+    setTippy(initVideoBtn, 'Click Video OFF', 'top');
 }
 
 /**
@@ -778,7 +778,7 @@ function welcomeUser() {
         html:
             `
         <br/> 
-        <p style="color:white;">Share this meeting invite others to join.</p>
+        <p style="color:white;">Invite others to join. Share this meeting link.</p>
         <p style="color:rgb(8, 189, 89);">` +
             myRoomUrl +
             `</p>`,
@@ -2726,7 +2726,7 @@ async function shareRoomUrl() {
         Swal.fire({
             background: swalBackground,
             position: 'center',
-            title: 'Share the Room',
+            title: 'Share Room',
             // imageAlt: 'mirotalk-share',
             // imageUrl: shareUrlImg,
             html:
@@ -2736,7 +2736,7 @@ async function shareRoomUrl() {
                 <canvas id="qrRoom"></canvas>
             </div>
             <br/><br/>
-            <p style="color:white;"> Share this meeting invite others to join.</p>
+            <p style="color:white;"> Invite others to join. Share this meeting link.</p>
             <p style="color:rgb(8, 189, 89);">` +
                 myRoomUrl +
                 `</p>`,
@@ -2824,7 +2824,7 @@ function handleAudio(e, init, force = null) {
     if (init) {
         audioBtn.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
         if (!isMobileDevice) {
-            setTippy(initAudioBtn, myAudioStatus ? 'Click to audio OFF' : 'Click to audio ON', 'top');
+            setTippy(initAudioBtn, myAudioStatus ? 'Click Audio OFF' : 'Click Audio ON', 'top');
         }
     }
     setMyAudioStatus(myAudioStatus);
@@ -2846,7 +2846,7 @@ function handleVideo(e, init, force = null) {
     if (init) {
         videoBtn.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
         if (!isMobileDevice) {
-            setTippy(initVideoBtn, myVideoStatus ? 'Click to video OFF' : 'Click to video ON', 'top');
+            setTippy(initVideoBtn, myVideoStatus ? 'Click Video OFF' : 'Click Video ON', 'top');
         }
     }
     setMyVideoStatus(myVideoStatus);
@@ -2955,7 +2955,7 @@ function setMyVideoStatusTrue() {
     emitPeerStatus('video', myVideoStatus);
     // only for desktop
     if (!isMobileDevice) {
-        setTippy(videoBtn, 'Click to video OFF', 'right-start');
+        setTippy(videoBtn, 'Click Video OFF', 'right-start');
     }
 }
 
@@ -3043,7 +3043,7 @@ function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     /**
      * When you stop the screen sharing, on default i turn back to the webcam with video stream ON.
-     * If you want the webcam with video stream OFF, just disable it with the button (click to video OFF),
+     * If you want the webcam with video stream OFF, just disable it with the button (Click Video OFF),
      * before to stop the screen sharing.
      */
     if (myVideoStatus === false) localMediaStream.getVideoTracks()[0].enabled = false;
@@ -3887,7 +3887,7 @@ function setMyAudioStatus(status) {
     status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
-        setTippy(audioBtn, status ? 'Click to audio OFF' : 'Click to audio ON', 'right-start');
+        setTippy(audioBtn, status ? 'Click Audio OFF' : 'Click Audio ON', 'right-start');
     }
 }
 
@@ -3905,7 +3905,7 @@ function setMyVideoStatus(status) {
     status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
-        setTippy(videoBtn, status ? 'Click to video OFF' : 'Click to video ON', 'right-start');
+        setTippy(videoBtn, status ? 'Click Video OFF' : 'Click Video ON', 'right-start');
     }
 }
 
@@ -4908,11 +4908,11 @@ function selectFileToShare() {
         imageAlt: 'mirotalk-file-sharing',
         imageUrl: fileSharingImg,
         position: 'center',
-        title: 'Share the file',
+        title: 'Share file',
         input: 'file',
         inputAttributes: {
             accept: fileSharingInput,
-            'aria-label': 'Select the file',
+            'aria-label': 'Select file',
         },
         showDenyButton: true,
         confirmButtonText: `Send`,

@@ -168,7 +168,7 @@ app.get('/join/', (req, res) => {
     res.redirect('/');
 });
 
-// join to room
+// Join Room
 app.get('/join/*', (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('redirect:' + req.url + ' to ' + url.parse(req.url).pathname);
