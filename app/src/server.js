@@ -65,13 +65,15 @@ if (isHttps) {
         cert: fs.readFileSync(path.join(__dirname, '../ssl/cert.pem'), 'utf-8'),
     };
     server = https.createServer(options, app);
-    io = new Server().listen(server);
+    io = new Server({ pingTimeout: 60000 }).listen(server);
     host = 'https://' + 'localhost' + ':' + port;
 } else {
     server = http.createServer(app);
-    io = new Server().listen(server);
+    io = new Server({ pingTimeout: 60000 }).listen(server);
     host = 'http://' + 'localhost' + ':' + port;
 }
+
+// console.log(io);
 
 const ngrok = require('ngrok');
 const yamlJS = require('yamljs');
@@ -330,11 +332,11 @@ io.sockets.on('connect', (socket) => {
     /**
      * On peer diconnected
      */
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (reason) => {
         for (let channel in socket.channels) {
             removePeerFrom(channel);
         }
-        log.debug('[' + socket.id + '] disconnected');
+        log.debug('[' + socket.id + '] disconnected', { reason: reason });
         delete sockets[socket.id];
     });
 
