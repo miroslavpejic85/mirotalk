@@ -1055,8 +1055,8 @@ function handleIceCandidate(config) {
  * Disconnected from Signaling Server.
  * Tear down all of our peer connections and remove all the media divs.
  */
-function handleDisconnect() {
-    console.log('Disconnected from signaling server');
+function handleDisconnect(reason) {
+    console.log('Disconnected from signaling server', { reason: reason });
     for (let peer_id in peerMediaElements) {
         document.body.removeChild(peerMediaElements[peer_id].parentNode);
         resizeVideos();
