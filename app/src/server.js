@@ -65,14 +65,18 @@ if (isHttps) {
         cert: fs.readFileSync(path.join(__dirname, '../ssl/cert.pem'), 'utf-8'),
     };
     server = https.createServer(options, app);
-    io = new Server({ pingTimeout: 60000 }).listen(server);
     host = 'https://' + 'localhost' + ':' + port;
 } else {
     server = http.createServer(app);
-    io = new Server({ pingTimeout: 60000 }).listen(server);
     host = 'http://' + 'localhost' + ':' + port;
 }
 
+// Set maxHttpBufferSize from 1e6 (1MB) to 1e7 (10MB)
+// Set pingTimeout from 25000 ms to 60000 ms
+io = new Server({
+    maxHttpBufferSize: 1e7,
+    pingTimeout: 60000,
+}).listen(server);
 // console.log(io);
 
 const ngrok = require('ngrok');
