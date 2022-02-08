@@ -1299,7 +1299,7 @@ function setupLocalMedia(callback, errorback) {
         })
         .catch((err) => {
             console.error('Access denied for audio/video', err);
-            playSound('error');
+            playSound('alert');
             openURL(
                 `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
             );
@@ -3328,6 +3328,7 @@ function showCaptionDraggable() {
  * Clean chat messages
  */
 function cleanMessages() {
+    playSound('newMessage');
     Swal.fire({
         background: swalBackground,
         position: 'center',
@@ -3352,6 +3353,7 @@ function cleanMessages() {
             }
             // clean object
             chatMessages = [];
+            playSound('delete');
         }
     });
 }
@@ -3360,6 +3362,7 @@ function cleanMessages() {
  * Clean captions
  */
 function cleanCaptions() {
+    playSound('newMessage');
     Swal.fire({
         background: swalBackground,
         position: 'center',
@@ -3384,6 +3387,7 @@ function cleanCaptions() {
             }
             // clean object
             transcripts = [];
+            playSound('delete');
         }
     });
 }
@@ -3733,6 +3737,7 @@ function downloadChatMsgs() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    playSound('ok');
 }
 
 /**
@@ -3746,6 +3751,7 @@ function downloadCaptions() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    playSound('ok');
 }
 
 /**
@@ -4634,6 +4640,7 @@ function wbCanvasSaveImg() {
     const dataNow = getDataTimeString();
     const fileName = `whiteboard-${dataNow}.png`;
     saveDataToFile(dataURL, fileName);
+    playSound('ok');
 }
 
 /**
@@ -4722,6 +4729,7 @@ function confirmCleanBoard() {
     }).then((result) => {
         if (result.isConfirmed) {
             whiteboardAction(getWhiteboardAction('clear'));
+            playSound('delete');
         }
     });
 }
@@ -5463,37 +5471,24 @@ function handleMyVolume(data) {
  */
 function userLog(type, message) {
     switch (type) {
+        case 'warning':
         case 'error':
             Swal.fire({
                 background: swalBackground,
                 position: 'center',
-                icon: 'error',
-                title: 'Oops...',
+                icon: type,
+                title: type,
                 text: message,
             });
-            playSound('error');
+            playSound('alert');
             break;
         case 'info':
-            Swal.fire({
-                background: swalBackground,
-                position: 'center',
-                icon: 'info',
-                title: 'Info',
-                text: message,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
-            });
-            break;
         case 'success':
             Swal.fire({
                 background: swalBackground,
                 position: 'center',
-                icon: 'success',
-                title: 'Success',
+                icon: type,
+                title: type,
                 text: message,
                 showClass: {
                     popup: 'animate__animated animate__fadeInDown',
