@@ -79,6 +79,7 @@ io = new Server({
     maxHttpBufferSize: 1e7,
     pingTimeout: 60000,
 }).listen(server);
+
 // console.log(io);
 
 const ngrok = require('ngrok');
@@ -100,12 +101,26 @@ const turnCredential = process.env.TURN_PASSWORD;
 const Logger = require('./Logger');
 const log = new Logger('server');
 
+// directory
+const dir = {
+    public: path.join(__dirname, '../../', 'public'),
+};
+// html views
+const view = {
+    client: path.join(__dirname, '../../', 'public/view/client.html'),
+    landing: path.join(__dirname, '../../', 'public/view/landing.html'),
+    newCall: path.join(__dirname, '../../', 'public/view/newcall.html'),
+    notFound: path.join(__dirname, '../../', 'public/view/404.html'),
+    permission: path.join(__dirname, '../../', 'public/view/permission.html'),
+    privacy: path.join(__dirname, '../../', 'public/view/privacy.html'),
+};
+
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
 
 // Use all static files from the public folder
-app.use(express.static(path.join(__dirname, '../../', 'public')));
+app.use(express.static(dir.public));
 
 // Api parse body data as json
 app.use(express.json());
@@ -135,22 +150,22 @@ app.get(["/"], (req, res) => {
 
 // all start from here
 app.get(['/'], (req, res) => {
-    res.sendFile(path.join(__dirname, '../../', 'public/view/landing.html'));
+    res.sendFile(view.landing);
 });
 
 // set new room name and join
 app.get(['/newcall'], (req, res) => {
-    res.sendFile(path.join(__dirname, '../../', 'public/view/newcall.html'));
+    res.sendFile(view.newCall);
 });
 
 // if not allow video/audio
 app.get(['/permission'], (req, res) => {
-    res.sendFile(path.join(__dirname, '../../', 'public/view/permission.html'));
+    res.sendFile(view.permission);
 });
 
 // privacy policy
 app.get(['/privacy'], (req, res) => {
-    res.sendFile(path.join(__dirname, '../../', 'public/view/privacy.html'));
+    res.sendFile(view.privacy);
 });
 
 // no room name specified to join
@@ -169,21 +184,25 @@ app.get('/join/', (req, res) => {
         let notify = req.query.notify;
         // all the params are mandatory for the direct room join
         if (roomName && peerName && peerAudio && peerVideo && notify) {
-            res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
-            return;
+            return res.sendFile(view.client);
         }
     }
     res.redirect('/');
 });
 
-// Join Room
+// Join Room *
 app.get('/join/*', (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('redirect:' + req.url + ' to ' + url.parse(req.url).pathname);
         res.redirect(url.parse(req.url).pathname);
     } else {
-        res.sendFile(path.join(__dirname, '../../', 'public/view/client.html'));
+        res.sendFile(view.client);
     }
+});
+
+// not match any of page before, so 404 not found
+app.get('*', function (req, res) {
+    res.sendFile(view.notFound);
 });
 
 /**
@@ -228,11 +247,6 @@ function getMeetingURL(host) {
 }
 
 // end of MiroTalk API v1
-
-// not match any of page before, so 404 not found
-app.get('*', function (req, res) {
-    res.sendFile(path.join(__dirname, '../../', 'public/view/404.html'));
-});
 
 /**
  * You should probably use a different stun-turn server
