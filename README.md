@@ -18,7 +18,7 @@ Open the app with the following **supported browsers** and many more.
 
 <br>
 
-[![mirotalk](public/images/mirotalk-header.png)](https://mirotalk.herokuapp.com/)
+[![mirotalk](public/images/mirotalk-header.gif)](https://mirotalk.herokuapp.com/)
 
 ## Features
 
