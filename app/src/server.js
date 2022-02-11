@@ -50,8 +50,8 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-app.use(cors()); // Enable All CORS Requests for all origins
-app.use(compression()); // Compress all HTTP responses using GZip
+const Logger = require('./Logger');
+const log = new Logger('server');
 
 const isHttps = false; // must be the same to client.js isHttps
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
@@ -82,24 +82,27 @@ io = new Server({
 
 // console.log(io);
 
-const ngrok = require('ngrok');
+// Swagger config
 const yamlJS = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = yamlJS.load(path.join(__dirname + '/../api/swagger.yaml'));
-const { v4: uuidV4 } = require('uuid');
 
+// Api config
+const { v4: uuidV4 } = require('uuid');
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = host + apiBasePath + '/docs'; // api docs
 const api_key_secret = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
+
+// Ngrok config
+const ngrok = require('ngrok');
 const ngrokEnabled = process.env.NGROK_ENABLED;
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
+
+// Turn config
 const turnEnabled = process.env.TURN_ENABLED;
 const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
-
-const Logger = require('./Logger');
-const log = new Logger('server');
 
 // directory
 const dir = {
@@ -119,11 +122,10 @@ let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
 
-// Use all static files from the public folder
-app.use(express.static(dir.public));
-
-// Api parse body data as json
-app.use(express.json());
+app.use(express.static(dir.public)); // Use all static files from the public folder
+app.use(cors()); // Enable All CORS Requests for all origins
+app.use(compression()); // Compress all HTTP responses using GZip
+app.use(express.json()); // Api parse body data as json
 
 // Remove trailing slashes in url handle bad requests
 app.use((err, req, res, next) => {
@@ -142,11 +144,6 @@ app.use((err, req, res, next) => {
         next();
     }
 });
-
-/*
-app.get(["/"], (req, res) => {
-    res.sendFile(path.join(__dirname, "public/view/client.html"))
-}); */
 
 // all start from here
 app.get(['/'], (req, res) => {

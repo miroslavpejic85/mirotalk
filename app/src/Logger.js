@@ -9,7 +9,15 @@ module.exports = class Logger {
 
     debug(msg, op = '') {
         if (this.debugOn === false) return;
+        console.debug('[' + this.getDataTime() + '] [' + this.appName + '] ' + msg, op);
+    }
+
+    log(msg, op = '') {
         console.log('[' + this.getDataTime() + '] [' + this.appName + '] ' + msg, op);
+    }
+
+    info(msg, op = '') {
+        console.info('[' + this.getDataTime() + '] [' + this.appName + '] ' + msg, op);
     }
 
     warn(msg, op = '') {
