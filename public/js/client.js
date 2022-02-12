@@ -6,6 +6,7 @@
  ██████ ███████ ██ ███████ ██   ████    ██   
 
 MiroTalk Browser Client
+
 Copyright (C) 2022 Miroslav Pejic <miroslav.pejic.85@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -784,7 +785,7 @@ function welcomeUser() {
             `</p>`,
         showDenyButton: true,
         showCancelButton: true,
-        confirmButtonText: `Copy meeting URL`,
+        confirmButtonText: `Copy URL`,
         denyButtonText: `Email invite`,
         cancelButtonText: `Close`,
         showClass: {
@@ -2742,7 +2743,7 @@ async function shareRoomUrl() {
                 `</p>`,
             showDenyButton: true,
             showCancelButton: true,
-            confirmButtonText: `Copy meeting URL`,
+            confirmButtonText: `Copy URL`,
             denyButtonText: `Email invite`,
             cancelButtonText: `Close`,
             showClass: {
@@ -2794,7 +2795,7 @@ function copyRoomURL() {
     navigator.clipboard.writeText(tmpInput.value);
     console.log('Copied to clipboard Join Link ', roomURL);
     document.body.removeChild(tmpInput);
-    userLog('toast', 'Meeting URL is copied to clipboard 👍');
+    userLog('toast', 'Meeting URL copied to clipboard 👍');
 }
 
 /**

@@ -20,6 +20,7 @@ dependencies: {
 }
 
 MiroTalk Signaling Server
+
 Copyright (C) 2022 Miroslav Pejic <miroslav.pejic.85@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
@@ -122,10 +123,10 @@ let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
 
-app.use(express.static(dir.public)); // Use all static files from the public folder
 app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
 app.use(express.json()); // Api parse body data as json
+app.use(express.static(dir.public)); // Use all static files from the public folder
 
 // Remove trailing slashes in url handle bad requests
 app.use((err, req, res, next) => {
