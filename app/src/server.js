@@ -197,11 +197,6 @@ app.get('/join/*', (req, res) => {
     }
 });
 
-// not match any of page before, so 404 not found
-app.get('*', function (req, res) {
-    res.sendFile(view.notFound);
-});
-
 /**
     MiroTalk API v1
     For api docs we use: https://swagger.io/
@@ -244,6 +239,11 @@ function getMeetingURL(host) {
 }
 
 // end of MiroTalk API v1
+
+// not match any of page before, so 404 not found
+app.get('*', function (req, res) {
+    res.sendFile(view.notFound);
+});
 
 /**
  * You should probably use a different stun-turn server
