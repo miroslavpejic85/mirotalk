@@ -111,7 +111,7 @@
                                         <button
                                             id="joinRoomButton"
                                             class="button button-primary pulse"
-                                            onclick="{window.location.href = '/join/' + document.getElementById('roomName').value}"
+                                            onclick="joinRoom()"
                                         >
                                             Join Room
                                         </button>
@@ -119,9 +119,13 @@
                                             document.getElementById('roomName').onkeyup = (e) => {
                                                 if (e.keyCode === 13) {
                                                     e.preventDefault();
-                                                    document.getElementById('joinRoomButton').click();
+                                                    joinRoom();
                                                 }
                                             };
+                                            function joinRoom() {
+                                                let roomName = document.getElementById('roomName').value;
+                                                window.location.href = '/join/' + roomName;
+                                            }
                                         </script>
                                     </div>
                                 </div>
