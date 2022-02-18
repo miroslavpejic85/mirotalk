@@ -3034,6 +3034,9 @@ function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     // log newStream devices
     logStreamSettingsInfo('refreshMyLocalStream', localMediaStream);
 
+    // start capture mic volumes
+    startPitchDetection(localMediaStream);
+
     // attachMediaStream is a part of the adapter.js library
     attachMediaStream(myVideo, localMediaStream); // newstream
 
