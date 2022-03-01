@@ -859,7 +859,7 @@ video:hover {
 #lockUnlockRoomBtn,
 #speechRecognitionStart,
 #speechRecognitionStop {
-    font-size: 1rem;
+    font-size: 0.9rem;
     padding: 5px;
     border-radius: 5px;
     color: white;
