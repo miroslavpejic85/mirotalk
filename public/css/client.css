@@ -697,6 +697,10 @@ video:fullscreen {
     position: relative;
 }
 
+video:hover {
+    opacity: 0.8;
+}
+
 .video.one {
     width: 100vw;
     height: 100vh;
@@ -855,6 +859,7 @@ video:fullscreen {
 #lockUnlockRoomBtn,
 #speechRecognitionStart,
 #speechRecognitionStop {
+    font-size: 1rem;
     padding: 5px;
     border-radius: 5px;
     color: white;
