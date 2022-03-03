@@ -169,6 +169,20 @@ https://mirotalk.up.railway.app/
 
 [![AGPLv3](public/images/AGPLv3.png)](LICENSE)
 
+MiroTalk is free and can be modified and forked. But the conditions of the AGPLv3 (GNU Affero General Public License v3.0) need to be respected. In particular modifications need to be free as well and made available to the public. Get a quick overview of the license at [Choose an open source license](https://choosealicense.com/licenses/agpl-3.0/).
+
+---
+
+## Commercial License or closed source
+
+For commercial use or closed source projects, we can offer licensing under the following terms.
+
+> World-wide, non-exclusive, non-transferable and non-sub-licensable license of MiroTalk as is on https://github.com/miroslavpejic85/mirotalk for use in purchasers products, as long as the resulting software does not stand in concurrence to the MiroTalk itself. Any liability is excluded. The law of the Federal Republic of Italy shall apply exclusively.
+
+The one time fee is 499 EUR net. Please contact miroslav.pejic.85@gmail.com.
+
+---
+
 <br>
 
 # Sponsors

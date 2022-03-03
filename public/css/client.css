@@ -146,7 +146,9 @@
     --wb-hbg: #000000;
     --my-settings-label-color: white;
     */
-    /* https://developer.mozilla.org/it/docs/Web/CSS/object-fit */
+    /* 
+        https://developer.mozilla.org/it/docs/Web/CSS/object-fit 
+    */
     --video-object-fit: cover;
 }
 
@@ -194,7 +196,7 @@ body {
 
 #loadingDiv {
     position: relative;
-    color: white;
+    color: #fff;
     top: 40%;
     left: 60%;
     transform: translate(-50%, -50%);
@@ -236,7 +238,7 @@ body {
 .statusMenu i,
 .statusMenu p,
 .statusMenu h4 {
-    color: white;
+    color: #fff;
     display: inline;
     border: none;
     margin-right: 10px;
@@ -245,7 +247,7 @@ body {
 .statusMenu button {
     float: right;
     margin-right: 3px;
-    color: white;
+    color: #fff;
     background: transparent;
     display: inline;
     border: none;
@@ -537,7 +539,7 @@ body {
 }
 
 #chat-msg-a {
-    color: white;
+    color: #fff;
 }
 
 button:hover {
@@ -560,7 +562,7 @@ button:hover {
     border-radius: 3px;
     font-size: 1em;
     margin: 2px;
-    color: white;
+    color: #fff;
 }
 
 .msger-input {
@@ -648,7 +650,7 @@ button:hover {
     border: none;
     border-radius: 3px;
     font-size: 1em;
-    color: white;
+    color: #fff;
 }
 
 /*--------------------------------------------------------------
@@ -704,43 +706,43 @@ video:hover {
 .video.one {
     width: 100vw;
     height: 100vh;
+    object-fit: var(--video-object-fit);
 }
 
 .video.two {
     width: 49.6vw;
     height: 99vh;
-    --video-object-fit: cover;
     border: var(--elem-border-color);
-    /* --video-object-fit: contain; */
+    object-fit: var(--video-object-fit);
 }
 
 .video.three {
     /* width: 33vw;
   height: 99vh; */
     width: 49.6vw;
-    --video-object-fit: cover;
     border: var(--elem-border-color);
+    object-fit: var(--video-object-fit);
 }
 
 .video.four {
     width: 49.6vw;
     height: 49vh;
-    --video-object-fit: cover;
     border: var(--elem-border-color);
+    object-fit: var(--video-object-fit);
 }
 
 .video.five {
     width: 33vw;
     height: 49vh;
-    --video-object-fit: cover;
     border: var(--elem-border-color);
+    object-fit: var(--video-object-fit);
 }
 
 .video.six {
     width: 33vw;
     height: 49vh;
-    --video-object-fit: cover;
     border: var(--elem-border-color);
+    object-fit: var(--video-object-fit);
 }
 
 /*--------------------------------------------------------------
@@ -754,36 +756,37 @@ video:hover {
         width: 50vw;
         height: 25vh;
         overflow: hidden;
+        object-fit: var(--video-object-fit);
     }
     .video.two {
         width: 99vw;
         height: 49vh;
-        --video-object-fit: cover;
         border: var(--elem-border-color);
+        object-fit: var(--video-object-fit);
     }
     .video.three {
         width: 99vw;
         height: 33vh;
-        --video-object-fit: cover;
         border: var(--elem-border-color);
+        object-fit: var(--video-object-fit);
     }
     .video.four {
         width: 49vw;
         height: 49vh;
-        --video-object-fit: cover;
         border: var(--elem-border-color);
+        object-fit: var(--video-object-fit);
     }
     .video.five {
         width: 49vw;
         height: 33vh;
-        --video-object-fit: cover;
         border: var(--elem-border-color);
+        object-fit: var(--video-object-fit);
     }
     .video.six {
         width: 49vw;
         height: 33vh;
-        --video-object-fit: cover;
         border: var(--elem-border-color);
+        object-fit: var(--video-object-fit);
     }
 }
 
@@ -828,7 +831,7 @@ video:hover {
 #mySettings select {
     width: var(--mySettings-select-w);
     height: 30px;
-    color: white;
+    color: #fff;
     background-color: #2b2b2b;
     border-radius: 5px;
 }
@@ -848,8 +851,8 @@ video:hover {
 }
 
 #myPeerNameSet {
-    border: 1px solid white;
-    color: white;
+    border: 1px solid #fff;
+    color: #fff;
     background-color: #2b2b2b;
 }
 
@@ -862,7 +865,7 @@ video:hover {
     font-size: 0.9rem;
     padding: 5px;
     border-radius: 5px;
-    color: white;
+    color: #fff;
     background-color: transparent;
 }
 
@@ -900,7 +903,7 @@ video:hover {
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
-    color: white;
+    color: #fff;
 }
 
 /* Change background color of buttons on hover */
@@ -1027,7 +1030,7 @@ video:hover {
     margin: auto;
     box-shadow: var(--box-shadow);
     padding: 10px;
-    color: white;
+    color: #fff;
     font-size: 1rem;
     overflow: hidden;
 }
@@ -1037,7 +1040,7 @@ video:hover {
     padding: 5px;
     border-radius: 5px;
     font-size: 1rem;
-    color: white;
+    color: #fff;
     background-color: transparent;
     transition: background 0.23s;
 }
@@ -1090,7 +1093,7 @@ progress {
     margin-top: 10px;
     margin-left: 10px;
     border: none;
-    color: white;
+    color: #fff;
     background: black;
 }
 
@@ -1116,7 +1119,7 @@ progress {
 }
 
 #about a {
-    color: white;
+    color: #fff;
     text-decoration: none;
 }
 

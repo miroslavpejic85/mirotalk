@@ -197,6 +197,7 @@ let videoQualitySelect;
 let videoFpsSelect;
 let screenFpsSelect;
 let themeSelect;
+let videoObjFitSelect;
 let btnsBarSelect;
 let selectors;
 // my video element
@@ -345,6 +346,7 @@ function getHtmlElementsById() {
     videoFpsSelect = getId('videoFps');
     screenFpsSelect = getId('screenFps');
     themeSelect = getId('mirotalkTheme');
+    videoObjFitSelect = getId('videoObjFitSelect');
     btnsBarSelect = getId('mirotalkBtnsBar');
     // my conference name, hand, video - audio status
     myVideoParagraph = getId('myVideoParagraph');
@@ -2389,6 +2391,12 @@ function setupMySettings() {
         setTheme(themeSelect.value);
         setRecordButtonUi();
     });
+    // video object fit
+    videoObjFitSelect.addEventListener('change', (e) => {
+        document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
+    });
+    videoObjFitSelect.selectedIndex = 2; // cover
+
     // Mobile not support buttons bar position horizontal
     if (isMobileDevice) {
         btnsBarSelect.disabled = true;
