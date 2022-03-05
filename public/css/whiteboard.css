@@ -10,8 +10,9 @@
     width: var(--wb-width);
     height: var(--wb-height);
     background: var(--wb-bg);
-    border-radius: 10px;
+    border: var(--border);
     box-shadow: var(--box-shadow);
+    border-radius: 10px;
     /* center */
     top: 50%;
     left: 50%;

@@ -50,7 +50,9 @@
         <!-- StyleSheet -->
 
         <link rel="stylesheet" href="../css/client.css" />
+        <link rel="stylesheet" href="../css/videoGrid.css" />
         <link rel="stylesheet" href="../css/whiteboard.css" />
+
         <!-- https://animate.style 4 using for swal fadeIn-Out -->
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -67,10 +69,10 @@
 
         <!-- show this before to join -->
 
-        <div id="loadingDiv">
-            <h1 class="pulsate">Loading...</h1>
+        <div id="loadingDiv" class="center pulsate">
+            <h1>Loading...</h1>
             <pre>
-Please allow camera & microphone
+Please allow the camera or microphone
 access to use this app.
             </pre>
         </div>
@@ -289,11 +291,8 @@ access to use this app.
                     <label for="mirotalkTheme">Theme color</label>
                     <br />
                     <select id="mirotalkTheme">
-                        <option value="neon">🟣 MiroTalk - neon</option>
                         <option value="dark">⚫️ MiroTalk - dark</option>
-                        <option value="forest">🟢 MiroTalk - forest</option>
-                        <option value="sky">🔵 MiroTalk - sky</option>
-                        <option value="ghost">⚪️ MiroTalk - ghost</option>
+                        <option value="grey">⚪️ MiroTalk - grey</option>
                     </select>
                     <br /><br />
                     <label>Video fit:</label>
@@ -393,6 +392,14 @@ access to use this app.
 
         <!-- End Youtube Iframe -->
 
+        <!-- Start Video container -->
+
+        <div id="videoMediaContainer">
+            <!-- <div class="Camera"></div> -->
+        </div>
+
+        <!-- End Video container -->
+
         <!-- Js scripts -->
 
         <script defer src="https://kit.fontawesome.com/d2f1016e6f.js" crossorigin="anonymous"></script>
@@ -408,6 +415,7 @@ access to use this app.
         <script defer src="../js/client.js"></script>
         <script defer src="../js/detectSpeaking.js"></script>
         <script defer src="../js/speechRecognition.js"></script>
+        <script defer src="../js/videoGrid.js"></script>
 
         <!-- end of Js scripts -->
 

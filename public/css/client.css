@@ -37,31 +37,41 @@
 
 :root {
     /* common */
-    --bg: linear-gradient(to left, #363434, #000000);
+    --status-menu-bg: linear-gradient(#363434, #000000);
+    --body-bg: radial-gradient(#393939, #000000);
+    --border: 1px solid rgb(255 255 255 / 32%);
+
     --msger-top: 50%;
     --msger-left: 50%;
     --msger-height: 680px;
     --msger-width: 420px;
+
     /* video iframe */
     --iframe-width: 640px;
     --iframe-height: 480px;
+
     /* whiteboard resize */
     --wb-width: 800px;
     --wb-height: 600px;
-    --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
+
     /* my settings */
     --mySettings-select-w: 100%;
+
     /* btns hover scale 110% zoom */
     --btns-hover-scale: scale(1.1);
+    --hover-color: grey;
+
     /* video elem border color */
-    --elem-border-color: grey 1px solid;
+    --elem-border-color: none;
+
     /* left buttons bar vertical default */
     --btns-top: 50%;
     --btns-right: 0%;
-    --btns-left: 20px;
+    --btns-left: 15px;
     --btns-margin-left: 0px;
     --btns-width: 40px;
     --btns-flex-direction: column;
+
     /* left buttons bar horizontal
     --btns-top: 95%;
     --btns-right: 25%;
@@ -70,82 +80,22 @@
     --btns-width: 600px;
     --btns-flex-direction: row;
     */
-    /* neon theme default */
-    --body-bg: black;
-    --msger-bg: linear-gradient(to left, #383838, #000000);
-    --msger-private-bg: black;
-    --left-msg-bg: #da05f3;
-    --private-msg-bg: #f77070;
-    --right-msg-bg: #579ffb;
-    --box-shadow: 3px 3px 6px #0500ff, -3px -3px 6px #da05f3;
-    --btn-bg: white;
-    --btn-color: black;
-    --btn-opc: 1;
-    --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
-    --wb-hbg: #000000;
-    --my-settings-label-color: white;
-    --hover-color: grey;
-    /* rgb(8, 189, 89); */
-    /* dark theme
-    --body-bg: #16171b;
-    --msger-bg: linear-gradient(to left, #383838, #000000);
-    --msger-private-bg: black;
+
+    /* dark theme */
+    --body-bg: radial-gradient(#393939, #000000);
+    --msger-bg: radial-gradient(#393939, #000000);
+    --msger-private-bg: radial-gradient(#393939, #000000);
+    --wb-bg: radial-gradient(#393939, #000000);
+    --box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+
+    /* chat msg boble */
     --left-msg-bg: #222328;
     --private-msg-bg: #f77070;
     --right-msg-bg: #0a0b0c;
-    --box-shadow: 3px 3px 6px #0a0b0c, -3px -3px 6px #222328; 
-    --btn-bg: white;
-    --btn-color: black;
-    --btn-opc: 1;
-    --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
-    --wb-hbg: #000000;
-    --my-settings-label-color: white;
-    */
-    /* forest theme
-    --body-bg: black;
-    --msger-bg: linear-gradient(to left, #383838, #000000);
-    --msger-private-bg: black;
-    --left-msg-bg: #2e3500;
-    --private-msg-bg: #f77070;
-    --right-msg-bg: #004b1c;
-    --box-shadow: 3px 3px 6px #27944f, -3px -3px 6px #14843d;
-    --btn-bg: white;
-    --btn-color: black;
-    --btn-opc: 1;
-    --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
-    --wb-hbg: #000000;
-    --my-settings-label-color: white;
-    */
-    /* sky theme
-    --body-bg: black;
-    --msger-bg: linear-gradient(to left, #383838, #000000);
-    --msger-private-bg: black;
-    --left-msg-bg: #0c95b7;
-    --private-msg-bg: #f77070;
-    --right-msg-bg: #012a5f;
-    --box-shadow: 3px 3px 6px #03a5ce, -3px -3px 6px #03a5ce;
-    --btn-bg: white;
-    --btn-color: black;
-    --btn-opc: 1;
-    --wb-bg: linear-gradient(to left, #1f1e1e, #000000);
-    --wb-hbg: #000000;
-    --my-settings-label-color: white;
-    */
-    /* ghost theme
-    --body-bg: black;
-    --msger-bg: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.7));
-    --msger-private-bg: black;
-    --left-msg-bg: rgba(0, 0, 0, 0.7);
-    --private-msg-bg: rgba(252, 110, 110, 0.7);
-    --right-msg-bg: rgba(0, 0, 0, 0.7);
-    --box-shadow: "0px"; 
-    --btn-bg: white;
-    --btn-color: black;
-    --btn-opc: 0.7;
-    --wb-bg: transparent;
-    --wb-hbg: #000000;
-    --my-settings-label-color: white;
-    */
+
+    /* volume detected */
+    --volume-up: 0px 8px 16px 0px rgb(249, 253, 0);
+
     /* 
         https://developer.mozilla.org/it/docs/Web/CSS/object-fit 
     */
@@ -157,37 +107,16 @@
     font-family: 'Comfortaa';
 }
 
-html {
-    min-height: 100%;
-}
-
 /*--------------------------------------------------------------
-# Body setup
+# Body Html setup
 --------------------------------------------------------------*/
 
+html,
 body {
-    background: var(--body-bg);
-    background-image: url('../images/bg.svg');
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    margin: 0;
-    padding: 0;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    opacity: 0;
-    /* make things invisible upon start */
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
-    animation: fadeIn ease-in 1;
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
-    -webkit-animation-duration: 0.3s;
-    -moz-animation-duration: 0.3s;
-    animation-duration: 0.3s;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
+    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------
@@ -195,83 +124,18 @@ body {
 --------------------------------------------------------------*/
 
 #loadingDiv {
-    position: relative;
     color: #fff;
-    top: 40%;
-    left: 60%;
-    transform: translate(-50%, -50%);
+    padding: 30px;
+    border-radius: 10px;
+    background: var(--body-bg);
 }
-
 #loadingDiv h1 {
-    font-size: 70px;
+    font-size: 60px;
+    font-family: 'Comfortaa';
 }
-
 #loadingDiv pre {
-    font-size: 15px;
-}
-
-/*--------------------------------------------------------------
-# Status menù (time-name-audio-video)
---------------------------------------------------------------*/
-
-.statusMenu {
-    z-index: 7;
-    display: none;
-    position: absolute;
-    padding: 10px;
-    background: var(--bg);
-    font-size: small;
-    /* 4 mobile */
-    font-weight: bold;
-    text-align: center;
-    width: 100%;
-    cursor: default;
-    /* center */
-    top: 18px;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    overflow: hidden;
-}
-
-.statusMenu i,
-.statusMenu p,
-.statusMenu h4 {
-    color: #fff;
-    display: inline;
-    border: none;
-    margin-right: 10px;
-}
-
-.statusMenu button {
-    float: right;
-    margin-right: 3px;
-    color: #fff;
-    background: transparent;
-    display: inline;
-    border: none;
-}
-
-.statusMenu p:hover,
-.statusMenu h4:hover,
-.statusMenu button:hover {
-    color: var(--hover-color);
-    transition: all 0.3s ease-in-out;
-}
-
-/*--------------------------------------------------------------
-# Avatar Image on video OFF
---------------------------------------------------------------*/
-
-.videoAvatarImage {
-    z-index: 8;
-    display: none;
-    position: absolute;
-    /*center*/
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    padding: 5px;
+    font-family: 'Comfortaa';
 }
 
 /*--------------------------------------------------------------
@@ -281,22 +145,26 @@ body {
 #buttonsBar {
     z-index: 12;
     display: none;
-    position: absolute;
-    padding: 15px;
+    position: fixed;
+    padding: 5px;
+
     top: var(--btns-top);
     right: var(--btns-right);
     left: var(--btns-left);
     margin-left: var(--btns-margin-left);
     width: var(--btns-width);
     flex-direction: var(--btns-flex-direction);
+
     justify-content: space-around;
     grid-gap: 0.4rem;
+
     -webkit-transform: translate(0%, -50%);
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
-    border-radius: 20px;
-    background: transparent;
-    box-shadow: var(--box-shadow);
+
+    /* background: var(--body-bg); */
+    box-shadow: 0px 8px 16px 0px rgb(33 33 33);
+    border-radius: 10px;
     overflow: hidden;
 }
 
@@ -304,11 +172,10 @@ body {
     border: none;
     font-size: 1.5rem;
     transition: all 0.3s ease-in-out;
-    background: var(--btn-bg);
+    background: rgba(0, 0, 0, 0.2);
     padding: 4px;
     border-radius: 5px;
-    opacity: var(--btn-opc);
-    color: var(--btn-color);
+    color: #fff;
 }
 
 #buttonsBar button:hover {
@@ -333,7 +200,7 @@ body {
 }
 
 #buttonsBar #leaveRoomBtn:hover {
-    color: red;
+    color: #ff2d00;
     transform: var(--btns-hover-scale);
 }
 
@@ -358,9 +225,10 @@ body {
     height: var(--msger-height);
     width: var(--msger-width);
     background: var(--msger-bg);
+    border: var(--border);
     /* text-align: justify; */
     overflow: hidden;
-    border-radius: 5px;
+    border-radius: 10px;
     box-shadow: var(--box-shadow);
 }
 
@@ -560,8 +428,8 @@ button:hover {
     padding: 10px;
     border: none;
     border-radius: 3px;
-    font-size: 1em;
-    margin: 2px;
+    font-size: 1rem;
+    margin: 1px;
     color: #fff;
 }
 
@@ -669,128 +537,6 @@ emoji-picker {
 }
 
 /*--------------------------------------------------------------
-# Video Grid
---------------------------------------------------------------*/
-
-#myVideo.mirror {
-    -webkit-transform: rotateY(180deg);
-    -moz-transform: rotateY(180deg);
-    transform: rotateY(180deg);
-}
-
-video {
-    width: 100%;
-    height: 100%;
-    object-fit: var(--video-object-fit);
-    cursor: pointer;
-}
-
-video:fullscreen {
-    object-fit: contain;
-    /* cover; */
-    border: var(--elem-border-color);
-}
-
-.video {
-    float: left;
-    width: 25vw;
-    height: 50vh;
-    overflow: hidden;
-    position: relative;
-}
-
-video:hover {
-    opacity: 0.8;
-}
-
-.video.one {
-    width: 100vw;
-    height: 100vh;
-    object-fit: var(--video-object-fit);
-}
-
-.video.two {
-    width: 49.6vw;
-    height: 99vh;
-    border: var(--elem-border-color);
-    object-fit: var(--video-object-fit);
-}
-
-.video.three {
-    /* width: 33vw;
-  height: 99vh; */
-    width: 49.6vw;
-    border: var(--elem-border-color);
-    object-fit: var(--video-object-fit);
-}
-
-.video.four {
-    width: 49.6vw;
-    height: 49vh;
-    border: var(--elem-border-color);
-    object-fit: var(--video-object-fit);
-}
-
-.video.five {
-    width: 33vw;
-    height: 49vh;
-    border: var(--elem-border-color);
-    object-fit: var(--video-object-fit);
-}
-
-.video.six {
-    width: 33vw;
-    height: 49vh;
-    border: var(--elem-border-color);
-    object-fit: var(--video-object-fit);
-}
-
-/*--------------------------------------------------------------
-# Handle video elements on screen resize
---------------------------------------------------------------*/
-
-@media only screen and (max-width: 720px) {
-    /* 960px */
-    .video {
-        float: left;
-        width: 50vw;
-        height: 25vh;
-        overflow: hidden;
-        object-fit: var(--video-object-fit);
-    }
-    .video.two {
-        width: 99vw;
-        height: 49vh;
-        border: var(--elem-border-color);
-        object-fit: var(--video-object-fit);
-    }
-    .video.three {
-        width: 99vw;
-        height: 33vh;
-        border: var(--elem-border-color);
-        object-fit: var(--video-object-fit);
-    }
-    .video.four {
-        width: 49vw;
-        height: 49vh;
-        border: var(--elem-border-color);
-        object-fit: var(--video-object-fit);
-    }
-    .video.five {
-        width: 49vw;
-        height: 33vh;
-        border: var(--elem-border-color);
-        object-fit: var(--video-object-fit);
-    }
-    .video.six {
-        width: 49vw;
-        height: 33vh;
-        border: var(--elem-border-color);
-        object-fit: var(--video-object-fit);
-    }
-}
-
-/*--------------------------------------------------------------
 # Room QR
 --------------------------------------------------------------*/
 
@@ -809,9 +555,10 @@ video:hover {
     z-index: 16;
     min-width: 320px;
     /* gui */
-    background-color: rgba(0, 0, 0, 0.7);
+    background: var(--body-bg);
     border-radius: 5px;
     margin: auto;
+    border: var(--border);
     box-shadow: var(--box-shadow);
     padding: 10px;
     min-width: 330px;
@@ -825,7 +572,7 @@ video:hover {
 #mySettings label {
     width: 7em;
     display: flex;
-    color: var(--my-settings-label-color);
+    color: #fff;
 }
 
 #mySettings select {
@@ -880,7 +627,7 @@ video:hover {
 
 #muteEveryoneBtn:hover,
 #hideEveryoneBtn:hover {
-    color: rgb(255, 0, 0);
+    color: #ff2d00;
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
 }
@@ -889,7 +636,6 @@ video:hover {
 
 .tab {
     overflow: hidden;
-    border: 1px solid rgb(0, 0, 0);
     background-color: rgba(0, 0, 0);
 }
 
@@ -925,7 +671,6 @@ video:hover {
 .tabcontent {
     display: none;
     padding: 6px 12px;
-    border: 1px solid rgb(0, 0, 0);
     border-top: none;
 }
 
@@ -1025,13 +770,13 @@ video:hover {
     z-index: 17;
     display: none;
     min-width: 320px;
-    background-color: rgba(0, 0, 0, 0.7);
     border-radius: 5px;
     margin: auto;
-    box-shadow: var(--box-shadow);
     padding: 10px;
     color: #fff;
     font-size: 1rem;
+    background: var(--body-bg);
+    box-shadow: var(--box-shadow);
     overflow: hidden;
 }
 

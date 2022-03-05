@@ -4,25 +4,18 @@
 ██      ██      ██ █████   ██ ██  ██    ██    
 ██      ██      ██ ██      ██  ██ ██    ██    
  ██████ ███████ ██ ███████ ██   ████    ██   
-
-MiroTalk Browser Client
-
-Copyright (C) 2022 Miroslav Pejic <miroslav.pejic.85@gmail.com>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 */
+
+/**
+ * MiroTalk P2P - Client component
+ *
+ * @link    https://mirotalk.up.railway.app or https://mirotalk.herokuapp.com
+ * @license For open source use: AGPLv3
+ *          For commercial use: https://github.com/miroslavpejic85/mirotalk#commercial-license-or-closed-source
+ * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
+ * @version 1.0.0
+ *
+ */
 
 'use strict'; // https://www.w3schools.com/js/js_strict.asp
 
@@ -38,8 +31,7 @@ const welcomeImg = '../images/image-placeholder.png';
 const shareUrlImg = '../images/image-placeholder.png';
 const leaveRoomImg = '../images/leave-room.png';
 const confirmImg = '../images/image-placeholder.png';
-const fileSharingImg = '../images/image-placeholder.png';
-// nice free icon: https://www.iconfinder.com
+const fileSharingImg = '../images/share.png';
 const roomLockedImg = '../images/locked.png';
 const camOffImg = '../images/cam-off.png';
 const audioOffImg = '../images/audio-off.png';
@@ -48,6 +40,7 @@ const youtubeImg = '../images/youtube.png';
 const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
 const aboutImg = '../images/about.jpg';
+// nice free icon: https://www.iconfinder.com
 
 const surveyActive = true; // when leaving the room give a feedback
 const notifyBySound = true; // turn on - off sound notifications
@@ -89,7 +82,7 @@ let callStartTime;
 let callElapsedTime;
 let recStartTime;
 let recElapsedTime;
-let mirotalkTheme = 'neon'; // neon - dark - forest - ghost ...
+let mirotalkTheme = 'dark'; // dark - grey ...
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let peerGeo;
@@ -738,11 +731,7 @@ function checkPeerAudioVideo() {
  * Room and Peer name are ok Join Channel
  */
 function whoAreYouJoin() {
-    document.body.style.backgroundImage = 'none';
     myVideoWrap.style.display = 'inline';
-    logStreamSettingsInfo('localMediaStream', localMediaStream);
-    attachMediaStream(myVideo, localMediaStream);
-    resizeVideos();
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
@@ -1061,8 +1050,8 @@ function handleIceCandidate(config) {
 function handleDisconnect(reason) {
     console.log('Disconnected from signaling server', { reason: reason });
     for (let peer_id in peerMediaElements) {
-        document.body.removeChild(peerMediaElements[peer_id].parentNode);
-        resizeVideos();
+        peerMediaElements[peer_id].parentNode.removeChild(peerMediaElements[peer_id]);
+        adaptAspectRatio();
     }
     for (let peer_id in peerConnections) {
         peerConnections[peer_id].close();
@@ -1088,8 +1077,8 @@ function handleRemovePeer(config) {
     let peer_id = config.peer_id;
 
     if (peer_id in peerMediaElements) {
-        document.body.removeChild(peerMediaElements[peer_id].parentNode);
-        resizeVideos();
+        peerMediaElements[peer_id].parentNode.removeChild(peerMediaElements[peer_id]);
+        adaptAspectRatio();
     }
     if (peer_id in peerConnections) peerConnections[peer_id].close();
 
@@ -1104,7 +1093,7 @@ function handleRemovePeer(config) {
 }
 
 /**
- * Set mirotalk theme neon | dark | forest | sky | ghost | ...
+ * Set mirotalk theme | dark | grey | ...
  * @param {*} theme
  */
 function setTheme(theme) {
@@ -1112,113 +1101,29 @@ function setTheme(theme) {
 
     mirotalkTheme = theme;
     switch (mirotalkTheme) {
-        case 'neon':
-            // neon theme
-            swalBackground = 'rgba(0, 0, 0, 0.7)';
-            document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
-            document.documentElement.style.setProperty(
-                '--msger-private-bg',
-                'linear-gradient(to left, #383838, #000000)',
-            );
-            document.documentElement.style.setProperty('--left-msg-bg', '#9400a5');
-            document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
-            document.documentElement.style.setProperty('--right-msg-bg', '#579ffb');
-            document.documentElement.style.setProperty('--wb-bg', 'linear-gradient(to left, #1f1e1e, #000000)');
-            document.documentElement.style.setProperty('--wb-hbg', '#000000');
-            document.documentElement.style.setProperty('--btn-bg', 'white');
-            document.documentElement.style.setProperty('--btn-color', 'black');
-            document.documentElement.style.setProperty('--btns-left', '20px');
-            document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
-            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0500ff, -3px -3px 6px #9400a5');
-            break;
         case 'dark':
             // dark theme
-            swalBackground = 'rgba(0, 0, 0, 0.7)';
-            document.documentElement.style.setProperty('--body-bg', '#16171b');
-            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
-            document.documentElement.style.setProperty(
-                '--msger-private-bg',
-                'linear-gradient(to left, #383838, #000000)',
-            );
+            swalBackground = 'radial-gradient(#393939, #000000)';
+            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#393939, #000000)');
+            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
+            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#393939, #000000)');
+            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#393939, #000000)');
+            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--left-msg-bg', '#222328');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#0a0b0c');
-            document.documentElement.style.setProperty('--wb-bg', 'linear-gradient(to left, #1f1e1e, #000000)');
-            document.documentElement.style.setProperty('--wb-hbg', '#000000');
-            document.documentElement.style.setProperty('--btn-bg', 'white');
-            document.documentElement.style.setProperty('--btn-color', 'black');
-            document.documentElement.style.setProperty('--btns-left', '20px');
-            document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
-            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #0a0b0c, -3px -3px 6px #222328');
             break;
-        case 'forest':
-            // forest theme
-            swalBackground = 'rgba(0, 0, 0, 0.7)';
-            document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
-            document.documentElement.style.setProperty(
-                '--msger-private-bg',
-                'linear-gradient(to left, #383838, #000000)',
-            );
-            document.documentElement.style.setProperty('--left-msg-bg', '#2e3500');
+        case 'grey':
+            // grey theme
+            swalBackground = 'radial-gradient(#666, #333)';
+            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#666, #333)');
+            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#666, #333)');
+            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#797979, #000)');
+            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
+            document.documentElement.style.setProperty('--left-msg-bg', '#222328');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
-            document.documentElement.style.setProperty('--right-msg-bg', '#004b1c');
-            document.documentElement.style.setProperty('--wb-bg', 'linear-gradient(to left, #1f1e1e, #000000)');
-            document.documentElement.style.setProperty('--wb-hbg', '#000000');
-            document.documentElement.style.setProperty('--btn-bg', 'white');
-            document.documentElement.style.setProperty('--btn-color', 'black');
-            document.documentElement.style.setProperty('--btns-left', '20px');
-            document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
-            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #27944f, -3px -3px 6px #14843d');
-            break;
-        case 'sky':
-            // sky theme
-            swalBackground = 'rgba(0, 0, 0, 0.7)';
-            document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
-            document.documentElement.style.setProperty(
-                '--msger-private-bg',
-                'linear-gradient(to left, #383838, #000000)',
-            );
-            document.documentElement.style.setProperty('--left-msg-bg', '#0c95b7');
-            document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
-            document.documentElement.style.setProperty('--right-msg-bg', '#012a5f');
-            document.documentElement.style.setProperty('--wb-bg', 'linear-gradient(to left, #1f1e1e, #000000)');
-            document.documentElement.style.setProperty('--wb-hbg', '#000000');
-            document.documentElement.style.setProperty('--btn-bg', 'white');
-            document.documentElement.style.setProperty('--btn-color', 'black');
-            document.documentElement.style.setProperty('--btns-left', '20px');
-            document.documentElement.style.setProperty('--btn-opc', '1');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
-            document.documentElement.style.setProperty('--box-shadow', '3px 3px 6px #03a5ce, -3px -3px 6px #03a5ce');
-            break;
-        case 'ghost':
-            // ghost theme
-            swalBackground = 'rgba(0, 0, 0, 0.150)';
-            document.documentElement.style.setProperty('--body-bg', 'black');
-            document.documentElement.style.setProperty(
-                '--msger-bg',
-                'linear-gradient(to left, transparent, rgba(0, 0, 0, 0.7))',
-            );
-            document.documentElement.style.setProperty(
-                '--msger-private-bg',
-                'linear-gradient(to left, #383838, #000000)',
-            );
-            document.documentElement.style.setProperty('--wb-bg', 'transparent');
-            document.documentElement.style.setProperty('--wb-hbg', '#000000');
-            document.documentElement.style.setProperty('--btn-bg', 'white');
-            document.documentElement.style.setProperty('--btn-color', 'black');
-            document.documentElement.style.setProperty('--btns-left', '5px');
-            document.documentElement.style.setProperty('--btn-opc', '0.7');
-            document.documentElement.style.setProperty('--box-shadow', '0px');
-            document.documentElement.style.setProperty('--my-settings-label-color', 'white');
-            document.documentElement.style.setProperty('--left-msg-bg', 'rgba(0, 0, 0, 0.7)');
-            document.documentElement.style.setProperty('--private-msg-bg', 'rgba(252, 110, 110, 0.7)');
-            document.documentElement.style.setProperty('--right-msg-bg', 'rgba(0, 0, 0, 0.7)');
+            document.documentElement.style.setProperty('--right-msg-bg', '#0a0b0c');
             break;
         // ...
         default:
@@ -1238,10 +1143,9 @@ function setButtonsBarPosition(position) {
     mirotalkBtnsBar = position;
     switch (mirotalkBtnsBar) {
         case 'vertical':
-            let btnsLeft = mirotalkTheme === 'ghost' ? '5px' : '20px';
             document.documentElement.style.setProperty('--btns-top', '50%');
             document.documentElement.style.setProperty('--btns-right', '0px');
-            document.documentElement.style.setProperty('--btns-left', btnsLeft);
+            document.documentElement.style.setProperty('--btns-left', '15px');
             document.documentElement.style.setProperty('--btns-margin-left', '0px');
             document.documentElement.style.setProperty('--btns-width', '40px');
             document.documentElement.style.setProperty('--btns-flex-direction', 'column');
@@ -1423,7 +1327,7 @@ function loadLocalMedia(stream) {
     localMedia.volume = 0;
     localMedia.controls = false;
 
-    videoWrap.className = 'video';
+    videoWrap.className = 'Camera';
     videoWrap.setAttribute('id', 'myVideoWrap');
 
     // add elements to video wrap div
@@ -1432,16 +1336,20 @@ function loadLocalMedia(stream) {
     videoWrap.appendChild(localMedia);
     videoWrap.appendChild(myPitchMeter);
 
-    document.body.appendChild(videoWrap);
+    getId('videoMediaContainer').appendChild(videoWrap);
     videoWrap.style.display = 'none';
+
+    logStreamSettingsInfo('localMediaStream', localMediaStream);
+    attachMediaStream(localMedia, localMediaStream);
+    adaptAspectRatio();
 
     getHtmlElementsById();
     setButtonsToolTip();
     manageLeftButtons();
-    handleBodyOnMouseMove();
     setupMySettings();
     setupVideoUrlPlayer();
     startCountTime();
+    handleBodyOnMouseMove();
     handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
     handleVideoToImg('myVideo', 'myVideoToImgBtn');
 }
@@ -1571,9 +1479,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteMedia.autoplay = true;
     isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
     remoteMedia.controls = remoteMediaControls;
-    peerMediaElements[peer_id] = remoteMedia;
 
-    remoteVideoWrap.className = 'video';
+    remoteVideoWrap.className = 'Camera';
     remoteVideoWrap.setAttribute('id', peer_id + '_videoWrap');
 
     // add elements to videoWrap div
@@ -1582,12 +1489,15 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoWrap.appendChild(remotePitchMeter);
     remoteVideoWrap.appendChild(remoteMedia);
 
-    document.body.appendChild(remoteVideoWrap);
+    // need later on disconnect or remove peers
+    peerMediaElements[peer_id] = remoteVideoWrap;
 
+    // append all elements to videoMediaContainer
+    getId('videoMediaContainer').appendChild(remoteVideoWrap);
     // attachMediaStream is a part of the adapter.js library
     attachMediaStream(remoteMedia, remoteMediaStream);
     // resize video elements
-    resizeVideos();
+    adaptAspectRatio();
     // handle video to image
     handleVideoToImg(peer_id + '_video', peer_id + '_snapshot', peer_id);
     // handle video full screen mode
@@ -1635,14 +1545,66 @@ function logStreamSettingsInfo(name, stream) {
 }
 
 /**
- * Resize video elements
+ * Handle aspect ratio
+ * ['0:0', '4:3', '16:9', '1:1', '1:2'];
+ *    0      1       2      3      4
  */
-function resizeVideos() {
-    const numToString = ['', 'one', 'two', 'three', 'four', 'five', 'six'];
-    const videos = document.querySelectorAll('.video');
-    document.querySelectorAll('.video').forEach((v) => {
-        v.className = 'video ' + numToString[videos.length];
-    });
+function adaptAspectRatio() {
+    let participantsCount = getId('videoMediaContainer').childElementCount;
+    let desktop,
+        mobile = 1;
+    // desktop aspect ratio
+    switch (participantsCount) {
+        // case 1:
+        //     desktop = 0; // (0:0)
+        //     break;
+        case 1:
+        case 3:
+        case 4:
+        case 7:
+        case 9:
+            desktop = 2; // (16:9)
+            break;
+        case 5:
+        case 6:
+        case 10:
+        case 11:
+            desktop = 1; // (4:3)
+            break;
+        case 2:
+        case 8:
+            desktop = 3; // (1:1)
+            break;
+        default:
+            desktop = 0; // (0:0)
+    }
+    // mobile aspect ratio
+    switch (participantsCount) {
+        case 3:
+        case 9:
+        case 10:
+            mobile = 2; // (16:9)
+            break;
+        case 2:
+        case 7:
+        case 8:
+        case 11:
+            mobile = 1; // (4:3)
+            break;
+        case 1:
+        case 4:
+        case 5:
+        case 6:
+            mobile = 3; // (1:1)
+            break;
+        default:
+            mobile = 3; // (1:1)
+    }
+    if (participantsCount > 11) {
+        desktop = 1; // (4:3)
+        mobile = 3; // (1:1)
+    }
+    setAspectRatio(isMobileDevice ? mobile : desktop);
 }
 
 /**
@@ -1890,7 +1852,6 @@ function manageLeftButtons() {
     setMySettingsBtn();
     setAboutBtn();
     setLeaveRoomBtn();
-    showButtonsBarAndMenu();
 }
 
 /**
@@ -2006,14 +1967,12 @@ function setChatRoomBtn() {
 
     // ghost theme + undo
     msgerTheme.addEventListener('click', (e) => {
-        if (mirotalkTheme == 'ghost') return;
-
         if (e.target.className == 'fas fa-ghost') {
             e.target.className = 'fas fa-undo';
             document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
         } else {
             e.target.className = 'fas fa-ghost';
-            document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
         }
     });
 
@@ -2104,14 +2063,12 @@ function setCaptionRoomBtn() {
 
         // ghost theme + undo
         captionTheme.addEventListener('click', (e) => {
-            if (mirotalkTheme == 'ghost') return;
-
             if (e.target.className == 'fas fa-ghost') {
                 e.target.className = 'fas fa-undo';
                 document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
             } else {
                 e.target.className = 'fas fa-ghost';
-                document.documentElement.style.setProperty('--msger-bg', 'linear-gradient(to left, #383838, #000000)');
+                document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
             }
         });
 
@@ -2389,7 +2346,6 @@ function setupMySettings() {
     // select themes
     themeSelect.addEventListener('change', (e) => {
         setTheme(themeSelect.value);
-        setRecordButtonUi();
     });
     // video object fit
     videoObjFitSelect.addEventListener('change', (e) => {
@@ -3069,7 +3025,7 @@ function startRecordingTime() {
     let rc = setInterval(function printTime() {
         if (isStreamRecording) {
             recElapsedTime = Date.now() - recStartTime;
-            myVideoParagraph.innerHTML = myPeerName + '&nbsp;&nbsp; 🔴 REC ' + getTimeToString(recElapsedTime);
+            myVideoParagraph.innerHTML = myPeerName + '&nbsp;&nbsp; 🔴 &nbsp; REC ' + getTimeToString(recElapsedTime);
             return;
         }
         clearInterval(rc);
@@ -3183,7 +3139,7 @@ function handleMediaRecorderStart(event) {
     }
     console.log('MediaRecorder started: ', event);
     isStreamRecording = true;
-    recordStreamBtn.style.setProperty('background-color', 'red');
+    recordStreamBtn.style.setProperty('color', 'red');
     startRecordingTime();
     // only for desktop
     if (!isMobileDevice) {
@@ -3241,7 +3197,7 @@ function stopStreamRecording() {
  * Set Record Button UI on change theme
  */
 function setRecordButtonUi() {
-    recordStreamBtn.style.setProperty('background-color', 'white');
+    recordStreamBtn.style.setProperty('color', '#fff');
 }
 
 /**
@@ -3258,7 +3214,7 @@ function downloadRecordedStream() {
         userLog(
             'success-html',
             `<div style="text-align: left;">
-                🔴 Recording Info <br/>
+                🔴 &nbsp; Recording Info <br/>
                 FILE: ${recFileName} <br/>
                 SIZE: ${blobFileSize} <br/>
                 Please wait to be processed, then will be downloaded to your ${currentDevice} device.
@@ -4446,11 +4402,11 @@ function whiteboardAddObj(type) {
                 allowOutsideClick: false,
                 background: swalBackground,
                 position: 'center',
-                title: 'Select the image',
+                title: 'Select image',
                 input: 'file',
                 inputAttributes: {
                     accept: wbImageInput,
-                    'aria-label': 'Select the image',
+                    'aria-label': 'Select image',
                 },
                 showDenyButton: true,
                 confirmButtonText: `OK`,
@@ -5268,10 +5224,10 @@ function handleKickedOut(config) {
         imageUrl: kickedOutImg,
         title: 'Kicked out!',
         html:
-            `<h2 style="color: red;">` +
+            `<h2 style="color: #FF2D00;">` +
             `User ` +
             peer_name +
-            `</h2> will kick out you after <b style="color: red;"></b> milliseconds.`,
+            `</h2> will kick out you after <b style="color: #FF2D00;"></b> milliseconds.`,
         timer: 10000,
         timerProgressBar: true,
         didOpen: () => {
@@ -5449,7 +5405,7 @@ function handlePeerVolume(data) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    remoteVideoWrap.style.border = '1px solid lime';
+    //remoteVideoWrap.style.border = '2px solid lime';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
@@ -5468,7 +5424,7 @@ function handleMyVolume(data) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    myVideoWrap.style.border = '1px solid lime';
+    //myVideoWrap.style.border = '2px solid lime';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
