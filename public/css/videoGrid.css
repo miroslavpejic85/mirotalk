@@ -24,7 +24,7 @@
     border-radius: 10px;
     overflow: hidden;
     display: inline-block;
-    background: transparent;
+    background: var(--body-bg);
     border: var(--elem-border-color);
     border-radius: 10px;
     animation: show 0.4s ease;
