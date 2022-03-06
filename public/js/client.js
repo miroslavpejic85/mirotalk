@@ -1475,7 +1475,6 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
 
     remoteMedia.setAttribute('id', peer_id + '_video');
     remoteMedia.setAttribute('playsinline', true);
-    remoteMedia.mediaGroup = 'remotevideo';
     remoteMedia.autoplay = true;
     isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
     remoteMedia.controls = remoteMediaControls;
