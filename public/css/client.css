@@ -62,7 +62,7 @@
     --hover-color: grey;
 
     /* video elem border color */
-    --elem-border-color: 'none';
+    --elem-border-color: none;
 
     /* left buttons bar vertical default */
     --btns-top: 50%;

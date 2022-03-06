@@ -5405,7 +5405,7 @@ function handlePeerVolume(data) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    //remoteVideoWrap.style.border = '2px solid lime';
+    remoteVideoWrap.style.border = '1px solid rgb(255 255 255 / 32%)';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
@@ -5424,7 +5424,7 @@ function handleMyVolume(data) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    //myVideoWrap.style.border = '2px solid lime';
+    myVideoWrap.style.border = '1px solid rgb(255 255 255 / 32%)';
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
