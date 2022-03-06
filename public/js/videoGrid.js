@@ -62,17 +62,17 @@ function resizeVideoMedia() {
     }
 
     max = max - Margin * 2;
-    setWidth(max, bigWidth, Margin, Height);
+    setWidth(videoMediaContainer, Cameras, max, bigWidth, Margin, Height);
 }
 
-function setWidth(width, bigWidth, margin, maxHeight) {
+function setWidth(videoMediaContainer, Cameras, width, bigWidth, margin, maxHeight) {
     ratio = customRatio ? 0.68 : ratio;
-    let Cameras = document.getElementsByClassName('Camera');
+    let OneParticipant = videoMediaContainer.childElementCount == 1 ? true : false;
     for (let s = 0; s < Cameras.length; s++) {
         Cameras[s].style.width = width + 'px';
         Cameras[s].style.margin = margin + 'px';
         Cameras[s].style.height = width * ratio + 'px';
-        if (getId('videoMediaContainer').childElementCount == 1) {
+        if (OneParticipant) {
             Cameras[s].style.width = bigWidth + 'px';
             Cameras[s].style.height = bigWidth * ratio + 'px';
             let camHeigh = Cameras[s].style.height.substring(0, Cameras[s].style.height.length - 2);
