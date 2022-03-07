@@ -39,7 +39,7 @@ const deleteImg = '../images/delete.png';
 const youtubeImg = '../images/youtube.png';
 const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
-const aboutImg = '../images/about.jpg';
+const aboutImg = '../images/mirotalk-logo.png';
 // nice free icon: https://www.iconfinder.com
 
 const surveyActive = true; // when leaving the room give a feedback
@@ -5287,7 +5287,7 @@ function showAbout() {
     Swal.fire({
         background: swalBackground,
         position: 'center',
-        title: '<strong>MiroTalk WebRTC P2P</strong>',
+        title: '<strong>WebRTC P2P</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: aboutImg,
         html: `
