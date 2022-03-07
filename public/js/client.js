@@ -721,10 +721,14 @@ function checkPeerAudioVideo() {
     let qs = new URLSearchParams(window.location.search);
     let audio = qs.get('audio').toLowerCase();
     let video = qs.get('video').toLowerCase();
-    let queryPeerAudio = audio === '1' || audio === 'true';
-    let queryPeerVideo = video === '1' || video === 'true';
-    if (queryPeerAudio != null) handleAudio(audioBtn, false, queryPeerAudio);
-    if (queryPeerVideo != null) handleVideo(videoBtn, false, queryPeerVideo);
+    if (audio) {
+        let queryPeerAudio = audio === '1' || audio === 'true';
+        if (queryPeerAudio != null) handleAudio(audioBtn, false, queryPeerAudio);
+    }
+    if (video) {
+        let queryPeerVideo = video === '1' || video === 'true';
+        if (queryPeerVideo != null) handleVideo(videoBtn, false, queryPeerVideo);
+    }
 }
 
 /**
@@ -875,9 +879,11 @@ function handleOnIceCandidate(peer_id) {
  */
 function handleOnTrack(peer_id, peers) {
     peerConnections[peer_id].ontrack = (event) => {
-        console.log('handleOnTrack', event);
-        if (event.track.kind === 'video') {
-            loadRemoteMediaStream(event.streams[0], peers, peer_id);
+        if (event.streams && event.streams[0]) {
+            console.log('handleOnTrack', event);
+            if (event.track.kind === 'video') {
+                loadRemoteMediaStream(event.streams[0], peers, peer_id);
+            }
         }
     };
 }
@@ -2630,8 +2636,27 @@ function handleError(err) {
  */
 function attachMediaStream(element, stream) {
     //console.log("DEPRECATED, attachMediaStream will soon be removed.");
-    console.log('Success, media stream attached');
     element.srcObject = stream;
+    console.log('Success, media stream attached');
+
+    if (DetectRTC.browser.name === 'Safari') {
+        /*
+            Hack for Safari...
+            https://www.pilatesanytime.com/Pilates-Help/1016/How-to-Get-Safari-to-Autoplay-Video-and-Audio-Chapters
+        */
+        element.onloadedmetadata = function () {
+            let videoPlayPromise = element.play();
+            if (videoPlayPromise !== undefined) {
+                videoPlayPromise
+                    .then(function () {
+                        console.log('Safari - automatic playback started!');
+                    })
+                    .catch(function (err) {
+                        console.error('Safari - automatic playback error', err);
+                    });
+            }
+        };
+    }
 }
 
 /**
