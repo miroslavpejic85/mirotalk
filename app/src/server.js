@@ -250,14 +250,41 @@ app.get('*', function (req, res) {
  * Check the functionality of STUN/TURN servers:
  * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
  */
-const iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
+const iceServers = [];
 
 if (turnEnabled == 'true') {
-    iceServers.push({
-        urls: turnUrls,
-        username: turnUsername,
-        credential: turnCredential,
-    });
+    iceServers.push(
+        {
+            urls: 'stun:stun.l.google.com:19302',
+        },
+        {
+            urls: turnUrls,
+            username: turnUsername,
+            credential: turnCredential,
+        },
+    );
+} else {
+    // Thanks to https://www.metered.ca/tools/openrelay/
+    iceServers.push(
+        {
+            urls: 'stun:openrelay.metered.ca:80',
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:80',
+            username: 'openrelayproject',
+            credential: 'openrelayproject',
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:443',
+            username: 'openrelayproject',
+            credential: 'openrelayproject',
+        },
+        {
+            urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+            username: 'openrelayproject',
+            credential: 'openrelayproject',
+        },
+    );
 }
 
 /**
