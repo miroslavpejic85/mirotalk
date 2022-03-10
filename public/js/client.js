@@ -3163,7 +3163,7 @@ function handleMediaRecorderStart(event) {
     }
     console.log('MediaRecorder started: ', event);
     isStreamRecording = true;
-    recordStreamBtn.style.setProperty('color', 'red');
+    recordStreamBtn.style.setProperty('color', '#ff4500');
     startRecordingTime();
     // only for desktop
     if (!isMobileDevice) {
@@ -3200,7 +3200,7 @@ function handleMediaRecorderStop(event) {
         emitPeersAction('recStop');
         emitPeerStatus('rec', isRecScreenSream);
     }
-    setRecordButtonUi();
+    recordStreamBtn.style.setProperty('color', '#000');
     downloadRecordedStream();
     // only for desktop
     if (!isMobileDevice) {
@@ -3215,13 +3215,6 @@ function handleMediaRecorderStop(event) {
  */
 function stopStreamRecording() {
     mediaRecorder.stop();
-}
-
-/**
- * Set Record Button UI on change theme
- */
-function setRecordButtonUi() {
-    recordStreamBtn.style.setProperty('color', '#fff');
 }
 
 /**
