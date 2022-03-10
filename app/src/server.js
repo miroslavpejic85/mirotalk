@@ -67,11 +67,9 @@ if (isHttps) {
 
 /*  
     Set maxHttpBufferSize from 1e6 (1MB) to 1e7 (10MB)
-    Set pingTimeout from 20000 ms to 60000 ms 
 */
 io = new Server({
     maxHttpBufferSize: 1e7,
-    pingTimeout: 60000,
 }).listen(server);
 
 // console.log(io);
