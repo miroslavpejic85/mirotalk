@@ -67,7 +67,7 @@ const chatInputEmoji = {
     ':+1:': '\uD83D\uDC4D',
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
-let myPeerId;
+let myPeerId; // socket.id
 
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
@@ -3560,7 +3560,7 @@ function msgerAddPeers(peers) {
     for (let peer_id in peers) {
         let peer_name = peers[peer_id]['peer_name'];
         // bypass insert to myself in the list :)
-        if (peer_name != myPeerName) {
+        if (peer_id != myPeerId) {
             let exsistMsgerPrivateDiv = getId(peer_id + '_pMsgDiv');
             // if there isn't add it....
             if (!exsistMsgerPrivateDiv) {
