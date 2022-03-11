@@ -110,7 +110,7 @@ $ docker-compose down
 
 ## Setup Turn
 
-`Recommended`, for more info about the Turn check out [here](https://webrtc.org/getting-started/turn-server). Just edit [this part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L9) on your `.env`.
+-   `Recommended`, for more info about the Turn check out [here](https://webrtc.org/getting-started/turn-server). Just edit [this part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L9) on your `.env`.
 
 ---
 
@@ -125,13 +125,13 @@ $ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization
 
 ## API Documentation
 
-The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [railway](https://mirotalk.up.railway.app/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
+-   The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [railway](https://mirotalk.up.railway.app/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
 
 ---
 
 ## Live demo
 
-If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file) or expose it directly on [HTTPS](app/ssl/README.md) or deploy it on:
+-   If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file) or expose it directly on [HTTPS](app/ssl/README.md) or deploy it on:
 
 <br>
 
@@ -161,9 +161,12 @@ https://mirotalk.up.railway.app/
 
 -   Contributions are welcome and greatly appreciated!
 -   Just run before `npm run lint`
--   For communication we use [gitter](https://gitter.im/) or [discord](https://discord.com/) chats which can be found here:
 
-[![Gitter](https://badges.gitter.im/mirotalk/community.svg)](https://gitter.im/mirotalk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/rgGYfeYW3N)
+## Discussions
+
+-   For discussions about the project, join with us on [Discord](https://discord.gg/rgGYfeYW3N)
+
+    [![Discord](https://img.shields.io/badge/chat-discord-green)](https://discord.gg/rgGYfeYW3N)
 
 ## License
 
@@ -197,6 +200,6 @@ Support this project by [becoming a sponsor](https://github.com/sponsors/mirosla
 
 # MiroTalk SFU
 
-You can also try [MiroTalk SFU](https://github.com/miroslavpejic85/mirotalksfu), The difference between the two projects you can found [here](https://github.com/miroslavpejic85/mirotalksfu/issues/14#issuecomment-932701999).
+Try also [MiroTalk SFU](https://github.com/miroslavpejic85/mirotalksfu), the difference between the two projects you can found [here](https://github.com/miroslavpejic85/mirotalksfu/issues/14#issuecomment-932701999).
 
 ---
