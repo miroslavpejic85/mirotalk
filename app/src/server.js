@@ -300,15 +300,15 @@ async function ngrokStart() {
         let tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
         // server settings
         log.debug('settings', {
-            server: host,
-            server_tunnel: tunnelHttps,
-            api_docs: api_docs,
-            api_key_secret: api_key_secret,
             iceServers: iceServers,
             ngrok: {
                 ngrok_enabled: ngrokEnabled,
                 ngrok_token: ngrokAuthToken,
             },
+            server: host,
+            server_tunnel: tunnelHttps,
+            api_docs: api_docs,
+            api_key_secret: api_key_secret,
         });
     } catch (err) {
         console.error('[Error] ngrokStart', err);
@@ -340,10 +340,10 @@ server.listen(port, null, () => {
     } else {
         // server settings
         log.debug('settings', {
+            iceServers: iceServers,
             server: host,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
-            iceServers: iceServers,
         });
     }
 });
