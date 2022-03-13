@@ -510,6 +510,7 @@ function getPeerGeoLocation() {
 function getSignalingServer() {
     if (isHttps) {
         return 'https://' + location.hostname + ':' + signalingServerPort;
+        // if need: change it with YOUR-SERVER-DOMAIN-NAME
     }
     return (
         'http' +

@@ -29,4 +29,12 @@ const isHttps = true;
 
 ```js
 const isHttps = true;
+
+function getSignalingServer() {
+    if (isHttps) {
+        return 'https://' + location.hostname + ':' + signalingServerPort;
+        // if need: change it with YOUR-SERVER-DOMAIN-NAME
+    }
+    //...
+}
 ```
