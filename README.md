@@ -130,11 +130,11 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 
 ---
 
+## HTTPS
+
+If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file) or expose it directly on [HTTPS](app/ssl/README.md)
+
 ## Live demo
-
-If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file) or expose it directly on [HTTPS](app/ssl/README.md) or deploy it on:
-
-<br>
 
 <a target="_blank" href="https://www.heroku.com/"><img src="https://www.herokucdn.com/deploy/button.svg" style="width: 220px;"></a>
 

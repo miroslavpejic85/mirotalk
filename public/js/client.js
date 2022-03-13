@@ -19,7 +19,7 @@
 
 'use strict'; // https://www.w3schools.com/js/js_strict.asp
 
-const isHttps = false; // must be the same to server.js isHttps
+const isHttps = false; // must be the same on server.js
 const signalingServerPort = 3000; // must be the same to server.js PORT
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
@@ -509,8 +509,7 @@ function getPeerGeoLocation() {
  */
 function getSignalingServer() {
     if (isHttps) {
-        return 'https://' + 'localhost' + ':' + signalingServerPort;
-        // outside of localhost change it with YOUR-SERVER-DOMAIN
+        return 'https://' + location.hostname + ':' + signalingServerPort;
     }
     return (
         'http' +

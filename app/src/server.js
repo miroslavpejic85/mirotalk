@@ -47,7 +47,7 @@ const app = express();
 const Logger = require('./Logger');
 const log = new Logger('server');
 
-const isHttps = false; // must be the same to client.js isHttps
+const isHttps = false; // must be the same on client.js
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 
 let io, server, host;
@@ -335,7 +335,7 @@ server.listen(port, null, () => {
     );
 
     // https tunnel
-    if (ngrokEnabled == 'true') {
+    if (ngrokEnabled == 'true' && isHttps === false) {
         ngrokStart();
     } else {
         // server settings
