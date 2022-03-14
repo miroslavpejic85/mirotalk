@@ -47,6 +47,10 @@ Open the app with the following **supported browsers** and many more.
 -   Direct `peer-to-peer` connection ensures the lowest latency thanks to `WebRTC`
 -   Supports [REST API](app/api/README.md) (Application Programming Interface)
 
+## Presentation
+
+https://www.canva.com/design/DAE693uLOIU/view
+
 ## Demo
 
 -   `Open` https://mirotalk.up.railway.app/newcall or https://mirotalk.herokuapp.com/newcall

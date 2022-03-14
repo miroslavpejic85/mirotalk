@@ -102,6 +102,7 @@ const dir = {
 };
 // html views
 const view = {
+    about: path.join(__dirname, '../../', 'public/view/about.html'),
     client: path.join(__dirname, '../../', 'public/view/client.html'),
     landing: path.join(__dirname, '../../', 'public/view/landing.html'),
     newCall: path.join(__dirname, '../../', 'public/view/newcall.html'),
@@ -140,6 +141,11 @@ app.use((err, req, res, next) => {
 // all start from here
 app.get(['/'], (req, res) => {
     res.sendFile(view.landing);
+});
+
+// mirotalk about
+app.get(['/about'], (req, res) => {
+    res.sendFile(view.about);
 });
 
 // set new room name and join
