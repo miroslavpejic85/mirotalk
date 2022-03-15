@@ -2,7 +2,7 @@
 name: "\U0001F680 Feature request"
 about: Suggest a new feature to improve MiroTalk.
 title: ''
-labels: enhancement
+labels: ''
 assignees: ''
 
 ---

@@ -2,7 +2,7 @@
 name: "\U0001F64BQuestion - discussion - feedback."
 about: Anything not related to bugs or features request.
 title: ''
-labels: discussion, feedback, question
+labels: ''
 assignees: ''
 
 ---
