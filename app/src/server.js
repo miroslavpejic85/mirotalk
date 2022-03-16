@@ -187,12 +187,7 @@ app.get('/join/', (req, res) => {
 
 // Join Room *
 app.get('/join/*', (req, res) => {
-    if (Object.keys(req.query).length > 0) {
-        log.debug('redirect:' + req.url + ' to ' + url.parse(req.url).pathname);
-        res.redirect(url.parse(req.url).pathname);
-    } else {
-        res.sendFile(view.client);
-    }
+    res.sendFile(view.client);
 });
 
 /**

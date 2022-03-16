@@ -67,7 +67,7 @@ https://www.canva.com/design/DAE693uLOIU/view
     | Params | Type    | Description      |
     | ------ | ------- | ---------------- |
     | room   | string  | room Id          |
-    | name   | string  | your name        |
+    | name   | string  | user name        |
     | audio  | boolean | enable / disable |
     | video  | boolean | enable / disable |
     | notify | boolean | enable / disable |
