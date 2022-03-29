@@ -20,7 +20,7 @@
         "cors": "^2.8.5",
         "dotenv": "^16.0.0",
         "express": "^4.17.3",
-        "ngrok": "^4.3.0",
+        "ngrok": "^4.3.1",
         "socket.io": "^4.4.1",
         "swagger-ui-express": "^4.3.0",
         "uuid": "8.3.2",
@@ -28,6 +28,6 @@
     },
     "devDependencies": {
         "node-fetch": "^2.6.6",
-        "prettier": "2.6.0"
+        "prettier": "2.6.1"
     }
 }
