@@ -72,6 +72,18 @@ https://www.canva.com/design/DAE693uLOIU/view
     | video  | boolean | enable / disable |
     | notify | boolean | enable / disable |
 
+## Embed a meeting
+
+Embedding a meeting into a service or app using an iframe.
+
+```html
+<iframe
+    allow="camera; microphone; fullscreen; display-capture; autoplay"
+    src="https://mirotalk.up.railway.app/newcall"
+    style="height: 100%; width: 100%; border: 0px;"
+></iframe>
+```
+
 ## Quick start
 
 -   You will need to have `Node.js` installed, this project has been tested with Node version [12.X](https://nodejs.org/en/blog/release/v12.22.1/) and [14.X](https://nodejs.org/en/blog/release/v14.17.5/)
