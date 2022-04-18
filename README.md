@@ -13,13 +13,13 @@ Free `WebRTC` browser-based video calls, chat, and screen sharing, using google 
 
 Open the app with the following **supported browsers** and many more.
 
-[![browsers](public/images/browsers.png)](https://mirotalk.herokuapp.com/)
+[![browsers](public/images/browsers.png)](https://mirotalk.up.railway.app/)
 
-## https://mirotalk.herokuapp.com/
+## https://mirotalk.up.railway.app/
 
 <br>
 
-[![mirotalk](public/images/mirotalk-header.gif)](https://mirotalk.herokuapp.com/)
+[![mirotalk](public/images/mirotalk-header.gif)](https://mirotalk.up.railway.app/)
 
 ## Features
 
