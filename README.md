@@ -152,19 +152,19 @@ If you want `MiroTalk` to be `reachable` from the `outside` of your local networ
 
 ## Live demo
 
+<a target="_blank" href="https://railway.app/new/template/q83EKG?referralCode=mirotalk"><img src="https://railway.app/button.svg" style="width: 220px;"></a>
+
+https://mirotalk.up.railway.app/
+
+[![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app/)
+
+<br>
+
 <a target="_blank" href="https://www.heroku.com/"><img src="https://www.herokucdn.com/deploy/button.svg" style="width: 220px;"></a>
 
 https://mirotalk.herokuapp.com/
 
 [![heroku-qr](public/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com/)
-
-<br>
-
-<a target="_blank" href="https://railway.app"><img src="https://railway.app/button.svg" style="width: 220px;"></a>
-
-https://mirotalk.up.railway.app/
-
-[![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app/)
 
 ---
 
