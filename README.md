@@ -40,7 +40,7 @@ Open the app with the following **supported browsers** and many more.
 -   Chat with Emoji Picker & Private messages & Save the conversations
 -   Speech recognition to send the speeches
 -   Advance collaborative whiteboard for the teachers
--   Share any YouTube video in real-time
+-   Share any YT Embed video in real-time
 -   Full-Screen Mode on mouse click on the Video element
 -   Possibility to Change UI Themes
 -   Right-click on the Video elements for more options
