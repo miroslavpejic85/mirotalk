@@ -4214,7 +4214,7 @@ function disablePeer(peer_id, element) {
  * Lock Unlock the room from unauthorized access
  */
 function lockUnlockRoom() {
-    lockUnlockRoomBtn.className = roomLocked ? 'fas fa-lock-open' : 'fas fa-lock';
+    getId('lockUnlockRoomIco').className = roomLocked ? 'fas fa-lock-open' : 'fas fa-lock';
 
     if (roomLocked) {
         roomLocked = false;
