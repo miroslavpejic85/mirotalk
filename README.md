@@ -166,7 +166,13 @@ https://mirotalk.herokuapp.com/
 
 [![heroku-qr](public/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com/)
 
+If you want to deploy a MiroTalk P2P instance on your dedicated server, or for other needs, don't hesitate to contact us at p2p.mirotalk@gmail.com.
+
 ---
+
+## Notes
+
+-   For the [fontawesome icons](https://fontawesome.com) please [README](https://github.com/miroslavpejic85/mirotalk/issues/96#issue-1207135734).
 
 ## Credits
 
@@ -191,17 +197,7 @@ https://mirotalk.herokuapp.com/
 
 MiroTalk is free and can be modified and forked. But the conditions of the AGPLv3 (GNU Affero General Public License v3.0) need to be respected. In particular modifications need to be free as well and made available to the public. Get a quick overview of the license at [Choose an open source license](https://choosealicense.com/licenses/agpl-3.0/).
 
----
-
-<br/>
-
-## Commercial License or closed source
-
-For commercial use or closed source projects, we can offer licensing under the following terms.
-
-> World-wide, non-exclusive, non-transferable and non-sub-licensable license of MiroTalk as is on https://github.com/miroslavpejic85/mirotalk for use in purchasers products, as long as the resulting software does not stand in concurrence to the MiroTalk itself. Any liability is excluded. The law of the Federal Republic of Italy shall apply exclusively.
-
-The one time fee is 499 EUR net. Please contact miroslav.pejic.85@gmail.com.
+For a MiroTalk license under conditions other than AGPLv3, please contact us at info.mirotalk@gmail.com.
 
 ---
 
