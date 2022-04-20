@@ -170,10 +170,6 @@ If you want to deploy a MiroTalk P2P instance on your dedicated server, or for o
 
 ---
 
-## Notes
-
--   For the [fontawesome icons](https://fontawesome.com) please [README](https://github.com/miroslavpejic85/mirotalk/issues/96#issue-1207135734).
-
 ## Credits
 
 -   ianramzy (html [template](https://cruip.com/demos/neon/))
