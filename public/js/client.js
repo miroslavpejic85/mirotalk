@@ -24,7 +24,7 @@ const signalingServerPort = 3000; // must be the same to server.js PORT
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerInfo = getPeerInfo();
-const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2';
+const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 const welcomeImg = '../images/image-placeholder.png';
@@ -492,6 +492,7 @@ function getPeerInfo() {
 
 /**
  * Get approximative peer geolocation
+ * Get your API Key at https://extreme-ip-lookup.com
  * @returns json
  */
 function getPeerGeoLocation() {
@@ -500,7 +501,7 @@ function getPeerGeoLocation() {
         .then((outJson) => {
             peerGeo = outJson;
         })
-        .catch((err) => console.error(err));
+        .catch((err) => console.warn(err));
 }
 
 /**
