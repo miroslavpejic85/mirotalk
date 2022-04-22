@@ -152,7 +152,7 @@ If you want `MiroTalk` to be `reachable` from the `outside` of your local networ
 
 ## Live demo
 
-<a target="_blank" href="https://railway.app/new/template/q83EKG?referralCode=mirotalk"><img src="https://railway.app/button.svg" style="width: 220px;"></a>
+<a target="_blank" href="https://railway.app/new/template/mirotalk?referralCode=mirotalk"><img src="https://railway.app/button.svg" style="width: 220px;"></a>
 
 https://mirotalk.up.railway.app/
 
