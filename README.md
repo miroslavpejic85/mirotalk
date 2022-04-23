@@ -5,7 +5,7 @@
 <hr />
 
 <p align="center">
-<a href="https://mirotalk.up.railway.app/">
+<a href="https://mirotalk.up.railway.app/" >
     <img src="public/images/mirotalk-header.gif" />
 </a>
 </p>
@@ -17,7 +17,7 @@
 
 <br/>
 
--   Is `100% Free` - `Open Source` - `Self-hosted`
+-   Is `100% Free` - `Open Source` - `Self Hosted`
 -   No download, plug-in, or login required, entirely browser-based
 -   Unlimited number of conference rooms without call time limitation
 -   Possibility to Lock/Unlock the Room for the meeting
@@ -69,7 +69,7 @@
 
 <br/>
 
--   You can also `join` directly to your `room` by going to:
+-   You can `join` directly to `room` by going to:
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&notify=0
 -   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0&notify=0
 
@@ -179,7 +179,7 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 
 <br/>
 
-If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) (by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file) or expose it directly on [HTTPS](app/ssl/README.md)
+If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file, or expose it directly on [HTTPS](app/ssl/README.md)
 
 </details>
 
@@ -232,7 +232,7 @@ If you want to deploy a MiroTalk P2P instance on your dedicated server, or for o
 
 <br/>
 
--   For discussions & help support about the project, join with us on [Discord](https://discord.gg/rgGYfeYW3N)
+-   For discussions, help & support, join with us on [Discord](https://discord.gg/rgGYfeYW3N)
 
 </details>
 
