@@ -23,9 +23,10 @@ dependencies: {
 /**
  * MiroTalk P2P - Server component
  *
- * @link    https://mirotalk.up.railway.app or https://mirotalk.herokuapp.com
+ * @link    GitHub: https://github.com/miroslavpejic85/mirotalk
+ * @link    Live demo: https://mirotalk.up.railway.app or https://mirotalk.herokuapp.com
  * @license For open source use: AGPLv3
- *          For commercial use: https://github.com/miroslavpejic85/mirotalk#commercial-license-or-closed-source
+ * @license For commercial or closed source, contact us at info.mirotalk@gmail.com
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
  * @version 1.0.0
  *
