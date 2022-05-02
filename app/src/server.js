@@ -311,6 +311,7 @@ async function ngrokStart() {
             server_tunnel: tunnelHttps,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
+            node_version: process.versions.node,
         });
     } catch (err) {
         console.error('[Error] ngrokStart', err);
@@ -346,6 +347,7 @@ server.listen(port, null, () => {
             server: host,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
+            node_version: process.versions.node,
         });
     }
 });
