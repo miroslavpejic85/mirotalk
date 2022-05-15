@@ -314,7 +314,7 @@ async function ngrokStart() {
             node_version: process.versions.node,
         });
     } catch (err) {
-        console.error('[Error] ngrokStart', err);
+        log.error('[Error] ngrokStart', err.body);
         process.exit(1);
     }
 }
@@ -353,6 +353,7 @@ server.listen(port, null, () => {
 });
 
 /**
+ * On peer connected
  * Users will connect to the signaling server, after which they'll issue a "join"
  * to join a particular channel. The signaling server keeps track of all sockets
  * who are in a channel, and on join will send out 'addPeer' events to each pair
@@ -361,7 +362,6 @@ server.listen(port, null, () => {
  * need to relay ICECandidate information to one another, as well as SessionDescription
  * information. After all of that happens, they'll finally be able to complete
  * the peer connection and will be in streaming audio/video between eachother.
- * On peer connected
  */
 io.sockets.on('connect', (socket) => {
     log.debug('[' + socket.id + '] connection accepted');
@@ -430,8 +430,8 @@ io.sockets.on('connect', (socket) => {
     });
 
     /**
-     * Add peers to channel aka room
-     * @param {*} channel
+     * Add peers to channel
+     * @param {string} channel room id
      */
     async function addPeerTo(channel) {
         for (let id in channels[channel]) {
@@ -454,8 +454,8 @@ io.sockets.on('connect', (socket) => {
     }
 
     /**
-     * Remove peers from channel aka room
-     * @param {*} channel
+     * Remove peers from channel
+     * @param {string} channel room id
      */
     async function removePeerFrom(channel) {
         if (!(channel in socket.channels)) {
@@ -749,7 +749,7 @@ io.sockets.on('connect', (socket) => {
  * @param {string} room_id id of the room to send data
  * @param {string} socket_id socket id of peer that send data
  * @param {string} msg message to send to the peers in the same room
- * @param {object} config JSON data to send to the peers in the same room
+ * @param {object} config data to send to the peers in the same room
  */
 async function sendToRoom(room_id, socket_id, msg, config = {}) {
     for (let peer_id in channels[room_id]) {
@@ -766,7 +766,7 @@ async function sendToRoom(room_id, socket_id, msg, config = {}) {
  * @param {string} peer_id id of the peer to send data
  * @param {object} sockets all peers connections
  * @param {string} msg message to send to the peer in the same room
- * @param {object} config JSON data to send to the peer in the same room
+ * @param {object} config data to send to the peer in the same room
  */
 async function sendToPeer(peer_id, sockets, msg, config = {}) {
     if (peer_id in sockets) {

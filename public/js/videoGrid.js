@@ -20,10 +20,10 @@ function getAspectRatio() {
 
 /**
  * Set aspect ratio
- * @param {integer} i ratios index
+ * @param {integer} index ratios index
  */
-function setAspectRatio(i) {
-    aspect = i;
+function setAspectRatio(index) {
+    aspect = index;
     ratio = getAspectRatio();
     resizeVideoMedia();
 }

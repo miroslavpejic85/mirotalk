@@ -117,6 +117,11 @@ let nouns = [
     'swan',
 ];
 
+/**
+ * Get random number
+ * @param {integer} length of string
+ * @returns {string} random number
+ */
 function getRandomNumber(length) {
     let result = '';
     let characters = '0123456789';

@@ -1658,8 +1658,8 @@ function setPeerChatAvatarImgName(avatar, peerName) {
  * On video player click, go on full screen mode ||
  * On button click, go on full screen mode.
  * Press Esc to exit from full screen mode, or click again.
- * @param {string} videoId uuid video element id
- * @param {string} videoFullScreenBtnId uuid full screen btn id
+ * @param {string} videoId uuid video element
+ * @param {string} videoFullScreenBtnId uuid full screen btn
  * @param {string} peer_id socket.id
  */
 function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
@@ -1767,8 +1767,8 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
 
 /**
  * Handle Video to Img click event
- * @param {string} videoStream uuid video element id
- * @param {string} videoToImgBtn uuid snapshot btn id
+ * @param {string} videoStream uuid video element
+ * @param {string} videoToImgBtn uuid snapshot btn
  * @param {string} peer_id socket.id
  */
 function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
@@ -1795,7 +1795,7 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
 
 /**
  * Save Video Frame to Image
- * @param {object} video video element from where to take the snapshot
+ * @param {object} video element from where to take the snapshot
  */
 function takeSnapshot(video) {
     playSound('snapshot');
