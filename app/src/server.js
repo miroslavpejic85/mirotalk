@@ -424,6 +424,9 @@ io.sockets.on('connect', (socket) => {
 
         channels[channel][socket.id] = socket;
         socket.channels[channel] = channel;
+
+        // Send to peer how many peers are connected in the same room
+        sendToPeer(socket.id, sockets, 'peersCount', { peers_count: Object.keys(peers[channel]).length });
     });
 
     /**
@@ -753,6 +756,7 @@ async function sendToRoom(room_id, socket_id, msg, config = {}) {
         // not send data to myself
         if (peer_id != socket_id) {
             await channels[room_id][peer_id].emit(msg, config);
+            //console.log('Send to room', { msg: msg, config: config });
         }
     }
 }
@@ -767,5 +771,6 @@ async function sendToRoom(room_id, socket_id, msg, config = {}) {
 async function sendToPeer(peer_id, sockets, msg, config = {}) {
     if (peer_id in sockets) {
         await sockets[peer_id].emit(msg, config);
+        //console.log('Send to peer', { msg: msg, config: config });
     }
 }

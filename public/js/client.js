@@ -606,6 +606,7 @@ function initClientPeer() {
 
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
+    signalingSocket.on('peersCount', handlePeersCount);
     signalingSocket.on('roomIsLocked', handleRoomLocked);
     signalingSocket.on('roomStatus', handleRoomStatus);
     signalingSocket.on('addPeer', handleAddPeer);
@@ -664,13 +665,24 @@ function handleConnect() {
 }
 
 /**
+ * How many peers are connected to the same room
+ */
+function handlePeersCount(config) {
+    let peers_count = config.peers_count;
+    console.log('Peers count', peers_count);
+    if (notify && peers_count == 1) {
+        welcomeUser();
+    }
+}
+
+/**
  * set your name for the conference
  */
 function whoAreYou() {
     if (myPeerName) {
         checkPeerAudioVideo();
         whoAreYouJoin();
-        notify ? welcomeUser() : playSound('addPeer');
+        playSound('addPeer');
         return;
     }
 
@@ -703,7 +715,7 @@ function whoAreYou() {
             whoAreYouJoin();
         },
     }).then(() => {
-        notify ? welcomeUser() : playSound('addPeer');
+        playSound('addPeer');
     });
 
     if (isMobileDevice) return;
