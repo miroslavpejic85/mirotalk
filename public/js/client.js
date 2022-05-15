@@ -851,9 +851,7 @@ function handleAddPeer(config) {
     handleAddTracks(peer_id);
     handleRTCDataChannels(peer_id);
     if (should_create_offer) handleRtcOffer(peer_id);
-
     wbUpdate();
-
     playSound('addPeer');
 }
 
@@ -1621,7 +1619,7 @@ function adaptAspectRatio() {
 
 /**
  * Refresh video - chat image avatar on name changes: https://eu.ui-avatars.com/
- * @param {object} videoAvatarImageId element
+ * @param {string} videoAvatarImageId element id
  * @param {string} peerName
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName) {
@@ -1826,7 +1824,7 @@ function startCountTime() {
 
 /**
  * Convert time to string
- * @param {string} time
+ * @param {integer} time
  * @return {string} format HH:MM:SS
  */
 function getTimeToString(time) {
@@ -2151,7 +2149,7 @@ function setMyHandBtn() {
 }
 
 /**
- * Whiteboard : https://github.com/fabricjs/fabric.js
+ * Whiteboard: https://github.com/fabricjs/fabric.js
  */
 function setMyWhiteboardBtn() {
     dragElement(whiteboard, whiteboardHeader);
@@ -2434,7 +2432,7 @@ function getAudioVideoConstraints() {
 }
 
 /**
- * https://webrtc.github.io/samples/src/content/getusermedia/resolution/
+ * Get video constraints: https://webrtc.github.io/samples/src/content/getusermedia/resolution/
  * @param {string} videoQuality desired video quality
  * @returns {object} video constraints
  */
@@ -2482,7 +2480,7 @@ function getVideoConstraints(videoQuality) {
 }
 
 /**
- * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
+ * Set local max fps: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  * @param {string} maxFrameRate desired max frame rate
  */
 function setLocalMaxFps(maxFrameRate) {
@@ -2499,7 +2497,7 @@ function setLocalMaxFps(maxFrameRate) {
 }
 
 /**
- * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
+ * Set local video quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 function setLocalVideoQuality() {
     let videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
@@ -2615,8 +2613,8 @@ function gotDevices(deviceInfos) {
 }
 
 /**
- * Handle getUserMedia error
- * @param {object} err error type
+ * Handle getUserMedia error: https://blog.addpipe.com/common-getusermedia-errors/
+ * @param {object} err user media error
  */
 function handleError(err) {
     console.log('navigator.MediaDevices.getUserMedia error: ', err);
@@ -2630,7 +2628,6 @@ function handleError(err) {
         default:
             userLog('error', 'GetUserMedia error ' + err);
     }
-    // https://blog.addpipe.com/common-getusermedia-errors/
 }
 
 /**
@@ -2792,7 +2789,7 @@ function copyRoomURL() {
 
 /**
  * Share room id by email
- * @param {object} message email | subject | body
+ * @param {object} message content: email | subject | body
  */
 function shareRoomByEmail(message) {
     let email = message.email;
@@ -2805,7 +2802,7 @@ function shareRoomByEmail(message) {
  * Handle Audio ON - OFF
  * @param {object} e event
  * @param {boolean} init on join room
- * @param {boolean} force to audio off (default false)
+ * @param {boolean} force audio off (default false)
  */
 function handleAudio(e, init, force = null) {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
@@ -2828,7 +2825,7 @@ function handleAudio(e, init, force = null) {
  * Handle Video ON - OFF
  * @param {object} e event
  * @param {boolean} init on join room
- * @param {boolean} force to video off (default false)
+ * @param {boolean} force video off (default false)
  */
 function handleVideo(e, init, force = null) {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
@@ -2937,7 +2934,7 @@ function setScreenSharingStatus(status) {
 }
 
 /**
- * set myVideoStatus true
+ * Set myVideoStatus true
  */
 function setMyVideoStatusTrue() {
     if (myVideoStatus) return;
@@ -3064,7 +3061,7 @@ function startRecordingTime() {
 
 /**
  * Get MediaRecorder MimeTypes
- * @returns {boolean} if mimeType supported by media recorder
+ * @returns {boolean} is mimeType supported by media recorder
  */
 function getSupportedMimeTypes() {
     const possibleTypes = [
@@ -3458,7 +3455,7 @@ function handleDataChannelChat(dataMessage) {
 }
 
 /**
- * Handle text transcipt getting from peers
+ * Handle text transcript getting from peers
  * @param {object} config data
  */
 function handleDataChannelSpeechTranscript(config) {
@@ -3466,7 +3463,7 @@ function handleDataChannelSpeechTranscript(config) {
 }
 
 /**
- * Handle text transcipt getting from peers
+ * Handle text transcript getting from peers
  * @param {object} config data
  */
 function handleSpeechTranscript(config) {
@@ -3651,7 +3648,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
 /**
  * Detect url from text and make it clickable and if url is a img to create preview of it
  * @param {string} text passed text
- * @returns {string} in html format
+ * @returns {string} html format
  */
 function detectUrl(text) {
     let urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -3772,7 +3769,6 @@ function hideShowMySettings() {
 /**
  * Handle html tab settings
  * https://www.w3schools.com/howto/howto_js_tabs.asp
- *
  * @param {object} evt event
  * @param {string} tabName name of the tab to open
  */
@@ -3971,7 +3967,7 @@ function handlePeerAudioBtn(peer_id) {
 }
 
 /**
- * Hide Video to specific user in the room
+ * Hide Video to specified peer in the room
  * @param {string} peer_id socket.id
  */
 function handlePeerVideoBtn(peer_id) {
@@ -5344,7 +5340,7 @@ function leaveRoom() {
 /**
  * Make Obj draggable: https://www.w3schools.com/howto/howto_js_draggable.asp
  * @param {object} elmnt father element
- * @param {object} dragObj child element to make father draggable on click + mouse move
+ * @param {object} dragObj children element to make father draggable (click + mouse move)
  */
 function dragElement(elmnt, dragObj) {
     let pos1 = 0,
@@ -5392,7 +5388,7 @@ function dragElement(elmnt, dragObj) {
 
 /**
  * Date Format: https://convertio.co/it/
- * @returns {string} data string format: DD-MM-YYYY-H_M_S
+ * @returns {string} date string format: DD-MM-YYYY-H_M_S
  */
 function getDataTimeString() {
     const d = new Date();

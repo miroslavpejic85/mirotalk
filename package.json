@@ -18,11 +18,11 @@
     "dependencies": {
         "compression": "^1.7.4",
         "cors": "^2.8.5",
-        "dotenv": "^16.0.0",
+        "dotenv": "^16.0.1",
         "express": "^4.18.1",
         "ngrok": "^4.3.1",
         "socket.io": "^4.5.0",
-        "swagger-ui-express": "^4.3.0",
+        "swagger-ui-express": "^4.4.0",
         "uuid": "8.3.2",
         "yamljs": "^0.3.0"
     },
