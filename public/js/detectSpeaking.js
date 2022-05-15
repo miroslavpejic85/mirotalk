@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Start audio pitch detection
+ * @param {object} stream media stream audio
+ */
 function startPitchDetection(stream) {
     pitchDetectionStatus = true;
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -8,6 +12,14 @@ function startPitchDetection(stream) {
     mediaStreamSource.connect(meter);
 }
 
+/**
+ * Create audio mixer
+ * @param {object} audioContext audio context
+ * @param {decimal} clipLevel optional
+ * @param {decimal} averaging optional
+ * @param {integer} clipLag optional
+ * @returns
+ */
 function createAudioMeter(audioContext, clipLevel, averaging, clipLag) {
     const processor = audioContext.createScriptProcessor(512);
     processor.onaudioprocess = volumeAudioProcess;
@@ -40,6 +52,10 @@ function createAudioMeter(audioContext, clipLevel, averaging, clipLag) {
     return processor;
 }
 
+/**
+ * Volume audio process
+ * @param {object} event audio volume event
+ */
 function volumeAudioProcess(event) {
     const buf = event.inputBuffer.getChannelData(0);
     const bufLength = buf.length;

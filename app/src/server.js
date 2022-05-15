@@ -425,8 +425,8 @@ io.sockets.on('connect', (socket) => {
         channels[channel][socket.id] = socket;
         socket.channels[channel] = channel;
 
-        // Send to peer how many peers are connected in the same room
-        sendToPeer(socket.id, sockets, 'peersCount', { peers_count: Object.keys(peers[channel]).length });
+        // Send some server info to joined peer
+        sendToPeer(socket.id, sockets, 'serverInfo', { peers_count: Object.keys(peers[channel]).length });
     });
 
     /**
@@ -746,10 +746,10 @@ io.sockets.on('connect', (socket) => {
 
 /**
  * Send async data to all peers in the same room except yourself
- * @param {*} room_id id of the room to send data
- * @param {*} socket_id socket id of peer that send data
- * @param {*} msg message to send to the peers in the same room
- * @param {*} config JSON data to send to the peers in the same room
+ * @param {string} room_id id of the room to send data
+ * @param {string} socket_id socket id of peer that send data
+ * @param {string} msg message to send to the peers in the same room
+ * @param {object} config JSON data to send to the peers in the same room
  */
 async function sendToRoom(room_id, socket_id, msg, config = {}) {
     for (let peer_id in channels[room_id]) {
@@ -763,10 +763,10 @@ async function sendToRoom(room_id, socket_id, msg, config = {}) {
 
 /**
  * Send async data to specified peer
- * @param {*} peer_id id of the peer to send data
- * @param {*} sockets all peers connections
- * @param {*} msg message to send to the peer in the same room
- * @param {*} config JSON data to send to the peer in the same room
+ * @param {string} peer_id id of the peer to send data
+ * @param {object} sockets all peers connections
+ * @param {string} msg message to send to the peer in the same room
+ * @param {object} config JSON data to send to the peer in the same room
  */
 async function sendToPeer(peer_id, sockets, msg, config = {}) {
     if (peer_id in sockets) {

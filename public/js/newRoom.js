@@ -142,6 +142,9 @@ let speed = 100;
 
 typeWriter();
 
+/**
+ * Set room name
+ */
 function typeWriter() {
     if (i < txt.length) {
         document.getElementById('roomName').value += txt.charAt(i);

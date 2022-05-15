@@ -8,18 +8,35 @@ let aspect = 2;
 
 let ratio = getAspectRatio();
 
+/**
+ * Get aspect ratio
+ * @returns {integer} aspect ratio
+ */
 function getAspectRatio() {
     customRatio = aspect == 0 ? true : false;
     var ratio = ratios[aspect].split(':');
     return ratio[1] / ratio[0];
 }
 
+/**
+ * Set aspect ratio
+ * @param {integer} i ratios index
+ */
 function setAspectRatio(i) {
     aspect = i;
     ratio = getAspectRatio();
     resizeVideoMedia();
 }
 
+/**
+ * Calculate area
+ * @param {integer} Increment
+ * @param {integer} Count
+ * @param {integer} Width
+ * @param {integer} Height
+ * @param {integer} Margin
+ * @returns
+ */
 function Area(Increment, Count, Width, Height, Margin = 10) {
     ratio = customRatio ? 0.75 : ratio;
     let i = 0;
@@ -37,6 +54,9 @@ function Area(Increment, Count, Width, Height, Margin = 10) {
     else return Increment;
 }
 
+/**
+ * Resize video elements
+ */
 function resizeVideoMedia() {
     let Margin = 3;
     let videoMediaContainer = getId('videoMediaContainer');
@@ -65,6 +85,15 @@ function resizeVideoMedia() {
     setWidth(videoMediaContainer, Cameras, max, bigWidth, Margin, Height);
 }
 
+/**
+ * Set Width
+ * @param {object} videoMediaContainer
+ * @param {object} Cameras
+ * @param {integer} width
+ * @param {integer} bigWidth
+ * @param {integer} margin
+ * @param {integer} maxHeight
+ */
 function setWidth(videoMediaContainer, Cameras, width, bigWidth, margin, maxHeight) {
     ratio = customRatio ? 0.68 : ratio;
     let isOneVideoElement = videoMediaContainer.childElementCount == 1 ? true : false;
@@ -81,6 +110,9 @@ function setWidth(videoMediaContainer, Cameras, width, bigWidth, margin, maxHeig
     }
 }
 
+/**
+ * Handle window event listener
+ */
 window.addEventListener(
     'load',
     function (event) {

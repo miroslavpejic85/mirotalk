@@ -463,9 +463,9 @@ function setButtonsToolTip() {
 
 /**
  * Set nice tooltip to element
- * @param {*} elem
- * @param {*} content
- * @param {*} placement
+ * @param {object} elem element
+ * @param {string} content message to popup
+ * @param {string} placement position
  */
 function setTippy(elem, content, placement) {
     tippy(elem, {
@@ -477,7 +477,7 @@ function setTippy(elem, content, placement) {
 /**
  * Get peer info using DetecRTC
  * https://github.com/muaz-khan/DetectRTC
- * @returns Obj peer info
+ * @returns {object} peer info
  */
 function getPeerInfo() {
     return {
@@ -494,7 +494,6 @@ function getPeerInfo() {
 /**
  * Get approximative peer geolocation
  * Get your API Key at https://extreme-ip-lookup.com
- * @returns json
  */
 function getPeerGeoLocation() {
     fetch(peerLoockupUrl)
@@ -507,7 +506,7 @@ function getPeerGeoLocation() {
 
 /**
  * Get Signaling server URL
- * @returns Signaling server URL
+ * @returns {string} Signaling server URL
  */
 function getSignalingServer() {
     if (isHttps) {
@@ -525,7 +524,7 @@ function getSignalingServer() {
 
 /**
  * Generate random Room id if not set
- * @returns Room Id
+ * @returns {string} Room Id
  */
 function getRoomId() {
     // chek if passed as params /join?room=id
@@ -546,8 +545,8 @@ function getRoomId() {
 
 /**
  * Generate random Id
- * @param {*} length
- * @returns random id
+ * @param {integer} length
+ * @returns {string} random id
  */
 function makeId(length) {
     let result = '';
@@ -561,6 +560,7 @@ function makeId(length) {
 
 /**
  * Check if notify is set
+ * @returns {boolean} true/false (default true)
  */
 function getNotify() {
     let qs = new URLSearchParams(window.location.search);
@@ -574,7 +574,7 @@ function getNotify() {
 
 /**
  * Check if peer name is set
- * @returns Peer Name
+ * @returns {string} Peer Name
  */
 function getPeerName() {
     let qs = new URLSearchParams(window.location.search);
@@ -583,7 +583,7 @@ function getPeerName() {
 
 /**
  * Check if there is peer connections
- * @returns true, false otherwise
+ * @returns {boolean} true/false
  */
 function thereIsPeerConnections() {
     if (Object.keys(peerConnections).length === 0) return false;
@@ -606,7 +606,7 @@ function initClientPeer() {
 
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
-    signalingSocket.on('peersCount', handlePeersCount);
+    signalingSocket.on('serverInfo', handleServerInfo);
     signalingSocket.on('roomIsLocked', handleRoomLocked);
     signalingSocket.on('roomStatus', handleRoomStatus);
     signalingSocket.on('addPeer', handleAddPeer);
@@ -627,8 +627,8 @@ function initClientPeer() {
 
 /**
  * Send async data to signaling server (server.js)
- * @param {*} msg msg to send to signaling server
- * @param {*} config JSON data to send to signaling server
+ * @param {string} msg msg to send to signaling server
+ * @param {object} config data to send to signaling server
  */
 async function sendToServer(msg, config = {}) {
     await signalingSocket.emit(msg, config);
@@ -636,7 +636,7 @@ async function sendToServer(msg, config = {}) {
 
 /**
  * Send async data through RTC Data Channels
- * @param {*} config obj data
+ * @param {object} config data
  */
 async function sendToDataChannel(config) {
     if (thereIsPeerConnections() && typeof config === 'object' && config !== null) {
@@ -665,9 +665,10 @@ function handleConnect() {
 }
 
 /**
- * How many peers are connected to the same room
+ * Handle some signaling server info
+ * @param {object} config data
  */
-function handlePeersCount(config) {
+function handleServerInfo(config) {
     let peers_count = config.peers_count;
     console.log('Peers count', peers_count);
     if (notify && peers_count == 1) {
@@ -820,8 +821,7 @@ function welcomeUser() {
 /**
  * When we join a group, our signaling server will send out 'addPeer' events to each pair of users in the group (creating a fully-connected graph of users,
  * ie if there are 6 people in the channel you will connect directly to the other 5, so there will be a total of 15 connections in the network).
- *
- * @param {*} config
+ * @param {object} config data
  */
 function handleAddPeer(config) {
     // console.log("addPeer", JSON.stringify(config));
@@ -859,6 +859,7 @@ function handleAddPeer(config) {
 
 /**
  * Handle peers connection state
+ * @param {string} peer_id socket.id
  */
 function handlePeersConnectionStatus(peer_id) {
     peerConnections[peer_id].onconnectionstatechange = function (event) {
@@ -869,8 +870,7 @@ function handlePeersConnectionStatus(peer_id) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
- *
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handleOnIceCandidate(peer_id) {
     peerConnections[peer_id].onicecandidate = (event) => {
@@ -887,9 +887,8 @@ function handleOnIceCandidate(peer_id) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ontrack
- *
- * @param {*} peer_id
- * @param {*} peers
+ * @param {string} peer_id socket.id
+ * @param {object} peers all peers info connected to the same room
  */
 function handleOnTrack(peer_id, peers) {
     peerConnections[peer_id].ontrack = (event) => {
@@ -904,8 +903,7 @@ function handleOnTrack(peer_id, peers) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
- *
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handleAddTracks(peer_id) {
     localMediaStream.getTracks().forEach((track) => {
@@ -919,8 +917,7 @@ function handleAddTracks(peer_id) {
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createDataChannel
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/ondatachannel
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
- *
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handleRTCDataChannels(peer_id) {
     peerConnections[peer_id].ondatachannel = (event) => {
@@ -963,8 +960,7 @@ function handleRTCDataChannels(peer_id) {
 /**
  * Only one side of the peer connection should create the offer, the signaling server picks one to be the offerer.
  * The other user will get a 'sessionDescription' event and will create an offer, then send back an answer 'sessionDescription' to us
- *
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handleRtcOffer(peer_id) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onnegotiationneeded
@@ -999,8 +995,7 @@ function handleRtcOffer(peer_id) {
 /**
  * Peers exchange session descriptions which contains information about their audio / video settings and that sort of stuff. First
  * the 'offerer' sends a description to the 'answerer' (with type "offer"), then the answerer sends one back (with type "answer").
- *
- * @param {*} config
+ * @param {object} config data
  */
 function handleSessionDescription(config) {
     console.log('Remote Session Description', config);
@@ -1051,8 +1046,7 @@ function handleSessionDescription(config) {
 /**
  * The offerer will send a number of ICE Candidate blobs to the answerer so they
  * can begin trying to find the best path to one another on the net.
- *
- * @param {*} config
+ * @param {object} config data
  */
 function handleIceCandidate(config) {
     let peer_id = config.peer_id;
@@ -1066,6 +1060,7 @@ function handleIceCandidate(config) {
 /**
  * Disconnected from Signaling Server.
  * Tear down all of our peer connections and remove all the media divs.
+ * @param {object} reason of disconnection
  */
 function handleDisconnect(reason) {
     console.log('Disconnected from signaling server', { reason: reason });
@@ -1088,8 +1083,7 @@ function handleDisconnect(reason) {
  * telling them to trash the media channels they have open for those that peer. If it was this client that left a channel,
  * they'll also receive the removePeers. If this client was disconnected, they wont receive removePeers, but rather the
  * signaling_socket.on('disconnect') code will kick in and tear down all the peer sessions.
- *
- * @param {*} config
+ * @param {object} config data
  */
 function handleRemovePeer(config) {
     console.log('Signaling server said to remove peer:', config);
@@ -1114,7 +1108,7 @@ function handleRemovePeer(config) {
 
 /**
  * Set mirotalk theme | dark | grey | ...
- * @param {*} theme
+ * @param {string} theme type
  */
 function setTheme(theme) {
     if (!theme) return;
@@ -1155,7 +1149,7 @@ function setTheme(theme) {
 
 /**
  * Set buttons bar position
- * @param {*} position vertical / horizontal
+ * @param {string} position vertical / horizontal
  */
 function setButtonsBarPosition(position) {
     if (!position || isMobileDevice) return;
@@ -1187,9 +1181,8 @@ function setButtonsBarPosition(position) {
  * Setup local media stuff. Ask user for permission to use the computers microphone and/or camera,
  * attach it to an <audio> or <video> tag if they give us access.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
- *
- * @param {*} callback
- * @param {*} errorback
+ * @param {object} callback all ok
+ * @param {object} errorback something wrong
  */
 function setupLocalMedia(callback, errorback) {
     // if we've already been initialized do nothing
@@ -1236,7 +1229,7 @@ function setupLocalMedia(callback, errorback) {
 
 /**
  * Load Local Media Stream obj
- * @param {*} stream
+ * @param {object} stream media stream audio - video
  */
 function loadLocalMedia(stream) {
     console.log('Access granted to audio/video');
@@ -1376,9 +1369,9 @@ function loadLocalMedia(stream) {
 
 /**
  * Load Remote Media Stream obj
- * @param {*} stream
- * @param {*} peers
- * @param {*} peer_id
+ * @param {object} stream media stream audio - video
+ * @param {object} peers all peers info connected to the same room
+ * @param {string} peer_id socket.id
  */
 function loadRemoteMediaStream(stream, peers, peer_id) {
     // get data from peers obj
@@ -1547,8 +1540,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
 
 /**
  * Log stream settings info
- * @param {*} name
- * @param {*} stream
+ * @param {string} name function name called from
+ * @param {object} stream media stream audio - video
  */
 function logStreamSettingsInfo(name, stream) {
     console.log(name, {
@@ -1627,11 +1620,9 @@ function adaptAspectRatio() {
 }
 
 /**
- * Refresh video - chat image avatar on name changes
- * https://eu.ui-avatars.com/
- *
- * @param {*} videoAvatarImageId element
- * @param {*} peerName
+ * Refresh video - chat image avatar on name changes: https://eu.ui-avatars.com/
+ * @param {object} videoAvatarImageId element
+ * @param {string} peerName
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName) {
     let videoAvatarImageElement = getId(videoAvatarImageId);
@@ -1645,8 +1636,8 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName) {
 
 /**
  * Set Chat avatar image by peer name
- * @param {*} avatar left/right
- * @param {*} peerName my/friends
+ * @param {string} avatar position left/right
+ * @param {string} peerName me or peer name
  */
 function setPeerChatAvatarImgName(avatar, peerName) {
     let avatarImg = avatarApiUrl + '?name=' + peerName + '&size=32' + '&background=random&rounded=true';
@@ -1667,10 +1658,9 @@ function setPeerChatAvatarImgName(avatar, peerName) {
  * On video player click, go on full screen mode ||
  * On button click, go on full screen mode.
  * Press Esc to exit from full screen mode, or click again.
- *
- * @param {*} videoId
- * @param {*} videoFullScreenBtnId
- * @param {*} peer_id
+ * @param {string} videoId uuid video element id
+ * @param {string} videoFullScreenBtnId uuid full screen btn id
+ * @param {string} peer_id socket.id
  */
 function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
     let videoPlayer = getId(videoId);
@@ -1777,9 +1767,9 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
 
 /**
  * Handle Video to Img click event
- * @param {*} videoStream
- * @param {*} videoToImgBtn
- * @param {*} peer_id
+ * @param {string} videoStream uuid video element id
+ * @param {string} videoToImgBtn uuid snapshot btn id
+ * @param {string} peer_id socket.id
  */
 function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
     let videoBtn = getId(videoToImgBtn);
@@ -1805,7 +1795,7 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
 
 /**
  * Save Video Frame to Image
- * @param {*} video video element
+ * @param {object} video video element from where to take the snapshot
  */
 function takeSnapshot(video) {
     playSound('snapshot');
@@ -1835,8 +1825,9 @@ function startCountTime() {
 }
 
 /**
- * Return time to string
- * @param {*} time
+ * Convert time to string
+ * @param {string} time
+ * @return {string} format HH:MM:SS
  */
 function getTimeToString(time) {
     let diffInHrs = time / 3600000;
@@ -2423,7 +2414,7 @@ function refreshLocalMedia() {
 
 /**
  * Get audio - video constraints
- * @returns constraints
+ * @returns {object} audio - video constraints
  */
 function getAudioVideoConstraints() {
     const audioSource = audioInputSelect.value;
@@ -2444,8 +2435,8 @@ function getAudioVideoConstraints() {
 
 /**
  * https://webrtc.github.io/samples/src/content/getusermedia/resolution/
- *
- * @returns video constraints
+ * @param {string} videoQuality desired video quality
+ * @returns {object} video constraints
  */
 function getVideoConstraints(videoQuality) {
     let frameRate = { max: videoMaxFrameRate };
@@ -2492,8 +2483,7 @@ function getVideoConstraints(videoQuality) {
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
- *
- * @param {*} maxFrameRate
+ * @param {string} maxFrameRate desired max frame rate
  */
 function setLocalMaxFps(maxFrameRate) {
     localMediaStream
@@ -2537,8 +2527,8 @@ function changeAudioDestination() {
 
 /**
  * Attach audio output device to video element using device/sink ID.
- * @param {*} element
- * @param {*} sinkId
+ * @param {object} element video element to attach the audio output
+ * @param {string} sinkId uuid audio output device
  */
 function attachSinkId(element, sinkId) {
     if (typeof element.sinkId !== 'undefined') {
@@ -2562,7 +2552,7 @@ function attachSinkId(element, sinkId) {
 
 /**
  * Got Stream and append to local media
- * @param {*} stream
+ * @param {object} stream media stream audio - video
  */
 function gotStream(stream) {
     refreshMyStreamToPeers(stream, true);
@@ -2579,7 +2569,7 @@ function gotStream(stream) {
  * Get audio-video Devices and show it to select box
  * https://webrtc.github.io/samples/src/content/devices/input-output/
  * https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
- * @param {*} deviceInfos
+ * @param {object} deviceInfos device infos
  */
 function gotDevices(deviceInfos) {
     // Handles being called several times to update labels. Preserve values.
@@ -2626,7 +2616,7 @@ function gotDevices(deviceInfos) {
 
 /**
  * Handle getUserMedia error
- * @param {*} err
+ * @param {object} err error type
  */
 function handleError(err) {
     console.log('navigator.MediaDevices.getUserMedia error: ', err);
@@ -2645,8 +2635,8 @@ function handleError(err) {
 
 /**
  * AttachMediaStream stream to element
- * @param {*} element
- * @param {*} stream
+ * @param {object} element element to attach the stream
+ * @param {object} stream media stream audio - video
  */
 function attachMediaStream(element, stream) {
     //console.log("DEPRECATED, attachMediaStream will soon be removed.");
@@ -2802,7 +2792,7 @@ function copyRoomURL() {
 
 /**
  * Share room id by email
- * @param {*} message email | subject | body
+ * @param {object} message email | subject | body
  */
 function shareRoomByEmail(message) {
     let email = message.email;
@@ -2813,8 +2803,9 @@ function shareRoomByEmail(message) {
 
 /**
  * Handle Audio ON - OFF
- * @param {*} e event
- * @param {*} init bool true/false
+ * @param {object} e event
+ * @param {boolean} init on join room
+ * @param {boolean} force to audio off (default false)
  */
 function handleAudio(e, init, force = null) {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
@@ -2835,8 +2826,9 @@ function handleAudio(e, init, force = null) {
 
 /**
  * Handle Video ON - OFF
- * @param {*} e event
- * @param {*} init bool true/false
+ * @param {object} e event
+ * @param {boolean} init on join room
+ * @param {boolean} force to video off (default false)
  */
 function handleVideo(e, init, force = null) {
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
@@ -2934,7 +2926,7 @@ function toggleScreenSharing() {
 
 /**
  * Set Screen Sharing Status
- * @param {*} status
+ * @param {boolean} status of screen sharing
  */
 function setScreenSharingStatus(status) {
     screenShareBtn.className = status ? 'fas fa-stop-circle' : 'fas fa-desktop';
@@ -2986,8 +2978,8 @@ function toggleFullScreen() {
 
 /**
  * Refresh my stream changes to connected peers in the room
- * @param {*} stream
- * @param {*} localAudioTrackChange true or false(default)
+ * @param {object} stream media stream audio - video
+ * @param {boolean} localAudioTrackChange default false
  */
 function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereIsPeerConnections()) return;
@@ -3013,8 +3005,8 @@ function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
 
 /**
  * Refresh my local stream
- * @param {*} stream
- * @param {*} localAudioTrackChange true or false(default)
+ * @param {object} stream media stream audio - video
+ * @param {boolean} localAudioTrackChange default false
  */
 function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     stream.getVideoTracks()[0].enabled = true;
@@ -3072,7 +3064,7 @@ function startRecordingTime() {
 
 /**
  * Get MediaRecorder MimeTypes
- * @returns mimeType
+ * @returns {boolean} if mimeType supported by media recorder
  */
 function getSupportedMimeTypes() {
     const possibleTypes = [
@@ -3139,8 +3131,8 @@ function startStreamRecording() {
 
 /**
  * Notify me if someone start to recording they screen + audio
- * @param {*} from peer_name
- * @param {*} action Started Stopped
+ * @param {string} from peer_name
+ * @param {string} action recording action
  */
 function notifyRecording(from, action) {
     let msg = '[ 🔴 REC ] : ' + action + ' to recording his own screen and audio';
@@ -3155,8 +3147,8 @@ function notifyRecording(from, action) {
 }
 
 /**
- * Handle Media Recorder obj
- * @param {*} mediaRecorder
+ * Handle Media Recorder
+ * @param {object} mediaRecorder
  */
 function handleMediaRecorder(mediaRecorder) {
     mediaRecorder.start();
@@ -3167,7 +3159,7 @@ function handleMediaRecorder(mediaRecorder) {
 
 /**
  * Handle Media Recorder onstart event
- * @param {*} event
+ * @param {object} event of media recorder
  */
 function handleMediaRecorderStart(event) {
     playSound('recStart');
@@ -3189,7 +3181,7 @@ function handleMediaRecorderStart(event) {
 
 /**
  * Handle Media Recorder ondata event
- * @param {*} event
+ * @param {object} event of media recorder
  */
 function handleMediaRecorderData(event) {
     console.log('MediaRecorder data: ', event);
@@ -3198,7 +3190,7 @@ function handleMediaRecorderData(event) {
 
 /**
  * Handle Media Recorder onstop event
- * @param {*} event
+ * @param {object} event of media recorder
  */
 function handleMediaRecorderStop(event) {
     playSound('recStop');
@@ -3260,7 +3252,7 @@ function downloadRecordedStream() {
 
 /**
  * Create Chat Room Data Channel
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function createChatDataChannel(peer_id) {
     chatDataChannels[peer_id] = peerConnections[peer_id].createDataChannel('mirotalk_chat_channel');
@@ -3441,7 +3433,7 @@ function sendChatMessage() {
 
 /**
  * handle Incoming Data Channel Chat Messages
- * @param {*} dataMessage
+ * @param {object} dataMessage chat messages
  */
 function handleDataChannelChat(dataMessage) {
     if (!dataMessage) return;
@@ -3467,7 +3459,7 @@ function handleDataChannelChat(dataMessage) {
 
 /**
  * Handle text transcipt getting from peers
- * @param {*} config
+ * @param {object} config data
  */
 function handleDataChannelSpeechTranscript(config) {
     handleSpeechTranscript(config);
@@ -3475,7 +3467,7 @@ function handleDataChannelSpeechTranscript(config) {
 
 /**
  * Handle text transcipt getting from peers
- * @param {*} data
+ * @param {object} config data
  */
 function handleSpeechTranscript(config) {
     if (!config) return;
@@ -3512,7 +3504,7 @@ function handleSpeechTranscript(config) {
 
 /**
  * Escape Special Chars
- * @param {*} regex
+ * @param {string} regex string to replace
  */
 function escapeSpecialChars(regex) {
     return regex.replace(/([()[{*+.$^\\|?])/g, '\\$1');
@@ -3520,11 +3512,11 @@ function escapeSpecialChars(regex) {
 
 /**
  * Append Message to msger chat room
- * @param {*} from
- * @param {*} img
- * @param {*} side
- * @param {*} msg
- * @param {*} privateMsg
+ * @param {string} from peer name
+ * @param {string} img images url
+ * @param {string} side left/right
+ * @param {string} msg message to append
+ * @param {boolean} privateMsg if is private message
  */
 function appendMessage(from, img, side, msg, privateMsg) {
     let time = getFormatDate(new Date());
@@ -3559,7 +3551,7 @@ function appendMessage(from, img, side, msg, privateMsg) {
 
 /**
  * Add participants in the chat room lists
- * @param {*} peers
+ * @param {object} peers all peers info connected to the same room
  */
 function msgerAddPeers(peers) {
     // console.log("peers", peers);
@@ -3611,7 +3603,7 @@ function searchPeer() {
 
 /**
  * Remove participant from chat room lists
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function msgerRemovePeer(peer_id) {
     let msgerPrivateDiv = getId(peer_id + '_pMsgDiv');
@@ -3627,8 +3619,8 @@ function msgerRemovePeer(peer_id) {
 
 /**
  * Setup msger buttons to send private messages
- * @param {*} msgerPrivateBtn
- * @param {*} msgerPrivateMsgInput
+ * @param {object} msgerPrivateBtn chat private message send button
+ * @param {object} msgerPrivateMsgInput chat private message text input
  */
 function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
     // add button to send private messages
@@ -3657,10 +3649,9 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
 }
 
 /**
- * Detect url from text and make it clickable
- * Detect also if url is a img to create preview of it
- * @param {*} text
- * @returns html
+ * Detect url from text and make it clickable and if url is a img to create preview of it
+ * @param {string} text passed text
+ * @returns {string} in html format
  */
 function detectUrl(text) {
     let urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -3672,16 +3663,17 @@ function detectUrl(text) {
 
 /**
  * Check if url passed is a image
- * @param {*} url
- * @returns true/false
+ * @param {string} url to check
+ * @returns {boolean} true/false
  */
 function isImageURL(url) {
     return url.match(/\.(jpeg|jpg|gif|png|tiff|bmp)$/) != null;
 }
 
 /**
- * Format data h:m:s
- * @param {*} date
+ * Format date
+ * @param {object} date
+ * @returns {string} date format h:m:s
  */
 function getFormatDate(date) {
     const time = date.toTimeString().split(' ')[0];
@@ -3690,10 +3682,10 @@ function getFormatDate(date) {
 
 /**
  * Send message over Secure dataChannels
- * @param {*} from
- * @param {*} to
- * @param {*} msg
- * @param {*} privateMsg true/false
+ * @param {string} from peer name
+ * @param {string} to peer name
+ * @param {string} msg message to send
+ * @param {boolean} privateMsg if is a private message
  */
 function emitMsg(from, to, msg, privateMsg) {
     if (!msg) return;
@@ -3781,8 +3773,8 @@ function hideShowMySettings() {
  * Handle html tab settings
  * https://www.w3schools.com/howto/howto_js_tabs.asp
  *
- * @param {*} evt
- * @param {*} tabName
+ * @param {object} evt event
+ * @param {string} tabName name of the tab to open
  */
 function openTab(evt, tabName) {
     let i, tabcontent, tablinks;
@@ -3827,7 +3819,7 @@ function updateMyPeerName() {
 
 /**
  * Append updated peer name to video player
- * @param {*} config
+ * @param {object} config data
  */
 function handlePeerName(config) {
     let peer_id = config.peer_id;
@@ -3846,8 +3838,8 @@ function handlePeerName(config) {
 
 /**
  * Send my Video-Audio-Hand... status
- * @param {*} element
- * @param {*} status
+ * @param {string} element typo
+ * @param {boolean} status true/false
  */
 function emitPeerStatus(element, status) {
     sendToServer('peerStatus', {
@@ -3882,7 +3874,7 @@ function setMyHandStatus() {
 
 /**
  * Set My Audio Status Icon and Title
- * @param {*} status
+ * @param {boolean} status of my audio
  */
 function setMyAudioStatus(status) {
     myAudioStatusIcon.className = 'fas fa-microphone' + (status ? '' : '-slash');
@@ -3898,7 +3890,7 @@ function setMyAudioStatus(status) {
 
 /**
  * Set My Video Status Icon and Title
- * @param {*} status
+ * @param {boolean} status of my video
  */
 function setMyVideoStatus(status) {
     // on vdeo OFF display my video avatar name
@@ -3916,7 +3908,7 @@ function setMyVideoStatus(status) {
 
 /**
  * Handle peer audio - video - hand status
- * @param {*} config
+ * @param {object} config data
  */
 function handlePeerStatus(config) {
     //
@@ -3940,9 +3932,9 @@ function handlePeerStatus(config) {
 
 /**
  * Set Participant Hand Status Icon and Title
- * @param {*} peer_id
- * @param {*} peer_name
- * @param {*} status
+ * @param {string} peer_id socket.id
+ * @param {string} peer_name peer name
+ * @param {boolean} status of the hand
  */
 function setPeerHandStatus(peer_id, peer_name, status) {
     let peerHandStatus = getId(peer_id + '_handStatus');
@@ -3955,8 +3947,8 @@ function setPeerHandStatus(peer_id, peer_name, status) {
 
 /**
  * Set Participant Audio Status Icon and Title
- * @param {*} peer_id
- * @param {*} status
+ * @param {string} peer_id socket.id
+ * @param {boolean} status of peer audio
  */
 function setPeerAudioStatus(peer_id, status) {
     let peerAudioStatus = getId(peer_id + '_audioStatus');
@@ -3969,7 +3961,7 @@ function setPeerAudioStatus(peer_id, status) {
 
 /**
  * Mute Audio to specific user in the room
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handlePeerAudioBtn(peer_id) {
     let peerAudioBtn = getId(peer_id + '_audioStatus');
@@ -3980,7 +3972,7 @@ function handlePeerAudioBtn(peer_id) {
 
 /**
  * Hide Video to specific user in the room
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handlePeerVideoBtn(peer_id) {
     let peerVideoBtn = getId(peer_id + '_videoStatus');
@@ -3991,8 +3983,8 @@ function handlePeerVideoBtn(peer_id) {
 
 /**
  * Send Private Message to specific peer
- * @param {*} peer_id
- * @param {*} toPeerName
+ * @param {string} peer_id socket.id
+ * @param {string} toPeerName peer name to send message
  */
 function handlePeerPrivateMsg(peer_id, toPeerName) {
     let peerPrivateMsg = getId(peer_id + '_privateMsg');
@@ -4031,7 +4023,7 @@ function handlePeerPrivateMsg(peer_id, toPeerName) {
 
 /**
  * Send YouTube video to specific peer
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handlePeerYouTube(peer_id) {
     let peerYoutubeBtn = getId(peer_id + '_youtube');
@@ -4042,8 +4034,8 @@ function handlePeerYouTube(peer_id) {
 
 /**
  * Set Participant Video Status Icon and Title
- * @param {*} peer_id
- * @param {*} status
+ * @param {string} peer_id socket.id
+ * @param {boolean} status of peer video
  */
 function setPeerVideoStatus(peer_id, status) {
     let peerVideoAvatarImage = getId(peer_id + '_avatar');
@@ -4058,7 +4050,7 @@ function setPeerVideoStatus(peer_id, status) {
 
 /**
  * Emit actions to all peers in the same room except yourself
- * @param {*} peerAction muteAudio hideVideo start/stop recording ...
+ * @param {object} peerAction to all peers
  */
 function emitPeersAction(peerAction) {
     if (!thereIsPeerConnections()) return;
@@ -4072,9 +4064,9 @@ function emitPeersAction(peerAction) {
 }
 
 /**
- * Emit actions to specified peers in the same room
- * @param {*} peer_id
- * @param {*} peerAction
+ * Emit actions to specified peer in the same room
+ * @param {string} peer_id socket.id
+ * @param {object} peerAction to specified peer
  */
 function emitPeerAction(peer_id, peerAction) {
     if (!thereIsPeerConnections()) return;
@@ -4089,7 +4081,7 @@ function emitPeerAction(peer_id, peerAction) {
 
 /**
  * Handle received peer actions
- * @param {*} config
+ * @param {object} config data
  */
 function handlePeerAction(config) {
     let peer_name = config.peer_name;
@@ -4113,6 +4105,7 @@ function handlePeerAction(config) {
 
 /**
  * Set my Audio off and Popup the peer name that performed this action
+ * @param {string} peer_name peer name
  */
 function setMyAudioOff(peer_name) {
     if (myAudioStatus === false) return;
@@ -4126,6 +4119,7 @@ function setMyAudioOff(peer_name) {
 
 /**
  * Set my Video off and Popup the peer name that performed this action
+ * @param {string} peer_name peer name
  */
 function setMyVideoOff(peer_name) {
     if (myVideoStatus === false) return;
@@ -4139,7 +4133,7 @@ function setMyVideoOff(peer_name) {
 
 /**
  * Mute or Hide everyone except yourself
- * @param {*} element audio/video
+ * @param {string} element type audio/video
  */
 function disableAllPeers(element) {
     if (!thereIsPeerConnections()) {
@@ -4182,8 +4176,8 @@ function disableAllPeers(element) {
 
 /**
  * Mute or Hide specific peer
- * @param {*} peer_id
- * @param {*} element audio/video
+ * @param {string} peer_id socket.id
+ * @param {string} element type audio/video
  */
 function disablePeer(peer_id, element) {
     if (!thereIsPeerConnections()) {
@@ -4256,7 +4250,7 @@ function emitRoomStatus() {
 
 /**
  * Handle Room Status (Lock - Unlock)
- * @param {*} config
+ * @param {object} config data
  */
 function handleRoomStatus(config) {
     let peer_name = config.peer_name;
@@ -4358,8 +4352,8 @@ function setupWhiteboardCanvasSize() {
 
 /**
  * Whiteboard: setup size
- * @param {*} w width
- * @param {*} h height
+ * @param {string} w width
+ * @param {string} h height
  */
 function setWhiteboardSize(w, h) {
     document.documentElement.style.setProperty('--wb-width', w);
@@ -4368,7 +4362,7 @@ function setWhiteboardSize(w, h) {
 
 /**
  * Whiteboard: drawing mode
- * @param {*} status true or false
+ * @param {boolean} status of drawing mode
  */
 function whiteboardIsDrawingMode(status) {
     wbCanvas.isDrawingMode = status;
@@ -4385,7 +4379,7 @@ function whiteboardIsDrawingMode(status) {
 
 /**
  * Whiteboard: eraser
- * @param {*} status true or false
+ * @param {boolean} status if eraser on
  */
 function whiteboardIsEraser(status) {
     whiteboardIsDrawingMode(false);
@@ -4395,8 +4389,8 @@ function whiteboardIsEraser(status) {
 
 /**
  * Set color to specific element
- * @param {*} elem
- * @param {*} color
+ * @param {object} elem element
+ * @param {string} color to set
  */
 function setColor(elem, color) {
     elem.style.color = color;
@@ -4404,7 +4398,7 @@ function setColor(elem, color) {
 
 /**
  * Whiteboard: Add object to canvas
- * @param {*} type object
+ * @param {string} type of object to add
  */
 function whiteboardAddObj(type) {
     switch (type) {
@@ -4523,7 +4517,7 @@ function whiteboardAddObj(type) {
 
 /**
  * Whiteboard: add object
- * @param {*} obj
+ * @param {object} obj to add
  */
 function addWbCanvasObj(obj) {
     if (obj) {
@@ -4553,7 +4547,7 @@ function setupWhiteboardLocalListners() {
 
 /**
  * Whiteboard: mouse down
- * @param {*} e
+ * @param {object} e event
  * @returns
  */
 function mouseDown(e) {
@@ -4596,7 +4590,7 @@ function objectAdded() {
 
 /**
  * Whiteboard: set background color
- * @param {*} color
+ * @param {string} color to set
  */
 function wbCanvasBackgroundColor(color) {
     document.documentElement.style.setProperty('--wb-bg', color);
@@ -4644,8 +4638,8 @@ function wbCanvasSaveImg() {
 
 /**
  * Whiteboard: save data to file
- * @param {*} dataURL
- * @param {*} fileName
+ * @param {object} dataURL to download
+ * @param {string} fileName to save
  */
 function saveDataToFile(dataURL, fileName) {
     const a = document.createElement('a');
@@ -4682,7 +4676,7 @@ function wbUpdate() {
 
 /**
  * Whiteboard: json to canvas objects
- * @param {*} config
+ * @param {object} config data
  */
 function handleJsonToWbCanvas(config) {
     if (!wbIsOpen) toggleWhiteboard();
@@ -4693,8 +4687,8 @@ function handleJsonToWbCanvas(config) {
 
 /**
  * Whiteboard: actions
- * @param {*} action
- * @returns json
+ * @param {string} action whiteboard action
+ * @returns {object} data
  */
 function getWhiteboardAction(action) {
     return {
@@ -4735,7 +4729,7 @@ function confirmCleanBoard() {
 
 /**
  * Whiteboard: actions
- * @param {*} config
+ * @param {object} config data
  */
 function whiteboardAction(config) {
     if (thereIsPeerConnections()) {
@@ -4746,8 +4740,8 @@ function whiteboardAction(config) {
 
 /**
  * Whiteboard: handle actions
- * @param {*} config
- * @param {*} logme
+ * @param {object} config data
+ * @param {boolean} logme popup action
  */
 function handleWhiteboardAction(config, logme = true) {
     if (logme) {
@@ -4775,7 +4769,7 @@ function handleWhiteboardAction(config, logme = true) {
 
 /**
  * Create File Sharing Data Channel
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function createFileSharingDataChannel(peer_id) {
     fileDataChannels[peer_id] = peerConnections[peer_id].createDataChannel('mirotalk_file_sharing_channel');
@@ -4787,7 +4781,7 @@ function createFileSharingDataChannel(peer_id) {
 
 /**
  * Handle File Sharing
- * @param {*} data
+ * @param {object} data received
  */
 function handleDataChannelFileSharing(data) {
     if (!receiveInProgress) return;
@@ -4860,7 +4854,7 @@ function sendFileData() {
 
 /**
  * Send File through RTC Data Channels
- * @param {*} data fileReader e.target.result
+ * @param {object} data fileReader e.target.result
  */
 function sendFSData(data) {
     for (let peer_id in fileDataChannels) {
@@ -4962,7 +4956,7 @@ function selectFileToShare() {
 
 /**
  * Get remote file info
- * @param {*} config file
+ * @param {object} config data
  */
 function handleFileInfo(config) {
     incomingFileInfo = config;
@@ -4970,7 +4964,7 @@ function handleFileInfo(config) {
     receiveBuffer = [];
     receivedSize = 0;
     let fileToReceiveInfo =
-        ' From: ' +
+        'From: ' +
         incomingFileInfo.peerName +
         '<br />' +
         ' Incoming file: ' +
@@ -5057,8 +5051,8 @@ function endDownload() {
 /**
  * Save to PC / Mobile devices
  * https://developer.mozilla.org/en-US/docs/Web/API/Blob
- * @param {*} blob
- * @param {*} file
+ * @param {object} blob content
+ * @param {string} file to save
  */
 function saveBlobToFile(blob, file) {
     const url = window.URL.createObjectURL(blob);
@@ -5076,7 +5070,7 @@ function saveBlobToFile(blob, file) {
 
 /**
  * Opend and send Video URL to all peers in the room
- *
+ * @param {string} peer_id socket.id
  */
 function sendVideoUrl(peer_id = null) {
     playSound('newMessage');
@@ -5137,8 +5131,8 @@ function openVideoUrlPlayer(config) {
 
 /**
  * Get youtube embed URL
- * @param {*} url
- * @returns Youtube Embed URL
+ * @param {string} url of YouTube video
+ * @returns {string} YouTube Embed URL
  */
 function getYoutubeEmbed(url) {
     let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -5158,8 +5152,8 @@ function closeVideoUrlPlayer() {
 
 /**
  * Emit video palyer to peers
- * @param {*} video_action
- * @param {*} config
+ * @param {string} video_action type
+ * @param {object} config data
  */
 function emitVideoPlayer(video_action, config = {}) {
     sendToServer('videoPlayer', {
@@ -5173,7 +5167,7 @@ function emitVideoPlayer(video_action, config = {}) {
 
 /**
  * Handle Video Player
- * @param {*} config
+ * @param {object} config data
  */
 function handleVideoPlayer(config) {
     let peer_name = config.peer_name;
@@ -5193,21 +5187,20 @@ function handleVideoPlayer(config) {
 
 /**
  * Handle peer kick out event button
- * @param {*} peer_id
+ * @param {string} peer_id socket.id
  */
 function handlePeerKickOutBtn(peer_id) {
     let peerKickOutBtn = getId(peer_id + '_kickOut');
     peerKickOutBtn.addEventListener('click', (e) => {
-        kickOut(peer_id, peerKickOutBtn);
+        kickOut(peer_id);
     });
 }
 
 /**
- * Kick out confirm
- * @param {*} peer_id
- * @param {*} peerKickOutBtn
+ * Eject peer, confirm before
+ * @param {string} peer_id socket.id
  */
-function kickOut(peer_id, peerKickOutBtn) {
+function kickOut(peer_id) {
     let pName = getId(peer_id + '_name').innerHTML;
 
     Swal.fire({
@@ -5239,7 +5232,7 @@ function kickOut(peer_id, peerKickOutBtn) {
 
 /**
  * You will be kicked out from the room and popup the peer name that performed this action
- * @param {*} config
+ * @param {object} config data
  */
 function handleKickedOut(config) {
     let peer_name = config.peer_name;
@@ -5349,11 +5342,9 @@ function leaveRoom() {
 }
 
 /**
- * Make Obj draggable
- * https://www.w3schools.com/howto/howto_js_draggable.asp
- *
- * @param {*} elmnt
- * @param {*} dragObj
+ * Make Obj draggable: https://www.w3schools.com/howto/howto_js_draggable.asp
+ * @param {object} elmnt father element
+ * @param {object} dragObj child element to make father draggable on click + mouse move
  */
 function dragElement(elmnt, dragObj) {
     let pos1 = 0,
@@ -5400,9 +5391,8 @@ function dragElement(elmnt, dragObj) {
 }
 
 /**
- * Data Formated DD-MM-YYYY-H_M_S
- * https://convertio.co/it/
- * @returns data string
+ * Date Format: https://convertio.co/it/
+ * @returns {string} data string format: DD-MM-YYYY-H_M_S
  */
 function getDataTimeString() {
     const d = new Date();
@@ -5413,8 +5403,8 @@ function getDataTimeString() {
 
 /**
  * Convert bytes to KB-MB-GB-TB
- * @param {*} bytes
- * @returns size
+ * @param {object} bytes to convert
+ * @returns {string} converted size
  */
 function bytesToSize(bytes) {
     let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -5425,6 +5415,7 @@ function bytesToSize(bytes) {
 
 /**
  * Handle peer audio volume
+ * @param {object} data peer audio
  */
 function handlePeerVolume(data) {
     let peer_id = data.peer_id;
@@ -5446,6 +5437,7 @@ function handlePeerVolume(data) {
 
 /**
  * Handle my audio volume
+ * @param {object} data my audio
  */
 function handleMyVolume(data) {
     let element = getId('myPitchBar');
@@ -5465,8 +5457,8 @@ function handleMyVolume(data) {
 
 /**
  * Basic user logging using https://sweetalert2.github.io
- * @param {*} type
- * @param {*} message
+ * @param {string} type of popup
+ * @param {string} message to popup
  */
 function userLog(type, message) {
     switch (type) {
@@ -5533,7 +5525,7 @@ function userLog(type, message) {
 
 /**
  * https://notificationsounds.com/notification-sounds
- * @param {*} name
+ * @param {string} name audio to play
  */
 async function playSound(name) {
     if (!notifyBySound) return;
@@ -5550,6 +5542,8 @@ async function playSound(name) {
 
 /**
  * Open specified URL
+ * @param {string} url to open
+ * @param {boolean} blank if true opne url in the new tab
  */
 function openURL(url, blank = false) {
     blank ? window.open(url, '_blank') : (window.location.href = url);
@@ -5557,8 +5551,8 @@ function openURL(url, blank = false) {
 
 /**
  * Show-Hide all elements grp by class name
- * @param {*} className
- * @param {*} displayState
+ * @param {string} className to toggle
+ * @param {string} displayState of the element
  */
 function toggleClassElements(className, displayState) {
     let elements = getEcN(className);
@@ -5569,7 +5563,8 @@ function toggleClassElements(className, displayState) {
 
 /**
  * Get Html element by Id
- * @param {*} id
+ * @param {string} id of the element
+ * @returns {object} element
  */
 function getId(id) {
     return document.getElementById(id);
@@ -5577,7 +5572,8 @@ function getId(id) {
 
 /**
  * Get Html element by selector
- * @param {*} selector
+ * @param {string} selector of the element
+ * @returns {object} element
  */
 function getSl(selector) {
     return document.querySelector(selector);
@@ -5585,7 +5581,8 @@ function getSl(selector) {
 
 /**
  * Get Html element by class name
- * @param {*} className
+ * @param {string} className of the element
+ * @returns {object} element
  */
 function getEcN(className) {
     return document.getElementsByClassName(className);

@@ -161,7 +161,7 @@ function handleRecognitionLanguages() {
 
 /**
  * Start or Stop speech recognition
- * @param {*} config
+ * @param {object} config data
  */
 function startSpeech(config) {
     if (isWebkitSpeechRecognitionSupported) {

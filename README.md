@@ -73,13 +73,13 @@
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&notify=0
 -   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0&notify=0
 
-    | Params | Type    | Description      |
-    | ------ | ------- | ---------------- |
-    | room   | string  | room Id          |
-    | name   | string  | user name        |
-    | audio  | boolean | audio stream     |
-    | video  | boolean | video stream     |
-    | notify | boolean | welcome message  |
+    | Params | Type    | Description     |
+    | ------ | ------- | --------------- |
+    | room   | string  | room Id         |
+    | name   | string  | user name       |
+    | audio  | boolean | audio stream    |
+    | video  | boolean | video stream    |
+    | notify | boolean | welcome message |
 
 </details>
 
