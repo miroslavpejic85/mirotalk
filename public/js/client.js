@@ -52,8 +52,8 @@ const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
 const wbImageInput = 'image/*';
-const wbWidth = 800;
-const wbHeight = 600;
+const wbWidth = 1024;
+const wbHeight = 768;
 
 const chatInputEmoji = {
     '<3': '\u2764\uFE0F',

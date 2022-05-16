@@ -148,7 +148,7 @@ function getRandomNumber(length) {
 }
 
 /**
- * Set room name
+ * Set room name with typewriter effect
  */
 function typeWriter() {
     if (i < txt.length) {

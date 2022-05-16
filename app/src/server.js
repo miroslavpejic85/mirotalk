@@ -49,7 +49,7 @@ const Logger = require('./Logger');
 const log = new Logger('server');
 
 const isHttps = false; // must be the same on client.js
-const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
+const port = 3000; // must be the same to client.js signalingServerPort
 
 let io, server, host;
 
@@ -707,7 +707,7 @@ io.sockets.on('connect', (socket) => {
             video_action: video_action,
             video_src: video_src,
         };
-        let logme = {
+        let logMe = {
             peer_id: socket.id,
             peer_name: peer_name,
             video_action: video_action,
@@ -717,7 +717,7 @@ io.sockets.on('connect', (socket) => {
         if (peer_id) {
             log.debug(
                 '[' + socket.id + '] emit videoPlayer to [' + peer_id + '] from room_id [' + room_id + ']',
-                logme,
+                logMe,
             );
 
             sendToPeer(peer_id, sockets, 'videoPlayer', sendConfig);
