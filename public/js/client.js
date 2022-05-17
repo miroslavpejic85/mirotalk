@@ -3569,7 +3569,9 @@ function msgerAddPeers(peers) {
                         type="text"
                         placeholder="💬 Enter your message..."
                     />
-                    <button id="${peer_id}_pMsgBtn" class="fas fa-paper-plane" value="${peer_name}">&nbsp;${peer_name}</button>
+                    <button id="${peer_id}_pMsgBtn" value="${peer_name}">
+                        &nbsp;${peer_name}<i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
                 `;
                 msgerCPList.insertAdjacentHTML('beforeend', msgerPrivateDiv);
