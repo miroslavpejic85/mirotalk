@@ -2551,6 +2551,7 @@ function attachSinkId(element, sinkId) {
 /**
  * Got Stream and append to local media
  * @param {object} stream media stream audio - video
+ * @returns {object} media Devices Info
  */
 function gotStream(stream) {
     refreshMyStreamToPeers(stream, true);
