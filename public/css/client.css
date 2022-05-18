@@ -143,7 +143,7 @@ body {
 --------------------------------------------------------------*/
 
 #buttonsBar {
-    z-index: 12;
+    z-index: 10;
     display: none;
     position: fixed;
     padding: 5px;
@@ -215,7 +215,7 @@ body {
 --------------------------------------------------------------*/
 
 .msger-draggable {
-    z-index: 10;
+    z-index: 14;
     display: none;
     position: fixed;
     /* center screen */
@@ -462,7 +462,7 @@ button:hover {
 --------------------------------------------------------------*/
 
 #msgerCP {
-    z-index: 11;
+    z-index: 12;
     display: none;
     position: absolute;
     bottom: 55px;
@@ -527,7 +527,7 @@ button:hover {
 --------------------------------------------------------------*/
 
 emoji-picker {
-    z-index: 0;
+    z-index: 12;
     position: absolute;
     bottom: 55px;
     width: 100%;
@@ -998,11 +998,11 @@ z-index
 ------------------
 8 video avatar img
 9 count time
-10 chat room
-11 chat peers private msg
-12 left buttons
-13 chat emoji
-14 whiteboard
+10 left buttons
+11 whiteboard
+12 chat emoji
+13 chat peers private msg
+14 chat room
 15 video iframe
 16 settings
 17 send File Div
