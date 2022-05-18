@@ -112,8 +112,6 @@ const view = {
     privacy: path.join(__dirname, '../../', 'public/view/privacy.html'),
 };
 
-const pingPongMs = 8000; // every how many ms server send the ping to the connected clients to keep alive the connection.
-
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
@@ -355,17 +353,6 @@ server.listen(port, null, () => {
 });
 
 /**
-    Try to fix disconnection every 10 min.
-    Force ping to the connected clients to keep connection alive.
-    Ref: https://localcoder.org/nodejs-socket-io-connections-dropping-reconnecting
-*/
-function sendHeartbeat() {
-    setTimeout(sendHeartbeat, pingPongMs);
-    io.sockets.emit('ping', { beat: 1 });
-}
-setTimeout(sendHeartbeat, pingPongMs);
-
-/**
  * On peer connected
  * Users will connect to the signaling server, after which they'll issue a "join"
  * to join a particular channel. The signaling server keeps track of all sockets
@@ -381,13 +368,6 @@ io.sockets.on('connect', (socket) => {
 
     socket.channels = {};
     sockets[socket.id] = socket;
-
-    /**
-     * keep alive the connection
-     */
-    // socket.on('pong', (data) => {
-    //     log.debug('[' + socket.id + '] Pong received from client', data);
-    // });
 
     /**
      * On peer diconnected
