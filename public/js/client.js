@@ -606,7 +606,7 @@ function initClientPeer() {
 
     // keep alive the connection
     signalingSocket.on('ping', function (data) {
-        console.log('Ping received from server', data);
+        //console.log('Ping received from server', data);
         signalingSocket.emit('pong', { beat: 1 });
     });
 

@@ -112,7 +112,7 @@ const view = {
     privacy: path.join(__dirname, '../../', 'public/view/privacy.html'),
 };
 
-const pingPongMs = 150000; // every how many ms server send the ping to the connected clients to keep alive the connection.
+const pingPongMs = 8000; // every how many ms server send the ping to the connected clients to keep alive the connection.
 
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
@@ -385,9 +385,9 @@ io.sockets.on('connect', (socket) => {
     /**
      * keep alive the connection
      */
-    socket.on('pong', (data) => {
-        log.debug('[' + socket.id + '] Pong received from client', data);
-    });
+    // socket.on('pong', (data) => {
+    //     log.debug('[' + socket.id + '] Pong received from client', data);
+    // });
 
     /**
      * On peer diconnected
