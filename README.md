@@ -48,7 +48,7 @@
 
 <br/>
 
-<a href="https://www.canva.com/design/DAE693uLOIU/view">MiroTalk presentation</a>
+<a href="https://www.canva.com/design/DAE693uLOIU/view">MiroTalk presentation </a> - <a href="https://www.youtube.com/watch?v=_IVn2aINYww">video</a>
 
 </details>
 
