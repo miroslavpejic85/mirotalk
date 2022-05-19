@@ -13,6 +13,3 @@ package-lock.json
 
 # cache
 .cache
-
-# personal env
-.env
