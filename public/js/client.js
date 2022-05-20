@@ -89,6 +89,7 @@ let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let peerGeo;
 let peerConnection;
 let myPeerName = getPeerName();
+let isScreenEnabled = getScreenEnabled();
 let notify = getNotify();
 let useAudio = true;
 let useVideo = true;
@@ -582,6 +583,21 @@ function getPeerName() {
 }
 
 /**
+ * Is screen enabled on join room
+ * @returns {boolean} true/false
+ */
+function getScreenEnabled() {
+    let qs = new URLSearchParams(window.location.search);
+    let screen = qs.get('screen');
+    if (screen) {
+        screen = screen.toLowerCase();
+        let queryPeerScreen = screen === '1' || screen === 'true';
+        return queryPeerScreen;
+    }
+    return false;
+}
+
+/**
  * Check if there is peer connections
  * @returns {boolean} true/false
  */
@@ -673,6 +689,8 @@ function handleServerInfo(config) {
     console.log('Peers count', peers_count);
     if (notify && peers_count == 1) {
         welcomeUser();
+    } else {
+        checkShareScreen();
     }
 }
 
@@ -734,13 +752,15 @@ function whoAreYou() {
  */
 function checkPeerAudioVideo() {
     let qs = new URLSearchParams(window.location.search);
-    let audio = qs.get('audio').toLowerCase();
-    let video = qs.get('video').toLowerCase();
+    let audio = qs.get('audio');
+    let video = qs.get('video');
     if (audio) {
+        audio = audio.toLowerCase();
         let queryPeerAudio = audio === '1' || audio === 'true';
         if (queryPeerAudio != null) handleAudio(audioBtn, false, queryPeerAudio);
     }
     if (video) {
+        video = video.toLowerCase();
         let queryPeerVideo = video === '1' || video === 'true';
         if (queryPeerVideo != null) handleVideo(videoBtn, false, queryPeerVideo);
     }
@@ -815,6 +835,8 @@ function welcomeUser() {
             };
             shareRoomByEmail(message);
         }
+        // share screen on join room
+        checkShareScreen();
     });
 }
 
@@ -1363,6 +1385,36 @@ function loadLocalMedia(stream) {
     handleBodyOnMouseMove();
     handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
     handleVideoToImg('myVideo', 'myVideoToImgBtn');
+}
+
+/**
+ * Check if screen is shared on join room
+ */
+function checkShareScreen() {
+    if (!isMobileDevice && isScreenEnabled && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
+        playSound('newMessage');
+        // screenShareBtn.click(); // Chrome - Opera - Edge - Brave
+        // handle error: getDisplayMedia requires transient activation from a user gesture on Safari - FireFox
+        Swal.fire({
+            background: swalBackground,
+            position: 'center',
+            icon: 'question',
+            text: 'Do you want to share your screen?',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown',
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp',
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                screenShareBtn.click();
+            }
+        });
+    }
 }
 
 /**

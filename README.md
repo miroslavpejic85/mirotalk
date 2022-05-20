@@ -70,8 +70,8 @@
 <br/>
 
 -   You can `join` directly to `room` by going to:
--   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&notify=0
--   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0&notify=0
+-   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
+-   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 
     | Params | Type    | Description     |
     | ------ | ------- | --------------- |
@@ -79,6 +79,7 @@
     | name   | string  | user name       |
     | audio  | boolean | audio stream    |
     | video  | boolean | video stream    |
+    | screen | boolean | screen stream   |
     | notify | boolean | welcome message |
 
 </details>
