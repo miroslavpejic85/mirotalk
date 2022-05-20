@@ -148,6 +148,15 @@ $ docker-compose down
 </details>
 
 <details>
+<summary>Https</summary>
+
+<br/>
+
+You can start videoconferencing directly from your Local PC, and be reachable from any device outside your network, simply using a service like [ngrok](https://ngrok.com/) by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file, or expose it directly on [HTTPS](app/ssl/README.md)
+
+</details>
+
+<details>
 <summary>Setup Turn</summary>
 
 <br/>
@@ -171,15 +180,6 @@ $ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization
 ## API Documentation
 
 The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [railway](https://mirotalk.up.railway.app/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
-
-</details>
-
-<details>
-<summary>Https</summary>
-
-<br/>
-
-If you want `MiroTalk` to be `reachable` from the `outside` of your local network, you can use a service like [ngrok](https://ngrok.com/) by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file, or expose it directly on [HTTPS](app/ssl/README.md)
 
 </details>
 
