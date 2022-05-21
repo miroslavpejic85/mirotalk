@@ -9,7 +9,7 @@ services:
         container_name: mirotalk
         hostname: mirotalk
         volumes:
-            - .env:/usr/src/app/.env:ro
+            - .env:/src/.env:ro
         restart: unless-stopped
         ports:
             - '3000:3000'
