@@ -90,6 +90,7 @@ let peerGeo;
 let peerConnection;
 let myPeerName = getPeerName();
 let isScreenEnabled = getScreenEnabled();
+let isScreenSharingSupported = false;
 let notify = getNotify();
 let useAudio = true;
 let useVideo = true;
@@ -1391,7 +1392,7 @@ function loadLocalMedia(stream) {
  * Check if screen is shared on join room
  */
 function checkShareScreen() {
-    if (!isMobileDevice && isScreenEnabled && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
+    if (!isMobileDevice && isScreenEnabled && isScreenSharingSupported) {
         playSound('newMessage');
         // screenShareBtn.click(); // Chrome - Opera - Edge - Brave
         // handle error: getDisplayMedia requires transient activation from a user gesture on Safari - FireFox
@@ -1962,6 +1963,7 @@ function setSwapCameraBtn() {
  */
 function setScreenShareBtn() {
     if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
+        isScreenSharingSupported = true;
         screenShareBtn.addEventListener('click', (e) => {
             toggleScreenSharing();
         });
