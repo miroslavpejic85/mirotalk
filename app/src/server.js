@@ -173,14 +173,9 @@ app.get('/join/', (req, res) => {
             https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
             https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
         */
-        let roomName = req.query.room;
-        let peerName = req.query.name;
-        let peerAudio = req.query.audio;
-        let peerVideo = req.query.video;
-        let peerScreen = req.query.screen;
-        let notify = req.query.notify;
+        const { room, name, audio, video, screen, notify } = req.query;
         // all the params are mandatory for the direct room join
-        if (roomName && peerName && peerAudio && peerVideo && peerScreen && notify) {
+        if (room && name && audio && video && screen && notify) {
             return res.sendFile(view.client);
         }
     }
@@ -244,9 +239,9 @@ app.get('*', function (req, res) {
  * You should probably use a different stun-turn server
  * doing commercial stuff, also see:
  *
+ * https://github.com/coturn/coturn
  * https://gist.github.com/zziuni/3741933
  * https://www.twilio.com/docs/stun-turn
- * https://github.com/coturn/coturn
  *
  * Check the functionality of STUN/TURN servers:
  * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
