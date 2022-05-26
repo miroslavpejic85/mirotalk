@@ -271,6 +271,22 @@ let videoUrlIframe;
 let speechRecognitionStart;
 let speechRecognitionStop;
 
+// show desired buttons
+const showShareRoomBtn = true;
+const showAudioBtn = true;
+const showVideoBtn = true;
+const showSwapCameraBtn = true;
+const showScreenShareBtn = true;
+const showRecordStreamBtn = true;
+const showFullScreenBtn = true;
+const showChatRoomBtn = true;
+const showCaptionBtn = true;
+const showMyHandBtn = true;
+const showWhiteboardBtn = true;
+const showFileShareBtn = true;
+const showMySettingsBtn = true;
+const showAboutBtn = true;
+
 /**
  * Load all Html elements by Id
  */
@@ -1380,6 +1396,7 @@ function loadLocalMedia(stream) {
     getHtmlElementsById();
     setButtonsToolTip();
     manageLeftButtons();
+    hideLeftButtons();
     setupMySettings();
     setupVideoUrlPlayer();
     startCountTime();
@@ -1913,6 +1930,26 @@ function manageLeftButtons() {
     setMySettingsBtn();
     setAboutBtn();
     setLeaveRoomBtn();
+}
+
+/**
+ * Hide not desired buttons
+ */
+function hideLeftButtons() {
+    if (!showShareRoomBtn) shareRoomBtn.style.display = 'none';
+    if (!showAudioBtn) audioBtn.style.display = 'none';
+    if (!showVideoBtn) videoBtn.style.display = 'none';
+    if (!showSwapCameraBtn) swapCameraBtn.style.display = 'none';
+    if (!showScreenShareBtn) screenShareBtn.style.display = 'none';
+    if (!showRecordStreamBtn) recordStreamBtn.style.display = 'none';
+    if (!showFullScreenBtn) fullScreenBtn.style.display = 'none';
+    if (!showChatRoomBtn) chatRoomBtn.style.display = 'none';
+    if (!showCaptionBtn) captionBtn.style.display = 'none';
+    if (!showMyHandBtn) myHandBtn.style.display = 'none';
+    if (!showWhiteboardBtn) whiteboardBtn.style.display = 'none';
+    if (!showFileShareBtn) fileShareBtn.style.display = 'none';
+    if (!showMySettingsBtn) mySettingsBtn.style.display = 'none';
+    if (!showAboutBtn) aboutBtn.style.display = 'none';
 }
 
 /**
