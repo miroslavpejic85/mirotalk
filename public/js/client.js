@@ -68,6 +68,8 @@ const chatInputEmoji = {
     ':+1:': '\uD83D\uDC4D',
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
+let thisRoomPassword = null;
+
 let myPeerId; // socket.id
 
 // video cam - screen max frame rate
@@ -238,7 +240,8 @@ let wbPop = [];
 // room actions btns
 let muteEveryoneBtn;
 let hideEveryoneBtn;
-let lockUnlockRoomBtn;
+let lockRoomBtn;
+let unlockRoomBtn;
 // file transfer settings
 let fileToSend;
 let fileReader;
@@ -387,7 +390,8 @@ function getHtmlElementsById() {
     // room actions buttons
     muteEveryoneBtn = getId('muteEveryoneBtn');
     hideEveryoneBtn = getId('hideEveryoneBtn');
-    lockUnlockRoomBtn = getId('lockUnlockRoomBtn');
+    lockRoomBtn = getId('lockRoomBtn');
+    unlockRoomBtn = getId('unlockRoomBtn');
     // file send progress
     sendFileDiv = getId('sendFileDiv');
     sendFileInfo = getId('sendFileInfo');
@@ -639,10 +643,10 @@ function initClientPeer() {
 
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
-    signalingSocket.on('serverInfo', handleServerInfo);
-    signalingSocket.on('roomIsLocked', handleRoomLocked);
-    signalingSocket.on('roomStatus', handleRoomStatus);
+    signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
+    signalingSocket.on('roomAction', handleRoomAction);
     signalingSocket.on('addPeer', handleAddPeer);
+    signalingSocket.on('serverInfo', handleServerInfo);
     signalingSocket.on('sessionDescription', handleSessionDescription);
     signalingSocket.on('iceCandidate', handleIceCandidate);
     signalingSocket.on('peerName', handlePeerName);
@@ -795,12 +799,13 @@ function whoAreYouJoin() {
 }
 
 /**
- * join to chennel and send some peer info
+ * join to channel and send some peer info
  */
 function joinToChannel() {
     console.log('join to channel', roomId);
     sendToServer('join', {
         channel: roomId,
+        channel_password: thisRoomPassword,
         peer_info: peerInfo,
         peer_geo: peerGeo,
         peer_name: myPeerName,
@@ -2467,8 +2472,11 @@ function setupMySettings() {
     hideEveryoneBtn.addEventListener('click', (e) => {
         disableAllPeers('video');
     });
-    lockUnlockRoomBtn.addEventListener('click', (e) => {
-        lockUnlockRoom();
+    lockRoomBtn.addEventListener('click', (e) => {
+        handleRoomAction({ action: 'lock' }, true);
+    });
+    unlockRoomBtn.addEventListener('click', (e) => {
+        handleRoomAction({ action: 'unlock' }, true);
     });
 }
 
@@ -4309,59 +4317,100 @@ function disablePeer(peer_id, element) {
 }
 
 /**
- * Lock Unlock the room from unauthorized access
+ * Handle Room action
+ * @param {object} config data
+ * @param {boolean} emit data to signaling server
  */
-function lockUnlockRoom() {
-    getId('lockUnlockRoomIco').className = roomLocked ? 'fas fa-lock-open' : 'fas fa-lock';
+function handleRoomAction(config, emit = false) {
+    if (emit) {
+        let thisConfig = {
+            room_id: roomId,
+            peer_name: myPeerName,
+            action: config.action,
+            password: null,
+        };
+        switch (config.action) {
+            case 'lock':
+                playSound('newMessage');
 
-    if (roomLocked) {
-        roomLocked = false;
-        emitRoomStatus();
+                Swal.fire({
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showDenyButton: true,
+                    background: swalBackground,
+                    imageUrl: roomLockedImg,
+                    input: 'text',
+                    inputPlaceholder: 'Set Room password',
+                    confirmButtonText: `OK`,
+                    denyButtonText: `Cancel`,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown',
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp',
+                    },
+                    inputValidator: (pwd) => {
+                        if (!pwd) return 'Please enter the Room password';
+                        thisRoomPassword = pwd;
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        thisConfig.password = thisRoomPassword;
+                        sendToServer('roomAction', thisConfig);
+                        handleRoomStatus(thisConfig);
+                    }
+                });
+                break;
+            case 'unlock':
+                sendToServer('roomAction', thisConfig);
+                handleRoomStatus(thisConfig);
+                break;
+        }
     } else {
-        roomLocked = true;
-        emitRoomStatus();
-        playSound('locked');
+        // data coming from signaling server
+        handleRoomStatus(config);
     }
 }
 
 /**
- * Refresh Room Status (Locked/Unlocked)
- */
-function emitRoomStatus() {
-    let rStatus = roomLocked ? '🔒 LOCKED the room, no one can access!' : '🔓 UNLOCKED the room';
-    userLog('toast', rStatus);
-
-    sendToServer('roomStatus', {
-        room_id: roomId,
-        room_locked: roomLocked,
-        peer_name: myPeerName,
-    });
-}
-
-/**
- * Handle Room Status (Lock - Unlock)
+ * Handle room status
  * @param {object} config data
  */
 function handleRoomStatus(config) {
+    let action = config.action;
     let peer_name = config.peer_name;
-    let room_locked = config.room_locked;
-    roomLocked = room_locked;
-    lockUnlockRoomBtn.className = roomLocked ? 'fas fa-lock' : 'fas fa-lock-open';
-    userLog('toast', peer_name + ' set room is locked to ' + roomLocked);
+    switch (action) {
+        case 'lock':
+            playSound('locked');
+            userLog('toast', peer_name + ' has 🔒 LOCKED the room by password', 'top-end');
+            hide(lockRoomBtn);
+            show(unlockRoomBtn);
+            break;
+        case 'unlock':
+            userLog('toast', peer_name + ' has 🔓 UNLOCKED the room', 'top-end');
+            hide(unlockRoomBtn);
+            show(lockRoomBtn);
+            break;
+        case 'checkPassword':
+            let password = config.password;
+            password == 'OK' ? joinToChannel() : handleRoomLocked();
+            break;
+    }
 }
 
 /**
- * Room is Locked can't access...
+ * Room is locked you provide a wrong password, can't access!
  */
 function handleRoomLocked() {
     playSound('kickedOut');
 
+    console.log('Room is Locked, try with another one');
     Swal.fire({
         allowOutsideClick: false,
         background: swalBackground,
         position: 'center',
         imageUrl: roomLockedImg,
-        title: 'Oops, Room Locked',
+        title: 'Oops, Wrong Room Password',
         text: 'The room is locked, try with another one.',
         showDenyButton: false,
         confirmButtonText: `Ok`,
@@ -4373,6 +4422,44 @@ function handleRoomLocked() {
         },
     }).then((result) => {
         if (result.isConfirmed) openURL('/newcall');
+    });
+}
+
+/**
+ * Try to unlock the room by providing a valid password
+ */
+function handleUnlockTheRoom() {
+    playSound('alert');
+
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swalBackground,
+        imageUrl: roomLockedImg,
+        title: 'Oops, Room is Locked',
+        input: 'text',
+        inputPlaceholder: 'Enter the Room password',
+        confirmButtonText: `OK`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+        inputValidator: (pwd) => {
+            if (!pwd) return 'Please enter the Room password';
+            thisRoomPassword = pwd;
+        },
+    }).then(() => {
+        let config = {
+            room_id: roomId,
+            peer_name: myPeerName,
+            action: 'checkPassword',
+            password: thisRoomPassword,
+        };
+        sendToServer('roomAction', config);
+        hide(lockRoomBtn);
+        show(unlockRoomBtn);
     });
 }
 
@@ -5676,4 +5763,20 @@ function getSl(selector) {
  */
 function getEcN(className) {
     return document.getElementsByClassName(className);
+}
+
+/**
+ * Hide elemnt
+ * @param {object} elem
+ */
+function hide(elem) {
+    elem.className = 'hidden';
+}
+
+/**
+ * Show elemnt
+ * @param {object} elem
+ */
+function show(elem) {
+    elem.className = '';
 }

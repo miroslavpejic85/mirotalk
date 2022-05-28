@@ -607,7 +607,8 @@ emoji-picker {
 #myPeerNameSetBtn,
 #muteEveryoneBtn,
 #hideEveryoneBtn,
-#lockUnlockRoomBtn,
+#lockRoomBtn,
+#unlockRoomBtn,
 #speechRecognitionStart,
 #speechRecognitionStop {
     font-size: 0.9rem;
@@ -618,7 +619,8 @@ emoji-picker {
 }
 
 #myPeerNameSetBtn:hover,
-#lockUnlockRoomBtn:hover,
+#lockRoomBtn:hover,
+#unlockRoomBtn:hover,
 #speechRecognitionStart:hover,
 #speechRecognitionStop:hover {
     color: var(--hover-color);

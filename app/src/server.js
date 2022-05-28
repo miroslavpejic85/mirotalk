@@ -383,6 +383,7 @@ io.sockets.on('connect', (socket) => {
         log.debug('[' + socket.id + '] join ', config);
 
         let channel = config.channel;
+        let channel_password = config.channel_password;
         let peer_name = config.peer_name;
         let peer_video = config.peer_video;
         let peer_audio = config.peer_audio;
@@ -400,7 +401,7 @@ io.sockets.on('connect', (socket) => {
         if (!(channel in peers)) peers[channel] = {};
 
         // room locked by the participants can't join
-        if (peers[channel]['Locked'] === true) {
+        if (peers[channel]['lock'] === true && peers[channel]['password'] != channel_password) {
             log.debug('[' + socket.id + '] [Warning] Room Is Locked', channel);
             socket.emit('roomIsLocked');
             return;
@@ -461,16 +462,12 @@ io.sockets.on('connect', (socket) => {
 
         delete socket.channels[channel];
         delete channels[channel][socket.id];
-        delete peers[channel][socket.id];
+        delete peers[channel][socket.id]; // delete peer data from the room
 
         switch (Object.keys(peers[channel]).length) {
-            case 0:
-                // last peer disconnected from the room without room status set, delete room data
-                delete peers[channel];
-                break;
-            case 1:
-                // last peer disconnected from the room having room status set, delete room data
-                if ('Locked' in peers[channel]) delete peers[channel];
+            case 0: // last peer disconnected from the room without room lock & password set
+            case 2: // last peer disconnected from the room having room lock & password set
+                delete peers[channel]; // clean lock and password value from the room
                 break;
         }
         log.debug('connected peers grp by roomId', peers);
@@ -517,21 +514,44 @@ io.sockets.on('connect', (socket) => {
     });
 
     /**
-     * Refresh Room Status (Locked/Unlocked)
+     * Handle Room action
      */
-    socket.on('roomStatus', (config) => {
+    socket.on('roomAction', (config) => {
+        //log.debug('[' + socket.id + '] Room action:', config);
+        let room_is_locked = false;
         let room_id = config.room_id;
-        let room_locked = config.room_locked;
         let peer_name = config.peer_name;
-
-        peers[room_id]['Locked'] = room_locked;
-
-        log.debug('[' + socket.id + '] emit roomStatus' + ' to [room_id: ' + room_id + ' locked: ' + room_locked + ']');
-
-        sendToRoom(room_id, socket.id, 'roomStatus', {
-            peer_name: peer_name,
-            room_locked: room_locked,
-        });
+        let password = config.password;
+        let action = config.action;
+        //
+        switch (action) {
+            case 'lock':
+                peers[room_id]['lock'] = true;
+                peers[room_id]['password'] = password;
+                sendToRoom(room_id, socket.id, 'roomAction', {
+                    peer_name: peer_name,
+                    action: action,
+                });
+                room_is_locked = true;
+                break;
+            case 'unlock':
+                peers[room_id]['lock'] = false;
+                peers[room_id]['password'] = password;
+                sendToRoom(room_id, socket.id, 'roomAction', {
+                    peer_name: peer_name,
+                    action: action,
+                });
+                break;
+            case 'checkPassword':
+                let config = {
+                    peer_name: peer_name,
+                    action: action,
+                    password: password === peers[room_id]['password'] ? 'OK' : 'KO',
+                };
+                sendToPeer(socket.id, sockets, 'roomAction', config);
+                break;
+        }
+        log.debug('[' + socket.id + '] Room ' + room_id, { locked: room_is_locked, password: password });
     });
 
     /**
@@ -573,7 +593,7 @@ io.sockets.on('connect', (socket) => {
         let status = config.status;
 
         for (let peer_id in peers[room_id]) {
-            if (peers[room_id][peer_id]['peer_name'] == peer_name) {
+            if (peers[room_id][peer_id]['peer_name'] === peer_name) {
                 switch (element) {
                     case 'video':
                         peers[room_id][peer_id]['peer_video'] = status;

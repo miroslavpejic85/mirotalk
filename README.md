@@ -20,7 +20,7 @@
 -   Is `100% Free` - `Open Source` - `Self Hosted`
 -   No download, plug-in, or login required, entirely browser-based
 -   Unlimited number of conference rooms without call time limitation
--   Possibility to Lock/Unlock the Room for the meeting
+-   Possibility to Password protect the Room for the meeting
 -   Desktop and Mobile compatible
 -   Optimized Room URL Sharing (share it to your participants, wait for them to join)
 -   Webcam Streaming (Front - Rear for mobile)
