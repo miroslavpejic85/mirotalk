@@ -5,9 +5,9 @@
 <hr />
 
 <p align="center">
-<a href="https://mirotalk.up.railway.app/" >
-    <img src="public/images/mirotalk-header.gif" />
-</a>
+
+[![mirotalkP2P](public/images/mirotalk-header.gif)](https://mirotalk.up.railway.app)
+
 </p>
 
 <hr />
