@@ -5,9 +5,13 @@
 <hr />
 
 <p align="center">
+    <a href="https://mirotalk.up.railway.app">https://mirotalk.up.railway.app</a>
+</p>
 
-[![mirotalkP2P](public/images/mirotalk-header.gif)](https://mirotalk.up.railway.app)
+<hr />
 
+<p align="center">
+    <a href="https://mirotalk.up.railway.app"><img src="public/images/mirotalk-header.gif"></a>
 </p>
 
 <hr />
