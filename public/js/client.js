@@ -185,6 +185,7 @@ let tabDevicesBtn;
 let tabBandwidthBtn;
 let tabRoomBtn;
 let tabStylingBtn;
+let tabLanguagesBtn;
 let mySettingsCloseBtn;
 let myPeerNameSet;
 let myPeerNameSetBtn;
@@ -351,6 +352,7 @@ function getHtmlElementsById() {
     tabBandwidthBtn = getId('tabBandwidthBtn');
     tabRoomBtn = getId('tabRoomBtn');
     tabStylingBtn = getId('tabStylingBtn');
+    tabLanguagesBtn = getId('tabLanguagesBtn');
     mySettingsCloseBtn = getId('mySettingsCloseBtn');
     myPeerNameSet = getId('myPeerNameSet');
     myPeerNameSetBtn = getId('myPeerNameSetBtn');
@@ -455,6 +457,7 @@ function setButtonsToolTip() {
     setTippy(tabBandwidthBtn, 'Bandwidth', 'top');
     setTippy(tabRoomBtn, 'Room', 'top');
     setTippy(tabStylingBtn, 'Styling', 'top');
+    setTippy(tabLanguagesBtn, 'Languages', 'top');
     // whiteboard btns
     setTippy(wbDrawingColorEl, 'DRAWING color', 'bottom');
     setTippy(wbBackgroundColorEl, 'BACKGROUND color', 'bottom');
@@ -2398,6 +2401,9 @@ function setupMySettings() {
     });
     tabStylingBtn.addEventListener('click', (e) => {
         openTab(e, 'tabStyling');
+    });
+    tabLanguagesBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabLanguages');
     });
     // audio - video select box
     selectors = [audioInputSelect, audioOutputSelect, videoSelect];

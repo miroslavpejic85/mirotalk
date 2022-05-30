@@ -209,6 +209,7 @@ access to use this app.
                     <button id="tabBandwidthBtn" class="fas fa-wifi tablinks"></button>
                     <button id="tabRoomBtn" class="fas fa-home tablinks"></button>
                     <button id="tabStylingBtn" class="fas fa-palette tablinks"></button>
+                    <button id="tabLanguagesBtn" class="fas fa-globe tablinks"></button>
                 </div>
 
                 <div id="tabDevices" class="tabcontent">
@@ -312,6 +313,13 @@ access to use this app.
                         <option value="vertical">🚦 Vertical</option>
                         <option value="horizontal">🚥 Horizontal</option>
                     </select>
+                </div>
+
+                <div id="tabLanguages" class="tabcontent">
+                    <br />
+                    <label>Language:</label>
+                    <br />
+                    <div id="google_translate_element"></div>
                 </div>
             </main>
         </section>
@@ -423,5 +431,16 @@ access to use this app.
 		the <video> and <audio> tags are all added and removed dynamically
 		in 'onAddStream', 'setupLocalMedia', and 'removePeer'/'disconnect'
 		-->
+
+        <!-- Start Google Translate -->
+
+        <script>
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
+            }
+        </script>
+        <script src="http://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+        <!-- End Google Translate -->
     </body>
 </html>
