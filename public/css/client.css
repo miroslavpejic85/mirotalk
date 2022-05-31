@@ -113,10 +113,19 @@
 
 html,
 body {
+    top: 0 !important;
     width: 100%;
     height: 100%;
     overflow: hidden;
     background: var(--body-bg);
+}
+
+/*--------------------------------------------------------------
+# Hide google banner
+--------------------------------------------------------------*/
+
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
 }
 
 /*--------------------------------------------------------------
