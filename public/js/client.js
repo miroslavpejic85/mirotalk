@@ -4408,7 +4408,7 @@ function handleRoomStatus(config) {
  * Room is locked you provide a wrong password, can't access!
  */
 function handleRoomLocked() {
-    playSound('kickedOut');
+    playSound('eject');
 
     console.log('Room is Locked, try with another one');
     Swal.fire({
@@ -5420,7 +5420,7 @@ function kickOut(peer_id) {
 function handleKickedOut(config) {
     let peer_name = config.peer_name;
 
-    playSound('kickedOut');
+    playSound('eject');
 
     let timerInterval;
 
@@ -5496,32 +5496,12 @@ function showAbout() {
  * Leave the Room and create a new one
  */
 function leaveRoom() {
-    playSound('newMessage');
-
-    Swal.fire({
-        background: swalBackground,
-        position: 'center',
-        imageAlt: 'mirotalk-leave',
-        imageUrl: leaveRoomImg,
-        title: 'Leave this room?',
-        showDenyButton: true,
-        confirmButtonText: `Yes`,
-        denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            if (surveyActive) {
-                openURL(surveyURL);
-            } else {
-                openURL('/newcall');
-            }
-        }
-    });
+    playSound('eject');
+    if (surveyActive) {
+        openURL(surveyURL);
+    } else {
+        openURL('/newcall');
+    }
 }
 
 /**

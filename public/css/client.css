@@ -210,9 +210,8 @@ body {
     transition: all 0.3s ease-in-out;
 }
 
-#buttonsBar #leaveRoomBtn:hover {
+#buttonsBar #leaveRoomBtn {
     color: #ff2d00;
-    transform: var(--btns-hover-scale);
 }
 
 .fa-microphone-slash,
