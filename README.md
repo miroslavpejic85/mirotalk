@@ -41,7 +41,7 @@
 -   Share any YT Embed video in real-time
 -   Full-Screen Mode on mouse click on the Video element
 -   Possibility to Change UI Themes
--   Translated in all languages thanks to google translate
+-   Translated in 133 languages thanks to google translate
 -   Right-click on the Video elements for more options
 -   Direct `peer-to-peer` connection ensures the lowest latency thanks to `WebRTC`
 -   Supports [REST API](app/api/README.md) (Application Programming Interface)
