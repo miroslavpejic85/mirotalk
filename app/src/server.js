@@ -492,14 +492,14 @@ io.sockets.on('connect', (socket) => {
             delete socket.channels[channel];
             delete channels[channel][socket.id];
             delete peers[channel][socket.id]; // delete peer data from the room
+            switch (Object.keys(peers[channel]).length) {
+                case 0: // last peer disconnected from the room without room lock & password set
+                case 2: // last peer disconnected from the room having room lock & password set
+                    delete peers[channel]; // clean lock and password value from the room
+                    break;
+            }
         } catch (err) {
             log.error(toJson(err));
-        }
-        switch (Object.keys(peers[channel]).length) {
-            case 0: // last peer disconnected from the room without room lock & password set
-            case 2: // last peer disconnected from the room having room lock & password set
-                delete peers[channel]; // clean lock and password value from the room
-                break;
         }
         log.debug('connected peers grp by roomId', peers);
 
