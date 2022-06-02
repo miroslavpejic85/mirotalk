@@ -45,6 +45,7 @@
 -   Right-click on the Video elements for more options
 -   Direct `peer-to-peer` connection ensures the lowest latency thanks to `WebRTC`
 -   Supports [REST API](app/api/README.md) (Application Programming Interface)
+-   [Sentry](https://sentry.io/) error reporting
 
 </details>
 

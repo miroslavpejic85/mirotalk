@@ -8,15 +8,17 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 ███████ ███████ ██   ██   ████   ███████ ██   ██                                           
 
 dependencies: {
-    compression : https://www.npmjs.com/package/compression
-    cors        : https://www.npmjs.com/package/cors
-    dotenv      : https://www.npmjs.com/package/dotenv
-    express     : https://www.npmjs.com/package/express
-    ngrok       : https://www.npmjs.com/package/ngrok
-    socket.io   : https://www.npmjs.com/package/socket.io
-    swagger     : https://www.npmjs.com/package/swagger-ui-express
-    uuid        : https://www.npmjs.com/package/uuid
-    yamljs      : https://www.npmjs.com/package/yamljs
+    compression             : https://www.npmjs.com/package/compression
+    cors                    : https://www.npmjs.com/package/cors
+    dotenv                  : https://www.npmjs.com/package/dotenv
+    express                 : https://www.npmjs.com/package/express
+    ngrok                   : https://www.npmjs.com/package/ngrok
+    @sentry/node            : https://www.npmjs.com/package/@sentry/node
+    @sentry/integrations    : https://www.npmjs.com/package/@sentry/integrations
+    socket.io               : https://www.npmjs.com/package/socket.io
+    swagger                 : https://www.npmjs.com/package/swagger-ui-express
+    uuid                    : https://www.npmjs.com/package/uuid
+    yamljs                  : https://www.npmjs.com/package/yamljs
 }
 */
 
@@ -88,14 +90,39 @@ const api_key_secret = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
 
 // Ngrok config
 const ngrok = require('ngrok');
-const ngrokEnabled = process.env.NGROK_ENABLED;
+const ngrokEnabled = process.env.NGROK_ENABLED || false;
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 
 // Turn config
-const turnEnabled = process.env.TURN_ENABLED;
+const turnEnabled = process.env.TURN_ENABLED || false;
 const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
+
+// Sentry config
+const Sentry = require('@sentry/node');
+const { CaptureConsole } = require('@sentry/integrations');
+const sentryEnabled = process.env.SENTRY_ENABLED || false;
+const sentryDSN = process.env.SENTRY_DSN;
+const sentryTracesSampleRate = process.env.SENTRY_TRACES_SAMPLE_RATE;
+
+// Setup sentry client
+if (sentryEnabled == 'true') {
+    Sentry.init({
+        dsn: sentryDSN,
+        integrations: [
+            new CaptureConsole({
+                // array of methods that should be captured
+                // defaults to ['log', 'info', 'warn', 'error', 'debug', 'assert']
+                levels: ['warn', 'error'],
+            }),
+        ],
+        // Set tracesSampleRate to 1.0 to capture 100%
+        // of transactions for performance monitoring.
+        // We recommend adjusting this value in production
+        tracesSampleRate: sentryTracesSampleRate,
+    });
+}
 
 // directory
 const dir = {
@@ -307,10 +334,11 @@ async function ngrokStart() {
             server_tunnel: tunnelHttps,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
+            sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
         });
     } catch (err) {
-        log.error('[Error] ngrokStart', err.body);
+        log.warn('[Error] ngrokStart', err.body);
         process.exit(1);
     }
 }
@@ -343,6 +371,7 @@ server.listen(port, null, () => {
             server: host,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
+            sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
         });
     }
@@ -459,11 +488,13 @@ io.sockets.on('connect', (socket) => {
             log.debug('[' + socket.id + '] [Warning] not in ', channel);
             return;
         }
-
-        delete socket.channels[channel];
-        delete channels[channel][socket.id];
-        delete peers[channel][socket.id]; // delete peer data from the room
-
+        try {
+            delete socket.channels[channel];
+            delete channels[channel][socket.id];
+            delete peers[channel][socket.id]; // delete peer data from the room
+        } catch (err) {
+            log.error(toJson(err));
+        }
         switch (Object.keys(peers[channel]).length) {
             case 0: // last peer disconnected from the room without room lock & password set
             case 2: // last peer disconnected from the room having room lock & password set
@@ -759,6 +790,15 @@ io.sockets.on('connect', (socket) => {
         sendToRoom(room_id, socket.id, 'whiteboardAction', config);
     });
 }); // end [sockets.on-connect]
+
+/**
+ * Object to Json
+ * @param {object} data object
+ * @returns {json} indent 4 spaces
+ */
+function toJson(data) {
+    return JSON.stringify(data, null, 4); // "\t"
+}
 
 /**
  * Send async data to all peers in the same room except yourself
