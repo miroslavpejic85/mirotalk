@@ -29,7 +29,7 @@
 -   Desktop and Mobile compatible
 -   Optimized Room URL Sharing (share it to your participants, wait for them to join)
 -   Webcam Streaming (Front - Rear for mobile)
--   Audio Streaming crystal clear + detect speacking and indicator
+-   Audio Streaming crystal clear with detect speaking and volume indicator
 -   Screen Sharing to present documents, slides, and more...
 -   File Sharing, share any files to your participants in the room
 -   Select Audio Input - Output && Video source
