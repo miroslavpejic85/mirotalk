@@ -5,7 +5,7 @@
 <hr />
 
 <p align="center">
-    <a href="https://mirotalk.up.railway.app">mirotalk.up.railway.app</a> or <a href="https://mirotalk.up.railway.app">mirotalk.herokuapp.com</a>
+    <a href="https://mirotalk.up.railway.app">mirotalk.up.railway.app</a> or <a href="https://mirotalk.herokuapp.com">mirotalk.herokuapp.com</a>
 </p>
 
 <hr />
