@@ -1343,8 +1343,8 @@ function loadLocalMedia(stream) {
         setTippy(myCountTime, 'Session Time', 'bottom');
         setTippy(myVideoParagraph, 'My name', 'bottom');
         setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
-        setTippy(myVideoStatusIcon, 'My video is open', 'bottom');
-        setTippy(myAudioStatusIcon, 'My audio is open', 'bottom');
+        setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
+        setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
         setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
         setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
     }
@@ -1528,8 +1528,8 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
     if (!isMobileDevice) {
         setTippy(remoteVideoParagraph, 'Participant name', 'bottom');
         setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
-        setTippy(remoteVideoStatusIcon, 'Participant video is open', 'bottom');
-        setTippy(remoteAudioStatusIcon, 'Participant audio is open', 'bottom');
+        setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
+        setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
         setTippy(remoteYoutubeBtnBtn, 'Send YouTube video', 'bottom');
         setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
         setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
@@ -3984,7 +3984,7 @@ function setMyAudioStatus(status) {
     myAudioStatusIcon.className = 'fas fa-microphone' + (status ? '' : '-slash');
     // send my audio status to all peers in the room
     emitPeerStatus('audio', status);
-    setTippy(myAudioStatusIcon, status ? 'My audio is open' : 'My audio is closed', 'bottom');
+    setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
     status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
@@ -4002,7 +4002,7 @@ function setMyVideoStatus(status) {
     myVideoStatusIcon.className = 'fas fa-video' + (status ? '' : '-slash');
     // send my video status to all peers in the room
     emitPeerStatus('video', status);
-    setTippy(myVideoStatusIcon, status ? 'My video is open' : 'My video is closed', 'bottom');
+    setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
     status ? playSound('on') : playSound('off');
     // only for desktop
     if (!isMobileDevice) {
@@ -4058,7 +4058,7 @@ function setPeerAudioStatus(peer_id, status) {
     let peerAudioStatus = getId(peer_id + '_audioStatus');
     if (peerAudioStatus) {
         peerAudioStatus.className = 'fas fa-microphone' + (status ? '' : '-slash');
-        setTippy(peerAudioStatus, status ? 'Participant audio is open' : 'Participant audio is closed', 'bottom');
+        setTippy(peerAudioStatus, status ? 'Participant audio is on' : 'Participant audio is off', 'bottom');
         status ? playSound('on') : playSound('off');
     }
 }
@@ -4147,7 +4147,7 @@ function setPeerVideoStatus(peer_id, status) {
     if (peerVideoAvatarImage) peerVideoAvatarImage.style.display = status ? 'none' : 'block';
     if (peerVideoStatus) {
         peerVideoStatus.className = 'fas fa-video' + (status ? '' : '-slash');
-        setTippy(peerVideoStatus, status ? 'Participant video is open' : 'Participant video is closed', 'bottom');
+        setTippy(peerVideoStatus, status ? 'Participant video is on' : 'Participant video is off', 'bottom');
         status ? playSound('on') : playSound('off');
     }
 }
