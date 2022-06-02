@@ -122,11 +122,15 @@ body {
 }
 
 /*--------------------------------------------------------------
-# Hide google banner
+# Google Translate
 --------------------------------------------------------------*/
 
 .goog-te-banner-frame.skiptranslate {
     display: none !important;
+}
+
+#google_translate_element select {
+    background: #22262a !important;
 }
 
 /*--------------------------------------------------------------
