@@ -738,7 +738,7 @@ io.sockets.on('connect', (socket) => {
 
             sendToPeer(peer_id, sockets, 'videoPlayer', sendConfig);
         } else {
-            log.debug('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', logme);
+            log.debug('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', logMe);
 
             sendToRoom(room_id, socket.id, 'videoPlayer', sendConfig);
         }
