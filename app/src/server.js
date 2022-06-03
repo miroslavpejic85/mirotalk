@@ -499,7 +499,7 @@ io.sockets.on('connect', (socket) => {
                     break;
             }
         } catch (err) {
-            log.error(toJson(err));
+            log.error('Remove Peer', toJson(err));
         }
         log.debug('connected peers grp by roomId', peers);
 
