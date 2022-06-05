@@ -31,7 +31,7 @@
 -   Webcam Streaming (Front - Rear for mobile)
 -   Audio Streaming crystal clear with detect speaking and volume indicator
 -   Screen Sharing to present documents, slides, and more...
--   File Sharing, share any files to your participants in the room
+-   File Sharing (with drag-and-drop), share any files to your participants in the room
 -   Select Audio Input - Output && Video source
 -   Ability to set video quality up to 4K and 60 FPS
 -   Recording your Screen, Audio and Video
