@@ -5166,6 +5166,8 @@ function hideFileTransfer() {
 
 /**
  * Select the File to Share
+ * @param {string} peer_id 
+ * @param {boolean} broadcast send to all (default false) 
  */
 function selectFileToShare(peer_id, broadcast = false) {
     playSound('newMessage');
@@ -5200,7 +5202,10 @@ function selectFileToShare(peer_id, broadcast = false) {
 
 /**
  * Send file informations
- * @param {object} file
+ * @param {object} file data
+ * @param {string} peer_id 
+ * @param {boolean} broadcast send to all (default false)
+ * @returns 
  */
 function sendFileInformations(file, peer_id, broadcast = false) {
     fileToSend = file;
