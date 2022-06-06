@@ -1883,10 +1883,14 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
         // Use DataTransferItemList interface to access the file(s)
         if (e.dataTransfer.items) {
             // If dropped items aren't files, reject them
-            if (e.dataTransfer.items[0].kind === 'file') {
-                var file = e.dataTransfer.items[0].getAsFile();
-                sendFileInformations(file, peer_id);
+            let item = e.dataTransfer.items[0].webkitGetAsEntry();
+            console.log('Drag and drop', item);
+            if (item.isDirectory) {
+                userLog('warning', 'Please drag and drop a single file not a folder.', 'top-end');
+                return;
             }
+            let file = e.dataTransfer.items[0].getAsFile();
+            sendFileInformations(file, peer_id);
         } else {
             // Use DataTransfer interface to access the file(s)
             sendFileInformations(e.dataTransfer.files[0], peer_id);
@@ -5166,8 +5170,8 @@ function hideFileTransfer() {
 
 /**
  * Select the File to Share
- * @param {string} peer_id 
- * @param {boolean} broadcast send to all (default false) 
+ * @param {string} peer_id
+ * @param {boolean} broadcast send to all (default false)
  */
 function selectFileToShare(peer_id, broadcast = false) {
     playSound('newMessage');
@@ -5203,9 +5207,9 @@ function selectFileToShare(peer_id, broadcast = false) {
 /**
  * Send file informations
  * @param {object} file data
- * @param {string} peer_id 
+ * @param {string} peer_id
  * @param {boolean} broadcast send to all (default false)
- * @returns 
+ * @returns
  */
 function sendFileInformations(file, peer_id, broadcast = false) {
     fileToSend = file;
