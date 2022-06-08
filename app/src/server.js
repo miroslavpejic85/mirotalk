@@ -287,25 +287,15 @@ if (turnEnabled == 'true') {
         },
     );
 } else {
-    // Thanks to https://www.metered.ca/tools/openrelay/
+    // My own As backup if not configured, please configure your in the .env file
     iceServers.push(
         {
-            urls: 'stun:openrelay.metered.ca:80',
+            urls: 'stun:stun.l.google.com:19302',
         },
         {
-            urls: 'turn:openrelay.metered.ca:80',
-            username: 'openrelayproject',
-            credential: 'openrelayproject',
-        },
-        {
-            urls: 'turn:openrelay.metered.ca:443',
-            username: 'openrelayproject',
-            credential: 'openrelayproject',
-        },
-        {
-            urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-            username: 'openrelayproject',
-            credential: 'openrelayproject',
+            urls: 'turn:numb.viagenie.ca',
+            username: 'miroslav.pejic.85@gmail.com',
+            credential: 'mirotalkp2p',
         },
     );
 }
@@ -393,6 +383,17 @@ io.sockets.on('connect', (socket) => {
 
     socket.channels = {};
     sockets[socket.id] = socket;
+
+    const transport = socket.conn.transport.name; // in most cases, "polling"
+    log.debug('[' + socket.id + '] Connection transport', transport);
+
+    /**
+     * Check upgrade transport
+     */
+    socket.conn.on('upgrade', () => {
+        const upgradedTransport = socket.conn.transport.name; // in most cases, "websocket"
+        log.debug('[' + socket.id + '] Connection upgraded transport', upgradedTransport);
+    });
 
     /**
      * On peer diconnected

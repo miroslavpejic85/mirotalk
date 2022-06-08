@@ -642,7 +642,9 @@ function initClientPeer() {
     }
 
     console.log('Connecting to signaling server');
-    signalingSocket = io(signalingServer);
+    signalingSocket = io(signalingServer, {
+        transports: ['websocket'],
+    });
 
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
