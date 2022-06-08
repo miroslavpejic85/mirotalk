@@ -3091,6 +3091,7 @@ function toggleScreenSharing() {
             refreshMyLocalStream(screenStream);
             myVideo.classList.toggle('mirror');
             setScreenSharingStatus(isScreenStreaming);
+            if (isScreenStreaming) setMyVideoStatusTrue();
         })
         .catch((err) => {
             console.error('[Error] Unable to share the screen', err);
