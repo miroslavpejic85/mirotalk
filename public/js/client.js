@@ -649,6 +649,15 @@ function initClientPeer() {
     //     transports: ['websocket'],
     // });
 
+    const transport = signalingSocket.io.engine.transport.name; // in most cases, "polling"
+    console.log('Connection transport', transport);
+
+    // Check upgrade transport
+    signalingSocket.io.engine.on('upgrade', () => {
+        const upgradedTransport = signalingSocket.io.engine.transport.name; // in most cases, "websocket"
+        console.log('Connection upgraded transport', upgradedTransport);
+    });
+
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
     signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
