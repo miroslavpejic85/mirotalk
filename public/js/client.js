@@ -642,9 +642,12 @@ function initClientPeer() {
     }
 
     console.log('Connecting to signaling server');
-    signalingSocket = io(signalingServer, {
-        transports: ['websocket'],
-    });
+    signalingSocket = io(signalingServer);
+
+    // Disable the HTTP long-polling transport
+    // signalingSocket = io(signalingServer, {
+    //     transports: ['websocket'],
+    // });
 
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
