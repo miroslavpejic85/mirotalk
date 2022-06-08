@@ -642,7 +642,7 @@ function initClientPeer() {
     }
 
     console.log('Connecting to signaling server');
-    // signalingSocket = io(signalingServer);
+    signalingSocket = io(signalingServer);
 
     // Disable the HTTP long-polling transport
     // signalingSocket = io(signalingServer, {
