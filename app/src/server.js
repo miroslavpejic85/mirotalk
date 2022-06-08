@@ -73,7 +73,6 @@ if (isHttps) {
 */
 io = new Server({
     maxHttpBufferSize: 1e7,
-    transports: ['websocket'],
 }).listen(server);
 
 // console.log(io);
