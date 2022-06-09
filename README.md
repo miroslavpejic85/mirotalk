@@ -195,7 +195,7 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 </details>
 
 <details>
-<summary>Other Live Demo</summary>
+<summary>Other Live Demos</summary>
 
 <br/>
 
