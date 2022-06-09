@@ -5,13 +5,13 @@
 <hr />
 
 <p align="center">
-    <a href="https://p2p.mirotalk.org">p2p.mirotalk.org</a>
+    <a href="https://mirotalk.herokuapp.com">mirotalk.herokuapp.com</a>
 </p>
 
 <hr />
 
 <p align="center">
-    <a href="https://p2p.mirotalk.org"><img src="public/images/mirotalk-header.gif"></a>
+    <a href="https://mirotalk.herokuapp.com"><img src="public/images/mirotalk-header.gif"></a>
 </p>
 
 <hr />
