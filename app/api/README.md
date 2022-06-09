@@ -1,4 +1,4 @@
-[![restAPI](restAPI.png)](https://mirotalk.up.railway.app/api/v1/docs)
+[![restAPI](restAPI.png)](https://p2p.mirotalk.org/api/v1/docs)
 
 ## Create a meeting
 
@@ -23,7 +23,7 @@ Embedding a meeting into a `service` or `app` requires using an `iframe` with th
 ```html
 <iframe
     allow="camera; microphone; fullscreen; display-capture; autoplay"
-    src="https://mirotalk.up.railway.app/join/room_name"
+    src="https://p2p.mirotalk.org/join/room_name"
     style="height: 100%; width: 100%; border: 0px;"
 ></iframe>
 ```
@@ -35,7 +35,7 @@ Develop your `website` or `application`, and bring `video meetings` in with a si
 ```html
 <iframe
     allow="camera; microphone; fullscreen; display-capture; autoplay"
-    src="https://mirotalk.up.railway.app/newcall"
+    src="https://p2p.mirotalk.org/newcall"
     style="height: 100%; width: 100%; border: 0px;"
 ></iframe>
 ```

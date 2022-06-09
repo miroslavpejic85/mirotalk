@@ -5,13 +5,13 @@
 <hr />
 
 <p align="center">
-    <a href="https://mirotalk.up.railway.app">mirotalk.up.railway.app</a> or <a href="https://mirotalk.herokuapp.com">mirotalk.herokuapp.com</a>
+    <a href="https://p2p.mirotalk.org">p2p.mirotalk.org</a>
 </p>
 
 <hr />
 
 <p align="center">
-    <a href="https://mirotalk.up.railway.app"><img src="public/images/mirotalk-header.gif"></a>
+    <a href="https://p2p.mirotalk.org"><img src="public/images/mirotalk-header.gif"></a>
 </p>
 
 <hr />
@@ -63,7 +63,9 @@
 
 <br/>
 
--   `Open` https://mirotalk.up.railway.app/newcall or https://mirotalk.herokuapp.com/newcall
+-   `Open` https://p2p.mirotalk.org/newcall or
+-   https://mirotalk.up.railway.app/newcall or
+-   https://mirotalk.herokuapp.com/newcall
 -   `Pick` your Room name and Join
 -   `Allow` using the camera and microphone
 -   `Share` the Room URL and Wait for someone to join for the video conference
@@ -76,6 +78,7 @@
 <br/>
 
 -   You can `join` directly to `room` by going to:
+-   https://p2p.mirotalk.org/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 -   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 
@@ -100,7 +103,7 @@ Embedding a meeting into a service or app using an iframe.
 ```html
 <iframe
     allow="camera; microphone; fullscreen; display-capture; autoplay"
-    src="https://mirotalk.up.railway.app/newcall"
+    src="https://p2p.mirotalk.org/newcall"
     style="height: 100%; width: 100%; border: 0px;"
 ></iframe>
 ```
@@ -180,18 +183,19 @@ You can start videoconferencing directly from your Local PC, and be reachable fr
 ```bash
 # The response will give you a entrypoint / Room URL for your meeting, where authorization: API_KEY_SECRET.
 $ curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
+$ curl -X POST "https://p2p.mirotalk.org/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 ```
 
 ## API Documentation
 
-The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [railway](https://mirotalk.up.railway.app/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
+The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.org/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
 
 </details>
 
 <details>
-<summary>Live Demo</summary>
+<summary>Other Live Demo</summary>
 
 <br/>
 
