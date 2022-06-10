@@ -3101,8 +3101,12 @@ function toggleScreenSharing() {
             setScreenSharingStatus(isScreenStreaming);
             if (isScreenStreaming) {
                 setMyVideoStatusTrue();
-                if (countPeerConnections() == 1) setAspectRatio(2); // 16:9
+                if (countPeerConnections() == 1) {
+                    emitPeersAction('screenStart');
+                    setAspectRatio(2); // 16:9
+                }
             } else {
+                emitPeersAction('screenStop');
                 adaptAspectRatio();
             }
         })
@@ -4299,6 +4303,12 @@ function handlePeerAction(config) {
             break;
         case 'recStop':
             notifyRecording(peer_name, 'Stopped');
+            break;
+        case 'screenStart':
+            if (!isMobileDevice) setAspectRatio(2); // 16:9
+            break;
+        case 'screenStop':
+            if (!isMobileDevice) adaptAspectRatio();
             break;
     }
 }
