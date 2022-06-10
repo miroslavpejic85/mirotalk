@@ -2,9 +2,9 @@
 
 $API_KEY = "mirotalk_default_secret";
 // $MIROTALK_URL = "http://localhost:3000/api/v1/meeting";
-// $MIROTALK_URL = "https://mirotalk.herokuapp.com/api/v1/meeting";
 // $MIROTALK_URL = "https://mirotalk.up.railway.app/api/v1/meeting";
-$MIROTALK_URL = "https://p2p.mirotalk.org/api/v1/meeting";
+$MIROTALK_URL = "https://mirotalk.herokuapp.com/api/v1/meeting";
+
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $MIROTALK_URL);
