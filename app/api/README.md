@@ -18,7 +18,7 @@ python meeting.py
 
 ## Embed a meeting
 
-Embedding a meeting into a `service` or `app` requires using an `iframe` with the `src` attribute specified as the `meeting` from `HTTP response`.
+Embedding a meeting into a `service` or `app` requires using an `iframe` with the `src` attribute specified as the `meeting` from `HTTP response`. Change the iframe `src` with your own instance of MiroTalk.
 
 ```html
 <iframe

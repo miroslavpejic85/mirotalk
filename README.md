@@ -5,13 +5,13 @@
 <hr />
 
 <p align="center">
-    <a href="https://mirotalk.herokuapp.com">mirotalk.herokuapp.com</a>
+    <a href="https://p2p.mirotalk.com">p2p.mirotalk.com</a>
 </p>
 
 <hr />
 
 <p align="center">
-    <a href="https://mirotalk.herokuapp.com"><img src="public/images/mirotalk-header.gif"></a>
+    <a href="https://p2p.mirotalk.com"><img src="public/images/mirotalk-header.gif"></a>
 </p>
 
 <hr />
@@ -63,7 +63,9 @@
 
 <br/>
 
--   `Open` https://mirotalk.up.railway.app/newcall or https://mirotalk.herokuapp.com/newcall
+-   `Open` https://p2p.mirotalk.com/newcall or
+-   https://mirotalk.up.railway.app/newcall or
+-   https://mirotalk.herokuapp.com/newcall
 -   `Pick` your Room name and Join
 -   `Allow` using the camera and microphone
 -   `Share` the Room URL and Wait for someone to join for the video conference
@@ -76,6 +78,7 @@
 <br/>
 
 -   You can `join` directly to `room` by going to:
+-   https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 -   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 
@@ -180,6 +183,7 @@ You can start videoconferencing directly from your Local PC, and be reachable fr
 ```bash
 # The response will give you a entrypoint / Room URL for your meeting, where authorization: API_KEY_SECRET.
 $ curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
+$ curl -X POST "https://p2p.mirotalk.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 ```
@@ -190,24 +194,45 @@ The API documentation uses [swagger](https://swagger.io/) at http://localhost:30
 
 </details>
 
-<details>
-<summary>Other Live Demos</summary>
+<details open>
+<summary>Hetzner</summary>
 
 <br/>
 
-<a target="_blank" href="https://railway.app/new/template/mirotalk?referralCode=mirotalk"><img src="https://railway.app/button.svg" style="width: 220px;"></a>
+[![Hetzner](public/sponsors/Hetzner.png)](https://www.hetzner.com)
 
-https://mirotalk.up.railway.app/
+This application is running for `demonstration purposes` on [Hetzner](https://www.hetzner.com/), one of `the best` [cloud providers](https://www.hetzner.com/cloud) and [dedicated root servers](https://www.hetzner.com/dedicated-rootserver).
 
-[![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app/)
+If you need help to deploy `MiroTalk P2P` instance on `your dedicated cloud server`, or for other needs, don't hesitate to contact us at p2p.mirotalk@gmail.com
+
+</details>
+
+<details>
+<summary>Live Demos</summary>
+
+<br/>
+
+<a target="_blank" href="https://p2p.mirotalk.com"><img src="public/sponsors/Hetzner.png" style="width: 220px;"></a>
+
+https://p2p.mirotalk.com
+
+[![hetzner-qr](public/images/mirotalk-hetzner-qr.png)](https://p2p.mirotalk.com)
 
 <br>
 
-<a target="_blank" href="https://www.heroku.com/"><img src="https://www.herokucdn.com/deploy/button.svg" style="width: 220px;"></a>
+<a target="_blank" href="https://railway.app/new/template/mirotalk?referralCode=mirotalk"><img src="https://railway.app/button.svg" style="width: 220px;"></a>
 
-https://mirotalk.herokuapp.com/
+https://mirotalk.up.railway.app
 
-[![heroku-qr](public/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com/)
+[![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app)
+
+<br>
+
+<a href="https://heroku.com/deploy?template=https://github.com/miroslavpejic85/mirotalk"><img src="https://www.herokucdn.com/deploy/button.svg" style="width: 220px;" alt="Heroku Deploy"></a>
+
+https://mirotalk.herokuapp.com
+
+[![heroku-qr](public/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com)
 
 If you want to deploy a MiroTalk P2P instance on your dedicated server, or for other needs, don't hesitate to contact us at p2p.mirotalk@gmail.com.
 
@@ -264,6 +289,8 @@ For a MiroTalk license under conditions other than AGPLv3, please contact us at 
 Support this project by [becoming a sponsor](https://github.com/sponsors/miroslavpejic85). Your logo will show up here with a link to your website.
 
 [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)
+
+[![Hetzner](public/sponsors/Hetzner.png)](https://www.hetzner.com)
 
 </details>
 
