@@ -3724,7 +3724,9 @@ function appendMessage(from, img, side, msg, privateMsg) {
     let msgBubble = privateMsg ? 'private-msg-bubble' : 'msg-bubble';
 
     // console.log("chatMessages", chatMessages);
-    let cMsg = detectUrl(msg);
+    let cMsg = checkMsg(msg);
+    if (!cMsg) return;
+
     const msgHTML = `
 	<div class="msg ${side}-msg">
 		<div class="msg-img" style="background-image: url('${img}')"></div>
@@ -3843,11 +3845,18 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
 }
 
 /**
- * Detect url from text and make it clickable and if url is a img to create preview of it
+ * Check Message
+ * Detect url from text and make it clickable
+ * If url is a img to create preview of it
+ * Prevent XSS
  * @param {string} text passed text
  * @returns {string} html format
  */
-function detectUrl(text) {
+function checkMsg(text) {
+    if (text.startsWith('<img')) {
+        msgerInput.value = '';
+        return '';
+    }
     let urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, (url) => {
         if (isImageURL(text)) return '<p><img src="' + url + '" alt="img" width="200" height="auto"/></p>';
