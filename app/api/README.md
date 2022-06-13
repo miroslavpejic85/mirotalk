@@ -1,4 +1,4 @@
-[![restAPI](restAPI.png)](https://p2p.mirotalk.org/api/v1/docs)
+[![restAPI](restAPI.png)](https://p2p.mirotalk.com/api/v1/docs)
 
 ## Create a meeting
 

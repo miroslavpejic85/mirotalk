@@ -190,7 +190,7 @@ $ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization
 
 ## API Documentation
 
-The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.org/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
+The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.com/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
 
 </details>
 
