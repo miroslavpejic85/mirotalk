@@ -3614,7 +3614,7 @@ function sendChatMessage() {
         return;
     }
 
-    const msg = msgerInput.value;
+    const msg = checkMsg(msgerInput.value);
     // empity msg or
     if (!msg) return;
 
@@ -3723,10 +3723,6 @@ function appendMessage(from, img, side, msg, privateMsg) {
     // check if i receive a private message
     let msgBubble = privateMsg ? 'private-msg-bubble' : 'msg-bubble';
 
-    // console.log("chatMessages", chatMessages);
-    let cMsg = checkMsg(msg);
-    if (!cMsg) return;
-
     const msgHTML = `
 	<div class="msg ${side}-msg">
 		<div class="msg-img" style="background-image: url('${img}')"></div>
@@ -3735,7 +3731,7 @@ function appendMessage(from, img, side, msg, privateMsg) {
                 <div class="msg-info-name">${from}</div>
                 <div class="msg-info-time">${time}</div>
             </div>
-            <div class="msg-text">${cMsg}</div>
+            <div class="msg-text">${msg}</div>
         </div>
 	</div>
     `;
@@ -3834,8 +3830,11 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
     });
 
     function sendPrivateMessage() {
-        let pMsg = msgerPrivateMsgInput.value;
-        if (!pMsg) return;
+        let pMsg = checkMsg(msgerPrivateMsgInput.value);
+        if (!pMsg) {
+            msgerPrivateMsgInput.value = '';
+            return;
+        }
         let toPeerName = msgerPrivateBtn.value;
         emitMsg(myPeerName, toPeerName, pMsg, true);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<br/><hr>Private message to ' + toPeerName, true);
@@ -4208,7 +4207,8 @@ function handlePeerPrivateMsg(peer_id, toPeerName) {
             },
         }).then((result) => {
             if (result.value) {
-                let pMsg = result.value;
+                let pMsg = checkMsg(result.value);
+                if (!pMsg) return;
                 emitMsg(myPeerName, toPeerName, pMsg, true);
                 appendMessage(
                     myPeerName,
