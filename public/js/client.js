@@ -3852,7 +3852,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
  * @returns {string} html format
  */
 function checkMsg(text) {
-    if (text.startsWith('<img')) {
+    if (text.includes('<img')) {
         msgerInput.value = '';
         return '';
     }
