@@ -407,6 +407,27 @@ access to use this app.
 
         <!-- End Video container -->
 
+
+        <!-- message-template -->
+
+        <script id="messageTemplate" type="text/html">
+            <div class="msg {{side}}-msg">
+                <div class="msg-img" style="background-image: url('{{img}}')"></div>
+                <div class={{msgBubble}}>
+                    <div class="msg-info">
+                        <div class="msg-info-name">{{from}}</div>
+                        <div class="msg-info-time">{{time}}</div>
+                    </div>
+                    <div class="msg-text">
+                        {{msg}}
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <!--  End Message Template -->
+
+
         <!-- Js scripts -->
 
         <script defer src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
@@ -417,6 +438,7 @@ access to use this app.
         <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
         <script defer src="https://unpkg.com/@popperjs/core@2"></script>
         <script defer src="https://unpkg.com/tippy.js@6"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
         <script defer src="/socket.io/socket.io.js"></script>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/detectSpeaking.js"></script>
