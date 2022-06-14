@@ -3847,20 +3847,42 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
  * Check Message
  * Detect url from text and make it clickable
  * If url is a img to create preview of it
- * Prevent XSS
+ * Prevent XSS (strip html part)
  * @param {string} text passed text
  * @returns {string} html format
  */
 function checkMsg(text) {
-    if (text.includes('<img')) {
-        msgerInput.value = '';
-        return '';
-    }
+    if (isHtml(text)) return stripHtml(text);
     let urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, (url) => {
         if (isImageURL(text)) return '<p><img src="' + url + '" alt="img" width="200" height="auto"/></p>';
         return '<a id="chat-msg-a" href="' + url + '" target="_blank">' + url + '</a>';
     });
+}
+
+/**
+ * Strip Html
+ * @param {string} html code
+ * @returns only text from html
+ */
+function stripHtml(html) {
+    // return html.replace(/<[^>]+>/g, '');
+    let doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+}
+
+/**
+ * Check if string contain html
+ * @param {string} str
+ * @returns
+ */
+function isHtml(str) {
+    var a = document.createElement('div');
+    a.innerHTML = str;
+    for (var c = a.childNodes, i = c.length; i--; ) {
+        if (c[i].nodeType == 1) return true;
+    }
+    return false;
 }
 
 /**
