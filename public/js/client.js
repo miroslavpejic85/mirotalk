@@ -162,6 +162,8 @@ let msgerChat;
 let msgerEmojiBtn;
 let msgerInput;
 let msgerSendBtn;
+let messageTemplate
+
 //caption section
 let captionDraggable;
 let captionHeader;
@@ -329,6 +331,8 @@ function getHtmlElementsById() {
     msgerEmojiBtn = getId('msgerEmojiBtn');
     msgerInput = getId('msgerInput');
     msgerSendBtn = getId('msgerSendBtn');
+    messageTemplate = getId('messageTemplate');
+
     // chat room connected peers
     msgerCP = getId('msgerCP');
     msgerCPHeader = getId('msgerCPHeader');
@@ -3723,19 +3727,18 @@ function appendMessage(from, img, side, msg, privateMsg) {
     // check if i receive a private message
     let msgBubble = privateMsg ? 'private-msg-bubble' : 'msg-bubble';
 
-    const msgHTML = `
-	<div class="msg ${side}-msg">
-		<div class="msg-img" style="background-image: url('${img}')"></div>
-		<div class=${msgBubble}>
-            <div class="msg-info">
-                <div class="msg-info-name">${from}</div>
-                <div class="msg-info-time">${time}</div>
-            </div>
-            <div class="msg-text">${msg}</div>
-        </div>
-	</div>
-    `;
-    msgerChat.insertAdjacentHTML('beforeend', msgHTML);
+    let messageTemplateInnerHtml = messageTemplate.innerHTML
+    
+    const msgHTML = Mustache.render(messageTemplateInnerHtml, {
+		side,
+        img,
+        msgBubble,
+        from,
+        time,
+        msg
+
+	})
+	msgerChat.insertAdjacentHTML('beforeend', msgHTML)
     msgerChat.scrollTop += 500;
 }
 
