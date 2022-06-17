@@ -21,7 +21,6 @@
 'use strict'; // https://www.w3schools.com/js/js_strict.asp
 
 const isHttps = false; // must be the same on server.js
-const signalingServerPort = 3000; // must be the same to server.js PORT
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerInfo = getPeerInfo();
@@ -535,16 +534,9 @@ function getPeerGeoLocation() {
  */
 function getSignalingServer() {
     if (isHttps) {
-        return 'https://' + location.hostname + ':' + signalingServerPort;
-        // if need: change it with YOUR-SERVER-DOMAIN-NAME
+        return 'https://' + location.hostname;
     }
-    return (
-        'http' +
-        (location.hostname == 'localhost' ? '' : 's') +
-        '://' +
-        location.hostname +
-        (location.hostname == 'localhost' ? ':' + signalingServerPort : '')
-    );
+    return 'http' + (location.hostname == 'localhost' ? '' : 's') + '://' + location.hostname;
 }
 
 /**
@@ -650,12 +642,9 @@ function initClientPeer() {
     }
 
     console.log('Connecting to signaling server');
-    //signalingSocket = io(signalingServer);
 
     // Disable the HTTP long-polling transport
-    signalingSocket = io(signalingServer, {
-        transports: ['websocket'],
-    });
+    signalingSocket = io({ transports: ['websocket'] });
 
     const transport = signalingSocket.io.engine.transport.name; // in most cases, "polling"
     console.log('Connection transport', transport);

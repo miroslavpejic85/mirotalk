@@ -16,3 +16,6 @@ package-lock.json
 
 # personal env
 .env
+
+# personal doc
+doc
