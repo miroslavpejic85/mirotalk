@@ -482,7 +482,7 @@ function setButtonsToolTip() {
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
     // video URL player
     setTippy(videoUrlCloseBtn, 'Close the video player', 'right-start');
-    setTippy(msgerVideoUrlBtn, 'Share YouTube video to all participants', 'right-start');
+    setTippy(msgerVideoUrlBtn, 'Share YouTube video to all participants', 'top');
 }
 
 /**

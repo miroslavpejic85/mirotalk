@@ -158,11 +158,11 @@ $ docker-compose down
 </details>
 
 <details>
-<summary>Https</summary>
+<summary>Ngrok - Https</summary>
 
 <br/>
 
-You can start videoconferencing directly from your Local PC, and be reachable from any device outside your network, simply using a service like [ngrok](https://ngrok.com/) by editing the [Ngrok part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L1) on `.env` file, or expose it directly on [HTTPS](app/ssl/README.md)
+You can start videoconferencing directly from your Local PC, and be reachable from any device outside your network, simply by following [these documentation](docs/ngrok.md), or expose it directly on [HTTPS](app/ssl/README.md)
 
 </details>
 
@@ -239,6 +239,15 @@ If you want to deploy a MiroTalk P2P instance on your dedicated server, or for o
 </details>
 
 <details>
+<summary>Self Hosting</summary>
+
+<br/>
+
+Follow [this documentation](docs/self-hosting.md).
+
+</details>
+
+<details>
 <summary>Credits</summary>
 
 <br/>
@@ -282,11 +291,13 @@ For a MiroTalk license under conditions other than AGPLv3, please contact us at 
 </details>
 
 <details open>
-<summary>Sponsors</summary>
+<summary>Support the project</summary>
 
 <br/>
 
-Support this project by [becoming a sponsor](https://github.com/sponsors/miroslavpejic85). Your logo will show up here with a link to your website.
+Do you find MiroTalk useful?
+
+Support the project by [becoming a backer or sponsor](https://github.com/sponsors/miroslavpejic85). Your logo will show up here with a link to your website.
 
 [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)
 
