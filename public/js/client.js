@@ -634,8 +634,6 @@ function countPeerConnections() {
  * On body load Get started
  */
 function initClientPeer() {
-    setTheme(mirotalkTheme);
-
     if (!isWebRTCSupported) {
         userLog('error', 'This browser seems not supported WebRTC!');
         return;
@@ -810,6 +808,7 @@ function whoAreYouJoin() {
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
     joinToChannel();
+    setTheme(mirotalkTheme);
 }
 
 /**
@@ -1182,6 +1181,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--left-msg-bg', '#222328');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#0a0b0c');
+            document.body.style.background = 'radial-gradient(#393939, #000000)';
             break;
         case 'grey':
             // grey theme
@@ -1194,6 +1194,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--left-msg-bg', '#222328');
             document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
             document.documentElement.style.setProperty('--right-msg-bg', '#0a0b0c');
+            document.body.style.background = 'radial-gradient(#666, #333)';
             break;
         // ...
         default:

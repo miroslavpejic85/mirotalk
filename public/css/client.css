@@ -119,7 +119,7 @@ body {
     height: 100%;
     margin: auto;
     overflow: hidden;
-    background: var(--body-bg);
+    background: url('../images/bg.svg');
 }
 
 /*--------------------------------------------------------------
@@ -142,7 +142,7 @@ body {
     color: #fff;
     padding: 30px;
     border-radius: 10px;
-    background: var(--body-bg);
+    background: rgba(0, 0, 0, 0.7);
 }
 #loadingDiv h1 {
     font-size: 60px;
