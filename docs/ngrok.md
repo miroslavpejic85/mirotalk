@@ -23,10 +23,12 @@ So open it in your browser, join in the room, share it to whom you want and wait
 
 <br/>
 
+---
+
 ## Do you find MiroTalk useful?
 
 Show your appreciation by becoming a [backer or sponsor](https://github.com/sponsors/miroslavpejic85)
 
-Thank you for your support! ❤️
+Thank you for your support!
 
 ---

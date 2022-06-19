@@ -7,6 +7,8 @@ Requirments:
 -   Set own TURN server (recommended) or use third party STUN/TURN servers (configurable on `.env` file)
 -   Your domain example: `your.domain.name` (Set a DNS A record for that domain that point to Your Server public IPv4)
 
+---
+
 Install the requirements (Note: Many of the installation steps require `root` or `sudo` access)
 
 ```bash
@@ -17,6 +19,8 @@ $ curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
 $ npm install -g npm@latest
 ```
+
+---
 
 Quick start
 
@@ -35,6 +39,8 @@ $ npm start
 
 Check if is correctly installed: https://your.domain.name:3000
 
+---
+
 Using [PM2](https://pm2.keymetrics.io) to run it as deamon
 
 ```bash
@@ -42,7 +48,9 @@ $ npm install -g pm2
 $ pm2 start app/src/server.js
 ```
 
-If you want to use Docker
+---
+
+If you want to use `Docker`
 
 ```bash
 # Install docker and docker-compose
@@ -58,6 +66,8 @@ $ docker-compose up -d
 ```
 
 Check if is correctly installed: https://your.domain.name:3000
+
+---
 
 In order to use it without the port number at the end, and to have encrypted communications, we going to install [nginx](https://www.nginx.com) and [certbot](https://certbot.eff.org)
 
@@ -138,6 +148,8 @@ $ sudo certbot certificates
 
 Check Your MiroTalk P2P instance: https://your.domain.name
 
+---
+
 ## Update script
 
 In order to have always Your MiroTalk P2P updated to latest, we going to create a script
@@ -146,6 +158,8 @@ In order to have always Your MiroTalk P2P updated to latest, we going to create 
 # Create a file p2pUpdate.sh
 $ vim p2pUpdate.sh
 ```
+
+---
 
 If you use `PM2`, paste this:
 
@@ -159,6 +173,8 @@ sudo npm install
 pm2 start app/src/server.js
 ```
 
+---
+
 If you use `Docker`, paste this:
 
 ```bash
@@ -171,6 +187,8 @@ docker-compose build
 docker images |grep '<none>' |awk '{print $3}' |xargs docker rmi
 docker-compose up -d
 ```
+
+---
 
 Make the script executable
 
@@ -188,10 +206,12 @@ To update Your MiroTalk P2P instance at latest commit, execute:
 
 <br />
 
+---
+
 ## Do you find MiroTalk useful?
 
 Show your appreciation by becoming a [backer or sponsor](https://github.com/sponsors/miroslavpejic85)
 
-Thank you for your support! ❤️
+Thank you for your support!
 
 ---
