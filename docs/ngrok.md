@@ -13,6 +13,8 @@ NGROK_ENABLED=true
 NGROK_AUTH_TOKEN=YourNgrokAuthToken
 ```
 
+---
+
 Then, when you run it with `npm start`, you should see in the console log this line:
 
 ```bash

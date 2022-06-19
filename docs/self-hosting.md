@@ -82,9 +82,11 @@ $ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 
 # Setup Nginx sites
 $ sudo vim /etc/nginx/sites-enabled/default
+```
 
-#---
+Paste this:
 
+```bash
 # HTTP — redirect all traffic to HTTPS
 server {
     if ($host = your.domain.name) {
@@ -95,9 +97,9 @@ server {
     server_name your.domain.name;
     return 404;
 }
+```
 
-#---
-
+```bash
 # Check if all configured correctly
 $ sudo nginx -t
 
@@ -106,9 +108,11 @@ $ sudo certbot certonly --nginx
 
 # Add let's encrypt part on nginx config
 $ sudo vim /etc/nginx/sites-enabled/default
+```
 
-#---
+Paste this:
 
+```bash
 # MiroTalk P2P - HTTPS — proxy all requests to the Node app
 server {
 	# Enable HTTP/2
@@ -129,9 +133,9 @@ server {
 		proxy_set_header Connection "upgrade";
 	}
 }
+```
 
-#---
-
+```bash
 # Check if all configured correctly
 $ sudo nginx -t
 
