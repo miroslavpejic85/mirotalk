@@ -8,11 +8,14 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 ███████ ███████ ██   ██   ████   ███████ ██   ██                                           
 
 dependencies: {
+    body-parser             : https://www.npmjs.com/package/body-parser
     compression             : https://www.npmjs.com/package/compression
     cors                    : https://www.npmjs.com/package/cors
+    crypto-js               : https://www.npmjs.com/package/crypto-js
     dotenv                  : https://www.npmjs.com/package/dotenv
     express                 : https://www.npmjs.com/package/express
     ngrok                   : https://www.npmjs.com/package/ngrok
+    qs                      : https://www.npmjs.com/package/qs
     @sentry/node            : https://www.npmjs.com/package/@sentry/node
     @sentry/integrations    : https://www.npmjs.com/package/@sentry/integrations
     socket.io               : https://www.npmjs.com/package/socket.io
@@ -107,6 +110,13 @@ const sentryEnabled = process.env.SENTRY_ENABLED || false;
 const sentryDSN = process.env.SENTRY_DSN;
 const sentryTracesSampleRate = process.env.SENTRY_TRACES_SAMPLE_RATE;
 
+// Slack API
+const CryptoJS = require('crypto-js');
+const qS = require('qs');
+const slackEnabled = process.env.SENTRY_ENABLED || false;
+const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
+const bodyParser = require('body-parser');
+
 // Setup sentry client
 if (sentryEnabled == 'true') {
     Sentry.init({
@@ -148,6 +158,7 @@ app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
 app.use(express.json()); // Api parse body data as json
 app.use(express.static(dir.public)); // Use all static files from the public folder
+app.use(bodyParser.urlencoded({ extended: true })); // Need for Slack API body parser
 
 // Remove trailing slashes in url handle bad requests
 app.use((err, req, res, next) => {
@@ -246,6 +257,37 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         body: req.body,
         meeting: meetingURL,
     });
+});
+
+/*
+    MiroTalk Slack app v1
+*/
+
+// Slack request meeting room endpoint
+app.post('/slack', (req, res) => {
+    if (slackEnabled != 'true') return res.end('`Under maintenance` - Please check back soon.');
+
+    log.debug('Slack', req.headers);
+
+    if (!slackSigningSecret) return res.end('`Slack Signing Secret is empty!`');
+
+    let slackSignature = req.headers['x-slack-signature'];
+    let requestBody = qS.stringify(req.body, { format: 'RFC1738' });
+    let timeStamp = req.headers['x-slack-request-timestamp'];
+    let time = Math.floor(new Date().getTime() / 1000);
+
+    if (Math.abs(time - timeStamp) > 300) return res.end('`Wrong timestamp` - Ignore this request.');
+
+    let sigBaseString = 'v0:' + timeStamp + ':' + requestBody;
+    let mySignature = 'v0=' + CryptoJS.HmacSHA256(sigBaseString, slackSigningSecret);
+
+    if (mySignature == slackSignature) {
+        let host = req.headers.host;
+        let meetingURL = getMeetingURL(host);
+        log.debug('Slack', { meeting: meetingURL });
+        return res.end(meetingURL);
+    }
+    return res.end('`Wrong signature` - Verification failed!');
 });
 
 /**
