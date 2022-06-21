@@ -261,9 +261,10 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
 
 /*
     MiroTalk Slack app v1
+    https://api.slack.com/authentication/verifying-requests-from-slack
 */
 
-// Slack request meeting room endpoint
+//Slack request meeting room endpoint
 app.post('/slack', (req, res) => {
     if (slackEnabled != 'true') return res.end('`Under maintenance` - Please check back soon.');
 
@@ -276,17 +277,21 @@ app.post('/slack', (req, res) => {
     let timeStamp = req.headers['x-slack-request-timestamp'];
     let time = Math.floor(new Date().getTime() / 1000);
 
+    // The request timestamp is more than five minutes from local time. It could be a replay attack, so let's ignore it.
     if (Math.abs(time - timeStamp) > 300) return res.end('`Wrong timestamp` - Ignore this request.');
 
+    // Get Signature to compare it later
     let sigBaseString = 'v0:' + timeStamp + ':' + requestBody;
     let mySignature = 'v0=' + CryptoJS.HmacSHA256(sigBaseString, slackSigningSecret);
 
+    // Valid Signature return a meetingURL
     if (mySignature == slackSignature) {
         let host = req.headers.host;
         let meetingURL = getMeetingURL(host);
         log.debug('Slack', { meeting: meetingURL });
         return res.end(meetingURL);
     }
+    // Something wrong
     return res.end('`Wrong signature` - Verification failed!');
 });
 
