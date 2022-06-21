@@ -130,14 +130,14 @@ const dir = {
     public: path.join(__dirname, '../../', 'public'),
 };
 // html views
-const view = {
-    about: path.join(__dirname, '../../', 'public/view/about.html'),
-    client: path.join(__dirname, '../../', 'public/view/client.html'),
-    landing: path.join(__dirname, '../../', 'public/view/landing.html'),
-    newCall: path.join(__dirname, '../../', 'public/view/newcall.html'),
-    notFound: path.join(__dirname, '../../', 'public/view/404.html'),
-    permission: path.join(__dirname, '../../', 'public/view/permission.html'),
-    privacy: path.join(__dirname, '../../', 'public/view/privacy.html'),
+const views = {
+    about: path.join(__dirname, '../../', 'public/views/about.html'),
+    client: path.join(__dirname, '../../', 'public/views/client.html'),
+    landing: path.join(__dirname, '../../', 'public/views/landing.html'),
+    newCall: path.join(__dirname, '../../', 'public/views/newcall.html'),
+    notFound: path.join(__dirname, '../../', 'public/views/404.html'),
+    permission: path.join(__dirname, '../../', 'public/views/permission.html'),
+    privacy: path.join(__dirname, '../../', 'public/views/privacy.html'),
 };
 
 let channels = {}; // collect channels
@@ -169,27 +169,27 @@ app.use((err, req, res, next) => {
 
 // all start from here
 app.get(['/'], (req, res) => {
-    res.sendFile(view.landing);
+    res.sendFile(views.landing);
 });
 
 // mirotalk about
 app.get(['/about'], (req, res) => {
-    res.sendFile(view.about);
+    res.sendFile(views.about);
 });
 
 // set new room name and join
 app.get(['/newcall'], (req, res) => {
-    res.sendFile(view.newCall);
+    res.sendFile(views.newCall);
 });
 
 // if not allow video/audio
 app.get(['/permission'], (req, res) => {
-    res.sendFile(view.permission);
+    res.sendFile(views.permission);
 });
 
 // privacy policy
 app.get(['/privacy'], (req, res) => {
-    res.sendFile(view.privacy);
+    res.sendFile(views.privacy);
 });
 
 // no room name specified to join
@@ -204,7 +204,7 @@ app.get('/join/', (req, res) => {
         const { room, name, audio, video, screen, notify } = req.query;
         // all the params are mandatory for the direct room join
         if (room && name && audio && video && screen && notify) {
-            return res.sendFile(view.client);
+            return res.sendFile(views.client);
         }
     }
     res.redirect('/');
@@ -212,7 +212,7 @@ app.get('/join/', (req, res) => {
 
 // Join Room *
 app.get('/join/*', (req, res) => {
-    res.sendFile(view.client);
+    res.sendFile(views.client);
 });
 
 /**
@@ -260,7 +260,7 @@ function getMeetingURL(host) {
 
 // not match any of page before, so 404 not found
 app.get('*', function (req, res) {
-    res.sendFile(view.notFound);
+    res.sendFile(views.notFound);
 });
 
 /**
