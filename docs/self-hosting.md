@@ -197,7 +197,7 @@ docker-compose up -d
 Make the script executable
 
 ```bash
-$ chmod +x ./p2pUpdate.sh
+$ chmod +x p2pUpdate.sh
 ```
 
 Follow the commits of the MiroTalk P2P project [here](https://github.com/miroslavpejic85/mirotalk/commits/master)
