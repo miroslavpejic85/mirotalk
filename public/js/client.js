@@ -1254,7 +1254,7 @@ function setupLocalMedia(callback, errorback) {
 
     console.log('Supported constraints', navigator.mediaDevices.getSupportedConstraints());
 
-    // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 4kVideo |
+    // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 2kVideo | 4kVideo |
     let videoConstraints =
         myBrowserName === 'Firefox' ? getVideoConstraints('useVideo') : getVideoConstraints('default');
 
@@ -2644,6 +2644,12 @@ function getVideoConstraints(videoQuality) {
                 height: { exact: 1080 },
                 frameRate: frameRate,
             }; // video cam constraints very high bandwidth
+        case '2kVideo':
+            return {
+                width: { exact: 2560 },
+                height: { exact: 1440 },
+                frameRate: frameRate,
+            }; // video cam constraints ultra high bandwidth
         case '4kVideo':
             return {
                 width: { exact: 3840 },
