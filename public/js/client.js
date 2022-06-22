@@ -290,6 +290,9 @@ const showFileShareBtn = true;
 const showMySettingsBtn = true;
 const showAboutBtn = true;
 
+// force the webCam to max resolution, up to 4k as default
+const forceCamMaxResolution = true;
+
 /**
  * Load all Html elements by Id
  */
@@ -1255,8 +1258,7 @@ function setupLocalMedia(callback, errorback) {
     console.log('Supported constraints', navigator.mediaDevices.getSupportedConstraints());
 
     // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 2kVideo | 4kVideo |
-    let videoConstraints =
-        myBrowserName === 'Firefox' ? getVideoConstraints('useVideo') : getVideoConstraints('default');
+    let videoConstraints = getVideoConstraints('default');
 
     const constraints = {
         audio: {
@@ -2614,12 +2616,16 @@ function getVideoConstraints(videoQuality) {
     let frameRate = { max: videoMaxFrameRate };
 
     switch (videoQuality) {
-        case 'useVideo':
-            return useVideo;
-        // Firefox not support set frameRate (OverconstrainedError) O.o
         case 'default':
+            if (forceCamMaxResolution) {
+                // This will make the browser use the maximum resolution available as default, `up to 4K`.
+                return {
+                    width: { ideal: 3840 },
+                    height: { ideal: 2160 },
+                    frameRate: frameRate,
+                }; // video cam constraints default
+            }
             return { frameRate: frameRate };
-        // video cam constraints default
         case 'qvgaVideo':
             return {
                 width: { exact: 320 },
