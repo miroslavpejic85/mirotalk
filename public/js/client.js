@@ -3979,7 +3979,8 @@ function hideShowMySettings() {
         playSound('newMessage');
         // adapt it for mobile
         if (isMobileDevice) {
-            mySettings.style.setProperty('width', '90%');
+            mySettings.style.setProperty('width', '100%');
+            mySettings.style.setProperty('height', '100%');
             document.documentElement.style.setProperty('--mySettings-select-w', '99%');
         }
         // my current peer name
