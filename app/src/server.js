@@ -604,32 +604,36 @@ io.sockets.on('connect', (socket) => {
         let password = config.password;
         let action = config.action;
         //
-        switch (action) {
-            case 'lock':
-                peers[room_id]['lock'] = true;
-                peers[room_id]['password'] = password;
-                sendToRoom(room_id, socket.id, 'roomAction', {
-                    peer_name: peer_name,
-                    action: action,
-                });
-                room_is_locked = true;
-                break;
-            case 'unlock':
-                peers[room_id]['lock'] = false;
-                peers[room_id]['password'] = password;
-                sendToRoom(room_id, socket.id, 'roomAction', {
-                    peer_name: peer_name,
-                    action: action,
-                });
-                break;
-            case 'checkPassword':
-                let config = {
-                    peer_name: peer_name,
-                    action: action,
-                    password: password === peers[room_id]['password'] ? 'OK' : 'KO',
-                };
-                sendToPeer(socket.id, sockets, 'roomAction', config);
-                break;
+        try {
+            switch (action) {
+                case 'lock':
+                    peers[room_id]['lock'] = true;
+                    peers[room_id]['password'] = password;
+                    sendToRoom(room_id, socket.id, 'roomAction', {
+                        peer_name: peer_name,
+                        action: action,
+                    });
+                    room_is_locked = true;
+                    break;
+                case 'unlock':
+                    peers[room_id]['lock'] = false;
+                    peers[room_id]['password'] = password;
+                    sendToRoom(room_id, socket.id, 'roomAction', {
+                        peer_name: peer_name,
+                        action: action,
+                    });
+                    break;
+                case 'checkPassword':
+                    let config = {
+                        peer_name: peer_name,
+                        action: action,
+                        password: password == peers[room_id]['password'] ? 'OK' : 'KO',
+                    };
+                    sendToPeer(socket.id, sockets, 'roomAction', config);
+                    break;
+            }
+        } catch (err) {
+            log.error('Room action', toJson(err));
         }
         log.debug('[' + socket.id + '] Room ' + room_id, { locked: room_is_locked, password: password });
     });
@@ -671,38 +675,41 @@ io.sockets.on('connect', (socket) => {
         let peer_name = config.peer_name;
         let element = config.element;
         let status = config.status;
-
-        for (let peer_id in peers[room_id]) {
-            if (peers[room_id][peer_id]['peer_name'] === peer_name) {
-                switch (element) {
-                    case 'video':
-                        peers[room_id][peer_id]['peer_video'] = status;
-                        break;
-                    case 'audio':
-                        peers[room_id][peer_id]['peer_audio'] = status;
-                        break;
-                    case 'hand':
-                        peers[room_id][peer_id]['peer_hand'] = status;
-                        break;
-                    case 'rec':
-                        peers[room_id][peer_id]['peer_rec'] = status;
-                        break;
+        try {
+            for (let peer_id in peers[room_id]) {
+                if (peers[room_id][peer_id]['peer_name'] == peer_name) {
+                    switch (element) {
+                        case 'video':
+                            peers[room_id][peer_id]['peer_video'] = status;
+                            break;
+                        case 'audio':
+                            peers[room_id][peer_id]['peer_audio'] = status;
+                            break;
+                        case 'hand':
+                            peers[room_id][peer_id]['peer_hand'] = status;
+                            break;
+                        case 'rec':
+                            peers[room_id][peer_id]['peer_rec'] = status;
+                            break;
+                    }
                 }
             }
+
+            log.debug('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
+                peer_id: socket.id,
+                element: element,
+                status: status,
+            });
+
+            sendToRoom(room_id, socket.id, 'peerStatus', {
+                peer_id: socket.id,
+                peer_name: peer_name,
+                element: element,
+                status: status,
+            });
+        } catch (err) {
+            log.error('Peer Status', toJson(err));
         }
-
-        log.debug('[' + socket.id + '] emit peerStatus to [room_id: ' + room_id + ']', {
-            peer_id: socket.id,
-            element: element,
-            status: status,
-        });
-
-        sendToRoom(room_id, socket.id, 'peerStatus', {
-            peer_id: socket.id,
-            peer_name: peer_name,
-            element: element,
-            status: status,
-        });
     });
 
     /**
