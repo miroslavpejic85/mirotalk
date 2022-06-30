@@ -616,8 +616,8 @@ io.sockets.on('connect', (socket) => {
                     room_is_locked = true;
                     break;
                 case 'unlock':
-                    peers[room_id]['lock'] = false;
-                    peers[room_id]['password'] = password;
+                    delete peers[room_id]['lock'];
+                    delete peers[room_id]['password'];
                     sendToRoom(room_id, socket.id, 'roomAction', {
                         peer_name: peer_name,
                         action: action,
