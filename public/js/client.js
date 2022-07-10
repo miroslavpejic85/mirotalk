@@ -95,6 +95,8 @@ let isScreenSharingSupported = false;
 let notify = getNotify();
 let useAudio = true;
 let useVideo = true;
+let isEnumerateVideoDevices = false;
+let isEnumerateAudioDevices = false;
 let camera = 'user';
 let roomLocked = false;
 let myVideoChange = false;
@@ -115,12 +117,13 @@ let isVideoOnFullScreen = false;
 let isDocumentOnFullScreen = false;
 let isWhiteboardFs = false;
 let isVideoUrlPlayerOpen = false;
-let isRecScreenSream = false;
+let isRecScreenStream = false;
 let signalingSocket; // socket.io connection to our webserver
 let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
 let recScreenStream; // recorded screen stream
 let remoteMediaControls = false; // enable - disable peers video player controls (default false)
+let peers = {}; // keep track of our peer infos, indexed by peer_id == socket.id
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
@@ -522,7 +525,8 @@ function getPeerInfo() {
  * Get approximative peer geolocation
  * Get your API Key at https://extreme-ip-lookup.com
  */
-function getPeerGeoLocation() {
+async function getPeerGeoLocation() {
+    console.log('07. Get peer geo location');
     fetch(peerLoockupUrl)
         .then((res) => res.json())
         .then((outJson) => {
@@ -642,13 +646,13 @@ function initClientPeer() {
         return;
     }
 
-    console.log('Connecting to signaling server');
+    console.log('01. Connecting to signaling server');
 
     // Disable the HTTP long-polling transport
     signalingSocket = io({ transports: ['websocket'] });
 
     const transport = signalingSocket.io.engine.transport.name; // in most cases, "polling"
-    console.log('Connection transport', transport);
+    console.log('02. Connection transport', transport);
 
     // Check upgrade transport
     signalingSocket.io.engine.on('upgrade', () => {
@@ -703,17 +707,19 @@ async function sendToDataChannel(config) {
  * Connected to Signaling Server. Once the user has given us access to their
  * microphone/cam, join the channel and start peering up
  */
-function handleConnect() {
-    console.log('Connected to signaling server');
+async function handleConnect() {
+    console.log('03. Connected to signaling server');
 
     myPeerId = signalingSocket.id;
-    console.log('My peer id [ ' + myPeerId + ' ]');
+    console.log('04. My peer id [ ' + myPeerId + ' ]');
 
-    if (localMediaStream) joinToChannel();
-    else
-        setupLocalMedia(() => {
-            whoAreYou();
-        });
+    if (localMediaStream) {
+        await joinToChannel();
+    } else {
+        await initEnumerateDevices();
+        await setupLocalMedia();
+        await whoAreYou();
+    }
 }
 
 /**
@@ -722,7 +728,7 @@ function handleConnect() {
  */
 function handleServerInfo(config) {
     let peers_count = config.peers_count;
-    console.log('Peers count', peers_count);
+    console.log('13. Peers count', peers_count);
     if (notify && peers_count == 1) {
         welcomeUser();
     } else {
@@ -733,7 +739,8 @@ function handleServerInfo(config) {
 /**
  * set your name for the conference
  */
-function whoAreYou() {
+async function whoAreYou() {
+    console.log('11. Who are you?');
     if (myPeerName) {
         checkPeerAudioVideo();
         whoAreYouJoin();
@@ -778,8 +785,19 @@ function whoAreYou() {
     initAudioBtn = getId('initAudioBtn');
     initVideoBtn = getId('initVideoBtn');
 
-    setTippy(initAudioBtn, 'Stop the audio', 'top');
-    setTippy(initVideoBtn, 'Stop the video', 'top');
+    if (!useVideo) {
+        initVideoBtn.className = 'fas fa-video-slash';
+        setMyVideoStatus(useVideo);
+    }
+    if (!useAudio) {
+        initAudioBtn.className = 'fas fa-microphone-slash';
+        setMyAudioStatus(useAudio);
+    }
+
+    if (!isMobileDevice) {
+        setTippy(initAudioBtn, 'Stop the audio', 'top');
+        setTippy(initVideoBtn, 'Stop the video', 'top');
+    }
 }
 
 /**
@@ -817,18 +835,18 @@ function whoAreYouJoin() {
 /**
  * join to channel and send some peer info
  */
-function joinToChannel() {
-    console.log('join to channel', roomId);
+async function joinToChannel() {
+    console.log('12. join to channel', roomId);
     sendToServer('join', {
         channel: roomId,
         channel_password: thisRoomPassword,
         peer_info: peerInfo,
         peer_geo: peerGeo,
         peer_name: myPeerName,
-        peer_video: myVideoStatus,
-        peer_audio: myAudioStatus,
+        peer_video: useVideo,
+        peer_audio: useAudio,
         peer_hand: myHandStatus,
-        peer_rec: isRecScreenSream,
+        peer_rec: isRecScreenStream,
     });
 }
 
@@ -883,11 +901,11 @@ function welcomeUser() {
  * ie if there are 6 people in the channel you will connect directly to the other 5, so there will be a total of 15 connections in the network).
  * @param {object} config data
  */
-function handleAddPeer(config) {
+async function handleAddPeer(config) {
     // console.log("addPeer", JSON.stringify(config));
 
     let peer_id = config.peer_id;
-    let peers = config.peers;
+    peers = config.peers;
     let should_create_offer = config.should_create_offer;
     let iceServers = config.iceServers;
 
@@ -904,14 +922,20 @@ function handleAddPeer(config) {
     peerConnection = new RTCPeerConnection({ iceServers: iceServers });
     peerConnections[peer_id] = peerConnection;
 
-    handlePeersConnectionStatus(peer_id);
-    msgerAddPeers(peers);
-    handleOnIceCandidate(peer_id);
-    handleOnTrack(peer_id, peers);
-    handleAddTracks(peer_id);
-    handleRTCDataChannels(peer_id);
-    if (should_create_offer) handleRtcOffer(peer_id);
-    wbUpdate();
+    console.log('PEER_ID', peer_id); // the connected peer_id
+    console.log('PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
+    console.log('PEERS', peers); // all peers in the room
+
+    await handlePeersConnectionStatus(peer_id);
+    await msgerAddPeers(peers);
+    await handleOnIceCandidate(peer_id);
+    await handleOnTrack(peer_id, peers);
+    await handleAddTracks(peer_id);
+    await handleRTCDataChannels(peer_id);
+    if (should_create_offer) {
+        await handleRtcOffer(peer_id);
+    }
+    await wbUpdate();
     playSound('addPeer');
 }
 
@@ -919,7 +943,7 @@ function handleAddPeer(config) {
  * Handle peers connection state
  * @param {string} peer_id socket.id
  */
-function handlePeersConnectionStatus(peer_id) {
+async function handlePeersConnectionStatus(peer_id) {
     peerConnections[peer_id].onconnectionstatechange = function (event) {
         const connectionStatus = event.currentTarget.connectionState;
         console.log('Connection', { peer_id: peer_id, connectionStatus: connectionStatus });
@@ -930,7 +954,7 @@ function handlePeersConnectionStatus(peer_id) {
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
  * @param {string} peer_id socket.id
  */
-function handleOnIceCandidate(peer_id) {
+async function handleOnIceCandidate(peer_id) {
     peerConnections[peer_id].onicecandidate = (event) => {
         if (!event.candidate) return;
         sendToServer('relayICE', {
@@ -948,13 +972,31 @@ function handleOnIceCandidate(peer_id) {
  * @param {string} peer_id socket.id
  * @param {object} peers all peers info connected to the same room
  */
-function handleOnTrack(peer_id, peers) {
+async function handleOnTrack(peer_id, peers) {
+    console.log('ON TRACK');
     peerConnections[peer_id].ontrack = (event) => {
+        console.log('ON TRACK kind', event.track.kind);
         if (event.streams && event.streams[0]) {
-            console.log('handleOnTrack', event);
-            if (event.track.kind === 'video') {
-                loadRemoteMediaStream(event.streams[0], peers, peer_id);
+            console.log('ON TRACK peers', peers);
+            let peer_video = peers[peer_id]['peer_video'];
+            let peer_audio = peers[peer_id]['peer_audio'];
+            let loadRemoteMedia = false;
+            if (
+                // conditions to load remote media
+                (peer_audio && peer_video && event.track.kind === 'video') ||
+                (!peer_audio && peer_video && event.track.kind === 'video') ||
+                (peer_audio && !peer_video && event.track.kind === 'audio')
+            ) {
+                loadRemoteMedia = true;
             }
+            if (loadRemoteMedia) loadRemoteMediaStream(event.streams[0], peers, peer_id);
+        } else {
+            console.log('ON TRACK SCREEN SHARING');
+            let remoteVideoStream = getId(peer_id + '_video');
+            // attach newStream with screen share video and audio already existing
+            let inboundStream = new MediaStream([remoteVideoStream.srcObject.getAudioTracks()[0]]);
+            inboundStream.addTrack(event.track);
+            attachMediaStream(remoteVideoStream, inboundStream);
         }
     };
 }
@@ -963,7 +1005,7 @@ function handleOnTrack(peer_id, peers) {
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
  * @param {string} peer_id socket.id
  */
-function handleAddTracks(peer_id) {
+async function handleAddTracks(peer_id) {
     localMediaStream.getTracks().forEach((track) => {
         peerConnections[peer_id].addTrack(track, localMediaStream);
     });
@@ -977,7 +1019,7 @@ function handleAddTracks(peer_id) {
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCDataChannel/onmessage
  * @param {string} peer_id socket.id
  */
-function handleRTCDataChannels(peer_id) {
+async function handleRTCDataChannels(peer_id) {
     peerConnections[peer_id].ondatachannel = (event) => {
         console.log('handleRTCDataChannels ' + peer_id, event);
         event.channel.onmessage = (msg) => {
@@ -1020,7 +1062,7 @@ function handleRTCDataChannels(peer_id) {
  * The other user will get a 'sessionDescription' event and will create an offer, then send back an answer 'sessionDescription' to us
  * @param {string} peer_id socket.id
  */
-function handleRtcOffer(peer_id) {
+async function handleRtcOffer(peer_id) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onnegotiationneeded
     peerConnections[peer_id].onnegotiationneeded = () => {
         console.log('Creating RTC offer to', peer_id);
@@ -1160,6 +1202,7 @@ function handleRemovePeer(config) {
     delete fileDataChannels[peer_id];
     delete peerConnections[peer_id];
     delete peerMediaElements[peer_id];
+    delete peers[peer_id];
 
     playSound('removePeer');
 }
@@ -1238,60 +1281,195 @@ function setButtonsBarPosition(position) {
 }
 
 /**
+ * Init to enumerate the devices
+ */
+async function initEnumerateDevices() {
+    console.log('05. init Enumerate Devices');
+    await initEnumerateAudioDevices();
+    await initEnumerateVideoDevices();
+    if (!useAudio && !useVideo) {
+        openURL(
+            `/permission?roomId=${roomId}&getUserMediaError=Not allowed both Audio and Video <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
+        );
+    }
+}
+
+/**
+ * Init to enumerate the audio devices
+ * @returns boolean true/false
+ */
+async function initEnumerateAudioDevices() {
+    if (isEnumerateAudioDevices) return;
+    // allow the audio
+    await navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+            enumerateAudioDevices(stream);
+            useAudio = true;
+        })
+        .catch(() => {
+            useAudio = false;
+        });
+}
+
+/**
+ * Init to enumerate the vide devices
+ * @returns boolean true/false
+ */
+async function initEnumerateVideoDevices() {
+    if (isEnumerateVideoDevices) return;
+    // allow the video
+    await navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+            enumerateVideoDevices(stream);
+            useVideo = true;
+        })
+        .catch(() => {
+            useVideo = false;
+        });
+}
+
+/**
+ * Enumerate Audio
+ * @param {object} stream
+ */
+function enumerateAudioDevices(stream) {
+    console.log('06. Get Audio Devices');
+    navigator.mediaDevices
+        .enumerateDevices()
+        .then((devices) =>
+            devices.forEach((device) => {
+                let el = null;
+                if ('audioinput' === device.kind) {
+                    el = getId('audioSource');
+                } else if ('audiooutput' === device.kind) {
+                    el = getId('audioOutput');
+                }
+                if (!el) return;
+                addChild(device, el, device.kind);
+            }),
+        )
+        .then(() => {
+            stopTracks(stream);
+            isEnumerateAudioDevices = true;
+            getId('audioOutput').disabled = !('sinkId' in HTMLMediaElement.prototype);
+        });
+}
+
+/**
+ * Enumerate Video
+ * @param {object} stream
+ */
+function enumerateVideoDevices(stream) {
+    console.log('07. Get Video Devices');
+    navigator.mediaDevices
+        .enumerateDevices()
+        .then((devices) =>
+            devices.forEach((device) => {
+                let el = null;
+                if ('videoinput' === device.kind) {
+                    el = getId('videoSource');
+                }
+                if (!el) return;
+                addChild(device, el, device.kind);
+            }),
+        )
+        .then(() => {
+            stopTracks(stream);
+            isEnumerateVideoDevices = true;
+        });
+}
+
+/**
+ * Stop tracks from stream
+ * @param {object} stream
+ */
+function stopTracks(stream) {
+    stream.getTracks().forEach((track) => {
+        track.stop();
+    });
+}
+
+/**
+ * Add child to element
+ * @param {object} device
+ * @param {object} el
+ * @param {string} kind audio/video
+ */
+function addChild(device, el, kind) {
+    const option = document.createElement('option');
+    option.value = device.deviceId;
+    switch (kind) {
+        case 'videoinput':
+            option.text = `📹 ` + device.label || `📹 camera ${el.length + 1}`;
+            break;
+        case 'audioinput':
+            option.text = `🎤 ` + device.label || `🎤 microphone ${el.length + 1}`;
+            break;
+        case 'audiooutput':
+            option.text = `🔈 ` + device.label || `🔈 speaker ${el.length + 1}`;
+            break;
+    }
+    el.appendChild(option);
+    selectors = [getId('audioSource'), getId('audioOutput'), getId('videoSource')];
+}
+
+/**
  * Setup local media stuff. Ask user for permission to use the computers microphone and/or camera,
  * attach it to an <audio> or <video> tag if they give us access.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
- * @param {object} callback all ok
- * @param {object} errorback something wrong
  */
-function setupLocalMedia(callback, errorback) {
+async function setupLocalMedia() {
     // if we've already been initialized do nothing
     if (localMediaStream != null) {
-        if (callback) callback();
         return;
     }
 
-    getPeerGeoLocation();
+    await getPeerGeoLocation();
 
-    console.log('Requesting access to local audio / video inputs');
-
-    console.log('Supported constraints', navigator.mediaDevices.getSupportedConstraints());
+    console.log('08. Requesting access to local audio - video inputs');
+    console.log('09. Supported constraints', navigator.mediaDevices.getSupportedConstraints());
 
     // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 2kVideo | 4kVideo |
-    let videoConstraints = getVideoConstraints('default');
-
-    const constraints = {
-        audio: {
+    let videoConstraints = useVideo ? getVideoConstraints('default') : false;
+    let audioConstraints = useAudio;
+    if (useAudio) {
+        audioConstraints = {
             echoCancellation: true,
             noiseSuppression: true,
             sampleRate: 44100,
-        },
+        };
+    }
+
+    const constraints = {
+        audio: audioConstraints,
         video: videoConstraints,
     };
 
-    navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then((stream) => {
-            loadLocalMedia(stream);
-            startPitchDetection(stream);
-            if (callback) callback();
-        })
-        .catch((err) => {
-            console.error('Access denied for audio/video', err);
-            playSound('alert');
-            openURL(
-                `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
-            );
-            if (errorback) errorback();
-        });
+    let stream = null;
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (stream) {
+            await loadLocalMedia(stream);
+            await startPitchDetection(stream);
+        }
+    } catch (err) {
+        console.error('[Error] - Access denied for audio - video device', err);
+        playSound('alert');
+        openURL(
+            `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
+        );
+    }
 } // end [setup_local_stream]
 
 /**
  * Load Local Media Stream obj
  * @param {object} stream media stream audio - video
  */
-function loadLocalMedia(stream) {
-    console.log('Access granted to audio/video');
+async function loadLocalMedia(stream) {
+    console.log('10. Access granted to audio - video device');
     // hide loading div
     getId('loadingDiv').style.display = 'none';
 
@@ -1426,6 +1604,12 @@ function loadLocalMedia(stream) {
     handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
     handleFileDragAndDrop('myVideo', myPeerId, true);
     handleVideoToImg('myVideo', 'myVideoToImgBtn');
+
+    if (!useVideo) {
+        myVideoAvatarImage.style.display = 'block';
+        myVideoStatusIcon.className = 'fas fa-video-slash';
+        videoBtn.className = 'fas fa-video-slash';
+    }
 }
 
 /**
@@ -1464,7 +1648,7 @@ function checkShareScreen() {
  * @param {object} peers all peers info connected to the same room
  * @param {string} peer_id socket.id
  */
-function loadRemoteMediaStream(stream, peers, peer_id) {
+async function loadRemoteMediaStream(stream, peers, peer_id) {
     // get data from peers obj
     let peer_name = peers[peer_id]['peer_name'];
     let peer_video = peers[peer_id]['peer_video'];
@@ -1646,16 +1830,22 @@ function loadRemoteMediaStream(stream, peers, peer_id) {
  * @param {object} stream media stream audio - video
  */
 function logStreamSettingsInfo(name, stream) {
-    console.log(name, {
-        video: {
-            label: stream.getVideoTracks()[0].label,
-            settings: stream.getVideoTracks()[0].getSettings(),
-        },
-        audio: {
-            label: stream.getAudioTracks()[0].label,
-            settings: stream.getAudioTracks()[0].getSettings(),
-        },
-    });
+    if (useVideo || isScreenStreaming) {
+        console.log(name, {
+            video: {
+                label: stream.getVideoTracks()[0].label,
+                settings: stream.getVideoTracks()[0].getSettings(),
+            },
+        });
+    }
+    if (useAudio) {
+        console.log(name, {
+            audio: {
+                label: stream.getAudioTracks()[0].label,
+                settings: stream.getAudioTracks()[0].getSettings(),
+            },
+        });
+    }
 }
 
 /**
@@ -1819,7 +2009,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
             }
         } else {
             // handle local video fs
-            if (myVideoStatusIcon.className === 'fas fa-video') {
+            if (myVideoStatusIcon.className === 'fas fa-video' || isScreenStreaming) {
                 handleFSVideo();
             } else {
                 showMsg();
@@ -2080,8 +2270,8 @@ function setSwapCameraBtn() {
 function setScreenShareBtn() {
     if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
         isScreenSharingSupported = true;
-        screenShareBtn.addEventListener('click', (e) => {
-            toggleScreenSharing();
+        screenShareBtn.addEventListener('click', async (e) => {
+            await toggleScreenSharing();
         });
     } else {
         screenShareBtn.style.display = 'none';
@@ -2476,10 +2666,6 @@ function setupMySettings() {
     tabLanguagesBtn.addEventListener('click', (e) => {
         openTab(e, 'tabLanguages');
     });
-    // audio - video select box
-    selectors = [audioInputSelect, audioOutputSelect, videoSelect];
-    audioOutputSelect.disabled = !('sinkId' in HTMLMediaElement.prototype);
-    navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
     // select audio input
     audioInputSelect.addEventListener('change', (e) => {
         myVideoChange = false;
@@ -2593,15 +2779,19 @@ function refreshLocalMedia() {
 function getAudioVideoConstraints() {
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
-    let videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
-    videoConstraints['deviceId'] = videoSource ? { exact: videoSource } : undefined;
+    let videoConstraints = false;
+    if (useVideo) {
+        videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+        videoConstraints['deviceId'] = videoSource ? { exact: videoSource } : undefined;
+    }
+    let audioConstraints = {
+        deviceId: audioSource ? { exact: audioSource } : undefined,
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 44100,
+    };
     const constraints = {
-        audio: {
-            deviceId: audioSource ? { exact: audioSource } : undefined,
-            echoCancellation: true,
-            noiseSuppression: true,
-            sampleRate: 44100,
-        },
+        audio: audioConstraints,
         video: videoConstraints,
     };
     return constraints;
@@ -2670,6 +2860,7 @@ function getVideoConstraints(videoQuality) {
  * @param {string} maxFrameRate desired max frame rate
  */
 function setLocalMaxFps(maxFrameRate) {
+    if (!useVideo) return;
     localMediaStream
         .getVideoTracks()[0]
         .applyConstraints({ frameRate: { max: maxFrameRate } })
@@ -2686,6 +2877,7 @@ function setLocalMaxFps(maxFrameRate) {
  * Set local video quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 function setLocalVideoQuality() {
+    if (!useVideo) return;
     let videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     localMediaStream
         .getVideoTracks()[0]
@@ -2739,9 +2931,9 @@ function attachSinkId(element, sinkId) {
  * @param {object} stream media stream audio - video
  * @returns {object} media Devices Info
  */
-function gotStream(stream) {
-    refreshMyStreamToPeers(stream, true);
-    refreshMyLocalStream(stream, true);
+async function gotStream(stream) {
+    await refreshMyStreamToPeers(stream, true);
+    await refreshMyLocalStream(stream, true);
     if (myVideoChange) {
         setMyVideoStatusTrue();
         if (isMobileDevice) myVideo.classList.toggle('mirror');
@@ -2992,13 +3184,17 @@ function shareRoomByEmail(message) {
  * @param {boolean} force audio off (default false)
  */
 function handleAudio(e, init, force = null) {
+    if (!useAudio) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
+
     localMediaStream.getAudioTracks()[0].enabled =
         force != null ? force : !localMediaStream.getAudioTracks()[0].enabled;
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+
     force != null
         ? (e.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'))
         : (e.target.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'));
+
     if (init) {
         audioBtn.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
         if (!isMobileDevice) {
@@ -3015,13 +3211,17 @@ function handleAudio(e, init, force = null) {
  * @param {boolean} force video off (default false)
  */
 function handleVideo(e, init, force = null) {
+    if (!useVideo) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
+
     localMediaStream.getVideoTracks()[0].enabled =
         force != null ? force : !localMediaStream.getVideoTracks()[0].enabled;
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+
     force != null
         ? (e.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'))
         : (e.target.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'));
+
     if (init) {
         videoBtn.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
         if (!isMobileDevice) {
@@ -3034,36 +3234,39 @@ function handleVideo(e, init, force = null) {
 /**
  * SwapCamera front (user) - rear (environment)
  */
-function swapCamera() {
+async function swapCamera() {
     // setup camera
+    let camVideo = false;
     camera = camera == 'user' ? 'environment' : 'user';
-    if (camera == 'user') useVideo = true;
-    else useVideo = { facingMode: { exact: camera } };
+    if (camera == 'user') camVideo = true;
+    else camVideo = { facingMode: { exact: camera } };
 
     // some devices can't swap the cam, if have Video Track already in execution.
-    if (useVideo) stopLocalVideoTrack();
+    await stopLocalVideoTrack();
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-    navigator.mediaDevices
-        .getUserMedia({ video: useVideo })
-        .then((camStream) => {
-            refreshMyStreamToPeers(camStream);
-            refreshMyLocalStream(camStream);
-            if (useVideo) setMyVideoStatusTrue();
+    let camStream = null;
+
+    try {
+        // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+        camStream = await navigator.mediaDevices.getUserMedia({ video: camVideo });
+        if (camStream) {
+            await refreshMyStreamToPeers(camStream);
+            await refreshMyLocalStream(camStream);
+            await setMyVideoStatusTrue();
             myVideo.classList.toggle('mirror');
-        })
-        .catch((err) => {
-            console.log('[Error] to swaping camera', err);
-            userLog('error', 'Error to swaping the camera ' + err);
-            // https://blog.addpipe.com/common-getusermedia-errors/
-        });
+        }
+    } catch (err) {
+        console.log('[Error] to swapping camera', err);
+        userLog('error', 'Error to swapping the camera ' + err);
+        // https://blog.addpipe.com/common-getusermedia-errors/
+    }
 }
 
 /**
  * Stop Local Video Track
  */
-function stopLocalVideoTrack() {
-    localMediaStream.getVideoTracks()[0].stop();
+async function stopLocalVideoTrack() {
+    if (useVideo || !isScreenStreaming) localMediaStream.getVideoTracks()[0].stop();
 }
 
 /**
@@ -3077,45 +3280,46 @@ function stopLocalAudioTrack() {
  * Enable - disable screen sharing
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
  */
-function toggleScreenSharing() {
+async function toggleScreenSharing() {
     screenMaxFrameRate = parseInt(screenFpsSelect.value);
     const constraints = {
         video: { frameRate: { max: screenMaxFrameRate } },
     }; // true | { frameRate: { max: screenMaxFrameRate } }
 
-    let screenMediaPromise;
+    let screenMediaPromise = null;
 
-    if (!isScreenStreaming) {
-        // on screen sharing start
-        screenMediaPromise = navigator.mediaDevices.getDisplayMedia(constraints);
-    } else {
-        // on screen sharing stop
-        screenMediaPromise = navigator.mediaDevices.getUserMedia(getAudioVideoConstraints());
-    }
-    screenMediaPromise
-        .then((screenStream) => {
-            // stop cam video track on screen share
-            stopLocalVideoTrack();
+    try {
+        if (!isScreenStreaming) {
+            // on screen sharing start
+            screenMediaPromise = await navigator.mediaDevices.getDisplayMedia(constraints);
+        } else {
+            // on screen sharing stop
+            screenMediaPromise = await navigator.mediaDevices.getUserMedia(getAudioVideoConstraints());
+        }
+        if (screenMediaPromise) {
             isScreenStreaming = !isScreenStreaming;
-            refreshMyStreamToPeers(screenStream);
-            refreshMyLocalStream(screenStream);
-            myVideo.classList.toggle('mirror');
-            setScreenSharingStatus(isScreenStreaming);
             if (isScreenStreaming) {
                 setMyVideoStatusTrue();
                 if (countPeerConnections() == 1) {
-                    emitPeersAction('screenStart');
                     setAspectRatio(2); // 16:9
                 }
+                await emitPeersAction('screenStart');
             } else {
-                emitPeersAction('screenStop');
+                await emitPeersAction('screenStop');
                 adaptAspectRatio();
             }
-        })
-        .catch((err) => {
-            console.error('[Error] Unable to share the screen', err);
-            userLog('error', 'Unable to share the screen ' + err);
-        });
+            await stopLocalVideoTrack();
+            await refreshMyLocalStream(screenMediaPromise);
+            await refreshMyStreamToPeers(screenMediaPromise);
+            myVideo.classList.toggle('mirror');
+            setScreenSharingStatus(isScreenStreaming);
+            if (myVideoAvatarImage && !useVideo)
+                myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
+        }
+    } catch (err) {
+        console.error('[Error] Unable to share the screen', err);
+        userLog('error', 'Unable to share the screen ' + err);
+    }
 }
 
 /**
@@ -3133,8 +3337,8 @@ function setScreenSharingStatus(status) {
 /**
  * Set myVideoStatus true
  */
-function setMyVideoStatusTrue() {
-    if (myVideoStatus) return;
+async function setMyVideoStatusTrue() {
+    if (myVideoStatus || !useVideo) return;
     // Put video status alredy ON
     localMediaStream.getVideoTracks()[0].enabled = true;
     myVideoStatus = true;
@@ -3175,24 +3379,46 @@ function toggleFullScreen() {
  * @param {object} stream media stream audio - video
  * @param {boolean} localAudioTrackChange default false
  */
-function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
+async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereIsPeerConnections()) return;
 
-    // refresh my stream to peers
+    console.log('PEERS', peers); // all peers in the room
+    console.log('PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
+
+    // refresh my stream to connected peers expect myself
     for (let peer_id in peerConnections) {
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
         let videoSender = peerConnections[peer_id]
             .getSenders()
             .find((s) => (s.track ? s.track.kind === 'video' : false));
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-        videoSender.replaceTrack(stream.getVideoTracks()[0]);
+
+        if (videoSender) {
+            // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+            videoSender.replaceTrack(stream.getVideoTracks()[0]);
+            console.log('REPLACE VIDEO TRACK TO', peers[peer_id]);
+        } else {
+            handleRtcOffer(peer_id);
+            stream.getTracks().forEach((track) => {
+                if (track.kind === 'video') {
+                    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
+                    peerConnections[peer_id].addTrack(track);
+                    handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
+                    console.log('ADD VIDEO TRACK TO', peers[peer_id]);
+                }
+            });
+        }
 
         if (localAudioTrackChange) {
+            // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
             let audioSender = peerConnections[peer_id]
                 .getSenders()
                 .find((s) => (s.track ? s.track.kind === 'audio' : false));
-            // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
-            audioSender.replaceTrack(stream.getAudioTracks()[0]);
+
+            if (audioSender) {
+                // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+                audioSender.replaceTrack(stream.getAudioTracks()[0]);
+                console.log('REPLACE AUDIO TRACK TO', peers[peer_id]);
+            }
         }
     }
 }
@@ -3202,8 +3428,8 @@ function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
  * @param {object} stream media stream audio - video
  * @param {boolean} localAudioTrackChange default false
  */
-function refreshMyLocalStream(stream, localAudioTrackChange = false) {
-    stream.getVideoTracks()[0].enabled = true;
+async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
+    if (useVideo) stream.getVideoTracks()[0].enabled = true;
 
     // enable audio
     if (localAudioTrackChange && myAudioStatus === false) {
@@ -3212,11 +3438,22 @@ function refreshMyLocalStream(stream, localAudioTrackChange = false) {
         myAudioStatus = true;
     }
 
+    let newStream = null;
+
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
-    const newStream = new MediaStream([
-        stream.getVideoTracks()[0],
-        localAudioTrackChange ? stream.getAudioTracks()[0] : localMediaStream.getAudioTracks()[0],
-    ]);
+    if (useVideo || isScreenStreaming) {
+        console.log('Refresh my local media stream with video - audio');
+        newStream = new MediaStream([
+            stream.getVideoTracks()[0],
+            localAudioTrackChange ? stream.getAudioTracks()[0] : localMediaStream.getAudioTracks()[0],
+        ]);
+    } else {
+        console.log('Refresh my local media stream with audio');
+        newStream = new MediaStream([
+            localAudioTrackChange ? stream.getAudioTracks()[0] : localMediaStream.getAudioTracks()[0],
+        ]);
+    }
+
     localMediaStream = newStream;
 
     // log newStream devices
@@ -3229,9 +3466,11 @@ function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     attachMediaStream(myVideo, localMediaStream); // newstream
 
     // on toggleScreenSharing video stop
-    stream.getVideoTracks()[0].onended = () => {
-        if (isScreenStreaming) toggleScreenSharing();
-    };
+    if (useVideo || isScreenStreaming) {
+        stream.getVideoTracks()[0].onended = () => {
+            toggleScreenSharing();
+        };
+    }
 
     /**
      * When you stop the screen sharing, on default i turn back to the webcam with video stream ON.
@@ -3308,7 +3547,7 @@ function startStreamRecording() {
                     recScreenStream = newStream;
                     mediaRecorder = new MediaRecorder(recScreenStream, options);
                     console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-                    isRecScreenSream = true;
+                    isRecScreenStream = true;
                     handleMediaRecorder(mediaRecorder);
                 })
                 .catch((err) => {
@@ -3357,9 +3596,9 @@ function handleMediaRecorder(mediaRecorder) {
  */
 function handleMediaRecorderStart(event) {
     playSound('recStart');
-    if (isRecScreenSream) {
+    if (isRecScreenStream) {
         emitPeersAction('recStart');
-        emitPeerStatus('rec', isRecScreenSream);
+        emitPeerStatus('rec', isRecScreenStream);
     }
     console.log('MediaRecorder started: ', event);
     isStreamRecording = true;
@@ -3392,13 +3631,13 @@ function handleMediaRecorderStop(event) {
     console.log('MediaRecorder Blobs: ', recordedBlobs);
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
     isStreamRecording = false;
-    if (isRecScreenSream) {
+    if (isRecScreenStream) {
         recScreenStream.getTracks().forEach((track) => {
             if (track.kind === 'video') track.stop();
         });
-        isRecScreenSream = false;
+        isRecScreenStream = false;
         emitPeersAction('recStop');
-        emitPeerStatus('rec', isRecScreenSream);
+        emitPeerStatus('rec', isRecScreenStream);
     }
     recordStreamBtn.style.setProperty('color', '#000');
     downloadRecordedStream();
@@ -3745,7 +3984,7 @@ function appendMessage(from, img, side, msg, privateMsg) {
  * Add participants in the chat room lists
  * @param {object} peers all peers info connected to the same room
  */
-function msgerAddPeers(peers) {
+async function msgerAddPeers(peers) {
     // console.log("peers", peers);
     // add all current Participants
     for (let peer_id in peers) {
@@ -4120,16 +4359,15 @@ function setMyAudioStatus(status) {
  */
 function setMyVideoStatus(status) {
     // on vdeo OFF display my video avatar name
-    myVideoAvatarImage.style.display = status ? 'none' : 'block';
-    myVideoStatusIcon.className = 'fas fa-video' + (status ? '' : '-slash');
+    if (myVideoAvatarImage) myVideoAvatarImage.style.display = status ? 'none' : 'block';
+    if (myVideoStatusIcon) myVideoStatusIcon.className = 'fas fa-video' + (status ? '' : '-slash');
     // send my video status to all peers in the room
     emitPeerStatus('video', status);
-    setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
-    status ? playSound('on') : playSound('off');
-    // only for desktop
     if (!isMobileDevice) {
+        if (myVideoStatusIcon) setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
         setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', 'right-start');
     }
+    status ? playSound('on') : playSound('off');
 }
 
 /**
@@ -4201,6 +4439,7 @@ function handlePeerAudioBtn(peer_id) {
  * @param {string} peer_id socket.id
  */
 function handlePeerVideoBtn(peer_id) {
+    if (!useVideo) return;
     let peerVideoBtn = getId(peer_id + '_videoStatus');
     peerVideoBtn.onclick = () => {
         if (peerVideoBtn.className === 'fas fa-video') disablePeer(peer_id, 'video');
@@ -4290,14 +4529,16 @@ function setPeerVideoStatus(peer_id, status) {
  * Emit actions to all peers in the same room except yourself
  * @param {object} peerAction to all peers
  */
-function emitPeersAction(peerAction) {
+async function emitPeersAction(peerAction) {
     if (!thereIsPeerConnections()) return;
 
     sendToServer('peerAction', {
         room_id: roomId,
         peer_name: myPeerName,
-        peer_id: null,
+        peer_id: myPeerId,
+        peer_use_video: useVideo,
         peer_action: peerAction,
+        send_to_all: true,
     });
 }
 
@@ -4306,14 +4547,16 @@ function emitPeersAction(peerAction) {
  * @param {string} peer_id socket.id
  * @param {object} peerAction to specified peer
  */
-function emitPeerAction(peer_id, peerAction) {
+async function emitPeerAction(peer_id, peerAction) {
     if (!thereIsPeerConnections()) return;
 
     sendToServer('peerAction', {
         room_id: roomId,
         peer_id: peer_id,
+        peer_use_video: useVideo,
         peer_name: myPeerName,
         peer_action: peerAction,
+        send_to_all: false,
     });
 }
 
@@ -4322,7 +4565,11 @@ function emitPeerAction(peer_id, peerAction) {
  * @param {object} config data
  */
 function handlePeerAction(config) {
+    // console.log('Handle peer action: ', config);
+
+    let peer_id = config.peer_id;
     let peer_name = config.peer_name;
+    let peer_use_video = config.peer_use_video;
     let peer_action = config.peer_action;
 
     switch (peer_action) {
@@ -4339,11 +4586,54 @@ function handlePeerAction(config) {
             notifyRecording(peer_name, 'Stopped');
             break;
         case 'screenStart':
-            if (!isMobileDevice) setAspectRatio(2); // 16:9
+            handleScreenStart(peer_id);
             break;
         case 'screenStop':
-            if (!isMobileDevice) adaptAspectRatio();
+            handleScreenStop(peer_id, peer_use_video);
             break;
+    }
+}
+
+/**
+ * Handle Screen Start
+ * @param {string} peer_id
+ */
+function handleScreenStart(peer_id) {
+    let remoteVideoAvatarImage = getId(peer_id + '_avatar');
+    let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+    if (remoteVideoStatusBtn) {
+        remoteVideoStatusBtn.className = 'fas fa-video';
+        setTippy(remoteVideoStatusBtn, 'Participant screen share is on', 'bottom');
+    }
+    if (!isMobileDevice && countPeerConnections() == 1) setAspectRatio(2); // 16:9
+    if (remoteVideoAvatarImage) {
+        remoteVideoAvatarImage.style.display = 'none';
+    }
+}
+
+/**
+ * Handle Screen Stop
+ * @param {string} peer_id
+ * @param {boolean} peer_use_video
+ */
+function handleScreenStop(peer_id, peer_use_video) {
+    let remoteVideoStream = getId(peer_id + '_video');
+    let remoteVideoAvatarImage = getId(peer_id + '_avatar');
+    let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+    if (remoteVideoStatusBtn) {
+        remoteVideoStatusBtn.className = 'fas fa-video-slash';
+        setTippy(remoteVideoStatusBtn, 'Participant video is off', 'bottom');
+    }
+    if (!isMobileDevice) adaptAspectRatio();
+    if (remoteVideoAvatarImage && remoteVideoStream && !peer_use_video) {
+        remoteVideoAvatarImage.style.display = 'block';
+        remoteVideoStream.srcObject.getVideoTracks().forEach((track) => {
+            track.enabled = false;
+        });
+    } else {
+        if (remoteVideoAvatarImage) {
+            remoteVideoAvatarImage.style.display = 'none';
+        }
     }
 }
 
@@ -4352,7 +4642,7 @@ function handlePeerAction(config) {
  * @param {string} peer_name peer name
  */
 function setMyAudioOff(peer_name) {
-    if (myAudioStatus === false) return;
+    if (myAudioStatus === false || !useAudio) return;
     localMediaStream.getAudioTracks()[0].enabled = false;
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
     audioBtn.className = 'fas fa-microphone-slash';
@@ -4366,7 +4656,7 @@ function setMyAudioOff(peer_name) {
  * @param {string} peer_name peer name
  */
 function setMyVideoOff(peer_name) {
-    if (myVideoStatus === false) return;
+    if (myVideoStatus === false || !useVideo) return;
     localMediaStream.getVideoTracks()[0].enabled = false;
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
     videoBtn.className = 'fas fa-video-slash';
@@ -4993,7 +5283,7 @@ function wbCanvasToJson() {
 /**
  * If whiteboard opened, update canvas to all peers connected
  */
-function wbUpdate() {
+async function wbUpdate() {
     if (wbIsOpen && thereIsPeerConnections()) wbCanvasToJson();
 }
 
@@ -5762,6 +6052,7 @@ function handlePeerVolume(data) {
     let remoteVideoWrap = getId(peer_id + '_videoWrap');
     let remoteVideoBorder = document.documentElement.style.getPropertyValue('--elem-border-color');
     let volume = data.volume + 25; //for design purpose
+    if (!element) return;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }
@@ -5782,6 +6073,7 @@ function handleMyVolume(data) {
     let element = getId('myPitchBar');
     let myVideoBorder = document.documentElement.style.getPropertyValue('--elem-border-color');
     let volume = data.volume + 25;
+    if (!element) return;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }

@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
@@ -12,6 +12,13 @@
         "type": "git",
         "url": "git+https://github.com/miroslavpejic85/mirotalk"
     },
+    "keywords": [
+        "webrtc",
+        "socket.io",
+        "p2p",
+        "nodejs",
+        "video"
+    ],
     "author": "Miroslav Pejic",
     "license": "AGPL-3.0",
     "homepage": "https://github.com/miroslavpejic85/mirotalk",
