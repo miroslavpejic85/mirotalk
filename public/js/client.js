@@ -3397,7 +3397,6 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             videoSender.replaceTrack(stream.getVideoTracks()[0]);
             console.log('REPLACE VIDEO TRACK TO', peers[peer_id]);
         } else {
-            handleRtcOffer(peer_id);
             stream.getTracks().forEach((track) => {
                 if (track.kind === 'video') {
                     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
