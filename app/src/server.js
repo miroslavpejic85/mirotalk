@@ -33,7 +33,7 @@ dependencies: {
  * @license For open source use: AGPLv3
  * @license For commercial or closed source, contact us at info.mirotalk@gmail.com
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.0.0
+ * @version 1.0.1
  *
  */
 
