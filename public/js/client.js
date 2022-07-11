@@ -88,7 +88,6 @@ let mirotalkTheme = 'dark'; // dark - grey ...
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let peerGeo;
-let peerConnection;
 let myPeerName = getPeerName();
 let isScreenEnabled = getScreenEnabled();
 let isScreenSharingSupported = false;
@@ -123,7 +122,7 @@ let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
 let recScreenStream; // recorded screen stream
 let remoteMediaControls = false; // enable - disable peers video player controls (default false)
-let peers = {}; // keep track of our peer infos, indexed by peer_id == socket.id
+let peerConnection = null; // RTCPeerConnection
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
@@ -905,7 +904,7 @@ async function handleAddPeer(config) {
     // console.log("addPeer", JSON.stringify(config));
 
     let peer_id = config.peer_id;
-    peers = config.peers;
+    let peers = config.peers;
     let should_create_offer = config.should_create_offer;
     let iceServers = config.iceServers;
 
@@ -1202,7 +1201,6 @@ function handleRemovePeer(config) {
     delete fileDataChannels[peer_id];
     delete peerConnections[peer_id];
     delete peerMediaElements[peer_id];
-    delete peers[peer_id];
 
     playSound('removePeer');
 }
@@ -1689,7 +1687,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoParagraph.setAttribute('id', peer_id + '_name');
     remoteVideoParagraph.className = 'videoPeerName';
 
-    const peerVideoText = document.createTextNode(peers[peer_id]['peer_name']);
+    const peerVideoText = document.createTextNode(peer_name);
     remoteVideoParagraph.appendChild(peerVideoText);
     // remote hand status element
     remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
@@ -3382,8 +3380,8 @@ function toggleFullScreen() {
 async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereIsPeerConnections()) return;
 
-    console.log('PEERS', peers); // all peers in the room
-    console.log('PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
+    // all peers connections in the room expect myself
+    console.log('PEER-CONNECTIONS', peerConnections);
 
     // refresh my stream to connected peers expect myself
     for (let peer_id in peerConnections) {
@@ -3395,14 +3393,14 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
         if (videoSender) {
             // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
             videoSender.replaceTrack(stream.getVideoTracks()[0]);
-            console.log('REPLACE VIDEO TRACK TO', peers[peer_id]);
+            console.log('REPLACE VIDEO TRACK TO', { peer_id: peer_id });
         } else {
             stream.getTracks().forEach((track) => {
                 if (track.kind === 'video') {
                     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
                     peerConnections[peer_id].addTrack(track);
                     handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
-                    console.log('ADD VIDEO TRACK TO', peers[peer_id]);
+                    console.log('ADD VIDEO TRACK TO', { peer_id: peer_id });
                 }
             });
         }
@@ -3416,7 +3414,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             if (audioSender) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
                 audioSender.replaceTrack(stream.getAudioTracks()[0]);
-                console.log('REPLACE AUDIO TRACK TO', peers[peer_id]);
+                console.log('REPLACE AUDIO TRACK TO', { peer_id: peer_id });
             }
         }
     }

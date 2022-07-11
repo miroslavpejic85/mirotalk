@@ -494,7 +494,7 @@ io.sockets.on('connect', async (socket) => {
             peer_hand: peer_hand,
             peer_rec: peer_rec,
         };
-        log.debug('connected peers grp by roomId', peers);
+        log.debug('[Join] - connected peers grp by roomId', peers);
 
         await addPeerTo(channel);
 
@@ -542,16 +542,21 @@ io.sockets.on('connect', async (socket) => {
             delete socket.channels[channel];
             delete channels[channel][socket.id];
             delete peers[channel][socket.id]; // delete peer data from the room
+
             switch (Object.keys(peers[channel]).length) {
                 case 0: // last peer disconnected from the room without room lock & password set
+                    delete peers[channel];
+                    break;
                 case 2: // last peer disconnected from the room having room lock & password set
-                    delete peers[channel]; // clean lock and password value from the room
+                    if (peers[channel]['lock'] && peers[channel]['password']) {
+                        delete peers[channel]; // clean lock and password value from the room
+                    }
                     break;
             }
         } catch (err) {
             log.error('Remove Peer', toJson(err));
         }
-        log.debug('connected peers grp by roomId', peers);
+        log.debug('[removePeerFrom] - connected peers grp by roomId', peers);
 
         for (let id in channels[channel]) {
             await channels[channel][id].emit('removePeer', { peer_id: socket.id });
