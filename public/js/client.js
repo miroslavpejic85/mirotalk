@@ -921,9 +921,9 @@ async function handleAddPeer(config) {
     peerConnection = new RTCPeerConnection({ iceServers: iceServers });
     peerConnections[peer_id] = peerConnection;
 
-    console.log('PEER_ID', peer_id); // the connected peer_id
-    console.log('PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
-    console.log('PEERS', peers); // all peers in the room
+    console.log('[RTCPeerConnection] - PEER_ID', peer_id); // the connected peer_id
+    console.log('[RTCPeerConnection] - PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
+    console.log('[RTCPeerConnection] - PEERS', peers); // all peers in the room
 
     await handlePeersConnectionStatus(peer_id);
     await msgerAddPeers(peers);
@@ -940,12 +940,19 @@ async function handleAddPeer(config) {
 
 /**
  * Handle peers connection state
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionstatechange_event
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
  * @param {string} peer_id socket.id
  */
 async function handlePeersConnectionStatus(peer_id) {
     peerConnections[peer_id].onconnectionstatechange = function (event) {
         const connectionStatus = event.currentTarget.connectionState;
-        console.log('Connection', { peer_id: peer_id, connectionStatus: connectionStatus });
+        const signalingState = event.currentTarget.signalingState;
+        console.log('[RTCPeerConnection] - CONNECTION', {
+            peer_id: peer_id,
+            connectionStatus: connectionStatus,
+            signalingState: signalingState,
+        });
     };
 }
 
@@ -972,11 +979,11 @@ async function handleOnIceCandidate(peer_id) {
  * @param {object} peers all peers info connected to the same room
  */
 async function handleOnTrack(peer_id, peers) {
-    console.log('ON TRACK');
+    console.log('[ON TRACK] - peer_id', { peer_id: peer_id });
     peerConnections[peer_id].ontrack = (event) => {
-        console.log('ON TRACK kind', event.track.kind);
+        console.log('[ON TRACK] - kind', { peer_id: peer_id, kind: event.track.kind });
         if (event.streams && event.streams[0]) {
-            console.log('ON TRACK peers', peers);
+            console.log('[ON TRACK] - peers', peers);
             let peer_video = peers[peer_id]['peer_video'];
             let peer_audio = peers[peer_id]['peer_audio'];
             let loadRemoteMedia = false;
@@ -990,7 +997,7 @@ async function handleOnTrack(peer_id, peers) {
             }
             if (loadRemoteMedia) loadRemoteMediaStream(event.streams[0], peers, peer_id);
         } else {
-            console.log('ON TRACK SCREEN SHARING');
+            console.log('[ON TRACK] - SCREEN SHARING', { peer_id: peer_id, kind: event.track.kind });
             let remoteVideoStream = getId(peer_id + '_video');
             // attach newStream with screen share video and audio already existing
             let inboundStream = new MediaStream([remoteVideoStream.srcObject.getAudioTracks()[0]]);
