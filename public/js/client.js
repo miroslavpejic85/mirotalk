@@ -39,6 +39,8 @@ const deleteImg = '../images/delete.png';
 const youtubeImg = '../images/youtube.png';
 const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
+const audioGif = '../images/audio.gif';
+const videoAudioShare = '../images/va-share.png';
 const aboutImg = '../images/mirotalk-logo.png';
 // nice free icon: https://www.iconfinder.com
 
@@ -269,9 +271,13 @@ let receiveInProgress = false;
 const chunkSize = 1024 * 16; // 16kb/s
 // video URL player
 let videoUrlCont;
+let videoAudioUrlCont;
 let videoUrlHeader;
+let videoAudioUrlHeader;
 let videoUrlCloseBtn;
+let videoAudioCloseBtn;
 let videoUrlIframe;
+let videoAudioUrlElement;
 // speech recognition
 let speechRecognitionStart;
 let speechRecognitionStop;
@@ -411,9 +417,13 @@ function getHtmlElementsById() {
     receiveFilePercentage = getId('receiveFilePercentage');
     // video url player
     videoUrlCont = getId('videoUrlCont');
+    videoAudioUrlCont = getId('videoAudioUrlCont');
     videoUrlHeader = getId('videoUrlHeader');
+    videoAudioUrlHeader = getId('videoAudioUrlHeader');
     videoUrlCloseBtn = getId('videoUrlCloseBtn');
+    videoAudioCloseBtn = getId('videoAudioCloseBtn');
     videoUrlIframe = getId('videoUrlIframe');
+    videoAudioUrlElement = getId('videoAudioUrlElement');
     // speech recognition
     speechRecognitionStart = getId('speechRecognitionStart');
     speechRecognitionStop = getId('speechRecognitionStop');
@@ -487,7 +497,8 @@ function setButtonsToolTip() {
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
     // video URL player
     setTippy(videoUrlCloseBtn, 'Close the video player', 'right-start');
-    setTippy(msgerVideoUrlBtn, 'Share YouTube video to all participants', 'top');
+    setTippy(videoAudioCloseBtn, 'Close the video player', 'right-start');
+    setTippy(msgerVideoUrlBtn, 'Share a video or audio to all participants', 'top');
 }
 
 /**
@@ -1674,7 +1685,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     const remoteHandStatusIcon = document.createElement('button');
     const remoteVideoStatusIcon = document.createElement('button');
     const remoteAudioStatusIcon = document.createElement('button');
-    const remoteYoutubeBtnBtn = document.createElement('button');
+    const remoteVideoAudioUrlBtn = document.createElement('button');
     const remoteFileShareBtn = document.createElement('button');
     const remotePrivateMsgBtn = document.createElement('button');
     const remotePeerKickOut = document.createElement('button');
@@ -1718,8 +1729,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteFileShareBtn.className = 'fas fa-upload';
 
     // remote peer YouTube video
-    remoteYoutubeBtnBtn.setAttribute('id', peer_id + '_youtube');
-    remoteYoutubeBtnBtn.className = 'fab fa-youtube';
+    remoteVideoAudioUrlBtn.setAttribute('id', peer_id + '_videoAudioUrl');
+    remoteVideoAudioUrlBtn.className = 'fab fa-youtube';
 
     // my video to image
     remoteVideoToImgBtn.setAttribute('id', peer_id + '_snapshot');
@@ -1739,7 +1750,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
         setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
         setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
         setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
-        setTippy(remoteYoutubeBtnBtn, 'Send YouTube video', 'bottom');
+        setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
         setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
         setTippy(remoteFileShareBtn, 'Send file', 'bottom');
         setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
@@ -1768,7 +1779,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteStatusMenu.appendChild(remoteAudioStatusIcon);
     remoteStatusMenu.appendChild(remotePrivateMsgBtn);
     remoteStatusMenu.appendChild(remoteFileShareBtn);
-    remoteStatusMenu.appendChild(remoteYoutubeBtnBtn);
+    remoteStatusMenu.appendChild(remoteVideoAudioUrlBtn);
     remoteStatusMenu.appendChild(remoteVideoToImgBtn);
     remoteStatusMenu.appendChild(remotePeerKickOut);
     remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
@@ -1821,8 +1832,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     handlePeerPrivateMsg(peer_id, peer_name);
     // handle remote send file
     handlePeerSendFile(peer_id);
-    // handle remote youtube video
-    handlePeerYouTube(peer_id);
+    // handle remote video - audio URL
+    handlePeerVideoAudioUrl(peer_id);
     // show status menu
     toggleClassElements('statusMenu', 'inline');
     // notify if peer started to recording own screen + audio
@@ -2758,8 +2769,14 @@ function setupVideoUrlPlayer() {
         document.documentElement.style.setProperty('--iframe-height', '240px');
     } else {
         dragElement(videoUrlCont, videoUrlHeader);
+        dragElement(videoAudioUrlCont, videoAudioUrlHeader);
     }
     videoUrlCloseBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeVideoUrlPlayer();
+        emitVideoPlayer('close');
+    });
+    videoAudioCloseBtn.addEventListener('click', (e) => {
         e.preventDefault();
         closeVideoUrlPlayer();
         emitVideoPlayer('close');
@@ -4503,11 +4520,11 @@ function handlePeerSendFile(peer_id) {
 }
 
 /**
- * Send YouTube video to specific peer
+ * Send video - audio URL to specific peer
  * @param {string} peer_id socket.id
  */
-function handlePeerYouTube(peer_id) {
-    let peerYoutubeBtn = getId(peer_id + '_youtube');
+function handlePeerVideoAudioUrl(peer_id) {
+    let peerYoutubeBtn = getId(peer_id + '_videoAudioUrl');
     peerYoutubeBtn.onclick = () => {
         sendVideoUrl(peer_id);
     };
@@ -5731,9 +5748,9 @@ function sendVideoUrl(peer_id = null) {
     Swal.fire({
         background: swalBackground,
         position: 'center',
-        imageUrl: youtubeImg,
-        title: 'Share YouTube Video',
-        text: 'Paste YouTube video URL',
+        imageUrl: videoAudioShare,
+        title: 'Share a Video or Audio',
+        text: 'Paste a Video or audio URL',
         input: 'text',
         showCancelButton: true,
         confirmButtonText: `Share`,
@@ -5750,9 +5767,20 @@ function sendVideoUrl(peer_id = null) {
                 return;
             }
             console.log('Video URL: ' + result.value);
+            /*
+                https://www.youtube.com/watch?v=RT6_Id5-7-s
+                http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
+                https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3
+            */
+            if (!isVideoTypeSupported(result.value)) {
+                userLog('warning', 'Something wrong, try with another Video or audio URL');
+                return;
+            }
+            let is_youtube = getVideoType(result.value) == 'na' ? true : false;
+            let video_url = is_youtube ? getYoutubeEmbed(result.value) : result.value;
             let config = {
-                video_src: result.value,
                 peer_id: peer_id,
+                video_src: video_url,
             };
             openVideoUrlPlayer(config);
             emitVideoPlayer('open', config);
@@ -5764,22 +5792,68 @@ function sendVideoUrl(peer_id = null) {
  * Open video url Player
  */
 function openVideoUrlPlayer(config) {
+    console.log('Open video Player', config);
     let videoSrc = config.video_src;
+    let videoType = getVideoType(videoSrc);
     let videoEmbed = getYoutubeEmbed(videoSrc);
+    console.log('Video embed', videoEmbed);
     //
     if (!isVideoUrlPlayerOpen) {
         if (videoEmbed) {
             playSound('newMessage');
+            console.log('Load element type: iframe');
             videoUrlIframe.src = videoEmbed;
             videoUrlCont.style.display = 'flex';
             isVideoUrlPlayerOpen = true;
         } else {
-            userLog('error', 'Something wrong, try with another Youtube URL');
+            playSound('newMessage');
+            console.log('Load element type: Video');
+            videoAudioUrlCont.style.display = 'flex';
+            videoAudioUrlElement.setAttribute('src', videoSrc);
+            videoAudioUrlElement.type = videoType;
+            if (videoAudioUrlElement.type == 'video/mp3') {
+                videoAudioUrlElement.poster = audioGif;
+            }
+            isVideoUrlPlayerOpen = true;
         }
     } else {
         // video player seems open
-        videoUrlIframe.src = videoEmbed;
+        if (videoEmbed) {
+            videoUrlIframe.src = videoEmbed;
+        } else {
+            videoAudioUrlElement.src = videoSrc;
+        }
     }
+}
+
+/**
+ * Get video type
+ * @param {string} url
+ * @returns string video type
+ */
+function getVideoType(url) {
+    if (url.endsWith('.mp4')) return 'video/mp4';
+    if (url.endsWith('.mp3')) return 'video/mp3';
+    if (url.endsWith('.webm')) return 'video/webm';
+    if (url.endsWith('.ogg')) return 'video/ogg';
+    return 'na';
+}
+
+/**
+ * Check if video URL is supported
+ * @param {string} url
+ * @returns boolean true/false
+ */
+function isVideoTypeSupported(url) {
+    if (
+        url.endsWith('.mp4') ||
+        url.endsWith('.mp3') ||
+        url.endsWith('.webm') ||
+        url.endsWith('.ogg') ||
+        url.includes('youtube')
+    )
+        return true;
+    return false;
 }
 
 /**
@@ -5797,9 +5871,14 @@ function getYoutubeEmbed(url) {
  * Close Video Url Player
  */
 function closeVideoUrlPlayer() {
-    // Reload all iframes again to stop videos & disable autoplay
-    videoUrlIframe.src = videoUrlIframe.src.replace('?autoplay=1', '');
+    console.log('Close video Player', {
+        videoUrlIframe: videoUrlIframe.src,
+        videoAudioUrlElement: videoAudioUrlElement.src,
+    });
+    if (videoUrlIframe.src != '') videoUrlIframe.setAttribute('src', '');
+    if (videoAudioUrlElement.src != '') videoAudioUrlElement.setAttribute('src', '');
     videoUrlCont.style.display = 'none';
+    videoAudioUrlCont.style.display = 'none';
     isVideoUrlPlayerOpen = false;
 }
 
