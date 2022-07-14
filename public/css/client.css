@@ -845,6 +845,7 @@ progress {
     display: none;
     width: var(--iframe-width);
     height: var(--iframe-height);
+    border: var(--border);
     box-shadow: var(--box-shadow);
     border-radius: 5px;
 }
