@@ -298,8 +298,8 @@ const showFileShareBtn = true;
 const showMySettingsBtn = true;
 const showAboutBtn = true;
 
-// force the webCam to max resolution, up to 4k as default
-const forceCamMaxResolution = true;
+// force the webCam to max resolution, up to 4k and 60fps as default (high bandwidth are required)
+const forceCamMaxResolutionAndFps = true;
 
 /**
  * Load all Html elements by Id
@@ -2821,6 +2821,7 @@ function getAudioVideoConstraints() {
 
 /**
  * Get video constraints: https://webrtc.github.io/samples/src/content/getusermedia/resolution/
+ * WebCam resolution: https://webcamtests.com/resolution
  * @param {string} videoQuality desired video quality
  * @returns {object} video constraints
  */
@@ -2829,12 +2830,12 @@ function getVideoConstraints(videoQuality) {
 
     switch (videoQuality) {
         case 'default':
-            if (forceCamMaxResolution) {
-                // This will make the browser use the maximum resolution available as default, `up to 4K`.
+            if (forceCamMaxResolutionAndFps) {
+                // This will make the browser use the maximum resolution available as default, `up to 4K and 60fps`.
                 return {
                     width: { ideal: 3840 },
                     height: { ideal: 2160 },
-                    frameRate: frameRate,
+                    frameRate: { ideal: 60 },
                 }; // video cam constraints default
             }
             return { frameRate: frameRate };
