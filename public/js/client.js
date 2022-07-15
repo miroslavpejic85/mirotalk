@@ -23,7 +23,6 @@
 const isHttps = false; // must be the same on server.js
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
-const peerInfo = getPeerInfo();
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
@@ -72,6 +71,11 @@ const chatInputEmoji = {
 let thisRoomPassword = null;
 
 let myPeerId; // socket.id
+let peerInfo = {}; // Some peer info
+let userAgent; // User agent info
+
+let isTabletDevice = false;
+let isIPadDevice = false;
 
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
@@ -93,12 +97,13 @@ let peerGeo;
 let myPeerName = getPeerName();
 let isScreenEnabled = getScreenEnabled();
 let isScreenSharingSupported = false;
+let isCamMirrored = false;
 let notify = getNotify();
 let useAudio = true;
 let useVideo = true;
 let isEnumerateVideoDevices = false;
 let isEnumerateAudioDevices = false;
-let camera = 'user';
+let camera = 'user'; //
 let roomLocked = false;
 let myVideoChange = false;
 let myHandStatus = false;
@@ -524,6 +529,8 @@ function getPeerInfo() {
         detectRTCversion: DetectRTC.version,
         isWebRTCSupported: DetectRTC.isWebRTCSupported,
         isMobileDevice: DetectRTC.isMobileDevice,
+        isTabletDevice: isTabletDevice,
+        isIPadDevice: isIPadDevice,
         osName: DetectRTC.osName,
         osVersion: DetectRTC.osVersion,
         browserName: DetectRTC.browser.name,
@@ -655,6 +662,12 @@ function initClientPeer() {
         userLog('error', 'This browser seems not supported WebRTC!');
         return;
     }
+
+    userAgent = navigator.userAgent.toLowerCase();
+
+    isTabletDevice = isTablet(userAgent);
+    isIPadDevice = isIpad(userAgent);
+    peerInfo = getPeerInfo();
 
     console.log('01. Connecting to signaling server');
 
@@ -849,6 +862,7 @@ async function joinToChannel() {
     console.log('12. join to channel', roomId);
     sendToServer('join', {
         channel: roomId,
+        userAgent: userAgent,
         channel_password: thisRoomPassword,
         peer_info: peerInfo,
         peer_geo: peerGeo,
@@ -2959,7 +2973,10 @@ async function gotStream(stream) {
     await refreshMyLocalStream(stream, true);
     if (myVideoChange) {
         setMyVideoStatusTrue();
-        if (isMobileDevice) myVideo.classList.toggle('mirror');
+        if (isMobileDevice && !isCamMirrored) {
+            myVideo.classList.toggle('mirror');
+            isCamMirrored = true;
+        }
     }
     // Refresh button list in case labels have become available
     return navigator.mediaDevices.enumerateDevices();
@@ -3276,7 +3293,10 @@ async function swapCamera() {
             await refreshMyStreamToPeers(camStream);
             await refreshMyLocalStream(camStream);
             await setMyVideoStatusTrue();
-            myVideo.classList.toggle('mirror');
+            if (!isCamMirrored) {
+                myVideo.classList.toggle('mirror');
+                isCamMirrored = true;
+            }
         }
     } catch (err) {
         console.log('[Error] to swapping camera', err);
@@ -6274,6 +6294,26 @@ function toggleClassElements(className, displayState) {
     for (let i = 0; i < elements.length; i++) {
         elements[i].style.display = displayState;
     }
+}
+
+/**
+ * Check if Tablet device
+ * @param {object} userAgent info
+ * @return {boolean} true/false
+ */
+function isTablet(userAgent) {
+    return /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/.test(
+        userAgent,
+    );
+}
+
+/**
+ * Check if IPad device
+ * @param {object} userAgent
+ * @return {boolean} true/false
+ */
+function isIpad(userAgent) {
+    return /macintosh/.test(userAgent) && 'ontouchend' in document;
 }
 
 /**
