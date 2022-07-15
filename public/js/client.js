@@ -6028,7 +6028,7 @@ function showAbout() {
         <div id="about">
             <b><a href="https://github.com/miroslavpejic85/mirotalk" target="_blank">Open Source</a></b> project
             <br/><br/>
-            <button class="pulsate" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"><i class="fas fa-heart" ></i>&nbsp;Sponsor</button>
+            <button class="pulsate" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"><i class="fas fa-heart" ></i>&nbsp;Support</button>
             <br /><br />
             Author:<a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> Miroslav Pejic</a>
         </div>
