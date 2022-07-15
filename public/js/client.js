@@ -103,7 +103,7 @@ let useAudio = true;
 let useVideo = true;
 let isEnumerateVideoDevices = false;
 let isEnumerateAudioDevices = false;
-let camera = 'user'; //
+let camera = 'user'; // user = front-facing camera on a smartphone. | environment = the back camera on a smartphone.
 let roomLocked = false;
 let myVideoChange = false;
 let myHandStatus = false;

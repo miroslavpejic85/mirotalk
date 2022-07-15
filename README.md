@@ -39,7 +39,7 @@
 -   Chat with Emoji Picker & Private messages & Save the conversations
 -   Speech recognition to send the speeches
 -   Advance collaborative whiteboard for the teachers
--   Share any YT Embed video in real-time
+-   Share any YT Embed video, video mp4, webm, ogg and audio mp3 in real-time
 -   Full-Screen Mode on mouse click on the Video element
 -   Possibility to Change UI Themes
 -   Right-click on the Video elements for more options
