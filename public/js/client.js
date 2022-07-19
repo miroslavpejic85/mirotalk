@@ -135,6 +135,7 @@ let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
 let chatMessages = []; // collect chat messages to save it later if want
+let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
 let transcripts = []; //collect all the transcripts to save it later if you need
 let backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
 let countTime; // conference count time
@@ -945,10 +946,21 @@ async function handleAddPeer(config) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
     peerConnection = new RTCPeerConnection({ iceServers: iceServers });
     peerConnections[peer_id] = peerConnection;
+    allPeers = peers;
 
     console.log('[RTCPeerConnection] - PEER_ID', peer_id); // the connected peer_id
     console.log('[RTCPeerConnection] - PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
     console.log('[RTCPeerConnection] - PEERS', peers); // all peers in the room
+
+    // As P2P check who I am connected with
+    let connectedPeersName = [];
+    for (peer_id in peerConnections) {
+        connectedPeersName.push({
+            peer_name: peers[peer_id]['peer_name'],
+        });
+    }
+    console.log('[RTCPeerConnection] - CONNECTED TO', JSON.stringify(connectedPeersName));
+    // userLog('info', 'Connected to: ' + JSON.stringify(connectedPeersName));
 
     await handlePeersConnectionStatus(peer_id);
     await msgerAddPeers(peers);
@@ -1006,27 +1018,20 @@ async function handleOnIceCandidate(peer_id) {
 async function handleOnTrack(peer_id, peers) {
     console.log('[ON TRACK] - peer_id', { peer_id: peer_id });
     peerConnections[peer_id].ontrack = (event) => {
-        console.log('[ON TRACK] - kind', { peer_id: peer_id, kind: event.track.kind });
+        let remoteVideoStream = getId(peer_id + '_video');
+        let peer_name = peers[peer_id]['peer_name'];
+        let kind = event.track.kind;
+        //userLog('info', '[ON TRACK] - peer_name: ' + peer_name + ' kind: ' + kind);
+        console.log('[ON TRACK] - info', { peer_id: peer_id, peer_name: peer_name, kind: kind, track: event.track });
         if (event.streams && event.streams[0]) {
             console.log('[ON TRACK] - peers', peers);
-            let peer_video = peers[peer_id]['peer_video'];
-            let peer_audio = peers[peer_id]['peer_audio'];
-            let loadRemoteMedia = false;
-            if (
-                // conditions to load remote media
-                (peer_audio && peer_video && event.track.kind === 'video') ||
-                (!peer_audio && peer_video && event.track.kind === 'video') ||
-                (peer_audio && !peer_video && event.track.kind === 'audio')
-            ) {
-                loadRemoteMedia = true;
-            }
-            if (loadRemoteMedia) loadRemoteMediaStream(event.streams[0], peers, peer_id);
+            remoteVideoStream
+                ? attachMediaStream(remoteVideoStream, event.streams[0])
+                : loadRemoteMediaStream(event.streams[0], peers, peer_id);
         } else {
-            console.log('[ON TRACK] - SCREEN SHARING', { peer_id: peer_id, kind: event.track.kind });
-            let remoteVideoStream = getId(peer_id + '_video');
+            console.log('[ON TRACK] - SCREEN SHARING', { peer_id: peer_id, peer_name: peer_name, kind: kind });
             // attach newStream with screen share video and audio already existing
-            let inboundStream = new MediaStream([remoteVideoStream.srcObject.getAudioTracks()[0]]);
-            inboundStream.addTrack(event.track);
+            let inboundStream = new MediaStream([event.track, remoteVideoStream.srcObject.getAudioTracks()[0]]);
             attachMediaStream(remoteVideoStream, inboundStream);
         }
     };
@@ -1038,6 +1043,7 @@ async function handleOnTrack(peer_id, peers) {
  */
 async function handleAddTracks(peer_id) {
     localMediaStream.getTracks().forEach((track) => {
+        console.log('[ADD TRACK] kind - ' + track.kind);
         peerConnections[peer_id].addTrack(track, localMediaStream);
     });
 }
@@ -1233,8 +1239,11 @@ function handleRemovePeer(config) {
     delete fileDataChannels[peer_id];
     delete peerConnections[peer_id];
     delete peerMediaElements[peer_id];
+    delete allPeers[peer_id];
 
     playSound('removePeer');
+
+    console.log('ALL PEERS', allPeers);
 }
 
 /**
@@ -1505,6 +1514,8 @@ async function loadLocalMedia(stream) {
 
     localMediaStream = stream;
 
+    console.log('LOAD LOCAL MEDIA STREAM TRACKS', localMediaStream.getTracks());
+
     // local video elemets
     const videoWrap = document.createElement('div');
     const localMedia = document.createElement('video');
@@ -1687,6 +1698,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     let peer_rec = peers[peer_id]['peer_rec'];
 
     remoteMediaStream = stream;
+
+    console.log('LOAD REMOTE MEDIA STREAM TRACKS - PeerName:[' + peer_name + ']', remoteMediaStream.getTracks());
 
     // remote video elements
     const remoteVideoWrap = document.createElement('div');
@@ -3425,27 +3438,30 @@ function toggleFullScreen() {
 async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereIsPeerConnections()) return;
 
-    // all peers connections in the room expect myself
-    console.log('PEER-CONNECTIONS', peerConnections);
+    console.log('PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
+    console.log('ALL-PEERS', allPeers); // all peers connected in the room
 
     // refresh my stream to connected peers expect myself
     for (let peer_id in peerConnections) {
+        let peer_name = allPeers[peer_id]['peer_name'];
+
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
         let videoSender = peerConnections[peer_id]
             .getSenders()
             .find((s) => (s.track ? s.track.kind === 'video' : false));
+        console.log('CHECK VIDEO SENDER - ' + peer_name, videoSender);
 
         if (videoSender) {
             // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
             videoSender.replaceTrack(stream.getVideoTracks()[0]);
-            console.log('REPLACE VIDEO TRACK TO', { peer_id: peer_id });
+            console.log('REPLACE VIDEO TRACK TO', { peer_id: peer_id, peer_name: peer_name });
         } else {
             stream.getTracks().forEach((track) => {
                 if (track.kind === 'video') {
                     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
                     peerConnections[peer_id].addTrack(track);
                     handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
-                    console.log('ADD VIDEO TRACK TO', { peer_id: peer_id });
+                    console.log('ADD VIDEO TRACK TO', { peer_id: peer_id, peer_name: peer_name });
                 }
             });
         }
@@ -3459,7 +3475,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             if (audioSender) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
                 audioSender.replaceTrack(stream.getAudioTracks()[0]);
-                console.log('REPLACE AUDIO TRACK TO', { peer_id: peer_id });
+                console.log('REPLACE AUDIO TRACK TO', { peer_id: peer_id, peer_name: peer_name });
             }
         }
     }

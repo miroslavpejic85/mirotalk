@@ -4,7 +4,7 @@
  * Start audio pitch detection
  * @param {object} stream media stream audio
  */
-function startPitchDetection(stream) {
+async function startPitchDetection(stream) {
     pitchDetectionStatus = true;
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     mediaStreamSource = audioContext.createMediaStreamSource(stream);
