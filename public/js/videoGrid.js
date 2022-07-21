@@ -14,7 +14,7 @@ let ratio = getAspectRatio();
  */
 function getAspectRatio() {
     customRatio = aspect == 0 ? true : false;
-    var ratio = ratios[aspect].split(':');
+    let ratio = ratios[aspect].split(':');
     return ratio[1] / ratio[0];
 }
 
