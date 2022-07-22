@@ -124,6 +124,7 @@ let isDocumentOnFullScreen = false;
 let isWhiteboardFs = false;
 let isVideoUrlPlayerOpen = false;
 let isRecScreenStream = false;
+let needToCreateOffer = false; // after session description answer
 let signalingSocket; // socket.io connection to our webserver
 let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
@@ -927,10 +928,12 @@ function welcomeUser() {
  * @param {object} config data
  */
 async function handleAddPeer(config) {
-    // console.log("addPeer", JSON.stringify(config));
+    //console.log("addPeer", JSON.stringify(config));
 
     let peer_id = config.peer_id;
     let peers = config.peers;
+    let peer_name = peers[peer_id]['peer_name'];
+    let peer_video = peers[peer_id]['peer_video'];
     let should_create_offer = config.should_create_offer;
     let iceServers = config.iceServers;
 
@@ -946,6 +949,7 @@ async function handleAddPeer(config) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
     peerConnection = new RTCPeerConnection({ iceServers: iceServers });
     peerConnections[peer_id] = peerConnection;
+
     allPeers = peers;
 
     console.log('[RTCPeerConnection] - PEER_ID', peer_id); // the connected peer_id
@@ -954,7 +958,7 @@ async function handleAddPeer(config) {
 
     // As P2P check who I am connected with
     let connectedPeersName = [];
-    for (peer_id in peerConnections) {
+    for (let peer_id in peerConnections) {
         connectedPeersName.push({
             peer_name: peers[peer_id]['peer_name'],
         });
@@ -965,12 +969,21 @@ async function handleAddPeer(config) {
     await handlePeersConnectionStatus(peer_id);
     await msgerAddPeers(peers);
     await handleOnIceCandidate(peer_id);
+    await handleRTCDataChannels(peer_id);
     await handleOnTrack(peer_id, peers);
     await handleAddTracks(peer_id);
-    await handleRTCDataChannels(peer_id);
+
+    if (useVideo && !peer_video && !needToCreateOffer) {
+        needToCreateOffer = true;
+    }
     if (should_create_offer) {
         await handleRtcOffer(peer_id);
+        console.log('[RTCPeerConnection] - SHOULD CREATE OFFER', {
+            peer_id: peer_id,
+            peer_name: peer_name,
+        });
     }
+
     await wbUpdate();
     playSound('addPeer');
 }
@@ -985,8 +998,10 @@ async function handlePeersConnectionStatus(peer_id) {
     peerConnections[peer_id].onconnectionstatechange = function (event) {
         const connectionStatus = event.currentTarget.connectionState;
         const signalingState = event.currentTarget.signalingState;
+        const peerName = allPeers[peer_id]['peer_name'];
         console.log('[RTCPeerConnection] - CONNECTION', {
             peer_id: peer_id,
+            peer_name: peerName,
             connectionStatus: connectionStatus,
             signalingState: signalingState,
         });
@@ -1038,12 +1053,14 @@ async function handleOnTrack(peer_id, peers) {
 }
 
 /**
+ * Add my localMediaStream Tracks to connected peer
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
  * @param {string} peer_id socket.id
  */
 async function handleAddTracks(peer_id) {
-    localMediaStream.getTracks().forEach((track) => {
-        console.log('[ADD TRACK] kind - ' + track.kind);
+    let peer_name = allPeers[peer_id]['peer_name'];
+    await localMediaStream.getTracks().forEach((track) => {
+        console.log('[ADD TRACK] to Peer Name [' + peer_name + '] kind - ' + track.kind);
         peerConnections[peer_id].addTrack(track, localMediaStream);
     });
 }
@@ -1102,7 +1119,7 @@ async function handleRTCDataChannels(peer_id) {
 async function handleRtcOffer(peer_id) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onnegotiationneeded
     peerConnections[peer_id].onnegotiationneeded = () => {
-        console.log('Creating RTC offer to', peer_id);
+        console.log('Creating RTC offer to ' + allPeers[peer_id]['peer_name']);
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
         peerConnections[peer_id]
             .createOffer()
@@ -1164,6 +1181,15 @@ function handleSessionDescription(config) {
                                     session_description: local_description,
                                 });
                                 console.log('Answer setLocalDescription done!');
+
+                                // https://github.com/miroslavpejic85/mirotalk/issues/110
+                                if (needToCreateOffer) {
+                                    needToCreateOffer = false;
+                                    handleRtcOffer(peer_id);
+                                    console.log('[RTCSessionDescription] - NEED TO CREATE OFFER', {
+                                        peer_id: peer_id,
+                                    });
+                                }
                             })
                             .catch((err) => {
                                 console.error('[Error] answer setLocalDescription', err);
@@ -3070,7 +3096,7 @@ function handleError(err) {
 function attachMediaStream(element, stream) {
     //console.log("DEPRECATED, attachMediaStream will soon be removed.");
     element.srcObject = stream;
-    console.log('Success, media stream attached');
+    console.log('Success, media stream attached', stream.getTracks());
 
     if (DetectRTC.browser.name === 'Safari') {
         /*
@@ -3500,13 +3526,13 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
     if (useVideo || isScreenStreaming) {
-        console.log('Refresh my local media stream with video - audio');
+        console.log('Refresh my local media stream VIDEO - AUDIO');
         newStream = new MediaStream([
             stream.getVideoTracks()[0],
             localAudioTrackChange ? stream.getAudioTracks()[0] : localMediaStream.getAudioTracks()[0],
         ]);
     } else {
-        console.log('Refresh my local media stream with audio');
+        console.log('Refresh my local media stream AUDIO');
         newStream = new MediaStream([
             localAudioTrackChange ? stream.getAudioTracks()[0] : localMediaStream.getAudioTracks()[0],
         ]);
