@@ -97,6 +97,9 @@ const ngrok = require('ngrok');
 const ngrokEnabled = process.env.NGROK_ENABLED || false;
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 
+// Stun config
+const stun = process.env.STUN || 'stun:stun.l.google.com:19302';
+
 // Turn config
 const turnEnabled = process.env.TURN_ENABLED || false;
 const turnUrls = process.env.TURN_URLS;
@@ -323,29 +326,22 @@ app.get('*', function (req, res) {
  */
 const iceServers = [];
 
+// Stun is always needed
+iceServers.push({ urls: stun });
+
 if (turnEnabled == 'true') {
-    iceServers.push(
-        {
-            urls: 'stun:stun.l.google.com:19302',
-        },
-        {
-            urls: turnUrls,
-            username: turnUsername,
-            credential: turnCredential,
-        },
-    );
+    iceServers.push({
+        urls: turnUrls,
+        username: turnUsername,
+        credential: turnCredential,
+    });
 } else {
     // My own As backup if not configured, please configure your in the .env file
-    iceServers.push(
-        {
-            urls: 'stun:stun.l.google.com:19302',
-        },
-        {
-            urls: 'turn:numb.viagenie.ca',
-            username: 'miroslav.pejic.85@gmail.com',
-            credential: 'mirotalkp2p',
-        },
-    );
+    iceServers.push({
+        urls: 'turn:numb.viagenie.ca',
+        username: 'miroslav.pejic.85@gmail.com',
+        credential: 'mirotalkp2p',
+    });
 }
 
 /**
