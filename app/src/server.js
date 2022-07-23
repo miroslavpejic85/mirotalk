@@ -385,7 +385,7 @@ async function ngrokStart() {
             },
             server: host,
             server_tunnel: tunnelHttps,
-            testIceServers: testStunTurn,
+            test_ice_servers: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             sentry_enabled: sentryEnabled,
@@ -423,7 +423,7 @@ server.listen(port, null, () => {
         log.debug('settings', {
             iceServers: iceServers,
             server: host,
-            stun_turn_test: testStunTurn,
+            test_ice_servers: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             sentry_enabled: sentryEnabled,
