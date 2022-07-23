@@ -31,6 +31,7 @@
 
         <hr />
 
+        <p id="ip"></p>
         <p id="stun">🔴 The STUN server is NOT reachable!</p>
         <p id="turn">🔴 The TURN server is NOT reachable!</p>
         <p id="err"></p>
@@ -42,6 +43,7 @@
         >
 
         <script>
+            const IP = document.getElementById('ip');
             const Stun = document.getElementById('stun');
             const Turn = document.getElementById('turn');
             const Err = document.getElementById('err');
@@ -75,7 +77,8 @@
                 if (e.candidate.type == 'srflx' || e.candidate.candidate.includes('srflx')) {
                     let ip = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
                     let address = e.candidate.address ? e.candidate.address : e.candidate.candidate.match(ip);
-                    Stun.innerHTML = '🟢 The STUN server is reachable! Your Public IP Address is ' + address;
+                    IP.innerHTML = '🟢 Your Public IP Address is ' + address;
+                    Stun.innerHTML = '🟢 The STUN server is reachable!';
                 }
 
                 // If a relay candidate was found, notify that the TURN server works!
