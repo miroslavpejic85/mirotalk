@@ -106,9 +106,6 @@ const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
-// Test Stun and Turn connection URL
-const testStunTurn = host + '/test';
-
 // Sentry config
 const Sentry = require('@sentry/node');
 const { CaptureConsole } = require('@sentry/integrations');
@@ -210,8 +207,17 @@ app.get(['/privacy'], (req, res) => {
     res.sendFile(views.privacy);
 });
 
-// test Stun Turn connections
+// test Stun and Turn connections
 app.get(['/test'], (req, res) => {
+    if (Object.keys(req.query).length > 0) {
+        log.debug('Request Query', req.query);
+    }
+    /*
+        http://localhost:3000/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
+        https://p2p.mirotalk.com//test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
+        https://mirotalk.up.railway.app/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
+        https://mirotalk.herokuapp.com/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
+    */
     res.sendFile(views.stunTurn);
 });
 
@@ -221,6 +227,7 @@ app.get('/join/', (req, res) => {
         log.debug('Request Query', req.query);
         /* 
             http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
+            https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
             https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
             https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
         */
@@ -353,6 +360,9 @@ if (turnEnabled == 'true') {
     });
 }
 
+// Test Stun and Turn connection with query params
+const testStunTurn = host + '/test?iceServers=' + JSON.stringify(iceServers);
+
 /**
  * Expose server to external with https tunnel using ngrok
  * https://ngrok.com
@@ -375,7 +385,7 @@ async function ngrokStart() {
             },
             server: host,
             server_tunnel: tunnelHttps,
-            stun_turn_test: testStunTurn,
+            testIceServers: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             sentry_enabled: sentryEnabled,

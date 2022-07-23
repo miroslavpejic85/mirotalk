@@ -31,6 +31,10 @@
 
         <hr />
 
+        <pre id="ice" style="background: #000000; color: lime; overflow: auto"></pre>
+
+        <hr />
+
         <p id="ip"></p>
         <p id="stun">🔴 The STUN server is NOT reachable!</p>
         <p id="turn">🔴 The TURN server is NOT reachable!</p>
@@ -38,30 +42,44 @@
 
         <hr />
 
-        <a href="https://github.com/miroslavpejic85/mirotalk/issues/108#issuecomment-1193087636" target="_blank"
-            >Check out also</a
+        <a href="https://github.com/miroslavpejic85/mirotalk/issues/108#issuecomment-1193087636" target="_blank">
+            Check this out too</a
         >
 
         <script>
+            const Ice = document.getElementById('ice');
             const IP = document.getElementById('ip');
             const Stun = document.getElementById('stun');
             const Turn = document.getElementById('turn');
             const Err = document.getElementById('err');
 
-            // MiroTalk P2P default STUN/TURN if not set
+            const qs = new URLSearchParams(window.location.search);
 
-            const iceServers = [
-                // Test some STUN server
-                {
-                    urls: 'stun:stun.l.google.com:19302',
-                },
-                // Test some TURN server
-                {
-                    urls: 'turn:numb.viagenie.ca',
-                    username: 'miroslav.pejic.85@gmail.com',
-                    credential: 'mirotalkp2p',
-                },
-            ];
+            let iceServers = qs.get('iceServers');
+
+            if (iceServers) {
+                iceServers = JSON.parse(iceServers);
+                // http://localhost:3000/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
+            } else {
+                // http://localhost:3000/test
+                iceServers = [
+                    // Test some STUN server
+                    {
+                        urls: 'stun:stun.l.google.com:19302',
+                    },
+                    // Test some TURN server
+                    {
+                        urls: 'turn:numb.viagenie.ca',
+                        username: 'miroslav.pejic.85@gmail.com',
+                        credential: 'mirotalkp2p',
+                    },
+                ];
+            }
+
+            console.log('Check Ice Servers', iceServers);
+
+            // Print iceServers config
+            Ice.innerHTML = JSON.stringify(iceServers, null, 4);
 
             // Test the connections
             const pc = new RTCPeerConnection({
