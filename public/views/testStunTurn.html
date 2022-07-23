@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test Stun/Turn Servers</title>
+    </head>
+
+    <body>
+        <h1>Test Stun/Turn Servers</h1>
+
+        <p id="stun">Stun: The STUN server is NOT reachable!</p>
+        <p id="turn">Turn: The TURN server is NOT reachable!</p>
+        <p id="err"></p>
+
+        <script>
+            const Stun = document.getElementById('stun');
+            const Turn = document.getElementById('turn');
+            const Err = document.getElementById('err');
+
+            // MiroTalk P2P default STUN/TURN if not set
+
+            const iceServers = [
+                // Test some STUN server
+                {
+                    urls: 'stun:stun.l.google.com:19302',
+                },
+                // Test some TURN server
+                {
+                    urls: 'turn:numb.viagenie.ca',
+                    username: 'miroslav.pejic.85@gmail.com',
+                    credential: 'mirotalkp2p',
+                },
+            ];
+
+            // Test the connections
+            const pc = new RTCPeerConnection({
+                iceServers,
+            });
+
+            pc.onicecandidate = (e) => {
+                if (!e.candidate) return;
+
+                console.log(e.candidate.candidate);
+
+                // If a srflx candidate was found, notify that the STUN server works!
+                if (e.candidate.type == 'srflx' || e.candidate.candidate.includes('srflx')) {
+                    let ip = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
+                    let address = e.candidate.address ? e.candidate.address : e.candidate.candidate.match(ip);
+                    Stun.innerHTML = 'Stun: The STUN server is reachable! Your Public IP Address is ' + address;
+                }
+
+                // If a relay candidate was found, notify that the TURN server works!
+                if (e.candidate.type == 'relay' || e.candidate.candidate.includes('relay')) {
+                    Turn.innerHTML = 'Turn: The TURN server is reachable!';
+                }
+            };
+
+            // handle error
+            pc.onicecandidateerror = (e) => {
+                console.error(e);
+                Err.innerHTML = 'Error: ' + e.errorText;
+            };
+
+            pc.createDataChannel('test');
+            pc.createOffer().then((offer) => pc.setLocalDescription(offer));
+        </script>
+    </body>
+</html>

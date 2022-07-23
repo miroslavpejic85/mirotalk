@@ -106,6 +106,9 @@ const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
+// Test Stun and Turn connection URL
+const testStunTurn = host + '/test';
+
 // Sentry config
 const Sentry = require('@sentry/node');
 const { CaptureConsole } = require('@sentry/integrations');
@@ -151,6 +154,7 @@ const views = {
     notFound: path.join(__dirname, '../../', 'public/views/404.html'),
     permission: path.join(__dirname, '../../', 'public/views/permission.html'),
     privacy: path.join(__dirname, '../../', 'public/views/privacy.html'),
+    stunTurn: path.join(__dirname, '../../', 'public/views/testStunTurn.html'),
 };
 
 let channels = {}; // collect channels
@@ -204,6 +208,11 @@ app.get(['/permission'], (req, res) => {
 // privacy policy
 app.get(['/privacy'], (req, res) => {
     res.sendFile(views.privacy);
+});
+
+// test Stun Turn connections
+app.get(['/test'], (req, res) => {
+    res.sendFile(views.stunTurn);
 });
 
 // no room name specified to join
@@ -366,6 +375,7 @@ async function ngrokStart() {
             },
             server: host,
             server_tunnel: tunnelHttps,
+            stun_turn_test: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             sentry_enabled: sentryEnabled,
@@ -403,6 +413,7 @@ server.listen(port, null, () => {
         log.debug('settings', {
             iceServers: iceServers,
             server: host,
+            stun_turn_test: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             sentry_enabled: sentryEnabled,
