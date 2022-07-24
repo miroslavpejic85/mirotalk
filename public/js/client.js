@@ -4706,7 +4706,7 @@ function handleScreenStop(peer_id, peer_use_video) {
     let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
     if (remoteVideoStatusBtn) {
         remoteVideoStatusBtn.className = 'fas fa-video-slash';
-        setTippy(remoteVideoStatusBtn, 'Participant video is off', 'bottom');
+        setTippy(remoteVideoStatusBtn, 'Participant screen share is off', 'bottom');
     }
     if (!isMobileDevice) adaptAspectRatio();
     if (remoteVideoAvatarImage && remoteVideoStream && !peer_use_video) {
