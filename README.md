@@ -168,11 +168,17 @@ You can start videoconferencing directly from your Local PC, and be reachable fr
 </details>
 
 <details>
-<summary>Setup Turn</summary>
+<summary>Stun & Turn</summary>
 
 <br/>
 
-`Recommended`, for more info about the Turn check out [here](https://webrtc.org/getting-started/turn-server). Just edit [this part](https://github.com/miroslavpejic85/mirotalk/blob/master/.env.template#L9) on your `.env`.
+You can [Check here](https://p2p.mirotalk.com/test), if you are full covered by the MiroTalk default IceServers ([Stun](https://en.wikipedia.org/wiki/STUN) & [Turn](https://en.wikipedia.org/wiki/TURN)).
+
+If not, you can change it in the `.env` file and test it by the URL eg:
+
+```html
+https://p2p.mirotalk.com//test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
+```
 
 </details>
 
