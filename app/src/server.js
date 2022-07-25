@@ -352,11 +352,12 @@ if (turnEnabled == 'true') {
         credential: turnCredential,
     });
 } else {
-    // My own As backup if not configured, please configure your in the .env file
+    // As backup if not configured, please configure your own in the .env file
+    // https://www.metered.ca/tools/openrelay/
     iceServers.push({
-        urls: 'turn:numb.viagenie.ca',
-        username: 'miroslav.pejic.85@gmail.com',
-        credential: 'mirotalkp2p',
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject',
     });
 }
 
