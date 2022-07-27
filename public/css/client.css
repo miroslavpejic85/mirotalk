@@ -938,6 +938,7 @@ progress {
 --------------------------------------------------------------*/
 
 .speechbar {
+    z-index: 9;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -1041,7 +1042,7 @@ z-index
 - kick out
 ------------------
 8 video avatar img
-9 count time
+9 speech bar
 10 left buttons
 11 whiteboard
 12 chat emoji
