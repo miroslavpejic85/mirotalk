@@ -123,7 +123,7 @@ Embedding a meeting into a service or app using an iframe.
 $ git clone https://github.com/miroslavpejic85/mirotalk.git
 # go to mirotalk dir
 $ cd mirotalk
-# copy .env.template to .env
+# copy .env.template to .env (edit it according to your needs)
 $ cp .env.template .env
 # install dependencies
 $ npm install
@@ -144,7 +144,7 @@ $ npm start
 -   Install docker compose: https://docs.docker.com/compose/install/
 
 ```bash
-# copy .env.template to .env
+# copy .env.template to .env (edit it according to your needs)
 $ cp .env.template .env
 # build or rebuild services
 $ docker-compose build

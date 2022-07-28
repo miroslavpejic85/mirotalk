@@ -23,14 +23,8 @@ server_tunnel: 'https://xxxxxxxxxxxxxxxxxx.ngrok.io'
 
 So open it in your browser, join in the room, share it to whom you want and wait participants to join.
 
-<br/>
-
 ---
 
-## Do you find MiroTalk useful?
+## Support
 
-Show your appreciation by becoming a [backer or sponsor](https://github.com/sponsors/miroslavpejic85)
-
-Thank you for your support!
-
----
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/mirotalk/mirotalk-free-secure-video-calls-chat-screen-sharing)
