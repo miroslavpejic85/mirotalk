@@ -21,7 +21,7 @@
 
 <br/>
 
--   Is `100% Free` - `Open Source` - `Self Hosted`
+-   Is `100% Free` - `Open Source` - `Self Hosted` and [PWA](https://en.wikipedia.org/wiki/Progressive_web_application)!
 -   No download, plug-in, or login required, entirely browser-based
 -   Unlimited number of conference rooms without call time limitation
 -   Translated in 133 languages
