@@ -24,27 +24,35 @@
 
         <meta name="description" content="MiroTalk P2P test Stun and Turn servers" />
         <meta name="keywords" content="webrtc, stun, turn, srflx, relay" />
+
+        <!-- StyleSheet -->
+
+        <link rel="stylesheet" href="../css/landing.css" />
     </head>
 
     <body>
-        <h1>Test Stun/Turn Servers</h1>
+        <div class="container">
+            <h1>Test Stun/Turn Servers</h1>
 
-        <hr />
+            <hr />
 
-        <pre id="ice" style="background: #000000; color: lime; overflow: auto"></pre>
+            <pre id="ice" style="background: #000000; color: lime; overflow: auto"></pre>
 
-        <hr />
+            <hr />
 
-        <p id="ip"></p>
-        <p id="stun">🔴 The STUN server is NOT reachable!</p>
-        <p id="turn">🔴 The TURN server is NOT reachable!</p>
-        <p id="err"></p>
+            <p id="ip"></p>
+            <p id="stun">🔴 The STUN server is NOT reachable!</p>
+            <p id="turn">🔴 The TURN server is NOT reachable!</p>
+            <p id="err"></p>
 
-        <hr />
+            <hr />
 
-        <a href="https://github.com/miroslavpejic85/mirotalk/issues/108#issuecomment-1193087636" target="_blank">
-            Check this out too</a
-        >
+            <a href="https://github.com/miroslavpejic85/mirotalk/issues/108#issuecomment-1193087636" target="_blank">
+                Check this out too</a
+            >
+
+            <hr />
+        </div>
 
         <script>
             const Ice = document.getElementById('ice');
