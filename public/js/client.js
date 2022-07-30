@@ -4493,8 +4493,6 @@ function handlePeerStatus(config) {
     let element = config.element;
     let status = config.status;
 
-    console.log('--------------', config);
-
     switch (element) {
         case 'video':
             setPeerVideoStatus(peer_id, status);
