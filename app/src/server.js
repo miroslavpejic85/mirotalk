@@ -213,10 +213,10 @@ app.get(['/test'], (req, res) => {
         log.debug('Request Query', req.query);
     }
     /*
-        http://localhost:3000/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
-        https://p2p.mirotalk.com//test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
-        https://mirotalk.up.railway.app/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
-        https://mirotalk.herokuapp.com/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
+        http://localhost:3000/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
+        https://p2p.mirotalk.com//test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
+        https://mirotalk.up.railway.app/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
+        https://mirotalk.herokuapp.com/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
     */
     res.sendFile(views.stunTurn);
 });
@@ -484,8 +484,10 @@ io.sockets.on('connect', async (socket) => {
         let peer_name = config.peer_name;
         let peer_video = config.peer_video;
         let peer_audio = config.peer_audio;
-        let peer_hand = config.peer_hand;
-        let peer_rec = config.peer_rec;
+        let peer_video_status = config.peer_video_status;
+        let peer_audio_status = config.peer_audio_status;
+        let peer_hand_status = config.peer_hand_status;
+        let peer_rec_status = config.peer_rec_status;
 
         if (channel in socket.channels) {
             log.debug('[' + socket.id + '] [Warning] already joined', channel);
@@ -509,8 +511,10 @@ io.sockets.on('connect', async (socket) => {
             peer_name: peer_name,
             peer_video: peer_video,
             peer_audio: peer_audio,
-            peer_hand: peer_hand,
-            peer_rec: peer_rec,
+            peer_video_status: peer_video_status,
+            peer_audio_status: peer_audio_status,
+            peer_hand_status: peer_hand_status,
+            peer_rec_status: peer_rec_status,
         };
         log.debug('[Join] - connected peers grp by roomId', peers);
 
@@ -706,16 +710,16 @@ io.sockets.on('connect', async (socket) => {
                 if (peers[room_id][peer_id]['peer_name'] == peer_name) {
                     switch (element) {
                         case 'video':
-                            peers[room_id][peer_id]['peer_video'] = status;
+                            peers[room_id][peer_id]['peer_video_status'] = status;
                             break;
                         case 'audio':
-                            peers[room_id][peer_id]['peer_audio'] = status;
+                            peers[room_id][peer_id]['peer_audio_status'] = status;
                             break;
                         case 'hand':
-                            peers[room_id][peer_id]['peer_hand'] = status;
+                            peers[room_id][peer_id]['peer_hand_status'] = status;
                             break;
                         case 'rec':
-                            peers[room_id][peer_id]['peer_rec'] = status;
+                            peers[room_id][peer_id]['peer_rec_status'] = status;
                             break;
                     }
                 }
