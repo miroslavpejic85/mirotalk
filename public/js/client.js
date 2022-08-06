@@ -10,7 +10,7 @@
  * MiroTalk P2P - Client component
  *
  * @link    GitHub: https://github.com/miroslavpejic85/mirotalk
- * @link    Live demo: https://p2p.mirotalk.org or https://mirotalk.up.railway.app or https://mirotalk.herokuapp.com
+ * @link    Live demo: https://p2p.mirotalk.com or https://mirotalk.up.railway.app or https://mirotalk.herokuapp.com
  * @license For open source use: AGPLv3
  * @license For commercial or closed source, contact us at info.mirotalk@gmail.com
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
