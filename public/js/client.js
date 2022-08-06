@@ -68,6 +68,25 @@ const chatInputEmoji = {
     ':+1:': '\uD83D\uDC4D',
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
+// show desired buttons
+const showShareRoomBtn = true;
+const showAudioBtn = true;
+const showVideoBtn = true;
+const showSwapCameraBtn = true;
+const showScreenShareBtn = true;
+const showRecordStreamBtn = true;
+const showFullScreenBtn = true;
+const showChatRoomBtn = true;
+const showCaptionBtn = true;
+const showMyHandBtn = true;
+const showWhiteboardBtn = true;
+const showFileShareBtn = true;
+const showMySettingsBtn = true;
+const showAboutBtn = true;
+
+// This force the webCam to max resolution, up to 4k and 60fps as default (high bandwidth are required)
+const forceCamMaxResolutionAndFps = false;
+
 let thisRoomPassword = null;
 
 let myPeerId; // socket.id
@@ -288,25 +307,6 @@ let videoAudioUrlElement;
 // speech recognition
 let speechRecognitionStart;
 let speechRecognitionStop;
-
-// show desired buttons
-const showShareRoomBtn = true;
-const showAudioBtn = true;
-const showVideoBtn = true;
-const showSwapCameraBtn = true;
-const showScreenShareBtn = true;
-const showRecordStreamBtn = true;
-const showFullScreenBtn = true;
-const showChatRoomBtn = true;
-const showCaptionBtn = true;
-const showMyHandBtn = true;
-const showWhiteboardBtn = true;
-const showFileShareBtn = true;
-const showMySettingsBtn = true;
-const showAboutBtn = true;
-
-// This force the webCam to max resolution, up to 4k and 60fps as default (high bandwidth are required)
-const forceCamMaxResolutionAndFps = false;
 
 /**
  * Load all Html elements by Id
@@ -6418,7 +6418,7 @@ function getEcN(className) {
  * @param {object} elem
  */
 function hide(elem) {
-    elem.className = 'hidden';
+    elem.classList.add('hidden');
 }
 
 /**
@@ -6426,5 +6426,5 @@ function hide(elem) {
  * @param {object} elem
  */
 function show(elem) {
-    elem.className = '';
+    elem.classList.remove('hidden');
 }
