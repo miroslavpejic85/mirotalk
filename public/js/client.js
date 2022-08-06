@@ -530,6 +530,7 @@ function getPeerInfo() {
     return {
         detectRTCversion: DetectRTC.version,
         isWebRTCSupported: DetectRTC.isWebRTCSupported,
+        isDesktopDevice: !DetectRTC.isMobileDevice && !isTabletDevice && !isIPadDevice,
         isMobileDevice: DetectRTC.isMobileDevice,
         isTabletDevice: isTabletDevice,
         isIPadDevice: isIPadDevice,
