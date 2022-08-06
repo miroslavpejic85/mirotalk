@@ -3040,7 +3040,8 @@ async function gotStream(stream) {
     await refreshMyLocalStream(stream, true);
     if (myVideoChange) {
         setMyVideoStatusTrue();
-        if (isMobileDevice && !isCamMirrored) {
+        // This fix IPadPro - Tablet mirror of the back camera
+        if ((isMobileDevice || isIPadDevice || isTabletDevice) && !isCamMirrored) {
             myVideo.classList.toggle('mirror');
             isCamMirrored = true;
         }
@@ -4305,7 +4306,7 @@ function downloadChatMsgs() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    playSound('ok');
+    playSound('download');
 }
 
 /**
@@ -4319,7 +4320,7 @@ function downloadCaptions() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    playSound('ok');
+    playSound('download');
 }
 
 /**
