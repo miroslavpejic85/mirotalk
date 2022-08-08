@@ -4,14 +4,16 @@
  * Log colors
  */
 const Log = {
-    // mode
-    reset: '\x1b[0m',
-    bright: '\x1b[1m',
-    dim: '\x1b[2m',
-    underscore: '\x1b[4m',
-    blink: '\x1b[5m',
-    reverse: '\x1b[7m',
-    hidden: '\x1b[8m',
+    // action
+    ac: {
+        reset: '\x1b[0m',
+        bright: '\x1b[1m',
+        dim: '\x1b[2m',
+        underscore: '\x1b[4m',
+        blink: '\x1b[5m',
+        reverse: '\x1b[7m',
+        hidden: '\x1b[8m',
+    },
     // Foreground (text) colors
     fg: {
         black: '\x1b[30m',
@@ -39,7 +41,7 @@ const Log = {
 };
 module.exports = class Logger {
     constructor(appName = 'miroTalkP2P', debugOn = true) {
-        this.appName = Log.fg.yellow + appName + Log.reset;
+        this.appName = Log.fg.yellow + appName + Log.ac.reset;
         this.debugOn = debugOn;
     }
 
@@ -98,6 +100,6 @@ module.exports = class Logger {
      * @returns {string} date to ISO string
      */
     getDataTime() {
-        return Log.fg.cyan + new Date().toISOString().replace(/T/, ' ').replace(/Z/, '') + Log.reset;
+        return Log.fg.cyan + new Date().toISOString().replace(/T/, ' ').replace(/Z/, '') + Log.ac.reset;
     }
 };
