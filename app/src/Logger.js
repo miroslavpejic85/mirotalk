@@ -43,6 +43,9 @@ module.exports = class Logger {
     constructor(appName = 'miroTalkP2P', debugOn = true) {
         this.appName = Log.fg.yellow + appName + Log.ac.reset;
         this.debugOn = debugOn;
+        this.timeStart = performance.now();
+        this.timeEnd = null;
+        this.timeElapsedMs = null;
     }
 
     /**
@@ -52,7 +55,12 @@ module.exports = class Logger {
      * @returns
      */
     debug(msg, op = '') {
-        if (this.debugOn) console.debug('[' + this.getDataTime() + '] [' + this.appName + '] ' + msg, op);
+        if (this.debugOn) {
+            this.timeEnd = performance.now();
+            this.timeElapsedMs = this.getFormatTime(Math.floor(this.timeEnd - this.timeStart));
+            console.debug('[' + this.getDataTime() + '] [' + this.appName + '] ' + msg, op, this.timeElapsedMs);
+            this.timeStart = performance.now();
+        }
     }
 
     /**
@@ -101,5 +109,29 @@ module.exports = class Logger {
      */
     getDataTime() {
         return Log.fg.cyan + new Date().toISOString().replace(/T/, ' ').replace(/Z/, '') + Log.ac.reset;
+    }
+
+    /**
+     * Get format time
+     * @param {integer} ms
+     * @returns formatted time
+     */
+    getFormatTime(ms) {
+        let time = Math.floor(ms);
+        let type = 'ms';
+
+        if (ms >= 1000) {
+            time = Math.floor((ms / 1000) % 60);
+            type = 's';
+        }
+        if (ms >= 60000) {
+            time = Math.floor((ms / 1000 / 60) % 60);
+            type = 'm';
+        }
+        if (ms >= 600000) {
+            time = Math.floor((ms / 1000 / 60 / 60) % 24);
+            type = 'h';
+        }
+        return Log.fg.magenta + '+' + time + type + Log.ac.reset;
     }
 };
