@@ -50,7 +50,7 @@ module.exports = class Logger {
     constructor(appName = 'miroTalkP2P', debugOn = true) {
         this.appName = Log.fg.yellow + appName + Log.ac.reset;
         this.debugOn = debugOn;
-        this.timeStart = performance.now();
+        this.timeStart = Date.now();
         this.timeEnd = null;
         this.timeElapsedMs = null;
     }
@@ -63,14 +63,14 @@ module.exports = class Logger {
      */
     debug(msg, op = '') {
         if (this.debugOn) {
-            this.timeEnd = performance.now();
+            this.timeEnd = Date.now();
             this.timeElapsedMs = this.getFormatTime(Math.floor(this.timeEnd - this.timeStart));
             console.debug(
                 '[' + this.getDataTime() + '] [' + this.appName + '] ' + msg,
                 util.inspect(op, options),
                 this.timeElapsedMs,
             );
-            this.timeStart = performance.now();
+            this.timeStart = Date.now();
         }
     }
 
