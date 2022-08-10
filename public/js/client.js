@@ -1292,9 +1292,9 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--left-msg-bg', '#222328');
-            document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
-            document.documentElement.style.setProperty('--right-msg-bg', '#0a0b0c');
+            document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
+            document.documentElement.style.setProperty('--right-msg-bg', '#056162');
+            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
             document.body.style.background = 'radial-gradient(#393939, #000000)';
             break;
         case 'grey':
@@ -1305,9 +1305,9 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#797979, #000)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
-            document.documentElement.style.setProperty('--left-msg-bg', '#222328');
-            document.documentElement.style.setProperty('--private-msg-bg', '#f77070');
-            document.documentElement.style.setProperty('--right-msg-bg', '#0a0b0c');
+            document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
+            document.documentElement.style.setProperty('--right-msg-bg', '#056162');
+            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
             document.body.style.background = 'radial-gradient(#666, #333)';
             break;
         // ...
@@ -3973,7 +3973,7 @@ function sendChatMessage() {
     // empity msg or
     if (!msg) return;
 
-    emitMsg(myPeerName, 'toAll', msg, false);
+    emitMsg(myPeerName, 'toAll', msg, false, myPeerId);
     appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
     msgerInput.value = '';
 }
@@ -3989,11 +3989,13 @@ function handleDataChannelChat(dataMessage) {
     let msgTo = dataMessage.to;
     let msg = dataMessage.msg;
     let msgPrivate = dataMessage.privateMsg;
+    let msgId = dataMessage.id;
 
     // private message but not for me return
     if (msgPrivate && msgTo != myPeerName) return;
 
     console.log('handleDataChannelChat', dataMessage);
+
     // chat message for me also
     if (!isChatRoomVisible) {
         showChatRoomDraggable();
@@ -4001,7 +4003,7 @@ function handleDataChannelChat(dataMessage) {
     }
     playSound('chatMessage');
     setPeerChatAvatarImgName('left', msgFrom);
-    appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate);
+    appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId);
 }
 
 /**
@@ -4064,9 +4066,11 @@ function escapeSpecialChars(regex) {
  * @param {string} side left/right
  * @param {string} msg message to append
  * @param {boolean} privateMsg if is private message
+ * @param {string} msgId peer id
  */
-function appendMessage(from, img, side, msg, privateMsg) {
+function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     let time = getFormatDate(new Date());
+
     // collect chat msges to save it later
     chatMessages.push({
         time: time,
@@ -4074,6 +4078,19 @@ function appendMessage(from, img, side, msg, privateMsg) {
         msg: msg,
         privateMsg: privateMsg,
     });
+
+    // add btn direct reply to private message
+    if (privateMsg && msgId != null && msgId != myPeerId) {
+        let randId = makeId(10);
+        msg =
+            msg +
+            `<hr/>
+            <button 
+                class="cButtons" 
+                id="${randId}" 
+                onclick="sendPrivateMsgToPeer('${myPeerId}','${from}')"
+            ><i class="fas fa-paper-plane"></i> Reply (private)</button>`;
+    }
 
     // check if i receive a private message
     let msgBubble = privateMsg ? 'private-msg-bubble' : 'msg-bubble';
@@ -4126,7 +4143,7 @@ async function msgerAddPeers(peers) {
 
                 let msgerPrivateMsgInput = getId(peer_id + '_pMsgInput');
                 let msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
-                addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput);
+                addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, myPeerId);
             }
         }
     }
@@ -4168,8 +4185,9 @@ function msgerRemovePeer(peer_id) {
  * Setup msger buttons to send private messages
  * @param {object} msgerPrivateBtn chat private message send button
  * @param {object} msgerPrivateMsgInput chat private message text input
+ * @param {string} peerId chat peer_id
  */
-function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
+function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
     // add button to send private messages
     msgerPrivateBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -4191,7 +4209,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput) {
             return;
         }
         let toPeerName = msgerPrivateBtn.value;
-        emitMsg(myPeerName, toPeerName, pMsg, true);
+        emitMsg(myPeerName, toPeerName, pMsg, true, peerId);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<br/><hr>Private message to ' + toPeerName, true);
         msgerPrivateMsgInput.value = '';
         msgerCP.style.display = 'none';
@@ -4265,13 +4283,15 @@ function getFormatDate(date) {
  * @param {string} to peer name
  * @param {string} msg message to send
  * @param {boolean} privateMsg if is a private message
+ * @param {string} id peer_id
  */
-function emitMsg(from, to, msg, privateMsg) {
+function emitMsg(from, to, msg, privateMsg, id) {
     if (!msg) return;
 
     let chatMessage = {
         type: 'chat',
         from: from,
+        id: id,
         to: to,
         msg: msg,
         privateMsg: privateMsg,
@@ -4569,36 +4589,45 @@ function handlePeerPrivateMsg(peer_id, toPeerName) {
     let peerPrivateMsg = getId(peer_id + '_privateMsg');
     peerPrivateMsg.onclick = (e) => {
         e.preventDefault();
-        Swal.fire({
-            background: swalBackground,
-            position: 'center',
-            imageUrl: messageImg,
-            title: 'Send private message',
-            input: 'text',
-            showCancelButton: true,
-            confirmButtonText: `Send`,
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown',
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp',
-            },
-        }).then((result) => {
-            if (result.value) {
-                let pMsg = checkMsg(result.value);
-                if (!pMsg) return;
-                emitMsg(myPeerName, toPeerName, pMsg, true);
-                appendMessage(
-                    myPeerName,
-                    rightChatAvatar,
-                    'right',
-                    pMsg + '<br/><hr>Private message to ' + toPeerName,
-                    true,
-                );
-                userLog('toast', 'Message sent to ' + toPeerName + ' 👍');
-            }
-        });
+        sendPrivateMsgToPeer(myPeerId, toPeerName);
     };
+}
+
+/**
+ * Send Private messages to peers
+ * @param {string} toPeerId
+ * @param {string} toPeerName
+ */
+function sendPrivateMsgToPeer(toPeerId, toPeerName) {
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        imageUrl: messageImg,
+        title: 'Send private message',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: `Send`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.value) {
+            let pMsg = checkMsg(result.value);
+            if (!pMsg) return;
+            emitMsg(myPeerName, toPeerName, pMsg, true, toPeerId);
+            appendMessage(
+                myPeerName,
+                rightChatAvatar,
+                'right',
+                pMsg + '<br/><hr>Private message to ' + toPeerName,
+                true,
+            );
+            userLog('toast', 'Message sent to ' + toPeerName + ' 👍');
+        }
+    });
 }
 
 /**

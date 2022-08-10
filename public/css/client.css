@@ -90,9 +90,9 @@
     --box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
 
     /* chat msg boble */
-    --left-msg-bg: #222328;
-    --private-msg-bg: #f77070;
-    --right-msg-bg: #0a0b0c;
+    --left-msg-bg: #252d31;
+    --right-msg-bg: #056162;
+    --private-msg-bg: #6b1226;
 
     /* volume detected */
     --volume-up: 0px 8px 16px 0px rgb(249, 253, 0);
@@ -994,6 +994,13 @@ progress {
 
 button {
     cursor: pointer;
+}
+
+.cButtons {
+    font-size: 0.9rem;
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
 }
 
 .hidden {
