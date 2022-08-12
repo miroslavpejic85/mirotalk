@@ -456,7 +456,7 @@ function setButtonsToolTip() {
     setTippy(whiteboardBtn, 'Open the whiteboard', 'right-start');
     setTippy(fileShareBtn, 'Share file', 'right-start');
     setTippy(mySettingsBtn, 'Open settings', 'right-start');
-    setTippy(aboutBtn, 'Project info', 'right-start');
+    setTippy(aboutBtn, 'About this project', 'right-start');
     setTippy(leaveRoomBtn, 'Leave this room', 'right-start');
     // chat room buttons
     setTippy(msgerTheme, 'Ghost theme', 'top');
@@ -6147,11 +6147,11 @@ function showAbout() {
         html: `
         <br/>
         <div id="about">
-            <b><a href="https://github.com/miroslavpejic85/mirotalk" target="_blank">Open Source</a></b> project
+            <b><a href="https://github.com/miroslavpejic85/mirotalk" class="umami--click--github" target="_blank">Open Source</a></b> project
             <br/><br/>
-            <button class="pulsate" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"><i class="fas fa-heart" ></i>&nbsp;Support</button>
+            <button class="pulsate umami--click--sponsor" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"><i class="fas fa-heart" ></i>&nbsp;Support</button>
             <br /><br />
-            Author:<a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> Miroslav Pejic</a>
+            Author:<a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" class="umami--click--linkedin" target="_blank"> Miroslav Pejic</a>
         </div>
         `,
         showClass: {
