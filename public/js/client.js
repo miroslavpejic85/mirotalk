@@ -785,6 +785,7 @@ async function whoAreYou() {
         imageUrl: welcomeImg,
         title: 'Enter your name',
         input: 'text',
+        inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: `<br>
         <div style="overflow: hidden;">
             <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
@@ -800,6 +801,7 @@ async function whoAreYou() {
         inputValidator: (value) => {
             if (!value) return 'Please enter your name';
             myPeerName = value;
+            window.localStorage.peer_name = myPeerName;
             whoAreYouJoin();
         },
     }).then(() => {
