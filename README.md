@@ -276,11 +276,11 @@ Follow [this documentation](docs/self-hosting.md).
 </details>
 
 <details>
-<summary>Discussions and support</summary>
+<summary>Questions, Discussions and support</summary>
 
 <br/>
 
--   For discussions, help & support, join with us on [Discord](https://discord.gg/rgGYfeYW3N)
+-   For questions, discussions, help & support, join with us on [Discord](https://discord.gg/rgGYfeYW3N)
 
 </details>
 
