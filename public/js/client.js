@@ -43,8 +43,6 @@ const videoAudioShare = '../images/va-share.png';
 const aboutImg = '../images/mirotalk-logo.png';
 // nice free icon: https://www.iconfinder.com
 
-const surveyActive = true; // when leaving the room give a feedback
-const notifyBySound = true; // turn on - off sound notifications
 const fileSharingInput = '*'; // allow all file extensions
 
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
@@ -84,8 +82,11 @@ const showFileShareBtn = true;
 const showMySettingsBtn = true;
 const showAboutBtn = true;
 
-// This force the webCam to max resolution, up to 4k and 60fps as default (high bandwidth are required)
-const forceCamMaxResolutionAndFps = false;
+const surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
+
+const notifyBySound = true; // turn on - off sound notifications
+
+const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
 
 let thisRoomPassword = null;
 
@@ -581,8 +582,8 @@ function getRoomId() {
     // if not specified room id, create one random
     if (roomId == '') {
         roomId = makeId(20);
-        const newurl = signalingServer + '/join/' + roomId;
-        window.history.pushState({ url: newurl }, roomId, newurl);
+        const newUrl = signalingServer + '/join/' + roomId;
+        window.history.pushState({ url: newUrl }, roomId, newUrl);
     }
     return roomId;
 }
@@ -4412,6 +4413,8 @@ function updateMyPeerName() {
 
     myPeerNameSet.value = '';
     myPeerNameSet.placeholder = myPeerName;
+
+    window.localStorage.peer_name = myPeerName;
 
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
