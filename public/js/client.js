@@ -109,6 +109,8 @@ const forceCamMaxResolutionAndFps = false; // This force the webCam to max resol
 
 let thisRoomPassword = null;
 
+let isRoomLocked = false;
+
 let isPresenter = false; // Who init the room (aka first peer joined)
 
 let myPeerId; // socket.id
@@ -810,9 +812,17 @@ function handleRules(isPresenter) {
         buttons.remote.videoBtnClickAllowed = false;
         buttons.remote.showKickOutBtn = false;
         //...
-
-        handleButtonsRule();
+    } else {
+        buttons.settings.showTabRoomParticipants = true;
+        buttons.settings.showTabRoomSecurity = true;
+        buttons.settings.showLockRoomBtn = !isRoomLocked;
+        buttons.settings.showUnlockRoomBtn = isRoomLocked;
+        buttons.remote.audioBtnClickAllowed = true;
+        buttons.remote.videoBtnClickAllowed = true;
+        buttons.remote.showKickOutBtn = true;
     }
+
+    handleButtonsRule();
 }
 
 /**
@@ -820,35 +830,35 @@ function handleRules(isPresenter) {
  */
 function handleButtonsRule() {
     // Main
-    if (!buttons.main.showShareRoomBtn) displayNone(shareRoomBtn);
-    if (!buttons.main.showAudioBtn) displayNone(audioBtn);
-    if (!buttons.main.showVideoBtn) displayNone(videoBtn);
-    if (!buttons.main.showSwapCameraBtn) displayNone(swapCameraBtn);
-    if (!buttons.main.showScreenShareBtn) displayNone(screenShareBtn);
-    if (!buttons.main.showRecordStreamBtn) displayNone(recordStreamBtn);
-    if (!buttons.main.showFullScreenBtn) displayNone(fullScreenBtn);
-    if (!buttons.main.showChatRoomBtn) displayNone(chatRoomBtn);
-    if (!buttons.main.showCaptionBtn) displayNone(captionBtn);
-    if (!buttons.main.showMyHandBtn) displayNone(myHandBtn);
-    if (!buttons.main.showWhiteboardBtn) displayNone(whiteboardBtn);
-    if (!buttons.main.showFileShareBtn) displayNone(fileShareBtn);
-    if (!buttons.main.showMySettingsBtn) displayNone(mySettingsBtn);
-    if (!buttons.main.showAboutBtn) displayNone(aboutBtn);
+    elemDisplay(shareRoomBtn, buttons.main.showShareRoomBtn);
+    elemDisplay(audioBtn, buttons.main.showAudioBtn);
+    elemDisplay(videoBtn, buttons.main.showVideoBtn);
+    elemDisplay(swapCameraBtn, buttons.main.showSwapCameraBtn);
+    elemDisplay(screenShareBtn, buttons.main.showScreenShareBtn);
+    elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
+    elemDisplay(fullScreenBtn, buttons.main.showFullScreenBtn);
+    elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
+    elemDisplay(captionBtn, buttons.main.showCaptionBtn);
+    elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
+    elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
+    elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
+    elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
+    elemDisplay(aboutBtn, buttons.main.showAboutBtn);
     // Settings
-    if (!buttons.settings.showMuteEveryoneBtn) displayNone(muteEveryoneBtn);
-    if (!buttons.settings.showHideEveryoneBtn) displayNone(hideEveryoneBtn);
-    if (!buttons.settings.showLockRoomBtn) displayNone(lockRoomBtn);
-    if (!buttons.settings.showUnlockRoomBtn) displayNone(unlockRoomBtn);
-    if (!buttons.settings.showTabRoomParticipants) displayNone(tabRoomParticipants);
-    if (!buttons.settings.showTabRoomSecurity) displayNone(tabRoomSecurity);
+    elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
+    elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
+    elemDisplay(lockRoomBtn, buttons.settings.showLockRoomBtn);
+    // elemDisplay(unlockRoomBtn, buttons.settings.showUnlockRoomBtn);
+    elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
+    elemDisplay(tabRoomSecurity, buttons.settings.showTabRoomSecurity);
 }
 
 /**
  * Element style display none
- * @param {object} elem
+ * @param {boolean} b true/false
  */
-function displayNone(elem) {
-    elem.style.display = 'none';
+function elemDisplay(elem, b) {
+    elem.style.display = b ? 'block' : 'none';
 }
 
 /**
@@ -1360,6 +1370,12 @@ function handleRemovePeer(config) {
     delete peerConnections[peer_id];
     delete peerMediaElements[peer_id];
     delete allPeers[peer_id];
+
+    isPresenter = !thereIsPeerConnections();
+    if (isRulesActive && isPresenter) {
+        console.log('I am alone in the room, got Presenter Rules');
+        handleRules(isPresenter);
+    }
 
     playSound('removePeer');
 
@@ -5038,14 +5054,17 @@ function handleRoomStatus(config) {
             userLog('toast', peer_name + ' has 🔒 LOCKED the room by password', 'top-end');
             hide(lockRoomBtn);
             show(unlockRoomBtn);
+            isRoomLocked = true;
             break;
         case 'unlock':
             userLog('toast', peer_name + ' has 🔓 UNLOCKED the room', 'top-end');
             hide(unlockRoomBtn);
             show(lockRoomBtn);
+            isRoomLocked = false;
             break;
         case 'checkPassword':
             let password = config.password;
+            isRoomLocked = true;
             password == 'OK' ? joinToChannel() : handleRoomLocked();
             break;
     }
@@ -6524,7 +6543,7 @@ function getEcN(className) {
  * @param {object} elem
  */
 function hide(elem) {
-    elem.classList.add('hidden');
+    elem.style.display = 'none';
 }
 
 /**
@@ -6532,5 +6551,5 @@ function hide(elem) {
  * @param {object} elem
  */
 function show(elem) {
-    elem.classList.remove('hidden');
+    elem.style.display = 'block';
 }
