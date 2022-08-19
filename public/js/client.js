@@ -854,14 +854,6 @@ function handleButtonsRule() {
 }
 
 /**
- * Element style display none
- * @param {boolean} b true/false
- */
-function elemDisplay(elem, b) {
-    elem.style.display = b ? 'block' : 'none';
-}
-
-/**
  * set your name for the conference
  */
 async function whoAreYou() {
@@ -5052,14 +5044,14 @@ function handleRoomStatus(config) {
         case 'lock':
             playSound('locked');
             userLog('toast', peer_name + ' has 🔒 LOCKED the room by password', 'top-end');
-            hide(lockRoomBtn);
-            show(unlockRoomBtn);
+            elemDisplay(lockRoomBtn, false);
+            elemDisplay(unlockRoomBtn, true);
             isRoomLocked = true;
             break;
         case 'unlock':
             userLog('toast', peer_name + ' has 🔓 UNLOCKED the room', 'top-end');
-            hide(unlockRoomBtn);
-            show(lockRoomBtn);
+            elemDisplay(unlockRoomBtn, false);
+            elemDisplay(lockRoomBtn, true);
             isRoomLocked = false;
             break;
         case 'checkPassword':
@@ -5130,8 +5122,8 @@ function handleUnlockTheRoom() {
             password: thisRoomPassword,
         };
         sendToServer('roomAction', config);
-        hide(lockRoomBtn);
-        show(unlockRoomBtn);
+        elemDisplay(lockRoomBtn, false);
+        elemDisplay(unlockRoomBtn, true);
     });
 }
 
@@ -6539,17 +6531,10 @@ function getEcN(className) {
 }
 
 /**
- * Hide elemnt
+ * Element style display
  * @param {object} elem
+ * @param {boolean} yes true/false
  */
-function hide(elem) {
-    elem.style.display = 'none';
-}
-
-/**
- * Show elemnt
- * @param {object} elem
- */
-function show(elem) {
-    elem.style.display = 'block';
+function elemDisplay(elem, yes) {
+    elem.style.display = yes ? 'block' : 'none';
 }
