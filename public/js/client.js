@@ -67,20 +67,39 @@ const chatInputEmoji = {
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
 // show desired buttons
-const showShareRoomBtn = true;
-const showAudioBtn = true;
-const showVideoBtn = true;
-const showSwapCameraBtn = true;
-const showScreenShareBtn = true;
-const showRecordStreamBtn = true;
-const showFullScreenBtn = true;
-const showChatRoomBtn = true;
-const showCaptionBtn = true;
-const showMyHandBtn = true;
-const showWhiteboardBtn = true;
-const showFileShareBtn = true;
-const showMySettingsBtn = true;
-const showAboutBtn = true;
+const buttons = {
+    main: {
+        showShareRoomBtn: true,
+        showAudioBtn: true,
+        showVideoBtn: true,
+        showSwapCameraBtn: true,
+        showScreenShareBtn: true,
+        showRecordStreamBtn: true,
+        showFullScreenBtn: true,
+        showChatRoomBtn: true,
+        showCaptionBtn: true,
+        showMyHandBtn: true,
+        showWhiteboardBtn: true,
+        showFileShareBtn: true,
+        showMySettingsBtn: true,
+        showAboutBtn: true, // Please keep me always true, Thank you!
+    },
+    settings: {
+        showTabRoomParticipants: true,
+        showTabRoomSecurity: true,
+        showMuteEveryoneBtn: true,
+        showHideEveryoneBtn: true,
+        showLockRoomBtn: true,
+        showUnlockRoomBtn: true,
+    },
+    remote: {
+        audioBtnClickAllowed: true,
+        videoBtnClickAllowed: true,
+        showKickOutBtn: true,
+    },
+};
+
+const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
 
 const surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
 
@@ -89,6 +108,8 @@ const notifyBySound = true; // turn on - off sound notifications
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
 
 let thisRoomPassword = null;
+
+let isPresenter = false; // Who init the room (aka first peer joined)
 
 let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
@@ -229,6 +250,8 @@ let themeSelect;
 let videoObjFitSelect;
 let btnsBarSelect;
 let selectors;
+let tabRoomParticipants;
+let tabRoomSecurity;
 // my video element
 let myVideo;
 let myVideoWrap;
@@ -383,6 +406,8 @@ function getHtmlElementsById() {
     themeSelect = getId('mirotalkTheme');
     videoObjFitSelect = getId('videoObjFitSelect');
     btnsBarSelect = getId('mirotalkBtnsBar');
+    tabRoomParticipants = getId('tabRoomParticipants');
+    tabRoomSecurity = getId('tabRoomSecurity');
     // my conference name, hand, video - audio status
     myVideoParagraph = getId('myVideoParagraph');
     myHandStatusIcon = getId('myHandStatusIcon');
@@ -756,11 +781,74 @@ async function handleConnect() {
 function handleServerInfo(config) {
     let peers_count = config.peers_count;
     console.log('13. Peers count', peers_count);
+
+    // Let start with some basic rules
+    isPresenter = peers_count == 1 ? true : false;
+    if (isRulesActive) {
+        handleRules(isPresenter);
+    }
+
     if (notify && peers_count == 1) {
         welcomeUser();
     } else {
         checkShareScreen();
     }
+}
+
+/**
+ * Presenter can do anything, for others you can limit
+ * some functions by hidden the buttons etc.
+ *
+ * @param {boolean} isPresenter true/false
+ */
+function handleRules(isPresenter) {
+    console.log('14. Peer isPresenter: ' + isPresenter);
+    if (!isPresenter) {
+        buttons.settings.showTabRoomParticipants = false;
+        buttons.settings.showTabRoomSecurity = false;
+        buttons.remote.audioBtnClickAllowed = false;
+        buttons.remote.videoBtnClickAllowed = false;
+        buttons.remote.showKickOutBtn = false;
+        //...
+
+        handleButtonsRule();
+    }
+}
+
+/**
+ * Hide not desired buttons
+ */
+function handleButtonsRule() {
+    // Main
+    if (!buttons.main.showShareRoomBtn) displayNone(shareRoomBtn);
+    if (!buttons.main.showAudioBtn) displayNone(audioBtn);
+    if (!buttons.main.showVideoBtn) displayNone(videoBtn);
+    if (!buttons.main.showSwapCameraBtn) displayNone(swapCameraBtn);
+    if (!buttons.main.showScreenShareBtn) displayNone(screenShareBtn);
+    if (!buttons.main.showRecordStreamBtn) displayNone(recordStreamBtn);
+    if (!buttons.main.showFullScreenBtn) displayNone(fullScreenBtn);
+    if (!buttons.main.showChatRoomBtn) displayNone(chatRoomBtn);
+    if (!buttons.main.showCaptionBtn) displayNone(captionBtn);
+    if (!buttons.main.showMyHandBtn) displayNone(myHandBtn);
+    if (!buttons.main.showWhiteboardBtn) displayNone(whiteboardBtn);
+    if (!buttons.main.showFileShareBtn) displayNone(fileShareBtn);
+    if (!buttons.main.showMySettingsBtn) displayNone(mySettingsBtn);
+    if (!buttons.main.showAboutBtn) displayNone(aboutBtn);
+    // Settings
+    if (!buttons.settings.showMuteEveryoneBtn) displayNone(muteEveryoneBtn);
+    if (!buttons.settings.showHideEveryoneBtn) displayNone(hideEveryoneBtn);
+    if (!buttons.settings.showLockRoomBtn) displayNone(lockRoomBtn);
+    if (!buttons.settings.showUnlockRoomBtn) displayNone(unlockRoomBtn);
+    if (!buttons.settings.showTabRoomParticipants) displayNone(tabRoomParticipants);
+    if (!buttons.settings.showTabRoomSecurity) displayNone(tabRoomSecurity);
+}
+
+/**
+ * Element style display none
+ * @param {object} elem
+ */
+function displayNone(elem) {
+    elem.style.display = 'none';
 }
 
 /**
@@ -1669,7 +1757,7 @@ async function loadLocalMedia(stream) {
     getHtmlElementsById();
     setButtonsToolTip();
     manageLeftButtons();
-    hideLeftButtons();
+    handleButtonsRule();
     setupMySettings();
     setupVideoUrlPlayer();
     startCountTime();
@@ -1842,7 +1930,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteStatusMenu.appendChild(remoteFileShareBtn);
     remoteStatusMenu.appendChild(remoteVideoAudioUrlBtn);
     remoteStatusMenu.appendChild(remoteVideoToImgBtn);
-    remoteStatusMenu.appendChild(remotePeerKickOut);
+    if (buttons.remote.showKickOutBtn) remoteStatusMenu.appendChild(remotePeerKickOut);
     remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
 
     remoteMedia.setAttribute('id', peer_id + '_video');
@@ -2300,26 +2388,6 @@ function manageLeftButtons() {
     setMySettingsBtn();
     setAboutBtn();
     setLeaveRoomBtn();
-}
-
-/**
- * Hide not desired buttons
- */
-function hideLeftButtons() {
-    if (!showShareRoomBtn) shareRoomBtn.style.display = 'none';
-    if (!showAudioBtn) audioBtn.style.display = 'none';
-    if (!showVideoBtn) videoBtn.style.display = 'none';
-    if (!showSwapCameraBtn) swapCameraBtn.style.display = 'none';
-    if (!showScreenShareBtn) screenShareBtn.style.display = 'none';
-    if (!showRecordStreamBtn) recordStreamBtn.style.display = 'none';
-    if (!showFullScreenBtn) fullScreenBtn.style.display = 'none';
-    if (!showChatRoomBtn) chatRoomBtn.style.display = 'none';
-    if (!showCaptionBtn) captionBtn.style.display = 'none';
-    if (!showMyHandBtn) myHandBtn.style.display = 'none';
-    if (!showWhiteboardBtn) whiteboardBtn.style.display = 'none';
-    if (!showFileShareBtn) fileShareBtn.style.display = 'none';
-    if (!showMySettingsBtn) mySettingsBtn.style.display = 'none';
-    if (!showAboutBtn) aboutBtn.style.display = 'none';
 }
 
 /**
@@ -4567,6 +4635,7 @@ function setPeerAudioStatus(peer_id, status) {
  * @param {string} peer_id socket.id
  */
 function handlePeerAudioBtn(peer_id) {
+    if (!buttons.remote.audioBtnClickAllowed) return;
     let peerAudioBtn = getId(peer_id + '_audioStatus');
     peerAudioBtn.onclick = () => {
         if (peerAudioBtn.className === 'fas fa-microphone') disablePeer(peer_id, 'audio');
@@ -4578,7 +4647,7 @@ function handlePeerAudioBtn(peer_id) {
  * @param {string} peer_id socket.id
  */
 function handlePeerVideoBtn(peer_id) {
-    if (!useVideo) return;
+    if (!useVideo || !buttons.remote.videoBtnClickAllowed) return;
     let peerVideoBtn = getId(peer_id + '_videoStatus');
     peerVideoBtn.onclick = () => {
         if (peerVideoBtn.className === 'fas fa-video') disablePeer(peer_id, 'video');
@@ -6049,6 +6118,7 @@ function handleVideoPlayer(config) {
  * @param {string} peer_id socket.id
  */
 function handlePeerKickOutBtn(peer_id) {
+    if (!buttons.remote.showKickOutBtn) return;
     let peerKickOutBtn = getId(peer_id + '_kickOut');
     peerKickOutBtn.addEventListener('click', (e) => {
         kickOut(peer_id);
