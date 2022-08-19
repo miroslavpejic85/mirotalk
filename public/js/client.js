@@ -72,8 +72,8 @@ const buttons = {
         showShareRoomBtn: true,
         showAudioBtn: true,
         showVideoBtn: true,
-        showSwapCameraBtn: true,
-        showScreenShareBtn: true,
+        showSwapCameraBtn: swapCameraSupported(),
+        showScreenShareBtn: isScreenShareSupported(),
         showRecordStreamBtn: true,
         showFullScreenBtn: true,
         showChatRoomBtn: true,
@@ -2429,15 +2429,26 @@ function setVideoBtn() {
  * Check if can swap or not the cam, if yes show the button else hide it
  */
 function setSwapCameraBtn() {
+    if (swapCameraSupported()) {
+        swapCameraBtn.addEventListener('click', (e) => {
+            swapCamera();
+        });
+    } else {
+        swapCameraBtn.style.display = 'none';
+    }
+}
+
+/**
+ * Check if swap camera supported
+ * @return boolean true/false
+ */
+function swapCameraSupported() {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
         const videoInput = devices.filter((device) => device.kind === 'videoinput');
         if (videoInput.length > 1 && isMobileDevice) {
-            swapCameraBtn.addEventListener('click', (e) => {
-                swapCamera();
-            });
-        } else {
-            swapCameraBtn.style.display = 'none';
+            return true;
         }
+        return false;
     });
 }
 
@@ -2445,7 +2456,7 @@ function setSwapCameraBtn() {
  * Check if i can share the screen, if yes show button else hide it
  */
 function setScreenShareBtn() {
-    if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
+    if (isScreenShareSupported()) {
         isScreenSharingSupported = true;
         screenShareBtn.addEventListener('click', async (e) => {
             await toggleScreenSharing();
@@ -2453,6 +2464,17 @@ function setScreenShareBtn() {
     } else {
         screenShareBtn.style.display = 'none';
     }
+}
+
+/**
+ * Is screen share supported
+ * @return boolean true/false
+ */
+function isScreenShareSupported() {
+    if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
+        return true;
+    }
+    return false;
 }
 
 /**
