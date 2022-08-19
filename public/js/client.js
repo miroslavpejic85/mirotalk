@@ -848,7 +848,7 @@ function handleButtonsRule() {
     elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
     elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
     elemDisplay(lockRoomBtn, buttons.settings.showLockRoomBtn);
-    // elemDisplay(unlockRoomBtn, buttons.settings.showUnlockRoomBtn);
+    elemDisplay(unlockRoomBtn, buttons.settings.showUnlockRoomBtn);
     elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
     elemDisplay(tabRoomSecurity, buttons.settings.showTabRoomSecurity);
 }

@@ -611,8 +611,9 @@ emoji-picker {
 
 #mySettingsCloseBtn {
     border: none;
+    border-radius: 5px;
     font-size: 1.2rem;
-    background: transparent;
+    background: #000000;
     color: #fff;
     transition: background 0.23s;
 }
