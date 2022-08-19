@@ -66,16 +66,13 @@ const chatInputEmoji = {
     ':+1:': '\uD83D\uDC4D',
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
-// show desired buttons
+// Show desired buttons showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn -> (auto-detected)
 const buttons = {
     main: {
         showShareRoomBtn: true,
         showAudioBtn: true,
         showVideoBtn: true,
-        showSwapCameraBtn: swapCameraSupported(),
-        showScreenShareBtn: isScreenShareSupported(),
         showRecordStreamBtn: true,
-        showFullScreenBtn: true,
         showChatRoomBtn: true,
         showCaptionBtn: true,
         showMyHandBtn: true,
@@ -833,10 +830,7 @@ function handleButtonsRule() {
     elemDisplay(shareRoomBtn, buttons.main.showShareRoomBtn);
     elemDisplay(audioBtn, buttons.main.showAudioBtn);
     elemDisplay(videoBtn, buttons.main.showVideoBtn);
-    elemDisplay(swapCameraBtn, buttons.main.showSwapCameraBtn);
-    elemDisplay(screenShareBtn, buttons.main.showScreenShareBtn);
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
-    elemDisplay(fullScreenBtn, buttons.main.showFullScreenBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
     elemDisplay(captionBtn, buttons.main.showCaptionBtn);
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
@@ -2429,26 +2423,15 @@ function setVideoBtn() {
  * Check if can swap or not the cam, if yes show the button else hide it
  */
 function setSwapCameraBtn() {
-    if (swapCameraSupported()) {
-        swapCameraBtn.addEventListener('click', (e) => {
-            swapCamera();
-        });
-    } else {
-        swapCameraBtn.style.display = 'none';
-    }
-}
-
-/**
- * Check if swap camera supported
- * @return boolean true/false
- */
-function swapCameraSupported() {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
         const videoInput = devices.filter((device) => device.kind === 'videoinput');
         if (videoInput.length > 1 && isMobileDevice) {
-            return true;
+            swapCameraBtn.addEventListener('click', (e) => {
+                swapCamera();
+            });
+        } else {
+            swapCameraBtn.style.display = 'none';
         }
-        return false;
     });
 }
 
@@ -2456,7 +2439,7 @@ function swapCameraSupported() {
  * Check if i can share the screen, if yes show button else hide it
  */
 function setScreenShareBtn() {
-    if (isScreenShareSupported()) {
+    if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
         isScreenSharingSupported = true;
         screenShareBtn.addEventListener('click', async (e) => {
             await toggleScreenSharing();
@@ -2464,17 +2447,6 @@ function setScreenShareBtn() {
     } else {
         screenShareBtn.style.display = 'none';
     }
-}
-
-/**
- * Is screen share supported
- * @return boolean true/false
- */
-function isScreenShareSupported() {
-    if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
-        return true;
-    }
-    return false;
 }
 
 /**
