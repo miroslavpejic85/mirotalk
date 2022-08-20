@@ -4200,6 +4200,7 @@ async function msgerAddPeers(peers) {
             if (!exsistMsgerPrivateDiv) {
                 let msgerPrivateDiv = `
                 <div id="${peer_id}_pMsgDiv" class="msger-peer-inputarea">
+                    <img src='${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true'> 
                     <input
                         id="${peer_id}_pMsgInput"
                         class="msger-input"
@@ -4207,7 +4208,7 @@ async function msgerAddPeers(peers) {
                         placeholder="💬 Enter your message..."
                     />
                     <button id="${peer_id}_pMsgBtn" value="${peer_name}">
-                        &nbsp;${peer_name}<i class="fas fa-paper-plane"></i>
+                        <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
                 `;
