@@ -1,4 +1,6 @@
-## MiroTalk P2P - Ngrok
+# MiroTalk P2P - Ngrok
+
+![ngrok](../public/images/ngrok.png)
 
 If you want to expose MiroTalk P2P from your `Local PC` to outside in `HTTPS`, you need to do 1 thing
 

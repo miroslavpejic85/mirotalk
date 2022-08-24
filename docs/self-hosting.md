@@ -1,6 +1,6 @@
-## MiroTalk P2P - Self Hosting
+# MiroTalk P2P - Self Hosting
 
-Requirments:
+## Requirments
 
 -   Recommended: [Hetzner](https://www.hetzner.com/cloud) (`CPX11` it's enough, OS: `Ubuntu 20.04`)
 -   [Node.js](https://nodejs.org/en/) at least 12x, better `16.15.1 LTS`
@@ -22,7 +22,7 @@ $ npm install -g npm@latest
 
 ---
 
-Quick start
+## Quick start
 
 ```bash
 # Clone MiroTalk P2P repo
@@ -41,6 +41,10 @@ Check if is correctly installed: https://your.domain.name:3000
 
 ---
 
+## PM2
+
+![pm2](../public/images/pm2.png)
+
 Using [PM2](https://pm2.keymetrics.io) to run it as deamon
 
 ```bash
@@ -49,6 +53,10 @@ $ pm2 start app/src/server.js
 ```
 
 ---
+
+## Docker
+
+![docker](../public/images/docker.png)
 
 If you want to use `Docker`
 
@@ -68,6 +76,10 @@ $ docker-compose up -d
 Check if is correctly installed: https://your.domain.name:3000
 
 ---
+
+## Nginx & Certbot
+
+![nginx](../public/images/nginx.png)
 
 In order to use it without the port number at the end, and to have encrypted communications, we going to install [nginx](https://www.nginx.com) and [certbot](https://certbot.eff.org)
 
