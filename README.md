@@ -140,6 +140,8 @@ $ npm start
 
 <br/>
 
+![docker](public/images/docker.png)
+
 -   Install docker engine: https://docs.docker.com/engine/install/
 -   Install docker compose: https://docs.docker.com/compose/install/
 
