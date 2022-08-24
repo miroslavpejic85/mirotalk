@@ -152,7 +152,7 @@ $ cp .env.template .env
 $ docker-compose build
 # create and start containers
 $ docker-compose up # -d
-# stop and remove resources
+# to stop and remove resources
 $ docker-compose down
 ```
 
