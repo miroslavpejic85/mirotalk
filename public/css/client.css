@@ -310,6 +310,7 @@ body {
     overflow-y: auto;
     padding: 10px;
     background: var(--msger-bg);
+    max-width: 100%;
 }
 
 .msger-chat::-webkit-scrollbar {
