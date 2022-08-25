@@ -164,6 +164,7 @@ let isDocumentOnFullScreen = false;
 let isWhiteboardFs = false;
 let isVideoUrlPlayerOpen = false;
 let isRecScreenStream = false;
+let isChatPasteTxt = false;
 let needToCreateOffer = false; // after session description answer
 let signalingSocket; // socket.io connection to our webserver
 let localMediaStream; // my microphone / webcam
@@ -2575,6 +2576,10 @@ function setChatRoomBtn() {
         }
     };
 
+    msgerInput.onpaste = () => {
+        isChatPasteTxt = true;
+    };
+
     // chat send msg
     msgerSendBtn.addEventListener('click', (e) => {
         // prevent refresh page
@@ -4039,12 +4044,17 @@ function sendChatMessage() {
     if (!thereIsPeerConnections()) {
         userLog('info', "Can't send message, no participants in the room");
         msgerInput.value = '';
+        isChatPasteTxt = false;
         return;
     }
 
     const msg = checkMsg(msgerInput.value);
     // empity msg or
-    if (!msg) return;
+    if (!msg) {
+        msgerInput.value = '';
+        isChatPasteTxt = false;
+        return;
+    }
 
     emitMsg(myPeerName, 'toAll', msg, false, myPeerId);
     appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
@@ -4200,13 +4210,14 @@ async function msgerAddPeers(peers) {
             if (!exsistMsgerPrivateDiv) {
                 let msgerPrivateDiv = `
                 <div id="${peer_id}_pMsgDiv" class="msger-peer-inputarea">
-                    <img src='${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true'> 
-                    <input
+                    <img id="${peer_id}_pMsgAvatar" src='${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true'> 
+                    <textarea
+                        rows="1"
+                        cols="1"
                         id="${peer_id}_pMsgInput"
                         class="msger-input"
-                        type="text"
                         placeholder="💬 Enter your message..."
-                    />
+                    ></textarea>
                     <button id="${peer_id}_pMsgBtn" value="${peer_name}">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -4276,10 +4287,15 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
         }
     });
 
+    msgerPrivateMsgInput.onpaste = () => {
+        isChatPasteTxt = true;
+    };
+
     function sendPrivateMessage() {
         let pMsg = checkMsg(msgerPrivateMsgInput.value);
         if (!pMsg) {
             msgerPrivateMsgInput.value = '';
+            isChatPasteTxt = false;
             return;
         }
         let toPeerName = msgerPrivateBtn.value;
@@ -4299,12 +4315,15 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
  * @returns {string} html format
  */
 function checkMsg(text) {
+    if (text == '\n') return;
     if (isHtml(text)) return stripHtml(text);
-    let urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlRegex, (url) => {
-        if (isImageURL(text)) return '<p><img src="' + url + '" alt="img" width="200" height="auto"/></p>';
-        return '<a id="chat-msg-a" href="' + url + '" target="_blank">' + url + '</a>';
-    });
+    if (isValidHttpURL(text)) {
+        if (isImageURL(text)) return '<img src="' + text + '" alt="img" width="180" height="auto"/>';
+        return '<a href="' + text + '" target="_blank">' + text + '</a>';
+    }
+    text = isChatPasteTxt ? '<pre>' + text + '</pre>' : text;
+    isChatPasteTxt = false;
+    return text;
 }
 
 /**
@@ -4330,6 +4349,21 @@ function isHtml(str) {
         if (c[i].nodeType == 1) return true;
     }
     return false;
+}
+
+/**
+ * Check if valid URL
+ * @param {string} str to check
+ * @returns boolean true/false
+ */
+function isValidHttpURL(str) {
+    let url;
+    try {
+        url = new URL(str);
+    } catch (_) {
+        return false;
+    }
+    return url.protocol === 'http:' || url.protocol === 'https:';
 }
 
 /**
@@ -4501,12 +4535,12 @@ function handlePeerName(config) {
     let peer_name = config.peer_name;
     let videoName = getId(peer_id + '_name');
     if (videoName) videoName.innerHTML = peer_name;
-    // change also btn value - name on chat lists....
+    // change also avatar and btn value - name on chat lists....
     let msgerPeerName = getId(peer_id + '_pMsgBtn');
-    if (msgerPeerName) {
-        msgerPeerName.innerHTML = `&nbsp;${peer_name}`;
-        msgerPeerName.value = peer_name;
-    }
+    let msgerPeerAvatar = getId(peer_id + '_pMsgAvatar');
+    if (msgerPeerName) msgerPeerName.value = peer_name;
+    if (msgerPeerAvatar)
+        msgerPeerAvatar.src = `${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true`;
     // refresh also peer video avatar name
     setPeerAvatarImgName(peer_id + '_avatar', peer_name);
 }
@@ -4693,7 +4727,10 @@ function sendPrivateMsgToPeer(toPeerId, toPeerName) {
     }).then((result) => {
         if (result.value) {
             let pMsg = checkMsg(result.value);
-            if (!pMsg) return;
+            if (!pMsg) {
+                isChatPasteTxt = false;
+                return;
+            }
             emitMsg(myPeerName, toPeerName, pMsg, true, toPeerId);
             appendMessage(
                 myPeerName,

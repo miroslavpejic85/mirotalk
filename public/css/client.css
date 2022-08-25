@@ -310,7 +310,7 @@ body {
     overflow-y: auto;
     padding: 10px;
     background: var(--msger-bg);
-    max-width: 100%;
+    max-width: 97%;
 }
 
 .msger-chat::-webkit-scrollbar {
@@ -356,7 +356,7 @@ body {
     background: var(--left-msg-bg);
     border-bottom-left-radius: 0;
     color: #fff;
-    width: 90%;
+    /* width: 90%; */
 }
 
 .left-msg .msg-img {
@@ -403,6 +403,7 @@ body {
     /* max-width: 200px; */
     padding: 15px;
     border-radius: 15px;
+    overflow: auto;
 }
 
 .msg-caption-bubble {
@@ -462,6 +463,8 @@ button:hover {
 
 .msger-input {
     flex: 1;
+    height: 30px;
+    resize: none;
     background: rgb(0, 0, 0);
 }
 
@@ -541,10 +544,11 @@ button:hover {
 }
 
 .msger-peer-inputarea * {
-    padding: 10px;
+    padding: 5px;
     border: none;
     border-radius: 3px;
-    font-size: 1em;
+    font-size: 1rem;
+    margin: 1px;
     color: #fff;
 }
 
