@@ -456,7 +456,6 @@ button:hover {
     padding: 10px;
     border: none;
     border-radius: 3px;
-    font-size: 1rem;
     margin: 1px;
     color: #fff;
 }
@@ -470,6 +469,7 @@ button:hover {
 
 #msgerVideoUrlBtn,
 #msgerEmojiBtn,
+#msgerMarkdownBtn,
 #msgerCPBtn,
 #msgerSendBtn {
     background: rgb(0, 0, 0);
@@ -479,6 +479,7 @@ button:hover {
 
 #msgerVideoUrlBtn:hover,
 #msgerEmojiBtn:hover,
+#msgerMarkdownBtn:hover,
 #msgerCPBtn:hover,
 #msgerSendBtn:hover {
     color: var(--hover-color);

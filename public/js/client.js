@@ -157,6 +157,7 @@ let isScreenStreaming = false;
 let isChatRoomVisible = false;
 let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
+let isChatMarkdownOn = false;
 let isButtonsVisible = false;
 let isMySettingsVisible = false;
 let isVideoOnFullScreen = false;
@@ -211,6 +212,7 @@ let msgerSaveBtn;
 let msgerClose;
 let msgerChat;
 let msgerEmojiBtn;
+let msgerMarkdownBtn;
 let msgerInput;
 let msgerSendBtn;
 //caption section
@@ -368,6 +370,7 @@ function getHtmlElementsById() {
     msgerClose = getId('msgerClose');
     msgerChat = getId('msgerChat');
     msgerEmojiBtn = getId('msgerEmojiBtn');
+    msgerMarkdownBtn = getId('msgerMarkdownBtn');
     msgerInput = getId('msgerInput');
     msgerSendBtn = getId('msgerSendBtn');
     // chat room connected peers
@@ -491,6 +494,7 @@ function setButtonsToolTip() {
     setTippy(msgerSaveBtn, 'Save the messages', 'top');
     setTippy(msgerClose, 'Close', 'top');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
+    setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
     // caption buttons
     setTippy(captionTheme, 'Ghost theme', 'top');
@@ -2554,6 +2558,12 @@ function setChatRoomBtn() {
         showButtonsBarAndMenu();
     });
 
+    // Markdown on-off
+    msgerMarkdownBtn.addEventListener('click', (e) => {
+        isChatMarkdownOn = !isChatMarkdownOn;
+        setColor(msgerMarkdownBtn, isChatMarkdownOn ? 'lime' : 'white');
+    });
+
     // open Video Url Player
     msgerVideoUrlBtn.addEventListener('click', (e) => {
         sendVideoUrl();
@@ -2562,7 +2572,7 @@ function setChatRoomBtn() {
     // Execute a function when the user releases a key on the keyboard
     msgerInput.addEventListener('keyup', (e) => {
         // Number 13 is the "Enter" key on the keyboard
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13 && (isMobileDevice || !e.shiftKey)) {
             e.preventDefault();
             msgerSendBtn.click();
         }
@@ -4315,14 +4325,22 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
  * @returns {string} html format
  */
 function checkMsg(text) {
-    if (text == '\n') return;
+    if (text.trim().length == 0) return;
     if (isHtml(text)) return stripHtml(text);
     if (isValidHttpURL(text)) {
         if (isImageURL(text)) return '<img src="' + text + '" alt="img" width="180" height="auto"/>';
         return '<a href="' + text + '" target="_blank">' + text + '</a>';
     }
-    text = isChatPasteTxt ? '<pre>' + text + '</pre>' : text;
-    isChatPasteTxt = false;
+    if (isChatMarkdownOn) return marked.parse(text);
+    let pre = '<pre>' + text + '</pre>';
+    if (isChatPasteTxt) {
+        isChatPasteTxt = false;
+        return pre;
+    }
+    let numberOfLineBreaks = (text.match(/\n/g) || []).length;
+    if (numberOfLineBreaks > 1) {
+        return pre;
+    }
     return text;
 }
 
