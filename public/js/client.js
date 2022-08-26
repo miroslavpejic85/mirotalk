@@ -6521,7 +6521,7 @@ function userLog(type, message) {
 
 /**
  * Message popup
- * @param {string} icon info, sucess, warning, error
+ * @param {string} icon info, success, warning, error
  * @param {string} message to show
  * @param {string} position of the toast
  * @param {integer} timer ms before to hide
