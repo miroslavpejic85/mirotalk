@@ -356,7 +356,7 @@ body {
     background: var(--left-msg-bg);
     border-bottom-left-radius: 0;
     color: #fff;
-    /* width: 90%; */
+    width: 90%; /* caption */
 }
 
 .left-msg .msg-img {
@@ -432,6 +432,13 @@ body {
     overflow-wrap: break-word;
     word-wrap: break-word;
     hyphens: auto;
+}
+
+.msger-copy-txt {
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    background: transparent;
 }
 
 #chat-msg-a {

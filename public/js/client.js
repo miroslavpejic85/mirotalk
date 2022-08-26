@@ -125,6 +125,7 @@ let videoQualitySelectedIndex = 0; // default
 
 let leftChatAvatar;
 let rightChatAvatar;
+let chatMessagesId = 0;
 
 let callStartTime;
 let callElapsedTime;
@@ -4196,12 +4197,35 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                 <div class="msg-info-name">${from}</div>
                 <div class="msg-info-time">${time}</div>
             </div>
-            <div class="msg-text">${msg}</div>
+            <div id="${chatMessagesId}" class="msg-text">${msg}
+                <hr/>
+                <button
+                    class="msger-copy-txt" 
+                    onclick="copyToClipboard('${chatMessagesId}')"
+                ><i class="fas fa-copy"></i></button>
+            </div>
         </div>
 	</div>
     `;
     msgerChat.insertAdjacentHTML('beforeend', msgHTML);
     msgerChat.scrollTop += 500;
+    chatMessagesId++;
+}
+
+/**
+ * Copy the element innerText on clipboard
+ * @param {string} id
+ */
+function copyToClipboard(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard
+        .writeText(text)
+        .then(() => {
+            msgPopup('success', 'Message copied!', 'top-end', 1000);
+        })
+        .catch((err) => {
+            msgPopup('error', err, 'top-end', 2000);
+        });
 }
 
 /**
@@ -4310,7 +4334,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
         }
         let toPeerName = msgerPrivateBtn.value;
         emitMsg(myPeerName, toPeerName, pMsg, true, peerId);
-        appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<br/><hr>Private message to ' + toPeerName, true);
+        appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<hr>Private message to ' + toPeerName, true);
         msgerPrivateMsgInput.value = '';
         msgerCP.style.display = 'none';
     }
@@ -6493,6 +6517,27 @@ function userLog(type, message) {
         default:
             alert(message);
     }
+}
+
+/**
+ * Message popup
+ * @param {string} icon info, sucess, warning, error
+ * @param {string} message to show
+ * @param {string} position of the toast
+ * @param {integer} timer ms before to hide
+ */
+function msgPopup(icon, message, position, timer = 1000) {
+    const Toast = Swal.mixin({
+        background: swalBackground,
+        toast: true,
+        position: position,
+        showConfirmButton: false,
+        timer: timer,
+    });
+    Toast.fire({
+        icon: icon,
+        title: message,
+    });
 }
 
 /**
