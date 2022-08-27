@@ -5704,8 +5704,8 @@ function handleDataChannelFileSharing(data) {
     receivedSize += data.byteLength;
     receiveProgress.value = receivedSize;
     receiveFilePercentage.innerHTML =
-        'Receive progress: ' + ((receivedSize / incomingFileInfo.fileSize) * 100).toFixed(2) + '%';
-    if (receivedSize === incomingFileInfo.fileSize) {
+        'Receive progress: ' + ((receivedSize / incomingFileInfo.file.fileSize) * 100).toFixed(2) + '%';
+    if (receivedSize === incomingFileInfo.file.fileSize) {
         receiveFileDiv.style.display = 'none';
         incomingFileData = receiveBuffer;
         receiveBuffer = [];
@@ -5884,8 +5884,7 @@ function sendFileInformations(file, peer_id, broadcast = false) {
             userLog('info', 'No participants detected');
             return;
         }
-        // send some metadata about our file to peers in the room
-        sendToServer('fileInfo', {
+        let fileInfo = {
             room_id: roomId,
             broadcast: broadcast,
             peer_name: myPeerName,
@@ -5895,7 +5894,11 @@ function sendFileInformations(file, peer_id, broadcast = false) {
                 fileSize: fileToSend.size,
                 fileType: fileToSend.type,
             },
-        });
+        };
+        // keep trace of sent file in chat
+        appendMessage(myPeerName, rightChatAvatar, 'right', 'Send file: \n' + toHtmlJson(fileInfo), false);
+        // send some metadata about our file to peers in the room
+        sendToServer('fileInfo', fileInfo);
         // send the File
         setTimeout(() => {
             sendFileData(peer_id, broadcast);
@@ -5903,6 +5906,15 @@ function sendFileInformations(file, peer_id, broadcast = false) {
     } else {
         userLog('error', 'File dragged not valid or empty.');
     }
+}
+
+/**
+ * Html Json pretty print
+ * @param {object} obj
+ * @returns html pre json
+ */
+function toHtmlJson(obj) {
+    return '<pre>' + JSON.stringify(obj, null, 4) + '</pre>';
 }
 
 /**
@@ -5916,20 +5928,29 @@ function handleFileInfo(config) {
     receivedSize = 0;
     let fileToReceiveInfo =
         'From: ' +
-        incomingFileInfo.peerName +
+        incomingFileInfo.peer_name +
         '<br />' +
         ' Incoming file: ' +
-        incomingFileInfo.fileName +
+        incomingFileInfo.file.fileName +
         '<br />' +
         ' File size: ' +
-        bytesToSize(incomingFileInfo.fileSize) +
+        bytesToSize(incomingFileInfo.file.fileSize) +
         '<br />' +
         ' File type: ' +
-        incomingFileInfo.fileType;
+        incomingFileInfo.file.fileType;
     console.log(fileToReceiveInfo);
+    // keep track of received file on chat
+    appendMessage(
+        incomingFileInfo.peer_name,
+        leftChatAvatar,
+        'left',
+        'Receive file: \n' + toHtmlJson(incomingFileInfo),
+        !incomingFileInfo.broadcast,
+        incomingFileInfo.peer_id,
+    );
     receiveFileInfo.innerHTML = fileToReceiveInfo;
     receiveFileDiv.style.display = 'inline';
-    receiveProgress.max = incomingFileInfo.fileSize;
+    receiveProgress.max = incomingFileInfo.file.fileSize;
     receiveInProgress = true;
     userLog('toast', fileToReceiveInfo);
 }
@@ -5943,12 +5964,12 @@ function endDownload() {
 
     // save received file into Blob
     const blob = new Blob(incomingFileData);
-    const file = incomingFileInfo.fileName;
+    const file = incomingFileInfo.file.fileName;
 
     incomingFileData = [];
 
     // if file is image, show the preview
-    if (isImageURL(incomingFileInfo.fileName)) {
+    if (isImageURL(incomingFileInfo.file.fileName)) {
         const reader = new FileReader();
         reader.onload = (e) => {
             Swal.fire({
@@ -5956,7 +5977,7 @@ function endDownload() {
                 background: swalBackground,
                 position: 'center',
                 title: 'Received file',
-                text: incomingFileInfo.fileName + ' size ' + bytesToSize(incomingFileInfo.fileSize),
+                text: incomingFileInfo.file.fileName + ' size ' + bytesToSize(incomingFileInfo.file.fileSize),
                 imageUrl: e.target.result,
                 imageAlt: 'mirotalk-file-img-download',
                 showDenyButton: true,
@@ -5983,7 +6004,7 @@ function endDownload() {
             imageUrl: fileSharingImg,
             position: 'center',
             title: 'Received file',
-            text: incomingFileInfo.fileName + ' size ' + bytesToSize(incomingFileInfo.fileSize),
+            text: incomingFileInfo.file.fileName + ' size ' + bytesToSize(incomingFileInfo.file.fileSize),
             showDenyButton: true,
             confirmButtonText: `Save`,
             denyButtonText: `Cancel`,

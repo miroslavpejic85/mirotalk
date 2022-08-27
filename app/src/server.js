@@ -813,8 +813,6 @@ io.sockets.on('connect', async (socket) => {
             return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
         }
 
-        file['peerName'] = peer_name;
-
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
             peerName: file.peerName,
             fileName: file.fileName,
@@ -824,9 +822,9 @@ io.sockets.on('connect', async (socket) => {
         });
 
         if (broadcast) {
-            await sendToRoom(room_id, socket.id, 'fileInfo', file);
+            await sendToRoom(room_id, socket.id, 'fileInfo', config);
         } else {
-            await sendToPeer(peer_id, sockets, 'fileInfo', file);
+            await sendToPeer(peer_id, sockets, 'fileInfo', config);
         }
     });
 
