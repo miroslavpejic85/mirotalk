@@ -53,9 +53,9 @@
 <details>
 <summary>About</summary>
 
--   <a href="https://www.canva.com/design/DAE693uLOIU/view">Presentation</a>
+-   [Presentation](https://www.canva.com/design/DAE693uLOIU/view)
 
--   <a href="https://www.youtube.com/watch?v=_IVn2aINYww">Video</a>
+-   [Video](https://www.youtube.com/watch?v=_IVn2aINYww)
 
 </details>
 
