@@ -331,6 +331,7 @@ let videoAudioCloseBtn;
 let videoUrlIframe;
 let videoAudioUrlElement;
 // speech recognition
+let speechRecognitionIcon;
 let speechRecognitionStart;
 let speechRecognitionStop;
 
@@ -461,6 +462,7 @@ function getHtmlElementsById() {
     videoUrlIframe = getId('videoUrlIframe');
     videoAudioUrlElement = getId('videoAudioUrlElement');
     // speech recognition
+    speechRecognitionIcon = getId('speechRecognitionIcon');
     speechRecognitionStart = getId('speechRecognitionStart');
     speechRecognitionStop = getId('speechRecognitionStop');
 }

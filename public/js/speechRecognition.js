@@ -91,6 +91,7 @@ if (speechRecognition) {
         console.log('Start speech recognition');
         speechRecognitionStart.style.display = 'none';
         speechRecognitionStop.style.display = 'block';
+        setColor(speechRecognitionIcon, 'lime');
     };
 
     // Detect the said words
@@ -119,6 +120,7 @@ if (speechRecognition) {
         // if (recognitionRunning) recognition.start();
         speechRecognitionStop.style.display = 'none';
         speechRecognitionStart.style.display = 'block';
+        setColor(speechRecognitionIcon, 'white');
     };
 
     isWebkitSpeechRecognitionSupported = true;
