@@ -66,7 +66,7 @@ const chatInputEmoji = {
     ':+1:': '\uD83D\uDC4D',
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
-// Show desired buttons showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn -> (auto-detected)
+// Show desired buttons captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn -> (auto-detected)
 const buttons = {
     main: {
         showShareRoomBtn: true,
@@ -74,7 +74,6 @@ const buttons = {
         showVideoBtn: true,
         showRecordStreamBtn: true,
         showChatRoomBtn: true,
-        showCaptionBtn: true,
         showMyHandBtn: true,
         showWhiteboardBtn: true,
         showFileShareBtn: true,
@@ -838,7 +837,6 @@ function handleButtonsRule() {
     elemDisplay(videoBtn, buttons.main.showVideoBtn);
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
-    elemDisplay(captionBtn, buttons.main.showCaptionBtn);
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
     elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
@@ -2606,7 +2604,7 @@ function setChatRoomBtn() {
  * Caption room buttons click event
  */
 function setCaptionRoomBtn() {
-    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+    if (speechRecognition) {
         // open hide caption
         captionBtn.addEventListener('click', (e) => {
             if (!isCaptionBoxVisible) {

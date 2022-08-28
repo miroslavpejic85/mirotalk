@@ -460,11 +460,15 @@ button:hover {
 }
 
 .msger-inputarea * {
-    padding: 10px;
     border: none;
     border-radius: 3px;
     margin: 1px;
     color: #fff;
+    font-size: 1rem;
+}
+
+.msger-inputarea select {
+    padding: 10px;
 }
 
 .msger-input {
@@ -595,7 +599,7 @@ emoji-picker {
     min-width: 320px;
     /* gui */
     background: var(--body-bg);
-    border-radius: 5px;
+    border-radius: 10px;
     margin: auto;
     border: var(--border);
     box-shadow: var(--box-shadow);
@@ -626,7 +630,7 @@ emoji-picker {
     border: none;
     border-radius: 5px;
     font-size: 1.2rem;
-    background: #000000;
+    background: var(--body-bg);
     color: #fff;
     transition: background 0.23s;
 }
@@ -648,6 +652,7 @@ emoji-picker {
 #hideEveryoneBtn,
 #lockRoomBtn,
 #unlockRoomBtn,
+#speechRecognitionIcon,
 #speechRecognitionStart,
 #speechRecognitionStop {
     font-size: 0.9rem;
