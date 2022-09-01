@@ -4,17 +4,31 @@
 
 #videoMediaContainer {
     z-index: 2;
+    position: absolute;
     display: flex;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 5px;
     align-content: center;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     vertical-align: middle;
+    overflow: hidden;
+}
+
+#videoPinMediaContainer {
+    z-index: 1;
     position: absolute;
-    left: 0px;
-    bottom: 0px;
-    top: 0px;
-    right: 0px;
+    display: none;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 75%;
+    border-radius: 5px;
+    overflow: hidden;
+    /* border: 3px solid lime; */
 }
 
 .Camera {
