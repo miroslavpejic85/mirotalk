@@ -10,6 +10,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 dependencies: {
     body-parser             : https://www.npmjs.com/package/body-parser
     compression             : https://www.npmjs.com/package/compression
+    colors                  : https://www.npmjs.com/package/colors
     cors                    : https://www.npmjs.com/package/cors
     crypto-js               : https://www.npmjs.com/package/crypto-js
     dotenv                  : https://www.npmjs.com/package/dotenv
