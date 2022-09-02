@@ -502,6 +502,7 @@ button:hover {
 }
 
 .msger-input-buttons button {
+    width: 32px;
     border: none;
     border-radius: 3px;
     margin: 1px;
