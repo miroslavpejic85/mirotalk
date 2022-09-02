@@ -474,6 +474,7 @@ button:hover {
 .msger-input {
     flex: 1;
     height: 30px;
+    font-size: 14px !important;
     resize: none;
     background: rgb(7, 7, 7);
     border-top-left-radius: 10px;
