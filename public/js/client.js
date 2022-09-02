@@ -216,6 +216,8 @@ let msgerChat;
 let msgerEmojiBtn;
 let msgerMarkdownBtn;
 let msgerInput;
+let msgerCleanTextBtn;
+let msgerPasteBtn;
 let msgerSendBtn;
 //caption section
 let captionDraggable;
@@ -375,6 +377,8 @@ function getHtmlElementsById() {
     msgerEmojiBtn = getId('msgerEmojiBtn');
     msgerMarkdownBtn = getId('msgerMarkdownBtn');
     msgerInput = getId('msgerInput');
+    msgerCleanTextBtn = getId('msgerCleanTextBtn');
+    msgerPasteBtn = getId('msgerPasteBtn');
     msgerSendBtn = getId('msgerSendBtn');
     // chat room connected peers
     msgerCP = getId('msgerCP');
@@ -499,6 +503,8 @@ function setButtonsToolTip() {
     setTippy(msgerClose, 'Close', 'top');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
+    setTippy(msgerCleanTextBtn, 'Clean', 'top');
+    setTippy(msgerPasteBtn, 'Paste', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
     // caption buttons
     setTippy(captionTheme, 'Ghost theme', 'top');
@@ -2681,6 +2687,16 @@ function setChatRoomBtn() {
         isChatPasteTxt = true;
     };
 
+    // clean input msg txt
+    msgerCleanTextBtn.addEventListener('click', (e) => {
+        cleanMessageInput();
+    });
+
+    // paste to input msg txt
+    msgerPasteBtn.addEventListener('click', (e) => {
+        pasteToMessageInput();
+    });
+
     // chat send msg
     msgerSendBtn.addEventListener('click', (e) => {
         // prevent refresh page
@@ -4188,6 +4204,28 @@ function handleDataChannelChat(dataMessage) {
     playSound('chatMessage');
     setPeerChatAvatarImgName('left', msgFrom);
     appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId);
+}
+
+/**
+ * Clean input txt message
+ */
+function cleanMessageInput() {
+    msgerInput.value = '';
+}
+
+/**
+ * Paste from clipboard to input txt message
+ */
+function pasteToMessageInput() {
+    navigator.clipboard
+        .readText()
+        .then((text) => {
+            msgerInput.value = text;
+            isChatPasteTxt = true;
+        })
+        .catch((err) => {
+            console.error('Failed to read clipboard contents: ', err);
+        });
 }
 
 /**

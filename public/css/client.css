@@ -356,7 +356,7 @@ body {
     background: var(--left-msg-bg);
     border-bottom-left-radius: 0;
     color: #fff;
-    width: 90%; /* caption */
+    width: 78%; /* caption */
 }
 
 .left-msg .msg-img {
@@ -475,27 +475,51 @@ button:hover {
     flex: 1;
     height: 30px;
     resize: none;
-    background: rgb(0, 0, 0);
+    background: rgb(7, 7, 7);
+    border-top-left-radius: 10px;
 }
 
-#msgerVideoUrlBtn,
-#msgerEmojiBtn,
-#msgerMarkdownBtn,
-#msgerCPBtn,
-#msgerSendBtn {
-    background: rgb(0, 0, 0);
+.msger-input::-webkit-scrollbar {
+    width: 5px;
+}
+
+.msger-input::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.msger-input::-webkit-scrollbar-thumb {
+    background: #404040;
+}
+
+/*--------------------------------------------------------------
+# Chat room buttons area
+--------------------------------------------------------------*/
+
+.msger-input-buttons {
+    display: flex;
+    padding: 10px;
+    background: var(--msger-bg);
+}
+
+.msger-input-buttons button {
+    border: none;
+    border-radius: 3px;
+    margin: 1px;
     color: #fff;
+    font-size: 1.2rem;
+    background: var(--msger-bg);
     transition: background 0.23s;
 }
 
-#msgerVideoUrlBtn:hover,
-#msgerEmojiBtn:hover,
-#msgerMarkdownBtn:hover,
-#msgerCPBtn:hover,
-#msgerSendBtn:hover {
+.msger-input-buttons button:hover {
     color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
+}
+
+#msgerSendBtn {
+    position: absolute;
+    right: 10px;
 }
 
 /*--------------------------------------------------------------
@@ -571,7 +595,7 @@ button:hover {
 emoji-picker {
     z-index: 12;
     position: absolute;
-    bottom: 55px;
+    bottom: 100px;
     width: 100%;
     height: 50%;
     --background: #16171b;
