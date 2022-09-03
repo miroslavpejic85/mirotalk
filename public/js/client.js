@@ -2338,12 +2338,7 @@ function handleVideoPinUnpin(elemId, pnId, camId) {
             } else {
                 if (pinnedVideoPlayerId != videoPlayer.id) {
                     isVideoPinned = true;
-                    return msgPopup(
-                        'info',
-                        'Another video seems pinned, unpin it before to pin this one',
-                        'top-end',
-                        3000,
-                    );
+                    return userLog('info', 'Another video seems pinned, unpin it before to pin this one');
                 }
                 videoPinMediaContainer.removeChild(cam);
                 cam.className = 'Camera';
