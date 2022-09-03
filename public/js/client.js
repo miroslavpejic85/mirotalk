@@ -555,6 +555,7 @@ function setButtonsToolTip() {
  * @param {string} placement position
  */
 function setTippy(elem, content, placement) {
+    if (isMobileDevice) return;
     tippy(elem, {
         content: content,
         placement: placement,
@@ -4057,6 +4058,7 @@ function showCaptionDraggable() {
         setTippy(captionBtn, 'Close the caption', 'right-start');
     }
 }
+
 /**
  * Clean chat messages
  */
@@ -4301,24 +4303,11 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
         privateMsg: privateMsg,
     });
 
-    // add btn direct reply to private message
-    if (privateMsg && msgId != null && msgId != myPeerId) {
-        let randId = makeId(10);
-        msg =
-            msg +
-            `<hr/>
-            <button 
-                class="cButtons" 
-                id="${randId}" 
-                onclick="sendPrivateMsgToPeer('${myPeerId}','${from}')"
-            ><i class="fas fa-paper-plane"></i> Reply (private)</button>`;
-    }
-
     // check if i receive a private message
     let msgBubble = privateMsg ? 'private-msg-bubble' : 'msg-bubble';
 
-    const msgHTML = `
-	<div class="msg ${side}-msg">
+    let msgHTML = `
+	<div id="msg-${chatMessagesId}" class="msg ${side}-msg">
 		<div class="msg-img" style="background-image: url('${img}')"></div>
 		<div class=${msgBubble}>
             <div class="msg-info">
@@ -4328,16 +4317,68 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
             <div id="${chatMessagesId}" class="msg-text">${msg}
                 <hr/>
                 <button
-                    class="msger-copy-txt" 
+                    id="msg-delete-${chatMessagesId}"
+                    class="fas fa-trash"
+                    style="color:#fff; border:none; background:transparent;"
+                    onclick="deleteMessage('msg-${chatMessagesId}')"
+                ></button>
+                <button
+                    id="msg-copy-${chatMessagesId}"
+                    class="fas fa-copy" 
+                    style="color:#fff; border:none; background:transparent;"
                     onclick="copyToClipboard('${chatMessagesId}')"
-                ><i class="fas fa-copy"></i></button>
+                ></button>
+    `;
+    // add btn direct reply to private message
+    if (privateMsg && msgId != null && msgId != myPeerId) {
+        msgHTML += `
+            <button 
+                class="fas fa-paper-plane"
+                id="msg-private-reply-${chatMessagesId}"
+                style="color:#fff; border:none; background:transparent;"
+                onclick="sendPrivateMsgToPeer('${myPeerId}','${from}')"
+            ></button>`;
+    }
+    msgHTML += `
             </div>
         </div>
 	</div>
     `;
     msgerChat.insertAdjacentHTML('beforeend', msgHTML);
     msgerChat.scrollTop += 500;
+    setTippy(getId('msg-delete-' + chatMessagesId), 'Delete', 'top');
+    setTippy(getId('msg-copy-' + chatMessagesId), 'Copy', 'top');
+    setTippy(getId('msg-private-reply-' + chatMessagesId), 'Reply', 'top');
     chatMessagesId++;
+}
+
+/**
+ * Delete message
+ * @param {string} id msg id
+ */
+function deleteMessage(id) {
+    playSound('newMessage');
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        title: 'Delete this messages?',
+        imageUrl: deleteImg,
+        showDenyButton: true,
+        confirmButtonText: `Yes`,
+        denyButtonText: `No`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        // clean this message
+        if (result.isConfirmed) {
+            getId(id).remove();
+            playSound('delete');
+        }
+    });
 }
 
 /**
@@ -4345,7 +4386,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
  * @param {string} id
  */
 function copyToClipboard(id) {
-    const text = document.getElementById(id).innerText;
+    const text = getId(id).innerText;
     navigator.clipboard
         .writeText(text)
         .then(() => {
