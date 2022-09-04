@@ -500,7 +500,7 @@ function setButtonsToolTip() {
     setTippy(msgerCPBtn, 'Private messages', 'top');
     setTippy(msgerClean, 'Clean the messages', 'top');
     setTippy(msgerSaveBtn, 'Save the messages', 'top');
-    setTippy(msgerClose, 'Close', 'top');
+    setTippy(msgerClose, 'Close', 'right');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
@@ -511,7 +511,7 @@ function setButtonsToolTip() {
     setTippy(captionClean, 'Clean the messages', 'top');
     setTippy(captionSaveBtn, 'Save the messages', 'top');
     // settings
-    setTippy(mySettingsCloseBtn, 'Close settings', 'top');
+    setTippy(mySettingsCloseBtn, 'Close', 'right');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
     // tab btns
     setTippy(tabDevicesBtn, 'Devices', 'top');
@@ -535,7 +535,7 @@ function setButtonsToolTip() {
     setTippy(whiteboardSaveBtn, 'Save the board', 'bottom');
     setTippy(whiteboardEraserBtn, 'Erase the object', 'bottom');
     setTippy(whiteboardCleanBtn, 'Clean the board', 'bottom');
-    setTippy(whiteboardCloseBtn, 'Close the board', 'bottom');
+    setTippy(whiteboardCloseBtn, 'Close', 'right');
     // room actions btn
     setTippy(muteEveryoneBtn, 'Mute everyone except yourself', 'top');
     setTippy(hideEveryoneBtn, 'Hide everyone except yourself', 'top');
@@ -921,11 +921,8 @@ async function whoAreYou() {
         initAudioBtn.className = 'fas fa-microphone-slash';
         setMyAudioStatus(useAudio);
     }
-
-    if (!isMobileDevice) {
-        setTippy(initAudioBtn, 'Stop the audio', 'top');
-        setTippy(initVideoBtn, 'Stop the video', 'top');
-    }
+    setTippy(initAudioBtn, 'Stop the audio', 'top');
+    setTippy(initVideoBtn, 'Stop the video', 'top');
 }
 
 /**
@@ -1716,16 +1713,14 @@ async function loadLocalMedia(stream) {
     myVideoPinBtn.className = 'fas fa-map-pin';
 
     // no mobile devices
-    if (!isMobileDevice) {
-        setTippy(myCountTime, 'Session Time', 'bottom');
-        setTippy(myVideoParagraph, 'My name', 'bottom');
-        setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
-        setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
-        setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
-        setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
-        setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
-        setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
-    }
+    setTippy(myCountTime, 'Session Time', 'bottom');
+    setTippy(myVideoParagraph, 'My name', 'bottom');
+    setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
+    setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
+    setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
+    setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
+    setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+    setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
 
     // my video avatar image
     myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
@@ -1926,19 +1921,17 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoPinBtn.className = 'fas fa-map-pin';
 
     // no mobile devices
-    if (!isMobileDevice) {
-        setTippy(remoteVideoParagraph, 'Participant name', 'bottom');
-        setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
-        setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
-        setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
-        setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
-        setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
-        setTippy(remoteFileShareBtn, 'Send file', 'bottom');
-        setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
-        setTippy(remotePeerKickOut, 'Kick out', 'bottom');
-        setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
-        setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
-    }
+    setTippy(remoteVideoParagraph, 'Participant name', 'bottom');
+    setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
+    setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
+    setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
+    setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
+    setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+    setTippy(remoteFileShareBtn, 'Send file', 'bottom');
+    setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
+    setTippy(remotePeerKickOut, 'Kick out', 'bottom');
+    setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+    setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
 
     // my video avatar image
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
@@ -2571,10 +2564,7 @@ function setFullScreenBtn() {
             if (!fullscreenElement) {
                 fullScreenBtn.className = 'fas fa-expand-alt';
                 isDocumentOnFullScreen = false;
-                // only for desktop
-                if (!isMobileDevice) {
-                    setTippy(fullScreenBtn, 'View full screen', 'right-start');
-                }
+                setTippy(fullScreenBtn, 'View full screen', 'right-start');
             }
         });
         fullScreenBtn.addEventListener('click', (e) => {
@@ -3497,9 +3487,7 @@ function handleAudio(e, init, force = null) {
 
     if (init) {
         audioBtn.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
-        if (!isMobileDevice) {
-            setTippy(initAudioBtn, myAudioStatus ? 'Stop the audio' : 'Start the audio', 'top');
-        }
+        setTippy(initAudioBtn, myAudioStatus ? 'Stop the audio' : 'Start the audio', 'top');
     }
     setMyAudioStatus(myAudioStatus);
 }
@@ -3524,9 +3512,7 @@ function handleVideo(e, init, force = null) {
 
     if (init) {
         videoBtn.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
-        if (!isMobileDevice) {
-            setTippy(initVideoBtn, myVideoStatus ? 'Stop the video' : 'Start the video', 'top');
-        }
+        setTippy(initVideoBtn, myVideoStatus ? 'Stop the video' : 'Start the video', 'top');
     }
     setMyVideoStatus(myVideoStatus);
 }
@@ -3631,10 +3617,7 @@ async function toggleScreenSharing() {
  */
 function setScreenSharingStatus(status) {
     screenShareBtn.className = status ? 'fas fa-stop-circle' : 'fas fa-desktop';
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
-    }
+    setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
 }
 
 /**
@@ -3649,10 +3632,7 @@ async function setMyVideoStatusTrue() {
     myVideoStatusIcon.className = 'fas fa-video';
     myVideoAvatarImage.style.display = 'none';
     emitPeerStatus('video', myVideoStatus);
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(videoBtn, 'Stop the video', 'right-start');
-    }
+    setTippy(videoBtn, 'Stop the video', 'right-start');
 }
 
 /**
@@ -3671,10 +3651,7 @@ function toggleFullScreen() {
             isDocumentOnFullScreen = false;
         }
     }
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(fullScreenBtn, isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen', 'right-start');
-    }
+    setTippy(fullScreenBtn, isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen', 'right-start');
 }
 
 /**
@@ -3909,10 +3886,8 @@ function handleMediaRecorderStart(event) {
     isStreamRecording = true;
     recordStreamBtn.style.setProperty('color', '#ff4500');
     startRecordingTime();
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(recordStreamBtn, 'Stop recording', 'right-start');
-    } else {
+    setTippy(recordStreamBtn, 'Stop recording', 'right-start');
+    if (isMobileDevice) {
         swapCameraBtn.style.display = 'none';
     }
 }
@@ -3946,10 +3921,8 @@ function handleMediaRecorderStop(event) {
     }
     recordStreamBtn.style.setProperty('color', '#000');
     downloadRecordedStream();
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(recordStreamBtn, 'Start recording', 'right-start');
-    } else {
+    setTippy(recordStreamBtn, 'Start recording', 'right-start');
+    if (isMobileDevice) {
         swapCameraBtn.style.display = 'block';
     }
 }
@@ -4028,10 +4001,7 @@ function showChatRoomDraggable() {
     msgerDraggable.style.left = isMobileDevice ? '50%' : '25%';
     msgerDraggable.style.display = 'flex';
     isChatRoomVisible = true;
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(chatRoomBtn, 'Close the chat', 'right-start');
-    }
+    setTippy(chatRoomBtn, 'Close the chat', 'right-start');
 }
 
 /**
@@ -4048,10 +4018,7 @@ function showCaptionDraggable() {
     captionDraggable.style.left = isMobileDevice ? '50' : '75%';
     captionDraggable.style.display = 'flex';
     isCaptionBoxVisible = true;
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(captionBtn, 'Close the caption', 'right-start');
-    }
+    setTippy(captionBtn, 'Close the caption', 'right-start');
 }
 
 /**
@@ -4132,10 +4099,7 @@ function hideChatRoomAndEmojiPicker() {
     chatRoomBtn.className = 'fas fa-comment';
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(chatRoomBtn, 'Open the chat', 'right-start');
-    }
+    setTippy(chatRoomBtn, 'Open the chat', 'right-start');
 }
 
 /**
@@ -4145,10 +4109,7 @@ function hideCaptionBox() {
     captionDraggable.style.display = 'none';
     captionBtn.className = 'fas fa-closed-captioning';
     isCaptionBoxVisible = false;
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(captionBtn, 'Open the caption', 'right-start');
-    }
+    setTippy(captionBtn, 'Open the caption', 'right-start');
 }
 
 /**
@@ -4772,15 +4733,11 @@ function setMyHandStatus() {
     if (myHandStatus) {
         // Raise hand
         myHandStatus = false;
-        if (!isMobileDevice) {
-            setTippy(myHandBtn, 'Raise your hand', 'right-start');
-        }
+        setTippy(myHandBtn, 'Raise your hand', 'right-start');
     } else {
         // Lower hand
         myHandStatus = true;
-        if (!isMobileDevice) {
-            setTippy(myHandBtn, 'Lower your hand', 'right-start');
-        }
+        setTippy(myHandBtn, 'Lower your hand', 'right-start');
         playSound('raiseHand');
     }
     myHandStatusIcon.style.display = myHandStatus ? 'inline' : 'none';
@@ -4797,10 +4754,7 @@ function setMyAudioStatus(status) {
     emitPeerStatus('audio', status);
     setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
     status ? playSound('on') : playSound('off');
-    // only for desktop
-    if (!isMobileDevice) {
-        setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', 'right-start');
-    }
+    setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', 'right-start');
 }
 
 /**
