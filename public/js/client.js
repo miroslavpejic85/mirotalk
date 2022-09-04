@@ -2667,10 +2667,12 @@ function setChatRoomBtn() {
             let regex = new RegExp(escapeSpecialChars(i), 'gim');
             this.value = this.value.replace(regex, chatInputEmoji[i]);
         }
+        checkLineBreaks();
     };
 
     msgerInput.onpaste = () => {
         isChatPasteTxt = true;
+        checkLineBreaks();
     };
 
     // clean input msg txt
@@ -4118,7 +4120,7 @@ function hideCaptionBox() {
 function sendChatMessage() {
     if (!thereIsPeerConnections()) {
         userLog('info', "Can't send message, no participants in the room");
-        msgerInput.value = '';
+        cleanMessageInput();
         isChatPasteTxt = false;
         return;
     }
@@ -4126,14 +4128,14 @@ function sendChatMessage() {
     const msg = checkMsg(msgerInput.value);
     // empity msg or
     if (!msg) {
-        msgerInput.value = '';
+        cleanMessageInput();
         isChatPasteTxt = false;
         return;
     }
 
     emitMsg(myPeerName, 'toAll', msg, false, myPeerId);
     appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
-    msgerInput.value = '';
+    cleanMessageInput();
 }
 
 /**
@@ -4169,6 +4171,7 @@ function handleDataChannelChat(dataMessage) {
  */
 function cleanMessageInput() {
     msgerInput.value = '';
+    msgerInput.style.height = '';
 }
 
 /**
@@ -4178,8 +4181,9 @@ function pasteToMessageInput() {
     navigator.clipboard
         .readText()
         .then((text) => {
-            msgerInput.value = text;
+            msgerInput.value += text;
             isChatPasteTxt = true;
+            checkLineBreaks();
         })
         .catch((err) => {
             console.error('Failed to read clipboard contents: ', err);
@@ -4486,8 +4490,7 @@ function checkMsg(text) {
         isChatPasteTxt = false;
         return pre;
     }
-    let numberOfLineBreaks = (text.match(/\n/g) || []).length;
-    if (numberOfLineBreaks > 1) {
+    if (getLineBreaks(text) > 1) {
         return pre;
     }
     return text;
@@ -4540,6 +4543,25 @@ function isValidHttpURL(str) {
  */
 function isImageURL(url) {
     return url.match(/\.(jpeg|jpg|gif|png|tiff|bmp)$/) != null;
+}
+
+/**
+ * Get text Line breaks
+ * @param {string} text
+ * @returns integer lines
+ */
+function getLineBreaks(text) {
+    return (text.match(/\n/g) || []).length;
+}
+
+/**
+ * Check chat input line breaks
+ */
+function checkLineBreaks() {
+    msgerInput.style.height = '';
+    if (getLineBreaks(msgerInput.value) > 1) {
+        msgerInput.style.height = '200px';
+    }
 }
 
 /**
