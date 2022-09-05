@@ -478,6 +478,11 @@ button:hover {
     resize: none;
     background: rgb(7, 7, 7);
     border-top-left-radius: 10px;
+    -webkit-transition: height 1s;
+    -moz-transition: height 1s;
+    -ms-transition: height 1s;
+    -o-transition: height 1s;
+    transition: height 1s;
 }
 
 .msger-input::-webkit-scrollbar {
