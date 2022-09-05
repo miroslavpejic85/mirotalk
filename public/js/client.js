@@ -4158,7 +4158,7 @@ function handleDataChannelChat(dataMessage) {
  */
 function cleanMessageInput() {
     msgerInput.value = '';
-    msgerInput.style.height = '';
+    msgerInput.style.height = '25px';
 }
 
 /**
