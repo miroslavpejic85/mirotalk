@@ -506,7 +506,10 @@ function setButtonsToolTip() {
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
+    // chat participants buttons
+    setTippy(msgerCPCloseBtn, 'Close', 'left');
     // caption buttons
+    setTippy(captionClose, 'Close', 'right');
     setTippy(captionTheme, 'Ghost theme', 'top');
     setTippy(captionClean, 'Clean the messages', 'top');
     setTippy(captionSaveBtn, 'Save the messages', 'top');
@@ -703,8 +706,7 @@ function countPeerConnections() {
  */
 function initClientPeer() {
     if (!isWebRTCSupported) {
-        userLog('error', 'This browser seems not supported WebRTC!');
-        return;
+        return userLog('error', 'This browser seems not supported WebRTC!');
     }
 
     userAgent = navigator.userAgent.toLowerCase();
@@ -1041,8 +1043,7 @@ async function handleAddPeer(config) {
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
-        console.log('Already connected to peer', peer_id);
-        return;
+        return console.log('Already connected to peer', peer_id);
     }
 
     if (!iceServers) iceServers = backupIceServers;
@@ -2273,16 +2274,13 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
     videoPeer.addEventListener('drop', function (e) {
         e.preventDefault();
         if (itsMe) {
-            userLog('warning', 'You cannot send files to yourself.');
-            return;
+            return userLog('warning', 'You cannot send files to yourself.');
         }
         if (sendInProgress) {
-            userLog('warning', 'Please wait for the previous file to be sent.');
-            return;
+            return userLog('warning', 'Please wait for the previous file to be sent.');
         }
         if (e.dataTransfer.items && e.dataTransfer.items.length > 1) {
-            userLog('warning', 'Please drag and drop a single file.');
-            return;
+            return userLog('warning', 'Please drag and drop a single file.');
         }
         // Use DataTransferItemList interface to access the file(s)
         if (e.dataTransfer.items) {
@@ -2290,8 +2288,7 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
             let item = e.dataTransfer.items[0].webkitGetAsEntry();
             console.log('Drag and drop', item);
             if (item.isDirectory) {
-                userLog('warning', 'Please drag and drop a single file not a folder.', 'top-end');
-                return;
+                return userLog('warning', 'Please drag and drop a single file not a folder.', 'top-end');
             }
             let file = e.dataTransfer.items[0].getAsFile();
             sendFileInformations(file, peer_id);
@@ -2380,14 +2377,12 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
             // handle remote video snapshot
             let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
             if (remoteVideoStatusBtn.className === 'fas fa-video') {
-                takeSnapshot(video);
-                return;
+                return takeSnapshot(video);
             }
         } else {
             // handle local video snapshot
             if (myVideoStatusIcon.className === 'fas fa-video') {
-                takeSnapshot(video);
-                return;
+                return takeSnapshot(video);
             }
         }
         userLog('toast', 'Snapshot not work on video disabled');
@@ -2606,8 +2601,7 @@ function setChatRoomBtn() {
     // show msger participants section
     msgerCPBtn.addEventListener('click', (e) => {
         if (!thereIsPeerConnections()) {
-            userLog('info', 'No participants detected');
-            return;
+            return userLog('info', 'No participants detected');
         }
         msgerCP.style.display = 'flex';
     });
@@ -2620,8 +2614,7 @@ function setChatRoomBtn() {
     // clean chat messages
     msgerClean.addEventListener('click', (e) => {
         if (chatMessages.length != 0) {
-            cleanMessages();
-            return;
+            return cleanMessages();
         }
         userLog('info', 'No chat messages to delete');
     });
@@ -2629,8 +2622,7 @@ function setChatRoomBtn() {
     // save chat messages to file
     msgerSaveBtn.addEventListener('click', (e) => {
         if (chatMessages.length != 0) {
-            downloadChatMsgs();
-            return;
+            return downloadChatMsgs();
         }
         userLog('info', 'No chat messages to save');
     });
@@ -2724,8 +2716,7 @@ function setCaptionRoomBtn() {
         // clean caption transcripts
         captionClean.addEventListener('click', (e) => {
             if (transcripts.length != 0) {
-                cleanCaptions();
-                return;
+                return cleanCaptions();
             }
             userLog('info', 'No captions to delete');
         });
@@ -2733,8 +2724,7 @@ function setCaptionRoomBtn() {
         // save caption transcripts to file
         captionSaveBtn.addEventListener('click', (e) => {
             if (transcripts.length != 0) {
-                downloadCaptions();
-                return;
+                return downloadCaptions();
             }
             userLog('info', 'No captions to save');
         });
@@ -3841,8 +3831,7 @@ function startStreamRecording() {
         }
     } catch (err) {
         console.error('Exception while creating MediaRecorder: ', err);
-        userLog('error', "Can't start stream recording: " + err);
-        return;
+        return userLog('error', "Can't start stream recording: " + err);
     }
 }
 
@@ -4119,18 +4108,16 @@ function hideCaptionBox() {
  */
 function sendChatMessage() {
     if (!thereIsPeerConnections()) {
-        userLog('info', "Can't send message, no participants in the room");
         cleanMessageInput();
         isChatPasteTxt = false;
-        return;
+        return userLog('info', "Can't send message, no participants in the room");
     }
 
     const msg = checkMsg(msgerInput.value);
     // empity msg or
     if (!msg) {
-        cleanMessageInput();
         isChatPasteTxt = false;
-        return;
+        return cleanMessageInput();
     }
 
     emitMsg(myPeerName, 'toAll', msg, false, myPeerId);
@@ -4276,6 +4263,18 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
             </div>
             <div id="${chatMessagesId}" class="msg-text">${msg}
                 <hr/>
+    `;
+    // add btn direct reply to private message
+    if (privateMsg && msgId != null && msgId != myPeerId) {
+        msgHTML += `
+                <button 
+                    class="fas fa-paper-plane"
+                    id="msg-private-reply-${chatMessagesId}"
+                    style="color:#fff; border:none; background:transparent;"
+                    onclick="sendPrivateMsgToPeer('${myPeerId}','${from}')"
+                ></button>`;
+    }
+    msgHTML += `
                 <button
                     id="msg-delete-${chatMessagesId}"
                     class="fas fa-trash"
@@ -4288,18 +4287,6 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                     style="color:#fff; border:none; background:transparent;"
                     onclick="copyToClipboard('${chatMessagesId}')"
                 ></button>
-    `;
-    // add btn direct reply to private message
-    if (privateMsg && msgId != null && msgId != myPeerId) {
-        msgHTML += `
-            <button 
-                class="fas fa-paper-plane"
-                id="msg-private-reply-${chatMessagesId}"
-                style="color:#fff; border:none; background:transparent;"
-                onclick="sendPrivateMsgToPeer('${myPeerId}','${from}')"
-            ></button>`;
-    }
-    msgHTML += `
             </div>
         </div>
 	</div>
@@ -5110,8 +5097,7 @@ function setMyVideoOff(peer_name) {
  */
 function disableAllPeers(element) {
     if (!thereIsPeerConnections()) {
-        userLog('info', 'No participants detected');
-        return;
+        return userLog('info', 'No participants detected');
     }
     Swal.fire({
         background: swalBackground,
@@ -5154,8 +5140,7 @@ function disableAllPeers(element) {
  */
 function disablePeer(peer_id, element) {
     if (!thereIsPeerConnections()) {
-        userLog('info', 'No participants detected');
-        return;
+        return userLog('info', 'No participants detected');
     }
     Swal.fire({
         background: swalBackground,
@@ -6021,8 +6006,7 @@ function sendFileInformations(file, peer_id, broadcast = false) {
     if (fileToSend && fileToSend.size > 0) {
         // no peers in the room
         if (!thereIsPeerConnections()) {
-            userLog('info', 'No participants detected');
-            return;
+            return userLog('info', 'No participants detected');
         }
         let fileInfo = {
             room_id: roomId,
@@ -6205,8 +6189,7 @@ function sendVideoUrl(peer_id = null) {
     }).then((result) => {
         if (result.value) {
             if (!thereIsPeerConnections()) {
-                userLog('info', 'No participants detected');
-                return;
+                return userLog('info', 'No participants detected');
             }
             console.log('Video URL: ' + result.value);
             /*
@@ -6215,8 +6198,7 @@ function sendVideoUrl(peer_id = null) {
                 https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3
             */
             if (!isVideoTypeSupported(result.value)) {
-                userLog('warning', 'Something wrong, try with another Video or audio URL');
-                return;
+                return userLog('warning', 'Something wrong, try with another Video or audio URL');
             }
             let is_youtube = getVideoType(result.value) == 'na' ? true : false;
             let video_url = is_youtube ? getYoutubeEmbed(result.value) : result.value;
