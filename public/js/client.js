@@ -503,7 +503,6 @@ function setButtonsToolTip() {
     setTippy(msgerClose, 'Close', 'right');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
-    setTippy(msgerInput, 'New line: Shift + Enter', 'top-start');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
@@ -4369,9 +4368,7 @@ async function msgerAddPeers(peers) {
                         class="msger-input"
                         placeholder="💬 Enter your message..."
                     ></textarea>
-                    <button id="${peer_id}_pMsgBtn" value="${peer_name}">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                    <button id="${peer_id}_pMsgBtn" class="fas fa-paper-plane" value="${peer_name}"></button>
                 </div>
                 `;
                 msgerCPList.insertAdjacentHTML('beforeend', msgerPrivateDiv);
