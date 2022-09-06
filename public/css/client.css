@@ -310,7 +310,6 @@ body {
     overflow-y: auto;
     padding: 10px;
     background: var(--msger-bg);
-    max-width: 97%;
 }
 
 .msger-chat::-webkit-scrollbar {
@@ -473,7 +472,7 @@ button:hover {
 
 .msger-input {
     flex: 1;
-    padding: 5px;
+    padding: 10px;
     height: 25px;
     resize: none;
     font-size: 14px !important;
@@ -513,7 +512,7 @@ button:hover {
     border: none;
     border-radius: 3px;
     color: #fff;
-    font-size: 1.1rem;
+    font-size: 1rem;
     background: var(--msger-bg);
     transition: background 0.23s;
 }
@@ -601,7 +600,7 @@ button:hover {
 emoji-picker {
     z-index: 12;
     position: absolute;
-    bottom: 105px;
+    bottom: 110px;
     width: 100%;
     height: 50%;
     --background: #16171b;
