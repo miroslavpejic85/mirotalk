@@ -2315,6 +2315,7 @@ function handleVideoPinUnpin(elemId, pnId, camId) {
         btnPn.addEventListener('click', () => {
             isVideoPinned = !isVideoPinned;
             if (isVideoPinned) {
+                videoPlayer.style.objectFit = 'contain';
                 cam.className = '';
                 cam.style.width = '100%';
                 cam.style.height = '100%';
@@ -2330,6 +2331,7 @@ function handleVideoPinUnpin(elemId, pnId, camId) {
                     isVideoPinned = true;
                     return userLog('info', 'Another video seems pinned, unpin it before to pin this one');
                 }
+                videoPlayer.style.objectFit = 'var(--video-object-fit)';
                 videoPinMediaContainer.removeChild(cam);
                 cam.className = 'Camera';
                 videoMediaContainer.style.width = '100%';
