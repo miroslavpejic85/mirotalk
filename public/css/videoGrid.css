@@ -50,6 +50,7 @@
     display: none;
     position: absolute;
     padding: 10px;
+    border-radius: 10px 10px 0px 0px;
     background: var(--status-menu-bg);
     font-size: small;
     /* 4 mobile */
