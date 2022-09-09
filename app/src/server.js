@@ -487,6 +487,7 @@ io.sockets.on('connect', async (socket) => {
         let peer_audio = config.peer_audio;
         let peer_video_status = config.peer_video_status;
         let peer_audio_status = config.peer_audio_status;
+        let peer_screen_status = config.peer_screen_status;
         let peer_hand_status = config.peer_hand_status;
         let peer_rec_status = config.peer_rec_status;
 
@@ -512,6 +513,7 @@ io.sockets.on('connect', async (socket) => {
             peer_audio: peer_audio,
             peer_video_status: peer_video_status,
             peer_audio_status: peer_audio_status,
+            peer_screen_status: peer_screen_status,
             peer_hand_status: peer_hand_status,
             peer_rec_status: peer_rec_status,
         };
@@ -712,6 +714,9 @@ io.sockets.on('connect', async (socket) => {
                             break;
                         case 'audio':
                             peers[room_id][peer_id]['peer_audio_status'] = status;
+                            break;
+                        case 'screen':
+                            peers[room_id][peer_id]['peer_screen_status'] = status;
                             break;
                         case 'hand':
                             peers[room_id][peer_id]['peer_hand_status'] = status;

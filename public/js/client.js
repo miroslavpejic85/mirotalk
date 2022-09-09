@@ -149,6 +149,7 @@ let myVideoChange = false;
 let myHandStatus = false;
 let myVideoStatus = false;
 let myAudioStatus = false;
+let myScreenStatus = false;
 let pitchDetectionStatus = false;
 let audioContext;
 let mediaStreamSource;
@@ -975,6 +976,7 @@ async function joinToChannel() {
         peer_audio: useAudio,
         peer_video_status: myVideoStatus,
         peer_audio_status: myAudioStatus,
+        peer_screen_status: myScreenStatus,
         peer_hand_status: myHandStatus,
         peer_rec_status: isRecScreenStream,
     });
@@ -1839,6 +1841,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     let peer_video = peers[peer_id]['peer_video'];
     let peer_video_status = peers[peer_id]['peer_video_status'];
     let peer_audio_status = peers[peer_id]['peer_audio_status'];
+    let peer_screen_status = peers[peer_id]['peer_screen_status'];
     let peer_hand_status = peers[peer_id]['peer_hand_status'];
     let peer_rec_status = peers[peer_id]['peer_rec_status'];
 
@@ -1965,6 +1968,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteMedia.setAttribute('playsinline', true);
     remoteMedia.autoplay = true;
     isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
+    remoteMedia.style.objectFit = peer_screen_status ? 'contain' : 'var(--video-object-fit)';
     remoteMedia.controls = remoteMediaControls;
 
     remoteVideoWrap.className = 'Camera';
@@ -2331,7 +2335,9 @@ function handleVideoPinUnpin(elemId, pnId, camId) {
                     isVideoPinned = true;
                     return userLog('info', 'Another video seems pinned, unpin it before to pin this one');
                 }
-                videoPlayer.style.objectFit = 'var(--video-object-fit)';
+                if (!isScreenStreaming) {
+                    videoPlayer.style.objectFit = 'var(--video-object-fit)';
+                }
                 videoPinMediaContainer.removeChild(cam);
                 cam.className = 'Camera';
                 videoMediaContainer.style.width = '100%';
@@ -3583,14 +3589,13 @@ async function toggleScreenSharing() {
             isScreenStreaming = !isScreenStreaming;
             if (isScreenStreaming) {
                 setMyVideoStatusTrue();
-                if (countPeerConnections() == 1) {
-                    setAspectRatio(2); // 16:9
-                }
                 await emitPeersAction('screenStart');
             } else {
                 await emitPeersAction('screenStop');
                 adaptAspectRatio();
             }
+            myScreenStatus = isScreenStreaming;
+            emitPeerStatus('screen', myScreenStatus);
             await stopLocalVideoTrack();
             await refreshMyLocalStream(screenMediaPromise);
             await refreshMyStreamToPeers(screenMediaPromise);
@@ -3619,7 +3624,7 @@ function setScreenSharingStatus(status) {
  */
 async function setMyVideoStatusTrue() {
     if (myVideoStatus || !useVideo) return;
-    // Put video status alredy ON
+    // Put video status already ON
     localMediaStream.getVideoTracks()[0].enabled = true;
     myVideoStatus = true;
     videoBtn.className = 'fas fa-video';
@@ -3731,6 +3736,9 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     }
 
     localMediaStream = newStream;
+
+    // adapt video object fit on screen streaming
+    getId('myVideo').style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
 
     // log newStream devices
     logStreamSettingsInfo('refreshMyLocalStream', localMediaStream);
@@ -5027,11 +5035,14 @@ function handlePeerAction(config) {
 function handleScreenStart(peer_id) {
     let remoteVideoAvatarImage = getId(peer_id + '_avatar');
     let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+    let remoteVideoStream = getId(peer_id + '_video');
     if (remoteVideoStatusBtn) {
         remoteVideoStatusBtn.className = 'fas fa-video';
         setTippy(remoteVideoStatusBtn, 'Participant screen share is on', 'bottom');
     }
-    if (!isMobileDevice && countPeerConnections() == 1) setAspectRatio(2); // 16:9
+    if (remoteVideoStream) {
+        remoteVideoStream.style.objectFit = 'contain';
+    }
     if (remoteVideoAvatarImage) {
         remoteVideoAvatarImage.style.display = 'none';
     }
@@ -5050,7 +5061,10 @@ function handleScreenStop(peer_id, peer_use_video) {
         remoteVideoStatusBtn.className = 'fas fa-video-slash';
         setTippy(remoteVideoStatusBtn, 'Participant screen share is off', 'bottom');
     }
-    if (!isMobileDevice) adaptAspectRatio();
+    if (remoteVideoStream) {
+        remoteVideoStream.style.objectFit = 'var(--video-object-fit)';
+        adaptAspectRatio();
+    }
     if (remoteVideoAvatarImage && remoteVideoStream && !peer_use_video) {
         remoteVideoAvatarImage.style.display = 'block';
         remoteVideoStream.srcObject.getVideoTracks().forEach((track) => {
