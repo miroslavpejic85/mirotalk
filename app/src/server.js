@@ -165,10 +165,15 @@ app.use(express.json()); // Api parse body data as json
 app.use(express.static(dir.public)); // Use all static files from the public folder
 app.use(bodyParser.urlencoded({ extended: true })); // Need for Slack API body parser
 
+// all start from here
+app.get('*', function (next) {
+    next();
+});
+
 // Remove trailing slashes in url handle bad requests
 app.use((err, req, res, next) => {
-    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-        log.debug('Request Error', {
+    if (err instanceof SyntaxError || err.status === 400 || 'body' in err) {
+        log.error('Request Error', {
             header: req.headers,
             body: req.body,
             error: err.message,
@@ -183,7 +188,7 @@ app.use((err, req, res, next) => {
     }
 });
 
-// all start from here
+// main page
 app.get(['/'], (req, res) => {
     res.sendFile(views.landing);
 });
