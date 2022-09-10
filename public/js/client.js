@@ -99,9 +99,9 @@ const isRulesActive = true; // Presenter can do anything, guest is slightly mode
 
 const surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
 
-const notifyBySound = true; // turn on - off sound notifications
-
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
+
+let notifyBySound = true; // turn on - off sound notifications
 
 let thisRoomPassword = null;
 
@@ -247,6 +247,7 @@ let tabLanguagesBtn;
 let mySettingsCloseBtn;
 let myPeerNameSet;
 let myPeerNameSetBtn;
+let switchSounds;
 let audioInputSelect;
 let audioOutputSelect;
 let videoSelect;
@@ -408,6 +409,7 @@ function getHtmlElementsById() {
     mySettingsCloseBtn = getId('mySettingsCloseBtn');
     myPeerNameSet = getId('myPeerNameSet');
     myPeerNameSetBtn = getId('myPeerNameSetBtn');
+    switchSounds = getId('switchSounds');
     audioInputSelect = getId('audioSource');
     audioOutputSelect = getId('audioOutput');
     videoSelect = getId('videoSource');
@@ -2894,6 +2896,11 @@ function setMySettingsBtn() {
     myPeerNameSetBtn.addEventListener('click', (e) => {
         updateMyPeerName();
     });
+    // Sounds
+    switchSounds.addEventListener('change', (e) => {
+        notifyBySound = e.currentTarget.checked;
+    });
+
     // make chat room draggable for desktop
     if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
 }
