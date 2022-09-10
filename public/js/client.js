@@ -6713,6 +6713,7 @@ async function playSound(name) {
     let sound = '../sounds/' + name + '.mp3';
     let audioToPlay = new Audio(sound);
     try {
+        audioToPlay.volume = 0.5;
         await audioToPlay.play();
     } catch (err) {
         // console.error("Cannot play sound", err);
