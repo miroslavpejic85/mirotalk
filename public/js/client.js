@@ -160,6 +160,7 @@ let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
 let isChatMarkdownOn = false;
 let isButtonsVisible = false;
+let isButtonsBarOver = false;
 let isMySettingsVisible = false;
 let isVideoOnFullScreen = false;
 let isDocumentOnFullScreen = false;
@@ -2930,6 +2931,14 @@ function handleBodyOnMouseMove() {
     document.body.addEventListener('mousemove', (e) => {
         showButtonsBarAndMenu();
     });
+    // detect buttons bar over
+    buttonsBar.addEventListener('mouseover', () => {
+        isButtonsBarOver = true;
+    });
+    buttonsBar.addEventListener('mouseout', () => {
+        isButtonsBarOver = false;
+    });
+    checkButtonsBarAndMenu();
 }
 
 /**
@@ -3337,12 +3346,15 @@ function attachMediaStream(element, stream) {
 }
 
 /**
- * Show left buttons & status menù for 10 seconds on body mousemove
+ * Show left buttons & status
+ * if buttons visible or I'm on hover do nothing return
  * if mobile and chatroom open do nothing return
+ * if mobile and myCaption visible do nothing
  * if mobile and mySettings open do nothing return
  */
 function showButtonsBarAndMenu() {
     if (
+        isButtonsBarOver ||
         isButtonsVisible ||
         (isMobileDevice && isChatRoomVisible) ||
         (isMobileDevice && isCaptionBoxVisible) ||
@@ -3352,10 +3364,19 @@ function showButtonsBarAndMenu() {
     toggleClassElements('statusMenu', 'inline');
     buttonsBar.style.display = 'flex';
     isButtonsVisible = true;
-    setTimeout(() => {
+}
+
+/**
+ * Check every 10 sec if need to hide buttons bar and status menu
+ */
+function checkButtonsBarAndMenu() {
+    if (!isButtonsBarOver) {
         toggleClassElements('statusMenu', 'none');
         buttonsBar.style.display = 'none';
         isButtonsVisible = false;
+    }
+    setTimeout(() => {
+        checkButtonsBarAndMenu();
     }, 10000);
 }
 
