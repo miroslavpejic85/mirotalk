@@ -3742,11 +3742,13 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
         if (isScreenStreaming && stream.getAudioTracks()[0]) {
             setMyAudioOff('you');
             needToEnableMyAudio = true;
+            audioBtn.disabled = true;
         }
         // On end screen sharing enable my audio if need
         if (!isScreenStreaming && needToEnableMyAudio) {
             setMyAudioOn('you');
             needToEnableMyAudio = false;
+            audioBtn.disabled = false;
         }
     }
 }
