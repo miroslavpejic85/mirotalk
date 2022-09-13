@@ -41,6 +41,7 @@ const kickedOutImg = '../images/leave-room.png';
 const audioGif = '../images/audio.gif';
 const videoAudioShare = '../images/va-share.png';
 const aboutImg = '../images/mirotalk-logo.png';
+const imgFeedback = '../images/feedback.png';
 // nice free icon: https://www.iconfinder.com
 
 const fileSharingInput = '*'; // allow all file extensions
@@ -6564,6 +6565,7 @@ function leaveFeedback() {
         allowEscapeKey: false,
         showDenyButton: true,
         background: swalBackground,
+        imageUrl: imgFeedback,
         title: 'Leave a feedback',
         text: 'Do you want to rate your MiroTalk experience?',
         confirmButtonText: `Yes`,
