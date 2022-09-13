@@ -6549,10 +6549,38 @@ function showAbout() {
 function leaveRoom() {
     playSound('eject');
     if (surveyActive) {
-        openURL(surveyURL);
+        leaveFeedback();
     } else {
         openURL('/newcall');
     }
+}
+
+/**
+ * Ask for feedback when room exit
+ */
+function leaveFeedback() {
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showDenyButton: true,
+        background: swalBackground,
+        title: 'Leave a feedback',
+        text: 'Do you want to rate your MiroTalk experience?',
+        confirmButtonText: `Yes`,
+        denyButtonText: `No`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            openURL(surveyURL);
+        } else {
+            openURL('/newcall');
+        }
+    });
 }
 
 /**
