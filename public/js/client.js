@@ -118,6 +118,7 @@ let userAgent; // User agent info
 
 let isTabletDevice = false;
 let isIPadDevice = false;
+let isVideoFullScreenSupported = true;
 
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
@@ -721,6 +722,11 @@ function initClientPeer() {
     isTabletDevice = isTablet(userAgent);
     isIPadDevice = isIpad(userAgent);
     peerInfo = getPeerInfo();
+
+    // check if video Full screen supported on default true
+    if (peerInfo.isMobileDevice && peerInfo.osName === 'iOS') {
+        isVideoFullScreenSupported = false;
+    }
 
     console.log('01. Connecting to signaling server');
 
@@ -1751,7 +1757,7 @@ async function loadLocalMedia(stream) {
     myStatusMenu.appendChild(myVideoStatusIcon);
     myStatusMenu.appendChild(myAudioStatusIcon);
     myStatusMenu.appendChild(myVideoToImgBtn);
-    myStatusMenu.appendChild(myVideoFullScreenBtn);
+    if (isVideoFullScreenSupported) myStatusMenu.appendChild(myVideoFullScreenBtn);
     if (!isMobileDevice) myStatusMenu.appendChild(myVideoPinBtn);
 
     // add my pitchBar
@@ -1792,7 +1798,9 @@ async function loadLocalMedia(stream) {
     setupVideoUrlPlayer();
     startCountTime();
     handleBodyOnMouseMove();
-    handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
+    if (isVideoFullScreenSupported) {
+        handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
+    }
     handleFileDragAndDrop('myVideo', myPeerId, true);
     handleVideoToImg('myVideo', 'myVideoToImgBtn');
     handleVideoPinUnpin('myVideo', 'myVideoPinBtn', 'myVideoWrap');
@@ -1967,7 +1975,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteStatusMenu.appendChild(remoteVideoAudioUrlBtn);
     remoteStatusMenu.appendChild(remoteVideoToImgBtn);
     if (buttons.remote.showKickOutBtn) remoteStatusMenu.appendChild(remotePeerKickOut);
-    remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
+    if (isVideoFullScreenSupported) remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
     if (!isMobileDevice) remoteStatusMenu.appendChild(remoteVideoPinBtn);
 
     remoteMedia.setAttribute('id', peer_id + '_video');
@@ -2000,7 +2008,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // handle video pin/unpin
     handleVideoPinUnpin(peer_id + '_video', peer_id + '_pinUnpin', peer_id + '_videoWrap');
     // handle video full screen mode
-    handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen', peer_id);
+    if (isVideoFullScreenSupported) {
+        handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen', peer_id);
+    }
     // handle file share drag and drop
     handleFileDragAndDrop(peer_id + '_video', peer_id);
     // handle kick out button event
@@ -2566,7 +2576,7 @@ function setRecordStreamBtn() {
  * Full screen button click event
  */
 function setFullScreenBtn() {
-    if (DetectRTC.browser.name != 'Safari') {
+    if (myBrowserName != 'Safari') {
         // detect esc from full screen mode
         document.addEventListener('fullscreenchange', (e) => {
             let fullscreenElement = document.fullscreenElement;
@@ -3328,7 +3338,7 @@ function attachMediaStream(element, stream) {
     element.srcObject = stream;
     console.log('Success, media stream attached', stream.getTracks());
 
-    if (DetectRTC.browser.name === 'Safari') {
+    if (myBrowserName === 'Safari') {
         /*
             Hack for Safari...
             https://www.pilatesanytime.com/Pilates-Help/1016/How-to-Get-Safari-to-Autoplay-Video-and-Audio-Chapters
