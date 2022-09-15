@@ -136,6 +136,7 @@ let recStartTime;
 let recElapsedTime;
 let mirotalkTheme = 'dark'; // dark - grey ...
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
+let pinVideoPositionSelect;
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let peerGeo;
 let myPeerName = getPeerName();
@@ -261,6 +262,7 @@ let videoFpsSelect;
 let screenFpsSelect;
 let themeSelect;
 let videoObjFitSelect;
+
 let btnsBarSelect;
 let selectors;
 let tabRoomParticipants;
@@ -424,6 +426,7 @@ function getHtmlElementsById() {
     themeSelect = getId('mirotalkTheme');
     videoObjFitSelect = getId('videoObjFitSelect');
     btnsBarSelect = getId('mirotalkBtnsBar');
+    pinVideoPositionSelect = getId('pinVideoPositionSelect');
     tabRoomParticipants = getId('tabRoomParticipants');
     tabRoomSecurity = getId('tabRoomSecurity');
     // my conference name, hand, video - audio status
@@ -1803,7 +1806,7 @@ async function loadLocalMedia(stream) {
     }
     handleFileDragAndDrop('myVideo', myPeerId, true);
     handleVideoToImg('myVideo', 'myVideoToImgBtn');
-    handleVideoPinUnpin('myVideo', 'myVideoPinBtn', 'myVideoWrap');
+    handleVideoPinUnpin('myVideo', 'myVideoPinBtn', 'myVideoWrap', 'myVideo');
     refreshMyVideoAudioStatus(localMediaStream);
 
     if (!useVideo) {
@@ -2006,7 +2009,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // handle video to image
     handleVideoToImg(peer_id + '_video', peer_id + '_snapshot', peer_id);
     // handle video pin/unpin
-    handleVideoPinUnpin(peer_id + '_video', peer_id + '_pinUnpin', peer_id + '_videoWrap');
+    handleVideoPinUnpin(peer_id + '_video', peer_id + '_pinUnpin', peer_id + '_videoWrap', peer_id);
     // handle video full screen mode
     if (isVideoFullScreenSupported) {
         handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen', peer_id);
@@ -2324,8 +2327,9 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
  * @param {string} elemId video id
  * @param {string} pnId button pin id
  * @param {string} camId video wrap id
+ * @param {string} peerId peer id
  */
-function handleVideoPinUnpin(elemId, pnId, camId) {
+function handleVideoPinUnpin(elemId, pnId, camId, peerId) {
     let videoPlayer = getId(elemId);
     let btnPn = getId(pnId);
     let cam = getId(camId);
@@ -2339,9 +2343,7 @@ function handleVideoPinUnpin(elemId, pnId, camId) {
                 cam.className = '';
                 cam.style.width = '100%';
                 cam.style.height = '100%';
-                videoMediaContainer.style.width = '25%';
-                videoMediaContainer.style.left = null;
-                videoMediaContainer.style.right = 0;
+                toggleVideoPin(pinVideoPositionSelect.value);
                 videoPinMediaContainer.appendChild(cam);
                 videoPinMediaContainer.style.display = 'block';
                 pinnedVideoPlayerId = elemId;
@@ -2356,12 +2358,8 @@ function handleVideoPinUnpin(elemId, pnId, camId) {
                 }
                 videoPinMediaContainer.removeChild(cam);
                 cam.className = 'Camera';
-                videoMediaContainer.style.width = '100%';
-                videoMediaContainer.style.right = null;
-                videoMediaContainer.style.left = 0;
                 videoMediaContainer.appendChild(cam);
-                videoPinMediaContainer.style.display = 'none';
-                pinnedVideoPlayerId = null;
+                removeVideoPinMediaContainer(peerId, true);
                 setColor(btnPn, 'white');
             }
             adaptAspectRatio();
@@ -2369,21 +2367,55 @@ function handleVideoPinUnpin(elemId, pnId, camId) {
     }
 }
 
+function toggleVideoPin(position) {
+    if (!isVideoPinned) return;
+    const videoMediaContainer = getId('videoMediaContainer');
+    const videoPinMediaContainer = getId('videoPinMediaContainer');
+    switch (position) {
+        case 'vertical':
+            videoPinMediaContainer.style.width = '75%';
+            videoPinMediaContainer.style.height = '100%';
+            videoMediaContainer.style.top = 0;
+            videoMediaContainer.style.width = '25%';
+            videoMediaContainer.style.height = '100%';
+            videoMediaContainer.style.right = 0;
+            document.documentElement.style.setProperty('--vmi-wh', '15vw');
+            break;
+        case 'horizontal':
+            videoPinMediaContainer.style.width = '100%';
+            videoPinMediaContainer.style.height = '75%';
+            videoMediaContainer.style.top = '75%';
+            videoMediaContainer.style.right = null;
+            videoMediaContainer.style.width = null;
+            videoMediaContainer.style.width = '100% !important';
+            videoMediaContainer.style.height = '25%';
+            document.documentElement.style.setProperty('--vmi-wh', '15vh');
+            break;
+    }
+    resizeVideoMedia();
+}
+
 /**
  * Remove video pin media container
  * @param {string} peer_id aka socket.id
+ * @param {boolean} force_remove force to remove
  */
-function removeVideoPinMediaContainer(peer_id) {
+function removeVideoPinMediaContainer(peer_id, force_remove = false) {
     //alert(pinnedVideoPlayerId + '==' + peer_id);
-    if (isVideoPinned && (pinnedVideoPlayerId == peer_id + '_video' || pinnedVideoPlayerId == peer_id)) {
-        let videoPinMediaContainer = getId('videoPinMediaContainer');
-        let videoMediaContainer = getId('videoMediaContainer');
+    if (
+        (isVideoPinned && (pinnedVideoPlayerId == peer_id + '_video' || pinnedVideoPlayerId == peer_id)) ||
+        force_remove
+    ) {
+        const videoPinMediaContainer = getId('videoPinMediaContainer');
+        const videoMediaContainer = getId('videoMediaContainer');
         videoPinMediaContainer.style.display = 'none';
-        videoMediaContainer.style.width = '100%';
+        videoMediaContainer.style.top = 0;
         videoMediaContainer.style.right = null;
-        videoMediaContainer.style.left = 0;
+        videoMediaContainer.style.width = '100%';
+        videoMediaContainer.style.height = '100%';
         pinnedVideoPlayerId = null;
         isVideoPinned = false;
+        resizeVideoMedia();
     }
 }
 
@@ -3036,6 +3068,16 @@ function setupMySettings() {
             setButtonsBarPosition(btnsBarSelect.value);
         });
     }
+
+    // Mobile not support pin/unpin video
+    if (!isMobileDevice) {
+        pinVideoPositionSelect.addEventListener('change', (e) => {
+            toggleVideoPin(pinVideoPositionSelect.value);
+        });
+    } else {
+        getId('pinUnpinGridDiv').style.display = 'none';
+    }
+
     // room actions
     muteEveryoneBtn.addEventListener('click', (e) => {
         disableAllPeers('audio');

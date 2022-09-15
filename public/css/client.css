@@ -97,6 +97,8 @@
     /* volume detected */
     --volume-up: 0px 8px 16px 0px rgb(249, 253, 0);
 
+    /* video avatar img size */
+    --vmi-wh: 15vw;
     /* 
         https://developer.mozilla.org/it/docs/Web/CSS/object-fit 
     */
