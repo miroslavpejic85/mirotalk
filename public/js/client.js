@@ -1671,15 +1671,13 @@ async function loadLocalMedia(stream) {
     console.log('LOAD LOCAL MEDIA STREAM TRACKS', localMediaStream.getTracks());
 
     // local video elemets
-    const videoWrap = document.createElement('div');
-    const localMedia = document.createElement('video');
+    const myVideoWrap = document.createElement('div');
+    const myLocalMedia = document.createElement('video');
 
-    // handle my peer name video audio status
-    const myStatusMenu = document.createElement('div');
-    const myCountTimeImg = document.createElement('i');
-    const myCountTime = document.createElement('p');
-    const myVideoParagraphImg = document.createElement('i');
-    const myVideoParagraph = document.createElement('h4');
+    // html elements
+    const myVideoNavBar = document.createElement('div');
+    const myCountTime = document.createElement('button');
+    const myPeerName = document.createElement('p');
     const myHandStatusIcon = document.createElement('button');
     const myVideoToImgBtn = document.createElement('button');
     const myVideoStatusIcon = document.createElement('button');
@@ -1690,20 +1688,12 @@ async function loadLocalMedia(stream) {
     const myPitchMeter = document.createElement('div');
     const myPitchBar = document.createElement('div');
 
-    // menu Status
-    myStatusMenu.setAttribute('id', 'myStatusMenu');
-    myStatusMenu.className = 'statusMenu fadein';
-
     // session time
-    myCountTimeImg.setAttribute('id', 'countTimeImg');
-    myCountTimeImg.className = 'fas fa-clock';
     myCountTime.setAttribute('id', 'countTime');
 
     // my peer name
-    myVideoParagraphImg.setAttribute('id', 'myVideoParagraphImg');
-    myVideoParagraphImg.className = 'fas fa-user';
-    myVideoParagraph.setAttribute('id', 'myVideoParagraph');
-    myVideoParagraph.className = 'videoPeerName';
+    myPeerName.setAttribute('id', 'myVideoParagraph');
+    myPeerName.className = 'videoPeerName';
 
     // my hand status element
     myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
@@ -1732,7 +1722,7 @@ async function loadLocalMedia(stream) {
 
     // no mobile devices
     setTippy(myCountTime, 'Session Time', 'bottom');
-    setTippy(myVideoParagraph, 'My name', 'bottom');
+    setTippy(myPeerName, 'My name', 'bottom');
     setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
     setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
     setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
@@ -1751,17 +1741,21 @@ async function loadLocalMedia(stream) {
     myPitchBar.className = 'bar';
     myPitchBar.style.height = '1%';
 
-    // add elements to myStatusMenu div
-    myStatusMenu.appendChild(myCountTimeImg);
-    myStatusMenu.appendChild(myCountTime);
-    myStatusMenu.appendChild(myVideoParagraphImg);
-    myStatusMenu.appendChild(myVideoParagraph);
-    myStatusMenu.appendChild(myHandStatusIcon);
-    myStatusMenu.appendChild(myVideoStatusIcon);
-    myStatusMenu.appendChild(myAudioStatusIcon);
-    myStatusMenu.appendChild(myVideoToImgBtn);
-    if (isVideoFullScreenSupported) myStatusMenu.appendChild(myVideoFullScreenBtn);
-    if (!isMobileDevice) myStatusMenu.appendChild(myVideoPinBtn);
+    // my video nav bar
+    myVideoNavBar.className = 'navbar fadein';
+
+    // attach to video nav bar
+    myVideoNavBar.appendChild(myCountTime);
+    if (!isMobileDevice) {
+        myVideoNavBar.appendChild(myVideoPinBtn);
+    }
+    if (isVideoFullScreenSupported) {
+        myVideoNavBar.appendChild(myVideoFullScreenBtn);
+    }
+    myVideoNavBar.appendChild(myVideoToImgBtn);
+    myVideoNavBar.appendChild(myAudioStatusIcon);
+    myVideoNavBar.appendChild(myVideoStatusIcon);
+    myVideoNavBar.appendChild(myHandStatusIcon);
 
     // add my pitchBar
     myPitchMeter.appendChild(myPitchBar);
@@ -1769,28 +1763,29 @@ async function loadLocalMedia(stream) {
     // hand display none on default menad is raised == false
     myHandStatusIcon.style.display = 'none';
 
-    localMedia.setAttribute('id', 'myVideo');
-    localMedia.setAttribute('playsinline', true);
-    localMedia.className = 'mirror';
-    localMedia.autoplay = true;
-    localMedia.muted = true;
-    localMedia.volume = 0;
-    localMedia.controls = false;
+    myLocalMedia.setAttribute('id', 'myVideo');
+    myLocalMedia.setAttribute('playsinline', true);
+    myLocalMedia.className = 'mirror';
+    myLocalMedia.autoplay = true;
+    myLocalMedia.muted = true;
+    myLocalMedia.volume = 0;
+    myLocalMedia.controls = false;
 
-    videoWrap.className = 'Camera';
-    videoWrap.setAttribute('id', 'myVideoWrap');
+    myVideoWrap.className = 'Camera';
+    myVideoWrap.setAttribute('id', 'myVideoWrap');
 
     // add elements to video wrap div
-    videoWrap.appendChild(myStatusMenu);
-    videoWrap.appendChild(myVideoAvatarImage);
-    videoWrap.appendChild(localMedia);
-    videoWrap.appendChild(myPitchMeter);
+    myVideoWrap.appendChild(myVideoNavBar);
+    myVideoWrap.appendChild(myVideoAvatarImage);
+    myVideoWrap.appendChild(myLocalMedia);
+    myVideoWrap.appendChild(myPitchMeter);
+    myVideoWrap.appendChild(myPeerName);
 
-    getId('videoMediaContainer').appendChild(videoWrap);
-    videoWrap.style.display = 'none';
+    getId('videoMediaContainer').appendChild(myVideoWrap);
+    myVideoWrap.style.display = 'none';
 
     logStreamSettingsInfo('localMediaStream', localMediaStream);
-    attachMediaStream(localMedia, localMediaStream);
+    attachMediaStream(myLocalMedia, localMediaStream);
     adaptAspectRatio();
 
     getHtmlElementsById();
@@ -1870,10 +1865,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     const remoteVideoWrap = document.createElement('div');
     const remoteMedia = document.createElement('video');
 
-    // handle peers name video audio status
-    const remoteStatusMenu = document.createElement('div');
-    const remoteVideoParagraphImg = document.createElement('i');
-    const remoteVideoParagraph = document.createElement('h4');
+    // html elements
+    const remoteVideoNavBar = document.createElement('div');
+    const remotePeerName = document.createElement('p');
     const remoteHandStatusIcon = document.createElement('button');
     const remoteVideoStatusIcon = document.createElement('button');
     const remoteAudioStatusIcon = document.createElement('button');
@@ -1888,18 +1882,12 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     const remotePitchMeter = document.createElement('div');
     const remotePitchBar = document.createElement('div');
 
-    // menu Status
-    remoteStatusMenu.setAttribute('id', peer_id + '_menuStatus');
-    remoteStatusMenu.className = 'statusMenu fadein';
-
     // remote peer name element
-    remoteVideoParagraphImg.setAttribute('id', peer_id + '_nameImg');
-    remoteVideoParagraphImg.className = 'fas fa-user';
-    remoteVideoParagraph.setAttribute('id', peer_id + '_name');
-    remoteVideoParagraph.className = 'videoPeerName';
+    remotePeerName.setAttribute('id', peer_id + '_name');
+    remotePeerName.className = 'videoPeerName';
 
     const peerVideoText = document.createTextNode(peer_name);
-    remoteVideoParagraph.appendChild(peerVideoText);
+    remotePeerName.appendChild(peerVideoText);
     // remote hand status element
     remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
     remoteHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
@@ -1942,7 +1930,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoPinBtn.className = 'fas fa-map-pin';
 
     // no mobile devices
-    setTippy(remoteVideoParagraph, 'Participant name', 'bottom');
+    setTippy(remotePeerName, 'Participant name', 'bottom');
     setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
     setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
     setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
@@ -1967,19 +1955,26 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
 
     remotePitchMeter.appendChild(remotePitchBar);
 
-    // add elements to remoteStatusMenu div
-    remoteStatusMenu.appendChild(remoteVideoParagraphImg);
-    remoteStatusMenu.appendChild(remoteVideoParagraph);
-    remoteStatusMenu.appendChild(remoteHandStatusIcon);
-    remoteStatusMenu.appendChild(remoteVideoStatusIcon);
-    remoteStatusMenu.appendChild(remoteAudioStatusIcon);
-    remoteStatusMenu.appendChild(remotePrivateMsgBtn);
-    remoteStatusMenu.appendChild(remoteFileShareBtn);
-    remoteStatusMenu.appendChild(remoteVideoAudioUrlBtn);
-    remoteStatusMenu.appendChild(remoteVideoToImgBtn);
-    if (buttons.remote.showKickOutBtn) remoteStatusMenu.appendChild(remotePeerKickOut);
-    if (isVideoFullScreenSupported) remoteStatusMenu.appendChild(remoteVideoFullScreenBtn);
-    if (!isMobileDevice) remoteStatusMenu.appendChild(remoteVideoPinBtn);
+    // remote video nav bar
+    remoteVideoNavBar.className = 'navbar fadein';
+
+    // attach to remote video nav bar
+    if (!isMobileDevice) {
+        remoteVideoNavBar.appendChild(remoteVideoPinBtn);
+    }
+    if (isVideoFullScreenSupported) {
+        remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
+    }
+    remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
+    remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
+    remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
+    remoteVideoNavBar.appendChild(remoteHandStatusIcon);
+    remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
+    remoteVideoNavBar.appendChild(remoteFileShareBtn);
+    remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
+    if (buttons.remote.showKickOutBtn) {
+        remoteVideoNavBar.appendChild(remotePeerKickOut);
+    }
 
     remoteMedia.setAttribute('id', peer_id + '_video');
     remoteMedia.setAttribute('playsinline', true);
@@ -1992,10 +1987,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoWrap.setAttribute('id', peer_id + '_videoWrap');
 
     // add elements to videoWrap div
-    remoteVideoWrap.appendChild(remoteStatusMenu);
+    remoteVideoWrap.appendChild(remoteVideoNavBar);
     remoteVideoWrap.appendChild(remoteVideoAvatarImage);
     remoteVideoWrap.appendChild(remotePitchMeter);
     remoteVideoWrap.appendChild(remoteMedia);
+    remoteVideoWrap.appendChild(remotePeerName);
 
     // need later on disconnect or remove peers
     peerMediaElements[peer_id] = remoteVideoWrap;
@@ -3416,7 +3412,7 @@ function showButtonsBarAndMenu() {
         (isMobileDevice && isMySettingsVisible)
     )
         return;
-    toggleClassElements('statusMenu', 'inline');
+    toggleClassElements('navbar', 'block');
     buttonsBar.style.display = 'flex';
     isButtonsVisible = true;
 }
@@ -3426,7 +3422,7 @@ function showButtonsBarAndMenu() {
  */
 function checkButtonsBarAndMenu() {
     if (!isButtonsBarOver) {
-        toggleClassElements('statusMenu', 'none');
+        toggleClassElements('navbar', 'none');
         buttonsBar.style.display = 'none';
         isButtonsVisible = false;
     }

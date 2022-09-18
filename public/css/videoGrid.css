@@ -45,44 +45,57 @@
     animation: show 0.4s ease;
 }
 
-.statusMenu {
+/*--------------------------------------------------------------
+# Video nav Bar
+--------------------------------------------------------------*/
+
+.navbar {
     z-index: 8;
-    display: none;
     position: absolute;
-    padding: 10px;
-    background: var(--status-menu-bg);
-    font-size: small;
-    font-weight: bold;
-    text-align: center;
     width: 100%;
-    cursor: default;
-    overflow: hidden;
+    background: var(--navbar-bg);
+    text-align: right;
 }
 
-.statusMenu i,
-.statusMenu p,
-.statusMenu h4 {
-    font-size: small;
-    color: #ffffff;
+.navbar button {
     display: inline;
-    border: none;
-    margin-right: 10px;
-}
-
-.statusMenu button {
+    padding: 10px;
     font-size: small;
-    color: #ffffff;
+    text-decoration: none;
+    border: none;
+    border-radius: 10px;
     background: transparent;
-    display: inline;
-    border: none;
+    color: #fff;
 }
 
-.statusMenu p:hover,
-.statusMenu h4:hover,
-.statusMenu button:hover {
+.navbar button:hover {
     color: var(--hover-color);
-    transition: all 0.3s ease-in-out;
+    cursor: pointer;
 }
+
+/*--------------------------------------------------------------
+# Peer name 
+--------------------------------------------------------------*/
+
+.videoPeerName {
+    z-index: 8;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: #fff;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    margin: 5px;
+    width: auto;
+    height: 25px;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/*--------------------------------------------------------------
+# Video Avatar image
+--------------------------------------------------------------*/
 
 .videoAvatarImage {
     z-index: 7;
@@ -95,6 +108,10 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+/*--------------------------------------------------------------
+# Video 
+--------------------------------------------------------------*/
 
 video {
     width: 100%;
