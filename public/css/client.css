@@ -513,7 +513,7 @@ button:hover {
     padding: 5px;
     border: none;
     border-radius: 3px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #fff;
     background: var(--msger-bg);
     transition: background 0.23s;
@@ -627,7 +627,7 @@ emoji-picker {
 #mySettings {
     display: none;
     z-index: 16;
-    min-width: 320px;
+    width: 320px;
     /* gui */
     background: var(--body-bg);
     border-radius: 10px;
@@ -650,6 +650,7 @@ emoji-picker {
 }
 
 #mySettings select {
+    font-size: 0.9rem;
     width: var(--mySettings-select-w);
     height: 30px;
     color: #fff;
@@ -720,6 +721,7 @@ emoji-picker {
 /* Style the buttons inside the tab */
 
 .tab button {
+    font-size: 1rem;
     background-color: inherit;
     float: left;
     border: none;
