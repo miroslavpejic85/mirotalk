@@ -651,7 +651,7 @@ emoji-picker {
 
 #mySettings select {
     font-size: 0.9rem;
-    width: var(--mySettings-select-w);
+    max-width: 305px;
     height: 30px;
     color: #fff;
     background-color: #2b2b2b;
