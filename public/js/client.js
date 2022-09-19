@@ -2375,7 +2375,6 @@ function toggleVideoPin(position) {
             videoMediaContainer.style.width = '25%';
             videoMediaContainer.style.height = '100%';
             videoMediaContainer.style.right = 0;
-            document.documentElement.style.setProperty('--vmi-wh', '15vw');
             break;
         case 'horizontal':
             videoPinMediaContainer.style.width = '100%';
@@ -2385,7 +2384,6 @@ function toggleVideoPin(position) {
             videoMediaContainer.style.width = null;
             videoMediaContainer.style.width = '100% !important';
             videoMediaContainer.style.height = '25%';
-            document.documentElement.style.setProperty('--vmi-wh', '15vh');
             break;
     }
     resizeVideoMedia();
