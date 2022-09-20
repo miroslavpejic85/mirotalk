@@ -4573,6 +4573,7 @@ function checkMsg(text) {
     if (isHtml(text)) return stripHtml(text);
     if (isValidHttpURL(text)) {
         if (isImageURL(text)) return '<img src="' + text + '" alt="img" width="180" height="auto"/>';
+        if (isVideoTypeSupported(text)) return getIframe(text);
         return '<a href="' + text + '" target="_blank" class="msg-a">' + text + '</a>';
     }
     if (isChatMarkdownOn) return marked.parse(text);
@@ -4634,6 +4635,25 @@ function isValidHttpURL(str) {
  */
 function isImageURL(url) {
     return url.match(/\.(jpeg|jpg|gif|png|tiff|bmp)$/) != null;
+}
+
+/**
+ * Get IFrame from URL
+ * @param {string} url
+ * @returns html iframe
+ */
+function getIframe(url) {
+    let is_youtube = getVideoType(url) == 'na' ? true : false;
+    let video_audio_url = is_youtube ? getYoutubeEmbed(url) : url;
+    return `
+    <iframe
+        title="Chat-IFrame"
+        src="${video_audio_url}"
+        width="auto"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+    ></iframe>`;
 }
 
 /**
