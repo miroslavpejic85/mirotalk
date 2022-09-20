@@ -442,6 +442,14 @@ body {
     background: transparent;
 }
 
+.msg-a {
+    color: #fff;
+}
+.msg-a:hover {
+    color: var(--hover-color);
+    transition: all 0.3s ease-in-out;
+}
+
 #chat-msg-a {
     color: #fff;
 }

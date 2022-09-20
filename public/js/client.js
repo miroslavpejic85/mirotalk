@@ -4573,7 +4573,7 @@ function checkMsg(text) {
     if (isHtml(text)) return stripHtml(text);
     if (isValidHttpURL(text)) {
         if (isImageURL(text)) return '<img src="' + text + '" alt="img" width="180" height="auto"/>';
-        return '<a href="' + text + '" target="_blank">' + text + '</a>';
+        return '<a href="' + text + '" target="_blank" class="msg-a">' + text + '</a>';
     }
     if (isChatMarkdownOn) return marked.parse(text);
     let pre = '<pre>' + text + '</pre>';
