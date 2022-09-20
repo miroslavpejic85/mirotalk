@@ -430,7 +430,7 @@ body {
 
 .msg-text {
     /* https://css-tricks.com/almanac/properties/o/overflow-wrap/ */
-    display: inline-block;
+    display: inline;
     overflow-wrap: break-word;
     word-wrap: break-word;
     hyphens: auto;
