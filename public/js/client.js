@@ -6418,7 +6418,7 @@ function isVideoTypeSupported(url) {
         url.endsWith('.mp3') ||
         url.endsWith('.webm') ||
         url.endsWith('.ogg') ||
-        url.includes('youtube')
+        url.includes('youtube.com')
     )
         return true;
     return false;
