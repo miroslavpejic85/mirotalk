@@ -5,11 +5,25 @@
  * @param {object} stream media stream audio
  */
 async function startPitchDetection(stream) {
-    pitchDetectionStatus = true;
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    mediaStreamSource = audioContext.createMediaStreamSource(stream);
-    meter = createAudioMeter(audioContext);
-    mediaStreamSource.connect(meter);
+    if (isAudioContextSupported) {
+        pitchDetectionStatus = true;
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        mediaStreamSource = audioContext.createMediaStreamSource(stream);
+        meter = createAudioMeter(audioContext);
+        mediaStreamSource.connect(meter);
+    }
+}
+
+/**
+ * Check if audio context is supported
+ * @returns boolean
+ */
+function isAudioContextSupported() {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (window.AudioContext) {
+        return true;
+    }
+    return false;
 }
 
 /**
