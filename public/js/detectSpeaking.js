@@ -5,7 +5,7 @@
  * @param {object} stream media stream audio
  */
 async function startPitchDetection(stream) {
-    if (isAudioContextSupported) {
+    if (isAudioContextSupported()) {
         pitchDetectionStatus = true;
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         mediaStreamSource = audioContext.createMediaStreamSource(stream);
