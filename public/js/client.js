@@ -4219,8 +4219,9 @@ function sendChatMessage() {
         return userLog('info', "Can't send message, no participants in the room");
     }
 
-    const msg = checkMsg(msgerInput.value);
-    // empity msg or
+    const msg = checkMsg(msgerInput.value.trim());
+
+    // empty msg or
     if (!msg) {
         isChatPasteTxt = false;
         return cleanMessageInput();
@@ -4546,7 +4547,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
     };
 
     function sendPrivateMessage() {
-        let pMsg = checkMsg(msgerPrivateMsgInput.value);
+        let pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
         if (!pMsg) {
             msgerPrivateMsgInput.value = '';
             isChatPasteTxt = false;
