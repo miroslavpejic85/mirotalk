@@ -88,6 +88,7 @@ In order to use it without the port number at the end, and to have encrypted com
 $ sudo apt-get install nginx
 
 # Install Certbot (SSL certificates) : https://certbot.eff.org
+$ sudo apt install snapd
 $ sudo snap install core; sudo snap refresh core
 $ sudo snap install --classic certbot
 $ sudo ln -s /snap/bin/certbot /usr/bin/certbot
