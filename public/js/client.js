@@ -4831,7 +4831,6 @@ function emitMsg(from, to, msg, privateMsg, id) {
  */
 function hideShowEmojiPicker() {
     if (!isChatEmojiVisible) {
-        playSound('newMessage');
         msgerEmojiPicker.style.display = 'block';
         msgerEmojiBtn.style.color = '#FFFF00';
         isChatEmojiVisible = true;
