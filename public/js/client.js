@@ -922,10 +922,10 @@ function handleButtonsRule() {
     elemDisplay(shareRoomBtn, buttons.main.showShareRoomBtn);
     elemDisplay(audioBtn, buttons.main.showAudioBtn);
     elemDisplay(videoBtn, buttons.main.showVideoBtn);
-    elemDisplay(screenShareBtn, buttons.main.showScreenBtn);
+    //elemDisplay(screenShareBtn, buttons.main.showScreenBtn); // auto-detected
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
-    elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn);
+    //elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn); // auto-detected
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
     elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
@@ -944,8 +944,6 @@ function handleButtonsRule() {
     elemDisplay(unlockRoomBtn, buttons.settings.showUnlockRoomBtn);
     elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
     elemDisplay(tabRoomSecurity, buttons.settings.showTabRoomSecurity);
-    // optional
-    elemDisplay(getId('screenFpsDiv'), buttons.main.showScreenBtn);
 }
 
 /**
@@ -2681,13 +2679,18 @@ function setSwapCameraBtn() {
  * Check if i can share the screen, if yes show button else hide it
  */
 function setScreenShareBtn() {
-    if (!isMobileDevice && (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia)) {
+    if (
+        !isMobileDevice &&
+        (navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) &&
+        buttons.main.showScreenBtn
+    ) {
         isScreenSharingSupported = true;
         screenShareBtn.addEventListener('click', async (e) => {
             await toggleScreenSharing();
         });
     } else {
         screenShareBtn.style.display = 'none';
+        elemDisplay(getId('screenFpsDiv'), buttons.main.showScreenBtn);
     }
 }
 
@@ -2854,7 +2857,7 @@ function setChatRoomBtn() {
  * Caption room buttons click event
  */
 function setCaptionRoomBtn() {
-    if (speechRecognition) {
+    if (speechRecognition && buttons.main.showCaptionRoomBtn) {
         // open hide caption
         captionBtn.addEventListener('click', (e) => {
             if (!isCaptionBoxVisible) {
