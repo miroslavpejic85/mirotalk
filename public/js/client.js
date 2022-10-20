@@ -2691,7 +2691,7 @@ function setScreenShareBtn() {
         });
     } else {
         screenShareBtn.style.display = 'none';
-        elemDisplay(getId('screenFpsDiv'), buttons.main.showScreenBtn);
+        elemDisplay(getId('screenFpsDiv'), false);
     }
 }
 
