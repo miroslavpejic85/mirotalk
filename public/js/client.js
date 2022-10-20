@@ -42,6 +42,7 @@ const audioGif = '../images/audio.gif';
 const videoAudioShare = '../images/va-share.png';
 const aboutImg = '../images/mirotalk-logo.png';
 const imgFeedback = '../images/feedback.png';
+const forbiddenImg = '../images/forbidden.png';
 // nice free icon: https://www.iconfinder.com
 
 const fileSharingInput = '*'; // allow all file extensions
@@ -867,10 +868,10 @@ function roomIsBusy() {
         allowOutsideClick: false,
         allowEscapeKey: false,
         background: swalBackground,
-        imageUrl: confirmImg,
+        imageUrl: forbiddenImg,
         position: 'center',
         title: 'Room is busy',
-        text: 'Please try again later',
+        html: `The room is limited to ${usersCountLimit} users. <br/> Please try again later`,
         showDenyButton: false,
         confirmButtonText: `OK`,
         showClass: {
