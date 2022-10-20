@@ -268,18 +268,20 @@ access to use this app.
                         <option value="10">10 fps</option>
                         <option value="5">5 fps</option>
                     </select>
-                    <br /><br />
-                    <label for="screenFps">Screen fps</label>
-                    <br />
-                    <select id="screenFps">
-                        <option value="60">60 fps</option>
-                        <option value="30">30 fps</option>
-                        <option value="25">25 fps</option>
-                        <option value="20">20 fps</option>
-                        <option value="15">15 fps</option>
-                        <option value="10">10 fps</option>
-                        <option value="5">5 fps</option>
-                    </select>
+                    <div id="screenFpsDiv">
+                        <br /><br />
+                        <label for="screenFps">Screen fps</label>
+                        <br />
+                        <select id="screenFps">
+                            <option value="60">60 fps</option>
+                            <option value="30">30 fps</option>
+                            <option value="25">25 fps</option>
+                            <option value="20">20 fps</option>
+                            <option value="15">15 fps</option>
+                            <option value="10">10 fps</option>
+                            <option value="5">5 fps</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div id="tabRoom" class="tabcontent">
@@ -289,20 +291,20 @@ access to use this app.
                         <input id="myPeerNameSet" type="text" placeholder="Change name..." />&nbsp;&nbsp;
                         <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change</button>
                     </div>
-                    <br />
                     <div id="tabRoomParticipants">
+                        <br /><br />
                         <label>Participants</label><br />
                         <button id="muteEveryoneBtn"><i class="fas fa-microphone"></i>&nbsp;Mute everyone</button
                         >&nbsp;&nbsp;
                         <button id="hideEveryoneBtn"><i class="fas fa-video"></i>&nbsp;Hide everyone</button>
                     </div>
-                    <br />
                     <div id="tabRoomSecurity">
+                        <br /><br />
                         <label>Security</label><br />
                         <button id="lockRoomBtn"><i class="fas fa-lock-open"></i>&nbsp;Lock room</button>
                         <button id="unlockRoomBtn"><i class="fas fa-lock"></i>&nbsp;Unlock room</button>
                     </div>
-                    <br />
+                    <br /><br />
                     <label>Sounds</label><br />
                     <input id="switchSounds" style="color: #fff" class="toggle" type="checkbox" checked />
                 </div>
@@ -312,18 +314,18 @@ access to use this app.
                     <label for="mirotalkTheme">Theme color</label>
                     <br />
                     <select id="mirotalkTheme">
-                        <option value="dark">⚫️ MiroTalk - dark</option>
-                        <option value="grey">⚪️ MiroTalk - grey</option>
+                        <option value="dark">⚫️ Dark</option>
+                        <option value="grey">⚪️ Grey</option>
                     </select>
                     <br /><br />
                     <label>Video fit:</label>
                     <br />
                     <select id="videoObjFitSelect">
-                        <option value="fill">fill</option>
-                        <option value="contain">contain</option>
-                        <option value="cover">cover</option>
-                        <option value="scale-down">scale-down</option>
-                        <option value="none">none</option>
+                        <option value="fill">Fill</option>
+                        <option value="contain">Contain</option>
+                        <option value="cover">Cover</option>
+                        <option value="scale-down">Scale-down</option>
+                        <option value="none">None</option>
                     </select>
                     <br /><br />
                     <label for="mirotalkBtnsBar">Buttons bar</label>

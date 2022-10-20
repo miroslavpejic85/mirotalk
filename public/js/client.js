@@ -73,13 +73,22 @@ const buttons = {
         showShareRoomBtn: true,
         showAudioBtn: true,
         showVideoBtn: true,
+        showScreenBtn: true,
         showRecordStreamBtn: true,
         showChatRoomBtn: true,
+        showCaptionRoomBtn: true,
         showMyHandBtn: true,
         showWhiteboardBtn: true,
         showFileShareBtn: true,
         showMySettingsBtn: true,
         showAboutBtn: true, // Please keep me always true, Thank you!
+    },
+    chat: {
+        showSaveMessageBtn: true,
+        showMarkDownBtn: true,
+        showFileShareBtn: true,
+        showShareVideoAudioBtn: true,
+        showParticipantsBtn: true,
     },
     settings: {
         showTabRoomParticipants: true,
@@ -93,6 +102,13 @@ const buttons = {
         audioBtnClickAllowed: true,
         videoBtnClickAllowed: true,
         showKickOutBtn: true,
+        showSnapShotBtn: true,
+        showFileShareBtn: true,
+        showShareVideoAudioBtn: true,
+        showPrivateMessageBtn: true,
+    },
+    local: {
+        showSnapShotBtn: true,
     },
 };
 
@@ -101,6 +117,10 @@ const isRulesActive = true; // Presenter can do anything, guest is slightly mode
 const surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
 
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
+
+const userLimitsActive = false; // Limit users per room
+
+const usersCountLimit = 2; // Limit 2 users per room if userLimitsActive true
 
 let notifyBySound = true; // turn on - off sound notifications
 
@@ -818,6 +838,11 @@ function handleServerInfo(config) {
     let peers_count = config.peers_count;
     console.log('13. Peers count', peers_count);
 
+    // Limit room to n peers
+    if (userLimitsActive && peers_count > usersCountLimit) {
+        return roomIsBusy();
+    }
+
     // Let start with some basic rules
     isPresenter = peers_count == 1 ? true : false;
     if (isRulesActive) {
@@ -829,6 +854,36 @@ function handleServerInfo(config) {
     } else {
         checkShareScreen();
     }
+}
+
+/**
+ * Room is busy, disconnect me and alert the user that
+ * will be redirected to home page
+ */
+function roomIsBusy() {
+    signalingSocket.disconnect();
+    playSound('alert');
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swalBackground,
+        imageUrl: confirmImg,
+        position: 'center',
+        title: 'Room is busy',
+        text: 'Please try again later',
+        showDenyButton: false,
+        confirmButtonText: `OK`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            openURL('/');
+        }
+    });
 }
 
 /**
@@ -867,13 +922,21 @@ function handleButtonsRule() {
     elemDisplay(shareRoomBtn, buttons.main.showShareRoomBtn);
     elemDisplay(audioBtn, buttons.main.showAudioBtn);
     elemDisplay(videoBtn, buttons.main.showVideoBtn);
+    elemDisplay(screenShareBtn, buttons.main.showScreenBtn);
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
+    elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn);
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
     elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
     elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
     elemDisplay(aboutBtn, buttons.main.showAboutBtn);
+    // chat
+    elemDisplay(msgerSaveBtn, buttons.chat.showSaveMessageBtn);
+    elemDisplay(msgerMarkdownBtn, buttons.chat.showMarkDownBtn);
+    elemDisplay(msgerShareFileBtn, buttons.chat.showFileShareBtn);
+    elemDisplay(msgerVideoUrlBtn, buttons.chat.showShareVideoAudioBtn);
+    elemDisplay(msgerCPBtn, buttons.chat.showParticipantsBtn);
     // Settings
     elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
     elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
@@ -881,6 +944,8 @@ function handleButtonsRule() {
     elemDisplay(unlockRoomBtn, buttons.settings.showUnlockRoomBtn);
     elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
     elemDisplay(tabRoomSecurity, buttons.settings.showTabRoomSecurity);
+    // optional
+    elemDisplay(getId('screenFpsDiv'), buttons.main.showScreenBtn);
 }
 
 /**
@@ -1749,13 +1814,17 @@ async function loadLocalMedia(stream) {
 
     // attach to video nav bar
     myVideoNavBar.appendChild(myCountTime);
+
     if (!isMobileDevice) {
         myVideoNavBar.appendChild(myVideoPinBtn);
     }
     if (isVideoFullScreenSupported) {
         myVideoNavBar.appendChild(myVideoFullScreenBtn);
     }
-    myVideoNavBar.appendChild(myVideoToImgBtn);
+    if (buttons.local.showSnapShotBtn) {
+        myVideoNavBar.appendChild(myVideoToImgBtn);
+    }
+
     myVideoNavBar.appendChild(myAudioStatusIcon);
     myVideoNavBar.appendChild(myVideoStatusIcon);
     myVideoNavBar.appendChild(myHandStatusIcon);
@@ -1799,11 +1868,17 @@ async function loadLocalMedia(stream) {
     setupVideoUrlPlayer();
     startCountTime();
     handleBodyOnMouseMove();
+
     if (isVideoFullScreenSupported) {
         handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
     }
+
     handleFileDragAndDrop('myVideo', myPeerId, true);
-    handleVideoToImg('myVideo', 'myVideoToImgBtn');
+
+    if (buttons.local.showSnapShotBtn) {
+        handleVideoToImg('myVideo', 'myVideoToImgBtn');
+    }
+
     handleVideoPinUnpin('myVideo', 'myVideoPinBtn', 'myVideoWrap', 'myVideo');
     refreshMyVideoAudioStatus(localMediaStream);
 
@@ -1968,13 +2043,23 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     if (isVideoFullScreenSupported) {
         remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
     }
-    remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
+    if (buttons.remote.showSnapShotBtn) {
+        remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
+    }
+
     remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
     remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
     remoteVideoNavBar.appendChild(remoteHandStatusIcon);
-    remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
-    remoteVideoNavBar.appendChild(remoteFileShareBtn);
-    remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
+
+    if (buttons.remote.showPrivateMessageBtn) {
+        remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
+    }
+    if (buttons.remote.showFileShareBtn) {
+        remoteVideoNavBar.appendChild(remoteFileShareBtn);
+    }
+    if (buttons.remote.showShareVideoAudioBtn) {
+        remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
+    }
     if (buttons.remote.showKickOutBtn) {
         remoteVideoNavBar.appendChild(remotePeerKickOut);
     }
@@ -2005,18 +2090,28 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     attachMediaStream(remoteMedia, remoteMediaStream);
     // resize video elements
     adaptAspectRatio();
-    // handle video to image
-    handleVideoToImg(peer_id + '_video', peer_id + '_snapshot', peer_id);
+
+    if (buttons.remote.showSnapShotBtn) {
+        // handle video to image
+        handleVideoToImg(peer_id + '_video', peer_id + '_snapshot', peer_id);
+    }
+
     // handle video pin/unpin
     handleVideoPinUnpin(peer_id + '_video', peer_id + '_pinUnpin', peer_id + '_videoWrap', peer_id);
-    // handle video full screen mode
+
     if (isVideoFullScreenSupported) {
+        // handle video full screen mode
         handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen', peer_id);
     }
+
     // handle file share drag and drop
     handleFileDragAndDrop(peer_id + '_video', peer_id);
-    // handle kick out button event
-    handlePeerKickOutBtn(peer_id);
+
+    if (buttons.remote.showKickOutBtn) {
+        // handle kick out button event
+        handlePeerKickOutBtn(peer_id);
+    }
+
     // refresh remote peers avatar name
     setPeerAvatarImgName(peer_id + '_avatar', peer_name);
     // refresh remote peers hand icon status and title
@@ -2029,12 +2124,20 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     handlePeerAudioBtn(peer_id);
     // handle remote peers video on-off
     handlePeerVideoBtn(peer_id);
-    // handle remote private messages
-    handlePeerPrivateMsg(peer_id, peer_name);
-    // handle remote send file
-    handlePeerSendFile(peer_id);
-    // handle remote video - audio URL
-    handlePeerVideoAudioUrl(peer_id);
+
+    if (buttons.remote.showPrivateMessageBtn) {
+        // handle remote private messages
+        handlePeerPrivateMsg(peer_id, peer_name);
+    }
+    if (buttons.remote.showFileShareBtn) {
+        // handle remote send file
+        handlePeerSendFile(peer_id);
+    }
+    if (buttons.remote.showShareVideoAudioBtn) {
+        // handle remote video - audio URL
+        handlePeerVideoAudioUrl(peer_id);
+    }
+
     // show status menu
     toggleClassElements('statusMenu', 'inline');
     // notify if peer started to recording own screen + audio
@@ -6959,5 +7062,5 @@ function getEcN(className) {
  * @param {boolean} yes true/false
  */
 function elemDisplay(elem, yes) {
-    elem.style.display = yes ? 'block' : 'none';
+    elem.style.display = yes ? 'inline' : 'none';
 }
