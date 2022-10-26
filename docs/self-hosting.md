@@ -45,11 +45,13 @@ Check if is correctly installed: https://your.domain.name:3000
 
 ![pm2](../public/images/pm2.png)
 
-Using [PM2](https://pm2.keymetrics.io) to run it as deamon
+Using [PM2](https://pm2.keymetrics.io) to run it as daemon
 
 ```bash
 $ npm install -g pm2
 $ pm2 start app/src/server.js
+$ pm2 save
+$ pm2 startup
 ```
 
 ---
