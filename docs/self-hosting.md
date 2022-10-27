@@ -2,7 +2,7 @@
 
 ## Requirments
 
--   Recommended: [Hetzner](https://www.hetzner.com/cloud) (`CPX11` it's enough, OS: `Ubuntu 20.04`)
+-   Recommended: [Hetzner](https://www.hetzner.com/cloud) (`CPX11` it's enough, OS: `Ubuntu 20.04`) use [this link](https://hetzner.cloud/?ref=XdRifCzCK3bn) to receive `€⁠20 in cloud credits`.
 -   [Node.js](https://nodejs.org/en/) at least 12x, better `16.15.1 LTS` & npm
 -   Setup your own TURN server like [coturn](https://github.com/coturn/coturn) (recommended) or use third party STUN/TURN servers (configurable on `.env` file)
 -   Your domain name, example: `your.domain.name`
