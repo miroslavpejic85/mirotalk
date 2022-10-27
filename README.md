@@ -165,7 +165,7 @@ $ docker-compose down
 
 <br/>
 
-You can start videoconferencing directly from your Local PC, and be reachable from any device outside your network, simply by following [these documentation](docs/ngrok.md), or expose it directly on [HTTPS](app/ssl/README.md)
+You can start videoconferencing directly from your Local PC, and be reachable from any device outside your network, simply by reading [these documentation](docs/ngrok.md), or expose it directly on [HTTPS](app/ssl/README.md)
 
 </details>
 
@@ -254,7 +254,7 @@ If you want to deploy a MiroTalk P2P instance on your dedicated server, or for o
 
 <br/>
 
--   [How to Self-Hosting](docs/self-hosting.md)
+To `Self-Host MiroTalk P2P` on `Your` dedicated `Server`, read [this documentation](docs/self-hosting.md).
 
 </details>
 
