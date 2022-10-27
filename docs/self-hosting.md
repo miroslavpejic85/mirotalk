@@ -3,9 +3,10 @@
 ## Requirments
 
 -   Recommended: [Hetzner](https://www.hetzner.com/cloud) (`CPX11` it's enough, OS: `Ubuntu 20.04`)
--   [Node.js](https://nodejs.org/en/) at least 12x, better `16.15.1 LTS`
--   Set own TURN server (recommended) or use third party STUN/TURN servers (configurable on `.env` file)
--   Your domain example: `your.domain.name` (Set a DNS A record for that domain that point to Your Server public IPv4)
+-   [Node.js](https://nodejs.org/en/) at least 12x, better `16.15.1 LTS` & npm
+-   Setup your own TURN server like [coturn](<[coturn](https://github.com/coturn/coturn)>) (recommended) or use third party STUN/TURN servers (configurable on `.env` file)
+-   Your domain name, example: `your.domain.name`
+    -   Set a DNS A record for that domain that point to Your Server public IPv4
 
 ---
 
@@ -174,6 +175,7 @@ Check Your MiroTalk P2P instance: https://your.domain.name
 In order to have always Your MiroTalk P2P updated to latest, we going to create a script
 
 ```bash
+cd
 # Create a file p2pUpdate.sh
 $ vim p2pUpdate.sh
 ```
