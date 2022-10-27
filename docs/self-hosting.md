@@ -4,7 +4,7 @@
 
 -   Recommended: [Hetzner](https://www.hetzner.com/cloud) (`CPX11` it's enough, OS: `Ubuntu 20.04`)
 -   [Node.js](https://nodejs.org/en/) at least 12x, better `16.15.1 LTS` & npm
--   Setup your own TURN server like [coturn](<[coturn](https://github.com/coturn/coturn)>) (recommended) or use third party STUN/TURN servers (configurable on `.env` file)
+-   Setup your own TURN server like [coturn](https://github.com/coturn/coturn) (recommended) or use third party STUN/TURN servers (configurable on `.env` file)
 -   Your domain name, example: `your.domain.name`
     -   Set a DNS A record for that domain that point to Your Server public IPv4
 
