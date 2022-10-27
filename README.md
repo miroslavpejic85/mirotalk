@@ -36,7 +36,7 @@
 -   Ability to set video quality up to 4K and 60 FPS
 -   Recording your Screen, Audio and Video
 -   Snapshot the video frame and save it as image png
--   Chat with Emoji Picker & Private messages & Save the conversations
+-   Chat with Emoji Picker to show you feeling, Markdown support, possibility to Save the conversations, and more
 -   Speech recognition to send the speeches
 -   Advance collaborative whiteboard for the teachers
 -   Share any YT Embed video, video mp4, webm, ogg and audio mp3 in real-time

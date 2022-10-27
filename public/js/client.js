@@ -4788,7 +4788,7 @@ function getLineBreaks(text) {
  */
 function checkLineBreaks() {
     msgerInput.style.height = '';
-    if (getLineBreaks(msgerInput.value) > 1) {
+    if (getLineBreaks(msgerInput.value) > 0) {
         msgerInput.style.height = '200px';
     }
 }
