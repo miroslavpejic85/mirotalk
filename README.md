@@ -314,6 +314,8 @@ Support the project by [becoming a backer or sponsor](https://github.com/sponsor
 
 [![Hetzner](public/sponsors/Hetzner.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn)
 
+[![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)
+
 </details>
 
 <br>
