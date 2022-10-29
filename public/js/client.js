@@ -2926,7 +2926,10 @@ function setChatEmojiBtn() {
         hideShowEmojiPicker();
     });
     // Add emoji picker
-    const pickerOptions = { onEmojiSelect: addEmojiToMsg };
+    const pickerOptions = {
+        theme: 'dark',
+        onEmojiSelect: addEmojiToMsg,
+    };
     const emojiPicker = new EmojiMart.Picker(pickerOptions);
     msgerEmojiPicker.appendChild(emojiPicker);
 }
