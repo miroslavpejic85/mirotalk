@@ -263,7 +263,6 @@ let msgerCPCloseBtn;
 let msgerCPList;
 // chat room emoji picker
 let msgerEmojiPicker;
-let emojiPicker;
 // my settings
 let mySettings;
 let mySettingsHeader;
@@ -419,7 +418,6 @@ function getHtmlElementsById() {
     msgerCPList = getId('msgerCPList');
     // chat room emoji picker
     msgerEmojiPicker = getId('msgerEmojiPicker');
-    emojiPicker = getSl('emoji-picker');
     //caption box elements
     captionDraggable = getId('captionDraggable');
     captionHeader = getId('captionHeader');
@@ -2927,13 +2925,19 @@ function setChatEmojiBtn() {
         e.preventDefault();
         hideShowEmojiPicker();
     });
+    // Add emoji picker
+    const pickerOptions = { onEmojiSelect: addEmojiToMsg };
+    const emojiPicker = new EmojiMart.Picker(pickerOptions);
+    msgerEmojiPicker.appendChild(emojiPicker);
+}
 
-    emojiPicker.addEventListener('emoji-click', (e) => {
-        //console.log(e.detail);
-        //console.log(e.detail.emoji.unicode);
-        msgerInput.value += e.detail.emoji.unicode;
-        hideShowEmojiPicker();
-    });
+/**
+ * Add emoji to chat message
+ */
+function addEmojiToMsg(data) {
+    //console.log(data);
+    msgerInput.value += data.native;
+    hideShowEmojiPicker();
 }
 
 /**
