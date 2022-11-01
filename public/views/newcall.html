@@ -93,7 +93,7 @@
 
                 <section class="cta section center-content-mobile reveal-from-bottom">
                     <div class="container">
-                        <div class="cta-inner section-inner cta-split">
+                        <div class="cta-inner section-inner cta-split br-12">
                             <div class="cta-slogan">
                                 <h3 class="m-0">
                                     Pick a room name.<br />
@@ -104,10 +104,16 @@
                                 <div class="mb-24">
                                     <label class="form-label screen-reader" for="roomName">mirotalk</label>
                                     <div class="form-group-desktop">
-                                        <input class="form-input" type="text" id="roomName" value="mirotalk" />
+                                        <input
+                                            class="form-input"
+                                            type="text"
+                                            id="roomName"
+                                            value="mirotalk"
+                                            style="border-radius: 6px"
+                                        />
                                         <button
                                             id="joinRoomButton"
-                                            class="button button-primary pulse"
+                                            class="button button-primary br-6 pulse"
                                             onclick="joinRoom()"
                                         >
                                             Join Room

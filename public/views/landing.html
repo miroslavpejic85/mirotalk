@@ -93,7 +93,7 @@
 
                 <section class="cta section center-content-mobile reveal-from-bottom">
                     <div class="container">
-                        <div class="cta-inner section-inner cta-split">
+                        <div class="cta-inner section-inner cta-split br-12">
                             <div class="cta-slogan">
                                 <h3 class="m-0">
                                     Pick a room name.<br />
@@ -104,10 +104,16 @@
                                 <div class="mb-24">
                                     <label class="form-label screen-reader" for="roomName">mirotalk</label>
                                     <div class="form-group-desktop">
-                                        <input class="form-input" type="text" id="roomName" value="mirotalk" />
+                                        <input
+                                            class="form-input"
+                                            type="text"
+                                            id="roomName"
+                                            value="mirotalk"
+                                            style="border-radius: 6px"
+                                        />
                                         <button
                                             id="joinRoomButton"
-                                            class="button button-primary pulse"
+                                            class="button button-primary br-6 pulse"
                                             onclick="joinRoom()"
                                         >
                                             Join Room
@@ -436,7 +442,7 @@
                                 </div>
                                 <div class="center-content">
                                     <a
-                                        class="button button-primary button-wide-mobile pulse"
+                                        class="button button-primary button-wide-mobile br-6 pulse"
                                         style="
                                             border: 0;
                                             background: linear-gradient(100deg, #376df9 0, #ff5fa0 75%, #ffc55a 100%);

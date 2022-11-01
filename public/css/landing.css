@@ -3362,6 +3362,22 @@ img.has-shadow {
     padding-top: 64px;
 }
 
+.br-6 {
+    border-radius: 6px;
+}
+
+.br-12 {
+    border-radius: 12px;
+}
+
+.br-18 {
+    border-radius: 18px;
+}
+
+.br-24 {
+    border-radius: 24px;
+}
+
 @media (max-width: 640px) {
     .ta-l-mobile {
         text-align: left;
