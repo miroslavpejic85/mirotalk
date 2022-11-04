@@ -684,7 +684,9 @@ em-emoji-picker {
 }
 
 #myPeerNameSet {
+    padding: 10px;
     border: 1px solid #fff;
+    border-radius: 5px;
     color: #fff;
     background-color: #2b2b2b;
 }

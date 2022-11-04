@@ -970,7 +970,7 @@ async function whoAreYou() {
         input: 'text',
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: `<br>
-        <div style="overflow: hidden;">
+        <div style="padding: 10px;">
             <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
             <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>
         </div>`,
