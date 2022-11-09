@@ -33,9 +33,9 @@
         "ngrok": "^4.3.3",
         "qs": "^6.11.0",
         "socket.io": "^4.5.3",
-        "@sentry/node": "^7.17.4",
-        "@sentry/integrations": "^7.17.4",
-        "swagger-ui-express": "^4.5.0",
+        "@sentry/node": "^7.18.0",
+        "@sentry/integrations": "^7.18.0",
+        "swagger-ui-express": "^4.6.0",
         "uuid": "9.0.0",
         "yamljs": "^0.3.0"
     },
