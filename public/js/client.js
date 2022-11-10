@@ -43,6 +43,8 @@ const videoAudioShare = '../images/va-share.png';
 const aboutImg = '../images/mirotalk-logo.png';
 const imgFeedback = '../images/feedback.png';
 const forbiddenImg = '../images/forbidden.png';
+const avatarImg = '../images/mirotalk-logo.png';
+
 // nice free icon: https://www.iconfinder.com
 
 const fileSharingInput = '*'; // allow all file extensions
@@ -122,6 +124,8 @@ const forceCamMaxResolutionAndFps = false; // This force the webCam to max resol
 const userLimitsActive = false; // Limit users per room
 
 const usersCountLimit = 2; // Limit 2 users per room if userLimitsActive true
+
+const useAvatarApi = true; // if false the cam-Off avatar = avatarImg
 
 let notifyBySound = true; // turn on - off sound notifications
 
@@ -2241,12 +2245,16 @@ function adaptAspectRatio() {
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName) {
     let videoAvatarImageElement = getId(videoAvatarImageId);
-    // default img size 64 max 512
-    let avatarImgSize = isMobileDevice ? 128 : 256;
-    videoAvatarImageElement.setAttribute(
-        'src',
-        avatarApiUrl + '?name=' + peerName + '&size=' + avatarImgSize + '&background=random&rounded=true',
-    );
+    if (useAvatarApi) {
+        // default img size 64 max 512
+        let avatarImgSize = isMobileDevice ? 128 : 256;
+        videoAvatarImageElement.setAttribute(
+            'src',
+            avatarApiUrl + '?name=' + peerName + '&size=' + avatarImgSize + '&background=random&rounded=true',
+        );
+    } else {
+        videoAvatarImageElement.setAttribute('src', avatarImg);
+    }
 }
 
 /**
