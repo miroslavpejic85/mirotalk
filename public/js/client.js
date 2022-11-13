@@ -3033,11 +3033,13 @@ function setMyWhiteboardBtn() {
     });
     whiteboardGhostButton.addEventListener('click', (e) => {
         wbIsBgTransparent = !wbIsBgTransparent;
-        if (wbIsBgTransparent) {
-            wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)');
-        } else {
-            setTheme(mirotalkTheme);
-        }
+        let config = {
+            room_id: roomId,
+            peer_name: myPeerName,
+            action: 'bgcolor',
+            color: wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value,
+        };
+        whiteboardAction(config);
     });
 }
 
