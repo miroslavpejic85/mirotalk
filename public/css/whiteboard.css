@@ -33,7 +33,7 @@
 .whiteboard-header {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    padding: 5px;
     border-radius: 10px;
     background: rgb(0, 0, 0);
     color: #ffffff;
@@ -42,10 +42,11 @@
 
 .whiteboard-header-title button,
 .whiteboard-header-options button {
-    border: none;
+    padding: 10px;
     font-size: 1.2rem;
     background: rgb(0, 0, 0);
     color: #fff;
+    border: var(--border);
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
     transition: background 0.23s;

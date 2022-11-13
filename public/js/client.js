@@ -3023,23 +3023,11 @@ function setMyWhiteboardBtn() {
         whiteboardIsDrawingMode(true);
     });
     wbBackgroundColorEl.addEventListener('change', (e) => {
-        let config = {
-            room_id: roomId,
-            peer_name: myPeerName,
-            action: 'bgcolor',
-            color: wbBackgroundColorEl.value,
-        };
-        whiteboardAction(config);
+        setWhiteboardBgColor(wbBackgroundColorEl.value);
     });
     whiteboardGhostButton.addEventListener('click', (e) => {
         wbIsBgTransparent = !wbIsBgTransparent;
-        let config = {
-            room_id: roomId,
-            peer_name: myPeerName,
-            action: 'bgcolor',
-            color: wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value,
-        };
-        whiteboardAction(config);
+        setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
     });
 }
 
@@ -5689,6 +5677,20 @@ function setupWhiteboardCanvasSize() {
 function setWhiteboardSize(w, h) {
     document.documentElement.style.setProperty('--wb-width', w);
     document.documentElement.style.setProperty('--wb-height', h);
+}
+
+/**
+ * Set whiteboard background color
+ * @param {string} color whiteboard bg
+ */
+function setWhiteboardBgColor(color) {
+    let config = {
+        room_id: roomId,
+        peer_name: myPeerName,
+        action: 'bgcolor',
+        color: color,
+    };
+    whiteboardAction(config);
 }
 
 /**

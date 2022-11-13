@@ -287,6 +287,8 @@ body {
 
 .msger-header-title button,
 .msger-header-options button {
+    padding: 5px;
+    /* border: var(--border); */
     border: none;
     font-size: 1.1rem;
     background: rgb(0, 0, 0);
@@ -477,7 +479,6 @@ button:hover {
 .msger-inputarea * {
     border: none;
     border-radius: 3px;
-    margin: 1px;
     color: #fff;
     font-size: 1rem;
 }
@@ -525,8 +526,9 @@ button:hover {
 
 .msger-input-buttons button {
     padding: 5px;
+    /* border: var(--border); */
     border: none;
-    border-radius: 3px;
+    border-radius: 5px;
     font-size: 1rem;
     color: #fff;
     background: var(--msger-bg);
@@ -660,15 +662,17 @@ em-emoji-picker {
 }
 
 #mySettings select {
+    padding: 10px;
     font-size: 0.9rem;
     max-width: 305px;
-    height: 30px;
     color: #fff;
     background-color: #2b2b2b;
     border-radius: 5px;
 }
 
 #mySettingsCloseBtn {
+    padding: 5px;
+    /* border: var(--border); */
     border: none;
     border-radius: 5px;
     font-size: 1.2rem;
@@ -695,12 +699,21 @@ em-emoji-picker {
 #muteEveryoneBtn,
 #hideEveryoneBtn,
 #lockRoomBtn,
-#unlockRoomBtn,
+#unlockRoomBtn {
+    padding: 10px;
+    border: var(--border);
+    font-size: 0.9rem;
+    border-radius: 5px;
+    color: #fff;
+    background-color: transparent;
+}
+
 #speechRecognitionIcon,
 #speechRecognitionStart,
 #speechRecognitionStop {
+    padding: 10px;
+    border: none;
     font-size: 0.9rem;
-    padding: 5px;
     border-radius: 5px;
     color: #fff;
     background-color: transparent;
@@ -726,20 +739,25 @@ em-emoji-picker {
 /* Style the tab */
 
 .tab {
-    overflow: hidden;
     background-color: rgba(0, 0, 0);
+    padding: 5px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 /* Style the buttons inside the tab */
 
 .tab button {
+    margin: 2px;
     font-size: 1rem;
     background-color: inherit;
     float: left;
+    /* border: var(--border); */
     border: none;
+    border-radius: 5px;
     outline: none;
     cursor: pointer;
-    padding: 14px 16px;
+    padding: 12px 14px;
     transition: 0.3s;
     color: #fff;
 }
@@ -797,6 +815,7 @@ em-emoji-picker {
 
 /* .swal2-popup {
     font-size: 0.8 !important;
+    border: var(--border) !important;
 } */
 
 .swal2-select {
@@ -1112,7 +1131,7 @@ button {
     border-radius: 50px;
     overflow: hidden;
     outline: none;
-    border: none;
+    border: var(--border);
     cursor: pointer;
     background-color: #000000;
     transition: background-color ease 0.3s;
@@ -1124,7 +1143,7 @@ button {
     position: absolute;
     z-index: 2;
     width: 20px;
-    height: 20px;
+    height: 18px;
     background: #fff;
     left: 2px;
     top: 2px;
@@ -1142,7 +1161,7 @@ button {
 }
 
 .toggle:checked {
-    background-color: #4cd964;
+    background-color: green;
 }
 
 .toggle:checked:before {
