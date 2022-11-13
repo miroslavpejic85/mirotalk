@@ -310,6 +310,7 @@ let isStreamRecording = false;
 let whiteboard;
 let whiteboardHeader;
 let wbDrawingColorEl;
+let whiteboardGhostButton;
 let wbBackgroundColorEl;
 let whiteboardPencilBtn;
 let whiteboardObjectBtn;
@@ -331,6 +332,7 @@ let wbIsDrawing = false;
 let wbIsOpen = false;
 let wbIsRedoing = false;
 let wbIsEraser = false;
+let wbIsBgTransparent = false;
 let wbPop = [];
 // room actions btns
 let muteEveryoneBtn;
@@ -464,6 +466,7 @@ function getHtmlElementsById() {
     whiteboard = getId('whiteboard');
     whiteboardHeader = getId('whiteboardHeader');
     wbDrawingColorEl = getId('wbDrawingColorEl');
+    whiteboardGhostButton = getId('whiteboardGhostButton');
     wbBackgroundColorEl = getId('wbBackgroundColorEl');
     whiteboardPencilBtn = getId('whiteboardPencilBtn');
     whiteboardObjectBtn = getId('whiteboardObjectBtn');
@@ -562,6 +565,7 @@ function setButtonsToolTip() {
     setTippy(tabLanguagesBtn, 'Languages', 'top');
     // whiteboard btns
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
+    setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(wbBackgroundColorEl, 'Background color', 'bottom');
     setTippy(whiteboardPencilBtn, 'Drawing mode', 'bottom');
     setTippy(whiteboardObjectBtn, 'Object mode', 'bottom');
@@ -3026,6 +3030,14 @@ function setMyWhiteboardBtn() {
             color: wbBackgroundColorEl.value,
         };
         whiteboardAction(config);
+    });
+    whiteboardGhostButton.addEventListener('click', (e) => {
+        wbIsBgTransparent = !wbIsBgTransparent;
+        if (wbIsBgTransparent) {
+            wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)');
+        } else {
+            setTheme(mirotalkTheme);
+        }
     });
 }
 

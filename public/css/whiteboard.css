@@ -62,13 +62,13 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    padding: 0;
-    border: none;
+    padding: 2px;
     width: 20px;
     height: 20px;
     margin-left: 5px;
     border-radius: 50px;
     border: solid 0.5px #afadad38;
+    cursor: pointer;
 }
 .whiteboardColorPicker:hover {
     transform: var(--btns-hover-scale);
