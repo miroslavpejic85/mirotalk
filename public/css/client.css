@@ -668,6 +668,7 @@ em-emoji-picker {
     color: #fff;
     background-color: #2b2b2b;
     border-radius: 5px;
+    cursor: pointer;
 }
 
 #mySettingsCloseBtn {
@@ -689,7 +690,8 @@ em-emoji-picker {
 
 #myPeerNameSet {
     padding: 10px;
-    border: 1px solid #fff;
+    max-width: 160px;
+    border: var(--border);
     border-radius: 5px;
     color: #fff;
     background-color: #2b2b2b;
