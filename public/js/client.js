@@ -4180,9 +4180,12 @@ function downloadRecordedStream() {
         userLog(
             'success-html',
             `<div style="text-align: left;">
-                🔴 &nbsp; Recording Info <br/>
-                FILE: ${recFileName} <br/>
-                SIZE: ${blobFileSize} <br/>
+                🔴 &nbsp; Recording Info: <br/>
+                <ul>
+                    <li>File: ${recFileName}</li>
+                    <li>Size: ${blobFileSize}</li>
+                </ul>
+                <br/>
                 Please wait to be processed, then will be downloaded to your ${currentDevice} device.
             </div>`,
         );

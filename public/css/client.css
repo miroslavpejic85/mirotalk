@@ -333,6 +333,7 @@ body {
 .msg {
     display: flex;
     align-items: flex-end;
+    font-size: 0.8rem;
     margin-bottom: 10px;
 }
 
@@ -815,10 +816,9 @@ em-emoji-picker {
     background-color: transparent !important;
 }
 
-/* .swal2-popup {
-    font-size: 0.8 !important;
+.swal2-popup {
     border: var(--border) !important;
-} */
+}
 
 .swal2-select {
     background-color: black !important;

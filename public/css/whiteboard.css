@@ -44,6 +44,7 @@
 .whiteboard-header-options button {
     padding: 10px;
     font-size: 1.2rem;
+    margin: 1px;
     background: rgb(0, 0, 0);
     color: #fff;
     border: var(--border);
@@ -66,7 +67,7 @@
     padding: 2px;
     width: 20px;
     height: 20px;
-    margin-left: 5px;
+    margin: 1px;
     border-radius: 50px;
     border: solid 0.5px #afadad38;
     cursor: pointer;
