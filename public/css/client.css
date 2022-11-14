@@ -1077,6 +1077,15 @@ progress {
 # Common
 --------------------------------------------------------------*/
 
+hr {
+    border: 0;
+    display: block;
+    height: 1px;
+    background: #dbdbdb;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 button {
     cursor: pointer;
 }
