@@ -39,7 +39,7 @@
     /* common */
     --navbar-bg: linear-gradient(#363434, #000000);
     --body-bg: radial-gradient(#393939, #000000);
-    --border: 1px solid rgb(255 255 255 / 32%);
+    --border: 0.5px solid rgb(255 255 255 / 32%);
 
     --msger-top: 50%;
     --msger-left: 50%;
