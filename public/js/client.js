@@ -2484,7 +2484,17 @@ function toggleVideoPin(position) {
     const videoMediaContainer = getId('videoMediaContainer');
     const videoPinMediaContainer = getId('videoPinMediaContainer');
     switch (position) {
+        case 'top':
+            videoPinMediaContainer.style.top = '25%';
+            videoPinMediaContainer.style.width = '100%';
+            videoPinMediaContainer.style.height = '70%';
+            videoMediaContainer.style.top = 0;
+            videoMediaContainer.style.width = '100%';
+            videoMediaContainer.style.height = '25%';
+            videoMediaContainer.style.right = 0;
+            break;
         case 'vertical':
+            videoPinMediaContainer.style.top = 0;
             videoPinMediaContainer.style.width = '75%';
             videoPinMediaContainer.style.height = '100%';
             videoMediaContainer.style.top = 0;
@@ -2493,6 +2503,7 @@ function toggleVideoPin(position) {
             videoMediaContainer.style.right = 0;
             break;
         case 'horizontal':
+            videoPinMediaContainer.style.top = 0;
             videoPinMediaContainer.style.width = '100%';
             videoPinMediaContainer.style.height = '75%';
             videoMediaContainer.style.top = '75%';
