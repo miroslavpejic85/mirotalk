@@ -5746,6 +5746,12 @@ function whiteboardAddObj(type) {
                 input: 'text',
                 showCancelButton: true,
                 confirmButtonText: 'OK',
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown',
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp',
+                },
             }).then((result) => {
                 if (result.isConfirmed) {
                     let wbCanvasImgURL = result.value;
@@ -5773,6 +5779,12 @@ function whiteboardAddObj(type) {
                 showDenyButton: true,
                 confirmButtonText: `OK`,
                 denyButtonText: `Cancel`,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown',
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp',
+                },
             }).then((result) => {
                 if (result.isConfirmed) {
                     let wbCanvasImg = result.value;
@@ -5801,6 +5813,12 @@ function whiteboardAddObj(type) {
                 input: 'text',
                 showCancelButton: true,
                 confirmButtonText: 'OK',
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown',
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp',
+                },
             }).then((result) => {
                 if (result.isConfirmed) {
                     let wbCanvasText = result.value;
