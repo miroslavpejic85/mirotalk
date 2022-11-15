@@ -663,8 +663,7 @@ em-emoji-picker {
 }
 
 #mySettings select {
-    padding: 10px;
-    height: 35px;
+    height: 40px;
     font-size: 0.9rem;
     max-width: 305px;
     color: #fff;
