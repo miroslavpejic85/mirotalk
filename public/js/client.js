@@ -2247,6 +2247,7 @@ function adaptAspectRatio() {
  * Refresh video - chat image avatar on name changes: https://eu.ui-avatars.com/
  * @param {string} videoAvatarImageId element id
  * @param {string} peerName
+ * @param {boolean} useAvatar use avatar api for image
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName, useAvatar) {
     let videoAvatarImageElement = getId(videoAvatarImageId);
