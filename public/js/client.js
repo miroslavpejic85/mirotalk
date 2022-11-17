@@ -1568,7 +1568,7 @@ async function initEnumerateDevices() {
             imageUrl: camMicOff,
             //icon: 'warning',
             title: 'Camera and microphone not allowed',
-            text: "Meet needs access to the camera and microphone. Click the locked camera icon in your browser's address bar, before to join room.",
+            text: "Meet needs access to the camera and microphone. Click the locked camera and microphone icon in your browser's address bar, before to join room.",
             showDenyButton: false,
             confirmButtonText: `OK`,
             showClass: {
