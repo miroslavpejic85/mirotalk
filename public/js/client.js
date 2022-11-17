@@ -45,6 +45,7 @@ const aboutImg = '../images/mirotalk-logo.png';
 const imgFeedback = '../images/feedback.png';
 const forbiddenImg = '../images/forbidden.png';
 const avatarImg = '../images/mirotalk-logo.png';
+const camMicOff = '../images/cam-mic-off.png';
 
 // nice free icon: https://www.iconfinder.com
 
@@ -137,6 +138,8 @@ let isRoomLocked = false;
 let isPresenter = false; // Who init the room (aka first peer joined)
 
 let needToEnableMyAudio = false; // On screen sharing end, check if need to enable my audio
+
+let initEnumerateDevicesFailed = false; // Check if user webcam and audio init is failed
 
 let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
@@ -1555,9 +1558,29 @@ async function initEnumerateDevices() {
     await initEnumerateAudioDevices();
     await initEnumerateVideoDevices();
     if (!useAudio && !useVideo) {
-        openURL(
-            `/permission?roomId=${roomId}&getUserMediaError=Not allowed both Audio and Video <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
-        );
+        initEnumerateDevicesFailed = true;
+        await Swal.fire({
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            background: '#000000',
+            position: 'center',
+            imageUrl: camMicOff,
+            //icon: 'warning',
+            title: 'Camera and microphone not allowed',
+            text: "Meet needs access to the camera and microphone. Click the locked camera icon in your browser's address bar, before to join room.",
+            showDenyButton: false,
+            confirmButtonText: `OK`,
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown',
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp',
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                openURL('/'); // back to homepage
+            }
+        });
     }
 }
 
@@ -1688,8 +1711,8 @@ function addChild(device, el, kind) {
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  */
 async function setupLocalMedia() {
-    // if we've already been initialized do nothing
-    if (localMediaStream != null) {
+    // if we've already been initialized do nothing or there is error on initEnumerateDevicesFailed
+    if (localMediaStream != null || initEnumerateDevicesFailed) {
         return;
     }
 
