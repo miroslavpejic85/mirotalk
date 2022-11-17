@@ -1043,7 +1043,7 @@ function checkPeerAudioVideo() {
 function whoAreYouJoin() {
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
-    setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
+    setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
     setPeerChatAvatarImgName('right', myPeerName);
     joinToChannel();
     setTheme(mirotalkTheme);
@@ -2119,7 +2119,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     }
 
     // refresh remote peers avatar name
-    setPeerAvatarImgName(peer_id + '_avatar', peer_name);
+    setPeerAvatarImgName(peer_id + '_avatar', peer_name, useAvatarApi);
     // refresh remote peers hand icon status and title
     setPeerHandStatus(peer_id, peer_name, peer_hand_status);
     // refresh remote peers video icon status and title
@@ -2248,9 +2248,9 @@ function adaptAspectRatio() {
  * @param {string} videoAvatarImageId element id
  * @param {string} peerName
  */
-function setPeerAvatarImgName(videoAvatarImageId, peerName) {
+function setPeerAvatarImgName(videoAvatarImageId, peerName, useAvatar) {
     let videoAvatarImageElement = getId(videoAvatarImageId);
-    if (useAvatarApi) {
+    if (useAvatar) {
         // default img size 64 max 512
         let avatarImgSize = isMobileDevice ? 128 : 256;
         videoAvatarImageElement.setAttribute(
@@ -4971,7 +4971,7 @@ function updateMyPeerName() {
 
     window.localStorage.peer_name = myPeerName;
 
-    setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
+    setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
     setPeerChatAvatarImgName('right', myPeerName);
     userLog('toast', 'My name changed to ' + myPeerName);
 }
@@ -4992,7 +4992,7 @@ function handlePeerName(config) {
     if (msgerPeerAvatar)
         msgerPeerAvatar.src = `${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true`;
     // refresh also peer video avatar name
-    setPeerAvatarImgName(peer_id + '_avatar', peer_name);
+    setPeerAvatarImgName(peer_id + '_avatar', peer_name, useAvatarApi);
 }
 
 /**
