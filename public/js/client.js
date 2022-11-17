@@ -1559,6 +1559,7 @@ async function initEnumerateDevices() {
     await initEnumerateVideoDevices();
     if (!useAudio && !useVideo) {
         initEnumerateDevicesFailed = true;
+        playSound('alert');
         await Swal.fire({
             allowOutsideClick: false,
             allowEscapeKey: false,
