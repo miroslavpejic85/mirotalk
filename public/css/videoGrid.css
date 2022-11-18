@@ -52,6 +52,7 @@
 .navbar {
     z-index: 8;
     position: absolute;
+    top: 0;
     width: 100%;
     background: var(--navbar-bg);
     text-align: right;
