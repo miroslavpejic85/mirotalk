@@ -141,6 +141,8 @@ let needToEnableMyAudio = false; // On screen sharing end, check if need to enab
 
 let initEnumerateDevicesFailed = false; // Check if user webcam and audio init is failed
 
+let isVideoPrivacyActive = false; // Video circle for privacy
+
 let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
 let userAgent; // User agent info
@@ -1071,6 +1073,7 @@ async function joinToChannel() {
         peer_screen_status: myScreenStatus,
         peer_hand_status: myHandStatus,
         peer_rec_status: isRecScreenStream,
+        peer_privacy_status: isVideoPrivacyActive,
     });
 }
 
@@ -1566,7 +1569,6 @@ async function initEnumerateDevices() {
             background: '#000000',
             position: 'center',
             imageUrl: camMicOff,
-            //icon: 'warning',
             title: 'Camera and microphone not allowed',
             text: "Meet needs access to the camera and microphone. Click the locked camera and microphone icon in your browser's address bar, before to join room.",
             showDenyButton: false,
@@ -1778,6 +1780,7 @@ async function loadLocalMedia(stream) {
     const myPeerName = document.createElement('p');
     const myHandStatusIcon = document.createElement('button');
     const myVideoToImgBtn = document.createElement('button');
+    const myPrivacyBtn = document.createElement('button');
     const myVideoStatusIcon = document.createElement('button');
     const myAudioStatusIcon = document.createElement('button');
     const myVideoFullScreenBtn = document.createElement('button');
@@ -1797,6 +1800,10 @@ async function loadLocalMedia(stream) {
     myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
     myHandStatusIcon.className = 'fas fa-hand-paper pulsate';
     myHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
+
+    // my privacy button
+    myPrivacyBtn.setAttribute('id', 'myPrivacyBtn');
+    myPrivacyBtn.className = 'far fa-circle';
 
     // my video status element
     myVideoStatusIcon.setAttribute('id', 'myVideoStatusIcon');
@@ -1822,6 +1829,7 @@ async function loadLocalMedia(stream) {
     setTippy(myCountTime, 'Session Time', 'bottom');
     setTippy(myPeerName, 'My name', 'bottom');
     setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
+    setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
     setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
     setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
     setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
@@ -1855,6 +1863,7 @@ async function loadLocalMedia(stream) {
         myVideoNavBar.appendChild(myVideoToImgBtn);
     }
 
+    myVideoNavBar.appendChild(myPrivacyBtn);
     myVideoNavBar.appendChild(myAudioStatusIcon);
     myVideoNavBar.appendChild(myVideoStatusIcon);
     myVideoNavBar.appendChild(myHandStatusIcon);
@@ -1909,7 +1918,10 @@ async function loadLocalMedia(stream) {
         handleVideoToImg('myVideo', 'myVideoToImgBtn');
     }
 
+    handleVideoPrivacyBtn('myVideo', 'myPrivacyBtn');
+
     handleVideoPinUnpin('myVideo', 'myVideoPinBtn', 'myVideoWrap', 'myVideo');
+
     refreshMyVideoAudioStatus(localMediaStream);
 
     if (!useVideo) {
@@ -1964,6 +1976,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     let peer_screen_status = peers[peer_id]['peer_screen_status'];
     let peer_hand_status = peers[peer_id]['peer_hand_status'];
     let peer_rec_status = peers[peer_id]['peer_rec_status'];
+    let peer_privacy_status = peers[peer_id]['peer_privacy_status'];
 
     remoteMediaStream = stream;
 
@@ -1996,6 +2009,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
 
     const peerVideoText = document.createTextNode(peer_name);
     remotePeerName.appendChild(peerVideoText);
+
     // remote hand status element
     remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
     remoteHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
@@ -2140,6 +2154,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     if (buttons.remote.showKickOutBtn) {
         // handle kick out button event
         handlePeerKickOutBtn(peer_id);
+    }
+
+    if (peer_privacy_status) {
+        // set video privacy true
+        setVideoPrivacyStatus(remoteMedia.id, peer_privacy_status);
     }
 
     // refresh remote peers avatar name
@@ -2460,6 +2479,42 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
 }
 
 /**
+ * Handle video privacy button click event
+ * @param {string} videoId
+ * @param {boolean} privacyBtnId
+ */
+function handleVideoPrivacyBtn(videoId, privacyBtnId) {
+    let video = getId(videoId);
+    let privacyBtn = getId(privacyBtnId);
+    if (useVideo && video && privacyBtn) {
+        privacyBtn.addEventListener('click', () => {
+            playSound('click');
+            isVideoPrivacyActive = !isVideoPrivacyActive;
+            setVideoPrivacyStatus(videoId, isVideoPrivacyActive);
+            emitPeerStatus('privacy', isVideoPrivacyActive);
+        });
+    } else {
+        if (privacyBtn) privacyBtn.style.display = 'none';
+    }
+}
+
+/**
+ * Set video privacy status
+ * @param {string} peerVideoId
+ * @param {boolean} peerPrivacyActive
+ */
+function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
+    let video = getId(peerVideoId);
+    if (peerPrivacyActive) {
+        video.classList.remove('videoDefault');
+        video.classList.add('videoCircle');
+    } else {
+        video.classList.remove('videoCircle');
+        video.classList.add('videoDefault');
+    }
+}
+
+/**
  * Handle video pin/unpin
  * @param {string} elemId video id
  * @param {string} pnId button pin id
@@ -2474,6 +2529,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId) {
     let videoPinMediaContainer = getId('videoPinMediaContainer');
     if (btnPn && videoPlayer && cam) {
         btnPn.addEventListener('click', () => {
+            playSound('click');
             isVideoPinned = !isVideoPinned;
             if (isVideoPinned) {
                 videoPlayer.style.objectFit = 'contain';
@@ -3826,6 +3882,8 @@ async function toggleScreenSharing() {
 
     let screenMediaPromise = null;
 
+    let myPrivacyBtn = getId('myPrivacyBtn');
+
     try {
         if (!isScreenStreaming) {
             // on screen sharing start
@@ -3835,6 +3893,8 @@ async function toggleScreenSharing() {
             screenMediaPromise = await navigator.mediaDevices.getUserMedia(getAudioVideoConstraints());
         }
         if (screenMediaPromise) {
+            isVideoPrivacyActive = false;
+            await emitPeerStatus('privacy', isVideoPrivacyActive);
             isScreenStreaming = !isScreenStreaming;
             if (isScreenStreaming) {
                 setMyVideoStatusTrue();
@@ -3844,7 +3904,7 @@ async function toggleScreenSharing() {
                 adaptAspectRatio();
             }
             myScreenStatus = isScreenStreaming;
-            emitPeerStatus('screen', myScreenStatus);
+            await emitPeerStatus('screen', myScreenStatus);
             await stopLocalVideoTrack();
             await refreshMyLocalStream(screenMediaPromise);
             await refreshMyStreamToPeers(screenMediaPromise);
@@ -3852,6 +3912,7 @@ async function toggleScreenSharing() {
             setScreenSharingStatus(isScreenStreaming);
             if (myVideoAvatarImage && !useVideo)
                 myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
+            myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
         }
     } catch (err) {
         console.error('[Error] Unable to share the screen', err);
@@ -4015,6 +4076,9 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     // attachMediaStream is a part of the adapter.js library
     attachMediaStream(myVideo, localMediaStream); // newstream
+
+    // refresh video privacy mode
+    setVideoPrivacyStatus('myVideo', isVideoPrivacyActive);
 
     // on toggleScreenSharing video stop
     if (useVideo || isScreenStreaming) {
@@ -5025,7 +5089,7 @@ function handlePeerName(config) {
  * @param {string} element typo
  * @param {boolean} status true/false
  */
-function emitPeerStatus(element, status) {
+async function emitPeerStatus(element, status) {
     sendToServer('peerStatus', {
         room_id: roomId,
         peer_name: myPeerName,
@@ -5083,7 +5147,7 @@ function setMyVideoStatus(status) {
 }
 
 /**
- * Handle peer audio - video - hand status
+ * Handle peer audio - video - hand - privacy status
  * @param {object} config data
  */
 function handlePeerStatus(config) {
@@ -5102,6 +5166,9 @@ function handlePeerStatus(config) {
             break;
         case 'hand':
             setPeerHandStatus(peer_id, peer_name, status);
+            break;
+        case 'privacy':
+            setVideoPrivacyStatus(peer_id + '_video', status);
             break;
     }
 }
