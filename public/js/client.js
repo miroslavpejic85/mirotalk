@@ -2368,11 +2368,17 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
 
     // on button click go on FS mobile/desktop
     videoFullScreenBtn.addEventListener('click', (e) => {
+        if (videoPlayer.classList.contains('videoCircle')) {
+            return userLog('toast', 'Full Screen not allowed if video on privacy mode');
+        }
         gotoFS();
     });
 
     // on video click go on FS
     videoPlayer.addEventListener('click', (e) => {
+        if (videoPlayer.classList.contains('videoCircle')) {
+            return userLog('toast', 'Full Screen not allowed if video on privacy mode');
+        }
         // not mobile on click go on FS or exit from FS
         if (!isMobileDevice) {
             gotoFS();
@@ -2639,6 +2645,9 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
     let videoBtn = getId(videoToImgBtn);
     let video = getId(videoStream);
     videoBtn.addEventListener('click', () => {
+        if (video.classList.contains('videoCircle')) {
+            return userLog('toast', 'Snapshot not allowed if video on privacy mode');
+        }
         if (peer_id !== null) {
             // handle remote video snapshot
             let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
