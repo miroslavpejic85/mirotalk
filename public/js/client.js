@@ -114,6 +114,7 @@ const buttons = {
     },
     local: {
         showSnapShotBtn: true,
+        showVideoCircleBtn: true,
     },
 };
 
@@ -1862,8 +1863,10 @@ async function loadLocalMedia(stream) {
     if (buttons.local.showSnapShotBtn) {
         myVideoNavBar.appendChild(myVideoToImgBtn);
     }
+    if (buttons.local.showVideoCircleBtn) {
+        myVideoNavBar.appendChild(myPrivacyBtn);
+    }
 
-    myVideoNavBar.appendChild(myPrivacyBtn);
     myVideoNavBar.appendChild(myAudioStatusIcon);
     myVideoNavBar.appendChild(myVideoStatusIcon);
     myVideoNavBar.appendChild(myHandStatusIcon);
@@ -1917,8 +1920,9 @@ async function loadLocalMedia(stream) {
     if (buttons.local.showSnapShotBtn) {
         handleVideoToImg('myVideo', 'myVideoToImgBtn');
     }
-
-    handleVideoPrivacyBtn('myVideo', 'myPrivacyBtn');
+    if (buttons.local.showVideoCircleBtn) {
+        handleVideoPrivacyBtn('myVideo', 'myPrivacyBtn');
+    }
 
     handleVideoPinUnpin('myVideo', 'myVideoPinBtn', 'myVideoWrap', 'myVideo');
 
@@ -3912,7 +3916,7 @@ async function toggleScreenSharing() {
             setScreenSharingStatus(isScreenStreaming);
             if (myVideoAvatarImage && !useVideo)
                 myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
-            myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
+            if (myPrivacyBtn) myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
         }
     } catch (err) {
         console.error('[Error] Unable to share the screen', err);
@@ -7056,6 +7060,9 @@ function userLog(type, message) {
                 icon: type,
                 title: type,
                 text: message,
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp',
+                },
             });
             playSound('alert');
             break;
