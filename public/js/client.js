@@ -2512,9 +2512,11 @@ function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
     if (peerPrivacyActive) {
         video.classList.remove('videoDefault');
         video.classList.add('videoCircle');
+        video.style.objectFit = 'cover';
     } else {
         video.classList.remove('videoCircle');
         video.classList.add('videoDefault');
+        video.style.objectFit = 'var(--video-object-fit)';
     }
 }
 
