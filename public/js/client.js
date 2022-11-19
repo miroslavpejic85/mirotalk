@@ -2536,7 +2536,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId) {
             playSound('click');
             isVideoPinned = !isVideoPinned;
             if (isVideoPinned) {
-                if (!isVideoPrivacyActive) {
+                if (!videoPlayer.classList.contains('videoCircle')) {
                     videoPlayer.style.objectFit = 'contain';
                 }
                 cam.className = '';
