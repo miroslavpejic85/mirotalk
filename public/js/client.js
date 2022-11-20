@@ -4095,7 +4095,7 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     attachMediaStream(myVideo, localMediaStream); // newstream
 
     // refresh video privacy mode
-    setVideoPrivacyStatus('myVideo', isVideoPrivacyActive);
+    if (!isScreenStreaming) setVideoPrivacyStatus('myVideo', isVideoPrivacyActive);
 
     // on toggleScreenSharing video stop
     if (useVideo || isScreenStreaming) {
