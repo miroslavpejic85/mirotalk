@@ -4082,6 +4082,12 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     localMediaStream = newStream;
 
+    // refresh video privacy mode on screen sharing
+    if (isScreenStreaming) {
+        isVideoPrivacyActive = false;
+        setVideoPrivacyStatus('myVideo', isVideoPrivacyActive);
+    }
+
     // adapt video object fit on screen streaming
     getId('myVideo').style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
 
@@ -4093,9 +4099,6 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     // attachMediaStream is a part of the adapter.js library
     attachMediaStream(myVideo, localMediaStream); // newstream
-
-    // refresh video privacy mode
-    if (!isScreenStreaming) setVideoPrivacyStatus('myVideo', isVideoPrivacyActive);
 
     // on toggleScreenSharing video stop
     if (useVideo || isScreenStreaming) {
