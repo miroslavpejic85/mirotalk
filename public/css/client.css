@@ -542,6 +542,10 @@ button:hover {
     transition: all 0.3s ease-in-out;
 }
 
+.msger-input-buttons input {
+    cursor: pointer;
+}
+
 #msgerSendBtn {
     float: right;
 }

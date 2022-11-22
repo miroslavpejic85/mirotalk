@@ -192,6 +192,7 @@ let audioContext;
 let mediaStreamSource;
 let meter;
 let isScreenStreaming = false;
+let showChatOnMessage = true;
 let isChatRoomVisible = false;
 let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
@@ -258,6 +259,7 @@ let msgerShareFileBtn;
 let msgerInput;
 let msgerCleanTextBtn;
 let msgerPasteBtn;
+let msgerShowChatOnMsg;
 let msgerSendBtn;
 //caption section
 let captionDraggable;
@@ -423,6 +425,7 @@ function getHtmlElementsById() {
     msgerInput = getId('msgerInput');
     msgerCleanTextBtn = getId('msgerCleanTextBtn');
     msgerPasteBtn = getId('msgerPasteBtn');
+    msgerShowChatOnMsg = getId('msgerShowChatOnMsg');
     msgerSendBtn = getId('msgerSendBtn');
     // chat room connected peers
     msgerCP = getId('msgerCP');
@@ -552,6 +555,7 @@ function setButtonsToolTip() {
     setTippy(msgerShareFileBtn, 'Share file', 'top');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
+    setTippy(msgerShowChatOnMsg, "Show me when I'm receive a new message", 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
     // chat participants buttons
     setTippy(msgerCPCloseBtn, 'Close', 'left');
@@ -2963,6 +2967,11 @@ function setChatRoomBtn() {
         pasteToMessageInput();
     });
 
+    // chat show on message
+    msgerShowChatOnMsg.addEventListener('change', (e) => {
+        showChatOnMessage = e.currentTarget.checked;
+    });
+
     // chat send msg
     msgerSendBtn.addEventListener('click', (e) => {
         // prevent refresh page
@@ -3930,6 +3939,7 @@ async function toggleScreenSharing() {
             if (myVideoAvatarImage && !useVideo)
                 myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
             if (myPrivacyBtn) myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
+            getId('myVideoPinBtn').click();
         }
     } catch (err) {
         console.error('[Error] Unable to share the screen', err);
@@ -4509,10 +4519,15 @@ function handleDataChannelChat(dataMessage) {
     console.log('handleDataChannelChat', dataMessage);
 
     // chat message for me also
-    if (!isChatRoomVisible) {
+    if (!isChatRoomVisible && showChatOnMessage) {
         showChatRoomDraggable();
         chatRoomBtn.className = 'fas fa-comment-slash';
     }
+    // show message from
+    if (!showChatOnMessage) {
+        userLog('toast', `New message from: ${msgFrom}`);
+    }
+
     playSound('chatMessage');
     setPeerChatAvatarImgName('left', msgFrom);
     appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId);
@@ -5419,6 +5434,7 @@ function handleScreenStart(peer_id) {
         setTippy(remoteVideoStatusBtn, 'Participant screen share is on', 'bottom');
     }
     if (remoteVideoStream) {
+        getId(peer_id + '_pinUnpin').click();
         remoteVideoStream.style.objectFit = 'contain';
     }
     if (remoteVideoAvatarImage) {
@@ -5440,6 +5456,7 @@ function handleScreenStop(peer_id, peer_use_video) {
         setTippy(remoteVideoStatusBtn, 'Participant screen share is off', 'bottom');
     }
     if (remoteVideoStream) {
+        getId(peer_id + '_pinUnpin').click();
         remoteVideoStream.style.objectFit = 'var(--video-object-fit)';
         adaptAspectRatio();
     }
