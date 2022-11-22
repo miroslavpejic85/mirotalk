@@ -1916,19 +1916,19 @@ async function loadLocalMedia(stream) {
     handleBodyOnMouseMove();
 
     if (isVideoFullScreenSupported) {
-        handleVideoPlayerFs('myVideo', 'myVideoFullScreenBtn');
+        handleVideoPlayerFs(myLocalMedia.id, myVideoFullScreenBtn.id);
     }
 
-    handleFileDragAndDrop('myVideo', myPeerId, true);
+    handleFileDragAndDrop(myLocalMedia.id, myPeerId, true);
 
     if (buttons.local.showSnapShotBtn) {
-        handleVideoToImg('myVideo', 'myVideoToImgBtn');
+        handleVideoToImg(myLocalMedia.id, myVideoToImgBtn.id);
     }
     if (buttons.local.showVideoCircleBtn) {
-        handleVideoPrivacyBtn('myVideo', 'myPrivacyBtn');
+        handleVideoPrivacyBtn(myLocalMedia.id, myPrivacyBtn.id);
     }
 
-    handleVideoPinUnpin('myVideo', 'myVideoPinBtn', 'myVideoWrap', 'myVideo');
+    handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
     refreshMyVideoAudioStatus(localMediaStream);
 
@@ -2121,6 +2121,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteMedia.autoplay = true;
     isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
     remoteMedia.style.objectFit = peer_screen_status ? 'contain' : 'var(--video-object-fit)';
+    remoteMedia.style.name = peer_id + (peer_screen_status ? '_typeScreen' : '_typeCam');
     remoteMedia.controls = remoteMediaControls;
 
     remoteVideoWrap.className = 'Camera';
@@ -2145,19 +2146,19 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
 
     if (buttons.remote.showSnapShotBtn) {
         // handle video to image
-        handleVideoToImg(peer_id + '_video', peer_id + '_snapshot', peer_id);
+        handleVideoToImg(remoteMedia.id, remoteVideoToImgBtn.id, peer_id);
     }
 
     // handle video pin/unpin
-    handleVideoPinUnpin(peer_id + '_video', peer_id + '_pinUnpin', peer_id + '_videoWrap', peer_id);
+    handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
 
     if (isVideoFullScreenSupported) {
         // handle video full screen mode
-        handleVideoPlayerFs(peer_id + '_video', peer_id + '_fullScreen', peer_id);
+        handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
     }
 
     // handle file share drag and drop
-    handleFileDragAndDrop(peer_id + '_video', peer_id);
+    handleFileDragAndDrop(remoteMedia.id, peer_id);
 
     if (buttons.remote.showKickOutBtn) {
         // handle kick out button event
@@ -2170,7 +2171,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     }
 
     // refresh remote peers avatar name
-    setPeerAvatarImgName(peer_id + '_avatar', peer_name, useAvatarApi);
+    setPeerAvatarImgName(remoteVideoAvatarImage.id, peer_name, useAvatarApi);
     // refresh remote peers hand icon status and title
     setPeerHandStatus(peer_id, peer_name, peer_hand_status);
     // refresh remote peers video icon status and title
@@ -2536,8 +2537,9 @@ function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
  * @param {string} pnId button pin id
  * @param {string} camId video wrap id
  * @param {string} peerId peer id
+ * @param {boolean} isScreen stream
  */
-function handleVideoPinUnpin(elemId, pnId, camId, peerId) {
+function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
     let videoPlayer = getId(elemId);
     let btnPn = getId(pnId);
     let cam = getId(camId);
@@ -2564,9 +2566,9 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId) {
                     isVideoPinned = true;
                     return userLog('info', 'Another video seems pinned, unpin it before to pin this one');
                 }
-                if (!isScreenStreaming) {
-                    videoPlayer.style.objectFit = 'var(--video-object-fit)';
-                }
+                if (!isScreenStreaming) videoPlayer.style.objectFit = 'var(--video-object-fit)';
+                if (isScreen || videoPlayer.style.name == peerId + '_typeScreen')
+                    videoPlayer.style.objectFit = 'contain';
                 videoPinMediaContainer.removeChild(cam);
                 cam.className = 'Camera';
                 videoMediaContainer.appendChild(cam);
@@ -3939,7 +3941,7 @@ async function toggleScreenSharing() {
             if (myVideoAvatarImage && !useVideo)
                 myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
             if (myPrivacyBtn) myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
-            getId('myVideoPinBtn').click();
+            if (isScreenStreaming || isVideoPinned) getId('myVideoPinBtn').click();
         }
     } catch (err) {
         console.error('[Error] Unable to share the screen', err);
@@ -5436,6 +5438,7 @@ function handleScreenStart(peer_id) {
     if (remoteVideoStream) {
         getId(peer_id + '_pinUnpin').click();
         remoteVideoStream.style.objectFit = 'contain';
+        remoteVideoStream.style.name = peer_id + '_typeScreen';
     }
     if (remoteVideoAvatarImage) {
         remoteVideoAvatarImage.style.display = 'none';
@@ -5456,8 +5459,9 @@ function handleScreenStop(peer_id, peer_use_video) {
         setTippy(remoteVideoStatusBtn, 'Participant screen share is off', 'bottom');
     }
     if (remoteVideoStream) {
-        getId(peer_id + '_pinUnpin').click();
+        if (isVideoPinned) getId(peer_id + '_pinUnpin').click();
         remoteVideoStream.style.objectFit = 'var(--video-object-fit)';
+        remoteVideoStream.style.name = peer_id + '_typeCam';
         adaptAspectRatio();
     }
     if (remoteVideoAvatarImage && remoteVideoStream && !peer_use_video) {
@@ -7254,6 +7258,15 @@ function getSl(selector) {
  */
 function getEcN(className) {
     return document.getElementsByClassName(className);
+}
+
+/**
+ * Get html element by name
+ * @param {string} name
+ * @returns element
+ */
+function getName(name) {
+    return document.getElementsByName(name);
 }
 
 /**
