@@ -3911,13 +3911,13 @@ async function toggleScreenSharing() {
         }
         if (screenMediaPromise) {
             isVideoPrivacyActive = false;
-            await emitPeerStatus('privacy', isVideoPrivacyActive);
+            emitPeerStatus('privacy', isVideoPrivacyActive);
             isScreenStreaming = !isScreenStreaming;
             if (isScreenStreaming) {
                 setMyVideoStatusTrue();
-                await emitPeersAction('screenStart');
+                emitPeersAction('screenStart');
             } else {
-                await emitPeersAction('screenStop');
+                emitPeersAction('screenStop');
                 adaptAspectRatio();
             }
             myScreenStatus = isScreenStreaming;
