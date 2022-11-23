@@ -2152,6 +2152,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // handle video pin/unpin
     handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
 
+    // pin video on screen share detected
+    if (peer_video_status && peer_screen_status) {
+        getId(remoteVideoPinBtn.id).click();
+    }
+
     if (isVideoFullScreenSupported) {
         // handle video full screen mode
         handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
