@@ -2569,7 +2569,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
             } else {
                 if (pinnedVideoPlayerId != videoPlayer.id) {
                     isVideoPinned = true;
-                    return userLog('info', 'Another video seems pinned, unpin it before to pin this one');
+                    return userLog('toast', 'Another video seems pinned, unpin it before to pin this one', 5000);
                 }
                 if (!isScreenStreaming) videoPlayer.style.objectFit = 'var(--video-object-fit)';
                 if (isScreen || videoPlayer.style.name == peerId + '_typeScreen')
@@ -7091,8 +7091,9 @@ function handleMyVolume(data) {
  * Basic user logging using https://sweetalert2.github.io
  * @param {string} type of popup
  * @param {string} message to popup
+ * @param {integer} timer toast duration ms
  */
-function userLog(type, message) {
+function userLog(type, message, timer = 3000) {
     switch (type) {
         case 'warning':
         case 'error':
@@ -7145,7 +7146,7 @@ function userLog(type, message) {
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: timer,
             });
             Toast.fire({
                 icon: 'info',
