@@ -830,6 +830,10 @@ em-emoji-picker {
     border-radius: 6px !important;
 }
 
+.swal2-timer-progress-bar-container {
+    background: #376df9;
+}
+
 /*--------------------------------------------------------------
 # Pulse class effect
 --------------------------------------------------------------*/

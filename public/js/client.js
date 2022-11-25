@@ -7147,6 +7147,7 @@ function userLog(type, message, timer = 3000) {
                 position: 'top-end',
                 showConfirmButton: false,
                 timer: timer,
+                timerProgressBar: true,
             });
             Toast.fire({
                 icon: 'info',
