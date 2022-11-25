@@ -2976,7 +2976,13 @@ function setChatRoomBtn() {
 
     // chat show on message
     msgerShowChatOnMsg.addEventListener('change', (e) => {
+        playSound('click');
         showChatOnMessage = e.currentTarget.checked;
+        if (showChatOnMessage) {
+            msgPopup('info', "Chat will be shown, when I'm receive a new message", 'top-end', 3000);
+        } else {
+            msgPopup('info', "Chat not will be shown, when I'm receive a new message", 'top-end', 3000);
+        }
     });
 
     // chat send msg
@@ -7174,6 +7180,7 @@ function msgPopup(icon, message, position, timer = 1000) {
         position: position,
         showConfirmButton: false,
         timer: timer,
+        timerProgressBar: true,
     });
     Toast.fire({
         icon: icon,
