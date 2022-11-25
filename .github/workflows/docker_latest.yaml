@@ -1,0 +1,35 @@
+name: Latest
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lower case Repo name
+        id: string
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ steps.string.outputs.lowercase }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: ghcr.io/${{ steps.string.outputs.lowercase }}:latest
+          push: true
