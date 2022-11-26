@@ -70,8 +70,8 @@ $ sudo apt install docker-compose
 
 # Copy .env.template to .env and edit it if needed
 $ cp .env.template .env
-# Build or rebuild services
-$ docker-compose build
+# Get official image from Docker Hub
+$ docker pull mirotalk/p2p:latest
 # Create and start containers
 $ docker-compose up -d
 ```
@@ -204,7 +204,7 @@ If you use `Docker`, paste this:
 cd mirotalk
 git pull
 docker-compose down
-docker-compose build
+docker pull mirotalk/p2p:latest
 docker images |grep '<none>' |awk '{print $3}' |xargs docker rmi
 docker-compose up -d
 ```

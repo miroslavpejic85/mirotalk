@@ -144,12 +144,13 @@ $ npm start
 
 -   Install docker engine: https://docs.docker.com/engine/install/
 -   Install docker compose: https://docs.docker.com/compose/install/
+-   Repository docker hub: https://hub.docker.com/r/mirotalk/p2p
 
 ```bash
 # copy .env.template to .env (edit it according to your needs)
 $ cp .env.template .env
-# build or rebuild services
-$ docker-compose build
+# Get official image from Docker Hub
+$ docker pull mirotalk/p2p:latest
 # create and start containers
 $ docker-compose up # -d
 # to stop and remove resources

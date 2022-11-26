@@ -2,7 +2,7 @@ version: '3'
 
 services:
     mirotalk:
-        image: mirotalk:latest
+        image: mirotalk/p2p:latest
         build:
             context: .
             dockerfile: Dockerfile
@@ -10,6 +10,8 @@ services:
         hostname: mirotalk
         volumes:
             - .env:/src/.env:ro
+            - ./app/:/src/app/:ro
+            - ./public/:/src/public/:ro
         restart: unless-stopped
         ports:
             - '3000:3000'
