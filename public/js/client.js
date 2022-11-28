@@ -72,6 +72,37 @@ const chatInputEmoji = {
     ':+1:': '\uD83D\uDC4D',
 }; // https://github.com/wooorm/gemoji/blob/main/support.md
 
+const className = {
+    user: 'fas fa-user',
+    clock: 'fas fa-clock',
+    audioOn: 'fas fa-microphone',
+    audioOff: 'fas fa-microphone-slash',
+    videoOn: 'fas fa-video',
+    videoOff: 'fas fa-video-slash',
+    screenOn: 'fas fa-desktop',
+    screenOff: 'fas fa-stop-circle',
+    handPulsate: 'fas fa-hand-paper pulsate',
+    privacy: 'far fa-circle',
+    snapShot: 'fas fa-camera-retro',
+    pinUnpin: 'fas fa-map-pin',
+    fullScreen: 'fas fa-expand',
+    fsOn: 'fas fa-compress-alt',
+    fsOff: 'fas fa-expand-alt',
+    msgPrivate: 'fas fa-paper-plane',
+    shareFile: 'fas fa-upload',
+    shareVideoAudio: 'fab fa-youtube',
+    kickOut: 'fas fa-sign-out-alt',
+    chatOn: 'fas fa-comment',
+    chatOff: 'fas fa-comment-slash',
+    ghost: 'fas fa-ghost',
+    undo: 'fas fa-undo',
+    captionOn: 'fas fa-closed-captioning',
+    trash: 'fas fa-trash',
+    copy: 'fas fa-copy',
+    heart: 'fas fa-heart',
+};
+// https://fontawesome.com/search?o=r&m=free
+
 // Show desired buttons captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn -> (auto-detected)
 const buttons = {
     main: {
@@ -991,8 +1022,8 @@ async function whoAreYou() {
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: `<br>
         <div style="padding: 10px;">
-            <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
-            <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>
+            <button id="initAudioBtn" class="${className.audioOn}" onclick="handleAudio(event, true)"></button>
+            <button id="initVideoBtn" class="${className.videoOn}" onclick="handleVideo(event, true)"></button>
         </div>`,
         confirmButtonText: `Join meeting`,
         showClass: {
@@ -1017,11 +1048,11 @@ async function whoAreYou() {
     initVideoBtn = getId('initVideoBtn');
 
     if (!useVideo) {
-        initVideoBtn.className = 'fas fa-video-slash';
+        initVideoBtn.className = className.videoOff;
         setMyVideoStatus(useVideo);
     }
     if (!useAudio) {
-        initAudioBtn.className = 'fas fa-microphone-slash';
+        initAudioBtn.className = className.audioOff;
         setMyAudioStatus(useAudio);
     }
     setTippy(initAudioBtn, 'Stop the audio', 'top');
@@ -1804,32 +1835,32 @@ async function loadLocalMedia(stream) {
 
     // my hand status element
     myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
-    myHandStatusIcon.className = 'fas fa-hand-paper pulsate';
+    myHandStatusIcon.className = className.handPulsate;
     myHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
 
     // my privacy button
     myPrivacyBtn.setAttribute('id', 'myPrivacyBtn');
-    myPrivacyBtn.className = 'far fa-circle';
+    myPrivacyBtn.className = className.privacy;
 
     // my video status element
     myVideoStatusIcon.setAttribute('id', 'myVideoStatusIcon');
-    myVideoStatusIcon.className = 'fas fa-video';
+    myVideoStatusIcon.className = className.videoOn;
 
     // my audio status element
     myAudioStatusIcon.setAttribute('id', 'myAudioStatusIcon');
-    myAudioStatusIcon.className = 'fas fa-microphone';
+    myAudioStatusIcon.className = className.audioOn;
 
     // my video to image
     myVideoToImgBtn.setAttribute('id', 'myVideoToImgBtn');
-    myVideoToImgBtn.className = 'fas fa-camera-retro';
+    myVideoToImgBtn.className = className.snapShot;
 
     // my video full screen mode
     myVideoFullScreenBtn.setAttribute('id', 'myVideoFullScreenBtn');
-    myVideoFullScreenBtn.className = 'fas fa-expand';
+    myVideoFullScreenBtn.className = className.fullScreen;
 
     // my video pin/unpin button
     myVideoPinBtn.setAttribute('id', 'myVideoPinBtn');
-    myVideoPinBtn.className = 'fas fa-map-pin';
+    myVideoPinBtn.className = className.pinUnpin;
 
     // no mobile devices
     setTippy(myCountTime, 'Session Time', 'bottom');
@@ -1935,8 +1966,8 @@ async function loadLocalMedia(stream) {
 
     if (!useVideo) {
         myVideoAvatarImage.style.display = 'block';
-        myVideoStatusIcon.className = 'fas fa-video-slash';
-        videoBtn.className = 'fas fa-video-slash';
+        myVideoStatusIcon.className = className.videoOff;
+        videoBtn.className = className.videoOff;
     }
 }
 
@@ -2023,15 +2054,15 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // remote hand status element
     remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
     remoteHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
-    remoteHandStatusIcon.className = 'fas fa-hand-paper pulsate';
+    remoteHandStatusIcon.className = className.handPulsate;
 
     // remote video status element
     remoteVideoStatusIcon.setAttribute('id', peer_id + '_videoStatus');
-    remoteVideoStatusIcon.className = 'fas fa-video';
+    remoteVideoStatusIcon.className = className.videoOn;
 
     // remote audio status element
     remoteAudioStatusIcon.setAttribute('id', peer_id + '_audioStatus');
-    remoteAudioStatusIcon.className = 'fas fa-microphone';
+    remoteAudioStatusIcon.className = className.audioOn;
 
     // remote audio volume element
     remoteAudioVolume.setAttribute('id', peer_id + '_audioVolume');
@@ -2042,31 +2073,31 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
 
     // remote private message
     remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
-    remotePrivateMsgBtn.className = 'fas fa-paper-plane';
+    remotePrivateMsgBtn.className = className.msgPrivate;
 
     // remote share file
     remoteFileShareBtn.setAttribute('id', peer_id + '_shareFile');
-    remoteFileShareBtn.className = 'fas fa-upload';
+    remoteFileShareBtn.className = className.shareFile;
 
     // remote peer YouTube video
     remoteVideoAudioUrlBtn.setAttribute('id', peer_id + '_videoAudioUrl');
-    remoteVideoAudioUrlBtn.className = 'fab fa-youtube';
+    remoteVideoAudioUrlBtn.className = className.shareVideoAudio;
 
     // my video to image
     remoteVideoToImgBtn.setAttribute('id', peer_id + '_snapshot');
-    remoteVideoToImgBtn.className = 'fas fa-camera-retro';
+    remoteVideoToImgBtn.className = className.snapShot;
 
     // remote peer kick out
     remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
-    remotePeerKickOut.className = 'fas fa-sign-out-alt';
+    remotePeerKickOut.className = className.kickOut;
 
     // remote video full screen mode
     remoteVideoFullScreenBtn.setAttribute('id', peer_id + '_fullScreen');
-    remoteVideoFullScreenBtn.className = 'fas fa-expand';
+    remoteVideoFullScreenBtn.className = className.fullScreen;
 
     // remote video pin/unpin button
     remoteVideoPinBtn.setAttribute('id', peer_id + '_pinUnpin');
-    remoteVideoPinBtn.className = 'fas fa-map-pin';
+    remoteVideoPinBtn.className = className.pinUnpin;
 
     // no mobile devices
     setTippy(remotePeerName, 'Participant name', 'bottom');
@@ -2226,7 +2257,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // peer not has video at all
     if (!peer_video) {
         remoteVideoAvatarImage.style.display = 'block';
-        remoteVideoStatusIcon.className = 'fas fa-video-slash';
+        remoteVideoStatusIcon.className = className.videoOff;
     }
 }
 
@@ -2419,14 +2450,14 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
         // handle remote peer video fs
         if (peer_id !== null) {
             let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
-            if (remoteVideoStatusBtn.className === 'fas fa-video') {
+            if (remoteVideoStatusBtn.className === className.videoOn) {
                 handleFSVideo();
             } else {
                 showMsg();
             }
         } else {
             // handle local video fs
-            if (myVideoStatusIcon.className === 'fas fa-video' || isScreenStreaming) {
+            if (myVideoStatusIcon.className === className.videoOn || isScreenStreaming) {
                 handleFSVideo();
             } else {
                 showMsg();
@@ -2679,12 +2710,12 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
         if (peer_id !== null) {
             // handle remote video snapshot
             let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
-            if (remoteVideoStatusBtn.className === 'fas fa-video') {
+            if (remoteVideoStatusBtn.className === className.videoOn) {
                 return takeSnapshot(video);
             }
         } else {
             // handle local video snapshot
-            if (myVideoStatusIcon.className === 'fas fa-video') {
+            if (myVideoStatusIcon.className === className.videoOn) {
                 return takeSnapshot(video);
             }
         }
@@ -2865,7 +2896,7 @@ function setFullScreenBtn() {
         document.addEventListener('fullscreenchange', (e) => {
             let fullscreenElement = document.fullscreenElement;
             if (!fullscreenElement) {
-                fullScreenBtn.className = 'fas fa-expand-alt';
+                fullScreenBtn.className = className.fsOff;
                 isDocumentOnFullScreen = false;
                 setTippy(fullScreenBtn, 'View full screen', 'right-start');
             }
@@ -2891,17 +2922,17 @@ function setChatRoomBtn() {
             showChatRoomDraggable();
         } else {
             hideChatRoomAndEmojiPicker();
-            e.target.className = 'fas fa-comment';
+            e.target.className = className.chatOn;
         }
     });
 
     // ghost theme + undo
     msgerTheme.addEventListener('click', (e) => {
-        if (e.target.className == 'fas fa-ghost') {
-            e.target.className = 'fas fa-undo';
+        if (e.target.className == className.ghost) {
+            e.target.className = className.undo;
             document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
         } else {
-            e.target.className = 'fas fa-ghost';
+            e.target.className = className.ghost;
             document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
         }
     });
@@ -3029,11 +3060,11 @@ function setCaptionRoomBtn() {
 
         // ghost theme + undo
         captionTheme.addEventListener('click', (e) => {
-            if (e.target.className == 'fas fa-ghost') {
-                e.target.className = 'fas fa-undo';
+            if (e.target.className == className.ghost) {
+                e.target.className = className.undo;
                 document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
             } else {
-                e.target.className = 'fas fa-ghost';
+                e.target.className = className.ghost;
                 document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
             }
         });
@@ -3842,11 +3873,11 @@ function handleAudio(e, init, force = null) {
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
 
     force != null
-        ? (e.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'))
-        : (e.target.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash'));
+        ? (e.className = myAudioStatus ? className.audioOn : className.audioOff)
+        : (e.target.className = myAudioStatus ? className.audioOn : className.audioOff);
 
     if (init) {
-        audioBtn.className = 'fas fa-microphone' + (myAudioStatus ? '' : '-slash');
+        audioBtn.className = myAudioStatus ? className.audioOn : className.audioOff;
         setTippy(initAudioBtn, myAudioStatus ? 'Stop the audio' : 'Start the audio', 'top');
     }
     setMyAudioStatus(myAudioStatus);
@@ -3867,11 +3898,11 @@ function handleVideo(e, init, force = null) {
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
 
     force != null
-        ? (e.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'))
-        : (e.target.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash'));
+        ? (e.className = myVideoStatus ? className.videoOn : className.videoOff)
+        : (e.target.className = myVideoStatus ? className.videoOn : className.videoOff);
 
     if (init) {
-        videoBtn.className = 'fas fa-video' + (myVideoStatus ? '' : '-slash');
+        videoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
         setTippy(initVideoBtn, myVideoStatus ? 'Stop the video' : 'Start the video', 'top');
     }
     setMyVideoStatus(myVideoStatus);
@@ -3884,8 +3915,7 @@ async function swapCamera() {
     // setup camera
     let camVideo = false;
     camera = camera == 'user' ? 'environment' : 'user';
-    if (camera == 'user') camVideo = true;
-    else camVideo = { facingMode: { exact: camera } };
+    camVideo = camera == 'user' ? true : { facingMode: { exact: camera } };
 
     // some devices can't swap the cam, if have Video Track already in execution.
     await stopLocalVideoTrack();
@@ -3938,15 +3968,11 @@ async function toggleScreenSharing() {
 
     let screenMediaPromise = null;
 
-    let myPrivacyBtn = getId('myPrivacyBtn');
-
     try {
         if (!isScreenStreaming) {
-            // on screen sharing start
-            screenMediaPromise = await navigator.mediaDevices.getDisplayMedia(constraints);
+            screenMediaPromise = await navigator.mediaDevices.getDisplayMedia(constraints); // on screen sharing start
         } else {
-            // on screen sharing stop
-            screenMediaPromise = await navigator.mediaDevices.getUserMedia(getAudioVideoConstraints());
+            screenMediaPromise = await navigator.mediaDevices.getUserMedia(getAudioVideoConstraints()); // on screen sharing stop
         }
         if (screenMediaPromise) {
             isVideoPrivacyActive = false;
@@ -3968,6 +3994,7 @@ async function toggleScreenSharing() {
             setScreenSharingStatus(isScreenStreaming);
             if (myVideoAvatarImage && !useVideo)
                 myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
+            let myPrivacyBtn = getId('myPrivacyBtn');
             if (myPrivacyBtn) myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
             if (isScreenStreaming || isVideoPinned) getId('myVideoPinBtn').click();
         }
@@ -3982,7 +4009,7 @@ async function toggleScreenSharing() {
  * @param {boolean} status of screen sharing
  */
 function setScreenSharingStatus(status) {
-    screenShareBtn.className = status ? 'fas fa-stop-circle' : 'fas fa-desktop';
+    screenShareBtn.className = status ? className.screenOff : className.screenOn;
     setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
 }
 
@@ -3994,8 +4021,8 @@ async function setMyVideoStatusTrue() {
     // Put video status already ON
     localMediaStream.getVideoTracks()[0].enabled = true;
     myVideoStatus = true;
-    videoBtn.className = 'fas fa-video';
-    myVideoStatusIcon.className = 'fas fa-video';
+    videoBtn.className = className.videoOn;
+    myVideoStatusIcon.className = className.videoOn;
     myVideoAvatarImage.style.display = 'none';
     emitPeerStatus('video', myVideoStatus);
     setTippy(videoBtn, 'Stop the video', 'right-start');
@@ -4008,12 +4035,12 @@ async function setMyVideoStatusTrue() {
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
-        fullScreenBtn.className = 'fas fa-compress-alt';
+        fullScreenBtn.className = className.fsOn;
         isDocumentOnFullScreen = true;
     } else {
         if (document.exitFullscreen) {
             document.exitFullscreen();
-            fullScreenBtn.className = 'fas fa-expand-alt';
+            fullScreenBtn.className = className.fsOff;
             isDocumentOnFullScreen = false;
         }
     }
@@ -4099,7 +4126,7 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     // enable audio
     if (localAudioTrackChange && myAudioStatus === false) {
-        audioBtn.className = 'fas fa-microphone';
+        audioBtn.className = className.audioOn;
         setMyAudioStatus(true);
         myAudioStatus = true;
     }
@@ -4391,7 +4418,7 @@ function showChatRoomDraggable() {
         buttonsBar.style.display = 'none';
         isButtonsVisible = false;
     }
-    chatRoomBtn.className = 'fas fa-comment-slash';
+    chatRoomBtn.className = className.chatOff;
     msgerDraggable.style.top = '50%';
     msgerDraggable.style.left = isMobileDevice ? '50%' : '25%';
     msgerDraggable.style.display = 'flex';
@@ -4491,7 +4518,7 @@ function hideChatRoomAndEmojiPicker() {
     msgerDraggable.style.display = 'none';
     msgerEmojiPicker.style.display = 'none';
     msgerEmojiBtn.style.color = '#FFFFFF';
-    chatRoomBtn.className = 'fas fa-comment';
+    chatRoomBtn.className = className.chatOn;
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
     setTippy(chatRoomBtn, 'Open the chat', 'right-start');
@@ -4502,7 +4529,7 @@ function hideChatRoomAndEmojiPicker() {
  */
 function hideCaptionBox() {
     captionDraggable.style.display = 'none';
-    captionBtn.className = 'fas fa-closed-captioning';
+    captionBtn.className = className.captionOn;
     isCaptionBoxVisible = false;
     setTippy(captionBtn, 'Open the caption', 'right-start');
 }
@@ -4551,7 +4578,7 @@ function handleDataChannelChat(dataMessage) {
     // chat message for me also
     if (!isChatRoomVisible && showChatOnMessage) {
         showChatRoomDraggable();
-        chatRoomBtn.className = 'fas fa-comment-slash';
+        chatRoomBtn.className = className.chatOff;
     }
     // show message from
     if (!showChatOnMessage) {
@@ -4678,7 +4705,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     if (privateMsg && msgId != null && msgId != myPeerId) {
         msgHTML += `
                 <button 
-                    class="fas fa-paper-plane"
+                    class="${className.msgPrivate}"
                     id="msg-private-reply-${chatMessagesId}"
                     style="color:#fff; border:none; background:transparent;"
                     onclick="sendPrivateMsgToPeer('${myPeerId}','${from}')"
@@ -4687,13 +4714,13 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     msgHTML += `
                 <button
                     id="msg-delete-${chatMessagesId}"
-                    class="fas fa-trash"
+                    class="${className.trash}"
                     style="color:#fff; border:none; background:transparent;"
                     onclick="deleteMessage('msg-${chatMessagesId}')"
                 ></button>
                 <button
                     id="msg-copy-${chatMessagesId}"
-                    class="fas fa-copy" 
+                    class="${className.copy}" 
                     style="color:#fff; border:none; background:transparent;"
                     onclick="copyToClipboard('${chatMessagesId}')"
                 ></button>
@@ -4778,7 +4805,7 @@ async function msgerAddPeers(peers) {
                         class="msger-input"
                         placeholder="💬 Enter your message..."
                     ></textarea>
-                    <button id="${peer_id}_pMsgBtn" class="fas fa-paper-plane" value="${peer_name}"></button>
+                    <button id="${peer_id}_pMsgBtn" class="${className.msgPrivate}" value="${peer_name}"></button>
                 </div>
                 `;
                 msgerCPList.insertAdjacentHTML('beforeend', msgerPrivateDiv);
@@ -5186,12 +5213,12 @@ function setMyHandStatus() {
  * @param {boolean} status of my audio
  */
 function setMyAudioStatus(status) {
-    myAudioStatusIcon.className = 'fas fa-microphone' + (status ? '' : '-slash');
+    myAudioStatusIcon.className = status ? className.audioOn : className.audioOff;
     // send my audio status to all peers in the room
     emitPeerStatus('audio', status);
     setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
-    status ? playSound('on') : playSound('off');
     setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', 'right-start');
+    status ? playSound('on') : playSound('off');
 }
 
 /**
@@ -5201,7 +5228,7 @@ function setMyAudioStatus(status) {
 function setMyVideoStatus(status) {
     // on vdeo OFF display my video avatar name
     if (myVideoAvatarImage) myVideoAvatarImage.style.display = status ? 'none' : 'block';
-    if (myVideoStatusIcon) myVideoStatusIcon.className = 'fas fa-video' + (status ? '' : '-slash');
+    if (myVideoStatusIcon) myVideoStatusIcon.className = status ? className.videoOn : className.videoOff;
     // send my video status to all peers in the room
     emitPeerStatus('video', status);
     if (!isMobileDevice) {
@@ -5261,7 +5288,7 @@ function setPeerHandStatus(peer_id, peer_name, status) {
 function setPeerAudioStatus(peer_id, status) {
     let peerAudioStatus = getId(peer_id + '_audioStatus');
     if (peerAudioStatus) {
-        peerAudioStatus.className = 'fas fa-microphone' + (status ? '' : '-slash');
+        peerAudioStatus.className = status ? className.audioOn : className.audioOff;
         setTippy(peerAudioStatus, status ? 'Participant audio is on' : 'Participant audio is off', 'bottom');
         status ? playSound('on') : playSound('off');
     }
@@ -5294,7 +5321,7 @@ function handlePeerAudioBtn(peer_id) {
     if (!buttons.remote.audioBtnClickAllowed) return;
     let peerAudioBtn = getId(peer_id + '_audioStatus');
     peerAudioBtn.onclick = () => {
-        if (peerAudioBtn.className === 'fas fa-microphone') disablePeer(peer_id, 'audio');
+        if (peerAudioBtn.className === className.audioOn) disablePeer(peer_id, 'audio');
     };
 }
 
@@ -5306,7 +5333,7 @@ function handlePeerVideoBtn(peer_id) {
     if (!useVideo || !buttons.remote.videoBtnClickAllowed) return;
     let peerVideoBtn = getId(peer_id + '_videoStatus');
     peerVideoBtn.onclick = () => {
-        if (peerVideoBtn.className === 'fas fa-video') disablePeer(peer_id, 'video');
+        if (peerVideoBtn.className === className.videoOn) disablePeer(peer_id, 'video');
     };
 }
 
@@ -5395,7 +5422,7 @@ function setPeerVideoStatus(peer_id, status) {
     let peerVideoStatus = getId(peer_id + '_videoStatus');
     if (peerVideoAvatarImage) peerVideoAvatarImage.style.display = status ? 'none' : 'block';
     if (peerVideoStatus) {
-        peerVideoStatus.className = 'fas fa-video' + (status ? '' : '-slash');
+        peerVideoStatus.className = status ? className.videoOn : className.videoOff;
         setTippy(peerVideoStatus, status ? 'Participant video is on' : 'Participant video is off', 'bottom');
         status ? playSound('on') : playSound('off');
     }
@@ -5479,7 +5506,7 @@ function handleScreenStart(peer_id) {
     let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
     let remoteVideoStream = getId(peer_id + '_video');
     if (remoteVideoStatusBtn) {
-        remoteVideoStatusBtn.className = 'fas fa-video';
+        remoteVideoStatusBtn.className = className.videoOn;
         setTippy(remoteVideoStatusBtn, 'Participant screen share is on', 'bottom');
     }
     if (remoteVideoStream) {
@@ -5502,7 +5529,7 @@ function handleScreenStop(peer_id, peer_use_video) {
     let remoteVideoAvatarImage = getId(peer_id + '_avatar');
     let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
     if (remoteVideoStatusBtn) {
-        remoteVideoStatusBtn.className = 'fas fa-video-slash';
+        remoteVideoStatusBtn.className = className.videoOff;
         setTippy(remoteVideoStatusBtn, 'Participant screen share is off', 'bottom');
     }
     if (remoteVideoStream) {
@@ -5531,7 +5558,7 @@ function setMyAudioOff(peer_name) {
     if (myAudioStatus === false || !useAudio) return;
     localMediaStream.getAudioTracks()[0].enabled = false;
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
-    audioBtn.className = 'fas fa-microphone-slash';
+    audioBtn.className = className.audioOff;
     setMyAudioStatus(myAudioStatus);
     userLog('toast', peer_name + ' has disabled your audio');
     playSound('off');
@@ -5545,7 +5572,7 @@ function setMyAudioOn(peer_name) {
     if (myAudioStatus === true || !useAudio) return;
     localMediaStream.getAudioTracks()[0].enabled = true;
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
-    audioBtn.className = 'fas fa-microphone';
+    audioBtn.className = className.audioOn;
     setMyAudioStatus(myAudioStatus);
     userLog('toast', peer_name + ' has enabled your audio');
     playSound('on');
@@ -5559,7 +5586,7 @@ function setMyVideoOff(peer_name) {
     if (myVideoStatus === false || !useVideo) return;
     localMediaStream.getVideoTracks()[0].enabled = false;
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
-    videoBtn.className = 'fas fa-video-slash';
+    videoBtn.className = className.videoOff;
     setMyVideoStatus(myVideoStatus);
     userLog('toast', peer_name + ' has disabled your video');
     playSound('off');
@@ -6958,7 +6985,7 @@ function showAbout() {
         <div id="about">
             <b><a href="https://github.com/miroslavpejic85/mirotalk" class="umami--click--github" target="_blank">Open Source</a></b> project
             <br/><br/>
-            <button class="pulsate umami--click--sponsor" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"><i class="fas fa-heart" ></i>&nbsp;Support</button>
+            <button class="pulsate umami--click--sponsor" onclick="window.open('https://github.com/sponsors/miroslavpejic85?o=esb')"><i class="${className.heart}" ></i>&nbsp;Support</button>
             <br /><br />
             Author:<a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" class="umami--click--linkedin" target="_blank"> Miroslav Pejic</a>
         </div>
