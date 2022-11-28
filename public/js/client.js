@@ -1903,8 +1903,8 @@ async function loadLocalMedia(stream) {
         myVideoNavBar.appendChild(myPrivacyBtn);
     }
 
-    myVideoNavBar.appendChild(myAudioStatusIcon);
     myVideoNavBar.appendChild(myVideoStatusIcon);
+    myVideoNavBar.appendChild(myAudioStatusIcon);
     myVideoNavBar.appendChild(myHandStatusIcon);
 
     // add my pitchBar
@@ -2140,13 +2140,12 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
         remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
     }
 
+    remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
     remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
 
     if (buttons.remote.showAudioVolume) {
         remoteVideoNavBar.appendChild(remoteAudioVolume);
     }
-
-    remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
     remoteVideoNavBar.appendChild(remoteHandStatusIcon);
 
     if (buttons.remote.showPrivateMessageBtn) {
