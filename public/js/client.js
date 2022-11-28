@@ -104,6 +104,7 @@ const buttons = {
         showUnlockRoomBtn: true,
     },
     remote: {
+        showAudioVolume: true,
         audioBtnClickAllowed: true,
         videoBtnClickAllowed: true,
         showKickOutBtn: true,
@@ -2010,6 +2011,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     const remoteVideoAvatarImage = document.createElement('img');
     const remotePitchMeter = document.createElement('div');
     const remotePitchBar = document.createElement('div');
+    const remoteAudioVolume = document.createElement('input');
 
     // remote peer name element
     remotePeerName.setAttribute('id', peer_id + '_name');
@@ -2030,6 +2032,13 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // remote audio status element
     remoteAudioStatusIcon.setAttribute('id', peer_id + '_audioStatus');
     remoteAudioStatusIcon.className = 'fas fa-microphone';
+
+    // remote audio volume element
+    remoteAudioVolume.setAttribute('id', peer_id + '_audioVolume');
+    remoteAudioVolume.type = 'range';
+    remoteAudioVolume.min = 0;
+    remoteAudioVolume.max = 100;
+    remoteAudioVolume.value = 100;
 
     // remote private message
     remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
@@ -2064,6 +2073,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
     setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
     setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
+    setTippy(remoteAudioVolume, '🔊 Volume', 'top-end');
     setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
     setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
     setTippy(remoteFileShareBtn, 'Send file', 'bottom');
@@ -2100,6 +2110,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     }
 
     remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
+
+    if (buttons.remote.showAudioVolume) {
+        remoteVideoNavBar.appendChild(remoteAudioVolume);
+    }
+
     remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
     remoteVideoNavBar.appendChild(remoteHandStatusIcon);
 
@@ -2183,6 +2198,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     setPeerVideoStatus(peer_id, peer_video_status);
     // refresh remote peers audio icon status and title
     setPeerAudioStatus(peer_id, peer_audio_status);
+    // handle remote peers audio volume
+    handleAudioVolume(remoteAudioVolume.id, remoteMedia.id);
     // handle remote peers audio on-off
     handlePeerAudioBtn(peer_id);
     // handle remote peers video on-off
@@ -5247,6 +5264,25 @@ function setPeerAudioStatus(peer_id, status) {
         peerAudioStatus.className = 'fas fa-microphone' + (status ? '' : '-slash');
         setTippy(peerAudioStatus, status ? 'Participant audio is on' : 'Participant audio is off', 'bottom');
         status ? playSound('on') : playSound('off');
+    }
+}
+
+/**
+ * Handle Peer audio volume 0/100
+ * @param {string} audioVolumeId audio volume input id
+ * @param {string} mediaId media id
+ */
+function handleAudioVolume(audioVolumeId, mediaId) {
+    let media = getId(mediaId);
+    let audioVolume = getId(audioVolumeId);
+    if (audioVolume && media) {
+        audioVolume.style.maxWidth = '40px';
+        audioVolume.style.display = 'inline';
+        audioVolume.style.cursor = 'pointer';
+        audioVolume.value = 100;
+        audioVolume.addEventListener('input', () => {
+            media.volume = audioVolume.value / 100;
+        });
     }
 }
 
