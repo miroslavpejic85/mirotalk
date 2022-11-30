@@ -51,8 +51,8 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-const Logger = require('./Logger');
-const log = new Logger('server');
+const Logs = require('./logs');
+const log = new Logs('server');
 
 const isHttps = false; // must be the same on client.js
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
@@ -534,65 +534,6 @@ io.sockets.on('connect', async (socket) => {
     });
 
     /**
-     * Add peers to channel
-     * @param {string} channel room id
-     */
-    async function addPeerTo(channel) {
-        for (let id in channels[channel]) {
-            // offer false
-            await channels[channel][id].emit('addPeer', {
-                peer_id: socket.id,
-                peers: peers[channel],
-                should_create_offer: false,
-                iceServers: iceServers,
-            });
-            // offer true
-            socket.emit('addPeer', {
-                peer_id: id,
-                peers: peers[channel],
-                should_create_offer: true,
-                iceServers: iceServers,
-            });
-            log.debug('[' + socket.id + '] emit addPeer [' + id + ']');
-        }
-    }
-
-    /**
-     * Remove peers from channel
-     * @param {string} channel room id
-     */
-    async function removePeerFrom(channel) {
-        if (!(channel in socket.channels)) {
-            return log.debug('[' + socket.id + '] [Warning] not in ', channel);
-        }
-        try {
-            delete socket.channels[channel];
-            delete channels[channel][socket.id];
-            delete peers[channel][socket.id]; // delete peer data from the room
-
-            switch (Object.keys(peers[channel]).length) {
-                case 0: // last peer disconnected from the room without room lock & password set
-                    delete peers[channel];
-                    break;
-                case 2: // last peer disconnected from the room having room lock & password set
-                    if (peers[channel]['lock'] && peers[channel]['password']) {
-                        delete peers[channel]; // clean lock and password value from the room
-                    }
-                    break;
-            }
-        } catch (err) {
-            log.error('Remove Peer', toJson(err));
-        }
-        log.debug('[removePeerFrom] - connected peers grp by roomId', peers);
-
-        for (let id in channels[channel]) {
-            await channels[channel][id].emit('removePeer', { peer_id: socket.id });
-            socket.emit('removePeer', { peer_id: id });
-            log.debug('[' + socket.id + '] emit removePeer [' + id + ']');
-        }
-    }
-
-    /**
      * Relay ICE to peers
      */
     socket.on('relayICE', async (config) => {
@@ -902,44 +843,103 @@ io.sockets.on('connect', async (socket) => {
         let room_id = config.room_id;
         await sendToRoom(room_id, socket.id, 'whiteboardAction', config);
     });
-}); // end [sockets.on-connect]
 
-/**
- * Object to Json
- * @param {object} data object
- * @returns {json} indent 4 spaces
- */
-function toJson(data) {
-    return JSON.stringify(data, null, 4); // "\t"
-}
-
-/**
- * Send async data to all peers in the same room except yourself
- * @param {string} room_id id of the room to send data
- * @param {string} socket_id socket id of peer that send data
- * @param {string} msg message to send to the peers in the same room
- * @param {object} config data to send to the peers in the same room
- */
-async function sendToRoom(room_id, socket_id, msg, config = {}) {
-    for (let peer_id in channels[room_id]) {
-        // not send data to myself
-        if (peer_id != socket_id) {
-            await channels[room_id][peer_id].emit(msg, config);
-            //console.log('Send to room', { msg: msg, config: config });
+    /**
+     * Add peers to channel
+     * @param {string} channel room id
+     */
+    async function addPeerTo(channel) {
+        for (let id in channels[channel]) {
+            // offer false
+            await channels[channel][id].emit('addPeer', {
+                peer_id: socket.id,
+                peers: peers[channel],
+                should_create_offer: false,
+                iceServers: iceServers,
+            });
+            // offer true
+            socket.emit('addPeer', {
+                peer_id: id,
+                peers: peers[channel],
+                should_create_offer: true,
+                iceServers: iceServers,
+            });
+            log.debug('[' + socket.id + '] emit addPeer [' + id + ']');
         }
     }
-}
 
-/**
- * Send async data to specified peer
- * @param {string} peer_id id of the peer to send data
- * @param {object} sockets all peers connections
- * @param {string} msg message to send to the peer in the same room
- * @param {object} config data to send to the peer in the same room
- */
-async function sendToPeer(peer_id, sockets, msg, config = {}) {
-    if (peer_id in sockets) {
-        await sockets[peer_id].emit(msg, config);
-        //console.log('Send to peer', { msg: msg, config: config });
+    /**
+     * Remove peers from channel
+     * @param {string} channel room id
+     */
+    async function removePeerFrom(channel) {
+        if (!(channel in socket.channels)) {
+            return log.debug('[' + socket.id + '] [Warning] not in ', channel);
+        }
+        try {
+            delete socket.channels[channel];
+            delete channels[channel][socket.id];
+            delete peers[channel][socket.id]; // delete peer data from the room
+
+            switch (Object.keys(peers[channel]).length) {
+                case 0: // last peer disconnected from the room without room lock & password set
+                    delete peers[channel];
+                    break;
+                case 2: // last peer disconnected from the room having room lock & password set
+                    if (peers[channel]['lock'] && peers[channel]['password']) {
+                        delete peers[channel]; // clean lock and password value from the room
+                    }
+                    break;
+            }
+        } catch (err) {
+            log.error('Remove Peer', toJson(err));
+        }
+        log.debug('[removePeerFrom] - connected peers grp by roomId', peers);
+
+        for (let id in channels[channel]) {
+            await channels[channel][id].emit('removePeer', { peer_id: socket.id });
+            socket.emit('removePeer', { peer_id: id });
+            log.debug('[' + socket.id + '] emit removePeer [' + id + ']');
+        }
     }
-}
+
+    /**
+     * Object to Json
+     * @param {object} data object
+     * @returns {json} indent 4 spaces
+     */
+    function toJson(data) {
+        return JSON.stringify(data, null, 4); // "\t"
+    }
+
+    /**
+     * Send async data to all peers in the same room except yourself
+     * @param {string} room_id id of the room to send data
+     * @param {string} socket_id socket id of peer that send data
+     * @param {string} msg message to send to the peers in the same room
+     * @param {object} config data to send to the peers in the same room
+     */
+    async function sendToRoom(room_id, socket_id, msg, config = {}) {
+        for (let peer_id in channels[room_id]) {
+            // not send data to myself
+            if (peer_id != socket_id) {
+                await channels[room_id][peer_id].emit(msg, config);
+                //console.log('Send to room', { msg: msg, config: config });
+            }
+        }
+    }
+
+    /**
+     * Send async data to specified peer
+     * @param {string} peer_id id of the peer to send data
+     * @param {object} sockets all peers connections
+     * @param {string} msg message to send to the peer in the same room
+     * @param {object} config data to send to the peer in the same room
+     */
+    async function sendToPeer(peer_id, sockets, msg, config = {}) {
+        if (peer_id in sockets) {
+            await sockets[peer_id].emit(msg, config);
+            //console.log('Send to peer', { msg: msg, config: config });
+        }
+    }
+}); // end [sockets.on-connect]

@@ -10,7 +10,7 @@ const options = {
     depth: null,
     colors: true,
 };
-module.exports = class Logger {
+module.exports = class Logs {
     constructor(appName = 'miroTalkP2P', debugOn = true) {
         this.appName = colors.yellow(appName);
         this.debugOn = debugOn;

@@ -3968,11 +3968,9 @@ async function toggleScreenSharing() {
     let screenMediaPromise = null;
 
     try {
-        if (!isScreenStreaming) {
-            screenMediaPromise = await navigator.mediaDevices.getDisplayMedia(constraints); // on screen sharing start
-        } else {
-            screenMediaPromise = await navigator.mediaDevices.getUserMedia(getAudioVideoConstraints()); // on screen sharing stop
-        }
+        screenMediaPromise = isScreenStreaming
+            ? await navigator.mediaDevices.getUserMedia(getAudioVideoConstraints())
+            : await navigator.mediaDevices.getDisplayMedia(constraints);
         if (screenMediaPromise) {
             isVideoPrivacyActive = false;
             emitPeerStatus('privacy', isVideoPrivacyActive);
