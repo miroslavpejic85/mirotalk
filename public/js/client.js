@@ -7117,18 +7117,17 @@ function handlePeerVolume(data) {
     let peer_id = data.peer_id;
     let element = getId(peer_id + '_pitch_bar');
     let remoteVideoWrap = getId(peer_id + '_videoWrap');
-    let remoteVideoBorder = document.documentElement.style.getPropertyValue('--elem-border-color');
     let volume = data.volume + 25; //for design purpose
     if (!element) return;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    remoteVideoWrap.style.border = '1px solid rgb(255 255 255 / 32%)';
+    remoteVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
-        remoteVideoWrap.style.border = remoteVideoBorder;
+        remoteVideoWrap.classList.toggle('speaking');
     }, 700);
 }
 
@@ -7138,18 +7137,17 @@ function handlePeerVolume(data) {
  */
 function handleMyVolume(data) {
     let element = getId('myPitchBar');
-    let myVideoBorder = document.documentElement.style.getPropertyValue('--elem-border-color');
     let volume = data.volume + 25;
     if (!element) return;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    myVideoWrap.style.border = '1px solid rgb(255 255 255 / 32%)';
+    myVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
-        myVideoWrap.style.border = myVideoBorder;
+        myVideoWrap.classList.toggle('speaking');
     }, 700);
 }
 

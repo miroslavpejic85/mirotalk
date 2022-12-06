@@ -1,37 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Comfortaa:wght@500&display=swap');
 
 /*--------------------------------------------------------------
-# Fade in page on load 
---------------------------------------------------------------*/
-
-@-webkit-keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@-moz-keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/*--------------------------------------------------------------
 # Root settings
 --------------------------------------------------------------*/
 
@@ -835,6 +804,49 @@ em-emoji-picker {
 }
 
 /*--------------------------------------------------------------
+# Fade in page on load 
+--------------------------------------------------------------*/
+
+.fadein {
+    -webkit-animation: fadeIn ease-in 1;
+    -moz-animation: fadeIn ease-in 1;
+    animation: fadeIn ease-in 1;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-duration: 1s;
+    -moz-animation-duration: 1s;
+    animation-duration: 1s;
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/*--------------------------------------------------------------
 # Pulse class effect
 --------------------------------------------------------------*/
 
@@ -1051,6 +1063,10 @@ progress {
     transition-property: height background-color;
     transition-duration: 0.25s;
     /*box-shadow: var(--box-shadow);*/
+}
+
+.speaking {
+    box-shadow: 0 0 1px 1px rgb(255 255 255 / 32%); /* lightblue */
 }
 
 /*--------------------------------------------------------------
