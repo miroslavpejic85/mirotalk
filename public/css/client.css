@@ -773,8 +773,8 @@ em-emoji-picker {
 .switch {
     position: relative;
     display: inline-block;
-    width: 40px;
-    height: 17px;
+    width: 41px;
+    height: 19px;
 }
 
 .switch input {
@@ -798,10 +798,10 @@ em-emoji-picker {
 .slider:before {
     position: absolute;
     content: '';
-    height: 12px;
-    width: 12px;
-    left: 2px;
-    bottom: 2px;
+    height: 17px;
+    width: 17px;
+    left: 0px;
+    bottom: 1px;
     background-color: white;
     -webkit-transition: 0.4s;
     transition: 0.4s;
