@@ -808,11 +808,11 @@ em-emoji-picker {
 }
 
 input:checked + .slider {
-    background-color: #4caf50;
+    background-color: green;
 }
 
 input:focus + .slider {
-    box-shadow: 0 0 1px #4caf50;
+    box-shadow: 0 0 1px green;
 }
 
 input:checked + .slider:before {
