@@ -21,7 +21,6 @@
 
 'use strict'; // https://www.w3schools.com/js/js_strict.asp
 
-const isHttps = false; // must be the same on server.js
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
@@ -688,10 +687,8 @@ async function getPeerGeoLocation() {
  * @returns {string} Signaling server URL
  */
 function getSignalingServer() {
-    if (isHttps) {
-        return 'https://' + location.hostname;
-    }
-    return 'http' + (location.hostname == 'localhost' ? '' : 's') + '://' + location.hostname;
+    console.log('00 Location', window.location);
+    return window.location.protocol + '//' + window.location.hostname;
 }
 
 /**
@@ -704,7 +701,7 @@ function getRoomId() {
     let queryRoomId = qs.get('room');
 
     // skip /join/
-    let roomId = queryRoomId ? queryRoomId : location.pathname.substring(6);
+    let roomId = queryRoomId ? queryRoomId : window.location.pathname.substring(6);
 
     // if not specified room id, create one random
     if (roomId == '') {

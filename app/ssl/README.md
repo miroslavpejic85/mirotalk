@@ -19,14 +19,8 @@ rm csr.pem
 # https://www.sslchecker.com/certdecoder
 ```
 
-2. Expose `server.js` on `https`
+2. Expose `server.js` on `https` using the self-signed certificate, edit the `.env` file
 
 ```js
-const isHttps = true;
-```
-
-3. Change on `client.js`
-
-```js
-const isHttps = true;
+HTTPS=true
 ```
