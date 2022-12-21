@@ -22,5 +22,5 @@ rm csr.pem
 2. Expose `server.js` on `https` using the self-signed certificate, edit the `.env` file
 
 ```js
-HTTPS=true
+HTTPS = true;
 ```
