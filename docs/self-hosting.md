@@ -1,6 +1,6 @@
 # MiroTalk P2P - Self Hosting
 
-## Requirments
+## Requirements
 
 -   Recommended: [Hetzner](https://www.hetzner.com/cloud) (`CPX11` it's enough, OS: `Ubuntu 20.04`) use [this link](https://hetzner.cloud/?ref=XdRifCzCK3bn) to receive `€⁠20 in cloud credits`.
 -   [Node.js](https://nodejs.org/en/) at least 12x, better `16.15.1 LTS` & npm
