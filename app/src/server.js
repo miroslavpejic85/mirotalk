@@ -121,7 +121,7 @@ const sentryTracesSampleRate = process.env.SENTRY_TRACES_SAMPLE_RATE;
 // Slack API
 const CryptoJS = require('crypto-js');
 const qS = require('qs');
-const slackEnabled = process.env.SENTRY_ENABLED || false;
+const slackEnabled = process.env.SLACK_ENABLED || false;
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 const bodyParser = require('body-parser');
 
