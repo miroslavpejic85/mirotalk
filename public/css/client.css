@@ -671,9 +671,15 @@ em-emoji-picker {
     background-color: #2b2b2b;
 }
 
+#tabRoomParticipants button {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
 #myPeerNameSetBtn,
 #muteEveryoneBtn,
 #hideEveryoneBtn,
+#ejectEveryoneBtn,
 #lockRoomBtn,
 #unlockRoomBtn {
     padding: 10px;
@@ -706,7 +712,8 @@ em-emoji-picker {
 }
 
 #muteEveryoneBtn:hover,
-#hideEveryoneBtn:hover {
+#hideEveryoneBtn:hover,
+#ejectEveryoneBtn:hover {
     color: #ff2d00;
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;

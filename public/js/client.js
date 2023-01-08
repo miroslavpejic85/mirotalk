@@ -129,6 +129,7 @@ const buttons = {
         showTabRoomSecurity: true,
         showMuteEveryoneBtn: true,
         showHideEveryoneBtn: true,
+        showEjectEveryoneBtn: true,
         showLockRoomBtn: true,
         showUnlockRoomBtn: true,
     },
@@ -377,6 +378,7 @@ let wbPop = [];
 // room actions btns
 let muteEveryoneBtn;
 let hideEveryoneBtn;
+let ejectEveryoneBtn;
 let lockRoomBtn;
 let unlockRoomBtn;
 // file transfer settings
@@ -526,6 +528,7 @@ function getHtmlElementsById() {
     // room actions buttons
     muteEveryoneBtn = getId('muteEveryoneBtn');
     hideEveryoneBtn = getId('hideEveryoneBtn');
+    ejectEveryoneBtn = getId('ejectEveryoneBtn');
     lockRoomBtn = getId('lockRoomBtn');
     unlockRoomBtn = getId('unlockRoomBtn');
     // file send progress
@@ -624,8 +627,9 @@ function setButtonsToolTip() {
     setTippy(whiteboardCleanBtn, 'Clean the board', 'bottom');
     setTippy(whiteboardCloseBtn, 'Close', 'right');
     // room actions btn
-    setTippy(muteEveryoneBtn, 'Mute everyone except yourself', 'top');
-    setTippy(hideEveryoneBtn, 'Hide everyone except yourself', 'top');
+    // setTippy(muteEveryoneBtn, 'Mute everyone except yourself', 'top');
+    // setTippy(hideEveryoneBtn, 'Hide everyone except yourself', 'top');
+    // setTippy(ejectEveryoneBtn, 'Eject everyone except yourself', 'top');
     // Suspend/Hide File transfer btn
     setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
@@ -993,6 +997,7 @@ function handleButtonsRule() {
     // Settings
     elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
     elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
+    elemDisplay(ejectEveryoneBtn, buttons.settings.showEjectEveryoneBtn);
     elemDisplay(lockRoomBtn, buttons.settings.showLockRoomBtn);
     elemDisplay(unlockRoomBtn, buttons.settings.showUnlockRoomBtn);
     elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
@@ -3395,6 +3400,9 @@ function setupMySettings() {
     hideEveryoneBtn.addEventListener('click', (e) => {
         disableAllPeers('video');
     });
+    ejectEveryoneBtn.addEventListener('click', (e) => {
+        ejectEveryone();
+    });
     lockRoomBtn.addEventListener('click', (e) => {
         handleRoomAction({ action: 'lock' }, true);
     });
@@ -5494,6 +5502,9 @@ function handlePeerAction(config) {
         case 'screenStop':
             handleScreenStop(peer_id, peer_use_video);
             break;
+        case 'ejectAll':
+            handleKickedOut(config);
+            break;
     }
 }
 
@@ -5630,6 +5641,35 @@ function disableAllPeers(element) {
                     emitPeersAction('hideVideo');
                     break;
             }
+        }
+    });
+}
+
+/**
+ * Eject all participants in the room expect yourself
+ */
+function ejectEveryone() {
+    if (!thereIsPeerConnections()) {
+        return userLog('info', 'No participants detected');
+    }
+    Swal.fire({
+        background: swalBackground,
+        imageUrl: kickedOutImg,
+        position: 'center',
+        title: 'Eject everyone except yourself?',
+        text: 'Are you sure to want eject all participants from the room?',
+        showDenyButton: true,
+        confirmButtonText: `Yes`,
+        denyButtonText: `No`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            emitPeersAction('ejectAll');
         }
     });
 }
