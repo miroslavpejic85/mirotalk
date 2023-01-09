@@ -637,8 +637,8 @@ em-emoji-picker {
 
 #mySettings select {
     height: 40px;
-    font-size: 0.9rem;
     max-width: 305px;
+    font-size: 0.9rem;
     color: #fff;
     background-color: #2b2b2b;
     border-radius: 5px;
@@ -663,14 +663,15 @@ em-emoji-picker {
 }
 
 #myPeerNameSet {
+    width: 165px;
     padding: 10px;
-    max-width: 160px;
     border: var(--border);
     border-radius: 5px;
     color: #fff;
     background-color: #2b2b2b;
 }
 
+#tabRoomSecurity button,
 #tabRoomParticipants button {
     width: 100%;
     margin-bottom: 5px;
