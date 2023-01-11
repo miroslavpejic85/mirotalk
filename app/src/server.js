@@ -54,7 +54,7 @@ const app = express();
 const Logs = require('./logs');
 const log = new Logs('server');
 
-const isHttps = process.env.HTTPS == 'true' ? true : false || false;
+const isHttps = process.env.HTTPS == 'true' ? true : false;
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 
 let io, server, host;
@@ -398,6 +398,7 @@ async function ngrokStart() {
             test_ice_servers: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
+            use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
             slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
@@ -440,6 +441,7 @@ server.listen(port, null, () => {
             test_ice_servers: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
+            use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
             slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
