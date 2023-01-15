@@ -6467,6 +6467,16 @@ function sendFileData(peer_id, broadcast) {
         if (offset < fileToSend.size) readSlice(offset);
     });
     const readSlice = (o) => {
+        for (let peer_id in fileDataChannels) {
+            // https://stackoverflow.com/questions/71285807/i-am-trying-to-share-a-file-over-webrtc-but-after-some-time-it-stops-and-log-rt
+            if (fileDataChannels[peer_id].bufferedAmount > fileDataChannels[peer_id].bufferedAmountLowThreshold) {
+                fileDataChannels[peer_id].onbufferedamountlow = () => {
+                    fileDataChannels[peer_id].onbufferedamountlow = null;
+                    readSlice(0);
+                };
+                return;
+            }
+        }
         const slice = fileToSend.slice(offset, o + chunkSize);
         fileReader.readAsArrayBuffer(slice);
     };
