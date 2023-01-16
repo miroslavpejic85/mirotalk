@@ -103,8 +103,8 @@ Embedding a meeting into a service or app using an iframe.
 
 ```html
 <iframe
-    allow="camera; microphone; fullscreen; display-capture; autoplay"
-    src="https://mirotalk.herokuapp.com/newcall"
+    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; autoplay"
+    src="https://p2p.mirotalk.com/newcall"
     style="height: 100%; width: 100%; border: 0px;"
 ></iframe>
 ```

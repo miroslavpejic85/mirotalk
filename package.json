@@ -33,14 +33,14 @@
         "ngrok": "^4.3.3",
         "qs": "^6.11.0",
         "socket.io": "^4.5.4",
-        "@sentry/node": "^7.29.0",
-        "@sentry/integrations": "^7.29.0",
+        "@sentry/node": "^7.30.0",
+        "@sentry/integrations": "^7.30.0",
         "swagger-ui-express": "^4.6.0",
         "uuid": "9.0.0",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "node-fetch": "^2.6.6",
-        "prettier": "2.8.2"
+        "prettier": "2.8.3"
     }
 }
