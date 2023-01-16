@@ -315,13 +315,10 @@ Do you find MiroTalk useful?
 
 Support the project by [becoming a backer or sponsor](https://github.com/sponsors/miroslavpejic85). Your logo will show up here with a link to your website.
 
-[![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)
-
-[![Hetzner](public/sponsors/Hetzner.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn)
-
-[![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)
-
-[![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com)
+|                                                                         |                                                                                    |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/) | [![Hetzner](public/sponsors/Hetzner.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) |
+| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)     | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com)     |
 
 </details>
 
