@@ -101,6 +101,8 @@ const className = {
 };
 // https://fontawesome.com/search?o=r&m=free
 
+const myRoomUrl = window.location.href;
+
 // Show desired buttons captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn -> (auto-detected)
 const buttons = {
     main: {
@@ -907,7 +909,7 @@ function handleServerInfo(config) {
     }
 
     if (notify && peers_count == 1) {
-        welcomeUser();
+        shareRoomMeetingURL(true);
     } else {
         checkShareScreen();
     }
@@ -1119,52 +1121,6 @@ async function joinToChannel() {
         peer_hand_status: myHandStatus,
         peer_rec_status: isRecScreenStream,
         peer_privacy_status: isVideoPrivacyActive,
-    });
-}
-
-/**
- * welcome message
- */
-function welcomeUser() {
-    const myRoomUrl = window.location.href;
-    playSound('newMessage');
-    Swal.fire({
-        background: swalBackground,
-        position: 'center',
-        title: '<strong>Welcome ' + myPeerName + '</strong>',
-        imageAlt: 'mirotalk-welcome',
-        imageUrl: welcomeImg,
-        html:
-            `
-        <br/> 
-        <p style="color:white;">Invite others to join. Share this meeting link.</p>
-        <p style="color:rgb(8, 189, 89);">` +
-            myRoomUrl +
-            `</p>`,
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: `Copy URL`,
-        denyButtonText: `Email invite`,
-        cancelButtonText: `Close`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            copyRoomURL();
-        } else if (result.isDenied) {
-            let message = {
-                email: '',
-                subject: 'Please join our MiroTalk Video Chat Meeting',
-                body: 'Click to join: ' + myRoomUrl,
-            };
-            shareRoomByEmail(message);
-        }
-        // share screen on join room
-        checkShareScreen();
     });
 }
 
@@ -3758,73 +3714,74 @@ function checkButtonsBarAndMenu() {
  * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
  */
 async function shareRoomUrl() {
-    const myRoomUrl = window.location.href;
-
     // navigator share
-    let isSupportedNavigatorShare = false;
-    let errorNavigatorShare = false;
-    // if supported
     if (navigator.share) {
-        isSupportedNavigatorShare = true;
         try {
             // not add title and description to load metadata from url
             await navigator.share({ url: myRoomUrl });
             userLog('toast', 'Room Shared successfully!');
         } catch (err) {
-            errorNavigatorShare = true;
             /*
-                This feature is available only in secure contexts (HTTPS),
-                in some or all supporting browsers and mobile devices
-                console.error("navigator.share", err); 
+            This feature is available only in secure contexts (HTTPS),
+            in some or all supporting browsers and mobile devices
+            console.error("navigator.share", err); 
             */
-        }
-    }
+            console.error('Navigator share error', err);
 
-    // something wrong or not supported navigator.share
-    if (!isSupportedNavigatorShare || (isSupportedNavigatorShare && errorNavigatorShare)) {
-        playSound('newMessage');
-        Swal.fire({
-            background: swalBackground,
-            position: 'center',
-            title: 'Share Room',
-            // imageAlt: 'mirotalk-share',
-            // imageUrl: shareUrlImg,
-            html:
-                `
-            <br/>
-            <div id="qrRoomContainer">
-                <canvas id="qrRoom"></canvas>
-            </div>
-            <br/><br/>
-            <p style="color:white;"> Invite others to join. Share this meeting link.</p>
-            <p style="color:rgb(8, 189, 89);">` +
-                myRoomUrl +
-                `</p>`,
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: `Copy URL`,
-            denyButtonText: `Email invite`,
-            cancelButtonText: `Close`,
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown',
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp',
-            },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                copyRoomURL();
-            } else if (result.isDenied) {
-                let message = {
-                    email: '',
-                    subject: 'Please join our MiroTalk Video Chat Meeting',
-                    body: 'Click to join: ' + myRoomUrl,
-                };
-                shareRoomByEmail(message);
-            }
-        });
-        makeRoomQR();
+            shareRoomMeetingURL();
+        }
+    } else {
+        shareRoomMeetingURL();
     }
+}
+
+/**
+ * Share meeting room
+ * @param {boolean} checkScreen check screen share
+ */
+function shareRoomMeetingURL(checkScreen = false) {
+    playSound('newMessage');
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        title: 'Share your meeting room',
+        html: `
+        <br/>
+        <div id="qrRoomContainer">
+            <canvas id="qrRoom"></canvas>
+        </div>
+        <br/><br/>
+        <p style="color:rgb(8, 189, 89);">Join from your mobile device</p>
+        <p style="color:white;">No need for apps, simply capture the QR code with your mobile camera</p>
+        <p style="color:white;">Or</p>
+        <p style="color:white;">Invite someone else to join by sending them the following URL</p>
+        <p style="color:rgb(8, 189, 89);">${myRoomUrl}</p>`,
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: `Copy URL`,
+        denyButtonText: `Email invite`,
+        cancelButtonText: `Close`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            copyRoomURL();
+        } else if (result.isDenied) {
+            let message = {
+                email: '',
+                subject: 'Please join our MiroTalk Video Chat Meeting',
+                body: 'Click to join: ' + myRoomUrl,
+            };
+            shareRoomByEmail(message);
+        }
+        // share screen on join room
+        if (checkScreen) checkShareScreen();
+    });
+    makeRoomQR();
 }
 
 /**
