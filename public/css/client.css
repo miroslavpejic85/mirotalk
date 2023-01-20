@@ -90,8 +90,8 @@ body {
     height: 100%;
     margin: auto;
     overflow: hidden;
-    /* background: url('../images/bg.svg'); */
-    background: var(--body-bg);
+    background: url('../images/bg.svg');
+    /* background: var(--body-bg); */
 }
 
 /*--------------------------------------------------------------
@@ -104,6 +104,25 @@ body {
 
 #google_translate_element select {
     background: #2c2c2c !important;
+}
+
+/*--------------------------------------------------------------
+# Loading...
+--------------------------------------------------------------*/
+
+#loadingDiv {
+    color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.7);
+}
+#loadingDiv h1 {
+    font-size: 60px;
+    font-family: 'Comfortaa';
+}
+#loadingDiv pre {
+    padding: 5px;
+    font-family: 'Comfortaa';
 }
 
 /*--------------------------------------------------------------

@@ -1877,6 +1877,7 @@ async function setupLocalMedia() {
         if (stream) {
             await loadLocalMedia(stream);
             await startPitchDetection(stream);
+            getId('loadingDiv').style.display = 'none';
         }
     } catch (err) {
         console.error('[Error] - Access denied for audio - video device', err);

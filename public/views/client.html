@@ -66,10 +66,20 @@
             <h1>WebRTC</h1>
         </div>
 
+        <!-- show this before to join -->
+
+        <div id="loadingDiv" class="center pulsate">
+            <h1>Loading...</h1>
+            <pre>
+Please allow the camera or microphone
+access to use this app.
+            </pre>
+        </div>
+
         <!-- init user devices -->
 
         <div id="initUser" class="init-user hidden">
-            <p>Please allow the camera & microphone access to use this app.</p>
+            <!-- <p>Please allow the camera & microphone access to use this app.</p> -->
             <video
                 id="initVideo"
                 playsinline="true"
