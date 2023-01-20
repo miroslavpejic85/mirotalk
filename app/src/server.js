@@ -54,10 +54,12 @@ const app = express();
 const Logs = require('./logs');
 const log = new Logs('server');
 
-const isHttps = process.env.HTTPS == 'true' ? true : false;
+const domain = process.env.HOST || 'localhost'
+const isHttps = process.env.HTTPS == 'true';
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
+const host = `http${isHttps ? 's' : ''}://${domain}:${port}`
 
-let io, server, host;
+let io, server;
 
 if (isHttps) {
     const fs = require('fs');
@@ -66,10 +68,8 @@ if (isHttps) {
         cert: fs.readFileSync(path.join(__dirname, '../ssl/cert.pem'), 'utf-8'),
     };
     server = https.createServer(options, app);
-    host = 'https://' + 'localhost' + ':' + port;
 } else {
     server = http.createServer(app);
-    host = 'http://' + 'localhost' + ':' + port;
 }
 
 /*  
