@@ -66,19 +66,26 @@
             <h1>WebRTC</h1>
         </div>
 
-        <!-- show this before to join -->
+        <!-- init user devices -->
 
-        <div id="loadingDiv" class="center pulsate">
-            <h1>Loading...</h1>
-            <pre>
-Please allow the camera or microphone
-access to use this app.
-            </pre>
+        <div id="initUser" class="init-user hidden">
+            <p>Please allow the camera & microphone access to use this app.</p>
+            <video
+                id="initVideo"
+                playsinline="true"
+                autoplay=""
+                class="mirror"
+                poster="../images/loader.gif"
+                style="object-fit: var(--videoObjFit)"
+            ></video>
+            <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
+            <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>
+            <select id="initVideoSelect" class="form-select text-light bg-dark"></select>
+            <select id="initMicrophoneSelect" class="form-select text-light bg-dark"></select>
+            <select id="initSpeakerSelect" class="form-select text-light bg-dark"></select>
         </div>
 
-        <!-- Start buttons bar
-        https://fontawesome.com/icons?d=gallery
-        -->
+        <!-- Start buttons bar https://fontawesome.com/icons?d=gallery -->
 
         <div id="buttonsBar" class="fadein">
             <button id="shareRoomBtn" class="fas fa-users"></button>
@@ -476,6 +483,7 @@ access to use this app.
         <script defer src="https://unpkg.com/@popperjs/core@2"></script>
         <script defer src="https://unpkg.com/tippy.js@6"></script>
         <script defer src="/socket.io/socket.io.js"></script>
+        <script defer src="../js/localStorage.js"></script>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/detectSpeaking.js"></script>
         <script defer src="../js/speechRecognition.js"></script>

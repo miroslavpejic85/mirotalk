@@ -19,7 +19,9 @@
  *
  */
 
-'use strict'; // https://www.w3schools.com/js/js_strict.asp
+'use strict';
+
+// https://www.w3schools.com/js/js_strict.asp
 
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
@@ -245,6 +247,7 @@ let isRecScreenStream = false;
 let isChatPasteTxt = false;
 let needToCreateOffer = false; // after session description answer
 let signalingSocket; // socket.io connection to our webserver
+let initStream; // initial webcam stream
 let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
 let recScreenStream; // recorded screen stream
@@ -262,6 +265,11 @@ let countTime; // conference count time
 // init audio-video
 let initAudioBtn;
 let initVideoBtn;
+// init Devices select
+let initVideo;
+let initVideoSelect;
+let initMicrophoneSelect;
+let initSpeakerSelect;
 // buttons bar
 let buttonsBar;
 let shareRoomBtn;
@@ -420,11 +428,19 @@ let speechRecognitionIcon;
 let speechRecognitionStart;
 let speechRecognitionStop;
 
+// Local Storage class
+let lS = new LocalStorage();
+
 /**
  * Load all Html elements by Id
  */
 function getHtmlElementsById() {
     countTime = getId('countTime');
+    // Init devices select
+    initVideo = getId('initVideo');
+    initVideoSelect = getId('initVideoSelect');
+    initMicrophoneSelect = getId('initMicrophoneSelect');
+    initSpeakerSelect = getId('initSpeakerSelect');
     // my video
     myVideo = getId('myVideo');
     myVideoWrap = getId('myVideoWrap');
@@ -1011,6 +1027,7 @@ function handleButtonsRule() {
  */
 async function whoAreYou() {
     console.log('11. Who are you?');
+
     if (myPeerName) {
         checkPeerAudioVideo();
         whoAreYouJoin();
@@ -1020,21 +1037,28 @@ async function whoAreYou() {
 
     playSound('newMessage');
 
+    loadLocalStorage();
+
+    // start cam init stream
+
+    if (useVideo && initVideoSelect) {
+        changeCamera(initVideoSelect.value);
+        myVideoChange = true;
+        refreshLocalMedia();
+    }
+
+    const initUser = getId('initUser');
+    initUser.classList.toggle('hidden');
+
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
         background: swalBackground,
+        title: 'MiroTalk P2P',
         position: 'center',
-        imageAlt: 'mirotalk-name',
-        imageUrl: welcomeImg,
-        title: 'Enter your name',
         input: 'text',
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
-        html: `<br>
-        <div style="padding: 10px;">
-            <button id="initAudioBtn" class="${className.audioOn}" onclick="handleAudio(event, true)"></button>
-            <button id="initVideoBtn" class="${className.videoOn}" onclick="handleVideo(event, true)"></button>
-        </div>`,
+        html: initUser, // inject html
         confirmButtonText: `Join meeting`,
         showClass: {
             popup: 'animate__animated animate__fadeInDown',
@@ -1052,7 +1076,30 @@ async function whoAreYou() {
         playSound('addPeer');
     });
 
+    // select video - audio
+
+    initVideoSelect.onchange = () => {
+        videoSelect.selectedIndex = initVideoSelect.selectedIndex;
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
+        changeCamera(initVideoSelect.value);
+        myVideoChange = true;
+        refreshLocalMedia();
+    };
+    initMicrophoneSelect.onchange = () => {
+        audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
+        myVideoChange = false;
+        refreshLocalMedia();
+    };
+    initSpeakerSelect.onchange = () => {
+        audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
+        changeAudioDestination();
+    };
+
     if (isMobileDevice) return;
+
+    // init video -audio buttons
 
     initAudioBtn = getId('initAudioBtn');
     initVideoBtn = getId('initVideoBtn');
@@ -1067,6 +1114,76 @@ async function whoAreYou() {
     }
     setTippy(initAudioBtn, 'Stop the audio', 'top');
     setTippy(initVideoBtn, 'Stop the video', 'top');
+}
+
+/**
+ * Load settings from Local Storage
+ */
+function loadLocalStorage() {
+    const localStorageDevices = lS.getLocalStorageDevices();
+    console.log('04 ----> Get Local Storage Devices before', localStorageDevices);
+    if (localStorageDevices) {
+        //
+        initMicrophoneSelect.selectedIndex = localStorageDevices.audio.index;
+        initSpeakerSelect.selectedIndex = localStorageDevices.speaker.index;
+        initVideoSelect.selectedIndex = localStorageDevices.video.index;
+        //
+        audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
+        audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
+        videoSelect.selectedIndex = initVideoSelect.selectedIndex;
+        //
+        if (lS.DEVICES_COUNT.audio != localStorageDevices.audio.count) {
+            console.log('04.1 ----> Audio devices seems changed, use default index 0');
+            initMicrophoneSelect.selectedIndex = 0;
+            audioInputSelect.selectedIndex = 0;
+            lS.setLocalStorageDevices(
+                lS.MEDIA_TYPE.audio,
+                initMicrophoneSelect.selectedIndex,
+                initMicrophoneSelect.value,
+            );
+        }
+        if (lS.DEVICES_COUNT.speaker != localStorageDevices.speaker.count) {
+            console.log('04.2 ----> Speaker devices seems changed, use default index 0');
+            initSpeakerSelect.selectedIndex = 0;
+            audioOutputSelect.selectedIndex = 0;
+            lS.setLocalStorageDevices(
+                lS.MEDIA_TYPE.speaker,
+                initSpeakerSelect.selectedIndexIndex,
+                initSpeakerSelect.value,
+            );
+        }
+        if (lS.DEVICES_COUNT.video != localStorageDevices.video.count) {
+            console.log('04.3 ----> Video devices seems changed, use default index 0');
+            initVideoSelect.selectedIndex = 0;
+            videoSelect.selectedIndex = 0;
+            lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
+        }
+        //
+        console.log('04.4 ----> Get Local Storage Devices after', lS.getLocalStorageDevices());
+    }
+    if (initVideoSelect.value) changeCamera(initVideoSelect.value);
+}
+
+/**
+ * Change init camera by device id
+ * @param {string} deviceId
+ */
+function changeCamera(deviceId) {
+    if (initStream) {
+        stopTracks(initStream);
+        initVideo.style.display = 'block';
+    }
+    navigator.mediaDevices
+        .getUserMedia({ video: { deviceId: deviceId } })
+        .then((camStream) => {
+            initVideo.srcObject = camStream;
+            initStream = camStream;
+            console.log('Success attached init video stream');
+        })
+        .catch((err) => {
+            console.error('[Error] changeCamera', err);
+            userLog('error', 'Error while swapping camera' + err, 'top-end');
+        });
 }
 
 /**
@@ -1092,7 +1209,7 @@ function checkPeerAudioVideo() {
 /**
  * Room and Peer name are ok Join Channel
  */
-function whoAreYouJoin() {
+async function whoAreYouJoin() {
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
@@ -1122,6 +1239,7 @@ async function joinToChannel() {
         peer_rec_status: isRecScreenStream,
         peer_privacy_status: isVideoPrivacyActive,
     });
+    handleBodyOnMouseMove(); // show/hide buttonsBar...
 }
 
 /**
@@ -1559,8 +1677,8 @@ function setButtonsBarPosition(position) {
  */
 async function initEnumerateDevices() {
     console.log('05. init Enumerate Devices');
-    await initEnumerateAudioDevices();
     await initEnumerateVideoDevices();
+    await initEnumerateAudioDevices();
     if (!useAudio && !useVideo) {
         initEnumerateDevicesFailed = true;
         playSound('alert');
@@ -1634,20 +1752,25 @@ function enumerateAudioDevices(stream) {
         .enumerateDevices()
         .then((devices) =>
             devices.forEach((device) => {
-                let el = null;
+                let el,
+                    eli = null;
                 if ('audioinput' === device.kind) {
                     el = getId('audioSource');
+                    eli = getId('initMicrophoneSelect');
                 } else if ('audiooutput' === device.kind) {
                     el = getId('audioOutput');
+                    eli = getId('initSpeakerSelect');
                 }
                 if (!el) return;
-                addChild(device, el, device.kind);
+                addChild(device, [el, eli]);
             }),
         )
         .then(() => {
             stopTracks(stream);
             isEnumerateAudioDevices = true;
-            getId('audioOutput').disabled = !('sinkId' in HTMLMediaElement.prototype);
+            const sinkId = 'sinkId' in HTMLMediaElement.prototype;
+            getId('audioOutput').disabled = !sinkId;
+            if (!sinkId) getId('initSpeakerSelect').display = 'none';
         });
 }
 
@@ -1661,12 +1784,14 @@ function enumerateVideoDevices(stream) {
         .enumerateDevices()
         .then((devices) =>
             devices.forEach((device) => {
-                let el = null;
+                let el,
+                    eli = null;
                 if ('videoinput' === device.kind) {
                     el = getId('videoSource');
+                    eli = getId('initVideoSelect');
                 }
                 if (!el) return;
-                addChild(device, el, device.kind);
+                addChild(device, [el, eli]);
             }),
         )
         .then(() => {
@@ -1688,24 +1813,28 @@ function stopTracks(stream) {
 /**
  * Add child to element
  * @param {object} device
- * @param {object} el
- * @param {string} kind audio/video
+ * @param {object} els
  */
-function addChild(device, el, kind) {
-    const option = document.createElement('option');
-    option.value = device.deviceId;
-    switch (kind) {
-        case 'videoinput':
-            option.text = `📹 ` + device.label || `📹 camera ${el.length + 1}`;
-            break;
-        case 'audioinput':
-            option.text = `🎤 ` + device.label || `🎤 microphone ${el.length + 1}`;
-            break;
-        case 'audiooutput':
-            option.text = `🔈 ` + device.label || `🔈 speaker ${el.length + 1}`;
-            break;
-    }
-    el.appendChild(option);
+function addChild(device, els) {
+    let kind = device.kind;
+    els.forEach((el) => {
+        let option = document.createElement('option');
+        option.value = device.deviceId;
+        switch (kind) {
+            case 'videoinput':
+                option.innerHTML = `📹 ` + device.label || `📹 camera ${el.length + 1}`;
+                break;
+            case 'audioinput':
+                option.innerHTML = `🎤 ` + device.label || `🎤 microphone ${el.length + 1}`;
+                break;
+            case 'audiooutput':
+                option.innerHTML = `🔈 ` + device.label || `🔈 speaker ${el.length + 1}`;
+                break;
+            default:
+                break;
+        }
+        el.appendChild(option);
+    });
     selectors = [getId('audioSource'), getId('audioOutput'), getId('videoSource')];
 }
 
@@ -1764,8 +1893,6 @@ async function setupLocalMedia() {
  */
 async function loadLocalMedia(stream) {
     console.log('10. Access granted to audio - video device');
-    // hide loading div
-    getId('loadingDiv').style.display = 'none';
 
     localMediaStream = stream;
 
@@ -1909,7 +2036,6 @@ async function loadLocalMedia(stream) {
     setupMySettings();
     setupVideoUrlPlayer();
     startCountTime();
-    handleBodyOnMouseMove();
 
     if (isVideoFullScreenSupported) {
         handleVideoPlayerFs(myLocalMedia.id, myVideoFullScreenBtn.id);
@@ -3281,15 +3407,18 @@ function setupMySettings() {
     audioInputSelect.addEventListener('change', (e) => {
         myVideoChange = false;
         refreshLocalMedia();
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
     });
     // select audio output
     audioOutputSelect.addEventListener('change', (e) => {
         changeAudioDestination();
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
     });
     // select video input
     videoSelect.addEventListener('change', (e) => {
         myVideoChange = true;
         refreshLocalMedia();
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
     });
     // select video quality
     videoQualitySelect.addEventListener('change', (e) => {
@@ -3846,6 +3975,8 @@ function handleAudio(e, init, force = null) {
     if (init) {
         audioBtn.className = myAudioStatus ? className.audioOn : className.audioOff;
         setTippy(initAudioBtn, myAudioStatus ? 'Stop the audio' : 'Start the audio', 'top');
+        getId('initMicrophoneSelect').disabled = !myAudioStatus;
+        getId('initSpeakerSelect').disabled = !myAudioStatus;
     }
     setMyAudioStatus(myAudioStatus);
 }
@@ -3871,6 +4002,8 @@ function handleVideo(e, init, force = null) {
     if (init) {
         videoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
         setTippy(initVideoBtn, myVideoStatus ? 'Stop the video' : 'Start the video', 'top');
+        initVideo.style.display = myVideoStatus ? 'block' : 'none';
+        initVideoSelect.disabled = !myVideoStatus;
     }
     setMyVideoStatus(myVideoStatus);
 }
