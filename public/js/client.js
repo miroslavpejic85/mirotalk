@@ -1041,14 +1041,6 @@ async function whoAreYou() {
 
     await loadLocalStorage();
 
-    // start cam init stream
-
-    if (useVideo && initVideoSelect) {
-        myVideoChange = true;
-        refreshLocalMedia();
-        changeCamera(initVideoSelect.value);
-    }
-
     const initUser = getId('initUser');
     initUser.classList.toggle('hidden');
 
@@ -1100,8 +1092,6 @@ async function whoAreYou() {
         changeAudioDestination();
     };
 
-    if (isMobileDevice) return;
-
     // init video -audio buttons
 
     initAudioBtn = getId('initAudioBtn');
@@ -1115,6 +1105,7 @@ async function whoAreYou() {
         initAudioBtn.className = className.audioOff;
         setMyAudioStatus(useAudio);
     }
+
     setTippy(initAudioBtn, 'Stop the audio', 'top');
     setTippy(initVideoBtn, 'Stop the video', 'top');
 }
@@ -1164,7 +1155,12 @@ async function loadLocalStorage() {
         //
         console.log('12.4 Get Local Storage Devices after', lS.getLocalStorageDevices());
     }
-    if (initVideoSelect.value) changeCamera(initVideoSelect.value);
+    // Start init cam
+    if (useVideo && initVideoSelect.value) {
+        myVideoChange = true;
+        refreshLocalMedia();
+        changeCamera(initVideoSelect.value);
+    }
 }
 
 /**
@@ -1213,6 +1209,7 @@ function checkPeerAudioVideo() {
  * Room and Peer name are ok Join Channel
  */
 async function whoAreYouJoin() {
+    if (isMobileDevice && myVideoStatus && myAudioStatus) refreshLocalMedia();
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
