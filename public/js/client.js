@@ -1213,7 +1213,6 @@ function checkPeerAudioVideo() {
  * Room and Peer name are ok Join Channel
  */
 async function whoAreYouJoin() {
-    refreshLocalMedia();
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
@@ -4269,7 +4268,7 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     startPitchDetection(localMediaStream);
 
     // attachMediaStream is a part of the adapter.js library
-    attachMediaStream(myVideo, localMediaStream); // newstream
+    attachMediaStream(myVideo, localMediaStream); // newStream
 
     // on toggleScreenSharing video stop
     if (useVideo || isScreenStreaming) {
