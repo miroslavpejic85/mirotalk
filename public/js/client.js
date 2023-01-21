@@ -896,7 +896,6 @@ async function handleConnect() {
     } else {
         await initEnumerateDevices();
         await setupLocalMedia();
-        await whoAreYou();
     }
 }
 
@@ -1042,9 +1041,9 @@ async function whoAreYou() {
     // start cam init stream
 
     if (useVideo && initVideoSelect) {
-        changeCamera(initVideoSelect.value);
         myVideoChange = true;
         refreshLocalMedia();
+        changeCamera(initVideoSelect.value);
     }
 
     const initUser = getId('initUser');
@@ -1082,9 +1081,9 @@ async function whoAreYou() {
     initVideoSelect.onchange = () => {
         videoSelect.selectedIndex = initVideoSelect.selectedIndex;
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
-        changeCamera(initVideoSelect.value);
         myVideoChange = true;
         refreshLocalMedia();
+        changeCamera(initVideoSelect.value);
     };
     initMicrophoneSelect.onchange = () => {
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
@@ -1122,7 +1121,7 @@ async function whoAreYou() {
  */
 function loadLocalStorage() {
     const localStorageDevices = lS.getLocalStorageDevices();
-    console.log('04 ----> Get Local Storage Devices before', localStorageDevices);
+    console.log('12. Get Local Storage Devices before', localStorageDevices);
     if (localStorageDevices) {
         //
         initMicrophoneSelect.selectedIndex = localStorageDevices.audio.index;
@@ -1134,7 +1133,7 @@ function loadLocalStorage() {
         videoSelect.selectedIndex = initVideoSelect.selectedIndex;
         //
         if (lS.DEVICES_COUNT.audio != localStorageDevices.audio.count) {
-            console.log('04.1 ----> Audio devices seems changed, use default index 0');
+            console.log('12.1 Audio devices seems changed, use default index 0');
             initMicrophoneSelect.selectedIndex = 0;
             audioInputSelect.selectedIndex = 0;
             lS.setLocalStorageDevices(
@@ -1144,7 +1143,7 @@ function loadLocalStorage() {
             );
         }
         if (lS.DEVICES_COUNT.speaker != localStorageDevices.speaker.count) {
-            console.log('04.2 ----> Speaker devices seems changed, use default index 0');
+            console.log('12.2 Speaker devices seems changed, use default index 0');
             initSpeakerSelect.selectedIndex = 0;
             audioOutputSelect.selectedIndex = 0;
             lS.setLocalStorageDevices(
@@ -1154,13 +1153,13 @@ function loadLocalStorage() {
             );
         }
         if (lS.DEVICES_COUNT.video != localStorageDevices.video.count) {
-            console.log('04.3 ----> Video devices seems changed, use default index 0');
+            console.log('12.3 Video devices seems changed, use default index 0');
             initVideoSelect.selectedIndex = 0;
             videoSelect.selectedIndex = 0;
             lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
         }
         //
-        console.log('04.4 ----> Get Local Storage Devices after', lS.getLocalStorageDevices());
+        console.log('12.4 Get Local Storage Devices after', lS.getLocalStorageDevices());
     }
     if (initVideoSelect.value) changeCamera(initVideoSelect.value);
 }
@@ -1880,6 +1879,7 @@ async function setupLocalMedia() {
             await startPitchDetection(stream);
             getId('loadingDiv').style.display = 'none';
             document.body.style.background = 'var(--body-bg)';
+            await whoAreYou();
         }
     } catch (err) {
         console.error('[Error] - Access denied for audio - video device', err);
