@@ -156,7 +156,12 @@ body {
     border: var(--border);
     border-radius: 5px;
     color: white;
-    transition: all 0.3s ease-in-out;
+}
+
+.init-user button:hover {
+    background-color: rgb(35, 35, 35);
+    color: white;
+    transform: scale(1);
 }
 
 /*--------------------------------------------------------------
