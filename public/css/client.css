@@ -141,6 +141,7 @@ body {
     padding: 10px;
     background: #2c2c2c;
     color: white;
+    border: var(--border);
     border-radius: 5px;
     cursor: pointer;
 }
@@ -148,13 +149,13 @@ body {
 .init-user button {
     margin-top: 20px;
     margin-bottom: 10px;
-    padding: 4px;
-    width: 40px;
-    background: white;
+    width: 50px;
+    padding: 10px;
+    background: transparent;
     font-size: 1.5rem;
+    border: var(--border);
     border-radius: 5px;
-    color: black;
-    border: none;
+    color: white;
     transition: all 0.3s ease-in-out;
 }
 
@@ -871,6 +872,10 @@ input:checked + .slider:before {
     text-align: center;
     color: white !important;
     background-color: transparent !important;
+}
+
+.swal2-input {
+    border: var(--border) !important;
 }
 
 .swal2-file {

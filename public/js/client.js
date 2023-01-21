@@ -1053,7 +1053,7 @@ async function whoAreYou() {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: swalBackground,
+        background: 'radial-gradient(#393939, #000000)', //swalBackground,
         title: 'MiroTalk P2P',
         position: 'center',
         input: 'text',
@@ -1878,6 +1878,7 @@ async function setupLocalMedia() {
             await loadLocalMedia(stream);
             await startPitchDetection(stream);
             getId('loadingDiv').style.display = 'none';
+            document.body.style.background = 'var(--body-bg)';
         }
     } catch (err) {
         console.error('[Error] - Access denied for audio - video device', err);
