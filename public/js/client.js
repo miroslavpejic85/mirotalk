@@ -1027,6 +1027,9 @@ function handleButtonsRule() {
 async function whoAreYou() {
     console.log('11. Who are you?');
 
+    getId('loadingDiv').style.display = 'none';
+    document.body.style.background = 'var(--body-bg)';
+
     if (myPeerName) {
         checkPeerAudioVideo();
         whoAreYouJoin();
@@ -1036,7 +1039,7 @@ async function whoAreYou() {
 
     playSound('newMessage');
 
-    loadLocalStorage();
+    await loadLocalStorage();
 
     // start cam init stream
 
@@ -1119,7 +1122,7 @@ async function whoAreYou() {
 /**
  * Load settings from Local Storage
  */
-function loadLocalStorage() {
+async function loadLocalStorage() {
     const localStorageDevices = lS.getLocalStorageDevices();
     console.log('12. Get Local Storage Devices before', localStorageDevices);
     if (localStorageDevices) {
@@ -1210,6 +1213,7 @@ function checkPeerAudioVideo() {
  * Room and Peer name are ok Join Channel
  */
 async function whoAreYouJoin() {
+    refreshLocalMedia();
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
@@ -1877,8 +1881,6 @@ async function setupLocalMedia() {
         if (stream) {
             await loadLocalMedia(stream);
             await startPitchDetection(stream);
-            getId('loadingDiv').style.display = 'none';
-            document.body.style.background = 'var(--body-bg)';
             await whoAreYou();
         }
     } catch (err) {
