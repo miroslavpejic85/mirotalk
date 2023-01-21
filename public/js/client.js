@@ -3876,13 +3876,12 @@ function shareRoomMeetingURL(checkScreen = false) {
     Swal.fire({
         background: swalBackground,
         position: 'center',
-        title: 'Share your meeting room',
+        title: 'Share the room',
         html: `
-        <br/>
         <div id="qrRoomContainer">
             <canvas id="qrRoom"></canvas>
         </div>
-        <br/><br/>
+        <br/>
         <p style="color:rgb(8, 189, 89);">Join from your mobile device</p>
         <p style="color:white;">No need for apps, simply capture the QR code with your mobile camera</p>
         <p style="color:white;">Or</p>
@@ -3890,6 +3889,8 @@ function shareRoomMeetingURL(checkScreen = false) {
         <p style="color:rgb(8, 189, 89);">${myRoomUrl}</p>`,
         showDenyButton: true,
         showCancelButton: true,
+        cancelButtonColor: 'red',
+        denyButtonColor: 'green',
         confirmButtonText: `Copy URL`,
         denyButtonText: `Email invite`,
         cancelButtonText: `Close`,
