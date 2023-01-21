@@ -3576,7 +3576,12 @@ function getVideoConstraints(videoQuality) {
                     frameRate: { ideal: 60 },
                 }; // video cam constraints default
             }
-            return { frameRate: frameRate };
+            // This will make the browser use hdVideo and 30fps.
+            return {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 30 },
+            }; // on default as hdVideo
         case 'qvgaVideo':
             return {
                 width: { exact: 320 },

@@ -54,10 +54,10 @@ const app = express();
 const Logs = require('./logs');
 const log = new Logs('server');
 
-const domain = process.env.HOST || 'localhost'
+const domain = process.env.HOST || 'localhost';
 const isHttps = process.env.HTTPS == 'true';
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
-const host = `http${isHttps ? 's' : ''}://${domain}:${port}`
+const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
 
 let io, server;
 
