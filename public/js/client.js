@@ -1057,6 +1057,7 @@ async function whoAreYou() {
         title: 'MiroTalk P2P',
         position: 'center',
         input: 'text',
+        inputPlaceholder: 'Enter your name',
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: initUser, // inject html
         confirmButtonText: `Join meeting`,
