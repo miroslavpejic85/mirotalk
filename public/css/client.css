@@ -120,6 +120,10 @@ body {
     font-size: 60px;
     font-family: 'Comfortaa';
 }
+#loadingDiv img {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
 #loadingDiv pre {
     padding: 5px;
     font-family: 'Comfortaa';
