@@ -1210,6 +1210,11 @@ progress {
 # Common
 --------------------------------------------------------------*/
 
+select {
+    height: 40px;
+    line-height: 40px;
+}
+
 hr {
     border: 0;
     display: block;
