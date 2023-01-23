@@ -113,6 +113,7 @@ body {
 #loadingDiv {
     color: #fff;
     padding: 30px;
+    text-align: center;
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.7);
 }
