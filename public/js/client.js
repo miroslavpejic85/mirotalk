@@ -4894,7 +4894,7 @@ async function msgerAddPeers(peers) {
     for (let peer_id in peers) {
         let peer_name = peers[peer_id]['peer_name'];
         // bypass insert to myself in the list :)
-        if (peer_id != myPeerId) {
+        if (peer_id != myPeerId && peer_name) {
             let exsistMsgerPrivateDiv = getId(peer_id + '_pMsgDiv');
             // if there isn't add it....
             if (!exsistMsgerPrivateDiv) {
