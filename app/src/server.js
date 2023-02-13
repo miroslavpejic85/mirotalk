@@ -382,11 +382,12 @@ async function ngrokStart() {
     try {
         await ngrok.authtoken(ngrokAuthToken);
         await ngrok.connect(port);
-        let api = ngrok.getApi();
-        let data = await api.listTunnels();
-        let pu0 = data.tunnels[0].public_url;
-        let pu1 = data.tunnels[1].public_url;
-        let tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
+        const api = ngrok.getApi();
+        const data = JSON.parse(await api.get('api/tunnels')); // v3
+        // const data = await api.listTunnels(); // v4
+        const pu0 = data.tunnels[0].public_url;
+        const pu1 = data.tunnels[1].public_url;
+        const tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
         // server settings
         log.debug('settings', {
             iceServers: iceServers,

@@ -23,24 +23,24 @@
     "license": "AGPL-3.0",
     "homepage": "https://github.com/miroslavpejic85/mirotalk",
     "dependencies": {
+        "@sentry/integrations": "^7.37.1",
+        "@sentry/node": "^7.37.1",
         "body-parser": "^1.20.1",
-        "compression": "^1.7.4",
         "colors": "^1.4.0",
+        "compression": "^1.7.4",
         "cors": "^2.8.5",
         "crypto-js": "^4.1.1",
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
-        "ngrok": "^4.3.3",
+        "ngrok": "^3.4.1",
         "qs": "^6.11.0",
         "socket.io": "^4.5.4",
-        "@sentry/node": "^7.36.0",
-        "@sentry/integrations": "^7.36.0",
         "swagger-ui-express": "^4.6.0",
         "uuid": "9.0.0",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "node-fetch": "^2.6.6",
-        "prettier": "2.8.3"
+        "prettier": "2.8.4"
     }
 }
