@@ -5235,11 +5235,14 @@ function openTab(evt, tabName) {
  * Update myPeerName to other peers in the room
  */
 function updateMyPeerName() {
-    let myNewPeerName = myPeerNameSet.value;
-    let myOldPeerName = myPeerName;
+    const myNewPeerName = myPeerNameSet.value;
+    const myOldPeerName = myPeerName;
 
     // myNewPeerName empty
     if (!myNewPeerName) return;
+
+    // prevent XSS injection to remote peer
+    if (isHtml(myNewPeerName)) return userLog('warning', 'Invalid name!');
 
     myPeerName = myNewPeerName;
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
@@ -6686,7 +6689,11 @@ function sendFileInformations(file, peer_id, broadcast = false) {
         if (!thereIsPeerConnections()) {
             return userLog('info', 'No participants detected');
         }
-        let fileInfo = {
+
+        // prevent XSS injection to remote peer
+        if (isHtml(fileToSend.name)) return userLog('warning', 'Invalid file name!');
+
+        const fileInfo = {
             room_id: roomId,
             broadcast: broadcast,
             peer_name: myPeerName,
