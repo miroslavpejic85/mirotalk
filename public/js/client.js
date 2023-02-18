@@ -4662,10 +4662,13 @@ function sendChatMessage() {
 
 /**
  * handle Incoming Data Channel Chat Messages
- * @param {object} dataMessage chat messages
+ * @param {object} data chat messages
  */
-function handleDataChannelChat(dataMessage) {
-    if (!dataMessage) return;
+function handleDataChannelChat(data) {
+    if (!data) return;
+
+    // prevent XSS injection from remote peer through Data Channel
+    const dataMessage = JSON.parse(filterXSS(JSON.stringify(data)));
 
     let msgFrom = dataMessage.from;
     let msgTo = dataMessage.to;
@@ -4980,12 +4983,14 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
     };
 
     function sendPrivateMessage() {
-        let pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
-        if (!pMsg) {
-            msgerPrivateMsgInput.value = '';
-            isChatPasteTxt = false;
-            return;
-        }
+        let pMsg = msgerPrivateMsgInput.value.trim();
+
+        // let pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
+        // if (!pMsg) {
+        //     msgerPrivateMsgInput.value = '';
+        //     isChatPasteTxt = false;
+        //     return;
+        // }
         let toPeerName = msgerPrivateBtn.value;
         emitMsg(myPeerName, toPeerName, pMsg, true, peerId);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<hr>Private message to ' + toPeerName, true);
