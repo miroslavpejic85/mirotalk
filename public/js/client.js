@@ -4983,14 +4983,12 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
     };
 
     function sendPrivateMessage() {
-        let pMsg = msgerPrivateMsgInput.value.trim();
-
-        // let pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
-        // if (!pMsg) {
-        //     msgerPrivateMsgInput.value = '';
-        //     isChatPasteTxt = false;
-        //     return;
-        // }
+        let pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
+        if (!pMsg) {
+            msgerPrivateMsgInput.value = '';
+            isChatPasteTxt = false;
+            return;
+        }
         let toPeerName = msgerPrivateBtn.value;
         emitMsg(myPeerName, toPeerName, pMsg, true, peerId);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<hr>Private message to ' + toPeerName, true);
