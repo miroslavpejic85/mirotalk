@@ -719,9 +719,9 @@ function getSignalingServer() {
  * @returns {string} Room Id
  */
 function getRoomId() {
-    // chek if passed as params /join?room=id
+    // check if passed as params /join?room=id
     let qs = new URLSearchParams(window.location.search);
-    let queryRoomId = qs.get('room');
+    let queryRoomId = filterXSS(qs.get('room'));
 
     // skip /join/
     let roomId = queryRoomId ? queryRoomId : window.location.pathname.substring(6);
@@ -756,7 +756,7 @@ function makeId(length) {
  */
 function getNotify() {
     let qs = new URLSearchParams(window.location.search);
-    let notify = qs.get('notify');
+    let notify = filterXSS(qs.get('notify'));
     if (notify) {
         let queryNotify = notify === '1' || notify === 'true';
         if (queryNotify != null) return queryNotify;
@@ -769,8 +769,12 @@ function getNotify() {
  * @returns {string} Peer Name
  */
 function getPeerName() {
-    let qs = new URLSearchParams(window.location.search);
-    return qs.get('name');
+    const qs = new URLSearchParams(window.location.search);
+    const name = filterXSS(qs.get('name'));
+    if (isHtml(name)) {
+        return 'Invalid name';
+    }
+    return name;
 }
 
 /**
@@ -779,7 +783,7 @@ function getPeerName() {
  */
 function getScreenEnabled() {
     let qs = new URLSearchParams(window.location.search);
-    let screen = qs.get('screen');
+    let screen = filterXSS(qs.get('screen'));
     if (screen) {
         screen = screen.toLowerCase();
         let queryPeerScreen = screen === '1' || screen === 'true';
@@ -1063,7 +1067,16 @@ async function whoAreYou() {
         },
         inputValidator: (value) => {
             if (!value) return 'Please enter your name';
-            myPeerName = value;
+
+            // prevent xss execution itself
+            myPeerName = filterXSS(value);
+
+            // prevent XSS injection to remote peer
+            if (isHtml(myPeerName)) {
+                myPeerName = '';
+                return 'Invalid name!';
+            }
+
             window.localStorage.peer_name = myPeerName;
             whoAreYouJoin();
         },
@@ -1191,8 +1204,8 @@ function changeCamera(deviceId) {
  */
 function checkPeerAudioVideo() {
     let qs = new URLSearchParams(window.location.search);
-    let audio = qs.get('audio');
-    let video = qs.get('video');
+    let audio = filterXSS(qs.get('audio'));
+    let video = filterXSS(qs.get('video'));
     if (audio) {
         audio = audio.toLowerCase();
         let queryPeerAudio = audio === '1' || audio === 'true';
@@ -4662,19 +4675,16 @@ function sendChatMessage() {
 
 /**
  * handle Incoming Data Channel Chat Messages
- * @param {object} data chat messages
+ * @param {object} dataMessage chat messages
  */
-function handleDataChannelChat(data) {
-    if (!data) return;
+function handleDataChannelChat(dataMessage) {
+    if (!dataMessage) return;
 
-    // prevent XSS injection from remote peer through Data Channel
-    const dataMessage = sanitizeXSS(data);
-
-    let msgFrom = dataMessage.from;
-    let msgTo = dataMessage.to;
-    let msg = dataMessage.msg;
-    let msgPrivate = dataMessage.privateMsg;
-    let msgId = dataMessage.id;
+    const msgFrom = filterXSS(dataMessage.from);
+    const msgTo = filterXSS(dataMessage.to);
+    const msg = dataMessage.msg;
+    const msgPrivate = dataMessage.privateMsg;
+    const msgId = dataMessage.id;
 
     // private message but not for me return
     if (msgPrivate && msgTo != myPeerName) return;
@@ -4983,13 +4993,23 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
     };
 
     function sendPrivateMessage() {
-        let pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
+        const pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
         if (!pMsg) {
             msgerPrivateMsgInput.value = '';
             isChatPasteTxt = false;
             return;
         }
-        let toPeerName = msgerPrivateBtn.value;
+        // sanitization to prevent XSS
+        msgerPrivateBtn.value = filterXSS(msgerPrivateBtn.value);
+        myPeerName = filterXSS(myPeerName);
+
+        if (isHtml(myPeerName) && isHtml(msgerPrivateBtn.value)) {
+            msgerPrivateMsgInput.value = '';
+            isChatPasteTxt = false;
+            return;
+        }
+
+        const toPeerName = msgerPrivateBtn.value;
         emitMsg(myPeerName, toPeerName, pMsg, true, peerId);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<hr>Private message to ' + toPeerName, true);
         msgerPrivateMsgInput.value = '';

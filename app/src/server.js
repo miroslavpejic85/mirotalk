@@ -254,9 +254,15 @@ app.get('/join/', (req, res) => {
     res.redirect('/');
 });
 
-// Join Room *
-app.get('/join/*', (req, res) => {
+// Join Room by id
+app.get('/join/:roomId', function (req, res) {
+    // log.debug('Join to room', { roomId: req.params.roomId });
     res.sendFile(views.client);
+});
+
+// Not specified correctly the room id
+app.get('/join/*', function (req, res) {
+    res.redirect('/');
 });
 
 /**
