@@ -4668,7 +4668,7 @@ function handleDataChannelChat(data) {
     if (!data) return;
 
     // prevent XSS injection from remote peer through Data Channel
-    const dataMessage = JSON.parse(filterXSS(JSON.stringify(data)));
+    const dataMessage = sanitizeXSS(data);
 
     let msgFrom = dataMessage.from;
     let msgTo = dataMessage.to;
@@ -5238,14 +5238,20 @@ function openTab(evt, tabName) {
  * Update myPeerName to other peers in the room
  */
 function updateMyPeerName() {
-    const myNewPeerName = myPeerNameSet.value;
-    const myOldPeerName = myPeerName;
-
     // myNewPeerName empty
-    if (!myNewPeerName) return;
+    if (!myPeerNameSet.value) return;
+
+    // prevent xss execution itself
+    myPeerNameSet.value = filterXSS(myPeerNameSet.value);
 
     // prevent XSS injection to remote peer
-    if (isHtml(myNewPeerName)) return userLog('warning', 'Invalid name!');
+    if (isHtml(myPeerNameSet.value)) {
+        myPeerNameSet.value = '';
+        return userLog('warning', 'Invalid name!');
+    }
+
+    const myNewPeerName = myPeerNameSet.value;
+    const myOldPeerName = myPeerName;
 
     myPeerName = myNewPeerName;
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
@@ -6693,7 +6699,7 @@ function sendFileInformations(file, peer_id, broadcast = false) {
             return userLog('info', 'No participants detected');
         }
 
-        // prevent XSS injection to remote peer
+        // prevent XSS injection to remote peer (fileToSend.name is read only)
         if (isHtml(fileToSend.name)) return userLog('warning', 'Invalid file name!');
 
         const fileInfo = {
@@ -7506,4 +7512,13 @@ function getName(name) {
  */
 function elemDisplay(elem, yes) {
     elem.style.display = yes ? 'inline' : 'none';
+}
+
+/**
+ * Sanitize XSS scripts
+ * @param {object} src object
+ * @returns sanitized object
+ */
+function sanitizeXSS(src) {
+    return JSON.parse(filterXSS(JSON.stringify(src)));
 }
