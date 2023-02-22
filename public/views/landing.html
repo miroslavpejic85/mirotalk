@@ -153,10 +153,21 @@
                                     /></a>
                                 </li>
                                 <li class="reveal-from-top" data-reveal-delay="450">
-                                    <a href="https://LuvLounge.ca" target="_blank"
+                                    <a style="cursor: pointer" onclick="adultContent()"
                                         ><img src="../sponsors/LuvLounge.png" alt="LuvLounge"
                                     /></a>
                                 </li>
+                                <script>
+                                    function adultContent() {
+                                        if (
+                                            confirm(
+                                                '18+ WARNING! ADULTS ONLY!\n\nExplicit material for viewing by adults 18 years of age or older. You must be at least 18 years old to access to this site!\n\nProceeding you are agree and confirm to have 18+ year.',
+                                            )
+                                        ) {
+                                            window.open('https://luvlounge.ca', '_blank');
+                                        }
+                                    }
+                                </script>
                                 <li class="reveal-from-top" data-reveal-delay="450">
                                     <a href="https://www.questionpro.com" target="_blank"
                                         ><img src="../sponsors/QuestionPro.png" alt="QuestionPro"
