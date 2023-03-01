@@ -6192,34 +6192,15 @@ function whiteboardAddObj(type) {
             });
             break;
         case 'text':
-            Swal.fire({
-                background: swalBackground,
-                title: 'Enter the text',
-                input: 'text',
-                showCancelButton: true,
-                confirmButtonText: 'OK',
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let wbCanvasText = result.value;
-                    if (wbCanvasText) {
-                        const text = new fabric.Text(wbCanvasText, {
-                            top: 0,
-                            left: 0,
-                            fontFamily: 'Comfortaa',
-                            fill: wbCanvas.freeDrawingBrush.color,
-                            strokeWidth: wbCanvas.freeDrawingBrush.width,
-                            stroke: wbCanvas.freeDrawingBrush.color,
-                        });
-                        addWbCanvasObj(text);
-                    }
-                }
+            const text = new fabric.IText('Lorem Ipsum', {
+                top: 0,
+                left: 0,
+                fontFamily: 'Comfortaa',
+                fill: wbCanvas.freeDrawingBrush.color,
+                strokeWidth: wbCanvas.freeDrawingBrush.width,
+                stroke: wbCanvas.freeDrawingBrush.color,
             });
+            addWbCanvasObj(text);
             break;
         case 'line':
             const line = new fabric.Line([50, 100, 200, 200], {
@@ -6261,7 +6242,7 @@ function whiteboardAddObj(type) {
  */
 function addWbCanvasObj(obj) {
     if (obj) {
-        wbCanvas.add(obj);
+        wbCanvas.add(obj).setActiveObject(obj);
         whiteboardIsDrawingMode(false);
         wbCanvasToJson();
     }
