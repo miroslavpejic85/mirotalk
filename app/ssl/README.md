@@ -2,7 +2,7 @@
 
 ![mirotalk-https](https.png)
 
-1. Generate a `self-signed certificate`
+1. Generate a [self-signed certificate](https://en.wikipedia.org/wiki/Self-signed_certificate)
 
 ```bash
 # install openssl 4 ubuntu
@@ -21,6 +21,6 @@ rm csr.pem
 
 2. Expose `server.js` on `https` using the self-signed certificate, edit the `.env` file
 
-```js
-HTTPS = true;
+```bash
+HTTPS=true
 ```
