@@ -36,7 +36,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.0.2
+ * @version 1.0.3
  *
  */
 
@@ -53,7 +53,7 @@ const cors = require('cors');
 const path = require('path');
 const checkXSS = require('./xss.js');
 const app = express();
-
+const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
 
@@ -62,7 +62,7 @@ const isHttps = process.env.HTTPS == 'true';
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
 
-let io, server;
+let io, server, authHost;
 
 if (isHttps) {
     const fs = require('fs');
@@ -84,6 +84,15 @@ io = new Server({
 }).listen(server);
 
 // console.log(io);
+
+// Host protection (disabled by default)
+const hostProtected = process.env.HOST_PROTECTED == 'true' ? true : false;
+const hostCfg = {
+    protected: hostProtected,
+    username: process.env.HOST_USERNAME,
+    password: process.env.HOST_PASSWORD,
+    authenticated: !hostProtected,
+};
 
 // Swagger config
 const yamlJS = require('yamljs');
@@ -155,6 +164,7 @@ const views = {
     about: path.join(__dirname, '../../', 'public/views/about.html'),
     client: path.join(__dirname, '../../', 'public/views/client.html'),
     landing: path.join(__dirname, '../../', 'public/views/landing.html'),
+    login: path.join(__dirname, '../../', 'public/views/login.html'),
     newCall: path.join(__dirname, '../../', 'public/views/newcall.html'),
     notFound: path.join(__dirname, '../../', 'public/views/404.html'),
     permission: path.join(__dirname, '../../', 'public/views/permission.html'),
@@ -198,7 +208,33 @@ app.use((err, req, res, next) => {
 
 // main page
 app.get(['/'], (req, res) => {
-    res.sendFile(views.landing);
+    if (hostCfg.protected == true) {
+        hostCfg.authenticated = false;
+        res.sendFile(views.login);
+    } else {
+        res.sendFile(views.landing);
+    }
+});
+
+// handle login on host protected
+app.get(['/login'], (req, res) => {
+    if (hostCfg.protected == true) {
+        let ip = getIP(req);
+        log.debug(`Request login to host from: ${ip}`, req.query);
+        const { username, password } = req.query;
+        if (username == hostCfg.username && password == hostCfg.password) {
+            hostCfg.authenticated = true;
+            authHost = new Host(ip, true);
+            log.debug('LOGIN OK', { ip: ip, authorized: authHost.isAuthorized(ip) });
+            res.sendFile(views.landing);
+        } else {
+            log.debug('LOGIN KO', { ip: ip, authorized: false });
+            hostCfg.authenticated = false;
+            res.sendFile(views.login);
+        }
+    } else {
+        res.redirect('/');
+    }
 });
 
 // mirotalk about
@@ -208,7 +244,17 @@ app.get(['/about'], (req, res) => {
 
 // set new room name and join
 app.get(['/newcall'], (req, res) => {
-    res.sendFile(views.newCall);
+    if (hostCfg.protected == true) {
+        let ip = getIP(req);
+        if (allowedIP(ip)) {
+            res.sendFile(views.newCall);
+        } else {
+            hostCfg.authenticated = false;
+            res.sendFile(views.login);
+        }
+    } else {
+        res.sendFile(views.newCall);
+    }
 });
 
 // if not allow video/audio
@@ -237,7 +283,7 @@ app.get(['/test'], (req, res) => {
 
 // no room name specified to join
 app.get('/join/', (req, res) => {
-    if (Object.keys(req.query).length > 0) {
+    if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
         /* 
             http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
@@ -257,7 +303,11 @@ app.get('/join/', (req, res) => {
 // Join Room by id
 app.get('/join/:roomId', function (req, res) {
     // log.debug('Join to room', { roomId: req.params.roomId });
-    res.sendFile(views.client);
+    if (hostCfg.authenticated) {
+        res.sendFile(views.client);
+    } else {
+        res.redirect('/');
+    }
 });
 
 // Not specified correctly the room id
@@ -398,6 +448,9 @@ async function ngrokStart() {
         const tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
         // server settings
         log.debug('settings', {
+            host_protected: hostCfg.protected,
+            host_username: hostCfg.username,
+            host_password: hostCfg.password,
             iceServers: iceServers,
             ngrok: {
                 ngrok_enabled: ngrokEnabled,
@@ -446,6 +499,9 @@ server.listen(port, null, () => {
     } else {
         // server settings
         log.debug('settings', {
+            host_protected: hostCfg.protected,
+            host_username: hostCfg.username,
+            host_password: hostCfg.password,
             iceServers: iceServers,
             server: host,
             test_ice_servers: testStunTurn,
@@ -496,6 +552,7 @@ io.sockets.on('connect', async (socket) => {
     socket.on('disconnect', async (reason) => {
         for (let channel in socket.channels) {
             await removePeerFrom(channel);
+            removeIP(socket);
         }
         log.debug('[' + socket.id + '] disconnected', { reason: reason });
         delete sockets[socket.id];
@@ -996,3 +1053,36 @@ io.sockets.on('connect', async (socket) => {
         }
     }
 }); // end [sockets.on-connect]
+
+/**
+ * Get ip
+ * @param {object} req
+ * @returns string ip
+ */
+function getIP(req) {
+    return req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+}
+
+/**
+ * Check if auth ip
+ * @param {string} ip
+ * @returns boolean
+ */
+function allowedIP(ip) {
+    return authHost != null && authHost.isAuthorized(ip);
+}
+
+/**
+ * Remove hosts auth ip on socket disconnect
+ * @param {object} socket
+ */
+function removeIP(socket) {
+    if (hostCfg.protected == true) {
+        let ip = socket.handshake.address;
+        if (ip && allowedIP(ip)) {
+            authHost.deleteIP(ip);
+            hostCfg.authenticated = false;
+            log.debug('Remove IP from auth', { ip: ip });
+        }
+    }
+}
