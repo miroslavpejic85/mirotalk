@@ -10,8 +10,6 @@ services:
         hostname: mirotalk
         volumes:
             - .env:/src/.env:ro
-            - ./app/:/src/app/:ro
-            - ./public/:/src/public/:ro
         restart: unless-stopped
         ports:
             - '3000:3000'
