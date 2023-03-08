@@ -2667,10 +2667,10 @@ ul.pricing-item-features-list li {
     background-image: url(../images/bg.svg);
     background-repeat: no-repeat;
     background-size: auto;
-    /* left: 50%; */
+    left: 50%;
     top: 0;
-    /*background-position: center top;
-    transform: translate(-50%); */
+    background-position: center top;
+    transform: translate(-50%);
 }
 
 .illustration-section-02::after {
