@@ -78,7 +78,9 @@ services:
 
 ## Modifications
 
-If you plan on adjusting the frontend to your needs, you can easily do this. Just download this repository data and bind mount the relevant directories `/app` and `public` into the container during runtime. For example:
+If you plan on adjusting the frontend to your needs, you can easily do this. Just download this repository data and bind mount the relevant directories `/app` and `/public` into the container during runtime. 
+
+For example:
 
 ````
 # clone this repository
