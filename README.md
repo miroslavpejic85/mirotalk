@@ -50,7 +50,7 @@ The web service will be available on http://127.0.0.1:3000. Enjoy!
 
 ## Production
 
-For productive use, you should adjust the example `.env` file and bind mount it into the container.
+For productive use, you should copy and adjust the example `.env.template` file and bind mount it into the container.
 
 ````
 docker run -d -p 3000:3000 -v .env:/src/.env:ro --name mirotalk mirotalk:latest
@@ -72,6 +72,9 @@ services:
      volumes:
        - .env:/src/.env:ro
 ````
+
+> **Note**:
+> Also use a reverse proxy that provides an encrypted HTTPS channel with trusted SSL certificates. This is required as modern browsers won't enable end user's webcams or microphones for unsecure communications via HTTP. For testing purposes on localhost (127.0.0.1) it may work without HTTPS though.
 
 ## Modifications
 
