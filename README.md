@@ -17,7 +17,6 @@
 - Use different background images that look more professional.
 - Remove sponsors and other unnecessary stuff from the index page (landing.html). Leave sponsor button and reference to the official MiroTalk GitHub repository. Only add the footer text `Powered by LRVT` as hyperlink to this adjusted repository.
 - Adjust the Dockerfile to hold all relevant container data. Sync provided docker-compose.yml to all changes.
-  - No need to bind mount anything into the container as for the original MiroTalk repository and images.
 - GitHub Actions to automatically build a Docker image and push it onto Dockerhub.
   - You can use `l4rm4nd/mirotalk:latest` from Dockerhub
 
