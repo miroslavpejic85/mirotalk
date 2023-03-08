@@ -5,7 +5,7 @@
 <hr />
 
 <p align="center">
-    Just an adjusted fork of <a href="https://github.com/miroslavpejic85/mirotalk">MiroTalk P2P</a>
+    An adjusted and opiniated fork of <a href="https://github.com/miroslavpejic85/mirotalk">MiroTalk P2P</a>
 </p>
 
 <hr />
