@@ -10,6 +10,7 @@
         "docker-build": "docker build --tag mirotalk/p2p:latest .",
         "docker-rmi": "docker images |grep '<none>' |awk '{print $3}' |xargs docker rmi",
         "docker-push": "docker push mirotalk/p2p:latest",
+        "docker-pull": "docker pull mirotalk/p2p:latest",
         "docker-rmc": "docker container rm mirotalk --force",
         "docker-run": "docker run -d -p 3000:3000 --name mirotalk mirotalk/p2p:latest",
         "docker-rune": "docker run -d -p 3000:3000 -v .env:/src/.env:ro --name mirotalk mirotalk/p2p:latest",
