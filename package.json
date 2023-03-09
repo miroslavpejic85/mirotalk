@@ -13,6 +13,7 @@
         "docker-rmc": "docker container rm mirotalk --force",
         "docker-run": "docker run -d -p 3000:3000 --name mirotalk mirotalk/p2p:latest",
         "docker-rune": "docker run -d -p 3000:3000 -v .env:/src/.env:ro --name mirotalk mirotalk/p2p:latest",
+        "docker-run-vm": "docker run -d -p 3000:3000 -v .env:/src/.env:ro -v ./app/:/src/app/:ro -v ./public/:/src/public/:ro --name mirotalk mirotalk/p2p:latest",
         "docker-start": "docker start mirotalk",
         "docker-stop": "docker stop mirotalk"
     },
