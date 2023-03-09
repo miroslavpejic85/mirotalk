@@ -1985,7 +1985,7 @@ async function loadLocalMedia(stream) {
 
     // my video avatar image
     myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
-    myVideoAvatarImage.className = 'videoAvatarImage pulsate';
+    myVideoAvatarImage.className = 'videoAvatarImage'; // pulsate
 
     // my pitch meter
     myPitchMeter.setAttribute('id', 'myPitch');
@@ -2224,7 +2224,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
 
     // my video avatar image
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
-    remoteVideoAvatarImage.className = 'videoAvatarImage pulsate';
+    remoteVideoAvatarImage.className = 'videoAvatarImage'; // pulsate
 
     // remote pitch meter
     remotePitchMeter.setAttribute('id', peer_id + '_pitch');
@@ -7311,11 +7311,11 @@ function handlePeerVolume(data) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    remoteVideoWrap.classList.toggle('speaking');
+    //remoteVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
-        remoteVideoWrap.classList.toggle('speaking');
+        //remoteVideoWrap.classList.toggle('speaking');
     }, 700);
 }
 
@@ -7331,11 +7331,11 @@ function handleMyVolume(data) {
         element.style.backgroundColor = 'orange';
     }
     element.style.height = volume + '%';
-    myVideoWrap.classList.toggle('speaking');
+    //myVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
-        myVideoWrap.classList.toggle('speaking');
+        //myVideoWrap.classList.toggle('speaking');
     }, 700);
 }
 
