@@ -25,14 +25,15 @@
 -   No download, plug-in, or login required, entirely browser-based
 -   Unlimited number of conference rooms without call time limitation
 -   Translated in 133 languages
+-   Host protection to ensure unauthorized access to your host
 -   Possibility to Password protect the Room for the meeting
 -   Desktop and Mobile compatible
--   Optimized Room URL Sharing (share it to your participants, wait for them to join)
+-   Optimized Room URL Sharing for mobile
 -   Webcam Streaming (Front - Rear for mobile)
 -   Audio Streaming crystal clear with detect speaking and volume indicator
 -   Screen Sharing to present documents, slides, and more...
 -   File Sharing (with drag-and-drop), share any files to your participants in the room
--   Select Audio Input - Output && Video source
+-   Select Audio Input - Output and Video source
 -   Ability to set video quality up to 4K and 60 FPS
 -   Recording your Screen, Audio and Video
 -   Snapshot the video frame and save it as image png
@@ -40,13 +41,14 @@
 -   Speech recognition to send the speeches
 -   Advance collaborative whiteboard for the teachers
 -   Share any YT Embed video, video mp4, webm, ogg and audio mp3 in real-time
--   Full-Screen Mode on mouse click on the Video element
+-   Full-Screen Mode on mouse click on the Video element, Pin/Unpin, Zoom in-out video element
 -   Possibility to Change UI Themes
 -   Right-click on the Video elements for more options
 -   Direct `peer-to-peer` connection ensures the lowest latency thanks to `WebRTC`
 -   Supports [REST API](app/api/README.md) (Application Programming Interface)
 -   [Slack](https://api.slack.com/apps/) API integration
 -   [Sentry](https://sentry.io/) error reporting
+-   ...
 
 </details>
 
