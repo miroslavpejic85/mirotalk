@@ -3044,7 +3044,7 @@ function setScreenShareBtn() {
     ) {
         isScreenSharingSupported = true;
         initScreenShareBtn.addEventListener('click', async (e) => {
-            await toggleScreenSharing();
+            await toggleScreenSharing(true);
         });
         screenShareBtn.addEventListener('click', async (e) => {
             await toggleScreenSharing();
@@ -4155,8 +4155,9 @@ function stopLocalAudioTrack() {
 /**
  * Enable - disable screen sharing
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia
+ * @param {boolean} init screen before join
  */
-async function toggleScreenSharing() {
+async function toggleScreenSharing(init = false) {
     screenMaxFrameRate = parseInt(screenFpsSelect.value);
     const constraints = {
         audio: true, // enable tab audio
@@ -4205,6 +4206,7 @@ async function toggleScreenSharing() {
         }
     } catch (err) {
         console.error('[Error] Unable to share the screen', err);
+        if (init) return;
         userLog('error', 'Unable to share the screen ' + err);
     }
 }
