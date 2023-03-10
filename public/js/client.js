@@ -85,6 +85,8 @@ const className = {
     privacy: 'far fa-circle',
     snapShot: 'fas fa-camera-retro',
     pinUnpin: 'fas fa-map-pin',
+    zoomIn: 'fas fa-magnifying-glass-plus',
+    zoomOut: 'fas fa-magnifying-glass-minus',
     fullScreen: 'fas fa-expand',
     fsOn: 'fas fa-compress-alt',
     fsOff: 'fas fa-expand-alt',
@@ -1932,6 +1934,8 @@ async function loadLocalMedia(stream) {
     const myAudioStatusIcon = document.createElement('button');
     const myVideoFullScreenBtn = document.createElement('button');
     const myVideoPinBtn = document.createElement('button');
+    const myVideoZoomInBtn = document.createElement('button');
+    const myVideoZoomOutBtn = document.createElement('button');
     const myVideoAvatarImage = document.createElement('img');
     const myPitchMeter = document.createElement('div');
     const myPitchBar = document.createElement('div');
@@ -1968,6 +1972,12 @@ async function loadLocalMedia(stream) {
     myVideoFullScreenBtn.setAttribute('id', 'myVideoFullScreenBtn');
     myVideoFullScreenBtn.className = className.fullScreen;
 
+    // my video zoomIn/Out
+    myVideoZoomInBtn.setAttribute('id', 'myVideoZoomInBtn');
+    myVideoZoomInBtn.className = className.zoomIn;
+    myVideoZoomOutBtn.setAttribute('id', 'myVideoZoomOutBtn');
+    myVideoZoomOutBtn.className = className.zoomOut;
+
     // my video pin/unpin button
     myVideoPinBtn.setAttribute('id', 'myVideoPinBtn');
     myVideoPinBtn.className = className.pinUnpin;
@@ -1981,6 +1991,8 @@ async function loadLocalMedia(stream) {
     setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
     setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
     setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+    setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
+    setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
     setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
 
     // my video avatar image
@@ -2003,6 +2015,10 @@ async function loadLocalMedia(stream) {
     if (!isMobileDevice) {
         myVideoNavBar.appendChild(myVideoPinBtn);
     }
+
+    myVideoNavBar.appendChild(myVideoZoomInBtn);
+    myVideoNavBar.appendChild(myVideoZoomOutBtn);
+
     if (isVideoFullScreenSupported) {
         myVideoNavBar.appendChild(myVideoFullScreenBtn);
     }
@@ -2070,6 +2086,8 @@ async function loadLocalMedia(stream) {
     }
 
     handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
+
+    handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
 
     refreshMyVideoAudioStatus(localMediaStream);
 
@@ -2148,6 +2166,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     const remoteVideoToImgBtn = document.createElement('button');
     const remoteVideoFullScreenBtn = document.createElement('button');
     const remoteVideoPinBtn = document.createElement('button');
+    const remoteVideoZoomInBtn = document.createElement('button');
+    const remoteVideoZoomOutBtn = document.createElement('button');
     const remoteVideoAvatarImage = document.createElement('img');
     const remotePitchMeter = document.createElement('div');
     const remotePitchBar = document.createElement('div');
@@ -2200,6 +2220,12 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
     remotePeerKickOut.className = className.kickOut;
 
+    // remote video zoomIn/Out
+    remoteVideoZoomInBtn.setAttribute('id', peer_id + 'videoZoomIn');
+    remoteVideoZoomInBtn.className = className.zoomIn;
+    remoteVideoZoomOutBtn.setAttribute('id', peer_id + 'videoZoomOut');
+    remoteVideoZoomOutBtn.className = className.zoomOut;
+
     // remote video full screen mode
     remoteVideoFullScreenBtn.setAttribute('id', peer_id + '_fullScreen');
     remoteVideoFullScreenBtn.className = className.fullScreen;
@@ -2220,6 +2246,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
     setTippy(remotePeerKickOut, 'Kick out', 'bottom');
     setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+    setTippy(remoteVideoZoomInBtn, 'Zoom in video', 'bottom');
+    setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
     setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
 
     // my video avatar image
@@ -2242,6 +2270,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     if (!isMobileDevice) {
         remoteVideoNavBar.appendChild(remoteVideoPinBtn);
     }
+
+    remoteVideoNavBar.appendChild(remoteVideoZoomInBtn);
+    remoteVideoNavBar.appendChild(remoteVideoZoomOutBtn);
+
     if (isVideoFullScreenSupported) {
         remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
     }
@@ -2305,6 +2337,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
 
     // handle video pin/unpin
     handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
+
+    // handle video zoomIn/Out
+    handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id);
 
     // pin video on screen share detected
     if (peer_video_status && peer_screen_status) {
@@ -2776,6 +2811,29 @@ function toggleVideoPin(position) {
             break;
     }
     resizeVideoMedia();
+}
+
+/**
+ * Zoom in/out video element
+ * @param {string} zoomInBtnId
+ * @param {string} zoomOutBtnId
+ * @param {string} mediaId
+ */
+function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId) {
+    const zoomIn = getId(zoomInBtnId);
+    const zoomOut = getId(zoomOutBtnId);
+    const video = getId(mediaId);
+
+    let zoom = 1;
+
+    zoomIn.addEventListener('click', () => {
+        zoom = zoom + 0.1;
+        video.style.scale = zoom;
+    });
+    zoomOut.addEventListener('click', () => {
+        zoom = zoom - 0.1;
+        video.style.scale = zoom;
+    });
 }
 
 /**
