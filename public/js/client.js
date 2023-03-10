@@ -148,10 +148,12 @@ const buttons = {
         showFileShareBtn: true,
         showShareVideoAudioBtn: true,
         showPrivateMessageBtn: true,
+        showZoomInOutBtn: true,
     },
     local: {
         showSnapShotBtn: true,
         showVideoCircleBtn: true,
+        showZoomInOutBtn: true,
     },
 };
 
@@ -2016,8 +2018,10 @@ async function loadLocalMedia(stream) {
         myVideoNavBar.appendChild(myVideoPinBtn);
     }
 
-    myVideoNavBar.appendChild(myVideoZoomInBtn);
-    myVideoNavBar.appendChild(myVideoZoomOutBtn);
+    if (buttons.local.showZoomInOutBtn) {
+        myVideoNavBar.appendChild(myVideoZoomInBtn);
+        myVideoNavBar.appendChild(myVideoZoomOutBtn);
+    }
 
     if (isVideoFullScreenSupported) {
         myVideoNavBar.appendChild(myVideoFullScreenBtn);
@@ -2087,7 +2091,9 @@ async function loadLocalMedia(stream) {
 
     handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
-    handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
+    if (buttons.local.showZoomInOutBtn) {
+        handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
+    }
 
     refreshMyVideoAudioStatus(localMediaStream);
 
@@ -2271,8 +2277,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
         remoteVideoNavBar.appendChild(remoteVideoPinBtn);
     }
 
-    remoteVideoNavBar.appendChild(remoteVideoZoomInBtn);
-    remoteVideoNavBar.appendChild(remoteVideoZoomOutBtn);
+    if (buttons.remote.showZoomInOutBtn) {
+        remoteVideoNavBar.appendChild(remoteVideoZoomInBtn);
+        remoteVideoNavBar.appendChild(remoteVideoZoomOutBtn);
+    }
 
     if (isVideoFullScreenSupported) {
         remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
@@ -2281,8 +2289,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
         remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
     }
 
-    remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
-    remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
+    if (buttons.remote.showZoomInOutBtn) {
+        remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
+        remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
+    }
 
     if (buttons.remote.showAudioVolume) {
         remoteVideoNavBar.appendChild(remoteAudioVolume);
@@ -2338,8 +2348,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // handle video pin/unpin
     handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
 
-    // handle video zoomIn/Out
-    handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id);
+    if (buttons.remote.showZoomInOutBtn) {
+        // handle video zoomIn/Out
+        handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id);
+    }
 
     // pin video on screen share detected
     if (peer_video_status && peer_screen_status) {
