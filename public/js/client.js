@@ -2842,7 +2842,7 @@ function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null)
 
     function setTransform() {
         if (isVideoOf(id) || isVideoPrivacyMode(video)) return;
-        //if (zoom < 1) zoom = 1;
+        if (zoom < 1) zoom = 1;
         video.style.scale = zoom;
     }
 
