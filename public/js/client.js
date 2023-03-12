@@ -2092,7 +2092,7 @@ async function loadLocalMedia(stream) {
     handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
     if (buttons.local.showZoomInOutBtn) {
-        handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id, myPeerId, true);
+        handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
     }
 
     refreshMyVideoAudioStatus(localMediaStream);
@@ -2350,7 +2350,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
 
     if (buttons.remote.showZoomInOutBtn) {
         // handle video zoomIn/Out
-        handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id, false);
+        handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
     }
 
     // pin video on screen share detected
@@ -2831,27 +2831,40 @@ function toggleVideoPin(position) {
  * @param {string} zoomOutBtnId
  * @param {string} mediaId
  * @param {string} peerId
- * @param {boolean} local peer
  */
-function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null, local = true) {
-    const id = local ? 'myVideoStatusIcon' : peerId + '_videoStatus';
+function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null) {
+    const id = peerId ? peerId + '_videoStatus' : 'myVideoStatusIcon';
     const zoomIn = getId(zoomInBtnId);
     const zoomOut = getId(zoomOutBtnId);
     const video = getId(mediaId);
 
-    let zooms = 1;
+    let zoom = 1;
+
+    function setTransform() {
+        if (isVideoOf(id) || isVideoPrivacyMode(video)) return;
+        //if (zoom < 1) zoom = 1;
+        video.style.scale = zoom;
+    }
+
+    video.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        let delta = e.wheelDelta ? e.wheelDelta : -e.deltaY;
+        delta > 0 ? (zoom *= 1.2) : (zoom /= 1.2);
+        setTransform();
+    });
 
     zoomIn.addEventListener('click', () => {
         if (isVideoOf(id)) return userLog('toast', 'Zoom in work when video is on');
         if (isVideoPrivacyMode(video)) return userLog('toast', 'Zoom in not allowed if video on privacy mode');
-        zooms = zooms + 0.1;
-        video.style.scale = zooms;
+        zoom = zoom + 0.1;
+        setTransform();
     });
+
     zoomOut.addEventListener('click', () => {
         if (isVideoOf(id)) return userLog('toast', 'Zoom out work when video is on');
         if (isVideoPrivacyMode(video)) return userLog('toast', 'Zoom out not allowed if video on privacy mode');
-        zooms = zooms - 0.1;
-        video.style.scale = zooms;
+        zoom = zoom - 0.1;
+        setTransform();
     });
 
     function isVideoOf(id) {
