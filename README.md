@@ -39,6 +39,7 @@
 -   Snapshot the video frame and save it as image png
 -   Chat with Emoji Picker to show you feeling, private messages, Markdown support, possibility to Save the conversations, and many more
 -   Speech recognition to send the speeches
+-   Push to talk, like a walkie-talkie.
 -   Advance collaborative whiteboard for the teachers
 -   Share any YT Embed video, video mp4, webm, ogg and audio mp3 in real-time
 -   Full-Screen Mode on mouse click on the Video element, Pin/Unpin, Zoom in-out video element
