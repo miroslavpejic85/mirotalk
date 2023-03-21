@@ -4262,6 +4262,9 @@ async function toggleScreenSharing(init = false) {
                 initVideo.srcObject = newStream;
             }
 
+            // Disable cam video when screen sharing stop
+            if (!isScreenStreaming && !init) setMyVideoOff(myPeerName);
+
             myVideo.classList.toggle('mirror');
             setScreenSharingStatus(isScreenStreaming);
             if (myVideoAvatarImage && !useVideo)
@@ -4450,13 +4453,6 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
             toggleScreenSharing();
         };
     }
-
-    /**
-     * When you stop the screen sharing, on default i turn back to the webcam with video stream ON.
-     * If you want the webcam with video stream OFF, just disable it with the button (Stop the video),
-     * before to stop the screen sharing.
-     */
-    if (useVideo && myVideoStatus === false) localMediaStream.getVideoTracks()[0].enabled = false;
 }
 
 /**
@@ -5882,7 +5878,8 @@ function setMyAudioOn(peer_name) {
  * @param {string} peer_name peer name
  */
 function setMyVideoOff(peer_name) {
-    if (myVideoStatus === false || !useVideo) return;
+    if (!useVideo) return;
+    //if (myVideoStatus === false || !useVideo) return;
     localMediaStream.getVideoTracks()[0].enabled = false;
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
     videoBtn.className = className.videoOff;
