@@ -2989,7 +2989,7 @@ function getTimeToString(time) {
 
 /**
  * Refresh my localMediaStream audio/video status
- * @param object} localMediaStream
+ * @param {object} localMediaStream
  */
 function refreshMyVideoAudioStatus(localMediaStream) {
     // check Track audio/video status
@@ -3044,7 +3044,8 @@ function setAudioBtn() {
         handleAudio(e, false);
     });
 
-    document.addEventListener('keydown', (e) => {
+    document.onkeydown = (e) => {
+        e.preventDefault();
         if (!isPushToTalkActive || isChatRoomVisible) return;
         if (e.code === 'Space') {
             if (isSpaceDown) return; // prevent multiple call
@@ -3052,15 +3053,16 @@ function setAudioBtn() {
             isSpaceDown = true;
             console.log('Push-to-talk: audio ON');
         }
-    });
-    document.addEventListener('keyup', (e) => {
+    };
+    document.onkeyup = (e) => {
+        e.preventDefault();
         if (!isPushToTalkActive || isChatRoomVisible) return;
         if (e.code === 'Space') {
             handleAudio(audioBtn, false, false);
             isSpaceDown = false;
             console.log('Push-to-talk: audio OFF');
         }
-    });
+    };
 }
 
 /**
