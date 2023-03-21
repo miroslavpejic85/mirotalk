@@ -3045,7 +3045,6 @@ function setAudioBtn() {
     });
 
     document.onkeydown = (e) => {
-        e.preventDefault();
         if (!isPushToTalkActive || isChatRoomVisible) return;
         if (e.code === 'Space') {
             if (isSpaceDown) return; // prevent multiple call
