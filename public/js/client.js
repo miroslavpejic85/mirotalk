@@ -4167,8 +4167,10 @@ function handleVideo(e, init, force = null) {
         ? (e.className = myVideoStatus ? className.videoOn : className.videoOff)
         : (e.target.className = myVideoStatus ? className.videoOn : className.videoOff);
 
+    videoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
+
     if (init) {
-        videoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
+        initVideoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
         setTippy(initVideoBtn, myVideoStatus ? 'Stop the video' : 'Start the video', 'top');
         initVideo.style.display = myVideoStatus ? 'block' : 'none';
         initVideoSelect.disabled = !myVideoStatus;
@@ -4292,7 +4294,6 @@ async function toggleScreenSharing(init = false) {
 function setScreenSharingStatus(status) {
     initScreenShareBtn.className = status ? className.screenOff : className.screenOn;
     screenShareBtn.className = status ? className.screenOff : className.screenOn;
-    setTippy(initScreenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
     setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
     disable(initVideoSelect, status);
     disable(initVideoBtn, status);
@@ -4306,11 +4307,13 @@ async function setMyVideoStatusTrue() {
     // Put video status already ON
     localMediaStream.getVideoTracks()[0].enabled = true;
     myVideoStatus = true;
+    initVideoBtn.className = className.videoOn;
     videoBtn.className = className.videoOn;
     myVideoStatusIcon.className = className.videoOn;
     myVideoAvatarImage.style.display = 'none';
     emitPeerStatus('video', myVideoStatus);
     setTippy(videoBtn, 'Stop the video', 'right-start');
+    setTippy(initVideoBtn, 'Stop the video', 'top');
 }
 
 /**
