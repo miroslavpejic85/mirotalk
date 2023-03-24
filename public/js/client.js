@@ -1244,8 +1244,7 @@ function checkPeerAudioVideo() {
  * Room and Peer name are ok Join Channel
  */
 async function whoAreYouJoin() {
-    //if (isMobileDevice && myVideoStatus && myAudioStatus) await refreshLocalMedia();
-    if (myVideoStatus && myAudioStatus) await refreshLocalMedia();
+    if (isMobileDevice && myVideoStatus && myAudioStatus) await refreshLocalMedia();
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
