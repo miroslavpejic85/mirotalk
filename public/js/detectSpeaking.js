@@ -6,6 +6,7 @@
  */
 async function startPitchDetection(stream) {
     if (isAudioContextSupported()) {
+        console.log('Start Pitch Detection for audio track', stream.getAudioTracks()[0]);
         pitchDetectionStatus = true;
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         mediaStreamSource = audioContext.createMediaStreamSource(stream);

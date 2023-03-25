@@ -107,6 +107,9 @@ const className = {
 
 const myRoomUrl = window.location.href;
 
+// Local Storage class
+const lS = new LocalStorage();
+
 // Show desired buttons captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn -> (auto-detected)
 const buttons = {
     main: {
@@ -435,9 +438,6 @@ let videoAudioUrlElement;
 let speechRecognitionIcon;
 let speechRecognitionStart;
 let speechRecognitionStop;
-
-// Local Storage class
-let lS = new LocalStorage();
 
 /**
  * Load all Html elements by Id
@@ -917,7 +917,9 @@ async function handleConnect() {
         await joinToChannel();
     } else {
         await initEnumerateDevices();
+        await getPeerGeoLocation();
         await setupLocalMedia();
+        await whoAreYou();
     }
 }
 
@@ -1884,35 +1886,23 @@ async function setupLocalMedia() {
         return;
     }
 
-    await getPeerGeoLocation();
-
     console.log('08. Requesting access to local audio - video inputs');
     console.log('09. Supported constraints', navigator.mediaDevices.getSupportedConstraints());
 
     // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 2kVideo | 4kVideo |
-    let videoConstraints = useVideo ? getVideoConstraints('default') : false;
-    let audioConstraints = useAudio;
-    if (useAudio) {
-        audioConstraints = {
-            echoCancellation: true,
-            noiseSuppression: true,
-            sampleRate: 44100,
-        };
-    }
-
-    const constraints = {
-        audio: audioConstraints,
-        video: videoConstraints,
-    };
-
-    let stream = null;
+    const videoConstraints = useVideo ? getVideoConstraints('default') : false;
+    const audioConstraints = useAudio ? getAudioConstraints() : false;
 
     try {
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: audioConstraints,
+            video: videoConstraints,
+        });
         if (stream) {
             await loadLocalMedia(stream);
-            await startPitchDetection(stream);
-            await whoAreYou();
+            if (useAudio) {
+                await startPitchDetection(stream);
+            }
         }
     } catch (err) {
         console.error('[Error] - Access denied for audio - video device', err);
@@ -3701,22 +3691,20 @@ async function refreshLocalMedia() {
 function getAudioVideoConstraints() {
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
-    let videoConstraints = false;
-    if (useVideo) {
+    let videoConstraints = useVideo;
+    if (videoConstraints) {
         videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
         videoConstraints['deviceId'] = videoSource ? { exact: videoSource } : undefined;
     }
-    let audioConstraints = {
-        deviceId: audioSource ? { exact: audioSource } : undefined,
-        echoCancellation: true,
-        noiseSuppression: true,
-        sampleRate: 44100,
-    };
-    const constraints = {
+    let audioConstraints = useAudio;
+    if (audioConstraints) {
+        audioConstraints = getAudioConstraints();
+        audioConstraints['deviceId'] = audioSource ? { exact: audioSource } : undefined;
+    }
+    return {
         audio: audioConstraints,
         video: videoConstraints,
     };
-    return constraints;
 }
 
 /**
@@ -3781,6 +3769,17 @@ function getVideoConstraints(videoQuality) {
                 frameRate: frameRate,
             }; // video cam constraints ultra high bandwidth
     }
+}
+
+/**
+ * Get audio constraints
+ */
+function getAudioConstraints() {
+    return {
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 44100,
+    };
 }
 
 /**
@@ -5518,6 +5517,7 @@ function setMyAudioStatus(status) {
     setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
     setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', 'right-start');
     status ? playSound('on') : playSound('off');
+    console.log('My audio status', status);
 }
 
 /**
@@ -5535,6 +5535,7 @@ function setMyVideoStatus(status) {
         setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', 'right-start');
     }
     status ? playSound('on') : playSound('off');
+    console.log('My video status', status);
 }
 
 /**
