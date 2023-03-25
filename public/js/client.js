@@ -3677,6 +3677,10 @@ function setupVideoUrlPlayer() {
  * Refresh Local media audio video in - out
  */
 async function refreshLocalMedia() {
+    console.log('Refresh local media', {
+        audioStatus: myAudioStatus,
+        videoStatus: myVideoStatus,
+    });
     // some devices can't swap the video track, if already in execution.
     stopLocalVideoTrack();
     stopLocalAudioTrack();
@@ -3859,8 +3863,8 @@ function attachSinkId(element, sinkId) {
  * @returns {object} media Devices Info
  */
 async function gotStream(stream) {
-    await refreshMyStreamToPeers(stream, true);
     await refreshMyLocalStream(stream, true);
+    await refreshMyStreamToPeers(stream, true);
     if (myVideoChange) {
         setMyVideoStatusTrue();
         // This fix IPadPro - Tablet mirror of the back camera
@@ -4194,8 +4198,8 @@ async function swapCamera() {
         // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
         camStream = await navigator.mediaDevices.getUserMedia({ video: camVideo });
         if (camStream) {
-            await refreshMyStreamToPeers(camStream);
             await refreshMyLocalStream(camStream);
+            await refreshMyStreamToPeers(camStream);
             await setMyVideoStatusTrue();
             if (!isCamMirrored) {
                 myVideo.classList.toggle('mirror');
@@ -4408,6 +4412,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
  * @param {boolean} localAudioTrackChange default false
  */
 async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
+    // enable video
     if (useVideo || isScreenStreaming) stream.getVideoTracks()[0].enabled = true;
 
     // enable audio
