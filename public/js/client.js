@@ -1211,7 +1211,7 @@ async function changeInitCamera(deviceId) {
         initVideo.style.display = 'block';
     }
     // Get video constraints
-    let videoConstraints = getVideoConstraints('default');
+    let videoConstraints = await getVideoConstraints('default');
     videoConstraints['deviceId'] = { exact: deviceId };
 
     navigator.mediaDevices
@@ -1897,8 +1897,8 @@ async function setupLocalMedia() {
     console.log('09. Supported constraints', navigator.mediaDevices.getSupportedConstraints());
 
     // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 2kVideo | 4kVideo |
-    const videoConstraints = useVideo ? getVideoConstraints('default') : false;
-    const audioConstraints = useAudio ? getAudioConstraints() : false;
+    const videoConstraints = useVideo ? await getVideoConstraints('default') : false;
+    const audioConstraints = useAudio ? await getAudioConstraints() : false;
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -3724,8 +3724,8 @@ function getAudioVideoConstraints() {
  * @param {string} videoQuality desired video quality
  * @returns {object} video constraints
  */
-function getVideoConstraints(videoQuality) {
-    let frameRate = { max: videoMaxFrameRate };
+async function getVideoConstraints(videoQuality) {
+    const frameRate = { max: videoMaxFrameRate };
 
     switch (videoQuality) {
         case 'default':
@@ -3785,7 +3785,7 @@ function getVideoConstraints(videoQuality) {
 /**
  * Get audio constraints
  */
-function getAudioConstraints() {
+async function getAudioConstraints() {
     return {
         echoCancellation: true,
         noiseSuppression: true,
