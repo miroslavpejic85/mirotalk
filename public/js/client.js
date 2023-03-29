@@ -1715,7 +1715,7 @@ function setButtonsBarPosition(position) {
  */
 async function setupInitVideoSize() {
     getId('initVideo').style.width = '100%';
-    getId('initVideo').style.height = '25%';
+    getId('initVideo').style.height = '210px';
 }
 
 /**
