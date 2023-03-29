@@ -750,6 +750,7 @@ function getRoomId() {
         const newUrl = signalingServer + '/join/' + roomId;
         window.history.pushState({ url: newUrl }, roomId, newUrl);
     }
+    console.log('Direct join', { room: roomId });
     return roomId;
 }
 
@@ -790,8 +791,10 @@ function getPeerName() {
     const qs = new URLSearchParams(window.location.search);
     const name = filterXSS(qs.get('name'));
     if (isHtml(name)) {
+        console.log('Direct join', { name: 'Invalid name' });
         return 'Invalid name';
     }
+    console.log('Direct join', { name: name });
     return name;
 }
 
@@ -805,8 +808,10 @@ function getScreenEnabled() {
     if (screen) {
         screen = screen.toLowerCase();
         let queryPeerScreen = screen === '1' || screen === 'true';
+        console.log('Direct join', { screen: queryPeerScreen });
         return queryPeerScreen;
     }
+    console.log('Direct join', { screen: false });
     return false;
 }
 
@@ -1235,11 +1240,13 @@ function checkPeerAudioVideo() {
         audio = audio.toLowerCase();
         let queryPeerAudio = audio === '1' || audio === 'true';
         if (queryPeerAudio != null) handleAudio(audioBtn, false, queryPeerAudio);
+        console.log('Direct join', { audio: queryPeerAudio });
     }
     if (video) {
         video = video.toLowerCase();
         let queryPeerVideo = video === '1' || video === 'true';
         if (queryPeerVideo != null) handleVideo(videoBtn, false, queryPeerVideo);
+        console.log('Direct join', { video: queryPeerVideo });
     }
 }
 
@@ -4278,6 +4285,8 @@ async function toggleScreenSharing(init = false) {
                 initVideo.style.display = 'block';
                 initVideo.classList.toggle('mirror');
                 initVideo.srcObject = newStream;
+                disable(initVideoSelect, isScreenStreaming);
+                disable(initVideoBtn, isScreenStreaming);
             }
 
             // Disable cam video when screen sharing stop
@@ -4306,8 +4315,6 @@ function setScreenSharingStatus(status) {
     initScreenShareBtn.className = status ? className.screenOff : className.screenOn;
     screenShareBtn.className = status ? className.screenOff : className.screenOn;
     setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
-    disable(initVideoSelect, status);
-    disable(initVideoBtn, status);
 }
 
 /**
