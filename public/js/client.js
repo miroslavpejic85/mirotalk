@@ -916,6 +916,7 @@ async function handleConnect() {
     if (localMediaStream) {
         await joinToChannel();
     } else {
+        if (isMobileDevice) await setupInitVideoSize();
         await initEnumerateDevices();
         await getPeerGeoLocation();
         await setupLocalMedia();
@@ -1707,6 +1708,14 @@ function setButtonsBarPosition(position) {
         default:
             console.log('No position found');
     }
+}
+
+/**
+ * UI optimization for mobile
+ */
+async function setupInitVideoSize() {
+    getId('initVideo').style.width = '100%';
+    getId('initVideo').style.height = '25%';
 }
 
 /**
@@ -3682,8 +3691,8 @@ async function refreshLocalMedia() {
         videoStatus: myVideoStatus,
     });
     // some devices can't swap the video track, if already in execution.
-    stopLocalVideoTrack();
-    stopLocalAudioTrack();
+    await stopLocalVideoTrack();
+    await stopLocalAudioTrack();
 
     navigator.mediaDevices.getUserMedia(getAudioVideoConstraints()).then(gotStream).then(gotDevices).catch(handleError);
 }
@@ -4223,7 +4232,7 @@ async function stopLocalVideoTrack() {
 /**
  * Stop Local Audio Track
  */
-function stopLocalAudioTrack() {
+async function stopLocalAudioTrack() {
     localMediaStream.getAudioTracks()[0].stop();
 }
 
