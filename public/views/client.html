@@ -260,10 +260,16 @@ access to use this app.
                         <select id="audioOutput"></select>
                     </div>
                     <br />
-                    <div id="pushToTalkDiv">
-                        <label>Push to talk</label><br />
-                        <input id="switchPushToTalk" style="color: #fff" class="toggle" type="checkbox" />
-                    </div>
+                    <table id="mySettingsTable">
+                        <tr id="pushToTalkDiv">
+                            <td>👆 Push to talk</td>
+                            <td><input id="switchPushToTalk" class="toggle" type="checkbox" /></td>
+                        </tr>
+                        <tr>
+                            <td>🔊 Audio pitch bar</td>
+                            <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
+                        </tr>
+                    </table>
                 </div>
 
                 <div id="tabBandwidth" class="tabcontent">
@@ -330,8 +336,12 @@ access to use this app.
                         <button id="unlockRoomBtn"><i class="fas fa-lock"></i>&nbsp;Unlock room</button>
                     </div>
                     <br /><br />
-                    <label>Sounds</label><br />
-                    <input id="switchSounds" style="color: #fff" class="toggle" type="checkbox" checked />
+                    <table id="mySettingsTable">
+                        <tr>
+                            <td>🎵 Sounds</td>
+                            <td><input id="switchSounds" class="toggle" type="checkbox" checked /></td>
+                        </tr>
+                    </table>
                 </div>
 
                 <div id="tabStyling" class="tabcontent">

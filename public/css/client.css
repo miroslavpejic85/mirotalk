@@ -696,6 +696,21 @@ em-emoji-picker {
     transition: all 0.3s ease-in-out;
 }
 
+#mySettingsTable {
+    margin-top: 20px;
+    width: 100%;
+    color: #fff;
+}
+#mySettingsTable td,
+th {
+    border: var(--border);
+    text-align: center;
+    padding: 10px;
+}
+#mySettingsTable tr:nth-child(even) {
+    background-color: #2b2b2b;
+}
+
 #myPeerNameSet {
     width: 165px;
     padding: 10px;

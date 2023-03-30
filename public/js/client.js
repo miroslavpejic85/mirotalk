@@ -236,6 +236,7 @@ let audioContext;
 let mediaStreamSource;
 let meter;
 let isPushToTalkActive = false;
+let isAudioPitchBar = true;
 let isSpaceDown = false;
 let isScreenStreaming = false;
 let showChatOnMessage = true;
@@ -342,6 +343,7 @@ let myPeerNameSet;
 let myPeerNameSetBtn;
 let switchSounds;
 let switchPushToTalk;
+let switchAudioPitchBar;
 let audioInputSelect;
 let audioOutputSelect;
 let videoSelect;
@@ -517,6 +519,7 @@ function getHtmlElementsById() {
     myPeerNameSetBtn = getId('myPeerNameSetBtn');
     switchSounds = getId('switchSounds');
     switchPushToTalk = getId('switchPushToTalk');
+    switchAudioPitchBar = getId('switchAudioPitchBar');
     audioInputSelect = getId('audioSource');
     audioOutputSelect = getId('audioOutput');
     videoSelect = getId('videoSource');
@@ -3503,6 +3506,11 @@ function setMySettingsBtn() {
             userLog('toast', 'Push to talk active - ' + isPushToTalkActive);
         });
     }
+
+    switchAudioPitchBar.addEventListener('change', (e) => {
+        isAudioPitchBar = e.currentTarget.checked;
+        userLog('toast', 'Audio pitch bar active - ' + isAudioPitchBar);
+    });
 
     // make chat room draggable for desktop
     if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
@@ -7457,6 +7465,7 @@ function bytesToSize(bytes) {
  * @param {object} data peer audio
  */
 function handlePeerVolume(data) {
+    if (!isAudioPitchBar) return;
     let peer_id = data.peer_id;
     let element = getId(peer_id + '_pitch_bar');
     let remoteVideoWrap = getId(peer_id + '_videoWrap');
@@ -7479,6 +7488,7 @@ function handlePeerVolume(data) {
  * @param {object} data my audio
  */
 function handleMyVolume(data) {
+    if (!isAudioPitchBar) return;
     let element = getId('myPitchBar');
     let volume = data.volume + 25;
     if (!element) return;
