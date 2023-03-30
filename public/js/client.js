@@ -3589,8 +3589,8 @@ function setupMySettings() {
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
     });
     // select video quality
-    videoQualitySelect.addEventListener('change', (e) => {
-        setLocalVideoQuality();
+    videoQualitySelect.addEventListener('change', async (e) => {
+        await setLocalVideoQuality();
     });
     // select video fps
     videoFpsSelect.addEventListener('change', (e) => {
@@ -3699,25 +3699,28 @@ async function refreshLocalMedia() {
     // some devices can't swap the video track, if already in execution.
     await stopLocalVideoTrack();
     await stopLocalAudioTrack();
-
-    navigator.mediaDevices.getUserMedia(getAudioVideoConstraints()).then(gotStream).then(gotDevices).catch(handleError);
+    navigator.mediaDevices
+        .getUserMedia(await getAudioVideoConstraints())
+        .then(gotStream)
+        .then(gotDevices)
+        .catch(handleError);
 }
 
 /**
  * Get audio - video constraints
  * @returns {object} audio - video constraints
  */
-function getAudioVideoConstraints() {
+async function getAudioVideoConstraints() {
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
     let videoConstraints = useVideo;
     if (videoConstraints) {
-        videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+        videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
         videoConstraints['deviceId'] = videoSource ? { exact: videoSource } : undefined;
     }
     let audioConstraints = useAudio;
     if (audioConstraints) {
-        audioConstraints = getAudioConstraints();
+        audioConstraints = await getAudioConstraints();
         audioConstraints['deviceId'] = audioSource ? { exact: audioSource } : undefined;
     }
     return {
@@ -3822,9 +3825,9 @@ function setLocalMaxFps(maxFrameRate) {
 /**
  * Set local video quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
-function setLocalVideoQuality() {
+async function setLocalVideoQuality() {
     if (!useVideo) return;
-    let videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+    let videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     localMediaStream
         .getVideoTracks()[0]
         .applyConstraints(videoConstraints)
