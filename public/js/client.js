@@ -3699,11 +3699,8 @@ async function refreshLocalMedia() {
     // some devices can't swap the video track, if already in execution.
     await stopLocalVideoTrack();
     await stopLocalAudioTrack();
-    navigator.mediaDevices
-        .getUserMedia(await getAudioVideoConstraints())
-        .then(gotStream)
-        .then(gotDevices)
-        .catch(handleError);
+    const audioVideoConstraints = await getAudioVideoConstraints();
+    navigator.mediaDevices.getUserMedia(audioVideoConstraints).then(gotStream).then(gotDevices).catch(handleError);
 }
 
 /**
