@@ -4258,7 +4258,7 @@ async function toggleScreenSharing(init = false) {
 
     try {
         screenMediaPromise = isScreenStreaming
-            ? await navigator.mediaDevices.getUserMedia(getAudioVideoConstraints())
+            ? await navigator.mediaDevices.getUserMedia(await getAudioVideoConstraints())
             : await navigator.mediaDevices.getDisplayMedia(constraints);
         if (screenMediaPromise) {
             isVideoPrivacyActive = false;
