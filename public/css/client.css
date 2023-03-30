@@ -707,6 +707,10 @@ th {
     text-align: center;
     padding: 10px;
 }
+#mySettingsTable tr td label {
+    width: 100%;
+    text-align: left;
+}
 #mySettingsTable tr:nth-child(even) {
     background-color: #2b2b2b;
 }
