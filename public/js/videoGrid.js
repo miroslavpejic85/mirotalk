@@ -64,9 +64,13 @@ function resizeVideoMedia() {
     let Height = videoMediaContainer.offsetHeight - Margin * 2;
     let Cameras = getEcN('Camera');
     let max = 0;
+    let optional = isHideMeActive ? 1 : 0;
+    let isOneVideoElement = videoMediaContainer.childElementCount - optional == 1 ? true : false;
+
+    console.log('videoMediaContainer.childElementCount: ' + videoMediaContainer.childElementCount - optional);
 
     let bigWidth = Width * 4;
-    if (videoMediaContainer.childElementCount == 1) {
+    if (videoMediaContainer.childElementCount - optional == 1) {
         Width = Width - bigWidth;
     }
 
@@ -82,22 +86,21 @@ function resizeVideoMedia() {
     }
 
     max = max - Margin * 2;
-    setWidth(videoMediaContainer, Cameras, max, bigWidth, Margin, Height);
+    setWidth(Cameras, max, bigWidth, Margin, Height, isOneVideoElement);
     document.documentElement.style.setProperty('--vmi-wh', max / 3 + 'px');
 }
 
 /**
  * Set Width
- * @param {object} videoMediaContainer
  * @param {object} Cameras
  * @param {integer} width
  * @param {integer} bigWidth
  * @param {integer} margin
  * @param {integer} maxHeight
+ * @param {integer} isOneVideoElement
  */
-function setWidth(videoMediaContainer, Cameras, width, bigWidth, margin, maxHeight) {
+function setWidth(Cameras, width, bigWidth, margin, maxHeight, isOneVideoElement) {
     ratio = customRatio ? 0.68 : ratio;
-    let isOneVideoElement = videoMediaContainer.childElementCount == 1 ? true : false;
     for (let s = 0; s < Cameras.length; s++) {
         Cameras[s].style.width = width + 'px';
         Cameras[s].style.margin = margin + 'px';

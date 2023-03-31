@@ -75,6 +75,8 @@ const chatInputEmoji = {
 const className = {
     user: 'fas fa-user',
     clock: 'fas fa-clock',
+    hideMeOn: 'fas fa-user-slash',
+    hideMeOff: 'fas fa-user',
     audioOn: 'fas fa-microphone',
     audioOff: 'fas fa-microphone-slash',
     videoOn: 'fas fa-video',
@@ -169,6 +171,8 @@ const userLimitsActive = false; // Limit users per room
 const usersCountLimit = 2; // Limit 2 users per room if userLimitsActive true
 
 const useAvatarApi = true; // if false the cam-Off avatar = avatarImg
+
+let isHideMeActive = false; // Hide myself from the meeting view
 
 let notifyBySound = true; // turn on - off sound notifications
 
@@ -284,6 +288,7 @@ let initSpeakerSelect;
 // buttons bar
 let buttonsBar;
 let shareRoomBtn;
+let hideMeBtn;
 let audioBtn;
 let videoBtn;
 let swapCameraBtn;
@@ -460,6 +465,7 @@ function getHtmlElementsById() {
     // buttons Bar
     buttonsBar = getId('buttonsBar');
     shareRoomBtn = getId('shareRoomBtn');
+    hideMeBtn = getId('hideMeBtn');
     audioBtn = getId('audioBtn');
     videoBtn = getId('videoBtn');
     swapCameraBtn = getId('swapCameraBtn');
@@ -600,6 +606,7 @@ function setButtonsToolTip() {
     setTippy(initScreenShareBtn, 'Toggle screen sharing', 'top');
     // main buttons
     setTippy(shareRoomBtn, 'Invite others to join', 'right-start');
+    setTippy(hideMeBtn, 'Toggle hide myself from the room view', 'right-start');
     setTippy(audioBtn, 'Stop the audio', 'right-start');
     setTippy(videoBtn, 'Stop the video', 'right-start');
     setTippy(screenShareBtn, 'Start screen sharing', 'right-start');
@@ -641,6 +648,7 @@ function setButtonsToolTip() {
         'If Active, When SpaceBar keydown the microphone will be activated, on keyup will be deactivated, like a walkie-talkie.',
         'right',
     );
+    setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     // tab btns
     setTippy(tabDevicesBtn, 'Devices', 'top');
     setTippy(tabBandwidthBtn, 'Bandwidth', 'top');
@@ -2768,6 +2776,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
     let videoPinMediaContainer = getId('videoPinMediaContainer');
     if (btnPn && videoPlayer && cam) {
         btnPn.addEventListener('click', () => {
+            if (isMobileDevice) return;
             playSound('click');
             isVideoPinned = !isVideoPinned;
             if (isVideoPinned) {
@@ -3014,6 +3023,7 @@ function refreshMyVideoAudioStatus(localMediaStream) {
  */
 function manageLeftButtons() {
     setShareRoomBtn();
+    setHideMeButton();
     setAudioBtn();
     setVideoBtn();
     setSwapCameraBtn();
@@ -3037,6 +3047,16 @@ function manageLeftButtons() {
 function setShareRoomBtn() {
     shareRoomBtn.addEventListener('click', async (e) => {
         shareRoomUrl();
+    });
+}
+
+/**
+ * Hide myself from room view
+ */
+function setHideMeButton() {
+    hideMeBtn.addEventListener('click', (e) => {
+        isHideMeActive = !isHideMeActive;
+        handleHideMe(isHideMeActive);
     });
 }
 
@@ -5506,6 +5526,23 @@ async function emitPeerStatus(element, status) {
         element: element,
         status: status,
     });
+}
+
+/**
+ * Handle hide myself from room view
+ * @param {boolean} isHideMeActive
+ */
+function handleHideMe(isHideMeActive) {
+    const myVideoWrap = getId('myVideoWrap');
+    const myVideoPinBtn = getId('myVideoPinBtn');
+    if (isHideMeActive && isVideoPinned) myVideoPinBtn.click();
+    myVideoWrap.style.display = isHideMeActive ? 'none' : 'inline-block';
+    hideMeBtn.className = isHideMeActive ? className.hideMeOn : className.hideMeOff;
+    hideMeBtn.style.color = isHideMeActive ? 'red' : 'black';
+    isHideMeActive ? playSound('off') : playSound('on');
+    if (Object.keys(peerConnections).length === 1) {
+        resizeVideoMedia();
+    }
 }
 
 /**
