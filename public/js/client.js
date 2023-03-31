@@ -116,6 +116,7 @@ const lS = new LocalStorage();
 const buttons = {
     main: {
         showShareRoomBtn: true,
+        showHideMeBtn: true,
         showAudioBtn: true,
         showVideoBtn: true,
         showScreenBtn: true,
@@ -1034,6 +1035,7 @@ function handleRules(isPresenter) {
 function handleButtonsRule() {
     // Main
     elemDisplay(shareRoomBtn, buttons.main.showShareRoomBtn);
+    elemDisplay(hideMeBtn, buttons.main.showHideMeBtn);
     elemDisplay(audioBtn, buttons.main.showAudioBtn);
     elemDisplay(videoBtn, buttons.main.showVideoBtn);
     //elemDisplay(screenShareBtn, buttons.main.showScreenBtn); // auto-detected
