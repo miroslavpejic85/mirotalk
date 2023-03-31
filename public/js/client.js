@@ -2794,6 +2794,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
             } else {
                 if (pinnedVideoPlayerId != videoPlayer.id) {
                     isVideoPinned = true;
+                    if (isScreenEnabled) return;
                     return userLog('toast', 'Another video seems pinned, unpin it before to pin this one', 5000);
                 }
                 if (!isScreenStreaming) videoPlayer.style.objectFit = 'var(--video-object-fit)';
