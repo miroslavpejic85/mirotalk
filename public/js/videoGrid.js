@@ -97,7 +97,7 @@ function resizeVideoMedia() {
  * @param {integer} bigWidth
  * @param {integer} margin
  * @param {integer} maxHeight
- * @param {integer} isOneVideoElement
+ * @param {boolean} isOneVideoElement
  */
 function setWidth(Cameras, width, bigWidth, margin, maxHeight, isOneVideoElement) {
     ratio = customRatio ? 0.68 : ratio;

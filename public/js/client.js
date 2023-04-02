@@ -4255,14 +4255,24 @@ async function swapCamera() {
  * Stop Local Video Track
  */
 async function stopLocalVideoTrack() {
-    if (useVideo || !isScreenStreaming) localMediaStream.getVideoTracks()[0].stop();
+    if (useVideo || !isScreenStreaming) {
+        const localVideoTrack = localMediaStream.getVideoTracks()[0];
+        if (localVideoTrack) {
+            console.log('stopLocalVideoTrack', localVideoTrack);
+            localVideoTrack.stop();
+        }
+    }
 }
 
 /**
  * Stop Local Audio Track
  */
 async function stopLocalAudioTrack() {
-    localMediaStream.getAudioTracks()[0].stop();
+    const localAudioTrack = localMediaStream.getAudioTracks()[0];
+    if (localAudioTrack) {
+        console.log('stopLocalAudioTrack', localAudioTrack);
+        localAudioTrack.stop();
+    }
 }
 
 /**
