@@ -391,6 +391,7 @@ let whiteboardImgUrlBtn;
 let whiteboardTextBtn;
 let whiteboardLineBtn;
 let whiteboardRectBtn;
+let whiteboardTriangleBtn;
 let whiteboardCircleBtn;
 let whiteboardSaveBtn;
 let whiteboardEraserBtn;
@@ -559,6 +560,7 @@ function getHtmlElementsById() {
     whiteboardTextBtn = getId('whiteboardTextBtn');
     whiteboardLineBtn = getId('whiteboardLineBtn');
     whiteboardRectBtn = getId('whiteboardRectBtn');
+    whiteboardTriangleBtn = getId('whiteboardTriangleBtn');
     whiteboardCircleBtn = getId('whiteboardCircleBtn');
     whiteboardSaveBtn = getId('whiteboardSaveBtn');
     whiteboardEraserBtn = getId('whiteboardEraserBtn');
@@ -669,6 +671,7 @@ function setButtonsToolTip() {
     setTippy(whiteboardTextBtn, 'Add the text', 'bottom');
     setTippy(whiteboardLineBtn, 'Add the line', 'bottom');
     setTippy(whiteboardRectBtn, 'Add the rectangle', 'bottom');
+    setTippy(whiteboardTriangleBtn, 'Add triangle', 'bottom');
     setTippy(whiteboardCircleBtn, 'Add the circle', 'bottom');
     setTippy(whiteboardSaveBtn, 'Save the board', 'bottom');
     setTippy(whiteboardEraserBtn, 'Erase the object', 'bottom');
@@ -3449,6 +3452,9 @@ function setMyWhiteboardBtn() {
     });
     whiteboardRectBtn.addEventListener('click', (e) => {
         whiteboardAddObj('rect');
+    });
+    whiteboardTriangleBtn.addEventListener('click', (e) => {
+        whiteboardAddObj('triangle');
     });
     whiteboardCircleBtn.addEventListener('click', (e) => {
         whiteboardAddObj('circle');
@@ -6468,6 +6474,20 @@ function whiteboardAddObj(type) {
                 strokeWidth: wbCanvas.freeDrawingBrush.width,
             });
             addWbCanvasObj(rect);
+            break;
+        case 'triangle':
+            const triangle = new fabric.Triangle({
+                top: 0,
+                left: 0,
+                width: 150,
+                height: 100,
+                fill: 'transparent',
+                stroke: wbCanvas.freeDrawingBrush.color,
+                strokeWidth: wbCanvas.freeDrawingBrush.width,
+            });
+            addWbCanvasObj(triangle);
+            break;
+        default:
             break;
     }
 }
