@@ -3524,6 +3524,8 @@ function setMySettingsBtn() {
     // Sounds
     switchSounds.addEventListener('change', (e) => {
         notifyBySound = e.currentTarget.checked;
+        userLog('toast', 'Notify & sounds ' + (notifyBySound ? 'ON' : 'OFF'));
+        playSound('switch');
     });
 
     if (isMobileDevice) {
@@ -3532,13 +3534,15 @@ function setMySettingsBtn() {
         // Push to talk
         switchPushToTalk.addEventListener('change', (e) => {
             isPushToTalkActive = e.currentTarget.checked;
-            userLog('toast', 'Push to talk active - ' + isPushToTalkActive);
+            userLog('toast', 'Push to talk ' + (isPushToTalkActive ? 'ON' : 'OFF'));
+            playSound('switch');
         });
     }
 
     switchAudioPitchBar.addEventListener('change', (e) => {
         isAudioPitchBar = e.currentTarget.checked;
-        userLog('toast', 'Audio pitch bar active - ' + isAudioPitchBar);
+        userLog('toast', 'Audio pitch bar ' + (isAudioPitchBar ? 'ON' : 'OFF'));
+        playSound('switch');
     });
 
     // make chat room draggable for desktop
