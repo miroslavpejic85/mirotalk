@@ -698,7 +698,7 @@ em-emoji-picker {
 
 #mySettingsTable {
     /* margin-top: 5px; */
-    /* width: 100%; */
+    width: 100%;
     color: #fff;
     border-collapse: collapse;
     border-radius: 5px;
