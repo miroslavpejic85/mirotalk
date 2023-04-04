@@ -701,9 +701,9 @@ em-emoji-picker {
     width: 100%;
     color: #fff;
     border-collapse: collapse;
-    border-radius: 5px;
     border-style: hidden;
-    box-shadow: 0 0 0 1px #666;
+    /* border-radius: 5px; */
+    /* box-shadow: 0 0 0 1px #666; */
 }
 #mySettingsTable td,
 th {
@@ -716,7 +716,11 @@ th {
     text-align: left;
 }
 #mySettingsTable tr:nth-child(even) {
-    background-color: #2b2b2b;
+    /* background-color: #2b2b2b; */
+}
+
+hr {
+    border: 1px solid grey;
 }
 
 #myPeerNameSet {
