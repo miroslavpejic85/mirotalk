@@ -1606,6 +1606,9 @@ function handleIceCandidate(config) {
  */
 function handleDisconnect(reason) {
     console.log('Disconnected from signaling server', { reason: reason });
+
+    checkRecording();
+
     for (let peer_id in peerMediaElements) {
         peerMediaElements[peer_id].parentNode.removeChild(peerMediaElements[peer_id]);
         adaptAspectRatio();
@@ -1630,6 +1633,8 @@ function handleDisconnect(reason) {
  */
 function handleRemovePeer(config) {
     console.log('Signaling server said to remove peer:', config);
+
+    checkRecording();
 
     let peer_id = config.peer_id;
 
@@ -3979,7 +3984,7 @@ function gotDevices(deviceInfos) {
  * @param {object} err user media error
  */
 function handleError(err) {
-    console.log('navigator.MediaDevices.getUserMedia error: ', err);
+    console.error('navigator.MediaDevices.getUserMedia error: ', err);
     switch (err.name) {
         case 'OverconstrainedError':
             userLog(
@@ -4525,6 +4530,17 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 }
 
 /**
+ * Check if recording is active, if yes,
+ * on disconnect, remove peer, kick out or leave room, we going to save it
+ */
+function checkRecording() {
+    if (isStreamRecording || myVideoParagraph.innerHTML.includes('REC')) {
+        console.log('Going to save recording');
+        stopStreamRecording();
+    }
+}
+
+/**
  * Start recording time
  */
 function startRecordingTime() {
@@ -4670,8 +4686,8 @@ function handleMediaRecorderStop(event) {
     playSound('recStop');
     console.log('MediaRecorder stopped: ', event);
     console.log('MediaRecorder Blobs: ', recordedBlobs);
-    myVideoParagraph.innerHTML = myPeerName + ' (me)';
     isStreamRecording = false;
+    myVideoParagraph.innerHTML = myPeerName + ' (me)';
     if (isRecScreenStream) {
         recScreenStream.getTracks().forEach((track) => {
             if (track.kind === 'video') track.stop();
@@ -7386,6 +7402,7 @@ function handleKickedOut(config) {
             popup: 'animate__animated animate__fadeOutUp',
         },
     }).then(() => {
+        checkRecording();
         openURL('/newcall');
     });
 }
@@ -7429,6 +7446,7 @@ function leaveRoom() {
     if (surveyActive) {
         leaveFeedback();
     } else {
+        checkRecording();
         openURL('/newcall');
     }
 }
@@ -7454,6 +7472,7 @@ function leaveFeedback() {
             popup: 'animate__animated animate__fadeOutUp',
         },
     }).then((result) => {
+        checkRecording();
         if (result.isConfirmed) {
             openURL(surveyURL);
         } else {
