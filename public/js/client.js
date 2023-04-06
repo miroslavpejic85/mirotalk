@@ -107,6 +107,11 @@ const className = {
 };
 // https://fontawesome.com/search?o=r&m=free
 
+const icons = {
+    fileSend: '<i class="fa-solid fa-file-export"></i>',
+    fileReceive: '<i class="fa-solid fa-file-import"></i>',
+};
+
 const myRoomUrl = window.location.href;
 
 // Local Storage class
@@ -6998,10 +7003,24 @@ function sendFileInformations(file, peer_id, broadcast = false) {
                 fileType: fileToSend.type,
             },
         };
+
         // keep trace of sent file in chat
-        appendMessage(myPeerName, rightChatAvatar, 'right', 'Send file: \n' + toHtmlJson(fileInfo), false);
+        appendMessage(
+            myPeerName,
+            rightChatAvatar,
+            'right',
+            `${icons.fileSend} File send: 
+            <br/> 
+            <ul>
+                <li>Name: ${fileToSend.name}</li>
+                <li>Size: ${bytesToSize(fileToSend.size)}</li>
+            </ul>`,
+            false,
+        );
+
         // send some metadata about our file to peers in the room
         sendToServer('fileInfo', fileInfo);
+
         // send the File
         setTimeout(() => {
             sendFileData(peer_id, broadcast);
@@ -7047,7 +7066,12 @@ function handleFileInfo(config) {
         incomingFileInfo.peer_name,
         leftChatAvatar,
         'left',
-        'Receive file: \n' + toHtmlJson(incomingFileInfo),
+        `${icons.fileReceive} File receive: 
+        <br/> 
+        <ul>
+            <li>Name: ${incomingFileInfo.file.fileName}</li>
+            <li>Size: ${bytesToSize(incomingFileInfo.file.fileSize)}</li>
+        </ul>`,
         !incomingFileInfo.broadcast,
         incomingFileInfo.peer_id,
     );
