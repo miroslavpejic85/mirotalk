@@ -7069,6 +7069,7 @@ function handleFileInfo(config) {
         `${icons.fileReceive} File receive: 
         <br/> 
         <ul>
+            <li>From: ${incomingFileInfo.peer_name}</li>
             <li>Name: ${incomingFileInfo.file.fileName}</li>
             <li>Size: ${bytesToSize(incomingFileInfo.file.fileSize)}</li>
         </ul>`,
