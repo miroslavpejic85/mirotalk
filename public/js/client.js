@@ -233,6 +233,7 @@ let camera = 'user'; // user = front-facing camera on a smartphone. | environmen
 let roomLocked = false;
 let myVideoChange = false;
 let myHandStatus = false;
+let myVideoStatusBefore = false;
 let myVideoStatus = false;
 let myAudioStatus = false;
 let myScreenStatus = false;
@@ -4305,6 +4306,11 @@ async function toggleScreenSharing(init = false) {
     let screenMediaPromise = null;
 
     try {
+        // Going to save webcam video status before to screen share
+        if (!isScreenStreaming) {
+            myVideoStatusBefore = myVideoStatus;
+            console.log('My video status before screen sharing: ' + myVideoStatusBefore);
+        }
         screenMediaPromise = isScreenStreaming
             ? await navigator.mediaDevices.getUserMedia(await getAudioVideoConstraints())
             : await navigator.mediaDevices.getDisplayMedia(constraints);
@@ -4337,7 +4343,9 @@ async function toggleScreenSharing(init = false) {
             }
 
             // Disable cam video when screen sharing stop
-            if (!isScreenStreaming && !init) setMyVideoOff(myPeerName);
+            if (!init && !isScreenStreaming && !myVideoStatusBefore) setMyVideoOff(myPeerName);
+            // Enable cam video when screen sharing stop
+            if (!init && !isScreenStreaming && myVideoStatusBefore) setMyVideoStatusTrue();
 
             myVideo.classList.toggle('mirror');
             setScreenSharingStatus(isScreenStreaming);
