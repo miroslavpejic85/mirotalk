@@ -1290,6 +1290,7 @@ async function whoAreYouJoin() {
 async function joinToChannel() {
     console.log('12. join to channel', roomId);
     sendToServer('join', {
+        join_data_time: getDataTimeString(),
         channel: roomId,
         userAgent: userAgent,
         channel_password: thisRoomPassword,
