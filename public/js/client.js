@@ -7055,6 +7055,8 @@ function handleFileInfo(config) {
         ' File type: ' +
         incomingFileInfo.file.fileType;
     console.log(fileToReceiveInfo);
+    // generate chat avatar by peer_name
+    setPeerChatAvatarImgName('left', incomingFileInfo.peer_name);
     // keep track of received file on chat
     appendMessage(
         incomingFileInfo.peer_name,
