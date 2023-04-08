@@ -108,8 +108,13 @@ const className = {
 // https://fontawesome.com/search?o=r&m=free
 
 const icons = {
-    fileSend: '<i class="fa-solid fa-file-export"></i>',
-    fileReceive: '<i class="fa-solid fa-file-import"></i>',
+    lock: '<i class="fas fa-lock"></i>',
+    unlock: '<i class="fas fa-lock-open"></i>',
+    pitchBar: '<i class="fas fa-microphone-lines"></i>',
+    sounds: '<i class="fas fa-music"></i>',
+    user: '<i class="fas fa-user"></i>',
+    fileSend: '<i class="fas fa-file-export"></i>',
+    fileReceive: '<i class="fas fa-file-import"></i>',
 };
 
 const myRoomUrl = window.location.href;
@@ -167,6 +172,8 @@ const buttons = {
         showZoomInOutBtn: true,
     },
 };
+
+const backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
 
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
 
@@ -281,7 +288,6 @@ let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by p
 let chatMessages = []; // collect chat messages to save it later if want
 let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
 let transcripts = []; //collect all the transcripts to save it later if you need
-let backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
 let countTime; // conference count time
 // init audio-video
 let initAudioBtn;
@@ -954,11 +960,11 @@ async function handleConnect() {
  * @param {object} config data
  */
 function handleServerInfo(config) {
-    let peers_count = config.peers_count;
+    const { peers_count, survey } = config;
 
     // Get survey settings from server
-    surveyActive = config.survey.active;
-    surveyURL = config.survey.url;
+    surveyActive = survey.active;
+    surveyURL = survey.url;
 
     console.log('13. Peers count', peers_count);
 
@@ -1317,23 +1323,20 @@ async function joinToChannel() {
 async function handleAddPeer(config) {
     //console.log("addPeer", JSON.stringify(config));
 
-    let peer_id = config.peer_id;
-    let peers = config.peers;
-    let peer_name = peers[peer_id]['peer_name'];
-    let peer_video = peers[peer_id]['peer_video'];
-    let should_create_offer = config.should_create_offer;
-    let iceServers = config.iceServers;
+    const { peer_id, should_create_offer, iceServers, peers } = config;
+
+    const peer_name = peers[peer_id]['peer_name'];
+    const peer_video = peers[peer_id]['peer_video'];
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
         return console.log('Already connected to peer', peer_id);
     }
 
-    if (!iceServers) iceServers = backupIceServers;
     console.log('iceServers', iceServers[0]);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
-    peerConnection = new RTCPeerConnection({ iceServers: iceServers });
+    peerConnection = new RTCPeerConnection({ iceServers: iceServers ? iceServers : backupIceServers });
     peerConnections[peer_id] = peerConnection;
 
     allPeers = peers;
@@ -1419,9 +1422,9 @@ async function handleOnIceCandidate(peer_id) {
 async function handleOnTrack(peer_id, peers) {
     console.log('[ON TRACK] - peer_id', { peer_id: peer_id });
     peerConnections[peer_id].ontrack = (event) => {
-        let remoteVideoStream = getId(peer_id + '_video');
-        let peer_name = peers[peer_id]['peer_name'];
-        let kind = event.track.kind;
+        const remoteVideoStream = getId(peer_id + '_video');
+        const peer_name = peers[peer_id]['peer_name'];
+        const kind = event.track.kind;
         //userLog('info', '[ON TRACK] - peer_name: ' + peer_name + ' kind: ' + kind);
         console.log('[ON TRACK] - info', { peer_id: peer_id, peer_name: peer_name, kind: kind, track: event.track });
         if (event.streams && event.streams[0]) {
@@ -1432,7 +1435,7 @@ async function handleOnTrack(peer_id, peers) {
         } else {
             console.log('[ON TRACK] - SCREEN SHARING', { peer_id: peer_id, peer_name: peer_name, kind: kind });
             // attach newStream with screen share video and audio already existing
-            let inboundStream = new MediaStream([event.track, remoteVideoStream.srcObject.getAudioTracks()[0]]);
+            const inboundStream = new MediaStream([event.track, remoteVideoStream.srcObject.getAudioTracks()[0]]);
             attachMediaStream(remoteVideoStream, inboundStream);
         }
     };
@@ -1444,7 +1447,7 @@ async function handleOnTrack(peer_id, peers) {
  * @param {string} peer_id socket.id
  */
 async function handleAddTracks(peer_id) {
-    let peer_name = allPeers[peer_id]['peer_name'];
+    const peer_name = allPeers[peer_id]['peer_name'];
     await localMediaStream.getTracks().forEach((track) => {
         console.log('[ADD TRACK] to Peer Name [' + peer_name + '] kind - ' + track.kind);
         peerConnections[peer_id].addTrack(track, localMediaStream);
@@ -1466,7 +1469,7 @@ async function handleRTCDataChannels(peer_id) {
             switch (event.channel.label) {
                 case 'mirotalk_chat_channel':
                     try {
-                        let dataMessage = JSON.parse(msg.data);
+                        const dataMessage = JSON.parse(msg.data);
                         switch (dataMessage.type) {
                             case 'chat':
                                 handleDataChannelChat(dataMessage);
@@ -1484,7 +1487,7 @@ async function handleRTCDataChannels(peer_id) {
                     break;
                 case 'mirotalk_file_sharing_channel':
                     try {
-                        let dataFile = msg.data;
+                        const dataFile = msg.data;
                         handleDataChannelFileSharing(dataFile);
                     } catch (err) {
                         console.error('mirotalk_file_sharing_channel', err);
@@ -1539,19 +1542,17 @@ async function handleRtcOffer(peer_id) {
  */
 function handleSessionDescription(config) {
     console.log('Remote Session Description', config);
-
-    let peer_id = config.peer_id;
-    let remote_description = config.session_description;
+    const { peer_id, session_description } = config;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription
-    let description = new RTCSessionDescription(remote_description);
+    const remote_description = new RTCSessionDescription(session_description);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription
     peerConnections[peer_id]
-        .setRemoteDescription(description)
+        .setRemoteDescription(remote_description)
         .then(() => {
             console.log('setRemoteDescription done!');
-            if (remote_description.type == 'offer') {
+            if (session_description.type == 'offer') {
                 console.log('Creating answer');
                 // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createAnswer
                 peerConnections[peer_id]
@@ -1598,8 +1599,7 @@ function handleSessionDescription(config) {
  * @param {object} config data
  */
 function handleIceCandidate(config) {
-    let peer_id = config.peer_id;
-    let ice_candidate = config.ice_candidate;
+    const { peer_id, ice_candidate } = config;
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCIceCandidate
     peerConnections[peer_id].addIceCandidate(new RTCIceCandidate(ice_candidate)).catch((err) => {
         console.error('[Error] addIceCandidate', err);
@@ -1643,7 +1643,7 @@ function handleRemovePeer(config) {
 
     checkRecording();
 
-    let peer_id = config.peer_id;
+    const { peer_id } = config;
 
     if (peer_id in peerMediaElements) {
         peerMediaElements[peer_id].parentNode.removeChild(peerMediaElements[peer_id]);
@@ -1888,19 +1888,19 @@ function stopTracks(stream) {
  * @param {object} els
  */
 function addChild(device, els) {
-    let kind = device.kind;
+    const { kind, deviceId, label } = device;
     els.forEach((el) => {
-        let option = document.createElement('option');
-        option.value = device.deviceId;
+        const option = document.createElement('option');
+        option.value = deviceId;
         switch (kind) {
             case 'videoinput':
-                option.innerHTML = `📹 ` + device.label || `📹 camera ${el.length + 1}`;
+                option.innerHTML = `📹 ` + label || `📹 camera ${el.length + 1}`;
                 break;
             case 'audioinput':
-                option.innerHTML = `🎤 ` + device.label || `🎤 microphone ${el.length + 1}`;
+                option.innerHTML = `🎤 ` + label || `🎤 microphone ${el.length + 1}`;
                 break;
             case 'audiooutput':
-                option.innerHTML = `🔈 ` + device.label || `🔈 speaker ${el.length + 1}`;
+                option.innerHTML = `🔈 ` + label || `🔈 speaker ${el.length + 1}`;
                 break;
             default:
                 break;
@@ -2180,14 +2180,14 @@ function checkShareScreen() {
  */
 async function loadRemoteMediaStream(stream, peers, peer_id) {
     // get data from peers obj
-    let peer_name = peers[peer_id]['peer_name'];
-    let peer_video = peers[peer_id]['peer_video'];
-    let peer_video_status = peers[peer_id]['peer_video_status'];
-    let peer_audio_status = peers[peer_id]['peer_audio_status'];
-    let peer_screen_status = peers[peer_id]['peer_screen_status'];
-    let peer_hand_status = peers[peer_id]['peer_hand_status'];
-    let peer_rec_status = peers[peer_id]['peer_rec_status'];
-    let peer_privacy_status = peers[peer_id]['peer_privacy_status'];
+    const peer_name = peers[peer_id]['peer_name'];
+    const peer_video = peers[peer_id]['peer_video'];
+    const peer_video_status = peers[peer_id]['peer_video_status'];
+    const peer_audio_status = peers[peer_id]['peer_audio_status'];
+    const peer_screen_status = peers[peer_id]['peer_screen_status'];
+    const peer_hand_status = peers[peer_id]['peer_hand_status'];
+    const peer_rec_status = peers[peer_id]['peer_rec_status'];
+    const peer_privacy_status = peers[peer_id]['peer_privacy_status'];
 
     remoteMediaStream = stream;
 
@@ -2548,10 +2548,10 @@ function adaptAspectRatio() {
  * @param {boolean} useAvatar use avatar api for image
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName, useAvatar) {
-    let videoAvatarImageElement = getId(videoAvatarImageId);
+    const videoAvatarImageElement = getId(videoAvatarImageId);
     if (useAvatar) {
         // default img size 64 max 512
-        let avatarImgSize = isMobileDevice ? 128 : 256;
+        const avatarImgSize = isMobileDevice ? 128 : 256;
         videoAvatarImageElement.setAttribute(
             'src',
             avatarApiUrl + '?name=' + peerName + '&size=' + avatarImgSize + '&background=random&rounded=true',
@@ -2567,7 +2567,7 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName, useAvatar) {
  * @param {string} peerName me or peer name
  */
 function setPeerChatAvatarImgName(avatar, peerName) {
-    let avatarImg = avatarApiUrl + '?name=' + peerName + '&size=32' + '&background=random&rounded=true';
+    const avatarImg = avatarApiUrl + '?name=' + peerName + '&size=32' + '&background=random&rounded=true';
 
     switch (avatar) {
         case 'left':
@@ -3536,7 +3536,7 @@ function setMySettingsBtn() {
     // Sounds
     switchSounds.addEventListener('change', (e) => {
         notifyBySound = e.currentTarget.checked;
-        userLog('toast', 'Notify & sounds ' + (notifyBySound ? 'ON' : 'OFF'));
+        userLog('toast', `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'));
         playSound('switch');
     });
 
@@ -3546,14 +3546,14 @@ function setMySettingsBtn() {
         // Push to talk
         switchPushToTalk.addEventListener('change', (e) => {
             isPushToTalkActive = e.currentTarget.checked;
-            userLog('toast', 'Push to talk ' + (isPushToTalkActive ? 'ON' : 'OFF'));
+            userLog('toast', `👆 Push to talk ` + (isPushToTalkActive ? 'ON' : 'OFF'));
             playSound('switch');
         });
     }
 
     switchAudioPitchBar.addEventListener('change', (e) => {
         isAudioPitchBar = e.currentTarget.checked;
-        userLog('toast', 'Audio pitch bar ' + (isAudioPitchBar ? 'ON' : 'OFF'));
+        userLog('toast', `${icons.pitchBar} Audio pitch bar ` + (isAudioPitchBar ? 'ON' : 'OFF'));
         playSound('switch');
     });
 
@@ -5000,13 +5000,12 @@ function handleDataChannelSpeechTranscript(config) {
  */
 function handleSpeechTranscript(config) {
     if (!config) return;
-
-    let time_stamp = getFormatDate(new Date());
-    let name = config.peer_name;
-    let avatar_image = avatarApiUrl + '?name=' + name + '&size=32' + '&background=random&rounded=true';
-    let transcipt = config.text_data;
-
     console.log('Handle speech transcript', config);
+
+    const { peer_name, text_data } = config;
+
+    const time_stamp = getFormatDate(new Date());
+    const avatar_image = avatarApiUrl + '?name=' + peer_name + '&size=32' + '&background=random&rounded=true';
 
     if (!isCaptionBoxVisible) showCaptionDraggable();
 
@@ -5015,9 +5014,9 @@ function handleSpeechTranscript(config) {
 		<div class="msg-img" style="background-image: url('${avatar_image}')"></div>
 		<div class="msg-caption-bubble">
             <div class="msg-info">
-                <div class="msg-info-name">${name} : ${time_stamp}</div>
+                <div class="msg-info-name">${peer_name} : ${time_stamp}</div>
             </div>
-            <div class="msg-text">${transcipt}</div>
+            <div class="msg-text">${text_data}</div>
         </div>
 	</div>
     `;
@@ -5025,8 +5024,8 @@ function handleSpeechTranscript(config) {
     captionChat.scrollTop += 500;
     transcripts.push({
         time: time_stamp,
-        name: name,
-        caption: transcipt,
+        name: peer_name,
+        caption: text_data,
     });
     playSound('speech');
 }
@@ -5553,13 +5552,12 @@ function updateMyPeerName() {
  * @param {object} config data
  */
 function handlePeerName(config) {
-    let peer_id = config.peer_id;
-    let peer_name = config.peer_name;
-    let videoName = getId(peer_id + '_name');
+    const { peer_id, peer_name } = config;
+    const videoName = getId(peer_id + '_name');
     if (videoName) videoName.innerHTML = peer_name;
     // change also avatar and btn value - name on chat lists....
-    let msgerPeerName = getId(peer_id + '_pMsgBtn');
-    let msgerPeerAvatar = getId(peer_id + '_pMsgAvatar');
+    const msgerPeerName = getId(peer_id + '_pMsgBtn');
+    const msgerPeerAvatar = getId(peer_id + '_pMsgAvatar');
     if (msgerPeerName) msgerPeerName.value = peer_name;
     if (msgerPeerAvatar)
         msgerPeerAvatar.src = `${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true`;
@@ -5654,10 +5652,7 @@ function setMyVideoStatus(status) {
  */
 function handlePeerStatus(config) {
     //
-    let peer_id = config.peer_id;
-    let peer_name = config.peer_name;
-    let element = config.element;
-    let status = config.status;
+    const { peer_id, peer_name, element, status } = config;
 
     switch (element) {
         case 'video':
@@ -5685,7 +5680,7 @@ function setPeerHandStatus(peer_id, peer_name, status) {
     let peerHandStatus = getId(peer_id + '_handStatus');
     peerHandStatus.style.display = status ? 'inline' : 'none';
     if (status) {
-        userLog('toast', peer_name + ' has raised the hand');
+        userLog('toast', `${icons.user} ${peer_name} \n has raised the hand!`);
         playSound('raiseHand');
     }
 }
@@ -5879,11 +5874,7 @@ async function emitPeerAction(peer_id, peerAction) {
  */
 function handlePeerAction(config) {
     // console.log('Handle peer action: ', config);
-
-    let peer_id = config.peer_id;
-    let peer_name = config.peer_name;
-    let peer_use_video = config.peer_use_video;
-    let peer_action = config.peer_action;
+    const { peer_id, peer_name, peer_use_video, peer_action } = config;
 
     switch (peer_action) {
         case 'muteAudio':
@@ -5973,7 +5964,7 @@ function setMyAudioOff(peer_name) {
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
     audioBtn.className = className.audioOff;
     setMyAudioStatus(myAudioStatus);
-    userLog('toast', peer_name + ' has disabled your audio');
+    userLog('toast', `${icons.user} ${peer_name} \n has disabled your audio`);
     playSound('off');
 }
 
@@ -5987,7 +5978,7 @@ function setMyAudioOn(peer_name) {
     myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
     audioBtn.className = className.audioOn;
     setMyAudioStatus(myAudioStatus);
-    userLog('toast', peer_name + ' has enabled your audio');
+    userLog('toast', `${icons.user} ${peer_name} \n has enabled your audio`);
     playSound('on');
 }
 
@@ -6002,7 +5993,7 @@ function setMyVideoOff(peer_name) {
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
     videoBtn.className = className.videoOff;
     setMyVideoStatus(myVideoStatus);
-    userLog('toast', peer_name + ' has disabled your video');
+    userLog('toast', `${icons.user} ${peer_name} \n has disabled your video`);
     playSound('off');
 }
 
@@ -6126,14 +6117,15 @@ function disablePeer(peer_id, element) {
  * @param {boolean} emit data to signaling server
  */
 function handleRoomAction(config, emit = false) {
+    const { action } = config;
     if (emit) {
-        let thisConfig = {
+        const thisConfig = {
             room_id: roomId,
             peer_name: myPeerName,
-            action: config.action,
+            action: action,
             password: null,
         };
-        switch (config.action) {
+        switch (action) {
             case 'lock':
                 playSound('newMessage');
 
@@ -6181,24 +6173,23 @@ function handleRoomAction(config, emit = false) {
  * @param {object} config data
  */
 function handleRoomStatus(config) {
-    let action = config.action;
-    let peer_name = config.peer_name;
+    const { action, peer_name, password } = config;
+
     switch (action) {
         case 'lock':
             playSound('locked');
-            userLog('toast', peer_name + ' has 🔒 LOCKED the room by password', 'top-end');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`, 'top-end');
             elemDisplay(lockRoomBtn, false);
             elemDisplay(unlockRoomBtn, true);
             isRoomLocked = true;
             break;
         case 'unlock':
-            userLog('toast', peer_name + ' has 🔓 UNLOCKED the room', 'top-end');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top-end');
             elemDisplay(unlockRoomBtn, false);
             elemDisplay(lockRoomBtn, true);
             isRoomLocked = false;
             break;
         case 'checkPassword':
-            let password = config.password;
             isRoomLocked = true;
             password == 'OK' ? joinToChannel() : handleRoomLocked();
             break;
@@ -6258,7 +6249,7 @@ function handleUnlockTheRoom() {
             thisRoomPassword = pwd;
         },
     }).then(() => {
-        let config = {
+        const config = {
             room_id: roomId,
             peer_name: myPeerName,
             action: 'checkPassword',
@@ -6349,7 +6340,7 @@ function setWhiteboardSize(w, h) {
  * @param {string} color whiteboard bg
  */
 function setWhiteboardBgColor(color) {
-    let config = {
+    const config = {
         room_id: roomId,
         peer_name: myPeerName,
         action: 'bgcolor',
@@ -6670,7 +6661,7 @@ function saveDataToFile(dataURL, fileName) {
  */
 function wbCanvasToJson() {
     if (thereIsPeerConnections()) {
-        let config = {
+        const config = {
             room_id: roomId,
             wbCanvasJson: JSON.stringify(wbCanvas.toJSON()),
         };
@@ -6752,15 +6743,17 @@ function whiteboardAction(config) {
 /**
  * Whiteboard: handle actions
  * @param {object} config data
- * @param {boolean} logme popup action
+ * @param {boolean} logMe popup action
  */
-function handleWhiteboardAction(config, logme = true) {
-    if (logme) {
-        userLog('toast', `${config.peer_name} whiteboard action: ${config.action}`);
+function handleWhiteboardAction(config, logMe = true) {
+    const { peer_name, action, color } = config;
+
+    if (logMe) {
+        userLog('toast', `${icons.user} ${peer_name} \n whiteboard action: ${action}`);
     }
-    switch (config.action) {
+    switch (action) {
         case 'bgcolor':
-            wbCanvasBackgroundColor(config.color);
+            wbCanvasBackgroundColor(color);
             break;
         case 'undo':
             wbCanvasUndo();
@@ -7205,9 +7198,9 @@ function sendVideoUrl(peer_id = null) {
             if (!isVideoTypeSupported(result.value)) {
                 return userLog('warning', 'Something wrong, try with another Video or audio URL');
             }
-            let is_youtube = getVideoType(result.value) == 'na' ? true : false;
-            let video_url = is_youtube ? getYoutubeEmbed(result.value) : result.value;
-            let config = {
+            const is_youtube = getVideoType(result.value) == 'na' ? true : false;
+            const video_url = is_youtube ? getYoutubeEmbed(result.value) : result.value;
+            const config = {
                 peer_id: peer_id,
                 video_src: video_url,
             };
@@ -7222,9 +7215,9 @@ function sendVideoUrl(peer_id = null) {
  */
 function openVideoUrlPlayer(config) {
     console.log('Open video Player', config);
-    let videoSrc = config.video_src;
-    let videoType = getVideoType(videoSrc);
-    let videoEmbed = getYoutubeEmbed(videoSrc);
+    const videoSrc = config.video_src;
+    const videoType = getVideoType(videoSrc);
+    const videoEmbed = getYoutubeEmbed(videoSrc);
     console.log('Video embed', videoEmbed);
     //
     if (!isVideoUrlPlayerOpen) {
@@ -7331,16 +7324,15 @@ function emitVideoPlayer(video_action, config = {}) {
  * @param {object} config data
  */
 function handleVideoPlayer(config) {
-    let peer_name = config.peer_name;
-    let video_action = config.video_action;
+    const { peer_name, video_action } = config;
     //
     switch (video_action) {
         case 'open':
-            userLog('toast', peer_name + ' open video player');
+            userLog('toast', `${icons.user} ${peer_name} \n open video player`);
             openVideoUrlPlayer(config);
             break;
         case 'close':
-            userLog('toast', peer_name + ' close video player');
+            userLog('toast', `${icons.user} ${peer_name} \n close video player`);
             closeVideoUrlPlayer();
             break;
     }
@@ -7397,7 +7389,7 @@ function kickOut(peer_id) {
  * @param {object} config data
  */
 function handleKickedOut(config) {
-    let peer_name = config.peer_name;
+    const { peer_name } = config;
 
     playSound('eject');
 

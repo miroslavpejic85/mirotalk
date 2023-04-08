@@ -33,14 +33,13 @@
     "license": "AGPL-3.0",
     "homepage": "https://github.com/miroslavpejic85/mirotalk",
     "dependencies": {
-        "@sentry/integrations": "^7.46.0",
-        "@sentry/node": "^7.46.0",
+        "@sentry/integrations": "^7.47.0",
+        "@sentry/node": "^7.47.0",
         "body-parser": "^1.20.2",
         "colors": "^1.4.0",
         "compression": "^1.7.4",
         "cors": "^2.8.5",
         "crypto-js": "^4.1.1",
-        "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "ngrok": "^4.3.3",
         "qs": "^6.11.1",
@@ -51,6 +50,7 @@
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
+        "dotenv": "^16.0.3",
         "node-fetch": "^2.6.6",
         "prettier": "2.8.7"
     }
