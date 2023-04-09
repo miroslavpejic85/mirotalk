@@ -26,6 +26,7 @@
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
+const peerIPUrl = 'https://api.ipify.org?format=json';
 const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const welcomeImg = '../images/image-placeholder.png';
 const shareUrlImg = '../images/image-placeholder.png';
@@ -205,6 +206,8 @@ let surveyActive = true; // when leaving the room give a feedback, if false will
 
 let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 
+let myWanIP = null;
+
 let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
 let userAgent; // User agent info
@@ -233,6 +236,7 @@ let pinVideoPositionSelect;
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let peerGeo;
 let myPeerName = getPeerName();
+let myPeerUUID = getUUID();
 let isScreenEnabled = getScreenEnabled();
 let isScreenSharingSupported = false;
 let isCamMirrored = false;
@@ -741,11 +745,26 @@ function getPeerInfo() {
  * Get your API Key at https://extreme-ip-lookup.com
  */
 async function getPeerGeoLocation() {
-    console.log('07. Get peer geo location');
+    console.log('03.1 Get peer geo location');
     fetch(peerLoockupUrl)
         .then((res) => res.json())
         .then((outJson) => {
             peerGeo = outJson;
+        })
+        .catch((err) => console.warn(err));
+}
+
+/**
+ * Get my wanIP
+ * https://www.ipify.org/
+ */
+async function getMyIP() {
+    console.log('03.2 Get My WanIP');
+    fetch(peerIPUrl)
+        .then((res) => res.json())
+        .then((outJson) => {
+            myWanIP = outJson['ip'];
+            console.log('My Public IPv4 is: ', myWanIP);
         })
         .catch((err) => console.warn(err));
 }
@@ -794,6 +813,21 @@ function makeId(length) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+}
+
+/**
+ * Get UUID4
+ * @returns uuid4
+ */
+function getUUID() {
+    const uuid4 = ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
+    );
+    if (window.localStorage.uuid) {
+        return window.localStorage.uuid;
+    }
+    window.localStorage.uuid = uuid4;
+    return uuid4;
 }
 
 /**
@@ -892,6 +926,19 @@ function initClientPeer() {
         console.log('Connection upgraded transport', upgradedTransport);
     });
 
+    // async - await requests
+    signalingSocket.request = function request(type, data = {}) {
+        return new Promise((resolve, reject) => {
+            signalingSocket.emit(type, data, (data) => {
+                if (data.error) {
+                    reject(data.error);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+    };
+
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
     signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
@@ -912,6 +959,25 @@ function initClientPeer() {
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
+
+/**
+ * Send async data, promise mode to signaling server (server.js)
+ * @param {object} data
+ * @param {object} cb
+ * @return {object} cb
+ */
+async function sendRequestToServer(data) {
+    const myPromise = new Promise((resolve, reject) => {
+        switch (data.type) {
+            case 'checkPeerName':
+                resolve(data.peer_name);
+                break;
+            default:
+                break;
+        }
+    });
+    return myPromise;
+}
 
 /**
  * Send async data to signaling server (server.js)
@@ -950,6 +1016,7 @@ async function handleConnect() {
     } else {
         await initEnumerateDevices();
         await getPeerGeoLocation();
+        await getMyIP();
         await setupLocalMedia();
         await whoAreYou();
     }
@@ -960,7 +1027,7 @@ async function handleConnect() {
  * @param {object} config data
  */
 function handleServerInfo(config) {
-    const { peers_count, survey } = config;
+    const { peers_count, is_presenter, survey } = config;
 
     // Get survey settings from server
     surveyActive = survey.active;
@@ -974,7 +1041,7 @@ function handleServerInfo(config) {
     }
 
     // Let start with some basic rules
-    isPresenter = peers_count == 1 ? true : false;
+    isPresenter = is_presenter;
     if (isRulesActive) {
         handleRules(isPresenter);
     }
@@ -1088,6 +1155,13 @@ async function whoAreYou() {
     document.body.style.background = 'var(--body-bg)';
 
     if (myPeerName) {
+        myPeerName = filterXSS(myPeerName);
+
+        console.log(`11.1 Check if ${myPeerName} exist in the room`, roomId);
+        if (await checkUserName()) {
+            return userNameAlreadyInRoom();
+        }
+
         checkPeerAudioVideo();
         whoAreYouJoin();
         playSound('addPeer');
@@ -1118,7 +1192,7 @@ async function whoAreYou() {
         hideClass: {
             popup: 'animate__animated animate__fadeOutUp',
         },
-        inputValidator: (value) => {
+        inputValidator: async (value) => {
             if (!value) return 'Please enter your name';
 
             // prevent xss execution itself
@@ -1130,8 +1204,13 @@ async function whoAreYou() {
                 return 'Invalid name!';
             }
 
-            window.localStorage.peer_name = myPeerName;
-            whoAreYouJoin();
+            // check if peer name is already in use in the room
+            if (await checkUserName()) {
+                return 'Username is already in use!';
+            } else {
+                window.localStorage.peer_name = myPeerName;
+                whoAreYouJoin();
+            }
         },
     }).then(() => {
         playSound('addPeer');
@@ -1174,6 +1253,49 @@ async function whoAreYou() {
 
     setTippy(initAudioBtn, 'Stop the audio', 'top');
     setTippy(initVideoBtn, 'Stop the video', 'top');
+}
+
+/**
+ * Check if UserName already exist in the room
+ */
+async function checkUserName() {
+    return signalingSocket
+        .request('data', {
+            type: 'checkPeerName',
+            room_id: roomId,
+            peer_id: myPeerId,
+            peer_name: myPeerName,
+        })
+        .then((response) => response);
+}
+
+/**
+ * Username already in the room
+ */
+function userNameAlreadyInRoom() {
+    signalingSocket.disconnect();
+    playSound('alert');
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swalBackground,
+        imageUrl: forbiddenImg,
+        position: 'center',
+        title: 'Username',
+        html: `The Username is already in use. <br/> Please try with another one`,
+        showDenyButton: false,
+        confirmButtonText: `OK`,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            openURL('/');
+        }
+    });
 }
 
 /**
@@ -1298,10 +1420,11 @@ async function joinToChannel() {
     sendToServer('join', {
         join_data_time: getDataTimeString(),
         channel: roomId,
-        userAgent: userAgent,
         channel_password: thisRoomPassword,
         peer_info: peerInfo,
         peer_geo: peerGeo,
+        peer_ip: peerGeo.query || myWanIP,
+        peer_uuid: myPeerUUID,
         peer_name: myPeerName,
         peer_video: useVideo,
         peer_audio: useAudio,
@@ -1311,6 +1434,7 @@ async function joinToChannel() {
         peer_hand_status: myHandStatus,
         peer_rec_status: isRecScreenStream,
         peer_privacy_status: isVideoPrivacyActive,
+        userAgent: userAgent,
     });
     handleBodyOnMouseMove(); // show/hide buttonsBar...
 }

@@ -175,6 +175,7 @@ const views = {
 let channels = {}; // collect channels
 let sockets = {}; // collect sockets
 let peers = {}; // collect peers info grp by channels
+let presenters = {}; // collect presenters grp by channels
 
 app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
@@ -531,7 +532,10 @@ server.listen(port, null, () => {
  * the peer connection and will be in streaming audio/video between eachother.
  */
 io.sockets.on('connect', async (socket) => {
-    log.debug('[' + socket.id + '] connection accepted', { host: socket.handshake.headers.host.split(':')[0] });
+    log.debug('[' + socket.id + '] connection accepted', {
+        host: socket.handshake.headers.host.split(':')[0],
+        time: socket.handshake.time,
+    });
 
     socket.channels = {};
     sockets[socket.id] = socket;
@@ -560,6 +564,32 @@ io.sockets.on('connect', async (socket) => {
     });
 
     /**
+     * Handle incoming data, res with a callback
+     */
+    socket.on('data', (data, cb) => {
+        log.debug('Socket Promise', data);
+        //...
+        const { room_id, peer_id, peer_name, type } = data;
+
+        switch (type) {
+            case 'checkPeerName':
+                log.debug('Check if peer name exists', { peer_name: peer_name, room_id: room_id });
+                for (let id in peers[room_id]) {
+                    if (peer_id != id && peers[room_id][id]['peer_name'] == peer_name) {
+                        log.debug('Peer name found', { peer_name: peer_name, room_id: room_id });
+                        cb(true);
+                        break;
+                    }
+                }
+                break;
+            //....
+            default:
+                cb(false);
+                break;
+        }
+    });
+
+    /**
      * On peer join
      */
     socket.on('join', async (cfg) => {
@@ -571,6 +601,8 @@ io.sockets.on('connect', async (socket) => {
         const {
             channel,
             channel_password,
+            peer_ip,
+            peer_uuid,
             peer_name,
             peer_video,
             peer_audio,
@@ -590,6 +622,9 @@ io.sockets.on('connect', async (socket) => {
 
         // no channel aka room in peers init
         if (!(channel in peers)) peers[channel] = {};
+
+        // no presenter aka host in presenters init
+        if (!(channel in presenters)) presenters[channel] = {};
 
         // room locked by the participants can't join
         if (peers[channel]['lock'] === true && peers[channel]['password'] != channel_password) {
@@ -616,9 +651,30 @@ io.sockets.on('connect', async (socket) => {
         channels[channel][socket.id] = socket;
         socket.channels[channel] = channel;
 
+        // collect presenters grp by channels
+        if (Object.keys(presenters[channel]).length === 0) {
+            presenters[channel] = {
+                peer_ip: peer_ip,
+                peer_name: peer_name,
+                peer_uuid: peer_uuid,
+                is_presenter: true,
+            };
+        }
+
+        const peerCounts = Object.keys(peers[channel]).length;
+        // If presenter must mach the public ipv4 - name - uuid
+        const isPresenter =
+            Object.keys(presenters[channel]).length > 1 &&
+            presenters[channel]['peer_ip'] == peer_ip &&
+            presenters[channel]['peer_name'] == peer_name &&
+            presenters[channel]['peer_uuid'] == peer_uuid;
+
+        log.debug('[Join] - connected presenters grp by roomId', presenters);
+
         // Send some server info to joined peer
         await sendToPeer(socket.id, sockets, 'serverInfo', {
-            peers_count: Object.keys(peers[channel]).length,
+            peers_count: peerCounts,
+            is_presenter: isPresenter,
             survey: {
                 active: surveyEnabled,
                 url: surveyURL,
@@ -717,6 +773,7 @@ io.sockets.on('connect', async (socket) => {
         for (let peer_id in peers[room_id]) {
             if (peers[room_id][peer_id]['peer_name'] == peer_name_old) {
                 peers[room_id][peer_id]['peer_name'] = peer_name_new;
+                presenters[room_id]['peer_name'] = peer_name_new;
                 peer_id_to_update = peer_id;
             }
         }
@@ -954,10 +1011,12 @@ io.sockets.on('connect', async (socket) => {
             switch (Object.keys(peers[channel]).length) {
                 case 0: // last peer disconnected from the room without room lock & password set
                     delete peers[channel];
+                    delete presenters[channel];
                     break;
                 case 2: // last peer disconnected from the room having room lock & password set
                     if (peers[channel]['lock'] && peers[channel]['password']) {
                         delete peers[channel]; // clean lock and password value from the room
+                        delete presenters[channel]; // clean the presenter from the channel
                     }
                     break;
             }
@@ -965,6 +1024,7 @@ io.sockets.on('connect', async (socket) => {
             log.error('Remove Peer', toJson(err));
         }
         log.debug('[removePeerFrom] - connected peers grp by roomId', peers);
+        log.debug('[removePeerFrom] - connected presenters grp by roomId', presenters);
 
         for (let id in channels[channel]) {
             await channels[channel][id].emit('removePeer', { peer_id: socket.id });
