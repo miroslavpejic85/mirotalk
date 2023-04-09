@@ -931,8 +931,10 @@ function initClientPeer() {
         return new Promise((resolve, reject) => {
             signalingSocket.emit(type, data, (data) => {
                 if (data.error) {
+                    console.error('signalingSocket.request error', data.error);
                     reject(data.error);
                 } else {
+                    console.log('signalingSocket.request data', data);
                     resolve(data);
                 }
             });
@@ -1154,11 +1156,15 @@ async function whoAreYou() {
     getId('loadingDiv').style.display = 'none';
     document.body.style.background = 'var(--body-bg)';
 
+    let userExist = false;
+
     if (myPeerName) {
         myPeerName = filterXSS(myPeerName);
 
         console.log(`11.1 Check if ${myPeerName} exist in the room`, roomId);
-        if (await checkUserName()) {
+        userExist = await checkUserName();
+
+        if (userExist) {
             return userNameAlreadyInRoom();
         }
 
@@ -1205,7 +1211,9 @@ async function whoAreYou() {
             }
 
             // check if peer name is already in use in the room
-            if (await checkUserName()) {
+            userExist = await checkUserName();
+
+            if (userExist) {
                 return 'Username is already in use!';
             } else {
                 window.localStorage.peer_name = myPeerName;

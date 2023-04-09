@@ -566,7 +566,7 @@ io.sockets.on('connect', async (socket) => {
     /**
      * Handle incoming data, res with a callback
      */
-    socket.on('data', (data, cb) => {
+    socket.on('data', async (data, cb) => {
         log.debug('Socket Promise', data);
         //...
         const { room_id, peer_id, peer_name, type } = data;
@@ -587,6 +587,7 @@ io.sockets.on('connect', async (socket) => {
                 cb(false);
                 break;
         }
+        cb(false);
     });
 
     /**
