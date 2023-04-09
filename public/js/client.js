@@ -963,25 +963,6 @@ function initClientPeer() {
 } // end [initClientPeer]
 
 /**
- * Send async data, promise mode to signaling server (server.js)
- * @param {object} data
- * @param {object} cb
- * @return {object} cb
- */
-async function sendRequestToServer(data) {
-    const myPromise = new Promise((resolve, reject) => {
-        switch (data.type) {
-            case 'checkPeerName':
-                resolve(data.peer_name);
-                break;
-            default:
-                break;
-        }
-    });
-    return myPromise;
-}
-
-/**
  * Send async data to signaling server (server.js)
  * @param {string} msg msg to send to signaling server
  * @param {object} config data to send to signaling server
