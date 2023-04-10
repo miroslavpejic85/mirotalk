@@ -1246,6 +1246,8 @@ async function whoAreYou() {
 
 /**
  * Check if UserName already exist in the room
+ * @param {string} peer_name
+ * @returns boolean
  */
 async function checkUserName(peer_name = null) {
     return signalingSocket
