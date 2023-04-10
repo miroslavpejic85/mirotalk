@@ -633,25 +633,6 @@ io.sockets.on('connect', async (socket) => {
             return socket.emit('roomIsLocked');
         }
 
-        // collect peers info grp by channels
-        peers[channel][socket.id] = {
-            peer_name: peer_name,
-            peer_video: peer_video,
-            peer_audio: peer_audio,
-            peer_video_status: peer_video_status,
-            peer_audio_status: peer_audio_status,
-            peer_screen_status: peer_screen_status,
-            peer_hand_status: peer_hand_status,
-            peer_rec_status: peer_rec_status,
-            peer_privacy_status: peer_privacy_status,
-        };
-        log.debug('[Join] - connected peers grp by roomId', peers);
-
-        await addPeerTo(channel);
-
-        channels[channel][socket.id] = socket;
-        socket.channels[channel] = channel;
-
         // collect presenters grp by channels
         if (Object.keys(presenters[channel]).length === 0) {
             presenters[channel] = {
@@ -671,6 +652,26 @@ io.sockets.on('connect', async (socket) => {
             presenters[channel]['peer_uuid'] == peer_uuid;
 
         log.debug('[Join] - connected presenters grp by roomId', presenters);
+
+        // collect peers info grp by channels
+        peers[channel][socket.id] = {
+            peer_name: peer_name,
+            peer_presenter: isPresenter,
+            peer_video: peer_video,
+            peer_audio: peer_audio,
+            peer_video_status: peer_video_status,
+            peer_audio_status: peer_audio_status,
+            peer_screen_status: peer_screen_status,
+            peer_hand_status: peer_hand_status,
+            peer_rec_status: peer_rec_status,
+            peer_privacy_status: peer_privacy_status,
+        };
+        log.debug('[Join] - connected peers grp by roomId', peers);
+
+        await addPeerTo(channel);
+
+        channels[channel][socket.id] = socket;
+        socket.channels[channel] = channel;
 
         // Send some server info to joined peer
         await sendToPeer(socket.id, sockets, 'serverInfo', {
