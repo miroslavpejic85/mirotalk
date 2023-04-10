@@ -1247,13 +1247,13 @@ async function whoAreYou() {
 /**
  * Check if UserName already exist in the room
  */
-async function checkUserName() {
+async function checkUserName(peer_name = null) {
     return signalingSocket
         .request('data', {
             type: 'checkPeerName',
             room_id: roomId,
             peer_id: myPeerId,
-            peer_name: myPeerName,
+            peer_name: peer_name ? peer_name : myPeerName,
         })
         .then((response) => response);
 }
@@ -5625,9 +5625,16 @@ function openTab(evt, tabName) {
 /**
  * Update myPeerName to other peers in the room
  */
-function updateMyPeerName() {
+async function updateMyPeerName() {
     // myNewPeerName empty
     if (!myPeerNameSet.value) return;
+
+    // check if peer name is already in use in the room
+    const userExist = await checkUserName(myPeerNameSet.value);
+    if (userExist) {
+        myPeerNameSet.value = '';
+        return userLog('warning', 'Username is already in use!');
+    }
 
     // prevent xss execution itself
     myPeerNameSet.value = filterXSS(myPeerNameSet.value);
