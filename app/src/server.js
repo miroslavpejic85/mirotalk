@@ -643,7 +643,6 @@ io.sockets.on('connect', async (socket) => {
             };
         }
 
-        const peerCounts = Object.keys(peers[channel]).length;
         // If presenter must mach the name - uuid
         const isPresenter =
             Object.keys(presenters[channel]).length > 1 &&
@@ -671,6 +670,8 @@ io.sockets.on('connect', async (socket) => {
 
         channels[channel][socket.id] = socket;
         socket.channels[channel] = channel;
+
+        const peerCounts = Object.keys(peers[channel]).length;
 
         // Send some server info to joined peer
         await sendToPeer(socket.id, sockets, 'serverInfo', {
