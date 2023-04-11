@@ -644,10 +644,9 @@ io.sockets.on('connect', async (socket) => {
         }
 
         const peerCounts = Object.keys(peers[channel]).length;
-        // If presenter must mach the public ipv4 - name - uuid
+        // If presenter must mach the name - uuid
         const isPresenter =
             Object.keys(presenters[channel]).length > 1 &&
-            presenters[channel]['peer_ip'] == peer_ip &&
             presenters[channel]['peer_name'] == peer_name &&
             presenters[channel]['peer_uuid'] == peer_uuid;
 
