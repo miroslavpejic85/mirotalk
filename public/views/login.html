@@ -52,6 +52,10 @@
 
         <script src="https://unpkg.com/animejs@3.0.1/lib/anime.min.js"></script>
         <script src="https://unpkg.com/scrollreveal@4.0.0/dist/scrollreveal.min.js"></script>
+
+        <!-- xss -->
+
+        <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
     </head>
     <body class="has-animations">
         <div class="body-wrap">
@@ -128,8 +132,8 @@
                                             };
 
                                             function login() {
-                                                let username = document.getElementById('username').value;
-                                                let password = document.getElementById('password').value;
+                                                let username = filterXSS(document.getElementById('username').value);
+                                                let password = filterXSS(document.getElementById('password').value);
 
                                                 if (username && password) {
                                                     window.location.href = `/login?username=${username}&password=${password}`;

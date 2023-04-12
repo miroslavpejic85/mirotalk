@@ -34,6 +34,9 @@
         <meta property="og:image" content="https://p2p.mirotalk.com/images/preview.png" />
         <meta property="og:url" content="https://p2p.mirotalk.org" />
 
+        <!-- xss -->
+        <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
+
         <!-- StyleSheet -->
 
         <link rel="stylesheet" href="../css/landing.css" />
@@ -73,8 +76,8 @@
                                         </p>
                                         <script>
                                             let qs = new URLSearchParams(window.location.search);
-                                            let roomId = qs.get('roomId');
-                                            let getUserMediaError = qs.get('getUserMediaError');
+                                            let roomId = filterXSS(qs.get('roomId'));
+                                            let getUserMediaError = filterXSS(qs.get('getUserMediaError'));
                                             console.log('Allow Camera && Audio', {
                                                 roomId: roomId,
                                                 getUserMediaError: getUserMediaError,

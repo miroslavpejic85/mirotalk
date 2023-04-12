@@ -29,6 +29,10 @@
 
         <link rel="stylesheet" href="../css/landing.css" />
         <link rel="stylesheet" href="../css/newcall.css" />
+
+        <!-- xss -->
+
+        <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
     </head>
 
     <body>
@@ -64,7 +68,7 @@
 
             const qs = new URLSearchParams(window.location.search);
 
-            let iceServers = qs.get('iceServers');
+            let iceServers = filterXSS(qs.get('iceServers'));
 
             if (iceServers) {
                 iceServers = JSON.parse(iceServers);
