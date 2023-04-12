@@ -222,7 +222,7 @@ app.get(['/login'], (req, res) => {
     if (hostCfg.protected == true) {
         const ip = getIP(req);
         log.debug(`Request login to host from: ${ip}`, req.query);
-        const { username, password } = req.query;
+        const { username, password } = checkXSS(req.query);
         if (username == hostCfg.username && password == hostCfg.password) {
             hostCfg.authenticated = true;
             authHost = new Host(ip, true);
@@ -292,7 +292,7 @@ app.get('/join/', (req, res) => {
             https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
             https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
         */
-        const { room, name, audio, video, screen, notify } = req.query;
+        const { room, name, audio, video, screen, notify } = checkXSS(req.query);
         // all the params are mandatory for the direct room join
         if (room && name && audio && video && screen && notify) {
             return res.sendFile(views.client);

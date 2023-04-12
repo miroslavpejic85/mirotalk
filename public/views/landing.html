@@ -43,6 +43,10 @@
         <meta property="og:image" content="https://p2p.mirotalk.com/images/preview.png" />
         <meta property="og:url" content="https://p2p.mirotalk.com" />
 
+        <!-- xss -->
+
+        <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
+
         <!-- StyleSheet -->
 
         <link rel="stylesheet" href="../css/landing.css" />
@@ -126,7 +130,7 @@
                                                 }
                                             };
                                             function joinRoom() {
-                                                let roomName = document.getElementById('roomName').value;
+                                                let roomName = filterXSS(document.getElementById('roomName').value);
                                                 window.location.href = '/join/' + roomName;
                                             }
                                         </script>

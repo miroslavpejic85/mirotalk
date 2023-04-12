@@ -14,7 +14,7 @@ const checkXSS = (cfg) => {
         // String sanitized to object
         return JSON.parse(config);
     }
-    return cfg;
+    return xss(cfg);
 };
 
 module.exports = checkXSS;
