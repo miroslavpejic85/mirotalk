@@ -244,6 +244,8 @@ body {
     /* end center screen  */
     height: var(--msger-height);
     width: var(--msger-width);
+    min-height: var(--msger-height);
+    min-width: var(--msger-width);
     background: var(--msger-bg);
     border: var(--border);
     /* text-align: justify; */
@@ -251,11 +253,6 @@ body {
     overflow: hidden;
     border-radius: 10px;
     box-shadow: var(--box-shadow);
-}
-
-.msger-draggable:active {
-    min-height: var(--msger-height);
-    min-width: var(--msger-width);
 }
 
 .msger {
