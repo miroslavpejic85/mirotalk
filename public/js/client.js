@@ -2665,7 +2665,7 @@ function adaptAspectRatio() {
 /**
  * Create round svg image with first 2 letters of peerName in center
  * Thank you: https://github.com/phpony
- * 
+ *
  * @param {string} peerName
  * @param {integer} avatarImgSize width and height in px
  */
@@ -5613,6 +5613,7 @@ async function getChatGPTmessage(msg) {
         .then(
             function (completion) {
                 if (!completion) return;
+                setPeerChatAvatarImgName('left', 'ChatGPT');
                 appendMessage('ChatGPT', leftChatAvatar, 'left', completion, true);
                 cleanMessageInput();
                 playSound('message');
