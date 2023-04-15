@@ -19,6 +19,7 @@ dependencies: {
     express                 : https://www.npmjs.com/package/express
     ngrok                   : https://www.npmjs.com/package/ngrok
     qs                      : https://www.npmjs.com/package/qs
+    openai                  : https://www.npmjs.com/package/openai
     socket.io               : https://www.npmjs.com/package/socket.io
     swagger                 : https://www.npmjs.com/package/swagger-ui-express
     uuid                    : https://www.npmjs.com/package/uuid
@@ -153,6 +154,27 @@ if (sentryEnabled) {
         // We recommend adjusting this value in production
         tracesSampleRate: sentryTracesSampleRate,
     });
+}
+
+// OpenAI/ChatGPT
+let chatGPT;
+const configChatGPT = {
+    enabled: process.env.CHATGPT_ENABLED == 'true' || false,
+    apiKey: process.env.CHATGTP_APIKEY,
+    model: process.env.CHATGTP_MODEL,
+    max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
+    temperature: parseInt(process.env.CHATGPT_TEMPERATURE),
+};
+if (configChatGPT.enabled) {
+    if (configChatGPT.apiKey) {
+        const { Configuration, OpenAIApi } = require('openai');
+        const configuration = new Configuration({
+            apiKey: configChatGPT.apiKey,
+        });
+        chatGPT = new OpenAIApi(configuration);
+    } else {
+        log.warning('ChatGPT seems enabled, but you missing the apiKey!');
+    }
 }
 
 // directory
@@ -465,6 +487,7 @@ async function ngrokStart() {
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
+            chatGPT_enabled: configChatGPT.enabled,
             slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
@@ -511,6 +534,7 @@ server.listen(port, null, () => {
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
+            chatGPT_enabled: configChatGPT.enabled,
             slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
@@ -569,9 +593,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('data', async (data, cb) => {
         log.debug('Socket Promise', data);
         //...
-        const { room_id, peer_id, peer_name, type } = data;
+        const { room_id, peer_id, peer_name, method, params } = data;
 
-        switch (type) {
+        switch (method) {
             case 'checkPeerName':
                 log.debug('Check if peer name exists', { peer_name: peer_name, room_id: room_id });
                 for (let id in peers[room_id]) {
@@ -579,6 +603,36 @@ io.sockets.on('connect', async (socket) => {
                         log.debug('Peer name found', { peer_name: peer_name, room_id: room_id });
                         cb(true);
                         break;
+                    }
+                }
+                break;
+            case 'getChatGPT':
+                // https://platform.openai.com/docs/introduction
+                if (!configChatGPT.enabled) return cb('ChatGPT seems disabled, try later!');
+                try {
+                    // https://platform.openai.com/docs/api-reference/completions/create
+                    const completion = await chatGPT.createCompletion({
+                        model: configChatGPT.model || 'text-davinci-003',
+                        prompt: params.prompt,
+                        max_tokens: configChatGPT.max_tokens || 1000,
+                        temperature: configChatGPT.temperature || 0,
+                    });
+                    const response = completion.data.choices[0].text;
+                    log.debug('ChatGPT', {
+                        time: params.time,
+                        room: room_id,
+                        name: peer_name,
+                        prompt: params.prompt,
+                        response: response,
+                    });
+                    cb(response);
+                } catch (error) {
+                    if (error.response) {
+                        log.error('ChatGPT', error.response);
+                        cb(error.response.data.error.message);
+                    } else {
+                        log.error('ChatGPT', error.message);
+                        cb(error.message);
                     }
                 }
                 break;

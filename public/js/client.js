@@ -143,6 +143,7 @@ const buttons = {
     chat: {
         showSaveMessageBtn: true,
         showMarkDownBtn: true,
+        showChatGPTBtn: true,
         showFileShareBtn: true,
         showShareVideoAudioBtn: true,
         showParticipantsBtn: true,
@@ -266,6 +267,7 @@ let isChatRoomVisible = false;
 let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
 let isChatMarkdownOn = false;
+let isChatGPTOn = false;
 let isButtonsVisible = false;
 let isButtonsBarOver = false;
 let isMySettingsVisible = false;
@@ -331,6 +333,7 @@ let msgerClose;
 let msgerChat;
 let msgerEmojiBtn;
 let msgerMarkdownBtn;
+let msgerGPTBtn;
 let msgerShareFileBtn;
 let msgerInput;
 let msgerCleanTextBtn;
@@ -509,6 +512,7 @@ function getHtmlElementsById() {
     msgerChat = getId('msgerChat');
     msgerEmojiBtn = getId('msgerEmojiBtn');
     msgerMarkdownBtn = getId('msgerMarkdownBtn');
+    msgerGPTBtn = getId('msgerGPTBtn');
     msgerShareFileBtn = getId('msgerShareFileBtn');
     msgerInput = getId('msgerInput');
     msgerCleanTextBtn = getId('msgerCleanTextBtn');
@@ -647,6 +651,7 @@ function setButtonsToolTip() {
     setTippy(msgerClose, 'Close', 'right');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
+    setTippy(msgerGPTBtn, 'ChatGPT', 'top');
     setTippy(msgerShareFileBtn, 'Share file', 'top');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
@@ -1115,6 +1120,7 @@ function handleButtonsRule() {
     // chat
     elemDisplay(msgerSaveBtn, buttons.chat.showSaveMessageBtn);
     elemDisplay(msgerMarkdownBtn, buttons.chat.showMarkDownBtn);
+    elemDisplay(msgerGPTBtn, buttons.chat.showChatGPTBtn);
     elemDisplay(msgerShareFileBtn, buttons.chat.showFileShareBtn);
     elemDisplay(msgerVideoUrlBtn, buttons.chat.showShareVideoAudioBtn);
     elemDisplay(msgerCPBtn, buttons.chat.showParticipantsBtn);
@@ -1252,10 +1258,11 @@ async function whoAreYou() {
 async function checkUserName(peer_name = null) {
     return signalingSocket
         .request('data', {
-            type: 'checkPeerName',
             room_id: roomId,
             peer_id: myPeerId,
             peer_name: peer_name ? peer_name : myPeerName,
+            method: 'checkPeerName',
+            params: {},
         })
         .then((response) => response);
 }
@@ -3373,6 +3380,12 @@ function setChatRoomBtn() {
         setColor(msgerMarkdownBtn, isChatMarkdownOn ? 'lime' : 'white');
     });
 
+    // ChatGPT/OpenAI
+    msgerGPTBtn.addEventListener('click', (e) => {
+        isChatGPTOn = !isChatGPTOn;
+        setColor(msgerGPTBtn, isChatGPTOn ? 'lime' : 'white');
+    });
+
     // share file from chat
     msgerShareFileBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -3429,10 +3442,10 @@ function setChatRoomBtn() {
     });
 
     // chat send msg
-    msgerSendBtn.addEventListener('click', (e) => {
+    msgerSendBtn.addEventListener('click', async (e) => {
         // prevent refresh page
         e.preventDefault();
-        sendChatMessage();
+        await sendChatMessage();
     });
 
     // adapt input font size 4 mobile
@@ -5024,8 +5037,8 @@ function hideCaptionBox() {
 /**
  * Send Chat messages to peers in the room
  */
-function sendChatMessage() {
-    if (!thereIsPeerConnections()) {
+async function sendChatMessage() {
+    if (!thereIsPeerConnections() && !isChatGPTOn) {
         cleanMessageInput();
         isChatPasteTxt = false;
         return userLog('info', "Can't send message, no participants in the room");
@@ -5039,7 +5052,7 @@ function sendChatMessage() {
         return cleanMessageInput();
     }
 
-    emitMsg(myPeerName, 'toAll', msg, false, myPeerId);
+    isChatGPTOn ? await getChatGPTmessage(msg) : emitMsg(myPeerName, 'toAll', msg, false, myPeerId);
     appendMessage(myPeerName, rightChatAvatar, 'right', msg, false);
     cleanMessageInput();
 }
@@ -5534,6 +5547,37 @@ function emitMsg(from, to, msg, privateMsg, id) {
     };
     console.log('Send msg', chatMessage);
     sendToDataChannel(chatMessage);
+}
+
+/**
+ * Read ChatGPT incoming message
+ * https://platform.openai.com/docs/introduction
+ * @param {string} msg
+ */
+async function getChatGPTmessage(msg) {
+    console.log('Send ChatGPT message:', msg);
+    signalingSocket
+        .request('data', {
+            room_id: roomId,
+            peer_id: myPeerId,
+            peer_name: myPeerName,
+            method: 'getChatGPT',
+            params: {
+                time: getDataTimeString(),
+                prompt: msg,
+            },
+        })
+        .then(
+            function (completion) {
+                if (!completion) return;
+                appendMessage('ChatGPT', leftChatAvatar, 'left', completion, true);
+                cleanMessageInput();
+                playSound('message');
+            }.bind(this),
+        )
+        .catch((err) => {
+            console.log('ChatGPT error:', err);
+        });
 }
 
 /**

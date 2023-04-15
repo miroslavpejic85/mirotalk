@@ -43,6 +43,7 @@
         "dotenv": "^16.0.3",
         "express": "^4.18.2",
         "ngrok": "^4.3.3",
+        "openai": "^3.2.1",
         "qs": "^6.11.1",
         "socket.io": "^4.6.1",
         "swagger-ui-express": "^4.6.2",
