@@ -403,7 +403,7 @@ body {
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-    /* border-radius: 50%; */
+    border-radius: 50%;
 }
 
 .private-msg-bubble,

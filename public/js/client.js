@@ -27,7 +27,6 @@ const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
 const peerIPUrl = 'https://api.ipify.org?format=json';
-const avatarApiUrl = 'https://eu.ui-avatars.com/api';
 const welcomeImg = '../images/image-placeholder.png';
 const shareUrlImg = '../images/image-placeholder.png';
 const leaveRoomImg = '../images/leave-room.png';
@@ -185,7 +184,7 @@ const userLimitsActive = false; // Limit users per room
 
 const usersCountLimit = 2; // Limit 2 users per room if userLimitsActive true
 
-const useAvatarApi = true; // if false the cam-Off avatar = avatarImg
+const useAvatarSvg = true; // if false the cam-Off avatar = avatarImg
 
 let isHideMeActive = false; // Hide myself from the meeting view
 
@@ -1404,7 +1403,7 @@ async function whoAreYouJoin() {
     if (isMobileDevice && myVideoStatus && myAudioStatus) await refreshLocalMedia();
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerHTML = myPeerName + ' (me)';
-    setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
+    setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
     joinToChannel();
     setTheme(mirotalkTheme);
@@ -2537,7 +2536,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     }
 
     // refresh remote peers avatar name
-    setPeerAvatarImgName(remoteVideoAvatarImage.id, peer_name, useAvatarApi);
+    setPeerAvatarImgName(remoteVideoAvatarImage.id, peer_name);
     // refresh remote peers hand icon status and title
     setPeerHandStatus(peer_id, peer_name, peer_hand_status);
     // refresh remote peers video icon status and title
@@ -2664,20 +2663,63 @@ function adaptAspectRatio() {
 }
 
 /**
+ * Create round svg image with first 2 letters of peerName in center
+ * Thank you: https://github.com/phpony
+ * 
+ * @param {string} peerName
+ * @param {integer} avatarImgSize width and height in px
+ */
+function genAvatarSvg(peerName, avatarImgSize) {
+    const charCodeRed = peerName.charCodeAt(0);
+    const charCodeGreen = peerName.charCodeAt(1) || charCodeRed;
+    const red = Math.pow(charCodeRed, 7) % 200;
+    const green = Math.pow(charCodeGreen, 7) % 200;
+    const blue = (red + green) % 200;
+    let bgColor = `rgb(${red}, ${green}, ${blue})`;
+    let textColor = '#ffffff';
+    let svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" 
+    xmlns:xlink="http://www.w3.org/1999/xlink" 
+    width="${avatarImgSize}px" 
+    height="${avatarImgSize}px" 
+    viewBox="0 0 ${avatarImgSize} ${avatarImgSize}" 
+    version="1.1">
+        <circle 
+            fill="${bgColor}" 
+            width="${avatarImgSize}" 
+            height="${avatarImgSize}" 
+            cx="${avatarImgSize / 2}" 
+            cy="${avatarImgSize / 2}" 
+            r="${avatarImgSize / 2}"/>
+        <text 
+            x="50%" 
+            y="50%" 
+            style="color:${textColor};
+            line-height:1;
+            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Fira Sans, Droid Sans, Helvetica Neue, sans-serif" 
+            alignment-baseline="middle" 
+            text-anchor="middle" 
+            font-size="${Math.round(avatarImgSize * 0.4)}" 
+            font-weight="normal" 
+            dy=".1em" 
+            dominant-baseline="middle" 
+            fill="${textColor}">${peerName.substring(0, 2).toUpperCase()}
+        </text>
+    </svg>`;
+    return 'data:image/svg+xml,' + svg.replace(/#/g, '%23').replace(/"/g, "'").replace(/&/g, '&amp;');
+}
+
+/**
  * Refresh video - chat image avatar on name changes: https://eu.ui-avatars.com/
  * @param {string} videoAvatarImageId element id
  * @param {string} peerName
- * @param {boolean} useAvatar use avatar api for image
  */
-function setPeerAvatarImgName(videoAvatarImageId, peerName, useAvatar) {
+function setPeerAvatarImgName(videoAvatarImageId, peerName) {
     const videoAvatarImageElement = getId(videoAvatarImageId);
-    if (useAvatar) {
-        // default img size 64 max 512
+    if (useAvatarSvg) {
         const avatarImgSize = isMobileDevice ? 128 : 256;
-        videoAvatarImageElement.setAttribute(
-            'src',
-            avatarApiUrl + '?name=' + peerName + '&size=' + avatarImgSize + '&background=random&rounded=true',
-        );
+        const avatarImgSvg = genAvatarSvg(peerName, avatarImgSize);
+        videoAvatarImageElement.setAttribute('src', avatarImgSvg);
     } else {
         videoAvatarImageElement.setAttribute('src', avatarImg);
     }
@@ -2689,7 +2731,7 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName, useAvatar) {
  * @param {string} peerName me or peer name
  */
 function setPeerChatAvatarImgName(avatar, peerName) {
-    const avatarImg = avatarApiUrl + '?name=' + peerName + '&size=32' + '&background=random&rounded=true';
+    const avatarImg = genAvatarSvg(peerName, 32);
 
     switch (avatar) {
         case 'left':
@@ -5133,13 +5175,13 @@ function handleSpeechTranscript(config) {
     const { peer_name, text_data } = config;
 
     const time_stamp = getFormatDate(new Date());
-    const avatar_image = avatarApiUrl + '?name=' + peer_name + '&size=32' + '&background=random&rounded=true';
+    const avatar_image = genAvatarSvg(peer_name, 32);
 
     if (!isCaptionBoxVisible) showCaptionDraggable();
 
     const msgHTML = `
 	<div class="msg left-msg">
-		<div class="msg-img" style="background-image: url('${avatar_image}')"></div>
+        <img class="msg-img" src="${avatar_image}" />
 		<div class="msg-caption-bubble">
             <div class="msg-info">
                 <div class="msg-info-name">${peer_name} : ${time_stamp}</div>
@@ -5191,7 +5233,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
 
     let msgHTML = `
 	<div id="msg-${chatMessagesId}" class="msg ${side}-msg">
-		<div class="msg-img" style="background-image: url('${img}')"></div>
+        <img class="msg-img" src="${img}" />
 		<div class=${msgBubble}>
             <div class="msg-info">
                 <div class="msg-info-name">${from}</div>
@@ -5294,9 +5336,10 @@ async function msgerAddPeers(peers) {
             let exsistMsgerPrivateDiv = getId(peer_id + '_pMsgDiv');
             // if there isn't add it....
             if (!exsistMsgerPrivateDiv) {
+                let avatarSvg = genAvatarSvg(peer_name, 24);
                 let msgerPrivateDiv = `
                 <div id="${peer_id}_pMsgDiv" class="msger-peer-inputarea">
-                    <img id="${peer_id}_pMsgAvatar" src='${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true'> 
+                <img id="${peer_id}_pMsgAvatar" src="${avatarSvg}"> 
                     <textarea
                         rows="1"
                         cols="1"
@@ -5708,7 +5751,7 @@ async function updateMyPeerName() {
 
     window.localStorage.peer_name = myPeerName;
 
-    setPeerAvatarImgName('myVideoAvatarImage', myPeerName, useAvatarApi);
+    setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
     userLog('toast', 'My name changed to ' + myPeerName);
 }
@@ -5725,10 +5768,9 @@ function handlePeerName(config) {
     const msgerPeerName = getId(peer_id + '_pMsgBtn');
     const msgerPeerAvatar = getId(peer_id + '_pMsgAvatar');
     if (msgerPeerName) msgerPeerName.value = peer_name;
-    if (msgerPeerAvatar)
-        msgerPeerAvatar.src = `${avatarApiUrl}?name=${peer_name}&size=24&background=random&rounded=true`;
+    if (msgerPeerAvatar) msgerPeerAvatar.src = genAvatarSvg(peer_name, 24);
     // refresh also peer video avatar name
-    setPeerAvatarImgName(peer_id + '_avatar', peer_name, useAvatarApi);
+    setPeerAvatarImgName(peer_id + '_avatar', peer_name);
 }
 
 /**

@@ -104,6 +104,7 @@
     display: none;
     width: var(--vmi-wh);
     height: var(--vmi-wh);
+    border-radius: 50%;
     /*center*/
     top: 50%;
     left: 50%;
