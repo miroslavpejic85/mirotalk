@@ -140,12 +140,16 @@ const buttons = {
         showAboutBtn: true, // Please keep me always true, Thank you!
     },
     chat: {
+        showMaxBtn: true,
         showSaveMessageBtn: true,
         showMarkDownBtn: true,
         showChatGPTBtn: true,
         showFileShareBtn: true,
         showShareVideoAudioBtn: true,
         showParticipantsBtn: true,
+    },
+    caption: {
+        showMaxBtn: true,
     },
     settings: {
         showTabRoomParticipants: true,
@@ -329,6 +333,8 @@ let msgerCPBtn;
 let msgerClean;
 let msgerSaveBtn;
 let msgerClose;
+let msgerMaxBtn;
+let msgerMinBtn;
 let msgerChat;
 let msgerEmojiBtn;
 let msgerMarkdownBtn;
@@ -343,6 +349,8 @@ let msgerSendBtn;
 let captionDraggable;
 let captionHeader;
 let captionTheme;
+let captionMaxBtn;
+let captionMinBtn;
 let captionClean;
 let captionSaveBtn;
 let captionClose;
@@ -508,6 +516,8 @@ function getHtmlElementsById() {
     msgerClean = getId('msgerClean');
     msgerSaveBtn = getId('msgerSaveBtn');
     msgerClose = getId('msgerClose');
+    msgerMaxBtn = getId('msgerMaxBtn');
+    msgerMinBtn = getId('msgerMinBtn');
     msgerChat = getId('msgerChat');
     msgerEmojiBtn = getId('msgerEmojiBtn');
     msgerMarkdownBtn = getId('msgerMarkdownBtn');
@@ -529,6 +539,8 @@ function getHtmlElementsById() {
     captionDraggable = getId('captionDraggable');
     captionHeader = getId('captionHeader');
     captionTheme = getId('captionTheme');
+    captionMaxBtn = getId('captionMaxBtn');
+    captionMinBtn = getId('captionMinBtn');
     captionClean = getId('captionClean');
     captionSaveBtn = getId('captionSaveBtn');
     captionClose = getId('captionClose');
@@ -648,6 +660,8 @@ function setButtonsToolTip() {
     setTippy(msgerClean, 'Clean the messages', 'top');
     setTippy(msgerSaveBtn, 'Save the messages', 'top');
     setTippy(msgerClose, 'Close', 'right');
+    setTippy(msgerMaxBtn, 'Maximize', 'right');
+    setTippy(msgerMinBtn, 'Minimize', 'right');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerGPTBtn, 'ChatGPT', 'top');
@@ -660,9 +674,13 @@ function setButtonsToolTip() {
     setTippy(msgerCPCloseBtn, 'Close', 'left');
     // caption buttons
     setTippy(captionClose, 'Close', 'right');
+    setTippy(captionMaxBtn, 'Maximize', 'right');
+    setTippy(captionMinBtn, 'Minimize', 'right');
     setTippy(captionTheme, 'Ghost theme', 'top');
     setTippy(captionClean, 'Clean the messages', 'top');
     setTippy(captionSaveBtn, 'Save the messages', 'top');
+    setTippy(speechRecognitionStart, 'Start', 'top');
+    setTippy(speechRecognitionStop, 'Stop', 'top');
     // settings
     setTippy(mySettingsCloseBtn, 'Close', 'right');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
@@ -1117,12 +1135,15 @@ function handleButtonsRule() {
     elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
     elemDisplay(aboutBtn, buttons.main.showAboutBtn);
     // chat
+    elemDisplay(msgerMaxBtn, !isMobileDevice && buttons.chat.showMaxBtn);
     elemDisplay(msgerSaveBtn, buttons.chat.showSaveMessageBtn);
     elemDisplay(msgerMarkdownBtn, buttons.chat.showMarkDownBtn);
     elemDisplay(msgerGPTBtn, buttons.chat.showChatGPTBtn);
     elemDisplay(msgerShareFileBtn, buttons.chat.showFileShareBtn);
     elemDisplay(msgerVideoUrlBtn, buttons.chat.showShareVideoAudioBtn);
     elemDisplay(msgerCPBtn, buttons.chat.showParticipantsBtn);
+    // caption
+    elemDisplay(captionMaxBtn, !isMobileDevice && buttons.caption.showMaxBtn);
     // Settings
     elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
     elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
@@ -3416,6 +3437,15 @@ function setChatRoomBtn() {
         showButtonsBarAndMenu();
     });
 
+    // Maximize chat
+    msgerMaxBtn.addEventListener('click', (e) => {
+        chatMaximize();
+    });
+    // minimize chat
+    msgerMinBtn.addEventListener('click', (e) => {
+        chatMinimize();
+    });
+
     // Markdown on-off
     msgerMarkdownBtn.addEventListener('click', (e) => {
         isChatMarkdownOn = !isChatMarkdownOn;
@@ -3506,6 +3536,15 @@ function setCaptionRoomBtn() {
             } else {
                 hideCaptionBox();
             }
+        });
+
+        // Maximize caption
+        captionMaxBtn.addEventListener('click', (e) => {
+            captionMaximize();
+        });
+        // minimize caption
+        captionMinBtn.addEventListener('click', (e) => {
+            captionMinimize();
         });
 
         // ghost theme + undo
@@ -4937,12 +4976,16 @@ function createChatDataChannel(peer_id) {
 }
 
 /**
- * Set the chat room on full screen mode for mobile
+ * Set the chat room & caption on full screen mode for mobile
  */
 function setChatRoomAndCaptionForMobile() {
     if (isMobileDevice) {
+        // chat full screen
         document.documentElement.style.setProperty('--msger-height', '99%');
         document.documentElement.style.setProperty('--msger-width', '99%');
+        // caption full screen
+        document.documentElement.style.setProperty('--caption-height', '99%');
+        document.documentElement.style.setProperty('--caption-width', '99%');
     } else {
         // make chat room draggable for desktop
         dragElement(msgerDraggable, msgerHeader);
@@ -4979,10 +5022,70 @@ function showCaptionDraggable() {
     }
     captionBtn.className = 'far fa-closed-captioning';
     captionDraggable.style.top = '50%';
-    captionDraggable.style.left = isMobileDevice ? '50' : '75%';
+    captionDraggable.style.left = isMobileDevice ? '50%' : '75%';
     captionDraggable.style.display = 'flex';
     isCaptionBoxVisible = true;
     setTippy(captionBtn, 'Close the caption', 'right-start');
+}
+
+/**
+ * Chat maximize
+ */
+function chatMaximize() {
+    elemDisplay(msgerMaxBtn, false);
+    elemDisplay(msgerMinBtn, true);
+    chatCenter();
+    document.documentElement.style.setProperty('--msger-width', '99%');
+    document.documentElement.style.setProperty('--msger-height', '99%');
+}
+
+/**
+ * Chat minimize
+ */
+function chatMinimize() {
+    elemDisplay(msgerMinBtn, false);
+    elemDisplay(msgerMaxBtn, true);
+    chatCenter();
+    document.documentElement.style.setProperty('--msger-width', '420px');
+    document.documentElement.style.setProperty('--msger-height', '680px');
+}
+
+/**
+ * Set chat position
+ */
+function chatCenter() {
+    msgerDraggable.style.top = '50%';
+    msgerDraggable.style.left = '50%';
+}
+
+/**
+ * Caption maximize
+ */
+function captionMaximize() {
+    elemDisplay(captionMaxBtn, false);
+    elemDisplay(captionMinBtn, true);
+    captionCenter();
+    document.documentElement.style.setProperty('--caption-width', '99%');
+    document.documentElement.style.setProperty('--caption-height', '99%');
+}
+
+/**
+ * Caption minimize
+ */
+function captionMinimize() {
+    elemDisplay(captionMinBtn, false);
+    elemDisplay(captionMaxBtn, true);
+    captionCenter();
+    document.documentElement.style.setProperty('--caption-width', '420px');
+    document.documentElement.style.setProperty('--caption-height', '680px');
+}
+
+/**
+ * Set caption position
+ */
+function captionCenter() {
+    captionDraggable.style.top = '50%';
+    captionDraggable.style.left = '50%';
 }
 
 /**

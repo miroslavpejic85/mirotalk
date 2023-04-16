@@ -14,7 +14,10 @@
     --msger-left: 50%;
     --msger-height: 680px;
     --msger-width: 420px;
-    --msger-bubble-width: 55%;
+    --msger-bubble-width: 85%;
+
+    --caption-height: 680px;
+    --caption-width: 420px;
 
     /* video iframe */
     --iframe-width: 640px;
@@ -230,6 +233,114 @@ body {
 }
 
 /*--------------------------------------------------------------
+# Caption
+--------------------------------------------------------------*/
+
+.caption-draggable {
+    z-index: 14;
+    display: none;
+    position: fixed;
+    /* center screen */
+    top: var(--caption-top);
+    left: var(--caption-left);
+    transform: translate(-50%, -50%);
+    /* end center screen  */
+    height: var(--caption-height);
+    width: var(--caption-width);
+    min-height: var(--caption-height);
+    min-width: var(--caption-width);
+    background: var(--msger-bg);
+    border: var(--border);
+    /* text-align: justify; */
+    resize: both;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+}
+
+.caption {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-between;
+    background: var(--msger-bg);
+}
+
+.caption-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: rgb(0, 0, 0);
+    color: #666;
+    cursor: move;
+}
+
+.caption-header-title button,
+.caption-header-options button {
+    padding: 5px;
+    /* border: var(--border); */
+    border: none;
+    font-size: 1.1rem;
+    background: rgb(0, 0, 0);
+    color: #fff;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+    transition: background 0.23s;
+}
+
+.caption-header-title button:hover,
+.caption-header-options button:hover {
+    color: var(--hover-color);
+    transform: var(--btns-hover-scale);
+    transition: all 0.3s ease-in-out;
+}
+
+.caption-chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: var(--msger-bg);
+    max-width: 95%;
+}
+
+.caption-chat::-webkit-scrollbar {
+    width: 5px;
+}
+
+.caption-chat::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.caption-chat::-webkit-scrollbar-thumb {
+    background: black;
+    /*aqua;*/
+}
+
+.caption-inputarea {
+    display: flex;
+    padding: 10px;
+    background: var(--msger-bg);
+}
+
+.caption-inputarea * {
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.caption-inputarea select {
+    padding: 10px;
+    margin-left: 5px;
+}
+
+#captionMaxBtn,
+#captionMinBtn {
+    display: none;
+}
+
+/*--------------------------------------------------------------
 # Chat room aka msger
 --------------------------------------------------------------*/
 
@@ -305,6 +416,11 @@ body {
     transition: all 0.3s ease-in-out;
 }
 
+#msgerMaxBtn,
+#msgerMinBtn {
+    display: none;
+}
+
 /*--------------------------------------------------------------
 # Chat room output area
 --------------------------------------------------------------*/
@@ -361,7 +477,7 @@ body {
     background: var(--left-msg-bg);
     border-bottom-left-radius: 0;
     color: #fff;
-    width: 78%; /* caption */
+    width: var(--msger-bubble-width);
 }
 
 .left-msg .msg-img {
@@ -754,7 +870,7 @@ hr {
 #speechRecognitionStop {
     padding: 10px;
     border: none;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     border-radius: 5px;
     color: #fff;
     background-color: transparent;
@@ -1353,6 +1469,7 @@ z-index
 12 chat emoji
 13 chat peers private msg
 14 chat room
+14 caption
 15 video iframe
 16 settings
 17 send File Div
