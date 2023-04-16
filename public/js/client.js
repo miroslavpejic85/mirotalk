@@ -5450,7 +5450,7 @@ async function msgerAddPeers(peers) {
                         cols="1"
                         id="${peer_id}_pMsgInput"
                         class="msger-input"
-                        placeholder="💬 Enter your message..."
+                        placeholder="Write private message..."
                     ></textarea>
                     <button id="${peer_id}_pMsgBtn" class="${className.msgPrivate}" value="${peer_name}"></button>
                 </div>

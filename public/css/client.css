@@ -691,10 +691,9 @@ button:hover {
 #msgerCP {
     z-index: 12;
     display: none;
-    position: absolute;
-    bottom: 55px;
+    position: fixed;
     width: 100%;
-    height: 50%;
+    height: 100%;
     cursor: default;
     background: var(--msger-private-bg);
     overflow: hidden;
@@ -703,11 +702,11 @@ button:hover {
 #msgerCPChat {
     flex: 1;
     overflow-y: auto;
-    background: var(--msger-bg);
+    background: transparent;
 }
 
 #msgerCPList {
-    border: grey 1px solid;
+    border: var(--border);
 }
 
 #msgerCPList button {
@@ -732,7 +731,7 @@ button:hover {
     font-size: 1rem;
     background-color: transparent;
     color: #ffffff;
-    border: grey 1px solid;
+    border: var(--border);
 }
 
 .msger-peer-inputarea {
