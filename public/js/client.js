@@ -3433,6 +3433,7 @@ function setChatRoomBtn() {
 
     // close chat room - show left button and status menu if hide
     msgerClose.addEventListener('click', (e) => {
+        chatMinimize();
         hideChatRoomAndEmojiPicker();
         showButtonsBarAndMenu();
     });
@@ -3576,6 +3577,7 @@ function setCaptionRoomBtn() {
 
         // close caption box - show left button and status menu if hide
         captionClose.addEventListener('click', (e) => {
+            captionMinimize();
             hideCaptionBox();
             showButtonsBarAndMenu();
         });
@@ -5035,8 +5037,8 @@ function chatMaximize() {
     elemDisplay(msgerMaxBtn, false);
     elemDisplay(msgerMinBtn, true);
     chatCenter();
-    document.documentElement.style.setProperty('--msger-width', '99%');
-    document.documentElement.style.setProperty('--msger-height', '99%');
+    document.documentElement.style.setProperty('--msger-width', '100%');
+    document.documentElement.style.setProperty('--msger-height', '100%');
 }
 
 /**
@@ -5065,8 +5067,8 @@ function captionMaximize() {
     elemDisplay(captionMaxBtn, false);
     elemDisplay(captionMinBtn, true);
     captionCenter();
-    document.documentElement.style.setProperty('--caption-width', '99%');
-    document.documentElement.style.setProperty('--caption-height', '99%');
+    document.documentElement.style.setProperty('--caption-width', '100%');
+    document.documentElement.style.setProperty('--caption-height', '100%');
 }
 
 /**
