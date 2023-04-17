@@ -25,8 +25,6 @@
 
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
-const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
-const peerIPUrl = 'https://api.ipify.org?format=json';
 const welcomeImg = '../images/image-placeholder.png';
 const shareUrlImg = '../images/image-placeholder.png';
 const leaveRoomImg = '../images/leave-room.png';
@@ -210,8 +208,6 @@ let surveyActive = true; // when leaving the room give a feedback, if false will
 
 let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 
-let myWanIP = null;
-
 let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
 let userAgent; // User agent info
@@ -238,7 +234,6 @@ let mirotalkTheme = 'dark'; // dark - grey ...
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
 let pinVideoPositionSelect;
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
-let peerGeo;
 let myPeerName = getPeerName();
 let myPeerUUID = getUUID();
 let isScreenEnabled = getScreenEnabled();
@@ -763,35 +758,6 @@ function getPeerInfo() {
 }
 
 /**
- * Get approximative peer geolocation
- * Get your API Key at https://extreme-ip-lookup.com
- */
-async function getPeerGeoLocation() {
-    console.log('03.1 Get peer geo location');
-    fetch(peerLoockupUrl)
-        .then((res) => res.json())
-        .then((outJson) => {
-            peerGeo = outJson;
-        })
-        .catch((err) => console.warn(err));
-}
-
-/**
- * Get my wanIP
- * https://www.ipify.org/
- */
-async function getMyIP() {
-    console.log('03.2 Get My WanIP');
-    fetch(peerIPUrl)
-        .then((res) => res.json())
-        .then((outJson) => {
-            myWanIP = outJson['ip'];
-            console.log('My Public IPv4 is: ', myWanIP);
-        })
-        .catch((err) => console.warn(err));
-}
-
-/**
  * Get Signaling server URL
  * @returns {string} Signaling server URL
  */
@@ -1020,8 +986,6 @@ async function handleConnect() {
         await joinToChannel();
     } else {
         await initEnumerateDevices();
-        await getPeerGeoLocation();
-        await getMyIP();
         await setupLocalMedia();
         await whoAreYou();
     }
@@ -1440,8 +1404,6 @@ async function joinToChannel() {
         channel: roomId,
         channel_password: thisRoomPassword,
         peer_info: peerInfo,
-        peer_geo: peerGeo,
-        peer_ip: peerGeo.query || myWanIP,
         peer_uuid: myPeerUUID,
         peer_name: myPeerName,
         peer_video: useVideo,

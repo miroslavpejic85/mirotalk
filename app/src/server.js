@@ -648,15 +648,18 @@ io.sockets.on('connect', async (socket) => {
      * On peer join
      */
     socket.on('join', async (cfg) => {
+        // Get peer IPv4 (::1 Its the loopback address in ipv6, equal to 127.0.0.1 in ipv4)
+        const peer_ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
+
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
         // log.debug('Join room', config);
         log.debug('[' + socket.id + '] join ', config);
 
         const {
             channel,
             channel_password,
-            peer_ip,
             peer_uuid,
             peer_name,
             peer_video,
