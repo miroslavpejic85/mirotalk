@@ -295,12 +295,6 @@ app.get(['/test'], (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
     }
-    /*
-        http://localhost:3000/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-        https://p2p.mirotalk.com//test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-        https://mirotalk.up.railway.app/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-        https://mirotalk.herokuapp.com/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-    */
     res.sendFile(views.stunTurn);
 });
 
@@ -422,20 +416,15 @@ app.get('*', function (req, res) {
 
 /**
  * You should probably use a different stun-turn server
- * doing commercial stuff, also see:
- *
- * https://github.com/coturn/coturn
- * https://gist.github.com/zziuni/3741933
- * https://www.twilio.com/docs/stun-turn
- *
- * Check the functionality of STUN/TURN servers:
- * https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
+ * doing commercial stuff, check out: https://github.com/coturn/coturn
+ * Installation doc: ../docs/coturn.md
  */
 const iceServers = [];
 
-// Stun is always needed
+// Stun is mandatory
 iceServers.push({ urls: stun });
 
+// Turn is recommended if direct peer to peer connection is not possible
 if (turnEnabled) {
     iceServers.push({
         urls: turnUrls,
@@ -443,12 +432,10 @@ if (turnEnabled) {
         credential: turnCredential,
     });
 } else {
-    // As backup if not configured, please configure your own in the .env file
-    // https://www.metered.ca/tools/openrelay/
     iceServers.push({
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
+        urls: 'turn:a.relay.metered.ca:443',
+        username: 'e8dd65b92c62d3e36cafb807',
+        credential: 'uWdWNmkhvyqTEswO',
     });
 }
 

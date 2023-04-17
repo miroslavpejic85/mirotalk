@@ -72,7 +72,6 @@
 
             if (iceServers) {
                 iceServers = JSON.parse(iceServers);
-                // http://localhost:3000/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:numb.viagenie.ca","username":"miroslav.pejic.85@gmail.com","credential":"mirotalkp2p"}]
             } else {
                 // http://localhost:3000/test
                 iceServers = [
@@ -83,9 +82,9 @@
                     // Test some TURN server
                     // https://www.metered.ca/tools/openrelay/
                     {
-                        urls: 'turn:openrelay.metered.ca:443',
-                        username: 'openrelayproject',
-                        credential: 'openrelayproject',
+                        urls: 'turn:a.relay.metered.ca:443',
+                        username: 'e8dd65b92c62d3e36cafb807',
+                        credential: 'uWdWNmkhvyqTEswO',
                     },
                 ];
             }

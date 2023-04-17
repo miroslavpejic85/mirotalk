@@ -176,8 +176,6 @@ const buttons = {
     },
 };
 
-const backupIceServers = [{ urls: 'stun:stun.l.google.com:19302' }]; // backup iceServers
-
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
 
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
@@ -1440,7 +1438,7 @@ async function handleAddPeer(config) {
     console.log('iceServers', iceServers[0]);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
-    peerConnection = new RTCPeerConnection({ iceServers: iceServers ? iceServers : backupIceServers });
+    peerConnection = new RTCPeerConnection({ iceServers: iceServers });
     peerConnections[peer_id] = peerConnection;
 
     allPeers = peers;
