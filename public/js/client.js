@@ -3465,7 +3465,7 @@ function setChatRoomBtn() {
 
     // chat show on message
     msgerShowChatOnMsg.addEventListener('change', (e) => {
-        playSound('click');
+        playSound('switch');
         showChatOnMessage = e.currentTarget.checked;
         if (showChatOnMessage) {
             msgPopup('info', "Chat will be shown, when I'm receive a new message", 'top-end', 3000);
@@ -5202,7 +5202,7 @@ function handleDataChannelChat(dataMessage) {
  */
 function cleanMessageInput() {
     msgerInput.value = '';
-    msgerInput.style.height = '25px';
+    msgerInput.style.height = '15px';
 }
 
 /**
@@ -5615,11 +5615,11 @@ function getLineBreaks(text) {
 }
 
 /**
- * Check chat input line breaks
+ * Check chat input line breaks and value length
  */
 function checkLineBreaks() {
     msgerInput.style.height = '';
-    if (getLineBreaks(msgerInput.value) > 0) {
+    if (getLineBreaks(msgerInput.value) > 0 || msgerInput.value.length > 50) {
         msgerInput.style.height = '200px';
     }
 }
@@ -5834,7 +5834,7 @@ function handlePeerName(config) {
     const msgerPeerName = getId(peer_id + '_pMsgBtn');
     const msgerPeerAvatar = getId(peer_id + '_pMsgAvatar');
     if (msgerPeerName) msgerPeerName.value = peer_name;
-    if (msgerPeerAvatar) msgerPeerAvatar.src = genAvatarSvg(peer_name, 24);
+    if (msgerPeerAvatar) msgerPeerAvatar.src = genAvatarSvg(peer_name, 32);
     // refresh also peer video avatar name
     setPeerAvatarImgName(peer_id + '_avatar', peer_name);
 }
