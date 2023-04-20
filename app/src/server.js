@@ -437,6 +437,8 @@ if (turnEnabled) {
         credential: turnCredential,
     });
 } else {
+    // As backup if not configured, please configure your own in the .env file
+    // https://www.metered.ca/tools/openrelay/
     iceServers.push({
         urls: 'turn:a.relay.metered.ca:443',
         username: 'e8dd65b92c62d3e36cafb807',
