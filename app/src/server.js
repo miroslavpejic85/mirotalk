@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.0.3
+ * @version 1.0.4
  *
  */
 
@@ -586,7 +586,9 @@ io.sockets.on('connect', async (socket) => {
     /**
      * Handle incoming data, res with a callback
      */
-    socket.on('data', async (data, cb) => {
+    socket.on('data', async (dataObj, cb) => {
+        const data = checkXSS(dataObj);
+
         log.debug('Socket Promise', data);
         //...
         const { room_id, peer_id, peer_name, method, params } = data;
@@ -701,11 +703,8 @@ io.sockets.on('connect', async (socket) => {
             };
         }
 
-        // If presenter must mach the name - uuid
-        const isPresenter =
-            Object.keys(presenters[channel]).length > 1 &&
-            presenters[channel]['peer_name'] == peer_name &&
-            presenters[channel]['peer_uuid'] == peer_uuid;
+        // Check if peer is presenter
+        const isPresenter = await isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
         log.debug('[Join] - connected presenters grp by roomId', presenters);
 
@@ -781,13 +780,17 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         //log.debug('[' + socket.id + '] Room action:', config);
-        const { room_id, peer_name, password, action } = config;
+        const { room_id, peer_id, peer_name, peer_uuid, password, action } = config;
+
+        // Check if peer is presenter
+        const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
 
         let room_is_locked = false;
         //
         try {
             switch (action) {
                 case 'lock':
+                    if (!isPresenter) return;
                     peers[room_id]['lock'] = true;
                     peers[room_id]['password'] = password;
                     await sendToRoom(room_id, socket.id, 'roomAction', {
@@ -797,6 +800,7 @@ io.sockets.on('connect', async (socket) => {
                     room_is_locked = true;
                     break;
                 case 'unlock':
+                    if (!isPresenter) return;
                     delete peers[room_id]['lock'];
                     delete peers[room_id]['password'];
                     await sendToRoom(room_id, socket.id, 'roomAction', {
@@ -831,19 +835,18 @@ io.sockets.on('connect', async (socket) => {
         let peer_id_to_update = null;
 
         for (let peer_id in peers[room_id]) {
-            if (peers[room_id][peer_id]['peer_name'] == peer_name_old) {
+            if (peers[room_id][peer_id]['peer_name'] == peer_name_old && peer_id == socket.id) {
                 peers[room_id][peer_id]['peer_name'] = peer_name_new;
                 presenters[room_id]['peer_name'] = peer_name_new;
                 peer_id_to_update = peer_id;
             }
         }
 
-        const data = {
-            peer_id: peer_id_to_update,
-            peer_name: peer_name_new,
-        };
-
         if (peer_id_to_update) {
+            const data = {
+                peer_id: peer_id_to_update,
+                peer_name: peer_name_new,
+            };
             log.debug('[' + socket.id + '] emit peerName to [room_id: ' + room_id + ']', data);
 
             await sendToRoom(room_id, socket.id, 'peerName', data);
@@ -857,10 +860,10 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer status', config);
-        const { room_id, peer_name, element, status } = config;
+        const { room_id, peer_name, peer_id, element, status } = config;
 
         const data = {
-            peer_id: socket.id,
+            peer_id: peer_id,
             peer_name: peer_name,
             element: element,
             status: status,
@@ -868,7 +871,7 @@ io.sockets.on('connect', async (socket) => {
 
         try {
             for (let peer_id in peers[room_id]) {
-                if (peers[room_id][peer_id]['peer_name'] == peer_name) {
+                if (peers[room_id][peer_id]['peer_name'] == peer_name && peer_id == socket.id) {
                     switch (element) {
                         case 'video':
                             peers[room_id][peer_id]['peer_video_status'] = status;
@@ -907,7 +910,17 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer action', config);
-        const { room_id, peer_id, peer_name, peer_use_video, peer_action, send_to_all } = config;
+        const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, send_to_all } = config;
+
+        // Check if peer is presenter
+        const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
+
+        // Only the presenter can do this actions
+        const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
+        if (presenterActions.some((v) => peer_action === v)) {
+            // if not presenter do nothing
+            if (!isPresenter) return;
+        }
 
         const data = {
             peer_id: peer_id,
@@ -933,13 +946,19 @@ io.sockets.on('connect', async (socket) => {
     socket.on('kickOut', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
-        const { room_id, peer_id, peer_name } = config;
+        const { room_id, peer_id, peer_uuid, peer_name } = config;
 
-        log.debug('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
+        // Check if peer is presenter
+        const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
 
-        await sendToPeer(peer_id, sockets, 'kickOut', {
-            peer_name: peer_name,
-        });
+        // Only the presenter can kickOut others
+        if (isPresenter) {
+            log.debug('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
+
+            await sendToPeer(peer_id, sockets, 'kickOut', {
+                peer_name: peer_name,
+            });
+        }
     });
 
     /**
@@ -1148,6 +1167,29 @@ async function getPeerGeoLocation(ip) {
         .get(endpoint)
         .then((response) => response.data)
         .catch((error) => log.error(error));
+}
+
+/**
+ * Check if peer is Presenter
+ * @param {string} room_id
+ * @param {string} peer_id
+ * @param {string} peer_uuid
+ * @returns boolean
+ */
+async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
+    // Check if presenter for some actions
+    const isPresenter =
+        Object.keys(presenters[room_id]).length > 1 &&
+        presenters[room_id]['peer_name'] === peer_name &&
+        presenters[room_id]['peer_uuid'] === peer_uuid;
+
+    log.debug('[' + peer_id + '] isPeerPresenter ' + peer_name, {
+        peer_name: peer_name,
+        peer_uuid: peer_uuid,
+        isPresenter: isPresenter,
+        presenter: presenters[room_id],
+    });
+    return isPresenter;
 }
 
 /**

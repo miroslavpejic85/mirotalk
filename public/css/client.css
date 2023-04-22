@@ -585,10 +585,10 @@ body {
     background: transparent;
 }
 
-.msg-a {
+a {
     color: #fff;
 }
-.msg-a:hover {
+a:hover {
     color: var(--hover-color);
     transition: all 0.3s ease-in-out;
 }

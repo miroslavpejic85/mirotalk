@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.0.3
+ * @version 1.0.4
  *
  */
 
@@ -1000,7 +1000,7 @@ function handleServerInfo(config) {
     surveyActive = survey.active;
     surveyURL = survey.url;
 
-    console.log('13. Peers count', peers_count);
+    console.log('13. Server info', config);
 
     // Limit room to n peers
     if (userLimitsActive && peers_count > usersCountLimit) {
@@ -5151,7 +5151,8 @@ async function sendChatMessage() {
         return userLog('info', "Can't send message, no participants in the room");
     }
 
-    const msg = checkMsg(msgerInput.value.trim());
+    msgerInput.value = filterXSS(msgerInput.value.trim());
+    const msg = checkMsg(msgerInput.value);
 
     // empty msg or
     if (!msg) {
@@ -5173,9 +5174,9 @@ function handleDataChannelChat(dataMessage) {
 
     const msgFrom = filterXSS(dataMessage.from);
     const msgTo = filterXSS(dataMessage.to);
-    const msg = dataMessage.msg;
-    const msgPrivate = dataMessage.privateMsg;
-    const msgId = dataMessage.id;
+    const msg = filterXSS(dataMessage.msg);
+    const msgPrivate = filterXSS(dataMessage.privateMsg);
+    const msgId = filterXSS(dataMessage.id);
 
     // private message but not for me return
     if (msgPrivate && msgTo != myPeerName) return;
@@ -5237,6 +5238,9 @@ function handleSpeechTranscript(config) {
     if (!config) return;
     console.log('Handle speech transcript', config);
 
+    config.text_data = filterXSS(config.text_data);
+    config.peer_name = filterXSS(config.peer_name);
+
     const { peer_name, text_data } = config;
 
     const time_stamp = getFormatDate(new Date());
@@ -5285,36 +5289,44 @@ function escapeSpecialChars(regex) {
 function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     let time = getFormatDate(new Date());
 
+    // sanitize all params
+    const getFrom = filterXSS(from);
+    const getImg = filterXSS(img);
+    const getSide = filterXSS(side);
+    const getMsg = filterXSS(msg);
+    const getPrivateMsg = filterXSS(privateMsg);
+    const getMsgId = filterXSS(msgId);
+
     // collect chat msges to save it later
     chatMessages.push({
         time: time,
-        from: from,
-        msg: msg,
-        privateMsg: privateMsg,
+        from: getFrom,
+        msg: getMsg,
+        privateMsg: getPrivateMsg,
     });
 
     // check if i receive a private message
-    let msgBubble = privateMsg ? 'private-msg-bubble' : 'msg-bubble';
+    let msgBubble = getPrivateMsg ? 'private-msg-bubble' : 'msg-bubble';
 
     let msgHTML = `
-	<div id="msg-${chatMessagesId}" class="msg ${side}-msg">
-        <img class="msg-img" src="${img}" />
+	<div id="msg-${chatMessagesId}" class="msg ${getSide}-msg">
+        <img class="msg-img" src="${getImg}" />
 		<div class=${msgBubble}>
             <div class="msg-info">
-                <div class="msg-info-name">${from}</div>
+                <div class="msg-info-name">${getFrom}</div>
                 <div class="msg-info-time">${time}</div>
             </div>
-            <div id="${chatMessagesId}" class="msg-text">${msg}
+            <div id="${chatMessagesId}" class="msg-text">${getMsg}
                 <hr/>
     `;
     // add btn direct reply to private message
-    if (privateMsg && msgId != null && msgId != myPeerId) {
+    if (getPrivateMsg && getMsgId != null && getMsgId != myPeerId) {
         msgHTML += `
                 <button 
                     class="${className.msgPrivate}"
                     id="msg-private-reply-${chatMessagesId}"
                     style="color:#fff; border:none; background:transparent;"
-                    onclick="sendPrivateMsgToPeer('${myPeerId}','${from}')"
+                    onclick="sendPrivateMsgToPeer('${myPeerId}','${getFrom}')"
                 ></button>`;
     }
     msgHTML += `
@@ -5484,7 +5496,8 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
     };
 
     function sendPrivateMessage() {
-        const pMsg = checkMsg(msgerPrivateMsgInput.value.trim());
+        msgerPrivateMsgInput.value = filterXSS(msgerPrivateMsgInput.value.trim());
+        const pMsg = checkMsg(msgerPrivateMsgInput.value);
         if (!pMsg) {
             msgerPrivateMsgInput.value = '';
             isChatPasteTxt = false;
@@ -5510,42 +5523,43 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
 
 /**
  * Check Message
- * Detect url from text and make it clickable
- * If url is a img to create preview of it
- * Prevent XSS (strip html part)
- * @param {string} text passed text
+ * @param {string} txt passed text
  * @returns {string} html format
  */
-function checkMsg(text) {
+function checkMsg(txt) {
+    const text = filterXSS(txt);
     if (text.trim().length == 0) return;
     if (isHtml(text)) return sanitizeHtml(text);
     if (isValidHttpURL(text)) {
-        if (isImageURL(text)) return '<img src="' + text + '" alt="img" width="180" height="auto"/>';
-        if (isVideoTypeSupported(text)) return getIframe(text);
-        return '<a href="' + text + '" target="_blank" class="msg-a">' + text + '</a>';
+        if (isImageURL(text)) return getImage(text);
+        //if (isVideoTypeSupported(text)) return getIframe(text);
+        return getLink(text);
     }
     if (isChatMarkdownOn) return marked.parse(text);
-    let pre = '<pre>' + text + '</pre>';
-    if (isChatPasteTxt) {
+    if (isChatPasteTxt && getLineBreaks(text) > 1) {
         isChatPasteTxt = false;
-        return pre;
+        return getPre(text);
     }
-    if (getLineBreaks(text) > 1) {
-        return pre;
-    }
+    if (getLineBreaks(text) > 1) return getPre(text);
+    console.log('CheckMsg', text);
     return text;
 }
 
 /**
  * Sanitize Html
- * @param {string} html code
+ * @param {string} input code
  * @returns Html as string
  */
-function sanitizeHtml(str) {
-    const tagsToReplace = { '&': '&amp;', '<': '&lt;', '>': '&gt;' };
-    const replaceTag = (tag) => tagsToReplace[tag] || tag;
-    const safe_tags_replace = (str) => str.replace(/[&<>]/g, replaceTag);
-    return safe_tags_replace(str);
+function sanitizeHtml(input) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+        '/': '&#x2F;',
+    };
+    return input.replace(/[&<>"'/]/g, (m) => map[m]);
 }
 
 /**
@@ -5567,14 +5581,17 @@ function isHtml(str) {
  * @param {string} str to check
  * @returns boolean true/false
  */
-function isValidHttpURL(str) {
-    let url;
-    try {
-        url = new URL(str);
-    } catch (_) {
-        return false;
-    }
-    return url.protocol === 'http:' || url.protocol === 'https:';
+function isValidHttpURL(url) {
+    const pattern = new RegExp(
+        '^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$',
+        'i',
+    ); // fragment locator
+    return pattern.test(url);
 }
 
 /**
@@ -5587,22 +5604,78 @@ function isImageURL(url) {
 }
 
 /**
+ * Get image
+ * @param {string} text
+ * @returns img
+ */
+function getImage(text) {
+    const url = filterXSS(text);
+    const div = document.createElement('div');
+    const img = document.createElement('img');
+    img.setAttribute('src', url);
+    img.setAttribute('width', '200px');
+    img.setAttribute('height', 'auto');
+    div.appendChild(img);
+    console.log('GetImg', div.firstChild.outerHTML);
+    return div.firstChild.outerHTML;
+}
+
+/**
+ * Get Link
+ * @param {string} text
+ * @returns a href
+ */
+function getLink(text) {
+    const url = filterXSS(text);
+    const a = document.createElement('a');
+    const div = document.createElement('div');
+    const linkText = document.createTextNode(url);
+    a.setAttribute('href', url);
+    a.setAttribute('target', '_blank');
+    a.appendChild(linkText);
+    div.appendChild(a);
+    console.log('GetLink', div.firstChild.outerHTML);
+    return div.firstChild.outerHTML;
+}
+
+/**
+ * Get pre
+ * @param {string} txt
+ * @returns pre
+ */
+function getPre(txt) {
+    const text = filterXSS(txt);
+    const pre = document.createElement('pre');
+    const div = document.createElement('div');
+    pre.textContent = text;
+    div.appendChild(pre);
+    console.log('GetPre', div.firstChild.outerHTML);
+    return div.firstChild.outerHTML;
+}
+
+/**
  * Get IFrame from URL
- * @param {string} url
+ * @param {string} text
  * @returns html iframe
  */
-function getIframe(url) {
-    let is_youtube = getVideoType(url) == 'na' ? true : false;
-    let video_audio_url = is_youtube ? getYoutubeEmbed(url) : url;
-    return `
-    <iframe
-        title="Chat-IFrame"
-        src="${video_audio_url}"
-        width="auto"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-    ></iframe>`;
+function getIframe(text) {
+    const url = filterXSS(text);
+    const iframe = document.createElement('iframe');
+    const div = document.createElement('div');
+    const is_youtube = getVideoType(url) == 'na' ? true : false;
+    const video_audio_url = is_youtube ? getYoutubeEmbed(url) : url;
+    iframe.setAttribute('title', 'Chat-IFrame');
+    iframe.setAttribute('src', video_audio_url);
+    iframe.setAttribute('width', 'auto');
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute(
+        'allow',
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+    );
+    iframe.setAttribute('allowfullscreen', 'allowfullscreen');
+    div.appendChild(iframe);
+    console.log('GetIFrame', div.firstChild.outerHTML);
+    return div.firstChild.outerHTML;
 }
 
 /**
@@ -5645,13 +5718,20 @@ function getFormatDate(date) {
 function emitMsg(from, to, msg, privateMsg, id) {
     if (!msg) return;
 
+    // sanitize all params
+    const getFrom = filterXSS(from);
+    const getTo = filterXSS(to);
+    const getMsg = filterXSS(msg);
+    const getPrivateMsg = filterXSS(privateMsg);
+    const getId = filterXSS(id);
+
     let chatMessage = {
         type: 'chat',
-        from: from,
-        id: id,
-        to: to,
-        msg: msg,
-        privateMsg: privateMsg,
+        from: getFrom,
+        id: getId,
+        to: getTo,
+        msg: getMsg,
+        privateMsg: getPrivateMsg,
     };
     console.log('Send msg', chatMessage);
     sendToDataChannel(chatMessage);
@@ -5848,6 +5928,7 @@ async function emitPeerStatus(element, status) {
     sendToServer('peerStatus', {
         room_id: roomId,
         peer_name: myPeerName,
+        peer_id: myPeerId,
         element: element,
         status: status,
     });
@@ -6051,6 +6132,7 @@ function sendPrivateMsgToPeer(toPeerId, toPeerName) {
         },
     }).then((result) => {
         if (result.value) {
+            result.value = filterXSS(result.value);
             let pMsg = checkMsg(result.value);
             if (!pMsg) {
                 isChatPasteTxt = false;
@@ -6118,6 +6200,7 @@ async function emitPeersAction(peerAction) {
         room_id: roomId,
         peer_name: myPeerName,
         peer_id: myPeerId,
+        peer_uuid: myPeerUUID,
         peer_use_video: useVideo,
         peer_action: peerAction,
         send_to_all: true,
@@ -6395,7 +6478,9 @@ function handleRoomAction(config, emit = false) {
     if (emit) {
         const thisConfig = {
             room_id: roomId,
+            peer_id: myPeerId,
             peer_name: myPeerName,
+            peer_uuid: myPeerUUID,
             action: action,
             password: null,
         };
@@ -7654,6 +7739,7 @@ function kickOut(peer_id) {
             sendToServer('kickOut', {
                 room_id: roomId,
                 peer_id: peer_id,
+                peer_uuid: myPeerUUID,
                 peer_name: myPeerName,
             });
         }
@@ -7665,6 +7751,8 @@ function kickOut(peer_id) {
  * @param {object} config data
  */
 function handleKickedOut(config) {
+    signalingSocket.disconnect();
+
     const { peer_name } = config;
 
     playSound('eject');
@@ -7682,7 +7770,7 @@ function handleKickedOut(config) {
             `User ` +
             peer_name +
             `</h2> will kick out you after <b style="color: #FF2D00;"></b> milliseconds.`,
-        timer: 10000,
+        timer: 5000,
         timerProgressBar: true,
         didOpen: () => {
             Swal.showLoading();
