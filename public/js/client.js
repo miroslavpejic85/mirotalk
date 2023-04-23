@@ -7552,6 +7552,7 @@ function sendVideoUrl(peer_id = null) {
         },
     }).then((result) => {
         if (result.value) {
+            result.value = filterXSS(result.value);
             if (!thereIsPeerConnections()) {
                 return userLog('info', 'No participants detected');
             }
