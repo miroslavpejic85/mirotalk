@@ -150,6 +150,7 @@ const buttons = {
         showMaxBtn: true,
     },
     settings: {
+        showTabRoomPeerName: false,
         showTabRoomParticipants: true,
         showTabRoomSecurity: true,
         showMuteEveryoneBtn: true,
@@ -380,6 +381,7 @@ let videoObjFitSelect;
 
 let btnsBarSelect;
 let selectors;
+let tabRoomPeerName;
 let tabRoomParticipants;
 let tabRoomSecurity;
 // my video element
@@ -562,6 +564,7 @@ function getHtmlElementsById() {
     videoObjFitSelect = getId('videoObjFitSelect');
     btnsBarSelect = getId('mirotalkBtnsBar');
     pinVideoPositionSelect = getId('pinVideoPositionSelect');
+    tabRoomPeerName = getId('tabRoomPeerName');
     tabRoomParticipants = getId('tabRoomParticipants');
     tabRoomSecurity = getId('tabRoomSecurity');
     // my conference name, hand, video - audio status
@@ -1090,7 +1093,7 @@ function handleButtonsRule() {
     //elemDisplay(screenShareBtn, buttons.main.showScreenBtn); // auto-detected
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
-    //elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn); // auto-detected
+    elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn && speechRecognition); // auto-detected
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
     elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
@@ -1112,6 +1115,7 @@ function handleButtonsRule() {
     elemDisplay(ejectEveryoneBtn, buttons.settings.showEjectEveryoneBtn);
     elemDisplay(lockRoomBtn, buttons.settings.showLockRoomBtn);
     elemDisplay(unlockRoomBtn, buttons.settings.showUnlockRoomBtn);
+    elemDisplay(tabRoomPeerName, buttons.settings.showTabRoomPeerName);
     elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
     elemDisplay(tabRoomSecurity, buttons.settings.showTabRoomSecurity);
 }

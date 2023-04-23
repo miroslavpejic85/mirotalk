@@ -89,7 +89,7 @@ io = new Server({
 // console.log(io);
 
 // Host protection (disabled by default)
-const hostProtected = process.env.HOST_PROTECTED == 'true' ? true : false;
+const hostProtected = getEnvBoolean(process.env.HOST_PROTECTED);
 const hostCfg = {
     protected: hostProtected,
     username: process.env.HOST_USERNAME,
@@ -110,36 +110,36 @@ const api_key_secret = process.env.API_KEY_SECRET || 'mirotalk_default_secret';
 
 // Ngrok config
 const ngrok = require('ngrok');
-const ngrokEnabled = process.env.NGROK_ENABLED == 'true' ? true : false;
+const ngrokEnabled = getEnvBoolean(process.env.NGROK_ENABLED);
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 
 // Stun config
 const stun = process.env.STUN || 'stun:stun.l.google.com:19302';
 
 // Turn config
-const turnEnabled = process.env.TURN_ENABLED == 'true' ? true : false;
+const turnEnabled = getEnvBoolean(process.env.TURN_ENABLED);
 const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
 
 // IP Lookup
-const IPLookupEnabled = process.env.IP_LOOKUP_ENABLED == 'true';
+const IPLookupEnabled = getEnvBoolean(process.env.IP_LOOKUP_ENABLED);
 
 // Survey URL
-const surveyEnabled = process.env.SURVEY_ENABLED == 'true' ? true : false;
+const surveyEnabled = getEnvBoolean(process.env.SURVEY_ENABLED);
 const surveyURL = process.env.SURVEY_URL || 'https://www.questionpro.com/t/AUs7VZq00L';
 
 // Sentry config
 const Sentry = require('@sentry/node');
 const { CaptureConsole } = require('@sentry/integrations');
-const sentryEnabled = process.env.SENTRY_ENABLED == 'true' ? true : false;
+const sentryEnabled = getEnvBoolean(process.env.SENTRY_ENABLED);
 const sentryDSN = process.env.SENTRY_DSN;
 const sentryTracesSampleRate = process.env.SENTRY_TRACES_SAMPLE_RATE;
 
 // Slack API
 const CryptoJS = require('crypto-js');
 const qS = require('qs');
-const slackEnabled = process.env.SLACK_ENABLED == 'true' ? true : false;
+const slackEnabled = getEnvBoolean(process.env.SLACK_ENABLED);
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 const bodyParser = require('body-parser');
 
@@ -164,7 +164,7 @@ if (sentryEnabled) {
 // OpenAI/ChatGPT
 let chatGPT;
 const configChatGPT = {
-    enabled: process.env.CHATGPT_ENABLED == 'true' || false,
+    enabled: getEnvBoolean(process.env.CHATGPT_ENABLED),
     apiKey: process.env.CHATGTP_APIKEY,
     model: process.env.CHATGTP_MODEL,
     max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
@@ -1152,6 +1152,17 @@ io.sockets.on('connect', async (socket) => {
         }
     }
 }); // end [sockets.on-connect]
+
+/**
+ * Get Env as boolean
+ * @param {string} key
+ * @param {boolean} force_true_if_undefined
+ * @returns boolean
+ */
+function getEnvBoolean(key, force_true_if_undefined = false) {
+    if (key == undefined && force_true_if_undefined) return true;
+    return key == 'true' ? true : false;
+}
 
 /**
  * get Peer geo Location using GeoJS
