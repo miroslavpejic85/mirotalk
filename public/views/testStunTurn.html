@@ -92,7 +92,7 @@
             console.log('Check Ice Servers', iceServers);
 
             // Print iceServers config
-            Ice.innerHTML = JSON.stringify(iceServers, null, 4);
+            Ice.innerText = JSON.stringify(iceServers, null, 4);
 
             // Test the connections
             const pc = new RTCPeerConnection({
@@ -108,20 +108,20 @@
                 if (e.candidate.type == 'srflx' || e.candidate.candidate.includes('srflx')) {
                     let ip = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
                     let address = e.candidate.address ? e.candidate.address : e.candidate.candidate.match(ip);
-                    IP.innerHTML = '🟢 Your Public IP Address is ' + address;
-                    Stun.innerHTML = '🟢 The STUN server is reachable!';
+                    IP.innerText = '🟢 Your Public IP Address is ' + address;
+                    Stun.innerText = '🟢 The STUN server is reachable!';
                 }
 
                 // If a relay candidate was found, notify that the TURN server works!
                 if (e.candidate.type == 'relay' || e.candidate.candidate.includes('relay')) {
-                    Turn.innerHTML = '🟢 The TURN server is reachable!';
+                    Turn.innerText = '🟢 The TURN server is reachable!';
                 }
             };
 
             // handle error
             pc.onicecandidateerror = (e) => {
                 console.error(e);
-                Err.innerHTML = '🔴 Error: ' + e.errorText;
+                Err.innerText = '🔴 Error: ' + e.errorText;
             };
 
             pc.createDataChannel('test');

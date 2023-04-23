@@ -1389,7 +1389,7 @@ function checkPeerAudioVideo() {
 async function whoAreYouJoin() {
     if (isMobileDevice && myVideoStatus && myAudioStatus) await refreshLocalMedia();
     myVideoWrap.style.display = 'inline';
-    myVideoParagraph.innerHTML = myPeerName + ' (me)';
+    myVideoParagraph.innerText = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
     joinToChannel();
@@ -2000,13 +2000,13 @@ function addChild(device, els) {
         option.value = deviceId;
         switch (kind) {
             case 'videoinput':
-                option.innerHTML = `📹 ` + label || `📹 camera ${el.length + 1}`;
+                option.innerText = `📹 ` + label || `📹 camera ${el.length + 1}`;
                 break;
             case 'audioinput':
-                option.innerHTML = `🎤 ` + label || `🎤 microphone ${el.length + 1}`;
+                option.innerText = `🎤 ` + label || `🎤 microphone ${el.length + 1}`;
                 break;
             case 'audiooutput':
-                option.innerHTML = `🔈 ` + label || `🔈 speaker ${el.length + 1}`;
+                option.innerText = `🔈 ` + label || `🔈 speaker ${el.length + 1}`;
                 break;
             default:
                 break;
@@ -3145,7 +3145,7 @@ function startCountTime() {
     callStartTime = Date.now();
     setInterval(function printTime() {
         callElapsedTime = Date.now() - callStartTime;
-        countTime.innerHTML = getTimeToString(callElapsedTime);
+        countTime.innerText = getTimeToString(callElapsedTime);
     }, 1000);
 }
 
@@ -4723,7 +4723,7 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
  * on disconnect, remove peer, kick out or leave room, we going to save it
  */
 function checkRecording() {
-    if (isStreamRecording || myVideoParagraph.innerHTML.includes('REC')) {
+    if (isStreamRecording || myVideoParagraph.innerText.includes('REC')) {
         console.log('Going to save recording');
         stopStreamRecording();
     }
@@ -4737,7 +4737,7 @@ function startRecordingTime() {
     let rc = setInterval(function printTime() {
         if (isStreamRecording) {
             recElapsedTime = Date.now() - recStartTime;
-            myVideoParagraph.innerHTML = myPeerName + '&nbsp;&nbsp; 🔴 &nbsp; REC ' + getTimeToString(recElapsedTime);
+            myVideoParagraph.innerText = myPeerName + ' 🔴 REC ' + getTimeToString(recElapsedTime);
             return;
         }
         clearInterval(rc);
@@ -4876,7 +4876,7 @@ function handleMediaRecorderStop(event) {
     console.log('MediaRecorder stopped: ', event);
     console.log('MediaRecorder Blobs: ', recordedBlobs);
     isStreamRecording = false;
-    myVideoParagraph.innerHTML = myPeerName + ' (me)';
+    myVideoParagraph.innerText = myPeerName + ' (me)';
     if (isRecScreenStream) {
         recScreenStream.getTracks().forEach((track) => {
             if (track.kind === 'video') track.stop();
@@ -5176,6 +5176,7 @@ async function sendChatMessage() {
 function handleDataChannelChat(dataMessage) {
     if (!dataMessage) return;
 
+    // sanitize all params
     const msgFrom = filterXSS(dataMessage.from);
     const msgTo = filterXSS(dataMessage.to);
     const msg = filterXSS(dataMessage.msg);
@@ -5450,7 +5451,7 @@ function searchPeer() {
     let msgerPeerInputarea = getEcN('msger-peer-inputarea');
     searchPeerBarName = searchPeerBarName.toLowerCase();
     for (let i = 0; i < msgerPeerInputarea.length; i++) {
-        if (!msgerPeerInputarea[i].innerHTML.toLowerCase().includes(searchPeerBarName)) {
+        if (!msgerPeerInputarea[i].innerText.toLowerCase().includes(searchPeerBarName)) {
             msgerPeerInputarea[i].style.display = 'none';
         } else {
             msgerPeerInputarea[i].style.display = 'flex';
@@ -5888,7 +5889,7 @@ async function updateMyPeerName() {
     const myOldPeerName = myPeerName;
 
     myPeerName = myNewPeerName;
-    myVideoParagraph.innerHTML = myPeerName + ' (me)';
+    myVideoParagraph.innerText = myPeerName + ' (me)';
 
     sendToServer('peerName', {
         room_id: roomId,
@@ -5913,7 +5914,7 @@ async function updateMyPeerName() {
 function handlePeerName(config) {
     const { peer_id, peer_name } = config;
     const videoName = getId(peer_id + '_name');
-    if (videoName) videoName.innerHTML = peer_name;
+    if (videoName) videoName.innerText = peer_name;
     // change also avatar and btn value - name on chat lists....
     const msgerPeerName = getId(peer_id + '_pMsgBtn');
     const msgerPeerAvatar = getId(peer_id + '_pMsgAvatar');
@@ -7155,7 +7156,7 @@ function handleDataChannelFileSharing(data) {
     receiveBuffer.push(data);
     receivedSize += data.byteLength;
     receiveProgress.value = receivedSize;
-    receiveFilePercentage.innerHTML =
+    receiveFilePercentage.innerText =
         'Receive progress: ' + ((receivedSize / incomingFileInfo.file.fileSize) * 100).toFixed(2) + '%';
     if (receivedSize === incomingFileInfo.file.fileSize) {
         receiveFileDiv.style.display = 'none';
@@ -7178,16 +7179,16 @@ function sendFileData(peer_id, broadcast) {
 
     sendInProgress = true;
 
-    sendFileInfo.innerHTML =
+    sendFileInfo.innerText =
         'File name: ' +
         fileToSend.name +
-        '<br>' +
+        '\n' +
         'File type: ' +
         fileToSend.type +
-        '<br>' +
+        '\n' +
         'File size: ' +
         bytesToSize(fileToSend.size) +
-        '<br>';
+        '\n';
 
     sendFileDiv.style.display = 'inline';
     sendProgress.max = fileToSend.size;
@@ -7209,7 +7210,7 @@ function sendFileData(peer_id, broadcast) {
         offset += data.fileData.byteLength;
 
         sendProgress.value = offset;
-        sendFilePercentage.innerHTML = 'Send progress: ' + ((offset / fileToSend.size) * 100).toFixed(2) + '%';
+        sendFilePercentage.innerText = 'Send progress: ' + ((offset / fileToSend.size) * 100).toFixed(2) + '%';
 
         // send file completed
         if (offset === fileToSend.size) {
@@ -7408,13 +7409,13 @@ function handleFileInfo(config) {
     let fileToReceiveInfo =
         'From: ' +
         incomingFileInfo.peer_name +
-        '<br />' +
+        '\n' +
         ' Incoming file: ' +
         incomingFileInfo.file.fileName +
-        '<br />' +
+        '\n' +
         ' File size: ' +
         bytesToSize(incomingFileInfo.file.fileSize) +
-        '<br />' +
+        '\n' +
         ' File type: ' +
         incomingFileInfo.file.fileType;
     console.log(fileToReceiveInfo);
@@ -7435,7 +7436,7 @@ function handleFileInfo(config) {
         !incomingFileInfo.broadcast,
         incomingFileInfo.peer_id,
     );
-    receiveFileInfo.innerHTML = fileToReceiveInfo;
+    receiveFileInfo.innerText = fileToReceiveInfo;
     receiveFileDiv.style.display = 'inline';
     receiveProgress.max = incomingFileInfo.file.fileSize;
     receiveInProgress = true;
@@ -7720,7 +7721,7 @@ function handlePeerKickOutBtn(peer_id) {
  * @param {string} peer_id socket.id
  */
 function kickOut(peer_id) {
-    let pName = getId(peer_id + '_name').innerHTML;
+    let pName = getId(peer_id + '_name').innerText;
 
     Swal.fire({
         background: swalBackground,
