@@ -912,12 +912,11 @@ io.sockets.on('connect', async (socket) => {
         // log.debug('Peer action', config);
         const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, send_to_all } = config;
 
-        // Check if peer is presenter
-        const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
-
         // Only the presenter can do this actions
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
         if (presenterActions.some((v) => peer_action === v)) {
+            // Check if peer is presenter
+            const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
             // if not presenter do nothing
             if (!isPresenter) return;
         }
@@ -1188,13 +1187,18 @@ async function getPeerGeoLocation(ip) {
  * @returns boolean
  */
 async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
-    // Check if presenter for some actions
-    const isPresenter =
-        Object.keys(presenters[room_id]).length > 1 &&
-        presenters[room_id]['peer_name'] === peer_name &&
-        presenters[room_id]['peer_uuid'] === peer_uuid;
-
-    log.debug('[' + peer_id + '] isPeerPresenter ' + peer_name, {
+    let isPresenter = false;
+    try {
+        isPresenter =
+            typeof presenters === 'object' &&
+            Object.keys(presenters[room_id]).length > 1 &&
+            presenters[room_id]['peer_name'] === peer_name &&
+            presenters[room_id]['peer_uuid'] === peer_uuid;
+    } catch (err) {
+        log.error('isPeerPresenter', err);
+        return false;
+    }
+    log.debug('[' + peer_id + '] isPeerPresenter', {
         peer_name: peer_name,
         peer_uuid: peer_uuid,
         isPresenter: isPresenter,
