@@ -150,7 +150,7 @@ const buttons = {
         showMaxBtn: true,
     },
     settings: {
-        showTabRoomPeerName: false,
+        showTabRoomPeerName: true,
         showTabRoomParticipants: true,
         showTabRoomSecurity: true,
         showMuteEveryoneBtn: true,
