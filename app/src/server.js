@@ -650,7 +650,7 @@ io.sockets.on('connect', async (socket) => {
         const peer_ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
 
         // Get peer Geo Location
-        if (IPLookupEnabled && (peer_ip != '::1' || peer_ip != '127.0.0.1')) {
+        if (IPLookupEnabled && peer_ip != '::1') {
             cfg.peer_geo = await getPeerGeoLocation(peer_ip);
         }
 
