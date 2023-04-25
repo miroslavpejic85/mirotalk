@@ -15,10 +15,10 @@
 Install the requirements (Note: Many of the installation steps require `root` or `sudo` access)
 
 ```bash
-# Install NodeJS 16.X and npm
+# Install NodeJS 18.X and npm
 $ sudo apt update
 $ sudo apt -y install curl dirmngr apt-transport-https lsb-release ca-certificates
-$ curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+$ curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
 $ npm install -g npm@latest
 ```

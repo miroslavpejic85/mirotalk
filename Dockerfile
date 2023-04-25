@@ -1,4 +1,4 @@
-FROM node:16-alpine 
+FROM node:18-alpine 
 # https://hub.docker.com/_/node
 
 WORKDIR /src
