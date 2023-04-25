@@ -5178,10 +5178,18 @@ function handleDataChannelChat(dataMessage) {
 
     // sanitize all params
     const msgFrom = filterXSS(dataMessage.from);
+    const msgFromId = filterXSS(dataMessage.fromId);
     const msgTo = filterXSS(dataMessage.to);
     const msg = filterXSS(dataMessage.msg);
     const msgPrivate = filterXSS(dataMessage.privateMsg);
     const msgId = filterXSS(dataMessage.id);
+
+    // We check if the message is from real peer
+    const from_peer_name = allPeers[msgFromId]['peer_name'];
+    if (from_peer_name != msgFrom) {
+        console.log('Fake message detected', { realFrom: from_peer_name, fakeFrom: msgFrom, msg: msg });
+        return;
+    }
 
     // private message but not for me return
     if (msgPrivate && msgTo != myPeerName) return;
@@ -5725,6 +5733,7 @@ function emitMsg(from, to, msg, privateMsg, id) {
 
     // sanitize all params
     const getFrom = filterXSS(from);
+    const getFromId = filterXSS(myPeerId);
     const getTo = filterXSS(to);
     const getMsg = filterXSS(msg);
     const getPrivateMsg = filterXSS(privateMsg);
@@ -5733,6 +5742,7 @@ function emitMsg(from, to, msg, privateMsg, id) {
     let chatMessage = {
         type: 'chat',
         from: getFrom,
+        fromId: getFromId,
         id: getId,
         to: getTo,
         msg: getMsg,
