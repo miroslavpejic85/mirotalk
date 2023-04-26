@@ -1,3 +1,5 @@
+'use strict';
+
 // https://github.com/mikecao/umami
 
 const script = document.createElement('script');
