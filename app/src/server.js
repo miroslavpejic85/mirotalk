@@ -969,6 +969,12 @@ io.sockets.on('connect', async (socket) => {
         // log.debug('File info', config);
         const { room_id, peer_id, peer_name, broadcast, file } = config;
 
+        // check if valid fileName
+        if (!isValidFileName(file.fileName)) {
+            log.debug('[' + socket.id + '] File name not valid', config);
+            return;
+        }
+
         function bytesToSize(bytes) {
             let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             if (bytes == 0) return '0 Byte';
@@ -977,7 +983,7 @@ io.sockets.on('connect', async (socket) => {
         }
 
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
-            peerName: file.peerName,
+            peerName: peer_name,
             fileName: file.fileName,
             fileSize: bytesToSize(file.fileSize),
             fileType: file.fileType,
@@ -1011,6 +1017,12 @@ io.sockets.on('connect', async (socket) => {
         const config = checkXSS(cfg);
         // log.debug('Video player', config);
         const { room_id, peer_id, peer_name, video_action, video_src } = config;
+
+        // Check if valid video src url
+        if (video_action == 'open' && !isValidHttpURL(video_src)) {
+            log.debug('[' + socket.id + '] Video src not valid', config);
+            return;
+        }
 
         const data = {
             peer_id: socket.id,
@@ -1161,6 +1173,34 @@ io.sockets.on('connect', async (socket) => {
 function getEnvBoolean(key, force_true_if_undefined = false) {
     if (key == undefined && force_true_if_undefined) return true;
     return key == 'true' ? true : false;
+}
+
+/**
+ * Check if valid filename
+ * @param {string} fileName
+ * @returns boolean
+ */
+function isValidFileName(fileName) {
+    const invalidChars = /[\\\/\?\*\|:"<>]/;
+    return !invalidChars.test(fileName);
+}
+
+/**
+ * Check if valid URL
+ * @param {string} str to check
+ * @returns boolean true/false
+ */
+function isValidHttpURL(url) {
+    const pattern = new RegExp(
+        '^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$',
+        'i',
+    ); // fragment locator
+    return pattern.test(url);
 }
 
 /**

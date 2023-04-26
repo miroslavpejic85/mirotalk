@@ -7358,7 +7358,8 @@ function sendFileInformations(file, peer_id, broadcast = false) {
         }
 
         // prevent XSS injection to remote peer (fileToSend.name is read only)
-        if (isHtml(fileToSend.name)) return userLog('warning', 'Invalid file name!');
+        if (isHtml(fileToSend.name) || !isValidFileName(fileToSend.name))
+            return userLog('warning', 'Invalid file name!');
 
         const fileInfo = {
             room_id: roomId,
@@ -8135,6 +8136,16 @@ function toggleClassElements(className, displayState) {
     for (let i = 0; i < elements.length; i++) {
         elements[i].style.display = displayState;
     }
+}
+
+/**
+ * Check if valid filename
+ * @param {string} fileName
+ * @returns boolean
+ */
+function isValidFileName(fileName) {
+    const invalidChars = /[\\\/\?\*\|:"<>]/;
+    return !invalidChars.test(fileName);
 }
 
 /**
