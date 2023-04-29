@@ -68,6 +68,15 @@ Group=root
 $ sudo systemctl daemon-reload
 ```
 
+## Coturn comands
+
+```bash
+$ sudo service coturn status
+$ sudo service coturn stop
+$ sudo service coturn start
+$ sudo service coturn restart
+```
+
 # Test
 
 Test if it's working:
