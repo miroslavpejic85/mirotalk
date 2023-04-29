@@ -68,7 +68,7 @@ Group=root
 $ sudo systemctl daemon-reload
 ```
 
-## Coturn comands
+## Coturn commands
 
 ```bash
 $ sudo service coturn status
