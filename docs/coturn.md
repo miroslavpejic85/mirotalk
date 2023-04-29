@@ -41,7 +41,7 @@ lt-cred-mech
 
 user=your.username:your.password
 
-server_name=your.domain.name
+server-name=your.domain.name
 realm=your.domain.name
 
 total-quota=100

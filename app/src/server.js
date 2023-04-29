@@ -115,25 +115,18 @@ const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 
 // Stun (https://bloggeek.me/webrtcglossary/stun/)
 // Turn (https://bloggeek.me/webrtcglossary/turn/)
-const stun = process.env.STUN;
-const turnEnabled = getEnvBoolean(process.env.TURN_ENABLED);
-const turnUrls = process.env.TURN_URLS;
-const turnUsername = process.env.TURN_USERNAME;
-const turnCredential = process.env.TURN_PASSWORD;
-
 let iceServers = [];
-
-if (stun) {
-    // Stun is mandatory for not internal network
-    iceServers.push({ urls: stun });
-}
-if (turnEnabled && turnUrls && turnUsername && turnCredential) {
-    // Turn is recommended if direct peer to peer connection is not possible
-    iceServers.push({
-        urls: turnUrls,
-        username: turnUsername,
-        credential: turnCredential,
-    });
+const stunServerUrl = process.env.STUN_SERVER_URL;
+const turnServerUrl = process.env.TURN_SERVER_URL;
+const turnServerUsername = process.env.TURN_SERVER_USERNAME;
+const turnServerCredential = process.env.TURN_SERVER_CREDENTIAL;
+const stunServerEnabled = getEnvBoolean(process.env.STUN_SERVER_ENABLED);
+const turnServerEnabled = getEnvBoolean(process.env.TURN_SERVER_ENABLED);
+// Stun is mandatory for not internal network
+if (stunServerEnabled && stunServerUrl) iceServers.push({ urls: stunServerUrl });
+// Turn is recommended if direct peer to peer connection is not possible
+if (turnServerEnabled && turnServerUrl && turnServerUsername && turnServerCredential) {
+    iceServers.push({ urls: turnServerUrl, username: turnServerUsername, credential: turnServerCredential });
 }
 
 // Test Stun and Turn connection with query params
@@ -467,7 +460,7 @@ async function ngrokStart() {
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
-            own_turn_enabled: turnEnabled,
+            turn_enabled: turnServerEnabled,
             ip_lookup_enabled: IPLookupEnabled,
             chatGPT_enabled: configChatGPT.enabled,
             slack_enabled: slackEnabled,
@@ -515,7 +508,7 @@ server.listen(port, null, () => {
             api_docs: api_docs,
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
-            own_turn_enabled: turnEnabled,
+            turn_enabled: turnServerEnabled,
             ip_lookup_enabled: IPLookupEnabled,
             chatGPT_enabled: configChatGPT.enabled,
             slack_enabled: slackEnabled,
