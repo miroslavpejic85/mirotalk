@@ -113,14 +113,32 @@ const ngrok = require('ngrok');
 const ngrokEnabled = getEnvBoolean(process.env.NGROK_ENABLED);
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 
-// Stun config
-const stun = process.env.STUN || 'stun:stun.l.google.com:19302';
-
-// Turn config
+// Stun (https://bloggeek.me/webrtcglossary/stun/)
+// Turn (https://bloggeek.me/webrtcglossary/turn/)
+const stun = process.env.STUN;
 const turnEnabled = getEnvBoolean(process.env.TURN_ENABLED);
 const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
+
+let iceServers = [];
+
+if (stun) {
+    // Stun is mandatory for not internal network
+    iceServers.push({ urls: stun });
+}
+if (turnEnabled && turnUrls && turnUsername && turnCredential) {
+    // Turn is recommended if direct peer to peer connection is not possible
+    iceServers.push({
+        urls: turnUrls,
+        username: turnUsername,
+        credential: turnCredential,
+    });
+}
+
+// Test Stun and Turn connection with query params
+// const testStunTurn = host + '/test?iceServers=' + JSON.stringify(iceServers);
+const testStunTurn = host + '/test';
 
 // IP Lookup
 const IPLookupEnabled = getEnvBoolean(process.env.IP_LOOKUP_ENABLED);
@@ -418,37 +436,6 @@ function getMeetingURL(host) {
 app.get('*', function (req, res) {
     res.sendFile(views.notFound);
 });
-
-/**
- * You should probably use a different stun-turn server
- * doing commercial stuff, check out: https://github.com/coturn/coturn
- * Installation doc: ../docs/coturn.md
- */
-const iceServers = [];
-
-// Stun is mandatory
-iceServers.push({ urls: stun });
-
-// Turn is recommended if direct peer to peer connection is not possible
-if (turnEnabled) {
-    iceServers.push({
-        urls: turnUrls,
-        username: turnUsername,
-        credential: turnCredential,
-    });
-} else {
-    // As backup if not configured, please configure your own in the .env file
-    // https://www.metered.ca/tools/openrelay/
-    iceServers.push({
-        urls: 'turn:a.relay.metered.ca:443',
-        username: 'e8dd65b92c62d3e36cafb807',
-        credential: 'uWdWNmkhvyqTEswO',
-    });
-}
-
-// Test Stun and Turn connection with query params
-// const testStunTurn = host + '/test?iceServers=' + JSON.stringify(iceServers);
-const testStunTurn = host + '/test';
 
 /**
  * Expose server to external with https tunnel using ngrok
