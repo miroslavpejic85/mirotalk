@@ -7843,7 +7843,6 @@ function showAbout() {
  * Leave the Room and create a new one
  */
 function leaveRoom() {
-    playSound('eject');
     if (surveyActive) {
         leaveFeedback();
     } else {
