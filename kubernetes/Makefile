@@ -6,6 +6,10 @@ prepare:
 	@mkdir -p output
 	sed -e "s@__DOMAIN_NAME__@$(DOMAIN_NAME)@g;s@__DOMAIN_NAME_DASHED__@$(DOMAIN_NAME_DASHED)@g" *.yaml > output/mirotalk-k8s.yaml
 
+prepare-minikube:
+	@mkdir -p output
+	sed -e "s@__DOMAIN_NAME__@$(DOMAIN_NAME)@g;s@__DOMAIN_NAME_DASHED__@$(DOMAIN_NAME_DASHED)@g" minikube/*.yaml > output/mirotalk-k8s.yaml
+
 deploy:
 	kubectl delete configmap p2p || echo "ignore error"
 	kubectl create configmap p2p --from-file=.env=env.txt 
@@ -15,7 +19,7 @@ env.txt:
 	@test -f env.txt || cp -v ../.env.template env.txt
 
 uninstall:
-	kubectl delete configmap p2p
+	kubectl delete configmap p2p || :
 	kubectl delete -f output/mirotalk-k8s.yaml
 	rm -rf env.txt output
  

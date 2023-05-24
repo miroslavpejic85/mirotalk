@@ -5,6 +5,8 @@
 make
 sed -i s/localhost/myshinydomain.tld/g env.txt
 make prepare
+# or make prepare-minikube 
+# for testing purposes
 make deploy
 ```
 
@@ -13,6 +15,7 @@ If you would like to deploy Mirotalk to kubernetes
 this set of files can help you in that task
 
 Bellow is explanation of files in this folder which will form one output file in `output` folder
+
 ## ../.env.template and your file env.txt that you should prepare
 Configuration file that is for now used to configure deployment
 you should copy `../.env.template` to current directory as `env.txt` and edit values inside to your liking
@@ -29,10 +32,13 @@ Main deployment file where you change image file if you would like to use yours 
 
 ## p2p-cert.yaml
 This file represent definition of certificate (request) when using [Cert Manager](cert-manager.io) to generate letsencrypt or private certificates for your domain will be pulled out from `env.txt`
+
 ## p2p-ingress.yaml
 This is generic ingress object in kubernetes that is responsible to route external traffic to mirotalk deployed application and if used in conjuction with p2p-cert.yaml (default) will provide TLS enabled access to your mirotalk instance
+
 ## p2p-service.yaml
 Service required for ingress to be able to know how to access deployment
+
 ## Makefile
 Helper file that allows running it to configure application how you would like
 
@@ -47,3 +53,20 @@ make
 make prepare
 make deploy
 ```
+
+# MiniKube considerations
+```
+minikube start
+minikube addons enable ingress
+minikube ip
+make
+sed -i "s/localhost/p2p.$(minikube ip|sed -e 's/[.]/-/g').nip.io/g" env.txt
+make prepare-minikube
+make deploy
+echo "You should be able to open $(echo https://p2p.$(minikube ip|sed -e 's/[.]/-/g').nip.io)` in your browser"
+```
+You should be able to open `p2p.$(minikube ip|sed -e 's/[.]/-/g').nip.io` - if as for me this does not work 100% of times in that case:
+
+So it is "working for you", as for me it is "meh almost works"
+
+
