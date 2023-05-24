@@ -5,7 +5,7 @@
 make
 sed -i s/localhost/myshinydomain.tld/g env.txt
 make prepare
-make deployment
+make deploy
 ```
 
 # Understanding way
@@ -45,5 +45,5 @@ Please run after reading all this:
 make
 # edit env.txt or use sed as in TLDR section :)
 make prepare
-make deployment
+make deploy
 ```
