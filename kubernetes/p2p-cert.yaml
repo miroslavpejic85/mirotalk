@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+    name: __DOMAIN_NAME_DASHED__-tls
+spec:
+    duration: 2880h # 180d
+    renewBefore: 360h # 15d
+    commonName: __DOMAIN_NAME__
+    dnsNames:
+        - __DOMAIN_NAME__
+    issuerRef:
+        kind: ClusterIssuer
+        name: letsencrypt
+    secretName: __DOMAIN_NAME_DASHED__-tls

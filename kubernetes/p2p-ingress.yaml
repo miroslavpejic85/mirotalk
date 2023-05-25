@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: List
+metadata:
+    resourceVersion: ''
+items:
+    - apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+          name: p2p-ingress
+      spec:
+          rules:
+              - host: __DOMAIN_NAME__
+                http:
+                    paths:
+                        - backend:
+                              service:
+                                  name: p2p
+                                  port:
+                                      number: 3000
+                          path: /
+                          pathType: Prefix
+          tls:
+              - hosts:
+                    - __DOMAIN_NAME__
+                secretName: __DOMAIN_NAME_DASHED__-tls
+      status:

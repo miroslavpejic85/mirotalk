@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        app: p2p
+    name: p2p
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: p2p
+    strategy: {}
+    template:
+        metadata:
+            labels:
+                app: p2p
+        spec:
+            containers:
+                - image: mirotalk/p2p:latest
+                  name: mirotalk
+                  ports:
+                      - containerPort: 3000
+                  volumeMounts:
+                      - name: p2p-env
+                        mountPath: /src/.env
+                        subPath: .env
+                  resources: {}
+            volumes:
+                - name: p2p-env
+                  configMap:
+                      name: p2p
+                      defaultMode: 0644
+            restartPolicy: Always
+status: {}
