@@ -22,7 +22,10 @@ you should copy `../.env.template` to current directory as `env.txt` and edit va
 ```
 cp ../.env.template env.txt
 ```
-Change values (if nothing else **HOST** variable must be changed so your ingress would recognize it and work as)
+
+Change values (if nothing else **HOST** variable must be changed so your ingress would recognize it and send requests to your deployed application),
+if you do not have public domain you can use free service called [nip.io](https://nip.io/) with domain like `p2p.192-168-1-1.nip.io` (or [sslip.io](https://sslip.io/))
+
 ```
 sed -i s/localhost/myshinydomain.tld/g env.txt
 ```
@@ -53,20 +56,5 @@ make
 make prepare
 make deploy
 ```
-
-# MiniKube considerations
-```
-minikube start
-minikube addons enable ingress
-minikube ip
-make
-sed -i "s/localhost/p2p.$(minikube ip|sed -e 's/[.]/-/g').nip.io/g" env.txt
-make prepare-minikube
-make deploy
-echo "You should be able to open $(echo https://p2p.$(minikube ip|sed -e 's/[.]/-/g').nip.io)` in your browser"
-```
-You should be able to open `p2p.$(minikube ip|sed -e 's/[.]/-/g').nip.io` - if as for me this does not work 100% of times in that case:
-
-So it is "working for you", as for me it is "meh almost works"
 
 
