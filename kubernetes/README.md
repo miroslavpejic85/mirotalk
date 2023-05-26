@@ -40,7 +40,7 @@ Main deployment file where you change image file if you would like to use yours 
 
 ## p2p-cert.yaml
 
-This file represent definition of certificate (request) when using [Cert Manager](cert-manager.io) to generate letsencrypt or private certificates for your domain will be pulled out from `env.txt`
+This file represent definition of certificate (request) when using [Cert Manager](https://cert-manager.io/) to generate letsencrypt or private certificates for your domain will be pulled out from `env.txt`
 
 ## p2p-ingress.yaml
 
