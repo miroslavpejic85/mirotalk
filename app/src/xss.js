@@ -12,7 +12,26 @@ const log = new Logs('xss');
  */
 const checkXSS = (dataObject) => {
     try {
-        if (typeof dataObject === 'object' && Object.keys(dataObject).length > 0) {
+        if (Array.isArray(dataObject)) {
+            if (Object.keys(dataObject).length > 0 && typeof dataObject[0] === 'object') {
+                dataObject.forEach((obj) => {
+                    for (const key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            let objectJson = objectToJSONString(obj[key]);
+                            if (objectJson) {
+                                let jsonString = xss(objectJson);
+                                let jsonObject = JSONStringToObject(jsonString);
+                                if (jsonObject) {
+                                    obj[key] = jsonObject;
+                                }
+                            }
+                        }
+                    }
+                });
+                log.debug('XSS Array of Object sanitization done');
+                return dataObject;
+            }
+        } else if (typeof dataObject === 'object') {
             let objectJson = objectToJSONString(dataObject);
             if (objectJson) {
                 let jsonString = xss(objectJson);
@@ -22,8 +41,7 @@ const checkXSS = (dataObject) => {
                     return jsonObject;
                 }
             }
-        }
-        if (typeof dataObject === 'string' || dataObject instanceof String) {
+        } else if (typeof dataObject === 'string' || dataObject instanceof String) {
             log.debug('XSS String sanitization done');
             return xss(dataObject);
         }
