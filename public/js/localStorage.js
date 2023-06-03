@@ -59,4 +59,12 @@ class LocalStorage {
     getLocalStorageDevices() {
         return JSON.parse(localStorage.getItem('LOCAL_STORAGE_DEVICES'));
     }
+
+    setObjectLocalStorage(name, object) {
+        localStorage.setItem(name, JSON.stringify(object));
+    }
+
+    getObjectLocalStorage(name) {
+        return JSON.parse(localStorage.getItem(name));
+    }
 }

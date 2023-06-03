@@ -119,6 +119,13 @@ const myRoomUrl = window.location.href;
 
 // Local Storage class
 const lS = new LocalStorage();
+const localStorageSettings = lS.getObjectLocalStorage('MIROTALK_P2P_SETTINGS');
+const lsSettings = localStorageSettings
+    ? localStorageSettings
+    : {
+          theme: 'dark',
+          //...
+      };
 
 // Show desired buttons captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn -> (auto-detected)
 const buttons = {
@@ -229,7 +236,6 @@ let callStartTime;
 let callElapsedTime;
 let recStartTime;
 let recElapsedTime;
-let mirotalkTheme = 'dark'; // dark - grey ...
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
 let pinVideoPositionSelect;
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
@@ -886,6 +892,8 @@ function countPeerConnections() {
  * On body load Get started
  */
 function initClientPeer() {
+    setTheme(lsSettings.theme);
+
     if (!isWebRTCSupported) {
         return userLog('error', 'This browser seems not supported WebRTC!');
     }
@@ -1154,7 +1162,7 @@ async function whoAreYou() {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: 'radial-gradient(#393939, #000000)', //swalBackground,
+        background: swalBackground,
         title: 'MiroTalk P2P',
         position: 'center',
         input: 'text',
@@ -1388,7 +1396,6 @@ async function whoAreYouJoin() {
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
     joinToChannel();
-    setTheme(mirotalkTheme);
 }
 
 /**
@@ -1779,8 +1786,7 @@ function handleRemovePeer(config) {
 function setTheme(theme) {
     if (!theme) return;
 
-    mirotalkTheme = theme;
-    switch (mirotalkTheme) {
+    switch (theme) {
         case 'dark':
             // dark theme
             swalBackground = 'radial-gradient(#393939, #000000)';
@@ -1792,7 +1798,10 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
             document.documentElement.style.setProperty('--right-msg-bg', '#056162');
             document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
+            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
+            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
             document.body.style.background = 'radial-gradient(#393939, #000000)';
+            mirotalkTheme.selectedIndex = 0;
             break;
         case 'grey':
             // grey theme
@@ -1805,12 +1814,34 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
             document.documentElement.style.setProperty('--right-msg-bg', '#056162');
             document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
+            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
+            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
             document.body.style.background = 'radial-gradient(#666, #333)';
+            mirotalkTheme.selectedIndex = 1;
+            break;
+        case 'green':
+            // green theme
+            swalBackground = 'radial-gradient(#003934, #001E1A)';
+            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#003934, #001E1A)');
+            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#003934, #001E1A)');
+            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#003934, #001E1A)');
+            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
+            document.documentElement.style.setProperty('--left-msg-bg', '#003934');
+            document.documentElement.style.setProperty('--right-msg-bg', '#001E1A');
+            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
+            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
+            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
+            document.body.style.background = 'radial-gradient(#003934, #001E1A)';
+            mirotalkTheme.selectedIndex = 2;
             break;
         // ...
         default:
-            console.log('No theme found');
+            return console.log('No theme found');
     }
+
+    lsSettings.theme = theme;
+    lS.setObjectLocalStorage('MIROTALK_P2P_SETTINGS', lsSettings);
 
     setButtonsBarPosition(mirotalkBtnsBar);
 }
@@ -3660,7 +3691,7 @@ function setMyWhiteboardBtn() {
     whiteboardGhostButton.addEventListener('click', (e) => {
         wbIsBgTransparent = !wbIsBgTransparent;
         setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
-        //wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)'): setTheme(mirotalkTheme);
+        //wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)'): setTheme(lsSettings.theme);
     });
 }
 

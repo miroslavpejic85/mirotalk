@@ -37,6 +37,9 @@
     /* video elem border color */
     --elem-border-color: none;
 
+    --btn-bar-bg-color: #fff;
+    --btn-bar-color: #000;
+
     /* left buttons bar vertical default */
     --btns-top: 50%;
     --btns-right: 0%;
@@ -205,13 +208,13 @@ body {
 }
 
 #buttonsBar button {
-    border: none;
-    font-size: 1.5rem;
-    transition: all 0.3s ease-in-out;
-    background: #fff;
     padding: 4px;
+    border: none;
+    background: var(--btn-bar-bg-color);
+    color: var(--btn-bar-color);
+    font-size: 1.5rem;
     border-radius: 5px;
-    color: #000;
+    transition: all 0.3s ease-in-out;
 }
 
 #buttonsBar button:hover {
