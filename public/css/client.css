@@ -112,7 +112,7 @@ body {
 }
 
 #google_translate_element select {
-    background: rgba(0, 0, 0, 0.2) !important;
+    background: #2c2c2c !important;
 }
 
 /*--------------------------------------------------------------
@@ -153,7 +153,7 @@ body {
     width: 100%;
     margin-top: 15px;
     padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
+    background: #2c2c2c;
     color: white;
     border: var(--border);
     border-radius: 5px;
@@ -801,7 +801,7 @@ em-emoji-picker {
     max-width: 305px;
     font-size: 0.9rem;
     color: #fff;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: #2c2c2c;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -1045,7 +1045,7 @@ input:checked + .slider:before {
 }
 
 .swal2-select {
-    background-color: black !important;
+    background-color: #16171b !important;
     color: white !important;
     border-radius: 6px !important;
 }
