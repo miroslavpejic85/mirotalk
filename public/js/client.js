@@ -1794,7 +1794,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--navbar-bg', 'linear-gradient(#363434, #000000)');
+            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
             document.documentElement.style.setProperty('--right-msg-bg', '#056162');
@@ -1810,7 +1810,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#666, #333)');
             document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#666, #333)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#797979, #000)');
-            document.documentElement.style.setProperty('--navbar-bg', 'linear-gradient(#666, #333)');
+            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
             document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
@@ -1827,7 +1827,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#003934, #001E1A)');
             document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#003934, #001E1A)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#003934, #001E1A)');
-            document.documentElement.style.setProperty('--navbar-bg', 'linear-gradient(#003934, #001E1A)');
+            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
             document.documentElement.style.setProperty('--left-msg-bg', '#003934');
