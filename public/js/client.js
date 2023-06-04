@@ -4595,6 +4595,7 @@ async function setMyVideoStatusTrue() {
     myVideoStatusIcon.className = className.videoOn;
     myVideoAvatarImage.style.display = 'none';
     emitPeerStatus('video', myVideoStatus);
+    myVideo.style.display = 'block';
     setTippy(videoBtn, 'Stop the video', 'right-start');
     setTippy(initVideoBtn, 'Stop the video', 'top');
 }
