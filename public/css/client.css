@@ -37,6 +37,8 @@
     /* video elem border color */
     --elem-border-color: none; /* 1px solid rgb(255 255 255 / 32%) */
 
+    --tab-btn-active: rgb(30 29 29);
+
     --btn-bar-bg-color: #fff;
     --btn-bar-color: #000;
 
@@ -110,7 +112,7 @@ body {
 }
 
 #google_translate_element select {
-    background: #2c2c2c !important;
+    background: rgba(0, 0, 0, 0.2) !important;
 }
 
 /*--------------------------------------------------------------
@@ -151,7 +153,7 @@ body {
     width: 100%;
     margin-top: 15px;
     padding: 10px;
-    background: #2c2c2c;
+    background: rgba(0, 0, 0, 0.2);
     color: white;
     border: var(--border);
     border-radius: 5px;
@@ -274,7 +276,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 10px;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #666;
     cursor: move;
 }
@@ -285,7 +287,7 @@ body {
     /* border: var(--border); */
     border: none;
     font-size: 1.1rem;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #fff;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
@@ -330,6 +332,7 @@ body {
     border: none;
     border-radius: 3px;
     color: #fff;
+    background-color: rgba(0, 0, 0, 0.2) !important;
     font-size: 1rem;
 }
 
@@ -354,6 +357,7 @@ body {
 #speechRecognitionStart,
 #speechRecognitionStop {
     padding: 10px;
+    margin: auto;
     border: none;
     font-size: 0.7rem;
     border-radius: 5px;
@@ -411,7 +415,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 10px;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #666;
     cursor: move;
 }
@@ -420,7 +424,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 10px;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #666;
 }
 
@@ -430,7 +434,7 @@ body {
     /* border: var(--border); */
     border: none;
     font-size: 1.1rem;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #fff;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
@@ -621,7 +625,7 @@ button:hover {
     resize: none;
     color: #fff;
     font-size: 14px !important;
-    background: rgb(7, 7, 7);
+    background: rgba(0, 0, 0, 0.2);
     border-top-left-radius: 10px;
     -webkit-transition: height 1s;
     -moz-transition: height 1s;
@@ -709,7 +713,7 @@ button:hover {
 #msgerCPList button {
     border: none;
     font-size: 1rem;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #fff;
     border-radius: 5px;
 }
@@ -797,7 +801,7 @@ em-emoji-picker {
     max-width: 305px;
     font-size: 0.9rem;
     color: #fff;
-    background-color: #2b2b2b;
+    background-color: rgba(0, 0, 0, 0.2);
     border-radius: 5px;
     cursor: pointer;
 }
@@ -852,7 +856,7 @@ hr {
     border: var(--border);
     border-radius: 5px;
     color: #fff;
-    background-color: #2b2b2b;
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 #tabRoomSecurity button,
@@ -894,7 +898,7 @@ hr {
 /* Style the tab */
 
 .tab {
-    background-color: rgba(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.2);
     padding: 5px;
     border-radius: 10px;
     overflow: hidden;
@@ -906,6 +910,7 @@ hr {
     font-size: 1rem;
     background-color: inherit;
     float: left;
+    margin-right: 5px;
     /* border: var(--border); */
     border: none;
     border-radius: 5px;
@@ -927,7 +932,7 @@ hr {
 /* Create an active/current tablink class */
 
 .tab button.active {
-    background-color: rgb(30 29 29);
+    background-color: var(--tab-btn-active);
 }
 
 /* Style the tab content */

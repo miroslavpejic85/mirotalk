@@ -35,7 +35,7 @@
     justify-content: space-between;
     padding: 5px;
     border-radius: 10px;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #ffffff;
     cursor: move;
 }
@@ -45,7 +45,7 @@
     padding: 10px;
     font-size: 1.2rem;
     margin: 1px;
-    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.2);
     color: #fff;
     border: var(--border);
     border-radius: 5px;

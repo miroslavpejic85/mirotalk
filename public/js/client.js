@@ -1795,6 +1795,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            document.documentElement.style.setProperty('--tab-btn-active', 'rgb(30 29 29)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
             document.documentElement.style.setProperty('--right-msg-bg', '#056162');
@@ -1811,6 +1812,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#666, #333)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#797979, #000)');
             document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            document.documentElement.style.setProperty('--tab-btn-active', 'rgb(30 29 29)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
             document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
@@ -1828,6 +1830,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#003934, #001E1A)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#003934, #001E1A)');
             document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            document.documentElement.style.setProperty('--tab-btn-active', '#003934');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
             document.documentElement.style.setProperty('--left-msg-bg', '#003934');
@@ -3391,7 +3394,7 @@ function setChatRoomBtn() {
             document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
         } else {
             e.target.className = className.ghost;
-            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
+            setTheme(lsSettings.theme);
         }
     });
 
@@ -3693,8 +3696,8 @@ function setMyWhiteboardBtn() {
     });
     whiteboardGhostButton.addEventListener('click', (e) => {
         wbIsBgTransparent = !wbIsBgTransparent;
-        setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
-        //wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)'): setTheme(lsSettings.theme);
+        //setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
+        wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)') : setTheme(lsSettings.theme);
     });
 }
 
