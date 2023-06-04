@@ -35,7 +35,7 @@
     --hover-color: grey;
 
     /* video elem border color */
-    --elem-border-color: none;
+    --elem-border-color: none; /* 1px solid rgb(255 255 255 / 32%) */
 
     --btn-bar-bg-color: #fff;
     --btn-bar-color: #000;
@@ -903,7 +903,6 @@ hr {
 /* Style the buttons inside the tab */
 
 .tab button {
-    margin: 2px;
     font-size: 1rem;
     background-color: inherit;
     float: left;
