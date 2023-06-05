@@ -1841,6 +1841,24 @@ function setTheme(theme) {
             document.body.style.background = 'radial-gradient(#003934, #001E1A)';
             mirotalkTheme.selectedIndex = 2;
             break;
+        case 'blue':
+            // blue theme
+            swalBackground = 'radial-gradient(#306bac, #141B41)';
+            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#306bac, #141B41)');
+            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#306bac, #141B41)');
+            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#306bac, #141B41)');
+            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            document.documentElement.style.setProperty('--tab-btn-active', '#306bac');
+            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
+            document.documentElement.style.setProperty('--left-msg-bg', '#306bac');
+            document.documentElement.style.setProperty('--right-msg-bg', '#141B41');
+            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
+            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
+            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
+            document.body.style.background = 'radial-gradient(#306bac, #141B41)';
+            mirotalkTheme.selectedIndex = 3;
+            break;
         // ...
         default:
             return console.log('No theme found');
