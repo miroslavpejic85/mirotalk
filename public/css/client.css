@@ -899,7 +899,6 @@ hr {
 /* Style the tab */
 
 .tab {
-    background-color: rgba(0, 0, 0, 0.2);
     padding: 5px;
     border-radius: 10px;
     overflow: hidden;
@@ -908,18 +907,18 @@ hr {
 /* Style the buttons inside the tab */
 
 .tab button {
+    padding: 12px 14px;
     font-size: 1rem;
-    background-color: inherit;
     float: left;
     margin-right: 5px;
-    /* border: var(--border); */
+    color: #fff;
     border: none;
     border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    /* border: var(--border); */
     outline: none;
     cursor: pointer;
-    padding: 12px 14px;
     transition: 0.3s;
-    color: #fff;
 }
 
 /* Change background color of buttons on hover */
