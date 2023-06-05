@@ -907,12 +907,11 @@ hr {
 /* Style the buttons inside the tab */
 
 .tab button {
-    padding: 12px 14px;
-    font-size: 1rem;
+    margin: 3px;
+    padding: 12px;
     float: left;
-    margin-right: 5px;
     color: #fff;
-    border: none;
+    border: var(--border);
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.2);
     /* border: var(--border); */
