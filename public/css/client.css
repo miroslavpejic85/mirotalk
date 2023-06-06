@@ -157,6 +157,7 @@ body {
     color: white;
     border: var(--border);
     border-radius: 5px;
+    box-shadow: none;
     cursor: pointer;
 }
 
@@ -804,6 +805,7 @@ em-emoji-picker {
     background-color: #2c2c2c;
     border: var(--border);
     border-radius: 5px;
+    box-shadow: none;
     cursor: pointer;
 }
 
@@ -1026,6 +1028,7 @@ input:checked + .slider:before {
 
 .swal2-input {
     border: var(--border) !important;
+    box-shadow: none !important;
 }
 
 .swal2-file {
@@ -1040,6 +1043,10 @@ input:checked + .slider:before {
 
 .swal2-popup {
     border: var(--border) !important;
+}
+
+.swal2-popup .swal2-styled:focus {
+    box-shadow: none !important;
 }
 
 .swal2-select {
@@ -1353,6 +1360,7 @@ progress {
 select {
     height: 40px;
     line-height: 40px;
+    box-shadow: none;
 }
 
 hr {
