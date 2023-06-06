@@ -810,13 +810,14 @@ em-emoji-picker {
 }
 
 #mySettingsCloseBtn {
-    padding: 5px;
-    /* border: var(--border); */
+    /* top right bottom left */
+    margin: 10px 0px 0px 10px; 
+    font-size: 1.2rem;
+    color: #fff;
     border: none;
     border-radius: 5px;
-    font-size: 1.2rem;
-    background: var(--body-bg);
-    color: #fff;
+    /* border: var(--border); */
+    background: transparent;
     transition: background 0.23s;
 }
 
@@ -911,6 +912,7 @@ hr {
     margin: 3px;
     padding: 11px;
     float: left;
+    font-size: 1rem;
     color: #fff;
     border: var(--border);
     border-radius: 5px;
