@@ -1870,7 +1870,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#69140E, #3C1518)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#69140E, #3C1518)');
             document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--select-bg', '#2c2c2c');
+            document.documentElement.style.setProperty('--select-bg', '#3C1518');
             document.documentElement.style.setProperty('--tab-btn-active', '#69140E');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
