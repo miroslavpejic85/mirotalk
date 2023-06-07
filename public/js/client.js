@@ -1795,7 +1795,7 @@ function setTheme(theme) {
             document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#393939, #000000)');
             document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--select-bg', '#000000');
+            document.documentElement.style.setProperty('--select-bg', '#2c2c2c');
             document.documentElement.style.setProperty('--tab-btn-active', 'rgb(30 29 29)');
             document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
             document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
