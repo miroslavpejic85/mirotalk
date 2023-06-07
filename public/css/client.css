@@ -64,6 +64,7 @@
     --msger-bg: radial-gradient(#393939, #000000);
     --msger-private-bg: radial-gradient(#393939, #000000);
     --wb-bg: radial-gradient(#393939, #000000);
+    --select-bg: #2c2c2c;
     --box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
 
     /* chat msg boble */
@@ -112,7 +113,7 @@ body {
 }
 
 #google_translate_element select {
-    background: #2c2c2c !important;
+    background: var(--select-bg) !important;
 }
 
 /*--------------------------------------------------------------
@@ -153,7 +154,7 @@ body {
     width: 100%;
     margin-top: 15px;
     padding: 10px;
-    background: #2c2c2c;
+    background: var(--select-bg);
     color: white;
     border: var(--border);
     border-radius: 5px;
@@ -333,7 +334,7 @@ body {
     border: none;
     border-radius: 3px;
     color: #fff;
-    background-color: rgba(0, 0, 0, 0.2) !important;
+    background-color: var(--select-bg) !important;
     font-size: 1rem;
 }
 
@@ -802,7 +803,7 @@ em-emoji-picker {
     max-width: 305px;
     font-size: 0.9rem;
     color: #fff;
-    background-color: #2c2c2c;
+    background-color: var(--select-bg);
     border: var(--border);
     border-radius: 5px;
     box-shadow: none;
@@ -811,7 +812,7 @@ em-emoji-picker {
 
 #mySettingsCloseBtn {
     /* top right bottom left */
-    margin: 10px 0px 0px 10px; 
+    margin: 10px 0px 0px 10px;
     font-size: 1.2rem;
     color: #fff;
     border: none;
@@ -1052,7 +1053,7 @@ input:checked + .slider:before {
 }
 
 .swal2-select {
-    background-color: #16171b !important;
+    background-color: var(--select-bg) !important;
     color: white !important;
     border-radius: 6px !important;
 }
