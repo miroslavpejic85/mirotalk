@@ -289,6 +289,7 @@ let localMediaStream; // my microphone / webcam
 let remoteMediaStream; // peers microphone / webcam
 let recScreenStream; // recorded screen stream
 let remoteMediaControls = false; // enable - disable peers video player controls (default false)
+let isPeerReconnected = false;
 let peerConnection = null; // RTCPeerConnection
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
@@ -1019,7 +1020,7 @@ function handleServerInfo(config) {
     }
 
     // Let start with some basic rules
-    isPresenter = is_presenter;
+    isPresenter = isPeerReconnected ? isPresenter : is_presenter;
     if (isRulesActive) {
         handleRules(isPresenter);
     }
@@ -1068,7 +1069,7 @@ function roomIsBusy() {
  * @param {boolean} isPresenter true/false
  */
 function handleRules(isPresenter) {
-    console.log('14. Peer isPresenter: ' + isPresenter);
+    console.log('14. Peer isPresenter: ' + isPresenter + ' Reconnected to signaling server: ' + isPeerReconnected);
     if (!isPresenter) {
         buttons.settings.showTabRoomParticipants = false;
         buttons.settings.showTabRoomSecurity = false;
@@ -1737,6 +1738,8 @@ function handleDisconnect(reason) {
     fileDataChannels = {};
     peerConnections = {};
     peerMediaElements = {};
+
+    isPeerReconnected = true;
 }
 
 /**
@@ -1767,12 +1770,6 @@ function handleRemovePeer(config) {
     delete peerConnections[peer_id];
     delete peerMediaElements[peer_id];
     delete allPeers[peer_id];
-
-    isPresenter = !thereIsPeerConnections();
-    if (isRulesActive && isPresenter) {
-        console.log('I am alone in the room, got Presenter Rules');
-        handleRules(isPresenter);
-    }
 
     playSound('removePeer');
 
