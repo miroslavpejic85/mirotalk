@@ -1208,6 +1208,7 @@ async function getPeerGeoLocation(ip) {
  */
 async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
     let isPresenter = false;
+    if (typeof presenters[room_id] === 'undefined' || presenters[room_id] === null) return false;
     try {
         isPresenter =
             typeof presenters === 'object' &&
