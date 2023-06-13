@@ -3389,6 +3389,10 @@ img.has-shadow {
     border-radius: 24px;
 }
 
+.w-150 {
+    width: 150px;
+}
+
 @media (max-width: 640px) {
     .ta-l-mobile {
         text-align: left;
