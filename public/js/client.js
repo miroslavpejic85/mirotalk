@@ -129,7 +129,7 @@ const lsSettings = localStorageSettings
       };
 
 // Check if PIP is supported by this browser
-const showVideoPipBtn = document.pictureInPictureEnabled;
+const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
 
 // Show desired buttons captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn, 'showVideoPipBtn' -> (auto-detected)
 const buttons = {
