@@ -3174,9 +3174,8 @@ function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null)
  */
 function handlePictureInPicture(btnId, videoId) {
     const btnPiP = getId(btnId);
-
+    const video = getId(videoId);
     btnPiP.addEventListener('click', () => {
-        const video = getId(videoId);
         if (video.pictureInPictureElement) {
             video.exitPictureInPicture();
         } else if (document.pictureInPictureEnabled) {
