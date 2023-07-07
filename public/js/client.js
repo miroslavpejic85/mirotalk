@@ -677,7 +677,7 @@ function setButtonsToolTip() {
     setTippy(msgerShareFileBtn, 'Share file', 'top');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
-    setTippy(msgerShowChatOnMsg, "Show me when I receive a new message", 'top');
+    setTippy(msgerShowChatOnMsg, 'Show me when I receive a new message', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
     // chat participants buttons
     setTippy(msgerCPCloseBtn, 'Close', 'left');
