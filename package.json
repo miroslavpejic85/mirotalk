@@ -47,13 +47,13 @@
         "openai": "^3.3.0",
         "qs": "^6.11.2",
         "socket.io": "^4.7.1",
-        "swagger-ui-express": "^4.6.3",
+        "swagger-ui-express": "^5.0.0",
         "uuid": "9.0.0",
         "xss": "^1.0.14",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "node-fetch": "^2.6.6",
-        "prettier": "2.8.8"
+        "prettier": "3.0.0"
     }
 }
