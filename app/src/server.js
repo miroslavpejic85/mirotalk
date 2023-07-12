@@ -248,28 +248,33 @@ app.use((err, req, res, next) => {
 // main page
 app.get(['/'], (req, res) => {
     if (hostCfg.protected == true) {
-        hostCfg.authenticated = false;
-        res.sendFile(views.login);
+        const ip = getIP(req);
+        if (allowedIP(ip)) {
+            res.sendFile(views.landing);
+        } else {
+            hostCfg.authenticated = false;
+            res.sendFile(views.login);
+        }
     } else {
         res.sendFile(views.landing);
     }
 });
 
 // handle login on host protected
-app.get(['/login'], (req, res) => {
+app.post(['/login'], (req, res) => {
     if (hostCfg.protected == true) {
         const ip = getIP(req);
-        log.debug(`Request login to host from: ${ip}`, req.query);
-        const { username, password } = checkXSS(req.query);
+        log.debug(`Request login to host from: ${ip}`, req.body);
+        const { username, password } = checkXSS(req.body);
         if (username == hostCfg.username && password == hostCfg.password) {
             hostCfg.authenticated = true;
             authHost = new Host(ip, true);
             log.debug('LOGIN OK', { ip: ip, authorized: authHost.isAuthorized(ip) });
-            res.sendFile(views.landing);
+            res.status(200).json({ message: 'authorized' });
         } else {
             log.debug('LOGIN KO', { ip: ip, authorized: false });
             hostCfg.authenticated = false;
-            res.sendFile(views.login);
+            res.status(401).json({ message: 'unauthorized' });
         }
     } else {
         res.redirect('/');
@@ -1253,6 +1258,7 @@ function allowedIP(ip) {
 function removeIP(socket) {
     if (hostCfg.protected == true) {
         const ip = socket.handshake.address;
+        log.debug('Host protected check ip', { ip: ip });
         if (ip && allowedIP(ip)) {
             authHost.deleteIP(ip);
             hostCfg.authenticated = false;
