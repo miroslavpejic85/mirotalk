@@ -248,15 +248,23 @@ app.use((err, req, res, next) => {
 // main page
 app.get(['/'], (req, res) => {
     if (hostCfg.protected == true) {
+        hostCfg.authenticated = false;
         const ip = getIP(req);
-        if (allowedIP(ip)) {
-            res.sendFile(views.landing);
-        } else {
-            hostCfg.authenticated = false;
-            res.sendFile(views.login);
-        }
+        authHost.deleteIP(ip);
+        res.sendFile(views.login);
     } else {
         res.sendFile(views.landing);
+    }
+});
+
+// logged
+app.get(['/logged'], (req, res) => {
+    const ip = getIP(req);
+    if (allowedIP(ip)) {
+        res.sendFile(views.landing);
+    } else {
+        hostCfg.authenticated = false;
+        res.sendFile(views.login);
     }
 });
 
