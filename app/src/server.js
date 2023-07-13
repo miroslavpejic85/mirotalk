@@ -249,8 +249,6 @@ app.use((err, req, res, next) => {
 app.get(['/'], (req, res) => {
     if (hostCfg.protected == true) {
         hostCfg.authenticated = false;
-        const ip = getIP(req);
-        authHost.deleteIP(ip);
         res.sendFile(views.login);
     } else {
         res.sendFile(views.landing);
