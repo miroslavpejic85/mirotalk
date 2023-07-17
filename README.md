@@ -115,7 +115,7 @@ Embedding a meeting into a service or app using an iframe.
 <iframe
     allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; autoplay"
     src="https://p2p.mirotalk.com/newcall"
-    style="height: 100%; width: 100%; border: 0px;"
+    style="height: 100vh; width: 100vw; border: 0px;"
 ></iframe>
 ```
 
