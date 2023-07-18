@@ -185,6 +185,7 @@ access to use this app.
                                 id="searchPeerBarName"
                                 type="text"
                                 placeholder=" 🔍 Search peer by name..."
+                                maxlength="32"
                                 name="search"
                                 onkeyup="searchPeer()"
                             />
@@ -322,7 +323,7 @@ access to use this app.
                     <br />
                     <div id="tabRoomPeerName">
                         <label>My name</label><br />
-                        <input id="myPeerNameSet" type="text" placeholder="Change name..." />&nbsp;&nbsp;
+                        <input id="myPeerNameSet" type="text" placeholder="Change name..." maxlength="32" />&nbsp;&nbsp;
                         <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change</button>
                     </div>
                     <div id="tabRoomParticipants">
