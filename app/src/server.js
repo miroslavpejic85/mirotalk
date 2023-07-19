@@ -176,6 +176,7 @@ if (sentryEnabled) {
 let chatGPT;
 const configChatGPT = {
     enabled: getEnvBoolean(process.env.CHATGPT_ENABLED),
+    basePath: process.env.CHATGPT_BASE_PATH,
     apiKey: process.env.CHATGTP_APIKEY,
     model: process.env.CHATGTP_MODEL,
     max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
@@ -185,6 +186,7 @@ if (configChatGPT.enabled) {
     if (configChatGPT.apiKey) {
         const { Configuration, OpenAIApi } = require('openai');
         const configuration = new Configuration({
+            basePath: configChatGPT.basePath,
             apiKey: configChatGPT.apiKey,
         });
         chatGPT = new OpenAIApi(configuration);
