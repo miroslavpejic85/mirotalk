@@ -335,7 +335,6 @@ app.get('/join/', (req, res) => {
             http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
             https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
             https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
-            https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
         */
         const { room, name, audio, video, screen, notify } = checkXSS(req.query);
         // all the params are mandatory for the direct room join

@@ -75,8 +75,7 @@
 <br/>
 
 -   `Open` https://p2p.mirotalk.com/newcall or
--   https://mirotalk.up.railway.app/newcall or
--   https://mirotalk.herokuapp.com/newcall
+-   https://mirotalk.up.railway.app/newcall
 -   `Pick` your Room name and Join
 -   `Allow` using the camera and microphone
 -   `Share` the Room URL and Wait for someone to join for the video conference
@@ -91,7 +90,6 @@
 -   You can `join` directly to `room` by going to:
 -   https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
--   https://mirotalk.herokuapp.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 
     | Params | Type    | Description     |
     | ------ | ------- | --------------- |
@@ -201,12 +199,11 @@ Install your own [Stun](https://en.wikipedia.org/wiki/STUN) & [Turn](https://en.
 $ curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://p2p.mirotalk.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
-$ curl -X POST "https://mirotalk.herokuapp.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 ```
 
 ## API Documentation
 
-The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.com/api/v1/docs) & [heroku](https://mirotalk.herokuapp.com/api/v1/docs).
+The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.com/api/v1/docs).
 
 </details>
 
@@ -247,16 +244,6 @@ https://p2p.mirotalk.com
 https://mirotalk.up.railway.app
 
 [![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app)
-
-<br>
-
-<a href="https://heroku.com/deploy?template=https://github.com/miroslavpejic85/mirotalk"><img src="https://www.herokucdn.com/deploy/button.svg" style="width: 220px;" alt="Heroku Deploy"></a>
-
-https://mirotalk.herokuapp.com
-
-[![heroku-qr](public/images/mirotalk-heroku-qr.png)](https://mirotalk.herokuapp.com)
-
-If you want to deploy a MiroTalk P2P instance on your dedicated server, or for other needs, don't hesitate to contact us at p2p.mirotalk@gmail.com.
 
 </details>
 
