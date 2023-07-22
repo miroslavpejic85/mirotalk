@@ -8,6 +8,11 @@ class LocalStorage {
             speaker: 'speaker',
         };
 
+        this.P2P_INIT_CONFIG = {
+            audio: true,
+            video: true,
+        };
+
         this.DEVICES_COUNT = {
             audio: 0,
             speaker: 0,
@@ -33,6 +38,30 @@ class LocalStorage {
         };
     }
 
+    // ####################################################
+    // SET LOCAL STORAGE
+    // ####################################################
+
+    setItemLocalStorage(key, value) {
+        localStorage.setItem(key, value);
+    }
+
+    setObjectLocalStorage(name, object) {
+        localStorage.setItem(name, JSON.stringify(object));
+    }
+
+    setInitConfig(type, status) {
+        switch (type) {
+            case this.MEDIA_TYPE.audio:
+                this.P2P_INIT_CONFIG.audio = status;
+                break;
+            case this.MEDIA_TYPE.video:
+                this.P2P_INIT_CONFIG.video = status;
+                break;
+        }
+        this.setObjectLocalStorage('P2P_INIT_CONFIG', this.P2P_INIT_CONFIG);
+    }
+
     setLocalStorageDevices(type, index, select) {
         switch (type) {
             case this.MEDIA_TYPE.audio:
@@ -53,15 +82,23 @@ class LocalStorage {
             default:
                 break;
         }
-        localStorage.setItem('LOCAL_STORAGE_DEVICES', JSON.stringify(this.LOCAL_STORAGE_DEVICES));
+        this.setObjectLocalStorage('LOCAL_STORAGE_DEVICES', this.LOCAL_STORAGE_DEVICES);
+    }
+
+    // ####################################################
+    // GET LOCAL STORAGE
+    // ####################################################
+
+    getInitConfig() {
+        return this.getObjectLocalStorage('P2P_INIT_CONFIG');
     }
 
     getLocalStorageDevices() {
-        return JSON.parse(localStorage.getItem('LOCAL_STORAGE_DEVICES'));
+        return this.getObjectLocalStorage('LOCAL_STORAGE_DEVICES');
     }
 
-    setObjectLocalStorage(name, object) {
-        localStorage.setItem(name, JSON.stringify(object));
+    getItemLocalStorage(key) {
+        localStorage.getItem(key);
     }
 
     getObjectLocalStorage(name) {
