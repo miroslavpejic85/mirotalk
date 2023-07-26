@@ -5,7 +5,7 @@ async function getMeeting() {
         // Use dynamic import with await
         const { default: fetch } = await import('node-fetch');
 
-        const API_KEY = 'mirotalk_default_secret';
+        const API_KEY = 'mirotalk_default_secret1';
         // const MIROTALK_URL = "http://localhost:3000/api/v1/meeting";
         const MIROTALK_URL = 'https://p2p.mirotalk.com/api/v1/meeting';
         // const MIROTALK_URL = "https://mirotalk.up.railway.app/api/v1/meeting";
@@ -18,7 +18,11 @@ async function getMeeting() {
             },
         });
         const data = await response.json();
-        console.log('meeting:', data.meeting);
+        if (data.error) {
+            console.log('Error:', data.error);
+        } else {
+            console.log('meeting:', data.meeting);
+        }
     } catch (error) {
         console.error('Error fetching data:', error);
     }
