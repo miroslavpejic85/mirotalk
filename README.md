@@ -150,9 +150,8 @@ $ npm start
 
 ![docker](public/images/docker.png)
 
--   Install docker engine: https://docs.docker.com/engine/install/
--   Install docker compose: https://docs.docker.com/compose/install/
--   Repository docker hub: https://hub.docker.com/r/mirotalk/p2p
+-   Install [docker engine](https://docs.docker.com/engine/install/)
+-   Install [docker compose](https://docs.docker.com/compose/install/)
 
 ```bash
 # copy .env.template to .env (edit it according to your needs)
@@ -168,6 +167,7 @@ $ docker-compose down
 ```
 
 -   Open http://localhost:3000 in browser
+-   Repository [docker hub](https://hub.docker.com/r/mirotalk/p2p)
 
 </details>
 
