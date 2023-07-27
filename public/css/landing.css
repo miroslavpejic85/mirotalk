@@ -3408,6 +3408,10 @@ img.has-shadow {
     width: 150px;
 }
 
+.w-300 {
+    width: 300px;
+}
+
 @media (max-width: 640px) {
     .ta-l-mobile {
         text-align: left;
@@ -3466,6 +3470,10 @@ img.has-shadow {
 
     .spacer-64-mobile {
         padding-top: 64px;
+    }
+
+    .w-150 {
+        width: 240px;
     }
 }
 
