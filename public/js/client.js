@@ -1368,6 +1368,9 @@ async function changeInitCamera(deviceId) {
     if (initStream) {
         stopTracks(initStream);
         initVideo.style.display = 'block';
+        if (!initVideo.classList.contains('mirror')) {
+            initVideo.classList.toggle('mirror');
+        }
     }
     // Get video constraints
     let videoConstraints = await getVideoConstraints('default');
