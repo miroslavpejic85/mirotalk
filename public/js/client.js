@@ -1907,18 +1907,6 @@ function setTheme() {
 }
 
 /**
- * Load settings from local storage
- */
-function loadSettings() {
-    videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
-    btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
-    pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
-    document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
-    setButtonsBarPosition(btnsBarSelect.value);
-    toggleVideoPin(pinVideoPositionSelect.value);
-}
-
-/**
  * Set buttons bar position
  * @param {string} position vertical / horizontal
  */
@@ -2325,7 +2313,7 @@ async function loadLocalMedia(stream) {
     manageLeftButtons();
     handleButtonsRule();
     setupMySettings();
-    loadSettings();
+    loadSettingsFromLocalStorage();
     setupVideoUrlPlayer();
     startCountTime();
 
@@ -4032,6 +4020,18 @@ function setupMySettings() {
     unlockRoomBtn.addEventListener('click', (e) => {
         handleRoomAction({ action: 'unlock' }, true);
     });
+}
+
+/**
+ * Load settings from local storage
+ */
+function loadSettingsFromLocalStorage() {
+    videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
+    btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
+    pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
+    document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
+    setButtonsBarPosition(btnsBarSelect.value);
+    toggleVideoPin(pinVideoPositionSelect.value);
 }
 
 /**
