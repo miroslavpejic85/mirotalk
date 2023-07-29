@@ -120,13 +120,8 @@ const myRoomUrl = window.location.href;
 
 // Local Storage class
 const lS = new LocalStorage();
-const localStorageSettings = lS.getObjectLocalStorage('MIROTALK_P2P_SETTINGS');
-const lsSettings = localStorageSettings
-    ? localStorageSettings
-    : {
-          theme: 'dark',
-          //...
-      };
+const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
+const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
 
 // Check if PIP is supported by this browser
 const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
@@ -899,7 +894,7 @@ function countPeerConnections() {
  * On body load Get started
  */
 function initClientPeer() {
-    setTheme(lsSettings.theme);
+    setTheme();
 
     if (!isWebRTCSupported) {
         return userLog('error', 'This browser seems not supported WebRTC!');
@@ -1805,9 +1800,9 @@ function handleRemovePeer(config) {
  * Set mirotalk theme | dark | grey | ...
  * @param {string} theme type
  */
-function setTheme(theme) {
-    if (!theme) return;
-
+function setTheme() {
+    mirotalkTheme.selectedIndex = lsSettings.theme;
+    const theme = mirotalkTheme.value;
     switch (theme) {
         case 'dark':
             // dark theme
@@ -1908,11 +1903,19 @@ function setTheme(theme) {
         default:
             return console.log('No theme found');
     }
+    //setButtonsBarPosition(mirotalkBtnsBar);
+}
 
-    lsSettings.theme = theme;
-    lS.setObjectLocalStorage('MIROTALK_P2P_SETTINGS', lsSettings);
-
-    setButtonsBarPosition(mirotalkBtnsBar);
+/**
+ * Load settings from local storage
+ */
+function loadSettings() {
+    videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
+    btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
+    pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
+    document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
+    setButtonsBarPosition(btnsBarSelect.value);
+    toggleVideoPin(pinVideoPositionSelect.value);
 }
 
 /**
@@ -2322,6 +2325,7 @@ async function loadLocalMedia(stream) {
     manageLeftButtons();
     handleButtonsRule();
     setupMySettings();
+    loadSettings();
     setupVideoUrlPlayer();
     startCountTime();
 
@@ -3502,7 +3506,7 @@ function setChatRoomBtn() {
             document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
         } else {
             e.target.className = className.ghost;
-            setTheme(lsSettings.theme);
+            setTheme();
         }
     });
 
@@ -3659,7 +3663,7 @@ function setCaptionRoomBtn() {
                 document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
             } else {
                 e.target.className = className.ghost;
-                setTheme(lsSettings.theme);
+                setTheme();
             }
         });
 
@@ -3805,7 +3809,7 @@ function setMyWhiteboardBtn() {
     whiteboardGhostButton.addEventListener('click', (e) => {
         wbIsBgTransparent = !wbIsBgTransparent;
         //setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
-        wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)') : setTheme(lsSettings.theme);
+        wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)') : setTheme();
     });
 }
 
@@ -3980,19 +3984,23 @@ function setupMySettings() {
     }
     // select themes
     themeSelect.addEventListener('change', (e) => {
-        setTheme(themeSelect.value);
+        lsSettings.theme = themeSelect.selectedIndex;
+        lS.setSettings(lsSettings);
+        setTheme();
     });
     // video object fit
     videoObjFitSelect.addEventListener('change', (e) => {
+        lsSettings.video_obj_fit = videoObjFitSelect.selectedIndex;
+        lS.setSettings(lsSettings);
         document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
     });
-    videoObjFitSelect.selectedIndex = 2; // cover
-
     // Mobile not support buttons bar position horizontal
     if (isMobileDevice) {
         btnsBarSelect.disabled = true;
     } else {
         btnsBarSelect.addEventListener('change', (e) => {
+            lsSettings.buttons_bar = btnsBarSelect.selectedIndex;
+            lS.setSettings(lsSettings);
             setButtonsBarPosition(btnsBarSelect.value);
         });
     }
@@ -4000,6 +4008,8 @@ function setupMySettings() {
     // Mobile not support pin/unpin video
     if (!isMobileDevice) {
         pinVideoPositionSelect.addEventListener('change', (e) => {
+            lsSettings.pin_grid = pinVideoPositionSelect.selectedIndex;
+            lS.setSettings(lsSettings);
             toggleVideoPin(pinVideoPositionSelect.value);
         });
     } else {

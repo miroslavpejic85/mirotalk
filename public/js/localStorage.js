@@ -13,6 +13,13 @@ class LocalStorage {
             video: true,
         };
 
+        this.P2P_SETTINGS = {
+            video_obj_fit: 2, // cover
+            theme: 0, // dark
+            buttons_bar: 0, // vertical
+            pin_grid: 0, // vertical
+        };
+
         this.DEVICES_COUNT = {
             audio: 0,
             speaker: 0,
@@ -48,6 +55,11 @@ class LocalStorage {
 
     setObjectLocalStorage(name, object) {
         localStorage.setItem(name, JSON.stringify(object));
+    }
+
+    setSettings(settings) {
+        this.P2P_SETTINGS = settings;
+        this.setObjectLocalStorage('P2P_SETTINGS', this.P2P_SETTINGS);
     }
 
     setInitConfig(type, status) {
@@ -91,6 +103,10 @@ class LocalStorage {
 
     getInitConfig() {
         return this.getObjectLocalStorage('P2P_INIT_CONFIG');
+    }
+
+    getSettings() {
+        return this.getObjectLocalStorage('P2P_SETTINGS');
     }
 
     getLocalStorageDevices() {
