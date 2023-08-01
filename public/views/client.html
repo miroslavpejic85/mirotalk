@@ -113,8 +113,29 @@ access to use this app.
             <button id="mySettingsBtn" class="fas fa-cogs"></button>
             <button id="aboutBtn" class="fas fa-question"></button>
             <button id="leaveRoomBtn" class="fas fa-right-from-bracket"></button>
+            <button id="contactInfoBtn" class="fa-solid fa-id-card-clip"></button>
         </div>
         <!-- End left buttons -->
+
+        <!-- Start contact information popup -->
+
+        <div id="contactInfoPopup">
+            <div class="popup-title">
+                <h2>Contact Inforamtion</h2>
+                <button id="contactInfoPopupClose" class="fas fa-times"></button>
+            </div>
+            <div class="popup-content">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="contactInfoPhone" name="phone" placeholder="Enter your phone number" />
+
+                <label for="email">Email Address:</label>
+                <input type="email" id="contactInfoEmail" name="email" placeholder="Enter your email address" />
+
+                <button id="submitContactInfo">Submit</button>
+            </div>
+        </div>
+
+        <!-- End contact information popup -->
 
         <!-- Start chat room 
         https://codepen.io/sajadhsm/pen/odaBdd

@@ -59,6 +59,10 @@ const checkXSS = require('./xss.js');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
+const Mixpanel = require('mixpanel');
+const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN,{
+    host: "api-eu.mixpanel.com",
+});
 
 const domain = process.env.HOST || 'localhost';
 const isHttps = process.env.HTTPS == 'true';
@@ -574,6 +578,18 @@ io.sockets.on('connect', async (socket) => {
         log.debug('[' + socket.id + '] disconnected', { reason: reason });
         delete sockets[socket.id];
     });
+
+    /**
+     * On send contact information 
+     */
+    socket.on('sendConstactInfo', async (res) => {
+        mixpanel.track('contact info', {
+            distinct_id: res.userEmail,
+            Email: res.userEmail,
+            Phone: res.userPhone
+        });
+    });
+
 
     /**
      * Handle incoming data, res with a callback

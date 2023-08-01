@@ -275,6 +275,7 @@ let isChatGPTOn = false;
 let isButtonsVisible = false;
 let isButtonsBarOver = false;
 let isMySettingsVisible = false;
+let isContactInfoVisible = false;
 let isVideoOnFullScreen = false;
 let isDocumentOnFullScreen = false;
 let isWhiteboardFs = false;
@@ -327,6 +328,11 @@ let fileShareBtn;
 let mySettingsBtn;
 let aboutBtn;
 let leaveRoomBtn;
+let contactInfoBtn;
+let contactInfoEmail;
+let contactInfoPhone;
+let submitContactInfo;
+let contactInfoPopupClose;
 // chat room elements
 let msgerDraggable;
 let msgerHeader;
@@ -366,6 +372,7 @@ let msgerCPList;
 let msgerEmojiPicker;
 // my settings
 let mySettings;
+let contactInfoPopup;
 let mySettingsHeader;
 let tabDevicesBtn;
 let tabBandwidthBtn;
@@ -511,6 +518,11 @@ function getHtmlElementsById() {
     mySettingsBtn = getId('mySettingsBtn');
     aboutBtn = getId('aboutBtn');
     leaveRoomBtn = getId('leaveRoomBtn');
+    contactInfoBtn = getId('contactInfoBtn');
+    contactInfoEmail = getId('contactInfoEmail');
+    contactInfoPhone = getId('contactInfoPhone');
+    submitContactInfo = getId('submitContactInfo');
+    contactInfoPopupClose = getId('contactInfoPopupClose')
     // chat Room elements
     msgerDraggable = getId('msgerDraggable');
     msgerHeader = getId('msgerHeader');
@@ -575,6 +587,9 @@ function getHtmlElementsById() {
     tabRoomPeerName = getId('tabRoomPeerName');
     tabRoomParticipants = getId('tabRoomParticipants');
     tabRoomSecurity = getId('tabRoomSecurity');
+    // contact information popup
+    contactInfoPopup = getId('contactInfoPopup');
+
     // my conference name, hand, video - audio status
     myVideoParagraph = getId('myVideoParagraph');
     myHandStatusIcon = getId('myHandStatusIcon');
@@ -959,6 +974,7 @@ function initClientPeer() {
     signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
+    signalingSocket.on('sendConstactInfo', handleRemovePeer);
 } // end [initClientPeer]
 
 /**
@@ -3338,6 +3354,9 @@ function manageLeftButtons() {
     setMySettingsBtn();
     setAboutBtn();
     setLeaveRoomBtn();
+    setContactInfoBtn();
+    setSubmitContactInfo();
+    setContactPopupCloseBtn();
 }
 
 /**
@@ -3885,6 +3904,47 @@ function setLeaveRoomBtn() {
         leaveRoom();
     });
 }
+
+/**
+ * Show/Hide contact information popup
+ */
+function setContactInfoBtn() {
+    contactInfoBtn.addEventListener('click', (e) => {
+        hideShowContactInformationPopup();
+    });
+}
+
+/**
+ * Submit contact information to chat
+ */ 
+function setSubmitContactInfo(){
+    submitContactInfo.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const message = `Phone number: ${contactInfoPhone.value}\nEmail: ${contactInfoEmail.value}`
+        appendMessage(myPeerName, rightChatAvatar, 'right', message, false);
+        hideShowContactInformationPopup();
+        
+
+        sendToServer('sendConstactInfo', {
+            userEmail: contactInfoEmail.value,
+            userPhone: contactInfoPhone.value
+        });
+
+        contactInfoPhone.value = "";
+        contactInfoEmail.value = "";
+    });
+}
+
+
+/**
+ * Close contact information popup
+ */
+function setContactPopupCloseBtn() {
+    contactInfoPopupClose.addEventListener('click', (e) => {
+        hideShowContactInformationPopup();
+    });
+}
+
 
 /**
  * Handle left buttons - status menù show - hide on body mouse move
@@ -8010,6 +8070,21 @@ function leaveRoom() {
         checkRecording();
         openURL('/newcall');
     }
+}
+
+/**
+ * Open contanct information popup
+ */
+function hideShowContactInformationPopup() {
+    if (!isContactInfoVisible) {
+        // contactInfoPopup.style.top = '50%';
+        // contactInfoPopup.style.left = '50%';
+        contactInfoPopup.style.display = 'flex';
+        isContactInfoVisible = true;
+        return;
+    }
+    contactInfoPopup.style.display = 'none';
+    isContactInfoVisible = false;
 }
 
 /**

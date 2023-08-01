@@ -234,6 +234,56 @@ body {
     color: #ff2d00;
 }
 
+#contactInfoPopup{
+    height: 300px;
+    width: 500px;
+    display: none;
+    z-index: 1000;
+    position: inherit;
+    flex-direction: column;
+    /* gui */
+    background: var(--body-bg);
+    border-radius: 10px;
+    margin: auto;
+    border: var(--border);
+    box-shadow: var(--box-shadow);
+    padding: 10px;
+    min-width: 330px;
+    overflow: hidden;
+    color: #fff;
+}
+
+
+#contactInfoPopup button, input {
+    height: 40px;
+    max-width: 305px;
+    font-size: 0.9rem;
+    color: #fff;
+    background-color: var(--select-bg);
+    border: var(--border);
+    border-radius: 5px;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+#contactInfoPopup input{
+    width: 100%;
+    cursor: auto
+}
+
+#contactInfoPopup .popup-content{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-around;
+    flex-grow: 1;
+}
+
+#contactInfoPopup .popup-title{
+    display: flex;
+    justify-content: space-between;
+}
+
 .fa-microphone-slash,
 .fa-video-slash {
     color: #e74c3c !important;
