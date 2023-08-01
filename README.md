@@ -312,7 +312,7 @@ Support the project by [becoming a backer or sponsor](https://github.com/sponsor
 | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)           | [![Hetzner](public/sponsors/Hetzner.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) |
 | [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)               | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com)     |
-| [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com) |                                                                                    |
+| [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com) | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)       |
 
 </details>
 
