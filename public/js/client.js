@@ -380,9 +380,11 @@ let switchPushToTalk;
 let switchAudioPitchBar;
 let audioInputSelect;
 let audioOutputSelect;
+let audioOutputDiv;
 let videoSelect;
 let videoQualitySelect;
 let videoFpsSelect;
+let videoFpsDiv;
 let screenFpsSelect;
 let themeSelect;
 let videoObjFitSelect;
@@ -564,9 +566,11 @@ function getHtmlElementsById() {
     switchAudioPitchBar = getId('switchAudioPitchBar');
     audioInputSelect = getId('audioSource');
     audioOutputSelect = getId('audioOutput');
+    audioOutputDiv = getId('audioOutputDiv');
     videoSelect = getId('videoSource');
     videoQualitySelect = getId('videoQuality');
     videoFpsSelect = getId('videoFps');
+    videoFpsDiv = getId('videoFpsDiv');
     screenFpsSelect = getId('screenFps');
     themeSelect = getId('mirotalkTheme');
     videoObjFitSelect = getId('videoObjFitSelect');
@@ -1218,11 +1222,17 @@ async function whoAreYou() {
         myVideoChange = false;
         await refreshLocalMedia();
     };
-    initSpeakerSelect.onchange = () => {
-        audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
-        changeAudioDestination();
-    };
+    // Check if there is speakers
+    if (initSpeakerSelect.options.length === 0) {
+        initSpeakerSelect.style.display = 'none';
+        audioOutputDiv.style.display = 'none';
+    } else {
+        initSpeakerSelect.onchange = () => {
+            audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
+            lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
+            changeAudioDestination();
+        };
+    }
 
     // init video -audio buttons
 
@@ -3944,18 +3954,17 @@ function setupMySettings() {
     videoQualitySelect.addEventListener('change', async (e) => {
         await setLocalVideoQuality();
     });
-    // select video fps
-    videoFpsSelect.addEventListener('change', (e) => {
-        videoMaxFrameRate = parseInt(videoFpsSelect.value);
-        setLocalMaxFps(videoMaxFrameRate);
-    });
-    // default 30 fps
-    videoFpsSelect.selectedIndex = '1';
-
     // Firefox not support video cam Fps O.o
     if (myBrowserName === 'Firefox') {
-        videoFpsSelect.value = null;
-        videoFpsSelect.disabled = true;
+        videoFpsDiv.style.display = 'none';
+    } else {
+        // select video fps
+        videoFpsSelect.addEventListener('change', (e) => {
+            videoMaxFrameRate = parseInt(videoFpsSelect.value);
+            setLocalMaxFps(videoMaxFrameRate);
+        });
+        // default 30 fps
+        videoFpsSelect.selectedIndex = '1';
     }
     // select screen fps
     screenFpsSelect.addEventListener('change', (e) => {
