@@ -1222,17 +1222,11 @@ async function whoAreYou() {
         myVideoChange = false;
         await refreshLocalMedia();
     };
-    // Check if there is speakers
-    if (initSpeakerSelect.options.length === 0) {
-        initSpeakerSelect.style.display = 'none';
-        audioOutputDiv.style.display = 'none';
-    } else {
-        initSpeakerSelect.onchange = () => {
-            audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
-            lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
-            changeAudioDestination();
-        };
-    }
+    initSpeakerSelect.onchange = () => {
+        audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
+        changeAudioDestination();
+    };
 
     // init video -audio buttons
 
@@ -2044,7 +2038,11 @@ function enumerateAudioDevices(stream) {
             isEnumerateAudioDevices = true;
             const sinkId = 'sinkId' in HTMLMediaElement.prototype;
             getId('audioOutput').disabled = !sinkId;
-            if (!sinkId) getId('initSpeakerSelect').display = 'none';
+            // Check if there is speakers
+            if (!sinkId || initSpeakerSelect.options.length === 0) {
+                getId('initSpeakerSelect').style.display = 'none';
+                getId('audioOutputDiv').style.display = 'none';
+            }
         });
 }
 
