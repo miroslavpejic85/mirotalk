@@ -183,6 +183,9 @@ const buttons = {
         showZoomInOutBtn: false,
         showVideoPipBtn: showVideoPipBtn,
     },
+    whiteboard: {
+        whiteboardLockButton: false,
+    },
 };
 
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
@@ -410,6 +413,8 @@ let isStreamRecording = false;
 // whiteboard init
 let whiteboard;
 let whiteboardHeader;
+let whiteboardTitle;
+let whiteboardOptions;
 let wbDrawingColorEl;
 let whiteboardGhostButton;
 let wbBackgroundColorEl;
@@ -427,9 +432,11 @@ let whiteboardCircleBtn;
 let whiteboardSaveBtn;
 let whiteboardEraserBtn;
 let whiteboardCleanBtn;
+let whiteboardLockBtn;
 let whiteboardCloseBtn;
 // whiteboard settings
 let wbCanvas = null;
+let wbIsLock = false;
 let wbIsDrawing = false;
 let wbIsOpen = false;
 let wbIsRedoing = false;
@@ -587,6 +594,8 @@ function getHtmlElementsById() {
     // my whiteboard
     whiteboard = getId('whiteboard');
     whiteboardHeader = getId('whiteboardHeader');
+    whiteboardTitle = getId('whiteboardTitle');
+    whiteboardOptions = getId('whiteboardOptions');
     wbDrawingColorEl = getId('wbDrawingColorEl');
     whiteboardGhostButton = getId('whiteboardGhostButton');
     wbBackgroundColorEl = getId('wbBackgroundColorEl');
@@ -604,6 +613,7 @@ function getHtmlElementsById() {
     whiteboardSaveBtn = getId('whiteboardSaveBtn');
     whiteboardEraserBtn = getId('whiteboardEraserBtn');
     whiteboardCleanBtn = getId('whiteboardCleanBtn');
+    whiteboardLockBtn = getId('whiteboardLockBtn');
     whiteboardCloseBtn = getId('whiteboardCloseBtn');
     // room actions buttons
     muteEveryoneBtn = getId('muteEveryoneBtn');
@@ -722,6 +732,7 @@ function setButtonsToolTip() {
     setTippy(whiteboardSaveBtn, 'Save the board', 'bottom');
     setTippy(whiteboardEraserBtn, 'Erase the object', 'bottom');
     setTippy(whiteboardCleanBtn, 'Clean the board', 'bottom');
+    setTippy(whiteboardLockBtn, 'If enabled, participants cannot interact', 'right');
     setTippy(whiteboardCloseBtn, 'Close', 'right');
     // room actions btn
     // setTippy(muteEveryoneBtn, 'Mute everyone except yourself', 'top');
@@ -1081,6 +1092,7 @@ function handleRules(isPresenter) {
         buttons.remote.audioBtnClickAllowed = false;
         buttons.remote.videoBtnClickAllowed = false;
         buttons.remote.showKickOutBtn = false;
+        BUTTONS.whiteboard.whiteboardLockBtn = false;
         //...
     } else {
         buttons.settings.showTabRoomParticipants = true;
@@ -1090,6 +1102,7 @@ function handleRules(isPresenter) {
         buttons.remote.audioBtnClickAllowed = true;
         buttons.remote.videoBtnClickAllowed = true;
         buttons.remote.showKickOutBtn = true;
+        buttons.whiteboard.whiteboardLockBtn = true;
     }
 
     handleButtonsRule();
@@ -1132,6 +1145,10 @@ function handleButtonsRule() {
     elemDisplay(tabRoomPeerName, buttons.settings.showTabRoomPeerName);
     elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
     elemDisplay(tabRoomSecurity, buttons.settings.showTabRoomSecurity);
+    // Whiteboard
+    buttons.whiteboard.whiteboardLockBtn
+        ? elemDisplay(whiteboardLockBtn, true)
+        : elemDisplay(whiteboardLockBtn, false, 'flex');
 }
 
 /**
@@ -3791,6 +3808,10 @@ function setMyWhiteboardBtn() {
     });
     whiteboardCleanBtn.addEventListener('click', (e) => {
         confirmCleanBoard();
+    });
+    whiteboardLockBtn.addEventListener('change', (e) => {
+        wbIsLock = !wbIsLock;
+        whiteboardAction(getWhiteboardAction(wbIsLock ? 'lock' : 'unlock'));
     });
     whiteboardCloseBtn.addEventListener('click', (e) => {
         handleWhiteboardToggle();
@@ -7196,6 +7217,7 @@ function saveDataToFile(dataURL, fileName) {
  * Whiteboard: canvas objects to json
  */
 function wbCanvasToJson() {
+    if (!isPresenter && wbIsLock) return;
     if (thereIsPeerConnections()) {
         const config = {
             room_id: roomId,
@@ -7209,7 +7231,10 @@ function wbCanvasToJson() {
  * If whiteboard opened, update canvas to all peers connected
  */
 async function wbUpdate() {
-    if (wbIsOpen && thereIsPeerConnections()) wbCanvasToJson();
+    if (wbIsOpen && thereIsPeerConnections()) {
+        wbCanvasToJson();
+        whiteboardAction(getWhiteboardAction(wbIsLock ? 'lock' : 'unlock'));
+    }
 }
 
 /**
@@ -7221,6 +7246,10 @@ function handleJsonToWbCanvas(config) {
 
     wbCanvas.loadFromJSON(config.wbCanvasJson);
     wbCanvas.renderAll();
+
+    if (!isPresenter && !wbCanvas.isDrawingMode && wbIsLock) {
+        wbDrawing(false);
+    }
 }
 
 /**
@@ -7303,8 +7332,38 @@ function handleWhiteboardAction(config, logMe = true) {
         case 'toggle':
             toggleWhiteboard();
             break;
+        case 'lock':
+            if (!isPresenter) {
+                elemDisplay(whiteboardTitle, false);
+                elemDisplay(whiteboardOptions, false);
+                elemDisplay(whiteboardBtn, false);
+                wbDrawing(false);
+                wbIsLock = true;
+            }
+            break;
+        case 'unlock':
+            if (!isPresenter) {
+                elemDisplay(whiteboardTitle, true, 'flex');
+                elemDisplay(whiteboardOptions, true, 'inline');
+                elemDisplay(whiteboardBtn, true);
+                wbDrawing(true);
+                wbIsLock = false;
+            }
+            break;
         //...
     }
+}
+
+/**
+ * Toggle whiteboard drawing mode
+ * @param {boolean} status
+ */
+function wbDrawing(status) {
+    wbCanvas.isDrawingMode = status; // Disable free drawing
+    wbCanvas.selection = status; // Disable object selection
+    wbCanvas.forEachObject(function (obj) {
+        obj.selectable = status; // Make all objects unselectable
+    });
 }
 
 /**
@@ -8370,8 +8429,8 @@ function getName(name) {
  * @param {object} elem
  * @param {boolean} yes true/false
  */
-function elemDisplay(elem, yes) {
-    elem.style.display = yes ? 'inline' : 'none';
+function elemDisplay(element, display, mode = 'inline') {
+    element.style.display = display ? mode : 'none';
 }
 
 /**

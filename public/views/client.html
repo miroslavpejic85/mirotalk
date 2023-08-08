@@ -410,8 +410,12 @@ access to use this app.
             <header id="whiteboardHeader" class="whiteboard-header">
                 <div id="whiteboardTitle" class="whiteboard-header-title">
                     <button id="whiteboardCloseBtn" class="fas fa-times"></button>
+                    <label id="whiteboardLockBtn" class="switch">
+                        <input type="checkbox" />
+                        <span class="slider round"></span>
+                    </label>
                 </div>
-                <div class="whiteboard-header-options">
+                <div id="whiteboardOptions" class="whiteboard-header-options">
                     <button id="whiteboardGhostButton" class="fas fa-circle-half-stroke"></button>
                     <input id="wbBackgroundColorEl" class="whiteboardColorPicker" type="color" value="#000000" />
                     <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" />

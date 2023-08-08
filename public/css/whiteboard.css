@@ -40,6 +40,16 @@
     cursor: move;
 }
 
+.whiteboard-header-title {
+    display: flex;
+    align-items: center;
+}
+
+#whiteboardLockBtn {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
 .whiteboard-header-title button,
 .whiteboard-header-options button {
     padding: 10px;
