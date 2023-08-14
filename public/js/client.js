@@ -184,7 +184,7 @@ const buttons = {
         showVideoPipBtn: showVideoPipBtn,
     },
     whiteboard: {
-        whiteboardLockButton: false,
+        whiteboardLockBtn: false,
     },
 };
 
@@ -1092,7 +1092,7 @@ function handleRules(isPresenter) {
         buttons.remote.audioBtnClickAllowed = false;
         buttons.remote.videoBtnClickAllowed = false;
         buttons.remote.showKickOutBtn = false;
-        BUTTONS.whiteboard.whiteboardLockBtn = false;
+        buttons.whiteboard.whiteboardLockBtn = false;
         //...
     } else {
         buttons.settings.showTabRoomParticipants = true;
