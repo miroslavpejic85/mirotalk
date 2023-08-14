@@ -3546,3 +3546,29 @@ img.has-shadow {
     }
 }
 /*Pulse Button*/
+
+/* Webkit-Scrollbar Styles---------------------
+----------------------------------------------- */
+
+/* Target the scrollbar track */
+::-webkit-scrollbar {
+    background: #1a1b1f;
+    width: 10px; /* width of the scrollbar */
+}
+
+/* Target the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+    background: #4678f9;
+    border-radius: 5px; /* rounded corners for the thumb */
+    cursor: pointer;
+}
+
+/* Target the scrollbar track when the thumb is being hovered */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #376df9; /* color of the thumb on hover */
+}
+
+/* Target the scrollbar track when the scrollbar is being hovered */
+::-webkit-scrollbar-track:hover {
+    background-color: #000000; /* color of the track on hover */
+}
