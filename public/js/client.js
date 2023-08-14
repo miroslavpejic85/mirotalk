@@ -2056,7 +2056,7 @@ function enumerateAudioDevices(stream) {
             const sinkId = 'sinkId' in HTMLMediaElement.prototype;
             getId('audioOutput').disabled = !sinkId;
             // Check if there is speakers
-            if (!sinkId || initSpeakerSelect.options.length === 0) {
+            if (!sinkId || getId('initSpeakerSelect').options.length === 0) {
                 getId('initSpeakerSelect').style.display = 'none';
                 getId('audioOutputDiv').style.display = 'none';
             }
