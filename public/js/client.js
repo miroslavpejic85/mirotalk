@@ -3904,6 +3904,8 @@ function setMySettingsBtn() {
     // Sounds
     switchSounds.addEventListener('change', (e) => {
         notifyBySound = e.currentTarget.checked;
+        lsSettings.sounds = notifyBySound;
+        lS.setSettings(lsSettings);
         userLog('toast', `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'));
         playSound('switch');
     });
@@ -3921,6 +3923,8 @@ function setMySettingsBtn() {
 
     switchAudioPitchBar.addEventListener('change', (e) => {
         isAudioPitchBar = e.currentTarget.checked;
+        lsSettings.pitch_bar = isAudioPitchBar;
+        lS.setSettings(lsSettings);
         userLog('toast', `${icons.pitchBar} Audio pitch bar ` + (isAudioPitchBar ? 'ON' : 'OFF'));
         playSound('switch');
     });
@@ -4086,6 +4090,10 @@ function setupMySettings() {
  * Load settings from local storage
  */
 function loadSettingsFromLocalStorage() {
+    notifyBySound = lsSettings.sounds;
+    isAudioPitchBar = lsSettings.pitch_bar;
+    switchSounds.checked = notifyBySound;
+    switchAudioPitchBar.checked = isAudioPitchBar;
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
