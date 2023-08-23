@@ -1062,6 +1062,10 @@ input:checked + .slider:before {
     background: #376df9;
 }
 
+.swal2-image {
+    margin: 0 !important;
+}
+
 /*--------------------------------------------------------------
 # Fade in page on load 
 --------------------------------------------------------------*/
