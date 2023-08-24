@@ -8087,6 +8087,7 @@ function showAbout() {
         title: '<strong>WebRTC P2P</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: aboutImg,
+        customClass: { image: 'img-about' },
         html: `
         <br/>
         <div id="about">

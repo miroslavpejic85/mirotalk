@@ -1062,7 +1062,7 @@ input:checked + .slider:before {
     background: #376df9;
 }
 
-.swal2-image {
+.img-about {
     margin: 0 !important;
 }
 
