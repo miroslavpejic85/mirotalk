@@ -184,12 +184,12 @@ const configChatGPT = {
 };
 if (configChatGPT.enabled) {
     if (configChatGPT.apiKey) {
-        const { Configuration, OpenAIApi } = require('openai');
-        const configuration = new Configuration({
+        const { OpenAI } = require('openai');
+        const configuration = {
             basePath: configChatGPT.basePath,
             apiKey: configChatGPT.apiKey,
-        });
-        chatGPT = new OpenAIApi(configuration);
+        };
+        chatGPT = new OpenAI(configuration);
     } else {
         log.warning('ChatGPT seems enabled, but you missing the apiKey!');
     }
@@ -601,13 +601,13 @@ io.sockets.on('connect', async (socket) => {
                 if (!configChatGPT.enabled) return cb('ChatGPT seems disabled, try later!');
                 try {
                     // https://platform.openai.com/docs/api-reference/completions/create
-                    const completion = await chatGPT.createCompletion({
+                    const completion = await chatGPT.completions.create({
                         model: configChatGPT.model || 'text-davinci-003',
                         prompt: params.prompt,
                         max_tokens: configChatGPT.max_tokens || 1000,
                         temperature: configChatGPT.temperature || 0,
                     });
-                    const response = completion.data.choices[0].text;
+                    const response = completion.choices[0].text;
                     log.debug('ChatGPT', {
                         time: params.time,
                         room: room_id,
@@ -617,12 +617,18 @@ io.sockets.on('connect', async (socket) => {
                     });
                     cb(response);
                 } catch (error) {
-                    if (error.response) {
-                        log.error('ChatGPT', error.response);
-                        cb(error.response.data.error.message);
-                    } else {
-                        log.error('ChatGPT', error.message);
+                    if (error instanceof OpenAI.APIError) {
+                        log.error('ChatGPT', {
+                            status: error.status,
+                            message: error.message,
+                            code: error.code,
+                            type: error.type,
+                        });
                         cb(error.message);
+                    } else {
+                        // Non-API error
+                        log.error('ChatGPT', error);
+                        cb(error);
                     }
                 }
                 break;
