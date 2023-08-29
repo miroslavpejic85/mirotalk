@@ -774,36 +774,67 @@ em-emoji-picker {
 --------------------------------------------------------------*/
 
 #mySettings {
+    z-index: 6;
+    position: absolute;
     display: none;
-    z-index: 16;
-    width: 320px;
-    /* gui */
-    background: var(--body-bg);
-    border-radius: 10px;
     margin: auto;
-    border: var(--border);
-    box-shadow: var(--box-shadow);
     padding: 10px;
-    min-width: 330px;
+    width: 50%;
+    min-height: 480px;
+    background: var(--body-bg);
+    box-shadow: var(--box-shadow);
+    border: var(--border);
+    border-radius: 10px;
     overflow: hidden;
 }
 
+.mySettingsMain {
+    display: flex;
+}
+
+@media screen and (max-width: 1030px) {
+    #mySettings {
+        width: 75%;
+    }
+}
+
+@media screen and (max-width: 830px) {
+    #mySettings {
+        width: 80%;
+        min-height: auto;
+    }
+    .mySettingsMain {
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    #mySettings {
+        width: 90%;
+    }
+}
+
 #mySettingsHeader {
+    height: 25px;
     cursor: move;
 }
 
-#mySettings label {
-    width: 7em;
-    display: flex;
+#mySettings i,
+#mySettings p {
+    display: inline-flex;
+    margin: auto;
     color: #fff;
+    padding: 5px;
+    background: transparent;
 }
 
 #mySettings select {
+    margin-top: 1rem;
+    width: auto;
+    max-width: 310px;
     height: 40px;
-    max-width: 305px;
-    font-size: 0.9rem;
     color: #fff;
-    background-color: var(--select-bg);
+    background-color: var(--select-bg) !important;
     border: var(--border);
     border-radius: 5px;
     box-shadow: none;
@@ -811,13 +842,11 @@ em-emoji-picker {
 }
 
 #mySettingsCloseBtn {
-    /* top right bottom left */
-    margin: 10px 0px 0px 10px;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #fff;
     border: none;
     border-radius: 5px;
-    /* border: var(--border); */
+    float: right;
     background: transparent;
     transition: background 0.23s;
 }
@@ -828,32 +857,39 @@ em-emoji-picker {
     transition: all 0.3s ease-in-out;
 }
 
-#mySettingsTable {
-    /* margin-top: 5px; */
-    width: 100%;
-    color: #fff;
-    border-collapse: collapse;
-    border-style: hidden;
-    /* border-radius: 5px; */
-    /* box-shadow: 0 0 0 1px #666; */
-}
-#mySettingsTable td,
-th {
-    border: var(--border);
-    text-align: center;
-    padding: 10px;
-}
-#mySettingsTable tr td label {
-    width: 100%;
-    text-align: left;
-}
-#mySettingsTable tr:nth-child(even) {
-    /* background-color: #2b2b2b; */
+.form-check-input {
+    cursor: pointer;
 }
 
-hr {
-    border: 1px solid grey;
+.title {
+    display: inline-flex;
+    align-items: center;
+    text-align: left;
+    color: white;
+    font-size: small;
 }
+
+.buttons {
+    padding: 10px;
+    float: left;
+    text-align: left;
+    color: #fff;
+    border: var(--border);
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.buttons:hover {
+    background-color: var(--select-bg) !important;
+    transform: scale(0.95);
+    transition: all 0.3s ease-in-out;
+}
+
+/*--------------------------------------------------------------
+# Settings buttons
+--------------------------------------------------------------*/
 
 #myPeerNameSet {
     width: 165px;
@@ -864,8 +900,7 @@ hr {
     background-color: rgba(0, 0, 0, 0.2);
 }
 
-#tabRoomSecurity button,
-#tabRoomParticipants button {
+#tabRoomSecurity button {
     width: 100%;
     margin-bottom: 5px;
 }
@@ -888,7 +923,7 @@ hr {
 #lockRoomBtn:hover,
 #unlockRoomBtn:hover {
     color: var(--hover-color);
-    transform: var(--btns-hover-scale);
+    transform: scale(0.95);
     transition: all 0.3s ease-in-out;
 }
 
@@ -896,16 +931,75 @@ hr {
 #hideEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {
     color: #ff2d00;
-    transform: var(--btns-hover-scale);
+    transform: scale(0.95);
     transition: all 0.3s ease-in-out;
 }
 
-/* Style the tab */
+/*--------------------------------------------------------------
+# Settings Table
+--------------------------------------------------------------*/
+
+#mySettingsTable {
+    /* margin-top: 5px; */
+    width: 100%;
+    color: #fff;
+    border-collapse: collapse;
+    border-style: hidden;
+    /* border-radius: 5px; */
+    /* box-shadow: 0 0 0 1px #666; */
+}
+#mySettingsTable td,
+th {
+    border: var(--border);
+    text-align: center;
+    padding: 10px;
+}
+#mySettingsTable tr td {
+    width: 100%;
+    text-align: left;
+}
+#mySettingsTable tr:nth-child(even) {
+    /* background-color: #2b2b2b; */
+}
+
+/*--------------------------------------------------------------
+# Style the tab
+--------------------------------------------------------------*/
 
 .tab {
     padding: 10px;
     overflow: hidden;
     border-radius: 5px;
+    width: 35%;
+    background-color: var(--body-bg);
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    border-right: var(--border);
+}
+
+.tabActions {
+    position: relative;
+    width: 65%;
+    background-color: var(--body-bg);
+    min-height: 480px;
+}
+
+@media screen and (max-width: 830px) {
+    .tab {
+        width: 100%;
+        min-height: auto;
+        flex-direction: row;
+        border-right: none;
+    }
+    .tabActions {
+        width: 100%;
+        min-height: 100px;
+        border-radius: 10px;
+    }
+    .tabButtonText {
+        display: none !important;
+    }
 }
 
 /* Style the buttons inside the tab */
@@ -913,43 +1007,77 @@ hr {
     margin: 3px;
     padding: 11px;
     float: left;
-    font-size: 1rem;
+    text-align: left;
     color: #fff;
     border: var(--border);
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.2);
-    /* border: var(--border); */
     outline: none;
     cursor: pointer;
     transition: 0.3s;
 }
 
 /* Change background color of buttons on hover */
-
 .tab button:hover {
     background-color: transparent;
-    color: var(--hover-color);
-    transition: all 0.3s ease-in-out;
+    transform: scale(0.95);
 }
 
 /* Create an active/current tablink class */
-
 .tab button.active {
     background-color: var(--tab-btn-active);
 }
 
 /* Style the tab content */
-
 .tabcontent {
     display: none;
     padding: 6px 12px;
     border-top: none;
 }
 
-/* on open display devices tab */
+.tabcontent button {
+    margin-top: 10px;
+    width: 100%;
+    text-align: left;
+}
 
-#tabDevices {
+.tabcontent button:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    transform: scale(1);
+}
+
+/* on open display devices tab */
+#tabRoom {
     display: block;
+}
+
+/*--------------------------------------------------------------
+# Settings - microphone volume indicator
+--------------------------------------------------------------*/
+
+.volume-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: var(--body-bg);
+    border-radius: 8px;
+}
+
+.volume-bar {
+    flex: 1;
+    height: 5px;
+    margin: 0 2px;
+    background-color: #ddd;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.active {
+    background-color: limegreen;
+}
+
+.inactive {
+    background-color: #ddd;
 }
 
 /*--------------------------------------------------------------

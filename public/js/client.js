@@ -370,8 +370,10 @@ let msgerEmojiPicker;
 // my settings
 let mySettings;
 let mySettingsHeader;
-let tabDevicesBtn;
-let tabBandwidthBtn;
+let tabVideoBtn;
+let tabAudioBtn;
+let tabParticipantsBtn;
+let tabProfileBtn;
 let tabRoomBtn;
 let tabStylingBtn;
 let tabLanguagesBtn;
@@ -384,6 +386,7 @@ let switchAudioPitchBar;
 let audioInputSelect;
 let audioOutputSelect;
 let audioOutputDiv;
+let speakerTestBtn;
 let videoSelect;
 let videoQualitySelect;
 let videoFpsSelect;
@@ -560,8 +563,10 @@ function getHtmlElementsById() {
     // my settings
     mySettings = getId('mySettings');
     mySettingsHeader = getId('mySettingsHeader');
-    tabDevicesBtn = getId('tabDevicesBtn');
-    tabBandwidthBtn = getId('tabBandwidthBtn');
+    tabVideoBtn = getId('tabVideoBtn');
+    tabAudioBtn = getId('tabAudioBtn');
+    tabParticipantsBtn = getId('tabParticipantsBtn');
+    tabProfileBtn = getId('tabProfileBtn');
     tabRoomBtn = getId('tabRoomBtn');
     tabStylingBtn = getId('tabStylingBtn');
     tabLanguagesBtn = getId('tabLanguagesBtn');
@@ -574,6 +579,7 @@ function getHtmlElementsById() {
     audioInputSelect = getId('audioSource');
     audioOutputSelect = getId('audioOutput');
     audioOutputDiv = getId('audioOutputDiv');
+    speakerTestBtn = getId('speakerTestBtn');
     videoSelect = getId('videoSource');
     videoQualitySelect = getId('videoQuality');
     videoFpsSelect = getId('videoFps');
@@ -709,8 +715,10 @@ function setButtonsToolTip() {
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     // tab btns
-    setTippy(tabDevicesBtn, 'Devices', 'top');
-    setTippy(tabBandwidthBtn, 'Bandwidth', 'top');
+    setTippy(tabVideoBtn, 'Video devices', 'top');
+    setTippy(tabAudioBtn, 'Audio devices', 'top');
+    setTippy(tabParticipantsBtn, 'Participants', 'top');
+    setTippy(tabProfileBtn, 'Profile', 'top');
     setTippy(tabRoomBtn, 'Room', 'top');
     setTippy(tabStylingBtn, 'Styling', 'top');
     setTippy(tabLanguagesBtn, 'Languages', 'top');
@@ -2185,7 +2193,7 @@ async function setupLocalMedia() {
         if (stream) {
             await loadLocalMedia(stream);
             if (useAudio) {
-                await startPitchDetection(stream);
+                await getMicrophoneVolumeIndicator(stream);
             }
         }
     } catch (err) {
@@ -2758,6 +2766,8 @@ function logStreamSettingsInfo(name, stream) {
  */
 function adaptAspectRatio() {
     let participantsCount = getId('videoMediaContainer').childElementCount;
+    const peersCount = getId('peersCount');
+    if (peersCount) peersCount.innerText = participantsCount;
     let desktop,
         mobile = 1;
     // desktop aspect ratio
@@ -3898,6 +3908,9 @@ function setMySettingsBtn() {
     mySettingsCloseBtn.addEventListener('click', (e) => {
         hideShowMySettings();
     });
+    speakerTestBtn.addEventListener('click', (e) => {
+        playSound('ring', true);
+    });
     myPeerNameSetBtn.addEventListener('click', (e) => {
         updateMyPeerName();
     });
@@ -3973,14 +3986,20 @@ function handleBodyOnMouseMove() {
  */
 function setupMySettings() {
     // tab buttons
-    tabDevicesBtn.addEventListener('click', (e) => {
-        openTab(e, 'tabDevices');
-    });
-    tabBandwidthBtn.addEventListener('click', (e) => {
-        openTab(e, 'tabBandwidth');
-    });
     tabRoomBtn.addEventListener('click', (e) => {
         openTab(e, 'tabRoom');
+    });
+    tabVideoBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabVideo');
+    });
+    tabAudioBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabAudio');
+    });
+    tabParticipantsBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabParticipants');
+    });
+    tabProfileBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabProfile');
     });
     tabStylingBtn.addEventListener('click', (e) => {
         openTab(e, 'tabStyling');
@@ -4926,7 +4945,7 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     logStreamSettingsInfo('refreshMyLocalStream', localMediaStream);
 
     // start capture mic volumes
-    startPitchDetection(localMediaStream);
+    getMicrophoneVolumeIndicator(localMediaStream);
 
     // attachMediaStream is a part of the adapter.js library
     attachMediaStream(myVideo, localMediaStream); // newStream
@@ -8230,7 +8249,7 @@ function handlePeerVolume(data) {
     let peer_id = data.peer_id;
     let element = getId(peer_id + '_pitch_bar');
     let remoteVideoWrap = getId(peer_id + '_videoWrap');
-    let volume = data.volume + 25; //for design purpose
+    let volume = data.volume;
     if (!element) return;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
@@ -8241,7 +8260,7 @@ function handlePeerVolume(data) {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
         //remoteVideoWrap.classList.toggle('speaking');
-    }, 700);
+    }, 100);
 }
 
 /**
@@ -8251,7 +8270,7 @@ function handlePeerVolume(data) {
 function handleMyVolume(data) {
     if (!isAudioPitchBar) return;
     let element = getId('myPitchBar');
-    let volume = data.volume + 25;
+    let volume = data.volume;
     if (!element) return;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
@@ -8262,7 +8281,7 @@ function handleMyVolume(data) {
         element.style.backgroundColor = '#19bb5c';
         element.style.height = '0%';
         //myVideoWrap.classList.toggle('speaking');
-    }, 700);
+    }, 100);
 }
 
 /**
@@ -8363,9 +8382,10 @@ function msgPopup(icon, message, position, timer = 1000) {
 /**
  * https://notificationsounds.com/notification-sounds
  * @param {string} name audio to play
+ * @param {boolean} force audio
  */
-async function playSound(name) {
-    if (!notifyBySound) return;
+async function playSound(name, force = false) {
+    if (!notifyBySound && !force) return;
     let sound = '../sounds/' + name + '.mp3';
     let audioToPlay = new Audio(sound);
     try {

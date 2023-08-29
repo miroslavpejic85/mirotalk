@@ -239,166 +239,270 @@ access to use this app.
             <header id="mySettingsHeader">
                 <button id="mySettingsCloseBtn" class="fas fa-times"></button>
             </header>
-            <main>
-                <br />
+            <main class="mySettingsMain">
                 <div class="tab">
-                    <button id="tabDevicesBtn" class="fas fa-cog tablinks"></button>
-                    <button id="tabBandwidthBtn" class="fas fa-wifi tablinks"></button>
-                    <button id="tabRoomBtn" class="fas fa-home tablinks"></button>
-                    <button id="tabStylingBtn" class="fas fa-palette tablinks"></button>
-                    <button id="tabLanguagesBtn" class="fas fa-globe tablinks"></button>
+                    <button id="tabRoomBtn" class="fas fa-home tablinks">
+                        <p class="tabButtonText">Room</p>
+                    </button>
+                    <button id="tabVideoBtn" class="fas fa-video tablinks">
+                        <p class="tabButtonText">Video</p>
+                    </button>
+                    <button id="tabAudioBtn" class="fas fa-microphone tablinks">
+                        <p class="tabButtonText">Audio</p>
+                    </button>
+                    <button id="tabParticipantsBtn" class="fa-solid fa-users tablinks">
+                        <p class="tabButtonText">Participants</p>
+                    </button>
+                    <button id="tabProfileBtn" class="fa-solid fa-user tablinks">
+                        <p class="tabButtonText">Profile</p>
+                    </button>
+                    <button id="tabStylingBtn" class="fas fa-palette tablinks">
+                        <p class="tabButtonText">Style</p>
+                    </button>
+                    <button id="tabLanguagesBtn" class="fas fa-globe tablinks">
+                        <p class="tabButtonText">Language</p>
+                    </button>
                 </div>
 
-                <div id="tabDevices" class="tabcontent">
-                    <br />
-                    <div>
-                        <label for="videoSource">Camera</label><br />
-                        <select id="videoSource"></select>
+                <div class="tabActions">
+                    <div id="tabRoom" class="tabcontent">
+                        <div id="tabRoomSecurity">
+                            <button id="lockRoomBtn"><i class="fas fa-lock-open"></i>&nbsp;Lock room</button>
+                            <button id="unlockRoomBtn"><i class="fas fa-lock"></i>&nbsp;Unlock room</button>
+                            <br />
+                        </div>
+                        <br />
+                        <table id="mySettingsTable">
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fas fa-microphone-lines"></i>
+                                        <p>Pitch bar</p>
+                                    </div>
+                                </td>
+                                <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fas fa-music"></i>
+                                        <p>Sounds</p>
+                                    </div>
+                                </td>
+                                <td><input id="switchSounds" class="toggle" type="checkbox" checked /></td>
+                            </tr>
+                        </table>
                     </div>
-                    <br />
-                    <div>
-                        <label for="audioSource">Microphone</label><br />
-                        <select id="audioSource"></select>
-                    </div>
-                    <br />
-                    <div id="audioOutputDiv">
-                        <label for="audioOutput">Speaker</label><br />
-                        <select id="audioOutput"></select>
-                    </div>
-                    <br />
-                    <hr />
-                    <table id="mySettingsTable">
-                        <tr id="pushToTalkDiv">
-                            <td><label for="switchPushToTalk">👆 Push to talk</label></td>
-                            <td><input id="switchPushToTalk" class="toggle" type="checkbox" /></td>
-                        </tr>
-                        <tr>
-                            <td><label for="switchAudioPitchBar">🔊 Audio pitch bar</label></td>
-                            <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
-                        </tr>
-                    </table>
-                    <hr />
-                </div>
 
-                <div id="tabBandwidth" class="tabcontent">
-                    <br />
-                    <label for="videoQuality">Video quality</label>
-                    <br />
-                    <select id="videoQuality">
-                        <option value="default">Default</option>
-                        <option value="qvgaVideo">QVGA</option>
-                        <option value="vgaVideo">VGA</option>
-                        <option value="hdVideo">HD</option>
-                        <option value="fhdVideo">FULL HD</option>
-                        <option value="2kVideo">2k</option>
-                        <option value="4kVideo">4K</option>
-                    </select>
-                    <div id="videoFpsDiv">
+                    <div id="tabVideo" class="tabcontent">
                         <br />
-                        <label for="videoFps">Camera fps</label>
+                        <div>
+                            <div class="title">
+                                <i class="fas fa-video"></i>
+                                <p>Video Source</p>
+                            </div>
+                            <br />
+                            <select id="videoSource"></select>
+                        </div>
                         <br />
-                        <select id="videoFps">
-                            <option value="60">60 fps</option>
-                            <option value="30">30 fps</option>
-                            <option value="25">25 fps</option>
-                            <option value="20">20 fps</option>
-                            <option value="15">15 fps</option>
-                            <option value="10">10 fps</option>
-                            <option value="5">5 fps</option>
+                        <div class="title">
+                            <i class="fas fa-palette"></i>
+                            <p>Video Quality</p>
+                        </div>
+                        <br />
+                        <select id="videoQuality">
+                            <option value="default">Default</option>
+                            <option value="qvgaVideo">QVGA</option>
+                            <option value="vgaVideo">VGA</option>
+                            <option value="hdVideo">HD</option>
+                            <option value="fhdVideo">FULL HD</option>
+                            <option value="2kVideo">2k</option>
+                            <option value="4kVideo">4K</option>
                         </select>
-                    </div>
-                    <div id="screenFpsDiv">
+                        <br /><br />
+                        <div class="title">
+                            <i class="fa-solid fa-film"></i>
+                            <p>Video fit</p>
+                        </div>
                         <br />
-                        <label for="screenFps">Screen fps</label>
-                        <br />
-                        <select id="screenFps">
-                            <option value="60">60 fps</option>
-                            <option value="30">30 fps</option>
-                            <option value="25">25 fps</option>
-                            <option value="20">20 fps</option>
-                            <option value="15">15 fps</option>
-                            <option value="10">10 fps</option>
-                            <option value="5">5 fps</option>
+                        <select id="videoObjFitSelect">
+                            <option value="fill">Fill</option>
+                            <option value="contain">Contain</option>
+                            <option value="cover">Cover</option>
+                            <option value="scale-down">Scale-down</option>
+                            <option value="none">None</option>
                         </select>
-                    </div>
-                </div>
-
-                <div id="tabRoom" class="tabcontent">
-                    <br />
-                    <div id="tabRoomPeerName">
-                        <label>My name</label><br />
-                        <input id="myPeerNameSet" type="text" placeholder="Change name..." maxlength="32" />&nbsp;&nbsp;
-                        <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change</button>
-                    </div>
-                    <div id="tabRoomParticipants">
-                        <br /><br />
-                        <label>Participants</label><br />
-                        <button id="muteEveryoneBtn"><i class="fas fa-microphone"></i>&nbsp;Mute everyone</button>
-                        <button id="hideEveryoneBtn"><i class="fas fa-video"></i>&nbsp;Hide everyone</button>
-                        <button id="ejectEveryoneBtn">
-                            <i class="fas fa-right-from-bracket"></i>&nbsp;Eject everyone
-                        </button>
-                    </div>
-                    <div id="tabRoomSecurity">
-                        <br /><br />
-                        <label>Security</label><br />
-                        <button id="lockRoomBtn"><i class="fas fa-lock-open"></i>&nbsp;Lock room</button>
-                        <button id="unlockRoomBtn"><i class="fas fa-lock"></i>&nbsp;Unlock room</button>
-                    </div>
-                    <br /><br />
-                    <table id="mySettingsTable">
-                        <tr>
-                            <td><label for="switchSounds">🎵 Sounds</label></td>
-                            <td><input id="switchSounds" class="toggle" type="checkbox" checked /></td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div id="tabStyling" class="tabcontent">
-                    <br />
-                    <label for="mirotalkTheme">Theme color</label>
-                    <br />
-                    <select id="mirotalkTheme">
-                        <option value="dark">⚫️ Dark</option>
-                        <option value="grey">⚪️ Grey</option>
-                        <option value="green">🟢 Green</option>
-                        <option value="blue">🔵 Blue</option>
-                        <option value="red">🔴 Red</option>
-                    </select>
-                    <br /><br />
-                    <label>Video fit:</label>
-                    <br />
-                    <select id="videoObjFitSelect">
-                        <option value="fill">Fill</option>
-                        <option value="contain">Contain</option>
-                        <option value="cover">Cover</option>
-                        <option value="scale-down">Scale-down</option>
-                        <option value="none">None</option>
-                    </select>
-                    <br /><br />
-                    <label for="mirotalkBtnsBar">Buttons bar</label>
-                    <br />
-                    <select id="mirotalkBtnsBar">
-                        <option value="vertical">Vertical</option>
-                        <option value="horizontal">Horizontal</option>
-                    </select>
-                    <br /><br />
-                    <div id="pinUnpinGridDiv">
-                        <label for="pinVideoPositionSelect">Pin grid</label>
                         <br />
-                        <select id="pinVideoPositionSelect">
+                        <div id="videoFpsDiv">
+                            <br />
+                            <div class="title">
+                                <i class="fa-solid fa-camera"></i>
+                                <p>Camera FPS</p>
+                            </div>
+                            <br />
+                            <select id="videoFps">
+                                <option value="60">60 - frame-per-second</option>
+                                <option value="30">30 - frame-per-second</option>
+                                <option value="25">25 - frame-per-second</option>
+                                <option value="20">20 - frame-per-second</option>
+                                <option value="15">15 - frame-per-second</option>
+                                <option value="10">10 - frame-per-second</option>
+                                <option value="5">5 - frame-per-second</option>
+                            </select>
+                        </div>
+                        <div id="screenFpsDiv">
+                            <br />
+                            <div class="title">
+                                <i class="fa-solid fa-desktop"></i>
+                                <p>Screen FPS</p>
+                            </div>
+                            <br />
+                            <select id="screenFps">
+                                <option value="60">60 - frame-per-second</option>
+                                <option value="30">30 - frame-per-second</option>
+                                <option value="25">25 - frame-per-second</option>
+                                <option value="20">20 - frame-per-second</option>
+                                <option value="15">15 - frame-per-second</option>
+                                <option value="10">10 - frame-per-second</option>
+                                <option value="5">5 - frame-per-second</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="tabAudio" class="tabcontent">
+                        <br />
+                        <div>
+                            <div class="title">
+                                <i class="fas fa-microphone"></i>
+                                <p>Microphone</p>
+                            </div>
+                            <br />
+                            <select id="audioSource"></select>
+                        </div>
+                        <br />
+                        <div class="volume-container">
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                            <div class="volume-bar"></div>
+                        </div>
+                        <br /><br />
+                        <div id="audioOutputDiv">
+                            <div class="title">
+                                <i class="fas fa-headphones"></i>
+                                <p>Speaker</p>
+                            </div>
+                            <br />
+                            <select id="audioOutput"></select>
+                            <br />
+                            <button id="speakerTestBtn" class="buttons">
+                                <i class="fa-solid fa-circle-play"></i>
+                                <p>Test speaker</p>
+                            </button>
+                            <br /><br /><br /><br />
+                        </div>
+                        <hr />
+                        <table id="mySettingsTable">
+                            <tr id="pushToTalkDiv">
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-hand-pointer"></i>
+                                        <p>Push to talk</p>
+                                    </div>
+                                </td>
+                                <td><input id="switchPushToTalk" class="toggle" type="checkbox" /></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div id="tabParticipants" class="tabcontent">
+                        <br />
+                        <div class="title">
+                            <i class="fa-solid fa-users"></i>
+                            <p id="peersCount"></p>
+                        </div>
+                        <br />
+                        <div id="tabRoomParticipants">
+                            <button id="muteEveryoneBtn"><i class="fas fa-microphone"></i>&nbsp;Mute everyone</button>
+                            <button id="hideEveryoneBtn"><i class="fas fa-video"></i>&nbsp;Hide everyone</button>
+                            <button id="ejectEveryoneBtn">
+                                <i class="fas fa-right-from-bracket"></i>&nbsp;Eject everyone
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tabProfile" class="tabcontent">
+                        <br />
+                        <div id="tabRoomPeerName">
+                            <div class="title">
+                                <i class="fas fa-user"></i>
+                                <p>Name</p>
+                            </div>
+                            <br /><br />
+                            <div>
+                                <input id="myPeerNameSet" type="text" placeholder="Change name..." maxlength="32" />
+                                <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change name</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tabStyling" class="tabcontent">
+                        <br />
+                        <div class="title">
+                            <i class="fa-solid fa-palette"></i>
+                            <p>Theme</p>
+                        </div>
+                        <br />
+                        <select id="mirotalkTheme">
+                            <option value="dark">⚫️ Dark</option>
+                            <option value="grey">⚪️ Grey</option>
+                            <option value="green">🟢 Green</option>
+                            <option value="blue">🔵 Blue</option>
+                            <option value="red">🔴 Red</option>
+                        </select>
+                        <br /><br />
+                        <div class="title">
+                            <i class="fa-solid fa-up-down-left-right"></i>
+                            <p>Buttons bar</p>
+                        </div>
+                        <br />
+                        <select id="mirotalkBtnsBar">
                             <option value="vertical">Vertical</option>
                             <option value="horizontal">Horizontal</option>
-                            <option value="top">Top</option>
                         </select>
+                        <br /><br />
+                        <div id="pinUnpinGridDiv">
+                            <div class="title">
+                                <i class="fa-solid fa-map-pin"></i>
+                                <p>Pin video position</p>
+                            </div>
+                            <br />
+                            <select id="pinVideoPositionSelect">
+                                <option value="vertical">Vertical</option>
+                                <option value="horizontal">Horizontal</option>
+                                <option value="top">Top</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div id="tabLanguages" class="tabcontent">
+                    <div id="tabLanguages" class="tabcontent">
+                        <br />
+                        <div class="title">
+                            <i class="fa-solid fa-language"></i>
+                            <p>Language:</p>
+                        </div>
+                        <br />
+                        <div id="google_translate_element"></div>
+                        <br />
+                    </div>
                     <br />
-                    <div id="google_translate_element"></div>
                 </div>
-                <br />
             </main>
         </section>
 
