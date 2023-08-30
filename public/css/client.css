@@ -774,7 +774,7 @@ em-emoji-picker {
 --------------------------------------------------------------*/
 
 #mySettings {
-    z-index: 6;
+    z-index: 16;
     position: absolute;
     display: none;
     margin: auto;
