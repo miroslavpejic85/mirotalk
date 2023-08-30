@@ -829,12 +829,14 @@ em-emoji-picker {
 }
 
 #mySettings select {
-    margin-top: 1rem;
-    width: auto;
+    display: block;
+    padding: 10px;
+    min-width: 150px;
     max-width: 310px;
-    height: 40px;
+    margin-top: 10px;
+    /* height: 40px; */
+    background: var(--select-bg) !important;
     color: #fff;
-    background-color: var(--select-bg) !important;
     border: var(--border);
     border-radius: 5px;
     box-shadow: none;
@@ -866,7 +868,7 @@ em-emoji-picker {
     align-items: center;
     text-align: left;
     color: white;
-    font-size: small;
+    font-size: 14px;
 }
 
 .buttons {
@@ -874,6 +876,7 @@ em-emoji-picker {
     float: left;
     text-align: left;
     color: #fff;
+    width: auto !important;
     border: var(--border);
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.2);
@@ -892,7 +895,7 @@ em-emoji-picker {
 --------------------------------------------------------------*/
 
 #myPeerNameSet {
-    width: 165px;
+    width: 50%;
     padding: 10px;
     border: var(--border);
     border-radius: 5px;
@@ -913,7 +916,6 @@ em-emoji-picker {
 #unlockRoomBtn {
     padding: 10px;
     border: var(--border);
-    font-size: 0.9rem;
     border-radius: 5px;
     color: #fff;
     background-color: transparent;
