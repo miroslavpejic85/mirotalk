@@ -952,16 +952,20 @@ em-emoji-picker {
 }
 #mySettingsTable td,
 th {
-    border: var(--border);
-    text-align: center;
-    padding: 10px;
+    padding: 5px;
 }
 #mySettingsTable tr td {
-    width: 100%;
     text-align: left;
 }
 #mySettingsTable tr:nth-child(even) {
     /* background-color: #2b2b2b; */
+}
+
+.width-100 {
+    width: 100px;
+}
+.width-120 {
+    width: 120px;
 }
 
 /*--------------------------------------------------------------

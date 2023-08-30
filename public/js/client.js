@@ -3680,6 +3680,8 @@ function setChatRoomBtn() {
         } else {
             msgPopup('info', "Chat not will be shown, when I'm receive a new message", 'top-end', 3000);
         }
+        lsSettings.show_chat_on_msg = showChatOnMessage;
+        lS.setSettings(lsSettings);
     });
 
     // chat send msg
@@ -4041,17 +4043,17 @@ function setupMySettings() {
         videoFpsSelect.addEventListener('change', (e) => {
             videoMaxFrameRate = parseInt(videoFpsSelect.value);
             setLocalMaxFps(videoMaxFrameRate);
+            lsSettings.video_fps = e.currentTarget.selectedIndex;
+            lS.setSettings(lsSettings);
         });
-        // default 30 fps
-        videoFpsSelect.selectedIndex = '1';
     }
     // select screen fps
     screenFpsSelect.addEventListener('change', (e) => {
         screenMaxFrameRate = parseInt(screenFpsSelect.value);
         if (isScreenStreaming) setLocalMaxFps(screenMaxFrameRate);
+        lsSettings.screen_fps = e.currentTarget.selectedIndex;
+        lS.setSettings(lsSettings);
     });
-    // default 30 fps
-    screenFpsSelect.selectedIndex = '1';
 
     // Mobile not support screen sharing
     if (isMobileDevice) {
@@ -4114,6 +4116,10 @@ function setupMySettings() {
  * Load settings from local storage
  */
 function loadSettingsFromLocalStorage() {
+    showChatOnMessage = lsSettings.show_chat_on_msg;
+    msgerShowChatOnMsg.checked = showChatOnMessage;
+    screenFpsSelect.selectedIndex = lsSettings.screen_fps;
+    videoFpsSelect.selectedIndex = lsSettings.video_fps;
     notifyBySound = lsSettings.sounds;
     isAudioPitchBar = lsSettings.pitch_bar;
     switchSounds.checked = notifyBySound;
