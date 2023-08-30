@@ -919,7 +919,8 @@ strong {
 
 .button-primary {
     color: #f9faff;
-    background-color: #376df9;
+    /* background-color: #376df9; */
+    background-color: #000000;
 }
 
 .button-primary:hover {
