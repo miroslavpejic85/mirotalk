@@ -23,6 +23,8 @@
 
 // https://www.w3schools.com/js/js_strict.asp
 
+let myRoomId; // this room id
+
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
 const welcomeImg = '../images/image-placeholder.png';
@@ -708,6 +710,7 @@ function setButtonsToolTip() {
     // settings
     setTippy(mySettingsCloseBtn, 'Close', 'right');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
+    setTippy(myRoomId, 'Room name', 'right');
     setTippy(
         switchPushToTalk,
         'If Active, When SpaceBar keydown the microphone will be activated, on keyup will be deactivated, like a walkie-talkie.',
@@ -817,6 +820,8 @@ function getRoomId() {
         window.history.pushState({ url: newUrl }, roomId, newUrl);
     }
     console.log('Direct join', { room: roomId });
+    myRoomId = getId('myRoomId');
+    if (myRoomId) myRoomId.innerText = roomId;
     return roomId;
 }
 
