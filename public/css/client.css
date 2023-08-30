@@ -99,8 +99,8 @@ body {
     height: 100%;
     margin: auto;
     overflow: hidden;
-    background: url('../images/bg.svg');
-    /* background: var(--body-bg); */
+    background: var(--body-bg);
+    /* background: url('../images/bg.svg'); */
 }
 
 /*--------------------------------------------------------------
