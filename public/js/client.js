@@ -1449,6 +1449,7 @@ async function whoAreYouJoin() {
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerText = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
+    setPeerAvatarImgName('myProfileAvatar', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
     joinToChannel();
 }
@@ -6200,6 +6201,7 @@ async function updateMyPeerName() {
     window.localStorage.peer_name = myPeerName;
 
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
+    setPeerAvatarImgName('myProfileAvatar', myPeerName);
     setPeerChatAvatarImgName('right', myPeerName);
     userLog('toast', 'My name changed to ' + myPeerName);
 }

@@ -908,6 +908,13 @@ em-emoji-picker {
     margin-bottom: 5px;
 }
 
+#myProfileAvatar {
+    margin-top: 10px;
+    padding: 5px;
+    width: 64px;
+    height: 64px;
+}
+
 #myPeerNameSetBtn,
 #muteEveryoneBtn,
 #hideEveryoneBtn,
