@@ -4120,6 +4120,8 @@ function loadSettingsFromLocalStorage() {
     msgerShowChatOnMsg.checked = showChatOnMessage;
     screenFpsSelect.selectedIndex = lsSettings.screen_fps;
     videoFpsSelect.selectedIndex = lsSettings.video_fps;
+    screenMaxFrameRate = getSelectedIndexValue(screenFpsSelect);
+    videoMaxFrameRate = getSelectedIndexValue(videoFpsSelect);
     notifyBySound = lsSettings.sounds;
     isAudioPitchBar = lsSettings.pitch_bar;
     switchSounds.checked = notifyBySound;
@@ -4130,6 +4132,15 @@ function loadSettingsFromLocalStorage() {
     document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
     setButtonsBarPosition(btnsBarSelect.value);
     toggleVideoPin(pinVideoPositionSelect.value);
+}
+
+/**
+ * Get value from element selected index
+ * @param {object} elem
+ * @returns any value
+ */
+function getSelectedIndexValue(elem) {
+    return elem.options[elem.selectedIndex].value;
 }
 
 /**
@@ -4270,6 +4281,26 @@ async function getAudioConstraints() {
 }
 
 /**
+ * Refresh stream constraints
+ * @param {MediaStream} stream
+ * @param {integer} maxFrameRate
+ * @returns void
+ */
+async function refreshConstraints(stream, maxFrameRate) {
+    if (!useVideo) return;
+    stream
+        .getVideoTracks()[0]
+        .applyConstraints({ frameRate: { max: maxFrameRate } })
+        .then(() => {
+            logStreamSettingsInfo('refreshConstraints', stream);
+        })
+        .catch((err) => {
+            console.error('refreshConstraints', err);
+            userLog('error', "Your device doesn't support the selected fps, please select the another one.");
+        });
+}
+
+/**
  * Set local max fps: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  * @param {string} maxFrameRate desired max frame rate
  */
@@ -4346,6 +4377,8 @@ function attachSinkId(element, sinkId) {
  * @returns {object} media Devices Info
  */
 async function gotStream(stream) {
+    const videoFPS = isScreenStreaming ? screenMaxFrameRate : videoMaxFrameRate;
+    await refreshConstraints(stream, videoFPS);
     await refreshMyLocalStream(stream, true);
     await refreshMyStreamToPeers(stream, true);
     if (myVideoChange) {
