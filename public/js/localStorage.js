@@ -15,14 +15,14 @@ class LocalStorage {
 
         this.P2P_SETTINGS = {
             show_chat_on_msg: true,
-            video_fps: 1, // default 30fps
-            screen_fps: 1, // default 30fps
+            video_fps: '1', // default 30fps
+            screen_fps: '1', // default 30fps
             pitch_bar: true,
             sounds: true,
-            video_obj_fit: 2, // cover
-            theme: 0, // dark
-            buttons_bar: 0, // vertical
-            pin_grid: 0, // vertical
+            video_obj_fit: '2', // cover
+            theme: '0', // dark
+            buttons_bar: '0', // vertical
+            pin_grid: '0', // vertical
         };
 
         this.DEVICES_COUNT = {
