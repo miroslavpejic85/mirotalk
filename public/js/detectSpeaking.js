@@ -59,9 +59,6 @@ function stopMicrophoneProcessing() {
         scriptProcessor.disconnect();
         scriptProcessor = null;
     }
-    bars.forEach((bar) => {
-        bar.classList.toggle('inactive');
-    });
 }
 
 /**
