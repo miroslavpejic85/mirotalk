@@ -2746,7 +2746,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
  * @param {object} stream media stream audio - video
  */
 function logStreamSettingsInfo(name, stream) {
-    if (useVideo || isScreenStreaming) {
+    if ((useVideo || isScreenStreaming) && stream.getVideoTracks().length > 0) {
         console.log(name, {
             video: {
                 label: stream.getVideoTracks()[0].label,
@@ -2754,7 +2754,7 @@ function logStreamSettingsInfo(name, stream) {
             },
         });
     }
-    if (useAudio) {
+    if (useAudio && stream.getAudioTracks().length > 0) {
         console.log(name, {
             audio: {
                 label: stream.getAudioTracks()[0].label,
@@ -4287,7 +4287,7 @@ async function getAudioConstraints() {
  * @returns void
  */
 async function refreshConstraints(stream, maxFrameRate) {
-    if (!useVideo) return;
+    if (!useVideo || stream.getVideoTracks().length == 0) return;
     stream
         .getVideoTracks()[0]
         .applyConstraints({ frameRate: { max: maxFrameRate } })
@@ -4716,6 +4716,7 @@ async function swapCamera() {
         // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
         camStream = await navigator.mediaDevices.getUserMedia({ video: camVideo });
         if (camStream) {
+            await refreshConstraints(camStream, videoMaxFrameRate);
             await refreshMyLocalStream(camStream);
             await refreshMyStreamToPeers(camStream);
             await setMyVideoStatusTrue();
@@ -4781,15 +4782,18 @@ async function toggleScreenSharing(init = false) {
         if (screenMediaPromise) {
             isVideoPrivacyActive = false;
             emitPeerStatus('privacy', isVideoPrivacyActive);
+
             isScreenStreaming = !isScreenStreaming;
+            myScreenStatus = isScreenStreaming;
+
             if (isScreenStreaming) {
                 setMyVideoStatusTrue();
                 emitPeersAction('screenStart');
             } else {
                 emitPeersAction('screenStop');
                 adaptAspectRatio();
+                await refreshConstraints(screenMediaPromise, videoMaxFrameRate);
             }
-            myScreenStatus = isScreenStreaming;
             await emitPeerStatus('screen', myScreenStatus);
             await stopLocalVideoTrack();
             await refreshMyLocalStream(screenMediaPromise);
