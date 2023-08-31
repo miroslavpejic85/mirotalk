@@ -1050,6 +1050,8 @@ function handleServerInfo(config) {
 
     // Let start with some basic rules
     isPresenter = isPeerReconnected ? isPresenter : is_presenter;
+    getId('isPeerPresenter').innerText = isPresenter;
+
     if (isRulesActive) {
         handleRules(isPresenter);
     }
