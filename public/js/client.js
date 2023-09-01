@@ -8230,7 +8230,7 @@ function handleMyVolume(data) {
 }
 
 /**
- * Basic user logging using https://sweetalert2.github.io
+ * Basic user logging using https://sweetalert2.github.io & https://animate.style/
  * @param {string} type of popup
  * @param {string} message to popup
  * @param {integer} timer toast duration ms
@@ -8245,9 +8245,8 @@ function userLog(type, message, timer = 3000) {
                 icon: type,
                 title: type,
                 text: message,
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
+                showClass: { popup: 'animate__animated animate__rubberBand' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
             playSound('alert');
             break;
