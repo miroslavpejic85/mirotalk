@@ -1417,7 +1417,7 @@ async function changeInitCamera(deviceId) {
         })
         .catch((err) => {
             console.error('[Error] changeInitCamera', err);
-            userLog('error', 'Error while swapping init camera' + err, 'top-end');
+            userLog('error', 'Error while swapping init camera' + err);
         });
 }
 
@@ -4829,7 +4829,7 @@ async function toggleScreenSharing(init = false) {
     } catch (err) {
         console.error('[Error] Unable to share the screen', err);
         if (init) return;
-        userLog('error', 'Unable to share the screen ' + err);
+        // userLog('error', 'Unable to share the screen ' + err);
     }
 }
 
@@ -8366,12 +8366,8 @@ function userLog(type, message, timer = 3000) {
                 icon: type,
                 title: type,
                 text: message,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
             break;
         case 'success-html':
@@ -8381,12 +8377,8 @@ function userLog(type, message, timer = 3000) {
                 icon: 'success',
                 title: 'Success',
                 html: message,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
             break;
         case 'toast':
