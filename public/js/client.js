@@ -190,13 +190,14 @@ const buttons = {
     },
 };
 
+const userLimits = {
+    active: false, // Limit users per room
+    count: 2, // Limit 2 users per room if userLimits.active true
+};
+
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
 
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
-
-const userLimitsActive = false; // Limit users per room
-
-const usersCountLimit = 2; // Limit 2 users per room if userLimitsActive true
 
 const useAvatarSvg = true; // if false the cam-Off avatar = avatarImg
 
@@ -1044,7 +1045,7 @@ function handleServerInfo(config) {
     console.log('13. Server info', config);
 
     // Limit room to n peers
-    if (userLimitsActive && peers_count > usersCountLimit) {
+    if (userLimits.active && peers_count > userLimits.count) {
         return roomIsBusy();
     }
 
@@ -1077,15 +1078,11 @@ function roomIsBusy() {
         imageUrl: forbiddenImg,
         position: 'center',
         title: 'Room is busy',
-        html: `The room is limited to ${usersCountLimit} users. <br/> Please try again later`,
+        html: `The room is limited to ${userLimits.count} users. <br/> Please try again later`,
         showDenyButton: false,
         confirmButtonText: `OK`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             openURL('/');
@@ -1209,12 +1206,8 @@ async function whoAreYou() {
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: initUser, // inject html
         confirmButtonText: `Join meeting`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         inputValidator: async (value) => {
             if (!value) return 'Please enter your name';
 
@@ -1311,12 +1304,8 @@ function userNameAlreadyInRoom() {
         html: `The Username is already in use. <br/> Please try with another one`,
         showDenyButton: false,
         confirmButtonText: `OK`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             openURL('/');
@@ -2025,12 +2014,8 @@ async function initEnumerateDevices() {
             text: "Meet needs access to the camera and microphone. Click the locked camera and microphone icon in your browser's address bar, before to join room.",
             showDenyButton: false,
             confirmButtonText: `OK`,
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown',
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp',
-            },
+            showClass: { popup: 'animate__animated animate__fadeInDown' },
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         }).then((result) => {
             if (result.isConfirmed) {
                 openURL('/'); // back to homepage
@@ -2436,12 +2421,8 @@ function checkShareScreen() {
             showDenyButton: true,
             confirmButtonText: `Yes`,
             denyButtonText: `No`,
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown',
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp',
-            },
+            showClass: { popup: 'animate__animated animate__fadeInDown' },
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         }).then((result) => {
             if (result.isConfirmed) {
                 screenShareBtn.click();
@@ -4579,12 +4560,8 @@ function shareRoomMeetingURL(checkScreen = false) {
         confirmButtonText: `Copy URL`,
         denyButtonText: `Email invite`,
         cancelButtonText: `Close`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             copyRoomURL();
@@ -5358,12 +5335,8 @@ function cleanMessages() {
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         // clean chat messages
         if (result.isConfirmed) {
@@ -5392,12 +5365,8 @@ function cleanCaptions() {
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         // clean chat messages
         if (result.isConfirmed) {
@@ -5672,12 +5641,8 @@ function deleteMessage(id) {
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         // clean this message
         if (result.isConfirmed) {
@@ -6431,12 +6396,8 @@ function sendPrivateMsgToPeer(toPeerId, toPeerName) {
         input: 'text',
         showCancelButton: true,
         confirmButtonText: `Send`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.value) {
             result.value = filterXSS(result.value);
@@ -6683,12 +6644,8 @@ function disableAllPeers(element) {
         showDenyButton: true,
         confirmButtonText: element == 'audio' ? `Mute` : `Hide`,
         denyButtonText: `Cancel`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             switch (element) {
@@ -6721,12 +6678,8 @@ function ejectEveryone() {
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             emitPeersAction('ejectAll');
@@ -6755,12 +6708,8 @@ function disablePeer(peer_id, element) {
         showDenyButton: true,
         confirmButtonText: element == 'audio' ? `Mute` : `Hide`,
         denyButtonText: `Cancel`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             switch (element) {
@@ -6807,12 +6756,8 @@ function handleRoomAction(config, emit = false) {
                     inputPlaceholder: 'Set Room password',
                     confirmButtonText: `OK`,
                     denyButtonText: `Cancel`,
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInDown',
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutUp',
-                    },
+                    showClass: { popup: 'animate__animated animate__fadeInDown' },
+                    hideClass: { popup: 'animate__animated animate__fadeOutUp' },
                     inputValidator: (pwd) => {
                         if (!pwd) return 'Please enter the Room password';
                         thisRoomPassword = pwd;
@@ -6880,12 +6825,8 @@ function handleRoomLocked() {
         text: 'The room is locked, try with another one.',
         showDenyButton: false,
         confirmButtonText: `Ok`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) openURL('/newcall');
     });
@@ -6906,12 +6847,8 @@ function handleUnlockTheRoom() {
         input: 'text',
         inputPlaceholder: 'Enter the Room password',
         confirmButtonText: `OK`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         inputValidator: (pwd) => {
             if (!pwd) return 'Please enter the Room password';
             thisRoomPassword = pwd;
@@ -7066,12 +7003,8 @@ function whiteboardAddObj(type) {
                 input: 'text',
                 showCancelButton: true,
                 confirmButtonText: 'OK',
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             }).then((result) => {
                 if (result.isConfirmed) {
                     let wbCanvasImgURL = result.value;
@@ -7099,12 +7032,8 @@ function whiteboardAddObj(type) {
                 showDenyButton: true,
                 confirmButtonText: `OK`,
                 denyButtonText: `Cancel`,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             }).then((result) => {
                 if (result.isConfirmed) {
                     let wbCanvasImg = result.value;
@@ -7391,12 +7320,8 @@ function confirmCleanBoard() {
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             whiteboardAction(getWhiteboardAction('clear'));
@@ -7660,12 +7585,8 @@ function selectFileToShare(peer_id, broadcast = false) {
         showDenyButton: true,
         confirmButtonText: `Send`,
         denyButtonText: `Cancel`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             sendFileInformations(result.value, peer_id, broadcast);
@@ -7814,12 +7735,8 @@ function endDownload() {
                 showDenyButton: true,
                 confirmButtonText: `Save`,
                 denyButtonText: `Cancel`,
-                showClass: {
-                    popup: 'animate__animated animate__fadeInDown',
-                },
-                hideClass: {
-                    popup: 'animate__animated animate__fadeOutUp',
-                },
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             }).then((result) => {
                 if (result.isConfirmed) saveBlobToFile(blob, file);
             });
@@ -7839,12 +7756,8 @@ function endDownload() {
             showDenyButton: true,
             confirmButtonText: `Save`,
             denyButtonText: `Cancel`,
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown',
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp',
-            },
+            showClass: { popup: 'animate__animated animate__fadeInDown' },
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         }).then((result) => {
             if (result.isConfirmed) saveBlobToFile(blob, file);
         });
@@ -7887,12 +7800,8 @@ function sendVideoUrl(peer_id = null) {
         input: 'text',
         showCancelButton: true,
         confirmButtonText: `Share`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.value) {
             result.value = filterXSS(result.value);
@@ -8076,12 +7985,8 @@ function kickOut(peer_id) {
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             // send peer to kick out from room
@@ -8134,12 +8039,8 @@ function handleKickedOut(config) {
         willClose: () => {
             clearInterval(timerInterval);
         },
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then(() => {
         checkRecording();
         openURL('/newcall');
@@ -8169,12 +8070,8 @@ function showAbout() {
             Author:<a id="linkedin-button" data-umami-event="Linkedin button" href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> Miroslav Pejic</a>
         </div>
         `,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     });
 }
 
@@ -8204,12 +8101,8 @@ function leaveFeedback() {
         text: 'Do you want to rate your MiroTalk experience?',
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         checkRecording();
         if (result.isConfirmed) {
@@ -8300,7 +8193,7 @@ function handlePeerVolume(data) {
     if (!isAudioPitchBar) return;
     let peer_id = data.peer_id;
     let element = getId(peer_id + '_pitch_bar');
-    let remoteVideoWrap = getId(peer_id + '_videoWrap');
+    //let remoteVideoWrap = getId(peer_id + '_videoWrap');
     let volume = data.volume;
     if (!element) return;
     if (volume > 50) {
