@@ -113,6 +113,7 @@ const icons = {
     unlock: '<i class="fas fa-lock-open"></i>',
     pitchBar: '<i class="fas fa-microphone-lines"></i>',
     sounds: '<i class="fas fa-music"></i>',
+    share: '<i class="fas fa-share-alt"></i>',
     user: '<i class="fas fa-user"></i>',
     fileSend: '<i class="fas fa-file-export"></i>',
     fileReceive: '<i class="fas fa-file-import"></i>',
@@ -124,6 +125,7 @@ const myRoomUrl = window.location.href;
 const lS = new LocalStorage();
 const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
 const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
+console.log('LS_SETTINGS', lsSettings);
 
 // Check if PIP is supported by this browser
 const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
@@ -384,6 +386,7 @@ let mySettingsCloseBtn;
 let myPeerNameSet;
 let myPeerNameSetBtn;
 let switchSounds;
+let switchShare;
 let switchPushToTalk;
 let switchAudioPitchBar;
 let audioInputSelect;
@@ -577,6 +580,7 @@ function getHtmlElementsById() {
     myPeerNameSet = getId('myPeerNameSet');
     myPeerNameSetBtn = getId('myPeerNameSetBtn');
     switchSounds = getId('switchSounds');
+    switchShare = getId('switchShare');
     switchPushToTalk = getId('switchPushToTalk');
     switchAudioPitchBar = getId('switchAudioPitchBar');
     audioInputSelect = getId('audioSource');
@@ -718,6 +722,7 @@ function setButtonsToolTip() {
         'right',
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
+    setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
     // tab btns
     setTippy(tabVideoBtn, 'Video devices', 'top');
     setTippy(tabAudioBtn, 'Audio devices', 'top');
@@ -865,9 +870,14 @@ function getNotify() {
     let notify = filterXSS(qs.get('notify'));
     if (notify) {
         let queryNotify = notify === '1' || notify === 'true';
-        if (queryNotify != null) return queryNotify;
+        if (queryNotify != null) {
+            console.log('Direct join', { notify: queryNotify });
+            return queryNotify;
+        }
     }
-    return true;
+    notify = lsSettings.share_on_join;
+    console.log('Direct join', { notify: notify });
+    return notify;
 }
 
 /**
@@ -3913,6 +3923,13 @@ function setMySettingsBtn() {
         userLog('toast', `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'));
         playSound('switch');
     });
+    switchShare.addEventListener('change', (e) => {
+        notify = e.currentTarget.checked;
+        lsSettings.share_on_join = notify;
+        lS.setSettings(lsSettings);
+        userLog('toast', `${icons.share} Share room on join ` + (notify ? 'ON' : 'OFF'));
+        playSound('switch');
+    });
 
     if (isMobileDevice) {
         document.getElementById('pushToTalkDiv').style.display = 'none';
@@ -4109,6 +4126,7 @@ function loadSettingsFromLocalStorage() {
     notifyBySound = lsSettings.sounds;
     isAudioPitchBar = lsSettings.pitch_bar;
     switchSounds.checked = notifyBySound;
+    switchShare.checked = notify;
     switchAudioPitchBar.checked = isAudioPitchBar;
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
