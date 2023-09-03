@@ -8303,6 +8303,8 @@ function userLog(type, message, timer = 3000) {
             Toast.fire({
                 icon: 'info',
                 title: message,
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
             break;
         // ......
@@ -8330,6 +8332,8 @@ function msgPopup(icon, message, position, timer = 1000) {
     Toast.fire({
         icon: icon,
         title: message,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     });
 }
 
