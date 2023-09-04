@@ -149,6 +149,7 @@
                                                 const roomName = filterXSS(document.getElementById('roomName').value);
                                                 if (roomName) {
                                                     window.location.href = '/join/' + roomName;
+                                                    window.localStorage.lastRoom = roomName;
                                                 } else {
                                                     alert('Room name empty!\nPlease pick a room name.');
                                                 }
@@ -156,6 +157,22 @@
                                         </script>
                                     </div>
                                 </div>
+                                <div id="lastRoomContainer" class="last-room">
+                                    <span>Your recent room:</span>
+                                    <a id="lastRoom"></a>
+                                </div>
+                                <script>
+                                    const lastRoomContainer = document.getElementById('lastRoomContainer');
+                                    const lastRoom = document.getElementById('lastRoom');
+                                    const lastRoomName = window.localStorage.lastRoom
+                                        ? window.localStorage.lastRoom
+                                        : '';
+                                    if (lastRoomName) {
+                                        lastRoomContainer.style.display = 'inline-flex';
+                                        lastRoom.setAttribute('href', '/join/' + lastRoomName);
+                                        lastRoom.innerText = lastRoomName;
+                                    }
+                                </script>
                             </div>
                         </div>
                     </div>

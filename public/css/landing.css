@@ -3573,3 +3573,26 @@ img.has-shadow {
 ::-webkit-scrollbar-track:hover {
     background-color: #000000; /* color of the track on hover */
 }
+
+.last-room {
+    display: none;
+    /*inline-flex*/
+}
+.last-room span {
+    color: #ffffff;
+}
+.last-room a {
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.1px;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+    line-height: 16px;
+    padding: 8px 24px;
+}
+
+.last-room a:hover {
+    color: whitesmoke;
+    transition: all 0.3s ease-in-out;
+}
