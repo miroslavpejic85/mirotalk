@@ -826,8 +826,13 @@ function getRoomId() {
         window.history.pushState({ url: newUrl }, roomId, newUrl);
     }
     console.log('Direct join', { room: roomId });
+
+    // Update Room name in settings
     myRoomId = getId('myRoomId');
     if (myRoomId) myRoomId.innerText = roomId;
+
+    // Save room name in local storage
+    window.localStorage.lastRoom = roomId;
     return roomId;
 }
 
