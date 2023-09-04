@@ -3575,9 +3575,13 @@ img.has-shadow {
 }
 
 .last-room {
-    display: none;
-    /*inline-flex*/
+    display: none; /*inline-flex*/
+    flex-wrap: nowrap; /* Prevent wrapping by default */
+    justify-content: center; /* Horizontal centering */
+    align-items: center; /* Vertical centering */
+    margin-bottom: 24px;
 }
+
 .last-room span {
     color: #ffffff;
 }
@@ -3595,4 +3599,11 @@ img.has-shadow {
 .last-room a:hover {
     color: whitesmoke;
     transition: all 0.3s ease-in-out;
+}
+
+/* Use a media query to apply a different flex-wrap value for small screens */
+@media (max-width: 768px) {
+    .last-room {
+        flex-wrap: wrap; /* Allow flex items to wrap on small screens */
+    }
 }
