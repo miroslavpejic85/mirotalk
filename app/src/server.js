@@ -263,7 +263,7 @@ app.get(['/logged'], (req, res) => {
     if (allowedIP(ip)) {
         if (Object.keys(req.query).length > 0) {
             log.debug('Logged: Direct Join', req.query);
-            // http://localhost:3000/?room=test or http://localhost:3000/join?room=test
+            // http://localhost:3000/?room=test
             const { room } = checkXSS(req.query);
             if (room) {
                 return res.sendFile(views.client);
