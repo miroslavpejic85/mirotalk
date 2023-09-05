@@ -108,9 +108,12 @@
                                             </div>
                                         </div>
                                         <script>
-                                            let usernameInput = document.getElementById('username');
-                                            let passwordInput = document.getElementById('password');
-                                            let loginBtn = document.getElementById('loginButton');
+                                            const usernameInput = document.getElementById('username');
+                                            const passwordInput = document.getElementById('password');
+                                            const loginBtn = document.getElementById('loginButton');
+
+                                            const qs = new URLSearchParams(window.location.search);
+                                            const room = filterXSS(qs.get('room'));
 
                                             usernameInput.onkeyup = (e) => {
                                                 if (e.keyCode === 13) {
@@ -141,7 +144,7 @@
                                                         })
                                                         .then(function (response) {
                                                             console.log(response);
-                                                            window.location.href = '/logged';
+                                                            window.location.href = '/logged/?room=' + room;
                                                         })
                                                         .catch(function (error) {
                                                             console.error(error);
