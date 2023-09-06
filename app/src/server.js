@@ -328,6 +328,9 @@ app.get('/join/', (req, res) => {
             return res.sendFile(views.client);
         }
     }
+    if (hostCfg.protected) {
+        return res.sendFile(views.login);
+    }
     res.redirect('/');
 });
 
@@ -337,6 +340,9 @@ app.get('/join/:roomId', function (req, res) {
     if (hostCfg.authenticated) {
         res.sendFile(views.client);
     } else {
+        if (hostCfg.protected) {
+            return res.sendFile(views.login);
+        }
         res.redirect('/');
     }
 });

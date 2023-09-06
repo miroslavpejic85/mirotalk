@@ -102,15 +102,12 @@
 
 > **Note**
 >
-> When [host protection is enabled](https://github.com/miroslavpejic85/mirotalk/commit/285c92605585bf204996dc0bade9b3e7c62d75df#commitcomment-103108955), the URL format for direct room access after authentication should be as follows:
->
-> -   https://p2p.mirotalk.com/?room=test
+> When [host protection is enabled](https://github.com/miroslavpejic85/mirotalk/commit/285c92605585bf204996dc0bade9b3e7c62d75df#commitcomment-103108955) the host needs to provide a valid username and password as specified in the `.env`.
 >
 > After host authentication, participants can join the room using any of the following URL formats:
 >
-> -   https://p2p.mirotalk.com/join/test
-> -   https://p2p.mirotalk.com/join/?room=test
-> -   https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
+> -   https://p2p.mirotalk.com/join/test (URL path)
+> -   https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0 (URL with query parameters for direct join)
 
 </details>
 
