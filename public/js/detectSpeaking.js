@@ -17,7 +17,7 @@ function isAudioContextSupported() {
  * @param {MediaStream} stream Media stream audio
  */
 async function getMicrophoneVolumeIndicator(stream) {
-    if (isAudioContextSupported()) {
+    if (isAudioContextSupported() && hasAudioTrack(stream)) {
         stopMicrophoneProcessing();
         console.log('Start microphone volume indicator for audio track', stream.getAudioTracks()[0]);
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -46,7 +46,7 @@ async function getMicrophoneVolumeIndicator(stream) {
         microphone.connect(scriptProcessor);
         scriptProcessor.connect(audioContext.destination);
     } else {
-        console.warning('Microphone volume indicator not supported for this browser');
+        console.warn('Microphone volume indicator not supported for this browser');
     }
 }
 

@@ -23,8 +23,6 @@
 
 // https://www.w3schools.com/js/js_strict.asp
 
-console.log('Window Location', window.location);
-
 let myRoomId; // this room id
 
 const signalingServer = getSignalingServer();
@@ -1533,7 +1531,7 @@ async function handleAddPeer(config) {
     await handleOnTrack(peer_id, peers);
     await handleAddTracks(peer_id);
 
-    if (useVideo && !peer_video && !needToCreateOffer) {
+    if (!peer_video && !needToCreateOffer) {
         needToCreateOffer = true;
     }
     if (should_create_offer) {
@@ -2455,6 +2453,8 @@ function checkShareScreen() {
  */
 async function loadRemoteMediaStream(stream, peers, peer_id) {
     // get data from peers obj
+    console.log('REMOTE PEER INFO', peers[peer_id]);
+
     const peer_name = peers[peer_id]['peer_name'];
     const peer_video = peers[peer_id]['peer_video'];
     const peer_video_status = peers[peer_id]['peer_video_status'];
@@ -2705,7 +2705,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // refresh remote peers hand icon status and title
     setPeerHandStatus(peer_id, peer_name, peer_hand_status);
     // refresh remote peers video icon status and title
-    setPeerVideoStatus(peer_id, peer_video_status);
+    setPeerVideoStatus(peer_id, peer_screen_status ? peer_screen_status : peer_video_status);
     // refresh remote peers audio icon status and title
     setPeerAudioStatus(peer_id, peer_audio_status);
     // handle remote peers audio volume
@@ -2733,10 +2733,14 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // notify if peer started to recording own screen + audio
     if (peer_rec_status) notifyRecording(peer_name, 'Started');
 
-    // peer not has video at all
-    if (!peer_video) {
+    // Peer without camera, screen sharing OFF
+    if (!peer_video && !peer_screen_status) {
         remoteVideoAvatarImage.style.display = 'block';
         remoteVideoStatusIcon.className = className.videoOff;
+    }
+    // Peer without camera, screen sharing ON
+    if (!peer_video && peer_screen_status) {
+        handleScreenStart(peer_id);
     }
 }
 
@@ -3097,6 +3101,7 @@ function handleVideoPrivacyBtn(videoId, privacyBtnId) {
  */
 function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
     let video = getId(peerVideoId);
+    if (!video) return;
     if (peerPrivacyActive) {
         video.classList.remove('videoDefault');
         video.classList.add('videoCircle');
@@ -4803,15 +4808,20 @@ async function toggleScreenSharing(init = false) {
             await refreshMyLocalStream(screenMediaPromise);
             await refreshMyStreamToPeers(screenMediaPromise);
 
-            if (initStream) {
-                stopTracks(initStream);
+            if (init) {
+                // handle init media stream
+                if (initStream) stopTracks(initStream);
                 initStream = screenMediaPromise;
-                const newStream = new MediaStream([initStream.getVideoTracks()[0]]);
-                initVideo.style.display = 'block';
-                initVideo.classList.toggle('mirror');
-                initVideo.srcObject = newStream;
-                disable(initVideoSelect, isScreenStreaming);
-                disable(initVideoBtn, isScreenStreaming);
+                if (hasVideoTrack(initStream)) {
+                    const newStream = new MediaStream([initStream.getVideoTracks()[0]]);
+                    initVideo.style.display = 'block';
+                    initVideo.classList.toggle('mirror');
+                    initVideo.srcObject = newStream;
+                    disable(initVideoSelect, isScreenStreaming);
+                    disable(initVideoBtn, isScreenStreaming);
+                } else {
+                    initVideo.style.display = 'none';
+                }
             }
 
             // Disable cam video when screen sharing stop
@@ -4839,6 +4849,8 @@ async function toggleScreenSharing(init = false) {
  * @param {boolean} status of screen sharing
  */
 function setScreenSharingStatus(status) {
+    myVideo.style.display = status ? 'block' : 'none';
+    emitPeerStatus('video', status);
     initScreenShareBtn.className = status ? className.screenOff : className.screenOn;
     screenShareBtn.className = status ? className.screenOff : className.screenOn;
     setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
@@ -4968,18 +4980,23 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     let newStream = null;
 
+    const tracksToInclude = [];
+    const videoTrack = hasVideoTrack(stream) ? stream.getVideoTracks()[0] : null;
+    const audioTrack =
+        hasAudioTrack(stream) && localAudioTrackChange
+            ? stream.getAudioTracks()[0]
+            : localMediaStream.getAudioTracks()[0];
+
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
     if (useVideo || isScreenStreaming) {
-        console.log('Refresh my local media stream VIDEO - AUDIO');
-        newStream = new MediaStream([
-            stream.getVideoTracks()[0],
-            localAudioTrackChange ? stream.getAudioTracks()[0] : localMediaStream.getAudioTracks()[0],
-        ]);
+        console.log('Refresh my local media stream VIDEO - AUDIO', { isScreenStreaming: isScreenStreaming });
+        if (videoTrack) tracksToInclude.push(videoTrack);
+        if (audioTrack) tracksToInclude.push(audioTrack);
+        newStream = new MediaStream(tracksToInclude);
     } else {
         console.log('Refresh my local media stream AUDIO');
-        newStream = new MediaStream([
-            localAudioTrackChange ? stream.getAudioTracks()[0] : localMediaStream.getAudioTracks()[0],
-        ]);
+        if (audioTrack) tracksToInclude.push(audioTrack);
+        newStream = new MediaStream(tracksToInclude);
     }
 
     localMediaStream = newStream;
@@ -5002,12 +5019,32 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     // attachMediaStream is a part of the adapter.js library
     attachMediaStream(myVideo, localMediaStream); // newStream
 
-    // on toggleScreenSharing video stop
+    // on toggleScreenSharing video stop from popup bar
     if (useVideo || isScreenStreaming) {
         stream.getVideoTracks()[0].onended = () => {
             toggleScreenSharing();
         };
     }
+}
+
+/**
+ * Check if MediaStream has audio track
+ * @param {MediaStream} mediaStream
+ * @returns boolean
+ */
+function hasAudioTrack(mediaStream) {
+    const audioTracks = mediaStream.getAudioTracks();
+    return audioTracks.length > 0;
+}
+
+/**
+ * Check if MediaStream has video track
+ * @param {MediaStream} mediaStream
+ * @returns boolean
+ */
+function hasVideoTrack(mediaStream) {
+    const videoTracks = mediaStream.getVideoTracks();
+    return videoTracks.length > 0;
 }
 
 /**
@@ -6283,6 +6320,7 @@ function setMyAudioStatus(status) {
  * @param {boolean} status of my video
  */
 function setMyVideoStatus(status) {
+    console.log('My video status', status);
     // on vdeo OFF display my video avatar name
     if (myVideoAvatarImage) myVideoAvatarImage.style.display = status ? 'none' : 'block';
     if (myVideoStatusIcon) myVideoStatusIcon.className = status ? className.videoOn : className.videoOff;
@@ -6293,8 +6331,8 @@ function setMyVideoStatus(status) {
         setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', 'right-start');
     }
     myVideo.style.display = status ? 'block' : 'none';
+    initVideo.style.display = status ? 'block' : 'none';
     status ? playSound('on') : playSound('off');
-    console.log('My video status', status);
 }
 
 /**
@@ -6524,7 +6562,7 @@ async function emitPeerAction(peer_id, peerAction) {
  * @param {object} config data
  */
 function handlePeerAction(config) {
-    // console.log('Handle peer action: ', config);
+    console.log('Handle peer action: ', config);
     const { peer_id, peer_name, peer_use_video, peer_action } = config;
 
     switch (peer_action) {
