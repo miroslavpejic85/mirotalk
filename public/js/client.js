@@ -2750,7 +2750,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
  * @param {object} stream media stream audio - video
  */
 function logStreamSettingsInfo(name, stream) {
-    if ((useVideo || isScreenStreaming) && stream.getVideoTracks().length > 0) {
+    if ((useVideo || isScreenStreaming) && hasVideoTrack(stream)) {
         console.log(name, {
             video: {
                 label: stream.getVideoTracks()[0].label,
@@ -2758,7 +2758,7 @@ function logStreamSettingsInfo(name, stream) {
             },
         });
     }
-    if (useAudio && stream.getAudioTracks().length > 0) {
+    if (useAudio && hasAudioTrack(stream)) {
         console.log(name, {
             audio: {
                 label: stream.getAudioTracks()[0].label,
@@ -4904,6 +4904,15 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     console.log('PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
     console.log('ALL-PEERS', allPeers); // all peers connected in the room
 
+    // check if passed stream has audio track
+    const streamHasAudioTrack = hasAudioTrack(stream);
+
+    // audio Track to replace to peers
+    const myAudioTrack =
+        streamHasAudioTrack && (localAudioTrackChange || isScreenStreaming)
+            ? stream.getAudioTracks()[0]
+            : localMediaStream.getAudioTracks()[0];
+
     // refresh my stream to connected peers expect myself
     for (let peer_id in peerConnections) {
         let peer_name = allPeers[peer_id]['peer_name'];
@@ -4928,14 +4937,6 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
                 }
             });
         }
-
-        let myAudioTrack; // audio Track to replace to peers
-
-        if (stream.getAudioTracks()[0] && (localAudioTrackChange || isScreenStreaming)) {
-            myAudioTrack = stream.getAudioTracks()[0];
-        } else {
-            myAudioTrack = localMediaStream.getAudioTracks()[0];
-        }
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
         let audioSender = peerConnections[peer_id]
             .getSenders()
@@ -4946,19 +4947,19 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             audioSender.replaceTrack(myAudioTrack);
             console.log('REPLACE AUDIO TRACK TO', { peer_id: peer_id, peer_name: peer_name });
         }
+    }
 
-        // When share a video tab that contain audio, my voice will be turned off
-        if (isScreenStreaming && stream.getAudioTracks()[0]) {
-            setMyAudioOff('you');
-            needToEnableMyAudio = true;
-            audioBtn.disabled = true;
-        }
-        // On end screen sharing enable my audio if need
-        if (!isScreenStreaming && needToEnableMyAudio) {
-            setMyAudioOn('you');
-            needToEnableMyAudio = false;
-            audioBtn.disabled = false;
-        }
+    // When share a video tab that contain audio, my voice will be turned off
+    if (isScreenStreaming && streamHasAudioTrack) {
+        setMyAudioOff('you');
+        needToEnableMyAudio = true;
+        audioBtn.disabled = true;
+    }
+    // On end screen sharing enable my audio if need
+    if (!isScreenStreaming && needToEnableMyAudio) {
+        setMyAudioOn('you');
+        needToEnableMyAudio = false;
+        audioBtn.disabled = false;
     }
 }
 
