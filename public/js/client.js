@@ -23,10 +23,13 @@
 
 // https://www.w3schools.com/js/js_strict.asp
 
+console.log('Window Location', window.location);
+
 let myRoomId; // this room id
 
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
+const myRoomUrl = window.location.origin + '/join/' + roomId; // share room url
 const welcomeImg = '../images/image-placeholder.png';
 const shareUrlImg = '../images/image-placeholder.png';
 const leaveRoomImg = '../images/leave-room.png';
@@ -118,8 +121,6 @@ const icons = {
     fileSend: '<i class="fas fa-file-export"></i>',
     fileReceive: '<i class="fas fa-file-import"></i>',
 };
-
-const myRoomUrl = window.location.href;
 
 // Local Storage class
 const lS = new LocalStorage();
