@@ -716,7 +716,7 @@ function setButtonsToolTip() {
     // settings
     setTippy(mySettingsCloseBtn, 'Close', 'right');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
-    setTippy(myRoomId, 'Room name', 'right');
+    setTippy(myRoomId, 'Room name (click to copy/share)', 'right');
     setTippy(
         switchPushToTalk,
         'If Active, When SpaceBar keydown the microphone will be activated, on keyup will be deactivated, like a walkie-talkie.',
@@ -4030,7 +4030,7 @@ function setupMySettings() {
     });
     // copy room URL
     myRoomId.addEventListener('click', () => {
-        copyRoomURL();
+        isMobileDevice ? shareRoomUrl() : copyRoomURL();
     });
     // send invite by email to join room in a specified data-time
     roomSendEmailBtn.addEventListener('click', () => {
