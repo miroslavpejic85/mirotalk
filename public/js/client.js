@@ -4674,7 +4674,6 @@ function shareRoomByEmail() {
         enableTime: true,
         dateFormat: 'Y-m-d H:i',
         time_24hr: true,
-        theme: 'material_blue',
     });
 }
 
