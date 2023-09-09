@@ -4644,8 +4644,7 @@ function copyRoomURL() {
 }
 
 /**
- * Share room id by email
- * @param {object} message content: email | subject | body
+ * Send the room ID via email at the scheduled date and time.
  */
 function shareRoomByEmail() {
     Swal.fire({
