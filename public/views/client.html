@@ -47,6 +47,11 @@
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
+        <!-- flatpickr  https://flatpickr.js.org/themes/ -->
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+        <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css" />
+
         <!-- JavaScripts -->
 
         <script async src="../js/umami.js"></script>
@@ -277,6 +282,10 @@ access to use this app.
                                 </td>
                             </tr>
                         </table>
+                        <br />
+                        <button id="roomSendEmailBtn">
+                            <i class="fas fa-envelope-circle-check"></i>&nbsp;Send email invitation
+                        </button>
                         <br />
                         <div id="tabRoomSecurity">
                             <button id="lockRoomBtn"><i class="fas fa-lock-open"></i>&nbsp;Lock room</button>
@@ -660,6 +669,7 @@ access to use this app.
         - https://www.npmjs.com/package/qrious                              (https://github.com/neocotic/qrious)
         - https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js    (https://github.com/missive/emoji-mart)
         - https://www.npmjs.com/package/tippy.js                            (https://github.com/atomiks/tippyjs) 
+        - https://flatpickr.js.org/                                         (https://github.com/flatpickr/flatpickr)
         -->
         <script defer src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script defer src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
@@ -671,6 +681,7 @@ access to use this app.
         <script defer src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
         <script defer src="https://unpkg.com/@popperjs/core@2"></script>
         <script defer src="https://unpkg.com/tippy.js@6"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script defer src="/socket.io/socket.io.js"></script>
         <script defer src="../js/localStorage.js"></script>
         <script defer src="../js/client.js"></script>

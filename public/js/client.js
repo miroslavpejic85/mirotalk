@@ -379,6 +379,7 @@ let tabAudioBtn;
 let tabParticipantsBtn;
 let tabProfileBtn;
 let tabRoomBtn;
+let roomSendEmailBtn;
 let tabStylingBtn;
 let tabLanguagesBtn;
 let mySettingsCloseBtn;
@@ -573,6 +574,7 @@ function getHtmlElementsById() {
     tabParticipantsBtn = getId('tabParticipantsBtn');
     tabProfileBtn = getId('tabProfileBtn');
     tabRoomBtn = getId('tabRoomBtn');
+    roomSendEmailBtn = getId('roomSendEmailBtn');
     tabStylingBtn = getId('tabStylingBtn');
     tabLanguagesBtn = getId('tabLanguagesBtn');
     mySettingsCloseBtn = getId('mySettingsCloseBtn');
@@ -4026,6 +4028,14 @@ function setupMySettings() {
     tabLanguagesBtn.addEventListener('click', (e) => {
         openTab(e, 'tabLanguages');
     });
+    // copy room URL
+    myRoomId.addEventListener('click', () => {
+        copyRoomURL();
+    });
+    // send invite by email to join room in a specified data-time
+    roomSendEmailBtn.addEventListener('click', () => {
+        shareRoomByEmail();
+    });
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
         myVideoChange = false;
@@ -4595,12 +4605,7 @@ function shareRoomMeetingURL(checkScreen = false) {
         if (result.isConfirmed) {
             copyRoomURL();
         } else if (result.isDenied) {
-            let message = {
-                email: '',
-                subject: 'Please join our MiroTalk Video Chat Meeting',
-                body: 'Click to join: ' + myRoomUrl,
-            };
-            shareRoomByEmail(message);
+            shareRoomByEmail();
         }
         // share screen on join room
         if (checkScreen) checkShareScreen();
@@ -4642,11 +4647,35 @@ function copyRoomURL() {
  * Share room id by email
  * @param {object} message content: email | subject | body
  */
-function shareRoomByEmail(message) {
-    let email = message.email;
-    let subject = message.subject;
-    let emailBody = message.body;
-    document.location = 'mailto:' + email + '?subject=' + subject + '&body=' + emailBody;
+function shareRoomByEmail() {
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swalBackground,
+        imageUrl: messageImg,
+        position: 'center',
+        title: 'Select a Date and Time',
+        html: '<input type="text" id="datetimePicker" class="flatpickr" />',
+        showCancelButton: true,
+        confirmButtonText: 'OK',
+        cancelButtonColor: 'red',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+        preConfirm: () => {
+            const selectedDateTime = document.getElementById('datetimePicker').value;
+            const newLine = '%0D%0A%0D%0A';
+            const email = '';
+            const emailSubject = `Please join our MiroTalk P2P Video Chat Meeting`;
+            const emailBody = `The meeting is scheduled at: ${newLine} DateTime: ${selectedDateTime} ${newLine} Click to join: ${myRoomUrl} ${newLine}`;
+            document.location = 'mailto:' + email + '?subject=' + emailSubject + '&body=' + emailBody;
+        },
+    });
+    flatpickr('#datetimePicker', {
+        enableTime: true,
+        dateFormat: 'Y-m-d H:i',
+        time_24hr: true,
+        theme: 'material_blue',
+    });
 }
 
 /**

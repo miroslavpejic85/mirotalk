@@ -760,6 +760,19 @@ em-emoji-picker {
 }
 
 /*--------------------------------------------------------------
+# Data time picker
+--------------------------------------------------------------*/
+
+#datetimePicker {
+    padding: 10px;
+    text-align: center;
+    color: white;
+    background: black;
+    border: none;
+    border-radius: 5px;
+}
+
+/*--------------------------------------------------------------
 # Room QR
 --------------------------------------------------------------*/
 
@@ -918,6 +931,7 @@ em-emoji-picker {
 #muteEveryoneBtn,
 #hideEveryoneBtn,
 #ejectEveryoneBtn,
+#roomSendEmailBtn,
 #lockRoomBtn,
 #unlockRoomBtn {
     padding: 10px;
@@ -928,6 +942,7 @@ em-emoji-picker {
 }
 
 #myPeerNameSetBtn:hover,
+#roomSendEmailBtn:hover,
 #lockRoomBtn:hover,
 #unlockRoomBtn:hover {
     color: var(--hover-color);
