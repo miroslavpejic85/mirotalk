@@ -3604,10 +3604,12 @@ img.has-shadow {
     text-decoration: none;
     line-height: 16px;
     padding: 8px 8px;
+    border-radius: 5px;
+    margin: 4px;
 }
 
 .last-room a:hover {
-    color: whitesmoke;
+    background-color: #000;
     transition: all 0.3s ease-in-out;
 }
 
