@@ -3609,7 +3609,7 @@ img.has-shadow {
 }
 
 .last-room a:hover {
-    background-color: #000;
+    background-color: #0000002a;
     transition: all 0.3s ease-in-out;
 }
 
