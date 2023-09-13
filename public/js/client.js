@@ -1207,6 +1207,24 @@ async function whoAreYou() {
 
     await loadLocalStorage();
 
+    if (!buttons.main.showVideoBtn) {
+        useVideo = false;
+        elemDisplay(document.getElementById('initVideo'), false);
+        elemDisplay(document.getElementById('initVideoBtn'), false);
+        elemDisplay(document.getElementById('initVideoSelect'), false);
+        elemDisplay(document.getElementById('tabVideoBtn'), false);
+    }
+    if (!buttons.main.showAudioBtn) {
+        //useAudio = false;
+        elemDisplay(document.getElementById('initAudioBtn'), false);
+        elemDisplay(document.getElementById('initMicrophoneSelect'), false);
+        elemDisplay(document.getElementById('initSpeakerSelect'), false);
+        elemDisplay(document.getElementById('tabAudioBtn'), false);
+    }
+    if (!buttons.main.showScreenBtn) {
+        elemDisplay(document.getElementById('initScreenShareBtn'), false);
+    }
+
     const initUser = getId('initUser');
     initUser.classList.toggle('hidden');
 
@@ -1438,12 +1456,14 @@ function checkPeerAudioVideo() {
         audio = audio.toLowerCase();
         let queryPeerAudio = audio === '1' || audio === 'true';
         if (queryPeerAudio != null) handleAudio(audioBtn, false, queryPeerAudio);
+        elemDisplay(document.getElementById('tabAudioBtn'), queryPeerAudio);
         console.log('Direct join', { audio: queryPeerAudio });
     }
     if (video) {
         video = video.toLowerCase();
         let queryPeerVideo = video === '1' || video === 'true';
         if (queryPeerVideo != null) handleVideo(videoBtn, false, queryPeerVideo);
+        elemDisplay(document.getElementById('tabVideoBtn'), queryPeerVideo);
         console.log('Direct join', { video: queryPeerVideo });
     }
 }
@@ -4842,7 +4862,9 @@ async function toggleScreenSharing(init = false) {
                 if (hasVideoTrack(initStream)) {
                     const newStream = new MediaStream([initStream.getVideoTracks()[0]]);
                     initVideo.style.display = 'block';
-                    initVideo.classList.toggle('mirror');
+                    if (initVideo.classList.contains('mirror')) {
+                        initVideo.classList.toggle('mirror');
+                    }
                     initVideo.srcObject = newStream;
                     disable(initVideoSelect, isScreenStreaming);
                     disable(initVideoBtn, isScreenStreaming);
