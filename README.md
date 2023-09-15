@@ -11,7 +11,7 @@
 <hr />
 
 <p align="center">
-    <a href="https://p2p.mirotalk.com"><img src="public/images/mirotalk-header.gif"></a>
+    <a href="https://p2p.mirotalk.com"><img src="public/images/mirotalk-ui.png"></a>
 </p>
 
 <hr />
