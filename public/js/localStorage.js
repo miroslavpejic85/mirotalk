@@ -16,6 +16,7 @@ class LocalStorage {
         this.P2P_SETTINGS = {
             share_on_join: true,
             show_chat_on_msg: true,
+            speech_in_msg: false,
             video_fps: '1', // default 30fps
             screen_fps: '1', // default 30fps
             pitch_bar: true,
