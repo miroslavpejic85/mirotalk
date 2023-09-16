@@ -355,7 +355,9 @@ let msgerShareFileBtn;
 let msgerInput;
 let msgerCleanTextBtn;
 let msgerPasteBtn;
+let msgerShowChatOnMsgDiv;
 let msgerShowChatOnMsg;
+let msgerSpeechMsgDiv;
 let msgerSpeechMsg;
 let msgerSendBtn;
 //caption section
@@ -551,7 +553,9 @@ function getHtmlElementsById() {
     msgerInput = getId('msgerInput');
     msgerCleanTextBtn = getId('msgerCleanTextBtn');
     msgerPasteBtn = getId('msgerPasteBtn');
+    msgerShowChatOnMsgDiv = getId('msgerShowChatOnMsgDiv');
     msgerShowChatOnMsg = getId('msgerShowChatOnMsg');
+    msgerSpeechMsgDiv = getId('msgerSpeechMsgDiv');
     msgerSpeechMsg = getId('msgerSpeechMsg');
     msgerSendBtn = getId('msgerSendBtn');
     // chat room connected peers
@@ -705,8 +709,8 @@ function setButtonsToolTip() {
     setTippy(msgerShareFileBtn, 'Share file', 'top');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
-    setTippy(msgerShowChatOnMsg, 'Show me when I receive a new message', 'top');
-    setTippy(msgerSpeechMsg, 'Speech the incoming messages', 'top');
+    setTippy(msgerShowChatOnMsgDiv, 'Show chat when I receive a new message', 'top');
+    setTippy(msgerSpeechMsgDiv, 'Speech the incoming messages', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
     // chat participants buttons
     setTippy(msgerCPCloseBtn, 'Close', 'left');
@@ -3727,7 +3731,7 @@ function setChatRoomBtn() {
             lS.setSettings(lsSettings);
         });
     } else {
-        elemDisplay(getId('speechMsgDiv'), false);
+        elemDisplay(msgerSpeechMsgDiv, false);
     }
 
     // chat send msg
