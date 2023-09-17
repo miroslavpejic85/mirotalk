@@ -5757,7 +5757,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                     id="msg-speech-${chatMessagesId}"
                     class="${className.speech}" 
                     style="color:#fff; border:none; background:transparent;"
-                    onclick="speechMessage(false, '${getFrom}', '${getMsg}')"
+                    onclick="speechMessage(false, '${getFrom}', '${checkMsg(getMsg)}')"
                 ></button>`;
     }
     msgHTML += ` 
