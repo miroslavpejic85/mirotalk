@@ -4882,7 +4882,7 @@ async function stopLocalAudioTrack() {
 async function toggleScreenSharing(init = false) {
     screenMaxFrameRate = parseInt(screenFpsSelect.value);
     const constraints = {
-        audio: true, // enable tab audio
+        audio: false, // enable/disable tab audio
         video: { frameRate: { max: screenMaxFrameRate } },
     }; // true | { frameRate: { max: screenMaxFrameRate } }
 
@@ -5060,7 +5060,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
         }
     }
 
-    // When share a video tab that contain audio, my voice will be turned off
+    // When share a video tab that contain audio, my voice will be turned off (tabAudio: true)
     if (isScreenStreaming && streamHasAudioTrack) {
         setMyAudioOff('you');
         needToEnableMyAudio = true;
