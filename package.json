@@ -5,6 +5,7 @@
     "main": "server.js",
     "scripts": {
         "start": "node app/src/server.js",
+        "start-dev": "nodemon app/src/server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "npx prettier --write .",
         "docker-build": "docker build --tag mirotalk/p2p:latest .",
@@ -54,6 +55,7 @@
     },
     "devDependencies": {
         "node-fetch": "^3.3.2",
+        "nodemon": "^3.0.1",
         "prettier": "3.0.3"
     }
 }
