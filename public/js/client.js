@@ -167,7 +167,11 @@ console.log('LS_SETTINGS', lsSettings);
 // Check if PIP is supported by this browser
 const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
 
-// Show desired buttons captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn, 'showVideoPipBtn' -> (auto-detected)
+/**
+ * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
+ * Set properties to true to show the corresponding buttons, or false to hide them.
+ * captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn, 'showVideoPipBtn' -> (auto-detected).
+ */
 const buttons = {
     main: {
         showShareRoomBtn: true,
