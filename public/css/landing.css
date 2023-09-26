@@ -2715,7 +2715,8 @@ ul.pricing-item-features-list li {
 
 .features-tiles-item-image {
     display: inline-flex;
-    border-radius: 50%;
+    padding: 1rem;
+    border-radius: 1rem;
     background: radial-gradient(circle at bottom, #376df9 0%, #ff79af 50%, #ff8d74 100%);
 }
 
@@ -3548,8 +3549,9 @@ img.has-shadow {
 }
 /*Pulse Button*/
 
-/* Webkit-Scrollbar Styles---------------------
------------------------------------------------ */
+/*--------------------------------------------------------------
+# Webkit-Scrollbar Styles
+--------------------------------------------------------------*/
 
 /* Target the scrollbar track */
 ::-webkit-scrollbar {
@@ -3573,6 +3575,10 @@ img.has-shadow {
 ::-webkit-scrollbar-track:hover {
     background-color: #000000; /* color of the track on hover */
 }
+
+/*--------------------------------------------------------------
+# Last room link
+--------------------------------------------------------------*/
 
 .last-room {
     display: none; /*inline-flex*/
@@ -3618,4 +3624,13 @@ img.has-shadow {
     .last-room {
         flex-wrap: wrap; /* Allow flex items to wrap on small screens */
     }
+}
+
+/*--------------------------------------------------------------
+# svg custom size
+--------------------------------------------------------------*/
+
+.wh-200-150 {
+    width: 200px;
+    height: 150px;
 }
