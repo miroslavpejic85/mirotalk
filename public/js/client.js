@@ -720,29 +720,15 @@ function setButtonsToolTip() {
     // init buttons
     setTippy(initScreenShareBtn, 'Toggle screen sharing', 'top');
     // main buttons
-    setTippy(shareRoomBtn, 'Invite others to join', 'right-start');
-    setTippy(hideMeBtn, 'Toggle hide myself from the room view', 'right-start');
-    setTippy(audioBtn, 'Stop the audio', 'right-start');
-    setTippy(videoBtn, 'Stop the video', 'right-start');
-    setTippy(screenShareBtn, 'Start screen sharing', 'right-start');
-    setTippy(recordStreamBtn, 'Start recording', 'right-start');
-    setTippy(fullScreenBtn, 'View full screen', 'right-start');
-    setTippy(chatRoomBtn, 'Open the chat', 'right-start');
-    setTippy(captionBtn, 'Open the caption', 'right-start');
-    setTippy(myHandBtn, 'Raise your hand', 'right-start');
-    setTippy(whiteboardBtn, 'Open the whiteboard', 'right-start');
-    setTippy(fileShareBtn, 'Share file', 'right-start');
-    setTippy(mySettingsBtn, 'Open settings', 'right-start');
-    setTippy(aboutBtn, 'About this project', 'right-start');
-    setTippy(leaveRoomBtn, 'Leave this room', 'right-start');
+    refreshMainButtonsToolTipPlacement();
     // chat room buttons
     setTippy(msgerTheme, 'Ghost theme', 'top');
     setTippy(msgerCPBtn, 'Private messages', 'top');
     setTippy(msgerClean, 'Clean the messages', 'top');
     setTippy(msgerSaveBtn, 'Save the messages', 'top');
-    setTippy(msgerClose, 'Close', 'right');
-    setTippy(msgerMaxBtn, 'Maximize', 'right');
-    setTippy(msgerMinBtn, 'Minimize', 'right');
+    setTippy(msgerClose, 'Close', 'top');
+    setTippy(msgerMaxBtn, 'Maximize', 'top');
+    setTippy(msgerMinBtn, 'Minimize', 'top');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerGPTBtn, 'ChatGPT', 'top');
@@ -753,11 +739,11 @@ function setButtonsToolTip() {
     setTippy(msgerSpeechMsgDiv, 'Speech the incoming messages', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
     // chat participants buttons
-    setTippy(msgerCPCloseBtn, 'Close', 'left');
+    setTippy(msgerCPCloseBtn, 'Close', 'top');
     // caption buttons
-    setTippy(captionClose, 'Close', 'right');
-    setTippy(captionMaxBtn, 'Maximize', 'right');
-    setTippy(captionMinBtn, 'Minimize', 'right');
+    setTippy(captionClose, 'Close', 'top');
+    setTippy(captionMaxBtn, 'Maximize', 'top');
+    setTippy(captionMinBtn, 'Minimize', 'top');
     setTippy(captionTheme, 'Ghost theme', 'top');
     setTippy(captionClean, 'Clean the messages', 'top');
     setTippy(captionSaveBtn, 'Save the messages', 'top');
@@ -774,15 +760,15 @@ function setButtonsToolTip() {
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
-    // tab btns
-    setTippy(tabVideoBtn, 'Video devices', 'top');
-    setTippy(tabAudioBtn, 'Audio devices', 'top');
-    setTippy(tabParticipantsBtn, 'Participants', 'top');
-    setTippy(tabProfileBtn, 'Profile', 'top');
-    setTippy(tabRoomBtn, 'Room', 'top');
-    setTippy(tabStylingBtn, 'Styling', 'top');
-    setTippy(tabLanguagesBtn, 'Languages', 'top');
-    // whiteboard btns
+    // tab buttons
+    // setTippy(tabVideoBtn, 'Video devices', 'top');
+    // setTippy(tabAudioBtn, 'Audio devices', 'top');
+    // setTippy(tabParticipantsBtn, 'Participants', 'top');
+    // setTippy(tabProfileBtn, 'Profile', 'top');
+    // setTippy(tabRoomBtn, 'Room', 'top');
+    // setTippy(tabStylingBtn, 'Styling', 'top');
+    // setTippy(tabLanguagesBtn, 'Languages', 'top');
+    // whiteboard buttons
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(wbBackgroundColorEl, 'Background color', 'bottom');
@@ -802,11 +788,11 @@ function setButtonsToolTip() {
     setTippy(whiteboardCleanBtn, 'Clean the board', 'bottom');
     setTippy(whiteboardLockBtn, 'If enabled, participants cannot interact', 'right');
     setTippy(whiteboardCloseBtn, 'Close', 'right');
-    // room actions btn
+    // room actions buttons
     // setTippy(muteEveryoneBtn, 'Mute everyone except yourself', 'top');
     // setTippy(hideEveryoneBtn, 'Hide everyone except yourself', 'top');
     // setTippy(ejectEveryoneBtn, 'Eject everyone except yourself', 'top');
-    // Suspend/Hide File transfer btn
+    // Suspend/Hide File transfer buttons
     setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
     // video URL player
@@ -816,17 +802,50 @@ function setButtonsToolTip() {
 }
 
 /**
+ * Refresh main buttons tooltips based of they position (vertical/horizontal)
+ * @returns void
+ */
+function refreshMainButtonsToolTipPlacement() {
+    // not need for mobile
+    if (isMobileDevice) return;
+    // main buttons
+    const placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top-end';
+    setTippy(shareRoomBtn, 'Invite others to join', placement);
+    setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
+    setTippy(audioBtn, 'Stop the audio', placement);
+    setTippy(videoBtn, 'Stop the video', placement);
+    setTippy(screenShareBtn, 'Start screen sharing', placement);
+    setTippy(recordStreamBtn, 'Start recording', placement);
+    setTippy(fullScreenBtn, 'View full screen', placement);
+    setTippy(chatRoomBtn, 'Open the chat', placement);
+    setTippy(captionBtn, 'Open the caption', placement);
+    setTippy(myHandBtn, 'Raise your hand', placement);
+    setTippy(whiteboardBtn, 'Open the whiteboard', placement);
+    setTippy(fileShareBtn, 'Share file', placement);
+    setTippy(mySettingsBtn, 'Open settings', placement);
+    setTippy(aboutBtn, 'About this project', placement);
+    setTippy(leaveRoomBtn, 'Leave this room', placement);
+}
+
+/**
  * Set nice tooltip to element
- * @param {object} elem element
+ * @param {object} element element
  * @param {string} content message to popup
  * @param {string} placement position
  */
-function setTippy(elem, content, placement) {
+function setTippy(element, content, placement) {
     if (isMobileDevice) return;
-    tippy(elem, {
-        content: content,
-        placement: placement,
-    });
+    if (element) {
+        if (element._tippy) {
+            element._tippy.destroy();
+        }
+        tippy(element, {
+            content: content,
+            placement: placement,
+        });
+    } else {
+        console.warn('setTippy element not found with content', content);
+    }
 }
 
 /**
@@ -2077,7 +2096,9 @@ function setButtonsBarPosition(position) {
             break;
         default:
             console.log('No position found');
+            break;
     }
+    refreshMainButtonsToolTipPlacement();
 }
 
 /**
@@ -2373,7 +2394,7 @@ async function loadLocalMedia(stream) {
     setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
     setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
     setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
-    setTippy(myVideoPiPBtn, 'Toggle picture in picture');
+    setTippy(myVideoPiPBtn, 'Toggle picture in picture', 'bottom');
     setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
     setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
 
@@ -2644,7 +2665,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
     setTippy(remoteVideoZoomInBtn, 'Zoom in video', 'bottom');
     setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
-    setTippy(remoteVideoPiPBtn, 'Toggle picture in picture');
+    setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
     setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
 
     // my video avatar image
@@ -3135,7 +3156,7 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
             let item = e.dataTransfer.items[0].webkitGetAsEntry();
             console.log('Drag and drop', item);
             if (item.isDirectory) {
-                return userLog('warning', 'Please drag and drop a single file not a folder.', 'top');
+                return userLog('warning', 'Please drag and drop a single file not a folder.', 'top-end');
             }
             let file = e.dataTransfer.items[0].getAsFile();
             sendFileInformations(file, peer_id);
@@ -3753,8 +3774,8 @@ function setChatRoomBtn() {
         playSound('switch');
         showChatOnMessage = e.currentTarget.checked;
         showChatOnMessage
-            ? msgPopup('info', 'Chat will be shown, when you receive a new message', 'top', 3000)
-            : msgPopup('info', 'Chat not will be shown, when you receive a new message', 'top', 3000);
+            ? msgPopup('info', 'Chat will be shown, when you receive a new message', 'top-end', 3000)
+            : msgPopup('info', 'Chat not will be shown, when you receive a new message', 'top-end', 3000);
         lsSettings.show_chat_on_msg = showChatOnMessage;
         lS.setSettings(lsSettings);
     });
@@ -3765,8 +3786,8 @@ function setChatRoomBtn() {
             playSound('switch');
             speechInMessages = e.currentTarget.checked;
             speechInMessages
-                ? msgPopup('info', 'When I receive a new message, it will be converted into speech', 'top', 3000)
-                : msgPopup('info', 'You have disabled speech messages', 'top', 3000);
+                ? msgPopup('info', 'When You receive a new message, it will be converted into speech', 'top-end', 3000)
+                : msgPopup('info', 'You have disabled speech messages', 'top-end', 3000);
             lsSettings.speech_in_msg = speechInMessages;
             lS.setSettings(lsSettings);
         });
@@ -5863,7 +5884,7 @@ function copyToClipboard(id) {
     navigator.clipboard
         .writeText(text)
         .then(() => {
-            msgPopup('success', 'Message copied!', 'top', 1000);
+            msgPopup('success', 'Message copied!', 'top-end', 1000);
         })
         .catch((err) => {
             msgPopup('error', err, 'top', 2000);
@@ -6994,13 +7015,13 @@ function handleRoomStatus(config) {
     switch (action) {
         case 'lock':
             playSound('locked');
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`, 'top');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`, 'top-end');
             elemDisplay(lockRoomBtn, false);
             elemDisplay(unlockRoomBtn, true);
             isRoomLocked = true;
             break;
         case 'unlock':
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top-end');
             elemDisplay(unlockRoomBtn, false);
             elemDisplay(lockRoomBtn, true);
             isRoomLocked = false;
@@ -8480,7 +8501,7 @@ function userLog(type, message, timer = 3000) {
             const Toast = Swal.mixin({
                 background: swalBackground,
                 toast: true,
-                position: 'top',
+                position: 'top-end',
                 showConfirmButton: false,
                 timer: timer,
                 timerProgressBar: true,
