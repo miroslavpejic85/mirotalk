@@ -377,6 +377,8 @@ let fileShareBtn;
 let mySettingsBtn;
 let aboutBtn;
 let leaveRoomBtn;
+let placement = 'right';
+// https://atomiks.github.io/tippyjs/#placements
 // chat room elements
 let msgerDraggable;
 let msgerHeader;
@@ -796,8 +798,8 @@ function setButtonsToolTip() {
     setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
     // video URL player
-    setTippy(videoUrlCloseBtn, 'Close the video player', 'right-start');
-    setTippy(videoAudioCloseBtn, 'Close the video player', 'right-start');
+    setTippy(videoUrlCloseBtn, 'Close the video player', 'bottom');
+    setTippy(videoAudioCloseBtn, 'Close the video player', 'bottom');
     setTippy(msgerVideoUrlBtn, 'Share a video or audio to all participants', 'top');
 }
 
@@ -809,7 +811,7 @@ function refreshMainButtonsToolTipPlacement() {
     // not need for mobile
     if (isMobileDevice) return;
     // main buttons
-    const placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top';
+    placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top';
     setTippy(shareRoomBtn, 'Invite others to join', placement);
     setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
     setTippy(audioBtn, 'Stop the audio', placement);
@@ -3633,7 +3635,7 @@ function setFullScreenBtn() {
             if (!fullscreenElement) {
                 fullScreenBtn.className = className.fsOff;
                 isDocumentOnFullScreen = false;
-                setTippy(fullScreenBtn, 'View full screen', 'right-start');
+                setTippy(fullScreenBtn, 'View full screen', placement);
             }
         });
         fullScreenBtn.addEventListener('click', (e) => {
@@ -4992,7 +4994,7 @@ function setScreenSharingStatus(status) {
     emitPeerStatus('video', status);
     initScreenShareBtn.className = status ? className.screenOff : className.screenOn;
     screenShareBtn.className = status ? className.screenOff : className.screenOn;
-    setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', 'right-start');
+    setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', placement);
 }
 
 /**
@@ -5009,7 +5011,7 @@ async function setMyVideoStatusTrue() {
     myVideoAvatarImage.style.display = 'none';
     emitPeerStatus('video', myVideoStatus);
     myVideo.style.display = 'block';
-    setTippy(videoBtn, 'Stop the video', 'right-start');
+    setTippy(videoBtn, 'Stop the video', placement);
     setTippy(initVideoBtn, 'Stop the video', 'top');
 }
 
@@ -5029,7 +5031,7 @@ function toggleFullScreen() {
             isDocumentOnFullScreen = false;
         }
     }
-    setTippy(fullScreenBtn, isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen', 'right-start');
+    setTippy(fullScreenBtn, isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen', placement);
 }
 
 /**
@@ -5321,7 +5323,7 @@ function handleMediaRecorderStart(event) {
     isStreamRecording = true;
     recordStreamBtn.style.setProperty('color', '#ff4500');
     startRecordingTime();
-    setTippy(recordStreamBtn, 'Stop recording', 'right-start');
+    setTippy(recordStreamBtn, 'Stop recording', placement);
     if (isMobileDevice) {
         swapCameraBtn.style.display = 'none';
     }
@@ -5356,7 +5358,7 @@ function handleMediaRecorderStop(event) {
     }
     recordStreamBtn.style.setProperty('color', '#000');
     downloadRecordedStream();
-    setTippy(recordStreamBtn, 'Start recording', 'right-start');
+    setTippy(recordStreamBtn, 'Start recording', placement);
     if (isMobileDevice) {
         swapCameraBtn.style.display = 'block';
     }
@@ -5443,7 +5445,7 @@ function showChatRoomDraggable() {
     msgerDraggable.style.left = isMobileDevice ? '50%' : '25%';
     msgerDraggable.style.display = 'flex';
     isChatRoomVisible = true;
-    setTippy(chatRoomBtn, 'Close the chat', 'right-start');
+    setTippy(chatRoomBtn, 'Close the chat', placement);
 }
 
 /**
@@ -5460,7 +5462,7 @@ function showCaptionDraggable() {
     captionDraggable.style.left = isMobileDevice ? '50%' : '75%';
     captionDraggable.style.display = 'flex';
     isCaptionBoxVisible = true;
-    setTippy(captionBtn, 'Close the caption', 'right-start');
+    setTippy(captionBtn, 'Close the caption', placement);
 }
 
 /**
@@ -5593,7 +5595,7 @@ function hideChatRoomAndEmojiPicker() {
     chatRoomBtn.className = className.chatOn;
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
-    setTippy(chatRoomBtn, 'Open the chat', 'right-start');
+    setTippy(chatRoomBtn, 'Open the chat', placement);
 }
 
 /**
@@ -5603,7 +5605,7 @@ function hideCaptionBox() {
     captionDraggable.style.display = 'none';
     captionBtn.className = className.captionOn;
     isCaptionBoxVisible = false;
-    setTippy(captionBtn, 'Open the caption', 'right-start');
+    setTippy(captionBtn, 'Open the caption', placement);
 }
 
 /**
@@ -6458,11 +6460,11 @@ function setMyHandStatus() {
     if (myHandStatus) {
         // Raise hand
         myHandStatus = false;
-        setTippy(myHandBtn, 'Raise your hand', 'right-start');
+        setTippy(myHandBtn, 'Raise your hand', placement);
     } else {
         // Lower hand
         myHandStatus = true;
-        setTippy(myHandBtn, 'Lower your hand', 'right-start');
+        setTippy(myHandBtn, 'Lower your hand', placement);
         playSound('raiseHand');
     }
     myHandBtn.style.color = myHandStatus ? 'green' : 'black';
@@ -6479,7 +6481,7 @@ function setMyAudioStatus(status) {
     // send my audio status to all peers in the room
     emitPeerStatus('audio', status);
     setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
-    setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', 'right-start');
+    setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', placement);
     status ? playSound('on') : playSound('off');
     console.log('My audio status', status);
 }
@@ -6497,7 +6499,7 @@ function setMyVideoStatus(status) {
     emitPeerStatus('video', status);
     if (!isMobileDevice) {
         if (myVideoStatusIcon) setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
-        setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', 'right-start');
+        setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', placement);
     }
     myVideo.style.display = status ? 'block' : 'none';
     initVideo.style.display = status ? 'block' : 'none';
