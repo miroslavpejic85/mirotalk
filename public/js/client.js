@@ -722,35 +722,35 @@ function setButtonsToolTip() {
     // main buttons
     refreshMainButtonsToolTipPlacement();
     // chat room buttons
-    setTippy(msgerTheme, 'Ghost theme', 'top');
-    setTippy(msgerCPBtn, 'Private messages', 'top');
-    setTippy(msgerClean, 'Clean the messages', 'top');
-    setTippy(msgerSaveBtn, 'Save the messages', 'top');
-    setTippy(msgerClose, 'Close', 'top');
-    setTippy(msgerMaxBtn, 'Maximize', 'top');
-    setTippy(msgerMinBtn, 'Minimize', 'top');
+    setTippy(msgerClose, 'Close', 'bottom');
+    setTippy(msgerShowChatOnMsgDiv, 'Show chat when you receive a new message', 'bottom');
+    setTippy(msgerSpeechMsgDiv, 'Speech the incoming messages', 'bottom');
+    setTippy(msgerTheme, 'Ghost theme', 'bottom');
+    setTippy(msgerClean, 'Clean the messages', 'bottom');
+    setTippy(msgerSaveBtn, 'Save the messages', 'bottom');
+    setTippy(msgerMaxBtn, 'Maximize', 'bottom');
+    setTippy(msgerMinBtn, 'Minimize', 'bottom');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerGPTBtn, 'ChatGPT', 'top');
     setTippy(msgerShareFileBtn, 'Share file', 'top');
+    setTippy(msgerCPBtn, 'Private messages', 'top');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
-    setTippy(msgerShowChatOnMsgDiv, 'Show chat when you receive a new message', 'top');
-    setTippy(msgerSpeechMsgDiv, 'Speech the incoming messages', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
     // chat participants buttons
-    setTippy(msgerCPCloseBtn, 'Close', 'top');
+    setTippy(msgerCPCloseBtn, 'Close', 'bottom');
     // caption buttons
-    setTippy(captionClose, 'Close', 'top');
-    setTippy(captionMaxBtn, 'Maximize', 'top');
-    setTippy(captionMinBtn, 'Minimize', 'top');
-    setTippy(captionTheme, 'Ghost theme', 'top');
-    setTippy(captionClean, 'Clean the messages', 'top');
-    setTippy(captionSaveBtn, 'Save the messages', 'top');
+    setTippy(captionClose, 'Close', 'bottom');
+    setTippy(captionMaxBtn, 'Maximize', 'bottom');
+    setTippy(captionMinBtn, 'Minimize', 'bottom');
+    setTippy(captionTheme, 'Ghost theme', 'bottom');
+    setTippy(captionClean, 'Clean the messages', 'bottom');
+    setTippy(captionSaveBtn, 'Save the messages', 'bottom');
     setTippy(speechRecognitionStart, 'Start', 'top');
     setTippy(speechRecognitionStop, 'Stop', 'top');
     // settings
-    setTippy(mySettingsCloseBtn, 'Close', 'right');
+    setTippy(mySettingsCloseBtn, 'Close', 'bottom');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
     setTippy(myRoomId, 'Room name (click to copy/share)', 'right');
     setTippy(
@@ -809,7 +809,7 @@ function refreshMainButtonsToolTipPlacement() {
     // not need for mobile
     if (isMobileDevice) return;
     // main buttons
-    const placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top-end';
+    const placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top';
     setTippy(shareRoomBtn, 'Invite others to join', placement);
     setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
     setTippy(audioBtn, 'Stop the audio', placement);
@@ -2385,18 +2385,20 @@ async function loadLocalMedia(stream) {
     myVideoPinBtn.className = className.pinUnpin;
 
     // no mobile devices
-    setTippy(myCountTime, 'Session Time', 'bottom');
-    setTippy(myPeerName, 'My name', 'bottom');
-    setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
-    setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
-    setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
-    setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
-    setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
-    setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
-    setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
-    setTippy(myVideoPiPBtn, 'Toggle picture in picture', 'bottom');
-    setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
-    setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
+    if (!isMobileDevice) {
+        setTippy(myCountTime, 'Session Time', 'bottom');
+        setTippy(myPeerName, 'My name', 'bottom');
+        setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
+        setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
+        setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
+        setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
+        setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
+        setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+        setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
+        setTippy(myVideoPiPBtn, 'Toggle picture in picture', 'bottom');
+        setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
+        setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
+    }
 
     // my video avatar image
     myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
@@ -2652,21 +2654,23 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     remoteVideoPinBtn.className = className.pinUnpin;
 
     // no mobile devices
-    setTippy(remotePeerName, 'Participant name', 'bottom');
-    setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
-    setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
-    setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
-    setTippy(remoteAudioVolume, '🔊 Volume', 'top');
-    setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
-    setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
-    setTippy(remoteFileShareBtn, 'Send file', 'bottom');
-    setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
-    setTippy(remotePeerKickOut, 'Kick out', 'bottom');
-    setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
-    setTippy(remoteVideoZoomInBtn, 'Zoom in video', 'bottom');
-    setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
-    setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
-    setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
+    if (!isMobileDevice) {
+        setTippy(remotePeerName, 'Participant name', 'bottom');
+        setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
+        setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
+        setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
+        setTippy(remoteAudioVolume, '🔊 Volume', 'top');
+        setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
+        setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+        setTippy(remoteFileShareBtn, 'Send file', 'bottom');
+        setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
+        setTippy(remotePeerKickOut, 'Kick out', 'bottom');
+        setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+        setTippy(remoteVideoZoomInBtn, 'Zoom in video', 'bottom');
+        setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
+        setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
+        setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
+    }
 
     // my video avatar image
     remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
@@ -5828,10 +5832,12 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     `;
     msgerChat.insertAdjacentHTML('beforeend', msgHTML);
     msgerChat.scrollTop += 500;
-    setTippy(getId('msg-delete-' + chatMessagesId), 'Delete', 'top');
-    setTippy(getId('msg-copy-' + chatMessagesId), 'Copy', 'top');
-    setTippy(getId('msg-speech-' + chatMessagesId), 'Speech', 'top');
-    setTippy(getId('msg-private-reply-' + chatMessagesId), 'Reply', 'top');
+    if (!isMobileDevice) {
+        setTippy(getId('msg-delete-' + chatMessagesId), 'Delete', 'top');
+        setTippy(getId('msg-copy-' + chatMessagesId), 'Copy', 'top');
+        setTippy(getId('msg-speech-' + chatMessagesId), 'Speech', 'top');
+        setTippy(getId('msg-private-reply-' + chatMessagesId), 'Reply', 'top');
+    }
     chatMessagesId++;
 }
 
@@ -6459,6 +6465,7 @@ function setMyHandStatus() {
         setTippy(myHandBtn, 'Lower your hand', 'right-start');
         playSound('raiseHand');
     }
+    myHandBtn.style.color = myHandStatus ? 'green' : 'black';
     myHandStatusIcon.style.display = myHandStatus ? 'inline' : 'none';
     emitPeerStatus('hand', myHandStatus);
 }
