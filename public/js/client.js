@@ -2636,7 +2636,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
     setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
     setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
-    setTippy(remoteAudioVolume, '🔊 Volume', 'top-end');
+    setTippy(remoteAudioVolume, '🔊 Volume', 'top');
     setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
     setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
     setTippy(remoteFileShareBtn, 'Send file', 'bottom');
@@ -3136,7 +3136,7 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
             let item = e.dataTransfer.items[0].webkitGetAsEntry();
             console.log('Drag and drop', item);
             if (item.isDirectory) {
-                return userLog('warning', 'Please drag and drop a single file not a folder.', 'top-end');
+                return userLog('warning', 'Please drag and drop a single file not a folder.', 'top');
             }
             let file = e.dataTransfer.items[0].getAsFile();
             sendFileInformations(file, peer_id);
@@ -3754,8 +3754,8 @@ function setChatRoomBtn() {
         playSound('switch');
         showChatOnMessage = e.currentTarget.checked;
         showChatOnMessage
-            ? msgPopup('info', 'Chat will be shown, when you receive a new message', 'top-end', 3000)
-            : msgPopup('info', 'Chat not will be shown, when you receive a new message', 'top-end', 3000);
+            ? msgPopup('info', 'Chat will be shown, when you receive a new message', 'top', 3000)
+            : msgPopup('info', 'Chat not will be shown, when you receive a new message', 'top', 3000);
         lsSettings.show_chat_on_msg = showChatOnMessage;
         lS.setSettings(lsSettings);
     });
@@ -3766,8 +3766,8 @@ function setChatRoomBtn() {
             playSound('switch');
             speechInMessages = e.currentTarget.checked;
             speechInMessages
-                ? msgPopup('info', 'When I receive a new message, it will be converted into speech', 'top-end', 3000)
-                : msgPopup('info', 'You have disabled speech messages', 'top-end', 3000);
+                ? msgPopup('info', 'When I receive a new message, it will be converted into speech', 'top', 3000)
+                : msgPopup('info', 'You have disabled speech messages', 'top', 3000);
             lsSettings.speech_in_msg = speechInMessages;
             lS.setSettings(lsSettings);
         });
@@ -5864,10 +5864,10 @@ function copyToClipboard(id) {
     navigator.clipboard
         .writeText(text)
         .then(() => {
-            msgPopup('success', 'Message copied!', 'top-end', 1000);
+            msgPopup('success', 'Message copied!', 'top', 1000);
         })
         .catch((err) => {
-            msgPopup('error', err, 'top-end', 2000);
+            msgPopup('error', err, 'top', 2000);
         });
 }
 
@@ -6995,13 +6995,13 @@ function handleRoomStatus(config) {
     switch (action) {
         case 'lock':
             playSound('locked');
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`, 'top-end');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`, 'top');
             elemDisplay(lockRoomBtn, false);
             elemDisplay(unlockRoomBtn, true);
             isRoomLocked = true;
             break;
         case 'unlock':
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top-end');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top');
             elemDisplay(unlockRoomBtn, false);
             elemDisplay(lockRoomBtn, true);
             isRoomLocked = false;
@@ -8481,7 +8481,7 @@ function userLog(type, message, timer = 3000) {
             const Toast = Swal.mixin({
                 background: swalBackground,
                 toast: true,
-                position: 'top-end',
+                position: 'top',
                 showConfirmButton: false,
                 timer: timer,
                 timerProgressBar: true,
