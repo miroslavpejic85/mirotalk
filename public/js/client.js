@@ -8414,9 +8414,20 @@ function showAbout() {
         html: `
         <br/>
         <div id="about">
-            <button id="sponsor-button" data-umami-event="Sponsor button" class="pulsate" onclick="window.open('https://codecanyon.net/user/miroslavpejic85')"><i class="${className.heart}" ></i>&nbsp;Support</button>
+            <button 
+                id="support-button" 
+                data-umami-event="Support button" 
+                class="pulsate" 
+                onclick="window.open('https://codecanyon.net/user/miroslavpejic85')">
+                <i class="${className.heart}" ></i>&nbsp;Support
+            </button>
             <br /><br />
-            Author:<a id="linkedin-button" data-umami-event="Linkedin button" href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> Miroslav Pejic</a>
+            Author:<a 
+                id="linkedin-button" 
+                data-umami-event="Linkedin button" 
+                href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> 
+                Miroslav Pejic
+            </a>
         </div>
         `,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
