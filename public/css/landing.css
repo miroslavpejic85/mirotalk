@@ -2633,9 +2633,31 @@ ul.pricing-item-features-list li {
     padding: 12px 28px;
 }
 
+.clients-size-logo {
+    width: 240px;
+    height: 50px;
+}
+
+.clients-logo {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 1rem;
+    background: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #1d2026 100%);
+}
+
+.clients-logo:hover {
+    background: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #0e0e0e 100%);
+}
+
 @media (min-width: 641px) {
     .clients .clients-inner ul {
         flex-direction: row;
+    }
+}
+@media (max-width: 641px) {
+    .clients-size-logo {
+        width: 300px;
     }
 }
 
@@ -3411,10 +3433,6 @@ img.has-shadow {
     border-radius: 24px;
 }
 
-.w-150 {
-    width: 150px;
-}
-
 .w-300 {
     width: 300px;
 }
@@ -3477,10 +3495,6 @@ img.has-shadow {
 
     .spacer-64-mobile {
         padding-top: 64px;
-    }
-
-    .w-150 {
-        width: 300px;
     }
 }
 
