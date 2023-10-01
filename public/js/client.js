@@ -265,6 +265,8 @@ let surveyActive = true; // when leaving the room give a feedback, if false will
 
 let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 
+let audioRecorder = null; // helpers.js
+
 let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
 let userAgent; // User agent info
@@ -2835,7 +2837,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     // show status menu
     toggleClassElements('statusMenu', 'inline');
     // notify if peer started to recording own screen + audio
-    if (peer_rec_status) notifyRecording(peer_name, 'Started');
+    if (peer_rec_status) notifyRecording(peer_id, peer_name, 'Started');
 
     // Peer without camera, screen sharing OFF
     if (!peer_video && !peer_screen_status) {
@@ -5209,6 +5211,15 @@ function checkRecording() {
 }
 
 /**
+ * Handle recording errors
+ * @param {string} error
+ */
+function handleRecordingError(error) {
+    console.error('Recording error', error);
+    userLog('error', error, 6000);
+}
+
+/**
  * Start recording time
  */
 function startRecordingTime() {
@@ -5249,55 +5260,171 @@ function getSupportedMimeTypes() {
 function startStreamRecording() {
     recordedBlobs = [];
 
-    let options = getSupportedMimeTypes();
-    console.log('MediaRecorder options supported', options);
-    options = { mimeType: options[0] }; // select the first available as mimeType
+    // Get supported MIME types and set options
+    const supportedMimeTypes = getSupportedMimeTypes();
+    console.log('MediaRecorder supported options', supportedMimeTypes);
+    const options = { mimeType: supportedMimeTypes[0] };
 
     try {
-        if (isMobileDevice) {
-            // on mobile devices recording camera + audio
-            mediaRecorder = new MediaRecorder(localMediaStream, options);
-            console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-            handleMediaRecorder(mediaRecorder);
-        } else {
-            // on desktop devices recording screen + audio
-            screenMaxFrameRate = parseInt(screenFpsSelect.value);
-            const constraints = {
-                video: { frameRate: { max: screenMaxFrameRate } },
-            };
-            let recScreenStreamPromise = navigator.mediaDevices.getDisplayMedia(constraints);
-            recScreenStreamPromise
-                .then((screenStream) => {
-                    const newStream = new MediaStream([
-                        screenStream.getVideoTracks()[0],
-                        localMediaStream.getAudioTracks()[0],
-                    ]);
-                    recScreenStream = newStream;
-                    mediaRecorder = new MediaRecorder(recScreenStream, options);
-                    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-                    isRecScreenStream = true;
-                    handleMediaRecorder(mediaRecorder);
-                })
-                .catch((err) => {
-                    console.error('[Error] Unable to recording the screen + audio', err);
-                    userLog('error', 'Unable to recording the screen + audio ' + err);
-                });
-        }
+        audioRecorder = new MixedAudioRecorder();
+        const audioStreams = getAudioStreamFromVideoElements();
+        console.log('Audio streams tracks --->', audioStreams.getTracks());
+
+        const audioMixerStreams = audioRecorder.getMixedAudioStream([audioStreams, localMediaStream]);
+        const audioMixerTracks = audioMixerStreams.getTracks();
+        console.log('Audio mixer tracks --->', audioMixerTracks);
+
+        isMobileDevice
+            ? startMobileRecording(options, audioMixerTracks)
+            : startDesktopRecording(options, audioMixerTracks);
     } catch (err) {
-        console.error('Exception while creating MediaRecorder: ', err);
-        return userLog('error', "Can't start stream recording: " + err);
+        handleRecordingError('Exception while creating MediaRecorder: ' + err);
     }
 }
 
 /**
+ * Starts mobile recording with the specified options and audio mixer tracks.
+ * @param {MediaRecorderOptions} options - MediaRecorder options.
+ * @param {array} audioMixerTracks - Array of audio tracks from the audio mixer.
+ */
+function startMobileRecording(options, audioMixerTracks) {
+    try {
+        // Combine audioMixerTracks and videoTracks into a single array
+        const combinedTracks = [];
+
+        // Add audio mixer tracks to the combinedTracks array if available
+        if (Array.isArray(audioMixerTracks)) {
+            combinedTracks.push(...audioMixerTracks);
+        }
+
+        // Check if there's a local media stream (presumably for the camera)
+        if (localMediaStream !== null) {
+            const videoTracks = localMediaStream.getVideoTracks();
+            console.log('Cam video tracks --->', videoTracks);
+
+            // Add video tracks from the local media stream to combinedTracks if available
+            if (Array.isArray(videoTracks)) {
+                combinedTracks.push(...videoTracks);
+            }
+        }
+
+        // Create a new MediaStream using the combinedTracks
+        const recCamStream = new MediaStream(combinedTracks);
+        console.log('New Cam Media Stream tracks  --->', recCamStream.getTracks());
+
+        // Create a MediaRecorder instance with the combined stream and specified options
+        mediaRecorder = new MediaRecorder(recCamStream, options);
+        console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+
+        // Call a function to handle the MediaRecorder
+        handleMediaRecorder(mediaRecorder);
+    } catch (err) {
+        // Handle any errors that occur during the recording setup
+        handleRecordingError('Unable to record the camera + audio: ' + err);
+    }
+}
+
+/**
+ * Starts desktop recording with the specified options and audio mixer tracks.
+ * On desktop devices, it records the screen or window along with all audio tracks.
+ * @param {MediaRecorderOptions} options - MediaRecorder options.
+ * @param {array} audioMixerTracks - Array of audio tracks from the audio mixer.
+ */
+function startDesktopRecording(options, audioMixerTracks) {
+    // Get the desired frame rate for screen recording
+    screenMaxFrameRate = parseInt(screenFpsSelect.value);
+
+    // Define constraints for capturing the screen
+    const constraints = {
+        video: { frameRate: { max: screenMaxFrameRate } },
+    };
+
+    // Request access to screen capture using the specified constraints
+    navigator.mediaDevices
+        .getDisplayMedia(constraints)
+        .then((screenStream) => {
+            // Get video tracks from the screen capture stream
+            const screenTracks = screenStream.getVideoTracks();
+            console.log('Screen video tracks --->', screenTracks);
+
+            // Create an array to combine screen tracks and audio mixer tracks
+            const combinedTracks = [];
+
+            // Add screen video tracks to combinedTracks if available
+            if (Array.isArray(screenTracks)) {
+                combinedTracks.push(...screenTracks);
+            }
+
+            // Add audio mixer tracks to combinedTracks if available
+            if (Array.isArray(audioMixerTracks)) {
+                combinedTracks.push(...audioMixerTracks);
+            }
+
+            // Create a new MediaStream using the combinedTracks
+            recScreenStream = new MediaStream(combinedTracks);
+            console.log('New Screen/Window Media Stream tracks  --->', recScreenStream.getTracks());
+
+            // Create a MediaRecorder instance with the combined stream and specified options
+            mediaRecorder = new MediaRecorder(recScreenStream, options);
+            console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+
+            // Set a flag to indicate that screen recording is active
+            isRecScreenStream = true;
+
+            // Call a function to handle the MediaRecorder
+            handleMediaRecorder(mediaRecorder);
+        })
+        .catch((err) => {
+            // Handle any errors that occur during screen recording setup
+            handleRecordingError('Unable to record the screen + audio: ' + err);
+        });
+}
+
+/**
+ * Get a MediaStream containing audio tracks from video elements on the page.
+ * @returns {MediaStream} A MediaStream containing audio tracks.
+ */
+function getAudioStreamFromVideoElements() {
+    // Find all video elements on the page
+    const videoElements = document.querySelectorAll('video');
+    // Create a new MediaStream to hold audio tracks
+    const audioStream = new MediaStream();
+    // Iterate through each video element
+    videoElements.forEach((video) => {
+        // Check if the video element has a source object
+        if (video.srcObject) {
+            const audioTracks = video.srcObject.getAudioTracks();
+            // Iterate through audio tracks and add them to the audio stream
+            audioTracks.forEach((audioTrack) => {
+                audioStream.addTrack(audioTrack);
+            });
+        } else {
+            // If the video element doesn't have a source object, try to capture audio from the audio element
+            const audioElement = video.querySelector('audio');
+            if (audioElement) {
+                const audioSource = audioElement.captureStream();
+                const audioTracks = audioSource.getAudioTracks();
+                // Iterate through audio tracks and add them to the audio stream
+                audioTracks.forEach((audioTrack) => {
+                    audioStream.addTrack(audioTrack);
+                });
+            }
+        }
+    });
+    return audioStream;
+}
+
+/**
  * Notify me if someone start to recording they screen + audio
+ * @param {string} fromId peer_id
  * @param {string} from peer_name
  * @param {string} action recording action
  */
-function notifyRecording(from, action) {
+function notifyRecording(fromId, from, action) {
     let msg = '[ 🔴 REC ] : ' + action + ' to recording his own screen and audio';
     let chatMessage = {
         from: from,
+        fromId: fromId,
         to: myPeerName,
         msg: msg,
         privateMsg: false,
@@ -5322,7 +5449,6 @@ function handleMediaRecorder(mediaRecorder) {
  * @param {object} event of media recorder
  */
 function handleMediaRecorderStart(event) {
-    playSound('recStart');
     if (isRecScreenStream) {
         emitPeersAction('recStart');
         emitPeerStatus('rec', isRecScreenStream);
@@ -5335,6 +5461,7 @@ function handleMediaRecorderStart(event) {
     if (isMobileDevice) {
         swapCameraBtn.style.display = 'none';
     }
+    playSound('recStart');
 }
 
 /**
@@ -5351,7 +5478,6 @@ function handleMediaRecorderData(event) {
  * @param {object} event of media recorder
  */
 function handleMediaRecorderStop(event) {
-    playSound('recStop');
     console.log('MediaRecorder stopped: ', event);
     console.log('MediaRecorder Blobs: ', recordedBlobs);
     isStreamRecording = false;
@@ -5370,6 +5496,7 @@ function handleMediaRecorderStop(event) {
     if (isMobileDevice) {
         swapCameraBtn.style.display = 'block';
     }
+    playSound('recStop');
 }
 
 /**
@@ -5377,6 +5504,7 @@ function handleMediaRecorderStop(event) {
  */
 function stopStreamRecording() {
     mediaRecorder.stop();
+    audioRecorder.stopMixedAudioStream();
 }
 
 /**
@@ -6752,10 +6880,10 @@ function handlePeerAction(config) {
             setMyVideoOff(peer_name);
             break;
         case 'recStart':
-            notifyRecording(peer_name, 'Started');
+            notifyRecording(peer_id, peer_name, 'Started');
             break;
         case 'recStop':
-            notifyRecording(peer_name, 'Stopped');
+            notifyRecording(peer_id, peer_name, 'Stopped');
             break;
         case 'screenStart':
             handleScreenStart(peer_id);
