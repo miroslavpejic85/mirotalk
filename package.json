@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
@@ -34,9 +34,9 @@
     "license": "AGPL-3.0",
     "homepage": "https://github.com/miroslavpejic85/mirotalk",
     "dependencies": {
-        "@sentry/integrations": "^7.70.0",
-        "@sentry/node": "^7.70.0",
-        "axios": "^1.5.0",
+        "@sentry/integrations": "^7.72.0",
+        "@sentry/node": "^7.72.0",
+        "axios": "^1.5.1",
         "body-parser": "^1.20.2",
         "colors": "^1.4.0",
         "compression": "^1.7.4",
@@ -45,7 +45,7 @@
         "dotenv": "^16.3.1",
         "express": "^4.18.2",
         "ngrok": "^4.3.3",
-        "openai": "^4.10.0",
+        "openai": "^4.11.0",
         "qs": "^6.11.2",
         "socket.io": "^4.7.2",
         "swagger-ui-express": "^5.0.0",
