@@ -1944,8 +1944,6 @@ function handleDisconnect(reason) {
 function handleRemovePeer(config) {
     console.log('Signaling server said to remove peer:', config);
 
-    checkRecording();
-
     const { peer_id } = config;
 
     if (peer_id in peerMediaElements) {
