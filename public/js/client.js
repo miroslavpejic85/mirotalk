@@ -7246,11 +7246,17 @@ function handleWhiteboardToggle() {
  * Whiteboard: Show-Hide
  */
 function toggleWhiteboard() {
-    if (!wbIsOpen) playSound('newMessage');
+    if (!wbIsOpen) {
+        playSound('newMessage');
+        setTippy(whiteboardBtn, 'Close the Whiteboard', placement);
+    } else {
+        setTippy(whiteboardBtn, 'Open the Whiteboard', placement);
+    }
+
     whiteboard.classList.toggle('show');
     whiteboard.style.top = '50%';
     whiteboard.style.left = '50%';
-    wbIsOpen = wbIsOpen ? false : true;
+    wbIsOpen = !wbIsOpen;
 }
 
 /**
