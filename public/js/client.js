@@ -4836,6 +4836,7 @@ function handleVideo(e, init, force = null) {
 
     localMediaStream.getVideoTracks()[0].enabled =
         force != null ? force : !localMediaStream.getVideoTracks()[0].enabled;
+
     myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
 
     force != null
@@ -4851,6 +4852,12 @@ function handleVideo(e, init, force = null) {
         initVideoSelect.disabled = !myVideoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, myVideoStatus);
     }
+
+    // removes the track when the camera is off
+    if (!myVideoStatus) {
+        stopTracks(initStream);
+    }
+
     setMyVideoStatus(myVideoStatus);
 }
 
