@@ -831,7 +831,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(myHandBtn, 'Raise your hand', placement);
     setTippy(whiteboardBtn, 'Open the whiteboard', placement);
     setTippy(fileShareBtn, 'Share file', placement);
-    setTippy(mySettingsBtn, 'Open settings', placement);
+    setTippy(mySettingsBtn, 'Open the settings', placement);
     setTippy(aboutBtn, 'About this project', placement);
     setTippy(leaveRoomBtn, 'Leave this room', placement);
 }
@@ -6467,10 +6467,12 @@ function hideShowMySettings() {
         mySettings.style.left = '50%';
         mySettings.style.display = 'block';
         isMySettingsVisible = true;
+        setTippy(mySettingsBtn, 'Close the settings', placement);
         return;
     }
     mySettings.style.display = 'none';
     isMySettingsVisible = false;
+    setTippy(mySettingsBtn, 'Open the settings', placement);
 }
 
 /**
