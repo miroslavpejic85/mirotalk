@@ -4825,40 +4825,62 @@ function handleAudio(e, init, force = null) {
 }
 
 /**
+ * Stop video track from MediaStream
+ * @param {MediaStream} stream
+ */
+function stopVideoTracks(stream) {
+    stream.getTracks().forEach((track) => {
+        if (track.kind === 'video') track.stop();
+    });
+}
+
+/**
  * Handle Video ON - OFF
  * @param {object} e event
  * @param {boolean} init on join room
  * @param {null|boolean} force video off (default null can be true/false)
  */
-function handleVideo(e, init, force = null) {
+async function handleVideo(e, init, force = null) {
     if (!useVideo) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
 
-    localMediaStream.getVideoTracks()[0].enabled =
-        force != null ? force : !localMediaStream.getVideoTracks()[0].enabled;
+    const videoTrack = localMediaStream.getVideoTracks()[0];
+    const videoStatus = force !== null ? force : !videoTrack.enabled;
+    const videoClassName = videoStatus ? className.videoOn : className.videoOff;
 
-    myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+    videoTrack.enabled = videoStatus;
 
-    force != null
-        ? (e.className = myVideoStatus ? className.videoOn : className.videoOff)
-        : (e.target.className = myVideoStatus ? className.videoOn : className.videoOff);
+    force != null ? (e.className = videoClassName) : (e.target.className = videoClassName);
 
-    videoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
+    videoBtn.className = videoClassName;
 
     if (init) {
-        initVideoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
-        setTippy(initVideoBtn, myVideoStatus ? 'Stop the video' : 'Start the video', 'top');
-        initVideo.style.display = myVideoStatus ? 'block' : 'none';
-        initVideoSelect.disabled = !myVideoStatus;
-        lS.setInitConfig(lS.MEDIA_TYPE.video, myVideoStatus);
+        initVideoBtn.className = videoClassName;
+        setTippy(initVideoBtn, videoStatus ? 'Stop the video' : 'Start the video', 'top');
+        initVideo.style.display = videoStatus ? 'block' : 'none';
+        initVideoSelect.disabled = !videoStatus;
+        lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
     }
 
-    // removes the track when the camera is off
-    if (!myVideoStatus) {
-        stopTracks(initStream);
+    if (!videoStatus || force) {
+        // stop the init/local video track (camera led off)
+        stopVideoTracks(initStream);
+        stopVideoTracks(localMediaStream);
+    } else {
+        if (init) {
+            // resume the init video track (camera led on)
+            await refreshLocalMedia();
+            await changeInitCamera(initVideoSelect.value);
+        } else {
+            // resume the video track (camera led on)
+            await setupLocalMedia();
+            await refreshLocalMedia();
+        }
     }
 
-    setMyVideoStatus(myVideoStatus);
+    myVideoStatus = videoStatus;
+
+    setMyVideoStatus(videoStatus);
 }
 
 /**
