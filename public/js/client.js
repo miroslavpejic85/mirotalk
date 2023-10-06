@@ -4262,8 +4262,8 @@ function loadSettingsFromLocalStorage() {
     msgerSpeechMsg.checked = speechInMessages;
     screenFpsSelect.selectedIndex = lsSettings.screen_fps;
     videoFpsSelect.selectedIndex = lsSettings.video_fps;
-    screenMaxFrameRate = getSelectedIndexValue(screenFpsSelect);
-    videoMaxFrameRate = getSelectedIndexValue(videoFpsSelect);
+    screenMaxFrameRate = parseInt(getSelectedIndexValue(screenFpsSelect));
+    videoMaxFrameRate = parseInt(getSelectedIndexValue(videoFpsSelect));
     notifyBySound = lsSettings.sounds;
     isAudioPitchBar = lsSettings.pitch_bar;
     switchSounds.checked = notifyBySound;
