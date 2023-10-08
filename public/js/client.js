@@ -168,6 +168,9 @@ console.log('LS_SETTINGS', lsSettings);
 // Check if PIP is supported by this browser
 const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
 
+// Check if Document PIP is supported by this browser
+const showDocumentPipBtn = !isMobileDevice && 'documentPictureInPicture' in window;
+
 /**
  * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
  * Set properties to true to show the corresponding buttons, or false to hide them.
@@ -186,6 +189,7 @@ const buttons = {
         showMyHandBtn: true,
         showWhiteboardBtn: true,
         showFileShareBtn: true,
+        showDocumentPipBtn: showDocumentPipBtn,
         showMySettingsBtn: true,
         showAboutBtn: true, // Please keep me always true, Thank you!
     },
@@ -379,6 +383,7 @@ let captionBtn;
 let myHandBtn;
 let whiteboardBtn;
 let fileShareBtn;
+let documentPiPBtn;
 let mySettingsBtn;
 let aboutBtn;
 let leaveRoomBtn;
@@ -582,6 +587,7 @@ function getHtmlElementsById() {
     whiteboardBtn = getId('whiteboardBtn');
     fileShareBtn = getId('fileShareBtn');
     myHandBtn = getId('myHandBtn');
+    documentPiPBtn = getId('documentPiPBtn');
     mySettingsBtn = getId('mySettingsBtn');
     aboutBtn = getId('aboutBtn');
     leaveRoomBtn = getId('leaveRoomBtn');
@@ -834,6 +840,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(myHandBtn, 'Raise your hand', placement);
     setTippy(whiteboardBtn, 'Open the whiteboard', placement);
     setTippy(fileShareBtn, 'Share file', placement);
+    setTippy(documentPiPBtn, 'Toggle picture in picture', placement);
     setTippy(mySettingsBtn, 'Open the settings', placement);
     setTippy(aboutBtn, 'About this project', placement);
     setTippy(leaveRoomBtn, 'Leave this room', placement);
@@ -1242,6 +1249,7 @@ function handleButtonsRule() {
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
     elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
+    elemDisplay(documentPiPBtn, buttons.main.showDocumentPipBtn);
     elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
     elemDisplay(aboutBtn, buttons.main.showAboutBtn);
     // chat
@@ -3647,6 +3655,7 @@ function manageLeftButtons() {
     setMyHandBtn();
     setMyWhiteboardBtn();
     setMyFileShareBtn();
+    setDocumentPiPBtn();
     setMySettingsBtn();
     setAboutBtn();
     setLeaveRoomBtn();
@@ -4136,7 +4145,7 @@ function setMyWhiteboardBtn() {
 }
 
 /**
- * File Transfer button event click
+ * File Transfer button click event
  */
 function setMyFileShareBtn() {
     // make send-receive file div draggable
@@ -4154,6 +4163,73 @@ function setMyFileShareBtn() {
     });
     receiveHideBtn.addEventListener('click', (e) => {
         hideFileTransfer();
+    });
+}
+
+/**
+ * Document Picture-in-Picture button click event
+ */
+function setDocumentPiPBtn() {
+    documentPiPBtn.addEventListener('click', async () => {
+        if (documentPictureInPicture.window) {
+            documentPictureInPicture.window.close();
+            return;
+        }
+
+        const pipWindow = await documentPictureInPicture.requestWindow({
+            width: 300,
+            height: 720,
+        });
+
+        const bodyStyle = window.getComputedStyle(document.body);
+        pipWindow.document.body.style = `
+            box-sizing: border-box;
+            background: ${bodyStyle.getPropertyValue('--body-bg')};
+        `;
+
+        const pipVideoContainer = document.createElement('div');
+        pipVideoContainer.style = `
+            display: grid;
+            gap: 10px;
+        `;
+
+        pipWindow.document.body.append(pipVideoContainer);
+
+        function cloneVideoElements() {
+            pipVideoContainer.innerHTML = '';
+
+            [...document.querySelectorAll('video')].forEach((video) => {
+                if (!video.srcObject) return;
+
+                const pipVideo = document.createElement('video');
+
+                pipVideo.style = `
+                    width: 100%;
+                    object-fit: cover;
+                    border-radius: 5px;
+                    aspect-ratio: 16 / 9;
+                `;
+                pipVideo.srcObject = video.srcObject;
+                pipVideo.autoplay = true;
+                pipVideo.muted = true;
+
+                pipVideoContainer.append(pipVideo);
+            });
+        }
+
+        cloneVideoElements();
+
+        const observer = new MutationObserver(() => {
+            cloneVideoElements();
+        });
+
+        observer.observe(pipVideoContainer, {
+            childList: true,
+        });
+
+        pipWindow.addEventListener('unload', () => {
+            observer.disconnect();
+        });
     });
 }
 
