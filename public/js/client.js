@@ -4169,26 +4169,29 @@ function setDocumentPiPBtn() {
         });
 
         const bodyStyle = window.getComputedStyle(document.body);
-        const pipWindowBodyStyle = `background: ${bodyStyle.getPropertyValue('--body-bg')}`;
+        const pipBodyStyle = `
+            box-sizing: border-box;
+            background: ${bodyStyle.getPropertyValue('--body-bg')};
+        `;
+        pipWindow.document.body.style = pipBodyStyle;
 
-        pipWindow.document.body.style = pipWindowBodyStyle;
+        const pipVideoContainer = document.createElement('div');
+        pipVideoContainer.style = 'display: grid; gap: 10px';
+        pipWindow.document.body.append(pipVideoContainer);
 
         function cloneVideoElements() {
-            pipWindow.document.body.innerHTML = '';
+            pipVideoContainer.innerHTML = '';
 
             [...document.querySelectorAll('video')].forEach((video) => {
-                if (!video.srcObject) {
-                    return;
-                }
+                if (!video.srcObject) return;
 
-                const pipWindowVideo = document.createElement('video');
+                const pipVideo = document.createElement('video');
+                pipVideo.style = 'width: 100%; border-radius: 5px';
+                pipVideo.srcObject = video.srcObject;
+                pipVideo.autoplay = true;
+                pipVideo.muted = true;
 
-                pipWindowVideo.style = 'width: 100%; border-radius: 5px';
-                pipWindowVideo.srcObject = video.srcObject;
-                pipWindowVideo.autoplay = true;
-                pipWindowVideo.muted = true;
-
-                pipWindow.document.body.append(pipWindowVideo);
+                pipVideoContainer.append(pipVideo);
             });
         }
 
