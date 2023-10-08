@@ -4169,14 +4169,17 @@ function setDocumentPiPBtn() {
         });
 
         const bodyStyle = window.getComputedStyle(document.body);
-        const pipBodyStyle = `
+        pipWindow.document.body.style = `
             box-sizing: border-box;
             background: ${bodyStyle.getPropertyValue('--body-bg')};
         `;
-        pipWindow.document.body.style = pipBodyStyle;
 
         const pipVideoContainer = document.createElement('div');
-        pipVideoContainer.style = 'display: grid; gap: 10px';
+        pipVideoContainer.style = `
+            display: grid;
+            gap: 10px;
+        `;
+
         pipWindow.document.body.append(pipVideoContainer);
 
         function cloneVideoElements() {
@@ -4186,6 +4189,7 @@ function setDocumentPiPBtn() {
                 if (!video.srcObject) return;
 
                 const pipVideo = document.createElement('video');
+
                 pipVideo.style = `
                     width: 100%;
                     object-fit: cover;
@@ -4206,7 +4210,7 @@ function setDocumentPiPBtn() {
             cloneVideoElements();
         });
 
-        observer.observe(document.querySelector('#videoMediaContainer'), {
+        observer.observe(pipVideoContainer, {
             childList: true,
         });
 
