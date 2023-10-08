@@ -4604,12 +4604,12 @@ async function setLocalVideoQuality() {
  */
 function changeAudioDestination() {
     const audioDestination = audioOutputSelect.value;
-    attachSinkId(myVideo, audioDestination);
+    attachSinkId(myAudio, audioDestination);
 }
 
 /**
- * Attach audio output device to video element using device/sink ID.
- * @param {object} element video element to attach the audio output
+ * Attach audio output device to audio element using device/sink ID.
+ * @param {object} element audio element to attach the audio output
  * @param {string} sinkId uuid audio output device
  */
 function attachSinkId(element, sinkId) {
