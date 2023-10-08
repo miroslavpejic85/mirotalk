@@ -1123,7 +1123,6 @@ async function handleConnect() {
         await joinToChannel();
     } else {
         await initEnumerateDevices();
-        //await setupLocalMedia();
         await setupLocalVideoMedia();
         await setupLocalAudioMedia();
         getHtmlElementsById();
@@ -1703,25 +1702,37 @@ async function handleOnIceCandidate(peer_id) {
  */
 async function handleOnTrack(peer_id, peers) {
     console.log('[ON TRACK] - peer_id', { peer_id: peer_id });
+
     peerConnections[peer_id].ontrack = (event) => {
-        const remoteVideoStream = getId(peer_id + '_video');
-        const peer_name = peers[peer_id]['peer_name'];
-        const kind = event.track.kind;
-        //userLog('info', '[ON TRACK] - peer_name: ' + peer_name + ' kind: ' + kind);
-        console.log('[ON TRACK] - info', { peer_id: peer_id, peer_name: peer_name, kind: kind, track: event.track });
+        const remoteVideoStream = getId(`${peer_id}_video`);
+        const remoteAudioStream = getId(`${peer_id}_audio`);
+        const peerInfo = peers[peer_id];
+        const { peer_name } = peerInfo;
+        const { kind } = event.track;
+
+        console.log('[ON TRACK] - info', { peer_id, peer_name, kind });
+
         if (event.streams && event.streams[0]) {
             console.log('[ON TRACK] - peers', peers);
-            //loadRemoteVideoMediaStream(event.streams[0], peers, peer_id, kind);
-            remoteVideoStream && kind === 'video'
-                ? attachMediaStream(remoteVideoStream, event.streams[0])
-                : loadRemoteVideoMediaStream(event.streams[0], peers, peer_id, kind);
+
+            switch (kind) {
+                case 'video':
+                    remoteVideoStream
+                        ? attachMediaStream(remoteVideoStream, event.streams[0])
+                        : loadRemoteMediaStream(event.streams[0], peers, peer_id, kind);
+                    break;
+                case 'audio':
+                    remoteAudioStream && isAudioTrack
+                        ? attachMediaStream(remoteAudioStream, event.streams[0])
+                        : loadRemoteMediaStream(event.streams[0], peers, peer_id, kind);
+                    break;
+                case 'screen':
+                    // Currently replace the video track and vice versa
+                    break;
+                default:
+                    break;
+            }
         }
-        // else {
-        //     console.log('[ON TRACK] - SCREEN SHARING', { peer_id: peer_id, peer_name: peer_name, kind: kind });
-        //     // attach newStream with screen share video and audio already existing
-        //     const inboundStream = new MediaStream([event.track, remoteVideoStream.srcObject.getAudioTracks()[0]]);
-        //     attachMediaStream(remoteVideoStream, inboundStream);
-        // }
     };
 }
 
@@ -2319,20 +2330,17 @@ function addChild(device, els) {
 }
 
 /**
- * Setup local media stuff. Ask user for permission to use the computers camera,
- * attach it to an <video> tag if they give us access.
+ * Setup local video media. Ask the user for permission to use the computer's camera,
+ * and attach it to a <video> tag if access is granted.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  */
 async function setupLocalVideoMedia() {
-    // if we've already been initialized do nothing or there is error on initEnumerateDevicesFailed
-    if (localVideoMediaStream != null || initEnumerateDevicesFailed) {
+    if (localVideoMediaStream || initEnumerateDevicesFailed) {
         return;
     }
 
-    console.log('08. Requesting access to local video inputs');
-    // console.log('09. Supported constraints', navigator.mediaDevices.getSupportedConstraints());
+    console.log('Requesting access to local video inputs');
 
-    // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 2kVideo | 4kVideo |
     const videoConstraints = useVideo ? await getVideoConstraints('default') : false;
 
     try {
@@ -2341,26 +2349,21 @@ async function setupLocalVideoMedia() {
             await loadLocalMedia(stream, 'video');
         }
     } catch (err) {
-        console.error('[Error] - Access denied for video device', err);
-        playSound('alert');
-        openURL(
-            `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
-        );
+        handleMediaError('video', err);
     }
-} // end [setup_local_video_stream]
+}
 
 /**
- * Setup local media stuff. Ask user for permission to use the computers microphone,
- * attach it to an <audio> tag if they give us access.
+ * Setup local audio media. Ask the user for permission to use the computer's microphone,
+ * and attach it to an <audio> tag if access is granted.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  */
 async function setupLocalAudioMedia() {
-    // if we've already been initialized do nothing or there is error on initEnumerateDevicesFailed
-    if (localAudioMediaStream != null || initEnumerateDevicesFailed) {
+    if (localAudioMediaStream || initEnumerateDevicesFailed) {
         return;
     }
 
-    console.log('08. Requesting access to local audio inputs');
+    console.log('Requesting access to local audio inputs');
 
     const audioConstraints = useAudio ? await getAudioConstraints() : false;
 
@@ -2373,13 +2376,22 @@ async function setupLocalAudioMedia() {
             }
         }
     } catch (err) {
-        console.error('[Error] - Access denied for audio device', err);
-        playSound('alert');
-        openURL(
-            `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
-        );
+        handleMediaError('audio', err);
     }
-} // end [setup_local_audio_stream]
+}
+
+/**
+ * Handle media access error.
+ * @param {string} mediaType - 'video' or 'audio'
+ * @param {Error} err - The error object
+ */
+function handleMediaError(mediaType, err) {
+    console.error(`[Error] - Access denied for ${mediaType} device`, err);
+    playSound('alert');
+    openURL(
+        `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here</a>`,
+    );
+}
 
 /**
  * Load Local Media Stream obj
@@ -2397,7 +2409,7 @@ async function loadLocalMedia(stream, kind) {
 
             localVideoMediaStream = stream;
 
-            // local video elemets
+            // local video elements
             const myVideoWrap = document.createElement('div');
             const myLocalMedia = document.createElement('video');
 
@@ -2580,6 +2592,7 @@ async function loadLocalMedia(stream, kind) {
             refreshMyVideoStatus(localVideoMediaStream);
 
             if (!useVideo) {
+                const videoBtn = getId('videoBtn');
                 myVideoAvatarImage.style.display = 'block';
                 myVideoStatusIcon.className = className.videoOff;
                 videoBtn.className = className.videoOff;
@@ -2637,11 +2650,11 @@ function checkShareScreen() {
 
 /**
  * Load Remote Media Stream obj
- * @param {object} stream media stream audio - video
+ * @param {MediaStream} stream media stream audio - video
  * @param {object} peers all peers info connected to the same room
  * @param {string} peer_id socket.id
  */
-async function loadRemoteVideoMediaStream(stream, peers, peer_id, kind) {
+async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
     // get data from peers obj
     console.log('REMOTE PEER INFO', peers[peer_id]);
 
@@ -4730,25 +4743,6 @@ function attachMediaStream(element, stream) {
     //console.log("DEPRECATED, attachMediaStream will soon be removed.");
     element.srcObject = stream;
     console.log('Success, media stream attached', stream.getTracks());
-
-    if (myBrowserName === 'Safari') {
-        /*
-            Hack for Safari...
-            https://www.pilatesanytime.com/Pilates-Help/1016/How-to-Get-Safari-to-Autoplay-Video-and-Audio-Chapters
-        */
-        element.onloadedmetadata = function () {
-            let videoPlayPromise = element.play();
-            if (videoPlayPromise !== undefined) {
-                videoPlayPromise
-                    .then(function () {
-                        console.log('Safari - automatic playback started!');
-                    })
-                    .catch(function (err) {
-                        console.error('Safari - automatic playback error', err);
-                    });
-            }
-        };
-    }
 }
 
 /**
@@ -5164,67 +5158,67 @@ function toggleFullScreen() {
 
 /**
  * Refresh my stream changes to connected peers in the room
- * @param {object} stream media stream audio - video
- * @param {boolean} localAudioTrackChange default false
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
+ *
+ * @param {MediaStream} stream - Media stream (audio/video) to refresh to peers.
+ * @param {boolean} localAudioTrackChange - Indicates whether there's a change in the local audio track (default false).
  */
 async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereIsPeerConnections()) return;
 
-    console.log('PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
-    console.log('ALL-PEERS', allPeers); // all peers connected in the room
+    // Log peer connections and all peers
+    console.log('PEER-CONNECTIONS', peerConnections);
+    console.log('ALL-PEERS', allPeers);
 
-    // check if passed stream has audio track
+    // Check if the passed stream has an audio track
     const streamHasAudioTrack = hasAudioTrack(stream);
 
-    // audio Track to replace to peers
+    // Determine the audio track to replace to peers
     const myAudioTrack =
         streamHasAudioTrack && (localAudioTrackChange || isScreenStreaming)
             ? stream.getAudioTracks()[0]
             : localAudioMediaStream.getAudioTracks()[0];
 
-    // refresh my stream to connected peers expect myself
-    for (let peer_id in peerConnections) {
-        let peer_name = allPeers[peer_id]['peer_name'];
+    // Refresh my stream to connected peers except myself
+    for (const peer_id in peerConnections) {
+        const peer_name = allPeers[peer_id]['peer_name'];
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-        let videoSender = peerConnections[peer_id]
-            .getSenders()
-            .find((s) => (s.track ? s.track.kind === 'video' : false));
-        console.log('CHECK VIDEO SENDER - ' + peer_name, videoSender);
+        // Replace video track
+        const videoSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'video');
 
         if (videoSender) {
-            // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
             videoSender.replaceTrack(stream.getVideoTracks()[0]);
-            console.log('REPLACE VIDEO TRACK TO', { peer_id: peer_id, peer_name: peer_name });
+            console.log('REPLACE VIDEO TRACK TO', { peer_id, peer_name });
         } else {
+            // Add video track if sender does not exist
             stream.getTracks().forEach((track) => {
                 if (track.kind === 'video') {
-                    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
                     peerConnections[peer_id].addTrack(track);
                     handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
-                    console.log('ADD VIDEO TRACK TO', { peer_id: peer_id, peer_name: peer_name });
+                    console.log('ADD VIDEO TRACK TO', { peer_id, peer_name });
                 }
             });
         }
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getSenders
-        let audioSender = peerConnections[peer_id]
-            .getSenders()
-            .find((s) => (s.track ? s.track.kind === 'audio' : false));
+
+        // Replace audio track
+        const audioSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'audio');
 
         if (audioSender) {
-            // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender/replaceTrack
             audioSender.replaceTrack(myAudioTrack);
-            console.log('REPLACE AUDIO TRACK TO', { peer_id: peer_id, peer_name: peer_name });
+            console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name });
         }
     }
 
-    // When share a video tab that contain audio, my voice will be turned off (tabAudio: true)
+    // Handle audio state when sharing a screen with audio
     if (isScreenStreaming && streamHasAudioTrack) {
         setMyAudioOff('you');
         needToEnableMyAudio = true;
         audioBtn.disabled = true;
     }
-    // On end screen sharing enable my audio if need
+
+    // Enable audio if screen sharing ends and audio needs to be enabled
     if (!isScreenStreaming && needToEnableMyAudio) {
         setMyAudioOn('you');
         needToEnableMyAudio = false;
