@@ -4186,7 +4186,12 @@ function setDocumentPiPBtn() {
                 if (!video.srcObject) return;
 
                 const pipVideo = document.createElement('video');
-                pipVideo.style = 'width: 100%; border-radius: 5px';
+                pipVideo.style = `
+                    width: 100%;
+                    object-fit: cover;
+                    border-radius: 5px;
+                    aspect-ratio: 16 / 9;
+                `;
                 pipVideo.srcObject = video.srcObject;
                 pipVideo.autoplay = true;
                 pipVideo.muted = true;
