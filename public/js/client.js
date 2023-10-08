@@ -4223,7 +4223,9 @@ function setDocumentPiPBtn() {
             cloneVideoElements();
         });
 
-        observer.observe(pipVideoContainer, {
+        const videoMediaContainer = getId('videoMediaContainer');
+
+        observer.observe(videoMediaContainer, {
             childList: true,
         });
 
