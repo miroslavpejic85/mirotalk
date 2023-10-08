@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.0.6
+ * @version 1.0.7
  *
  */
 
@@ -340,8 +340,8 @@ let isChatPasteTxt = false;
 let needToCreateOffer = false; // after session description answer
 let signalingSocket; // socket.io connection to our webserver
 let initStream; // initial webcam stream
-let localMediaStream; // my microphone / webcam
-let remoteMediaStream; // peers microphone / webcam
+let localVideoMediaStream; // my webcam
+let localAudioMediaStream; // my microphone
 let recScreenStream; // recorded screen stream
 let remoteMediaControls = false; // enable - disable peers video player controls (default false)
 let isPeerReconnected = false;
@@ -349,7 +349,8 @@ let peerConnection = null; // RTCPeerConnection
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
-let peerMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id
+let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
+let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
 let chatMessages = []; // collect chat messages to save it later if want
 let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
 let transcripts = []; //collect all the transcripts to save it later if you need
@@ -460,6 +461,7 @@ let tabRoomParticipants;
 let tabRoomSecurity;
 // my video element
 let myVideo;
+let myAudio;
 let myVideoWrap;
 let myVideoAvatarImage;
 // name && hand video audio status
@@ -562,6 +564,7 @@ function getHtmlElementsById() {
     initSpeakerSelect = getId('initSpeakerSelect');
     // my video
     myVideo = getId('myVideo');
+    myAudio = getId('myAudio');
     myVideoWrap = getId('myVideoWrap');
     myVideoAvatarImage = getId('myVideoAvatarImage');
     // buttons Bar
@@ -1116,11 +1119,21 @@ async function handleConnect() {
     myPeerId = signalingSocket.id;
     console.log('04. My peer id [ ' + myPeerId + ' ]');
 
-    if (localMediaStream) {
+    if (localVideoMediaStream && localAudioMediaStream) {
         await joinToChannel();
     } else {
         await initEnumerateDevices();
-        await setupLocalMedia();
+        //await setupLocalMedia();
+        await setupLocalVideoMedia();
+        await setupLocalAudioMedia();
+        getHtmlElementsById();
+        setButtonsToolTip();
+        manageLeftButtons();
+        handleButtonsRule();
+        setupMySettings();
+        loadSettingsFromLocalStorage();
+        setupVideoUrlPlayer();
+        startCountTime();
         await whoAreYou();
     }
 }
@@ -1698,29 +1711,45 @@ async function handleOnTrack(peer_id, peers) {
         console.log('[ON TRACK] - info', { peer_id: peer_id, peer_name: peer_name, kind: kind, track: event.track });
         if (event.streams && event.streams[0]) {
             console.log('[ON TRACK] - peers', peers);
-            remoteVideoStream
+            //loadRemoteVideoMediaStream(event.streams[0], peers, peer_id, kind);
+            remoteVideoStream && kind === 'video'
                 ? attachMediaStream(remoteVideoStream, event.streams[0])
-                : loadRemoteMediaStream(event.streams[0], peers, peer_id);
-        } else {
-            console.log('[ON TRACK] - SCREEN SHARING', { peer_id: peer_id, peer_name: peer_name, kind: kind });
-            // attach newStream with screen share video and audio already existing
-            const inboundStream = new MediaStream([event.track, remoteVideoStream.srcObject.getAudioTracks()[0]]);
-            attachMediaStream(remoteVideoStream, inboundStream);
+                : loadRemoteVideoMediaStream(event.streams[0], peers, peer_id, kind);
         }
+        // else {
+        //     console.log('[ON TRACK] - SCREEN SHARING', { peer_id: peer_id, peer_name: peer_name, kind: kind });
+        //     // attach newStream with screen share video and audio already existing
+        //     const inboundStream = new MediaStream([event.track, remoteVideoStream.srcObject.getAudioTracks()[0]]);
+        //     attachMediaStream(remoteVideoStream, inboundStream);
+        // }
     };
 }
 
 /**
- * Add my localMediaStream Tracks to connected peer
+ * Add my localVideoMediaStream and localAudioMediaStream Tracks to connected peer
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
  * @param {string} peer_id socket.id
  */
 async function handleAddTracks(peer_id) {
     const peer_name = allPeers[peer_id]['peer_name'];
-    await localMediaStream.getTracks().forEach((track) => {
-        console.log('[ADD TRACK] to Peer Name [' + peer_name + '] kind - ' + track.kind);
-        peerConnections[peer_id].addTrack(track, localMediaStream);
+
+    const videoTrack = localVideoMediaStream.getVideoTracks()[0];
+    const audioTrack = localAudioMediaStream.getAudioTracks()[0];
+
+    console.log('handleAddTracks', {
+        videoTrack: videoTrack,
+        audioTrack: audioTrack,
     });
+
+    if (videoTrack) {
+        console.log('[ADD VIDEO TRACK] to Peer Name [' + peer_name + ']');
+        await peerConnections[peer_id].addTrack(videoTrack, localVideoMediaStream);
+    }
+
+    if (audioTrack) {
+        console.log('[ADD AUDIO TRACK] to Peer Name [' + peer_name + ']');
+        await peerConnections[peer_id].addTrack(audioTrack, localAudioMediaStream);
+    }
 }
 
 /**
@@ -1917,9 +1946,14 @@ function handleDisconnect(reason) {
 
     checkRecording();
 
-    for (let peer_id in peerMediaElements) {
-        peerMediaElements[peer_id].parentNode.removeChild(peerMediaElements[peer_id]);
+    for (let peer_id in peerVideoMediaElements) {
+        let peerVideoId = peer_id + '_video';
+        peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
         adaptAspectRatio();
+    }
+    for (let peer_id in peerAudioMediaElements) {
+        let peerAudioId = peer_id + '_audio';
+        peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
     }
     for (let peer_id in peerConnections) {
         peerConnections[peer_id].close();
@@ -1929,7 +1963,8 @@ function handleDisconnect(reason) {
     chatDataChannels = {};
     fileDataChannels = {};
     peerConnections = {};
-    peerMediaElements = {};
+    peerVideoMediaElements = {};
+    peerAudioMediaElements = {};
 
     isPeerReconnected = true;
 }
@@ -1946,10 +1981,18 @@ function handleRemovePeer(config) {
 
     const { peer_id } = config;
 
-    if (peer_id in peerMediaElements) {
-        peerMediaElements[peer_id].parentNode.removeChild(peerMediaElements[peer_id]);
+    const peerVideoId = peer_id + '_video';
+    const peerAudioId = peer_id + '_audio';
+
+    if (peerVideoId in peerVideoMediaElements) {
+        peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
         adaptAspectRatio();
     }
+
+    if (peerAudioId in peerAudioMediaElements) {
+        peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
+    }
+
     if (peer_id in peerConnections) peerConnections[peer_id].close();
 
     msgerRemovePeer(peer_id);
@@ -1958,7 +2001,8 @@ function handleRemovePeer(config) {
     delete chatDataChannels[peer_id];
     delete fileDataChannels[peer_id];
     delete peerConnections[peer_id];
-    delete peerMediaElements[peer_id];
+    delete peerVideoMediaElements[peerVideoId];
+    delete peerAudioMediaElements[peerAudioId];
     delete allPeers[peer_id];
 
     playSound('removePeer');
@@ -2275,249 +2319,293 @@ function addChild(device, els) {
 }
 
 /**
- * Setup local media stuff. Ask user for permission to use the computers microphone and/or camera,
- * attach it to an <audio> or <video> tag if they give us access.
+ * Setup local media stuff. Ask user for permission to use the computers camera,
+ * attach it to an <video> tag if they give us access.
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  */
-async function setupLocalMedia() {
+async function setupLocalVideoMedia() {
     // if we've already been initialized do nothing or there is error on initEnumerateDevicesFailed
-    if (localMediaStream != null || initEnumerateDevicesFailed) {
+    if (localVideoMediaStream != null || initEnumerateDevicesFailed) {
         return;
     }
 
-    console.log('08. Requesting access to local audio - video inputs');
-    console.log('09. Supported constraints', navigator.mediaDevices.getSupportedConstraints());
+    console.log('08. Requesting access to local video inputs');
+    // console.log('09. Supported constraints', navigator.mediaDevices.getSupportedConstraints());
 
     // default | qvgaVideo | vgaVideo | hdVideo | fhdVideo | 2kVideo | 4kVideo |
     const videoConstraints = useVideo ? await getVideoConstraints('default') : false;
-    const audioConstraints = useAudio ? await getAudioConstraints() : false;
 
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: audioConstraints,
-            video: videoConstraints,
-        });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
         if (stream) {
-            await loadLocalMedia(stream);
-            if (useAudio) {
-                await getMicrophoneVolumeIndicator(stream);
-            }
+            await loadLocalMedia(stream, 'video');
         }
     } catch (err) {
-        console.error('[Error] - Access denied for audio - video device', err);
+        console.error('[Error] - Access denied for video device', err);
         playSound('alert');
         openURL(
             `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
         );
     }
-} // end [setup_local_stream]
+} // end [setup_local_video_stream]
+
+/**
+ * Setup local media stuff. Ask user for permission to use the computers microphone,
+ * attach it to an <audio> tag if they give us access.
+ * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+ */
+async function setupLocalAudioMedia() {
+    // if we've already been initialized do nothing or there is error on initEnumerateDevicesFailed
+    if (localAudioMediaStream != null || initEnumerateDevicesFailed) {
+        return;
+    }
+
+    console.log('08. Requesting access to local audio inputs');
+
+    const audioConstraints = useAudio ? await getAudioConstraints() : false;
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+        if (stream) {
+            await loadLocalMedia(stream, 'audio');
+            if (useAudio) {
+                await getMicrophoneVolumeIndicator(stream);
+            }
+        }
+    } catch (err) {
+        console.error('[Error] - Access denied for audio device', err);
+        playSound('alert');
+        openURL(
+            `/permission?roomId=${roomId}&getUserMediaError=${err.toString()} <br/> Check the common getusermedia errors <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">here<a/>`,
+        );
+    }
+} // end [setup_local_audio_stream]
 
 /**
  * Load Local Media Stream obj
  * @param {object} stream media stream audio - video
  */
-async function loadLocalMedia(stream) {
-    console.log('10. Access granted to audio - video device');
+async function loadLocalMedia(stream, kind) {
+    console.log(`10. Access granted to ${kind} device`);
 
-    localMediaStream = stream;
+    console.log('LOAD LOCAL MEDIA STREAM TRACKS', stream.getTracks());
 
-    console.log('LOAD LOCAL MEDIA STREAM TRACKS', localMediaStream.getTracks());
+    switch (kind) {
+        case 'video':
+            //alert('local video');
+            console.log('SETUP LOCAL VIDEO STREAM');
 
-    // local video elemets
-    const myVideoWrap = document.createElement('div');
-    const myLocalMedia = document.createElement('video');
+            localVideoMediaStream = stream;
 
-    // html elements
-    const myVideoNavBar = document.createElement('div');
-    const myCountTime = document.createElement('button');
-    const myPeerName = document.createElement('p');
-    const myHandStatusIcon = document.createElement('button');
-    const myVideoToImgBtn = document.createElement('button');
-    const myPrivacyBtn = document.createElement('button');
-    const myVideoStatusIcon = document.createElement('button');
-    const myAudioStatusIcon = document.createElement('button');
-    const myVideoFullScreenBtn = document.createElement('button');
-    const myVideoPinBtn = document.createElement('button');
-    const myVideoZoomInBtn = document.createElement('button');
-    const myVideoZoomOutBtn = document.createElement('button');
-    const myVideoPiPBtn = document.createElement('button');
-    const myVideoAvatarImage = document.createElement('img');
-    const myPitchMeter = document.createElement('div');
-    const myPitchBar = document.createElement('div');
+            // local video elemets
+            const myVideoWrap = document.createElement('div');
+            const myLocalMedia = document.createElement('video');
 
-    // session time
-    myCountTime.setAttribute('id', 'countTime');
+            // html elements
+            const myVideoNavBar = document.createElement('div');
+            const myCountTime = document.createElement('button');
+            const myPeerName = document.createElement('p');
+            const myHandStatusIcon = document.createElement('button');
+            const myVideoToImgBtn = document.createElement('button');
+            const myPrivacyBtn = document.createElement('button');
+            const myVideoStatusIcon = document.createElement('button');
+            const myAudioStatusIcon = document.createElement('button');
+            const myVideoFullScreenBtn = document.createElement('button');
+            const myVideoPinBtn = document.createElement('button');
+            const myVideoZoomInBtn = document.createElement('button');
+            const myVideoZoomOutBtn = document.createElement('button');
+            const myVideoPiPBtn = document.createElement('button');
+            const myVideoAvatarImage = document.createElement('img');
+            const myPitchMeter = document.createElement('div');
+            const myPitchBar = document.createElement('div');
 
-    // my peer name
-    myPeerName.setAttribute('id', 'myVideoParagraph');
-    myPeerName.className = 'videoPeerName';
+            // session time
+            myCountTime.setAttribute('id', 'countTime');
 
-    // my hand status element
-    myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
-    myHandStatusIcon.className = className.handPulsate;
-    myHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
+            // my peer name
+            myPeerName.setAttribute('id', 'myVideoParagraph');
+            myPeerName.className = 'videoPeerName';
 
-    // my privacy button
-    myPrivacyBtn.setAttribute('id', 'myPrivacyBtn');
-    myPrivacyBtn.className = className.privacy;
+            // my hand status element
+            myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
+            myHandStatusIcon.className = className.handPulsate;
+            myHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
 
-    // my video status element
-    myVideoStatusIcon.setAttribute('id', 'myVideoStatusIcon');
-    myVideoStatusIcon.className = className.videoOn;
+            // my privacy button
+            myPrivacyBtn.setAttribute('id', 'myPrivacyBtn');
+            myPrivacyBtn.className = className.privacy;
 
-    // my audio status element
-    myAudioStatusIcon.setAttribute('id', 'myAudioStatusIcon');
-    myAudioStatusIcon.className = className.audioOn;
+            // my video status element
+            myVideoStatusIcon.setAttribute('id', 'myVideoStatusIcon');
+            myVideoStatusIcon.className = className.videoOn;
 
-    // my video to image
-    myVideoToImgBtn.setAttribute('id', 'myVideoToImgBtn');
-    myVideoToImgBtn.className = className.snapShot;
+            // my audio status element
+            myAudioStatusIcon.setAttribute('id', 'myAudioStatusIcon');
+            myAudioStatusIcon.className = className.audioOn;
 
-    // my video full screen mode
-    myVideoFullScreenBtn.setAttribute('id', 'myVideoFullScreenBtn');
-    myVideoFullScreenBtn.className = className.fullScreen;
+            // my video to image
+            myVideoToImgBtn.setAttribute('id', 'myVideoToImgBtn');
+            myVideoToImgBtn.className = className.snapShot;
 
-    // my video zoomIn/Out
-    myVideoZoomInBtn.setAttribute('id', 'myVideoZoomInBtn');
-    myVideoZoomInBtn.className = className.zoomIn;
-    myVideoZoomOutBtn.setAttribute('id', 'myVideoZoomOutBtn');
-    myVideoZoomOutBtn.className = className.zoomOut;
+            // my video full screen mode
+            myVideoFullScreenBtn.setAttribute('id', 'myVideoFullScreenBtn');
+            myVideoFullScreenBtn.className = className.fullScreen;
 
-    // my video Picture in Picture
-    myVideoPiPBtn.setAttribute('id', 'myVideoPiPBtn');
-    myVideoPiPBtn.className = className.pip;
+            // my video zoomIn/Out
+            myVideoZoomInBtn.setAttribute('id', 'myVideoZoomInBtn');
+            myVideoZoomInBtn.className = className.zoomIn;
+            myVideoZoomOutBtn.setAttribute('id', 'myVideoZoomOutBtn');
+            myVideoZoomOutBtn.className = className.zoomOut;
 
-    // my video pin/unpin button
-    myVideoPinBtn.setAttribute('id', 'myVideoPinBtn');
-    myVideoPinBtn.className = className.pinUnpin;
+            // my video Picture in Picture
+            myVideoPiPBtn.setAttribute('id', 'myVideoPiPBtn');
+            myVideoPiPBtn.className = className.pip;
 
-    // no mobile devices
-    if (!isMobileDevice) {
-        setTippy(myCountTime, 'Session Time', 'bottom');
-        setTippy(myPeerName, 'My name', 'bottom');
-        setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
-        setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
-        setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
-        setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
-        setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
-        setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
-        setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
-        setTippy(myVideoPiPBtn, 'Toggle picture in picture', 'bottom');
-        setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
-        setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
-    }
+            // my video pin/unpin button
+            myVideoPinBtn.setAttribute('id', 'myVideoPinBtn');
+            myVideoPinBtn.className = className.pinUnpin;
 
-    // my video avatar image
-    myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
-    myVideoAvatarImage.className = 'videoAvatarImage'; // pulsate
+            // no mobile devices
+            if (!isMobileDevice) {
+                setTippy(myCountTime, 'Session Time', 'bottom');
+                setTippy(myPeerName, 'My name', 'bottom');
+                setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
+                setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
+                setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
+                setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
+                setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
+                setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+                setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
+                setTippy(myVideoPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
+                setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
+            }
 
-    // my pitch meter
-    myPitchMeter.setAttribute('id', 'myPitch');
-    myPitchBar.setAttribute('id', 'myPitchBar');
-    myPitchMeter.className = 'speechbar';
-    myPitchBar.className = 'bar';
-    myPitchBar.style.height = '1%';
+            // my video avatar image
+            myVideoAvatarImage.setAttribute('id', 'myVideoAvatarImage');
+            myVideoAvatarImage.className = 'videoAvatarImage'; // pulsate
 
-    // my video nav bar
-    myVideoNavBar.className = 'navbar fadein';
+            // my pitch meter
+            myPitchMeter.setAttribute('id', 'myPitch');
+            myPitchBar.setAttribute('id', 'myPitchBar');
+            myPitchMeter.className = 'speechbar';
+            myPitchBar.className = 'bar';
+            myPitchBar.style.height = '1%';
 
-    // attach to video nav bar
-    myVideoNavBar.appendChild(myCountTime);
+            // my video nav bar
+            myVideoNavBar.className = 'navbar fadein';
 
-    if (!isMobileDevice) {
-        myVideoNavBar.appendChild(myVideoPinBtn);
-    }
+            // attach to video nav bar
+            myVideoNavBar.appendChild(myCountTime);
 
-    if (buttons.local.showVideoPipBtn) {
-        myVideoNavBar.appendChild(myVideoPiPBtn);
-    }
+            if (!isMobileDevice) {
+                myVideoNavBar.appendChild(myVideoPinBtn);
+            }
 
-    if (buttons.local.showZoomInOutBtn) {
-        myVideoNavBar.appendChild(myVideoZoomInBtn);
-        myVideoNavBar.appendChild(myVideoZoomOutBtn);
-    }
+            if (buttons.local.showVideoPipBtn) {
+                myVideoNavBar.appendChild(myVideoPiPBtn);
+            }
 
-    if (isVideoFullScreenSupported) {
-        myVideoNavBar.appendChild(myVideoFullScreenBtn);
-    }
-    if (buttons.local.showSnapShotBtn) {
-        myVideoNavBar.appendChild(myVideoToImgBtn);
-    }
-    if (buttons.local.showVideoCircleBtn) {
-        myVideoNavBar.appendChild(myPrivacyBtn);
-    }
+            if (buttons.local.showZoomInOutBtn) {
+                myVideoNavBar.appendChild(myVideoZoomInBtn);
+                myVideoNavBar.appendChild(myVideoZoomOutBtn);
+            }
 
-    myVideoNavBar.appendChild(myVideoStatusIcon);
-    myVideoNavBar.appendChild(myAudioStatusIcon);
-    myVideoNavBar.appendChild(myHandStatusIcon);
+            if (isVideoFullScreenSupported) {
+                myVideoNavBar.appendChild(myVideoFullScreenBtn);
+            }
+            if (buttons.local.showSnapShotBtn) {
+                myVideoNavBar.appendChild(myVideoToImgBtn);
+            }
+            if (buttons.local.showVideoCircleBtn) {
+                myVideoNavBar.appendChild(myPrivacyBtn);
+            }
 
-    // add my pitchBar
-    myPitchMeter.appendChild(myPitchBar);
+            myVideoNavBar.appendChild(myVideoStatusIcon);
+            myVideoNavBar.appendChild(myAudioStatusIcon);
+            myVideoNavBar.appendChild(myHandStatusIcon);
 
-    // hand display none on default menad is raised == false
-    myHandStatusIcon.style.display = 'none';
+            // add my pitchBar
+            myPitchMeter.appendChild(myPitchBar);
 
-    myLocalMedia.setAttribute('id', 'myVideo');
-    myLocalMedia.setAttribute('playsinline', true);
-    myLocalMedia.className = 'mirror';
-    myLocalMedia.autoplay = true;
-    myLocalMedia.muted = true;
-    myLocalMedia.volume = 0;
-    myLocalMedia.controls = false;
+            // hand display none on default menad is raised == false
+            myHandStatusIcon.style.display = 'none';
 
-    myVideoWrap.className = 'Camera';
-    myVideoWrap.setAttribute('id', 'myVideoWrap');
+            myLocalMedia.setAttribute('id', 'myVideo');
+            myLocalMedia.setAttribute('playsinline', true);
+            myLocalMedia.className = 'mirror';
+            myLocalMedia.autoplay = true;
+            myLocalMedia.muted = true;
+            myLocalMedia.volume = 0;
+            myLocalMedia.controls = false;
 
-    // add elements to video wrap div
-    myVideoWrap.appendChild(myVideoNavBar);
-    myVideoWrap.appendChild(myVideoAvatarImage);
-    myVideoWrap.appendChild(myLocalMedia);
-    myVideoWrap.appendChild(myPitchMeter);
-    myVideoWrap.appendChild(myPeerName);
+            myVideoWrap.className = 'Camera';
+            myVideoWrap.setAttribute('id', 'myVideoWrap');
 
-    getId('videoMediaContainer').appendChild(myVideoWrap);
-    myVideoWrap.style.display = 'none';
+            // add elements to video wrap div
+            myVideoWrap.appendChild(myVideoNavBar);
+            myVideoWrap.appendChild(myVideoAvatarImage);
+            myVideoWrap.appendChild(myLocalMedia);
+            myVideoWrap.appendChild(myPitchMeter);
+            myVideoWrap.appendChild(myPeerName);
 
-    logStreamSettingsInfo('localMediaStream', localMediaStream);
-    attachMediaStream(myLocalMedia, localMediaStream);
-    adaptAspectRatio();
+            getId('videoMediaContainer').appendChild(myVideoWrap);
+            myVideoWrap.style.display = 'none';
 
-    getHtmlElementsById();
-    setButtonsToolTip();
-    manageLeftButtons();
-    handleButtonsRule();
-    setupMySettings();
-    loadSettingsFromLocalStorage();
-    setupVideoUrlPlayer();
-    startCountTime();
+            logStreamSettingsInfo('localVideoMediaStream', localVideoMediaStream);
+            attachMediaStream(myLocalMedia, localVideoMediaStream);
+            adaptAspectRatio();
 
-    if (isVideoFullScreenSupported) {
-        handleVideoPlayerFs(myLocalMedia.id, myVideoFullScreenBtn.id);
-    }
+            if (isVideoFullScreenSupported) {
+                handleVideoPlayerFs(myLocalMedia.id, myVideoFullScreenBtn.id);
+            }
 
-    handleFileDragAndDrop(myLocalMedia.id, myPeerId, true);
+            handleFileDragAndDrop(myLocalMedia.id, myPeerId, true);
 
-    if (buttons.local.showSnapShotBtn) {
-        handleVideoToImg(myLocalMedia.id, myVideoToImgBtn.id);
-    }
-    if (buttons.local.showVideoCircleBtn) {
-        handleVideoPrivacyBtn(myLocalMedia.id, myPrivacyBtn.id);
-    }
+            if (buttons.local.showSnapShotBtn) {
+                handleVideoToImg(myLocalMedia.id, myVideoToImgBtn.id);
+            }
+            if (buttons.local.showVideoCircleBtn) {
+                handleVideoPrivacyBtn(myLocalMedia.id, myPrivacyBtn.id);
+            }
 
-    handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
+            handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
-    if (buttons.local.showVideoPipBtn) {
-        handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id);
-    }
+            if (buttons.local.showVideoPipBtn) {
+                handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id);
+            }
 
-    handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
+            handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
 
-    refreshMyVideoAudioStatus(localMediaStream);
+            refreshMyVideoStatus(localVideoMediaStream);
 
-    if (!useVideo) {
-        myVideoAvatarImage.style.display = 'block';
-        myVideoStatusIcon.className = className.videoOff;
-        videoBtn.className = className.videoOff;
+            if (!useVideo) {
+                myVideoAvatarImage.style.display = 'block';
+                myVideoStatusIcon.className = className.videoOff;
+                videoBtn.className = className.videoOff;
+            }
+            break;
+        case 'audio':
+            //alert('local audio');
+            console.log('SETUP LOCAL AUDIO STREAM');
+            localAudioMediaStream = stream;
+            // handle remote audio elements
+            const audioMediaContainer = getId('audioMediaContainer');
+            const localAudioWrap = document.createElement('div');
+            const localAudioMedia = document.createElement('audio');
+            localAudioMedia.id = 'myAudio';
+            localAudioMedia.controls = false;
+            localAudioMedia.autoplay = true;
+            localAudioMedia.muted = true;
+            localAudioMedia.volume = 0;
+            localAudioWrap.appendChild(localAudioMedia);
+            audioMediaContainer.appendChild(localAudioWrap);
+            logStreamSettingsInfo('localAudioMediaStream', localAudioMediaStream);
+            attachMediaStream(localAudioMedia, localAudioMediaStream);
+            refreshMyAudioStatus(localAudioMediaStream);
+            break;
+        default:
+            break;
     }
 }
 
@@ -2553,7 +2641,7 @@ function checkShareScreen() {
  * @param {object} peers all peers info connected to the same room
  * @param {string} peer_id socket.id
  */
-async function loadRemoteMediaStream(stream, peers, peer_id) {
+async function loadRemoteVideoMediaStream(stream, peers, peer_id, kind) {
     // get data from peers obj
     console.log('REMOTE PEER INFO', peers[peer_id]);
 
@@ -2566,285 +2654,307 @@ async function loadRemoteMediaStream(stream, peers, peer_id) {
     const peer_rec_status = peers[peer_id]['peer_rec_status'];
     const peer_privacy_status = peers[peer_id]['peer_privacy_status'];
 
-    remoteMediaStream = stream;
+    console.log('LOAD REMOTE MEDIA STREAM TRACKS - PeerName:[' + peer_name + ']', stream.getTracks());
 
-    console.log('LOAD REMOTE MEDIA STREAM TRACKS - PeerName:[' + peer_name + ']', remoteMediaStream.getTracks());
+    switch (kind) {
+        case 'video':
+            // alert('remote video');
+            console.log('SETUP REMOTE VIDEO STREAM');
 
-    // remote video elements
-    const remoteVideoWrap = document.createElement('div');
-    const remoteMedia = document.createElement('video');
+            // handle remote video elements
+            const remoteVideoWrap = document.createElement('div');
+            const remoteMedia = document.createElement('video');
 
-    // html elements
-    const remoteVideoNavBar = document.createElement('div');
-    const remotePeerName = document.createElement('p');
-    const remoteHandStatusIcon = document.createElement('button');
-    const remoteVideoStatusIcon = document.createElement('button');
-    const remoteAudioStatusIcon = document.createElement('button');
-    const remoteVideoAudioUrlBtn = document.createElement('button');
-    const remoteFileShareBtn = document.createElement('button');
-    const remotePrivateMsgBtn = document.createElement('button');
-    const remotePeerKickOut = document.createElement('button');
-    const remoteVideoToImgBtn = document.createElement('button');
-    const remoteVideoFullScreenBtn = document.createElement('button');
-    const remoteVideoPinBtn = document.createElement('button');
-    const remoteVideoZoomInBtn = document.createElement('button');
-    const remoteVideoZoomOutBtn = document.createElement('button');
-    const remoteVideoPiPBtn = document.createElement('button');
-    const remoteVideoAvatarImage = document.createElement('img');
-    const remotePitchMeter = document.createElement('div');
-    const remotePitchBar = document.createElement('div');
-    const remoteAudioVolume = document.createElement('input');
+            // html elements
+            const remoteVideoNavBar = document.createElement('div');
+            const remotePeerName = document.createElement('p');
+            const remoteHandStatusIcon = document.createElement('button');
+            const remoteVideoStatusIcon = document.createElement('button');
+            const remoteAudioStatusIcon = document.createElement('button');
+            const remoteVideoAudioUrlBtn = document.createElement('button');
+            const remoteFileShareBtn = document.createElement('button');
+            const remotePrivateMsgBtn = document.createElement('button');
+            const remotePeerKickOut = document.createElement('button');
+            const remoteVideoToImgBtn = document.createElement('button');
+            const remoteVideoFullScreenBtn = document.createElement('button');
+            const remoteVideoPinBtn = document.createElement('button');
+            const remoteVideoZoomInBtn = document.createElement('button');
+            const remoteVideoZoomOutBtn = document.createElement('button');
+            const remoteVideoPiPBtn = document.createElement('button');
+            const remoteVideoAvatarImage = document.createElement('img');
+            const remotePitchMeter = document.createElement('div');
+            const remotePitchBar = document.createElement('div');
+            const remoteAudioVolume = document.createElement('input');
 
-    // remote peer name element
-    remotePeerName.setAttribute('id', peer_id + '_name');
-    remotePeerName.className = 'videoPeerName';
+            // remote peer name element
+            remotePeerName.setAttribute('id', peer_id + '_name');
+            remotePeerName.className = 'videoPeerName';
 
-    const peerVideoText = document.createTextNode(peer_name);
-    remotePeerName.appendChild(peerVideoText);
+            const peerVideoText = document.createTextNode(peer_name);
+            remotePeerName.appendChild(peerVideoText);
 
-    // remote hand status element
-    remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
-    remoteHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
-    remoteHandStatusIcon.className = className.handPulsate;
+            // remote hand status element
+            remoteHandStatusIcon.setAttribute('id', peer_id + '_handStatus');
+            remoteHandStatusIcon.style.setProperty('color', 'rgb(0, 255, 0)');
+            remoteHandStatusIcon.className = className.handPulsate;
 
-    // remote video status element
-    remoteVideoStatusIcon.setAttribute('id', peer_id + '_videoStatus');
-    remoteVideoStatusIcon.className = className.videoOn;
+            // remote video status element
+            remoteVideoStatusIcon.setAttribute('id', peer_id + '_videoStatus');
+            remoteVideoStatusIcon.className = className.videoOn;
 
-    // remote audio status element
-    remoteAudioStatusIcon.setAttribute('id', peer_id + '_audioStatus');
-    remoteAudioStatusIcon.className = className.audioOn;
+            // remote audio status element
+            remoteAudioStatusIcon.setAttribute('id', peer_id + '_audioStatus');
+            remoteAudioStatusIcon.className = className.audioOn;
 
-    // remote audio volume element
-    remoteAudioVolume.setAttribute('id', peer_id + '_audioVolume');
-    remoteAudioVolume.type = 'range';
-    remoteAudioVolume.min = 0;
-    remoteAudioVolume.max = 100;
-    remoteAudioVolume.value = 100;
+            // remote audio volume element
+            remoteAudioVolume.setAttribute('id', peer_id + '_audioVolume');
+            remoteAudioVolume.type = 'range';
+            remoteAudioVolume.min = 0;
+            remoteAudioVolume.max = 100;
+            remoteAudioVolume.value = 100;
 
-    // remote private message
-    remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
-    remotePrivateMsgBtn.className = className.msgPrivate;
+            // remote private message
+            remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
+            remotePrivateMsgBtn.className = className.msgPrivate;
 
-    // remote share file
-    remoteFileShareBtn.setAttribute('id', peer_id + '_shareFile');
-    remoteFileShareBtn.className = className.shareFile;
+            // remote share file
+            remoteFileShareBtn.setAttribute('id', peer_id + '_shareFile');
+            remoteFileShareBtn.className = className.shareFile;
 
-    // remote peer YouTube video
-    remoteVideoAudioUrlBtn.setAttribute('id', peer_id + '_videoAudioUrl');
-    remoteVideoAudioUrlBtn.className = className.shareVideoAudio;
+            // remote peer YouTube video
+            remoteVideoAudioUrlBtn.setAttribute('id', peer_id + '_videoAudioUrl');
+            remoteVideoAudioUrlBtn.className = className.shareVideoAudio;
 
-    // my video to image
-    remoteVideoToImgBtn.setAttribute('id', peer_id + '_snapshot');
-    remoteVideoToImgBtn.className = className.snapShot;
+            // my video to image
+            remoteVideoToImgBtn.setAttribute('id', peer_id + '_snapshot');
+            remoteVideoToImgBtn.className = className.snapShot;
 
-    // remote peer kick out
-    remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
-    remotePeerKickOut.className = className.kickOut;
+            // remote peer kick out
+            remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
+            remotePeerKickOut.className = className.kickOut;
 
-    // remote video zoomIn/Out
-    remoteVideoZoomInBtn.setAttribute('id', peer_id + 'videoZoomIn');
-    remoteVideoZoomInBtn.className = className.zoomIn;
-    remoteVideoZoomOutBtn.setAttribute('id', peer_id + 'videoZoomOut');
-    remoteVideoZoomOutBtn.className = className.zoomOut;
+            // remote video zoomIn/Out
+            remoteVideoZoomInBtn.setAttribute('id', peer_id + 'videoZoomIn');
+            remoteVideoZoomInBtn.className = className.zoomIn;
+            remoteVideoZoomOutBtn.setAttribute('id', peer_id + 'videoZoomOut');
+            remoteVideoZoomOutBtn.className = className.zoomOut;
 
-    // remote video Picture in Picture
-    remoteVideoPiPBtn.setAttribute('id', peer_id + 'videoPIP');
-    remoteVideoPiPBtn.className = className.pip;
+            // remote video Picture in Picture
+            remoteVideoPiPBtn.setAttribute('id', peer_id + 'videoPIP');
+            remoteVideoPiPBtn.className = className.pip;
 
-    // remote video full screen mode
-    remoteVideoFullScreenBtn.setAttribute('id', peer_id + '_fullScreen');
-    remoteVideoFullScreenBtn.className = className.fullScreen;
+            // remote video full screen mode
+            remoteVideoFullScreenBtn.setAttribute('id', peer_id + '_fullScreen');
+            remoteVideoFullScreenBtn.className = className.fullScreen;
 
-    // remote video pin/unpin button
-    remoteVideoPinBtn.setAttribute('id', peer_id + '_pinUnpin');
-    remoteVideoPinBtn.className = className.pinUnpin;
+            // remote video pin/unpin button
+            remoteVideoPinBtn.setAttribute('id', peer_id + '_pinUnpin');
+            remoteVideoPinBtn.className = className.pinUnpin;
 
-    // no mobile devices
-    if (!isMobileDevice) {
-        setTippy(remotePeerName, 'Participant name', 'bottom');
-        setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
-        setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
-        setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
-        setTippy(remoteAudioVolume, '🔊 Volume', 'top');
-        setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
-        setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
-        setTippy(remoteFileShareBtn, 'Send file', 'bottom');
-        setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
-        setTippy(remotePeerKickOut, 'Kick out', 'bottom');
-        setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
-        setTippy(remoteVideoZoomInBtn, 'Zoom in video', 'bottom');
-        setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
-        setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
-        setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
-    }
+            // no mobile devices
+            if (!isMobileDevice) {
+                setTippy(remotePeerName, 'Participant name', 'bottom');
+                setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
+                setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
+                setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
+                setTippy(remoteAudioVolume, '🔊 Volume', 'top');
+                setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
+                setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+                setTippy(remoteFileShareBtn, 'Send file', 'bottom');
+                setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
+                setTippy(remotePeerKickOut, 'Kick out', 'bottom');
+                setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+                setTippy(remoteVideoZoomInBtn, 'Zoom in video', 'bottom');
+                setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
+                setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
+            }
 
-    // my video avatar image
-    remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
-    remoteVideoAvatarImage.className = 'videoAvatarImage'; // pulsate
+            // my video avatar image
+            remoteVideoAvatarImage.setAttribute('id', peer_id + '_avatar');
+            remoteVideoAvatarImage.className = 'videoAvatarImage'; // pulsate
 
-    // remote pitch meter
-    remotePitchMeter.setAttribute('id', peer_id + '_pitch');
-    remotePitchBar.setAttribute('id', peer_id + '_pitch_bar');
-    remotePitchMeter.className = 'speechbar';
-    remotePitchBar.className = 'bar';
-    remotePitchBar.style.height = '1%';
+            // remote pitch meter
+            remotePitchMeter.setAttribute('id', peer_id + '_pitch');
+            remotePitchBar.setAttribute('id', peer_id + '_pitch_bar');
+            remotePitchMeter.className = 'speechbar';
+            remotePitchBar.className = 'bar';
+            remotePitchBar.style.height = '1%';
 
-    remotePitchMeter.appendChild(remotePitchBar);
+            remotePitchMeter.appendChild(remotePitchBar);
 
-    // remote video nav bar
-    remoteVideoNavBar.className = 'navbar fadein';
+            // remote video nav bar
+            remoteVideoNavBar.className = 'navbar fadein';
 
-    // attach to remote video nav bar
-    if (!isMobileDevice) {
-        remoteVideoNavBar.appendChild(remoteVideoPinBtn);
-    }
+            // attach to remote video nav bar
+            if (!isMobileDevice) {
+                remoteVideoNavBar.appendChild(remoteVideoPinBtn);
+            }
 
-    if (buttons.remote.showVideoPipBtn) {
-        remoteVideoNavBar.appendChild(remoteVideoPiPBtn);
-    }
+            if (buttons.remote.showVideoPipBtn) {
+                remoteVideoNavBar.appendChild(remoteVideoPiPBtn);
+            }
 
-    if (buttons.remote.showZoomInOutBtn) {
-        remoteVideoNavBar.appendChild(remoteVideoZoomInBtn);
-        remoteVideoNavBar.appendChild(remoteVideoZoomOutBtn);
-    }
+            if (buttons.remote.showZoomInOutBtn) {
+                remoteVideoNavBar.appendChild(remoteVideoZoomInBtn);
+                remoteVideoNavBar.appendChild(remoteVideoZoomOutBtn);
+            }
 
-    if (isVideoFullScreenSupported) {
-        remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
-    }
-    if (buttons.remote.showSnapShotBtn) {
-        remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
-    }
+            if (isVideoFullScreenSupported) {
+                remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
+            }
+            if (buttons.remote.showSnapShotBtn) {
+                remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
+            }
 
-    remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
-    remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
+            remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
+            remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
 
-    if (buttons.remote.showAudioVolume) {
-        remoteVideoNavBar.appendChild(remoteAudioVolume);
-    }
-    remoteVideoNavBar.appendChild(remoteHandStatusIcon);
+            if (buttons.remote.showAudioVolume) {
+                remoteVideoNavBar.appendChild(remoteAudioVolume);
+            }
+            remoteVideoNavBar.appendChild(remoteHandStatusIcon);
 
-    if (buttons.remote.showPrivateMessageBtn) {
-        remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
-    }
-    if (buttons.remote.showFileShareBtn) {
-        remoteVideoNavBar.appendChild(remoteFileShareBtn);
-    }
-    if (buttons.remote.showShareVideoAudioBtn) {
-        remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
-    }
-    if (buttons.remote.showKickOutBtn) {
-        remoteVideoNavBar.appendChild(remotePeerKickOut);
-    }
+            if (buttons.remote.showPrivateMessageBtn) {
+                remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
+            }
+            if (buttons.remote.showFileShareBtn) {
+                remoteVideoNavBar.appendChild(remoteFileShareBtn);
+            }
+            if (buttons.remote.showShareVideoAudioBtn) {
+                remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
+            }
+            if (buttons.remote.showKickOutBtn) {
+                remoteVideoNavBar.appendChild(remotePeerKickOut);
+            }
 
-    remoteMedia.setAttribute('id', peer_id + '_video');
-    remoteMedia.setAttribute('playsinline', true);
-    remoteMedia.autoplay = true;
-    isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
-    remoteMedia.style.objectFit = peer_screen_status ? 'contain' : 'var(--video-object-fit)';
-    remoteMedia.style.name = peer_id + (peer_screen_status ? '_typeScreen' : '_typeCam');
-    remoteMedia.controls = remoteMediaControls;
+            remoteMedia.setAttribute('id', peer_id + '_video');
+            remoteMedia.setAttribute('playsinline', true);
+            remoteMedia.autoplay = true;
+            isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
+            remoteMedia.style.objectFit = peer_screen_status ? 'contain' : 'var(--video-object-fit)';
+            remoteMedia.style.name = peer_id + (peer_screen_status ? '_typeScreen' : '_typeCam');
+            remoteMedia.controls = remoteMediaControls;
 
-    remoteVideoWrap.className = 'Camera';
-    remoteVideoWrap.setAttribute('id', peer_id + '_videoWrap');
+            remoteVideoWrap.className = 'Camera';
+            remoteVideoWrap.setAttribute('id', peer_id + '_videoWrap');
 
-    // add elements to videoWrap div
-    remoteVideoWrap.appendChild(remoteVideoNavBar);
-    remoteVideoWrap.appendChild(remoteVideoAvatarImage);
-    remoteVideoWrap.appendChild(remotePitchMeter);
-    remoteVideoWrap.appendChild(remoteMedia);
-    remoteVideoWrap.appendChild(remotePeerName);
+            // add elements to videoWrap div
+            remoteVideoWrap.appendChild(remoteVideoNavBar);
+            remoteVideoWrap.appendChild(remoteVideoAvatarImage);
+            remoteVideoWrap.appendChild(remotePitchMeter);
+            remoteVideoWrap.appendChild(remoteMedia);
+            remoteVideoWrap.appendChild(remotePeerName);
 
-    // need later on disconnect or remove peers
-    peerMediaElements[peer_id] = remoteVideoWrap;
+            // need later on disconnect or remove peers
+            peerVideoMediaElements[peer_id + '_video'] = remoteVideoWrap;
 
-    // append all elements to videoMediaContainer
-    getId('videoMediaContainer').appendChild(remoteVideoWrap);
-    // attachMediaStream is a part of the adapter.js library
-    attachMediaStream(remoteMedia, remoteMediaStream);
-    // resize video elements
-    adaptAspectRatio();
+            // append all elements to videoMediaContainer
+            getId('videoMediaContainer').appendChild(remoteVideoWrap);
+            // attachMediaStream is a part of the adapter.js library
+            attachMediaStream(remoteMedia, stream);
+            // resize video elements
+            adaptAspectRatio();
 
-    if (buttons.remote.showSnapShotBtn) {
-        // handle video to image
-        handleVideoToImg(remoteMedia.id, remoteVideoToImgBtn.id, peer_id);
-    }
+            if (buttons.remote.showSnapShotBtn) {
+                // handle video to image
+                handleVideoToImg(remoteMedia.id, remoteVideoToImgBtn.id, peer_id);
+            }
 
-    // handle video pin/unpin
-    handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
+            // handle video pin/unpin
+            handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
 
-    // handle vide picture in picture
-    if (buttons.remote.showVideoPipBtn) {
-        handlePictureInPicture(remoteVideoPiPBtn.id, remoteMedia.id);
-    }
+            // handle vide picture in picture
+            if (buttons.remote.showVideoPipBtn) {
+                handlePictureInPicture(remoteVideoPiPBtn.id, remoteMedia.id);
+            }
 
-    // handle video zoomIn/Out
-    handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
+            // handle video zoomIn/Out
+            handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
 
-    // pin video on screen share detected
-    if (peer_video_status && peer_screen_status) {
-        getId(remoteVideoPinBtn.id).click();
-    }
+            // pin video on screen share detected
+            if (peer_video_status && peer_screen_status) {
+                getId(remoteVideoPinBtn.id).click();
+            }
 
-    if (isVideoFullScreenSupported) {
-        // handle video full screen mode
-        handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
-    }
+            if (isVideoFullScreenSupported) {
+                // handle video full screen mode
+                handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
+            }
 
-    // handle file share drag and drop
-    handleFileDragAndDrop(remoteMedia.id, peer_id);
+            // handle file share drag and drop
+            handleFileDragAndDrop(remoteMedia.id, peer_id);
 
-    if (buttons.remote.showKickOutBtn) {
-        // handle kick out button event
-        handlePeerKickOutBtn(peer_id);
-    }
+            if (buttons.remote.showKickOutBtn) {
+                // handle kick out button event
+                handlePeerKickOutBtn(peer_id);
+            }
 
-    if (peer_privacy_status) {
-        // set video privacy true
-        setVideoPrivacyStatus(remoteMedia.id, peer_privacy_status);
-    }
+            if (peer_privacy_status) {
+                // set video privacy true
+                setVideoPrivacyStatus(remoteMedia.id, peer_privacy_status);
+            }
 
-    // refresh remote peers avatar name
-    setPeerAvatarImgName(remoteVideoAvatarImage.id, peer_name);
-    // refresh remote peers hand icon status and title
-    setPeerHandStatus(peer_id, peer_name, peer_hand_status);
-    // refresh remote peers video icon status and title
-    setPeerVideoStatus(peer_id, peer_screen_status ? peer_screen_status : peer_video_status);
-    // refresh remote peers audio icon status and title
-    setPeerAudioStatus(peer_id, peer_audio_status);
-    // handle remote peers audio volume
-    handleAudioVolume(remoteAudioVolume.id, remoteMedia.id);
-    // handle remote peers audio on-off
-    handlePeerAudioBtn(peer_id);
-    // handle remote peers video on-off
-    handlePeerVideoBtn(peer_id);
+            // refresh remote peers avatar name
+            setPeerAvatarImgName(remoteVideoAvatarImage.id, peer_name);
+            // refresh remote peers hand icon status and title
+            setPeerHandStatus(peer_id, peer_name, peer_hand_status);
+            // refresh remote peers video icon status and title
+            setPeerVideoStatus(peer_id, peer_screen_status ? peer_screen_status : peer_video_status);
+            // refresh remote peers audio icon status and title
+            setPeerAudioStatus(peer_id, peer_audio_status);
+            // handle remote peers audio volume
+            handleAudioVolume(remoteAudioVolume.id, remoteMedia.id);
+            // handle remote peers audio on-off
+            handlePeerAudioBtn(peer_id);
+            // handle remote peers video on-off
+            handlePeerVideoBtn(peer_id);
 
-    if (buttons.remote.showPrivateMessageBtn) {
-        // handle remote private messages
-        handlePeerPrivateMsg(peer_id, peer_name);
-    }
-    if (buttons.remote.showFileShareBtn) {
-        // handle remote send file
-        handlePeerSendFile(peer_id);
-    }
-    if (buttons.remote.showShareVideoAudioBtn) {
-        // handle remote video - audio URL
-        handlePeerVideoAudioUrl(peer_id);
-    }
+            if (buttons.remote.showPrivateMessageBtn) {
+                // handle remote private messages
+                handlePeerPrivateMsg(peer_id, peer_name);
+            }
+            if (buttons.remote.showFileShareBtn) {
+                // handle remote send file
+                handlePeerSendFile(peer_id);
+            }
+            if (buttons.remote.showShareVideoAudioBtn) {
+                // handle remote video - audio URL
+                handlePeerVideoAudioUrl(peer_id);
+            }
 
-    // show status menu
-    toggleClassElements('statusMenu', 'inline');
-    // notify if peer started to recording own screen + audio
-    if (peer_rec_status) notifyRecording(peer_id, peer_name, 'Started');
+            // show status menu
+            toggleClassElements('statusMenu', 'inline');
+            // notify if peer started to recording own screen + audio
+            if (peer_rec_status) notifyRecording(peer_id, peer_name, 'Started');
 
-    // Peer without camera, screen sharing OFF
-    if (!peer_video && !peer_screen_status) {
-        remoteVideoAvatarImage.style.display = 'block';
-        remoteVideoStatusIcon.className = className.videoOff;
-    }
-    // Peer without camera, screen sharing ON
-    if (!peer_video && peer_screen_status) {
-        handleScreenStart(peer_id);
+            // Peer without camera, screen sharing OFF
+            if (!peer_video && !peer_screen_status) {
+                remoteVideoAvatarImage.style.display = 'block';
+                remoteVideoStatusIcon.className = className.videoOff;
+            }
+            // Peer without camera, screen sharing ON
+            if (!peer_video && peer_screen_status) {
+                handleScreenStart(peer_id);
+            }
+            break;
+        case 'audio':
+            // alert('remote audio');
+            console.log('SETUP REMOTE AUDIO STREAM');
+            // handle remote audio elements
+            const audioMediaContainer = getId('audioMediaContainer');
+            const remoteAudioWrap = document.createElement('div');
+            const remoteAudioMedia = document.createElement('audio');
+            remoteAudioMedia.id = peer_id + '_audio';
+            remoteAudioMedia.autoplay = true;
+            remoteAudioMedia.audio = 1.0;
+            remoteAudioWrap.appendChild(remoteAudioMedia);
+            audioMediaContainer.appendChild(remoteAudioWrap);
+            attachMediaStream(remoteAudioMedia, stream);
+            peerAudioMediaElements[peer_id + '_audio'] = remoteAudioWrap;
+            break;
+        default:
+            break;
     }
 }
 
@@ -3481,19 +3591,27 @@ function getTimeToString(time) {
 }
 
 /**
- * Refresh my localMediaStream audio/video status
- * @param {object} localMediaStream
+ * Refresh my localVideoMediaStream video status
+ * @param {MediaStream} localVideoMediaStream
  */
-function refreshMyVideoAudioStatus(localMediaStream) {
-    // check Track audio/video status
-    localMediaStream.getTracks().forEach((track) => {
-        switch (track.kind) {
-            case 'video':
-                myVideoStatus = track.enabled;
-                break;
-            case 'audio':
-                myAudioStatus = track.enabled;
-                break;
+function refreshMyVideoStatus(localVideoMediaStream) {
+    // check Track video status
+    localVideoMediaStream.getTracks().forEach((track) => {
+        if (track.kind === 'video') {
+            myVideoStatus = track.enabled;
+        }
+    });
+}
+
+/**
+ * Refresh my localAudioMediaStream audio status
+ * @param {MediaStream} localAudioMediaStream
+ */
+function refreshMyAudioStatus(localAudioMediaStream) {
+    // check Track audio status
+    localAudioMediaStream.getTracks().forEach((track) => {
+        if (track.kind === 'audio') {
+            myAudioStatus = track.enabled;
         }
     });
 }
@@ -4449,11 +4567,11 @@ async function refreshConstraints(stream, maxFrameRate) {
  */
 function setLocalMaxFps(maxFrameRate) {
     if (!useVideo) return;
-    localMediaStream
+    localVideoMediaStream
         .getVideoTracks()[0]
         .applyConstraints({ frameRate: { max: maxFrameRate } })
         .then(() => {
-            logStreamSettingsInfo('setLocalMaxFps', localMediaStream);
+            logStreamSettingsInfo('setLocalMaxFps', localVideoMediaStream);
         })
         .catch((err) => {
             console.error('setLocalMaxFps', err);
@@ -4467,11 +4585,11 @@ function setLocalMaxFps(maxFrameRate) {
 async function setLocalVideoQuality() {
     if (!useVideo) return;
     let videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
-    localMediaStream
+    localVideoMediaStream
         .getVideoTracks()[0]
         .applyConstraints(videoConstraints)
         .then(() => {
-            logStreamSettingsInfo('setLocalVideoQuality', localMediaStream);
+            logStreamSettingsInfo('setLocalVideoQuality', localVideoMediaStream);
             videoQualitySelectedIndex = videoQualitySelect.selectedIndex;
         })
         .catch((err) => {
@@ -4806,21 +4924,24 @@ function handleAudio(e, init, force = null) {
     if (!useAudio) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
 
-    localMediaStream.getAudioTracks()[0].enabled =
-        force != null ? force : !localMediaStream.getAudioTracks()[0].enabled;
-    myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+    const audioStatus = force !== null ? force : !localAudioMediaStream.getAudioTracks()[0].enabled;
+    const audioClassName = audioStatus ? className.audioOn : className.audioOff;
 
-    force != null
-        ? (e.className = myAudioStatus ? className.audioOn : className.audioOff)
-        : (e.target.className = myAudioStatus ? className.audioOn : className.audioOff);
+    localAudioMediaStream.getAudioTracks()[0].enabled = audioStatus;
+
+    force != null ? (e.className = audioClassName) : (e.target.className = audioClassName);
+
+    audioBtn.className = audioClassName;
 
     if (init) {
-        audioBtn.className = myAudioStatus ? className.audioOn : className.audioOff;
-        setTippy(initAudioBtn, myAudioStatus ? 'Stop the audio' : 'Start the audio', 'top');
-        getId('initMicrophoneSelect').disabled = !myAudioStatus;
-        getId('initSpeakerSelect').disabled = !myAudioStatus;
-        lS.setInitConfig(lS.MEDIA_TYPE.audio, myAudioStatus);
+        initAudioBtn.className = audioClassName;
+        setTippy(initAudioBtn, audioStatus ? 'Stop the audio' : 'Start the audio', 'top');
+        getId('initMicrophoneSelect').disabled = !audioStatus;
+        getId('initSpeakerSelect').disabled = !audioStatus;
+        lS.setInitConfig(lS.MEDIA_TYPE.audio, audioStatus);
     }
+
+    myAudioStatus = audioStatus;
     setMyAudioStatus(myAudioStatus);
 }
 
@@ -4834,23 +4955,24 @@ function handleVideo(e, init, force = null) {
     if (!useVideo) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
 
-    localMediaStream.getVideoTracks()[0].enabled =
-        force != null ? force : !localMediaStream.getVideoTracks()[0].enabled;
-    myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+    const videoStatus = force !== null ? force : !localVideoMediaStream.getVideoTracks()[0].enabled;
+    const videoClassName = videoStatus ? className.videoOn : className.videoOff;
 
-    force != null
-        ? (e.className = myVideoStatus ? className.videoOn : className.videoOff)
-        : (e.target.className = myVideoStatus ? className.videoOn : className.videoOff);
+    localVideoMediaStream.getVideoTracks()[0].enabled = videoStatus;
 
-    videoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
+    force != null ? (e.className = videoClassName) : (e.target.className = videoClassName);
+
+    videoBtn.className = videoClassName;
 
     if (init) {
-        initVideoBtn.className = myVideoStatus ? className.videoOn : className.videoOff;
-        setTippy(initVideoBtn, myVideoStatus ? 'Stop the video' : 'Start the video', 'top');
-        initVideo.style.display = myVideoStatus ? 'block' : 'none';
-        initVideoSelect.disabled = !myVideoStatus;
-        lS.setInitConfig(lS.MEDIA_TYPE.video, myVideoStatus);
+        initVideoBtn.className = videoClassName;
+        setTippy(initVideoBtn, videoStatus ? 'Stop the video' : 'Start the video', 'top');
+        initVideo.style.display = videoStatus ? 'block' : 'none';
+        initVideoSelect.disabled = !videoStatus;
+        lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
     }
+
+    myVideoStatus = videoStatus;
     setMyVideoStatus(myVideoStatus);
 }
 
@@ -4893,7 +5015,7 @@ async function swapCamera() {
  */
 async function stopLocalVideoTrack() {
     if (useVideo || !isScreenStreaming) {
-        const localVideoTrack = localMediaStream.getVideoTracks()[0];
+        const localVideoTrack = localVideoMediaStream.getVideoTracks()[0];
         if (localVideoTrack) {
             console.log('stopLocalVideoTrack', localVideoTrack);
             localVideoTrack.stop();
@@ -4905,7 +5027,7 @@ async function stopLocalVideoTrack() {
  * Stop Local Audio Track
  */
 async function stopLocalAudioTrack() {
-    const localAudioTrack = localMediaStream.getAudioTracks()[0];
+    const localAudioTrack = localAudioMediaStream.getAudioTracks()[0];
     if (localAudioTrack) {
         console.log('stopLocalAudioTrack', localAudioTrack);
         localAudioTrack.stop();
@@ -4998,7 +5120,6 @@ async function toggleScreenSharing(init = false) {
  * @param {boolean} status of screen sharing
  */
 function setScreenSharingStatus(status) {
-    emitPeerStatus('video', status);
     initScreenShareBtn.className = status ? className.screenOff : className.screenOn;
     screenShareBtn.className = status ? className.screenOff : className.screenOn;
     setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', placement);
@@ -5010,7 +5131,7 @@ function setScreenSharingStatus(status) {
 async function setMyVideoStatusTrue() {
     if (myVideoStatus || !useVideo) return;
     // Put video status already ON
-    localMediaStream.getVideoTracks()[0].enabled = true;
+    localVideoMediaStream.getVideoTracks()[0].enabled = true;
     myVideoStatus = true;
     initVideoBtn.className = className.videoOn;
     videoBtn.className = className.videoOn;
@@ -5059,7 +5180,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     const myAudioTrack =
         streamHasAudioTrack && (localAudioTrackChange || isScreenStreaming)
             ? stream.getAudioTracks()[0]
-            : localMediaStream.getAudioTracks()[0];
+            : localAudioMediaStream.getAudioTracks()[0];
 
     // refresh my stream to connected peers expect myself
     for (let peer_id in peerConnections) {
@@ -5127,28 +5248,38 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
         myAudioStatus = true;
     }
 
-    let newStream = null;
-
     const tracksToInclude = [];
-    const videoTrack = hasVideoTrack(stream) ? stream.getVideoTracks()[0] : null;
+    const videoTrack = hasVideoTrack(stream) ? stream.getVideoTracks()[0] : localVideoMediaStream.getVideoTracks()[0];
     const audioTrack =
         hasAudioTrack(stream) && localAudioTrackChange
             ? stream.getAudioTracks()[0]
-            : localMediaStream.getAudioTracks()[0];
+            : localAudioMediaStream.getAudioTracks()[0];
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
     if (useVideo || isScreenStreaming) {
         console.log('Refresh my local media stream VIDEO - AUDIO', { isScreenStreaming: isScreenStreaming });
-        if (videoTrack) tracksToInclude.push(videoTrack);
-        if (audioTrack) tracksToInclude.push(audioTrack);
-        newStream = new MediaStream(tracksToInclude);
+        if (videoTrack) {
+            tracksToInclude.push(videoTrack);
+            localVideoMediaStream = new MediaStream([videoTrack]);
+            attachMediaStream(myVideo, localVideoMediaStream);
+            logStreamSettingsInfo('refreshMyLocalStream-localVideoMediaStream', localVideoMediaStream);
+        }
+        if (audioTrack) {
+            tracksToInclude.push(audioTrack);
+            localAudioMediaStream = new MediaStream([audioTrack]);
+            attachMediaStream(myAudio, localAudioMediaStream);
+            getMicrophoneVolumeIndicator(localAudioMediaStream);
+            logStreamSettingsInfo('refreshMyLocalStream-localAudioMediaStream', localAudioMediaStream);
+        }
     } else {
         console.log('Refresh my local media stream AUDIO');
-        if (audioTrack) tracksToInclude.push(audioTrack);
-        newStream = new MediaStream(tracksToInclude);
+        if (audioTrack) {
+            tracksToInclude.push(audioTrack);
+            localAudioMediaStream = new MediaStream([audioTrack]);
+            getMicrophoneVolumeIndicator(localAudioMediaStream);
+            logStreamSettingsInfo('refreshMyLocalStream-localAudioMediaStream', localAudioMediaStream);
+        }
     }
-
-    localMediaStream = newStream;
 
     // refresh video privacy mode on screen sharing
     if (isScreenStreaming) {
@@ -5158,15 +5289,6 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
 
     // adapt video object fit on screen streaming
     getId('myVideo').style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
-
-    // log newStream devices
-    logStreamSettingsInfo('refreshMyLocalStream', localMediaStream);
-
-    // start capture mic volumes
-    getMicrophoneVolumeIndicator(localMediaStream);
-
-    // attachMediaStream is a part of the adapter.js library
-    attachMediaStream(myVideo, localMediaStream); // newStream
 
     // on toggleScreenSharing video stop from popup bar
     if (useVideo || isScreenStreaming) {
@@ -5267,7 +5389,7 @@ function startStreamRecording() {
         const audioStreams = getAudioStreamFromVideoElements();
         console.log('Audio streams tracks --->', audioStreams.getTracks());
 
-        const audioMixerStreams = audioRecorder.getMixedAudioStream([audioStreams, localMediaStream]);
+        const audioMixerStreams = audioRecorder.getMixedAudioStream([audioStreams, localAudioMediaStream]);
         const audioMixerTracks = audioMixerStreams.getTracks();
         console.log('Audio mixer tracks --->', audioMixerTracks);
 
@@ -5295,8 +5417,8 @@ function startMobileRecording(options, audioMixerTracks) {
         }
 
         // Check if there's a local media stream (presumably for the camera)
-        if (localMediaStream !== null) {
-            const videoTracks = localMediaStream.getVideoTracks();
+        if (localVideoMediaStream !== null) {
+            const videoTracks = localVideoMediaStream.getVideoTracks();
             console.log('Cam video tracks --->', videoTracks);
 
             // Add video tracks from the local media stream to combinedTracks if available
@@ -6955,8 +7077,8 @@ function handleScreenStop(peer_id, peer_use_video) {
  */
 function setMyAudioOff(peer_name) {
     if (myAudioStatus === false || !useAudio) return;
-    localMediaStream.getAudioTracks()[0].enabled = false;
-    myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+    localAudioMediaStream.getAudioTracks()[0].enabled = false;
+    myAudioStatus = localAudioMediaStream.getAudioTracks()[0].enabled;
     audioBtn.className = className.audioOff;
     setMyAudioStatus(myAudioStatus);
     userLog('toast', `${icons.user} ${peer_name} \n has disabled your audio`);
@@ -6969,8 +7091,8 @@ function setMyAudioOff(peer_name) {
  */
 function setMyAudioOn(peer_name) {
     if (myAudioStatus === true || !useAudio) return;
-    localMediaStream.getAudioTracks()[0].enabled = true;
-    myAudioStatus = localMediaStream.getAudioTracks()[0].enabled;
+    localAudioMediaStream.getAudioTracks()[0].enabled = true;
+    myAudioStatus = localAudioMediaStream.getAudioTracks()[0].enabled;
     audioBtn.className = className.audioOn;
     setMyAudioStatus(myAudioStatus);
     userLog('toast', `${icons.user} ${peer_name} \n has enabled your audio`);
@@ -6984,8 +7106,8 @@ function setMyAudioOn(peer_name) {
 function setMyVideoOff(peer_name) {
     if (!useVideo) return;
     //if (myVideoStatus === false || !useVideo) return;
-    localMediaStream.getVideoTracks()[0].enabled = false;
-    myVideoStatus = localMediaStream.getVideoTracks()[0].enabled;
+    localVideoMediaStream.getVideoTracks()[0].enabled = false;
+    myVideoStatus = localVideoMediaStream.getVideoTracks()[0].enabled;
     videoBtn.className = className.videoOff;
     setMyVideoStatus(myVideoStatus);
     userLog('toast', `${icons.user} ${peer_name} \n has disabled your video`);
