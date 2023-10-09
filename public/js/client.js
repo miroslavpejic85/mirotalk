@@ -1752,8 +1752,8 @@ async function handleOnTrack(peer_id, peers) {
 async function handleAddTracks(peer_id) {
     const peer_name = allPeers[peer_id]['peer_name'];
 
-    const videoTrack = localVideoMediaStream.getVideoTracks()[0];
-    const audioTrack = localAudioMediaStream.getAudioTracks()[0];
+    const videoTrack = localVideoMediaStream && localVideoMediaStream.getVideoTracks()[0];
+    const audioTrack = localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
 
     console.log('handleAddTracks', {
         videoTrack: videoTrack,
