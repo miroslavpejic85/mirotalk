@@ -174,7 +174,7 @@ const showDocumentPipBtn = !isMobileDevice && 'documentPictureInPicture' in wind
 /**
  * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
  * Set properties to true to show the corresponding buttons, or false to hide them.
- * captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn, 'showVideoPipBtn' -> (auto-detected).
+ * captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn, showVideoPipBtn, showDocumentPipBtn -> (auto-detected).
  */
 const buttons = {
     main: {
@@ -4181,18 +4181,26 @@ function setDocumentPiPBtn() {
             height: 720,
         });
 
-        const bodyStyle = window.getComputedStyle(document.body);
-        pipWindow.document.body.style = `
-            box-sizing: border-box;
-            background: ${bodyStyle.getPropertyValue('--body-bg')};
-        `;
+        function updateCustomProperties() {
+            const documentStyle = getComputedStyle(document.documentElement);
 
+            pipWindow.document.documentElement.style = `
+                --body-bg: ${documentStyle.getPropertyValue('--body-bg')};
+            `;
+        }
+
+        updateCustomProperties();
+
+        const pipStylesheet = document.createElement('link');
         const pipVideoContainer = document.createElement('div');
-        pipVideoContainer.style = `
-            display: grid;
-            gap: 10px;
-        `;
 
+        pipStylesheet.type = 'text/css';
+        pipStylesheet.rel = 'stylesheet';
+        pipStylesheet.href = '../css/documentPiP.css';
+
+        pipVideoContainer.className = 'pipVideoContainer';
+
+        pipWindow.document.head.append(pipStylesheet);
         pipWindow.document.body.append(pipVideoContainer);
 
         function cloneVideoElements() {
@@ -4203,12 +4211,8 @@ function setDocumentPiPBtn() {
 
                 const pipVideo = document.createElement('video');
 
-                pipVideo.style = `
-                    width: 100%;
-                    object-fit: cover;
-                    border-radius: 5px;
-                    aspect-ratio: 16 / 9;
-                `;
+                pipVideo.classList.add('pipVideo');
+                pipVideo.classList.toggle('mirror', video.classList.contains('mirror'));
                 pipVideo.srcObject = video.srcObject;
                 pipVideo.autoplay = true;
                 pipVideo.muted = true;
@@ -4219,18 +4223,25 @@ function setDocumentPiPBtn() {
 
         cloneVideoElements();
 
-        const observer = new MutationObserver(() => {
+        const videoObserver = new MutationObserver(() => {
             cloneVideoElements();
         });
 
-        const videoMediaContainer = getId('videoMediaContainer');
-
-        observer.observe(videoMediaContainer, {
+        videoObserver.observe(getId('videoMediaContainer'), {
             childList: true,
         });
 
+        const documentObserver = new MutationObserver(() => {
+            updateCustomProperties();
+        });
+
+        documentObserver.observe(document.documentElement, {
+            attributeFilter: ['style'],
+        });
+
         pipWindow.addEventListener('unload', () => {
-            observer.disconnect();
+            videoObserver.disconnect();
+            documentObserver.disconnect();
         });
     });
 }
