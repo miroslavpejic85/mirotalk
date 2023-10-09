@@ -1752,8 +1752,8 @@ async function handleOnTrack(peer_id, peers) {
 async function handleAddTracks(peer_id) {
     const peer_name = allPeers[peer_id]['peer_name'];
 
-    const videoTrack = localVideoMediaStream.getVideoTracks()[0];
-    const audioTrack = localAudioMediaStream.getAudioTracks()[0];
+    const videoTrack = localVideoMediaStream && localVideoMediaStream.getVideoTracks()[0];
+    const audioTrack = localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
 
     console.log('handleAddTracks', {
         videoTrack: videoTrack,
@@ -4171,67 +4171,71 @@ function setMyFileShareBtn() {
  */
 function setDocumentPiPBtn() {
     documentPiPBtn.addEventListener('click', async () => {
-        if (documentPictureInPicture.window) {
-            documentPictureInPicture.window.close();
-            return;
-        }
+        try {
+            if (documentPictureInPicture.window) {
+                documentPictureInPicture.window.close();
+                return;
+            }
 
-        const pipWindow = await documentPictureInPicture.requestWindow({
-            width: 300,
-            height: 720,
-        });
-
-        const bodyStyle = window.getComputedStyle(document.body);
-        pipWindow.document.body.style = `
-            box-sizing: border-box;
-            background: ${bodyStyle.getPropertyValue('--body-bg')};
-        `;
-
-        const pipVideoContainer = document.createElement('div');
-        pipVideoContainer.style = `
-            display: grid;
-            gap: 10px;
-        `;
-
-        pipWindow.document.body.append(pipVideoContainer);
-
-        function cloneVideoElements() {
-            pipVideoContainer.innerHTML = '';
-
-            [...document.querySelectorAll('video')].forEach((video) => {
-                if (!video.srcObject) return;
-
-                const pipVideo = document.createElement('video');
-
-                pipVideo.style = `
-                    width: 100%;
-                    object-fit: cover;
-                    border-radius: 5px;
-                    aspect-ratio: 16 / 9;
-                `;
-                pipVideo.srcObject = video.srcObject;
-                pipVideo.autoplay = true;
-                pipVideo.muted = true;
-
-                pipVideoContainer.append(pipVideo);
+            const pipWindow = await documentPictureInPicture.requestWindow({
+                width: 300,
+                height: 720,
             });
-        }
 
-        cloneVideoElements();
+            const bodyStyle = window.getComputedStyle(document.body);
+            pipWindow.document.body.style = `
+                box-sizing: border-box;
+                background: ${bodyStyle.getPropertyValue('--body-bg')};
+            `;
 
-        const observer = new MutationObserver(() => {
+            const pipVideoContainer = document.createElement('div');
+            pipVideoContainer.style = `
+                display: grid;
+                gap: 10px;
+            `;
+
+            pipWindow.document.body.append(pipVideoContainer);
+
+            function cloneVideoElements() {
+                pipVideoContainer.innerHTML = '';
+
+                [...document.querySelectorAll('video')].forEach((video) => {
+                    if (!video.srcObject) return;
+
+                    const pipVideo = document.createElement('video');
+
+                    pipVideo.style = `
+                        width: 100%;
+                        object-fit: cover;
+                        border-radius: 5px;
+                        aspect-ratio: 16 / 9;
+                    `;
+                    pipVideo.srcObject = video.srcObject;
+                    pipVideo.autoplay = true;
+                    pipVideo.muted = true;
+
+                    pipVideoContainer.append(pipVideo);
+                });
+            }
+
             cloneVideoElements();
-        });
 
-        const videoMediaContainer = getId('videoMediaContainer');
+            const observer = new MutationObserver(() => {
+                cloneVideoElements();
+            });
 
-        observer.observe(videoMediaContainer, {
-            childList: true,
-        });
+            const videoMediaContainer = getId('videoMediaContainer');
 
-        pipWindow.addEventListener('unload', () => {
-            observer.disconnect();
-        });
+            observer.observe(videoMediaContainer, {
+                childList: true,
+            });
+
+            pipWindow.addEventListener('unload', () => {
+                observer.disconnect();
+            });
+        } catch (err) {
+            userLog('warning', err.message);
+        }
     });
 }
 
