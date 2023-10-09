@@ -4171,78 +4171,82 @@ function setMyFileShareBtn() {
  */
 function setDocumentPiPBtn() {
     documentPiPBtn.addEventListener('click', async () => {
-        if (documentPictureInPicture.window) {
-            documentPictureInPicture.window.close();
-            return;
-        }
+        try {
+            if (documentPictureInPicture.window) {
+                documentPictureInPicture.window.close();
+                return;
+            }
 
-        const pipWindow = await documentPictureInPicture.requestWindow({
-            width: 300,
-            height: 720,
-        });
-
-        function updateCustomProperties() {
-            const documentStyle = getComputedStyle(document.documentElement);
-
-            pipWindow.document.documentElement.style = `
-                --body-bg: ${documentStyle.getPropertyValue('--body-bg')};
-            `;
-        }
-
-        updateCustomProperties();
-
-        const pipStylesheet = document.createElement('link');
-        const pipVideoContainer = document.createElement('div');
-
-        pipStylesheet.type = 'text/css';
-        pipStylesheet.rel = 'stylesheet';
-        pipStylesheet.href = '../css/documentPiP.css';
-
-        pipVideoContainer.className = 'pipVideoContainer';
-
-        pipWindow.document.head.append(pipStylesheet);
-        pipWindow.document.body.append(pipVideoContainer);
-
-        function cloneVideoElements() {
-            pipVideoContainer.innerHTML = '';
-
-            [...document.querySelectorAll('video')].forEach((video) => {
-                if (!video.srcObject) return;
-
-                const pipVideo = document.createElement('video');
-
-                pipVideo.classList.add('pipVideo');
-                pipVideo.classList.toggle('mirror', video.classList.contains('mirror'));
-                pipVideo.srcObject = video.srcObject;
-                pipVideo.autoplay = true;
-                pipVideo.muted = true;
-
-                pipVideoContainer.append(pipVideo);
+            const pipWindow = await documentPictureInPicture.requestWindow({
+                width: 300,
+                height: 720,
             });
-        }
 
-        cloneVideoElements();
+            function updateCustomProperties() {
+                const documentStyle = getComputedStyle(document.documentElement);
 
-        const videoObserver = new MutationObserver(() => {
-            cloneVideoElements();
-        });
+                pipWindow.document.documentElement.style = `
+                    --body-bg: ${documentStyle.getPropertyValue('--body-bg')};
+                `;
+            }
 
-        videoObserver.observe(getId('videoMediaContainer'), {
-            childList: true,
-        });
-
-        const documentObserver = new MutationObserver(() => {
             updateCustomProperties();
-        });
 
-        documentObserver.observe(document.documentElement, {
-            attributeFilter: ['style'],
-        });
+            const pipStylesheet = document.createElement('link');
+            const pipVideoContainer = document.createElement('div');
 
-        pipWindow.addEventListener('unload', () => {
-            videoObserver.disconnect();
-            documentObserver.disconnect();
-        });
+            pipStylesheet.type = 'text/css';
+            pipStylesheet.rel = 'stylesheet';
+            pipStylesheet.href = '../css/documentPiP.css';
+
+            pipVideoContainer.className = 'pipVideoContainer';
+
+            pipWindow.document.head.append(pipStylesheet);
+            pipWindow.document.body.append(pipVideoContainer);
+
+            function cloneVideoElements() {
+                pipVideoContainer.innerHTML = '';
+
+                [...document.querySelectorAll('video')].forEach((video) => {
+                    if (!video.srcObject) return;
+
+                    const pipVideo = document.createElement('video');
+
+                    pipVideo.classList.add('pipVideo');
+                    pipVideo.classList.toggle('mirror', video.classList.contains('mirror'));
+                    pipVideo.srcObject = video.srcObject;
+                    pipVideo.autoplay = true;
+                    pipVideo.muted = true;
+
+                    pipVideoContainer.append(pipVideo);
+                });
+            }
+
+            cloneVideoElements();
+
+            const videoObserver = new MutationObserver(() => {
+                cloneVideoElements();
+            });
+
+            videoObserver.observe(getId('videoMediaContainer'), {
+                childList: true,
+            });
+
+            const documentObserver = new MutationObserver(() => {
+                updateCustomProperties();
+            });
+
+            documentObserver.observe(document.documentElement, {
+                attributeFilter: ['style'],
+            });
+
+            pipWindow.addEventListener('unload', () => {
+                videoObserver.disconnect();
+                documentObserver.disconnect();
+            });
+        } catch (err) {
+            userLog('warning', err.message);
+        }
     });
 }
 
