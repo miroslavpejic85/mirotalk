@@ -1,0 +1,27 @@
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--body-bg);
+}
+
+.pipVideoContainer {
+    display: grid;
+    gap: 10px;
+}
+
+.pipVideo {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    aspect-ratio: 16 / 9;
+}
+
+.mirror {
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+}
