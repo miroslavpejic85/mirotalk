@@ -5630,11 +5630,11 @@ function startMobileRecording(options, audioMixerTracks) {
  */
 function startDesktopRecording(options, audioMixerTracks) {
     // Get the desired frame rate for screen recording
-    screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
+    // screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
 
     // Define constraints for capturing the screen
     const constraints = {
-        video: { frameRate: screenMaxFrameRate },
+        video: { frameRate: { max: 30 } }, // Recording max 30fps
     };
 
     // Request access to screen capture using the specified constraints
