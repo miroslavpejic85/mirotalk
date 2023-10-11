@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.0.9
+ * @version 1.1.0
  *
  */
 
@@ -1373,14 +1373,14 @@ async function whoAreYou() {
         videoSelect.selectedIndex = initVideoSelect.selectedIndex;
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
         myVideoChange = true;
-        await refreshLocalMedia();
         await changeInitCamera(initVideoSelect.value);
+        await handleLocalCameraMirror();
     };
     initMicrophoneSelect.onchange = async () => {
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
         myVideoChange = false;
-        await refreshLocalMedia();
+        await changeLocalMicrophone(audioInputSelect.value);
     };
     initSpeakerSelect.onchange = () => {
         audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
@@ -1496,8 +1496,8 @@ async function loadLocalStorage() {
     // Start init cam
     if (useVideo && initVideoSelect.value) {
         myVideoChange = true;
-        await refreshLocalMedia();
         await changeInitCamera(initVideoSelect.value);
+        await handleLocalCameraMirror();
     }
 }
 
@@ -1534,14 +1534,81 @@ async function changeInitCamera(deviceId) {
     navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
+            // We going to update init video stream
             initVideo.srcObject = camStream;
             initStream = camStream;
             console.log('Success attached init video stream', initStream.getVideoTracks()[0].getSettings());
+            // We going to update also the local video
+            myVideo.srcObject = camStream;
+            localVideoMediaStream = camStream;
+            console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
             checkInitConfig();
         })
         .catch((err) => {
             console.error('[Error] changeInitCamera', err);
             userLog('error', 'Error while swapping init camera' + err);
+        });
+}
+
+/**
+ * Change local camera by device id
+ * @param {string} deviceId
+ */
+async function changeLocalCamera(deviceId) {
+    if (localVideoMediaStream) {
+        await stopVideoTracks(localVideoMediaStream);
+        myVideo.style.display = 'block';
+        if (!myVideo.classList.contains('mirror')) {
+            myVideo.classList.toggle('mirror');
+        }
+    }
+
+    // Get video constraints
+    let videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+    videoConstraints['deviceId'] = { exact: deviceId };
+
+    navigator.mediaDevices
+        .getUserMedia({ video: videoConstraints })
+        .then((camStream) => {
+            myVideo.srcObject = camStream;
+            localVideoMediaStream = camStream;
+            console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
+            refreshMyStreamToPeers(camStream);
+        })
+        .catch((err) => {
+            console.error('[Error] changeLocalCamera', err);
+            userLog('error', 'Error while swapping local camera' + err);
+        });
+}
+
+/**
+ * Change local microphone by device id
+ * @param {string} deviceId
+ */
+async function changeLocalMicrophone(deviceId) {
+    if (localAudioMediaStream) {
+        await stopAudioTracks(localAudioMediaStream);
+    }
+
+    // Get audio constraints
+    let audioConstraints = await getAudioConstraints();
+    audioConstraints['deviceId'] = { exact: deviceId };
+
+    navigator.mediaDevices
+        .getUserMedia({ audio: audioConstraints })
+        .then((micStream) => {
+            myAudio.srcObject = micStream;
+            localAudioMediaStream = micStream;
+            console.log(
+                'Success attached local microphone stream',
+                localAudioMediaStream.getAudioTracks()[0].getSettings(),
+            );
+            getMicrophoneVolumeIndicator(micStream);
+            refreshMyStreamToPeers(micStream, true);
+        })
+        .catch((err) => {
+            console.error('[Error] changeLocalMicrophone', err);
+            userLog('error', 'Error while swapping local microphone' + err);
         });
 }
 
@@ -1573,7 +1640,6 @@ function checkPeerAudioVideo() {
  * Room and Peer name are ok Join Channel
  */
 async function whoAreYouJoin() {
-    if (isMobileDevice && myVideoStatus && myAudioStatus) await refreshLocalMedia();
     myVideoWrap.style.display = 'inline';
     myVideoParagraph.innerText = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
@@ -2295,7 +2361,7 @@ function enumerateVideoDevices(stream) {
  * Stop tracks from stream
  * @param {object} stream
  */
-function stopTracks(stream) {
+async function stopTracks(stream) {
     stream.getTracks().forEach((track) => {
         track.stop();
     });
@@ -2346,6 +2412,7 @@ async function setupLocalVideoMedia() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
         if (stream) {
+            localVideoMediaStream = stream;
             await loadLocalMedia(stream, 'video');
             console.log('10. Access granted to video device');
         }
@@ -2373,6 +2440,7 @@ async function setupLocalAudioMedia() {
         if (stream) {
             await loadLocalMedia(stream, 'audio');
             if (useAudio) {
+                localAudioMediaStream = stream;
                 await getMicrophoneVolumeIndicator(stream);
                 console.log('10. Access granted to audio device');
             }
@@ -2402,8 +2470,6 @@ async function loadLocalMedia(stream, kind) {
         case 'video':
             //alert('local video');
             console.log('SETUP LOCAL VIDEO STREAM');
-
-            localVideoMediaStream = stream;
 
             // local video elements
             const myVideoWrap = document.createElement('div');
@@ -2560,8 +2626,8 @@ async function loadLocalMedia(stream, kind) {
             getId('videoMediaContainer').appendChild(myVideoWrap);
             myVideoWrap.style.display = 'none';
 
-            logStreamSettingsInfo('localVideoMediaStream', localVideoMediaStream);
-            attachMediaStream(myLocalMedia, localVideoMediaStream);
+            logStreamSettingsInfo('localVideoMediaStream', stream);
+            attachMediaStream(myLocalMedia, stream);
             adaptAspectRatio();
 
             if (isVideoFullScreenSupported) {
@@ -2585,7 +2651,7 @@ async function loadLocalMedia(stream, kind) {
 
             handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
 
-            refreshMyVideoStatus(localVideoMediaStream);
+            refreshMyVideoStatus(stream);
 
             if (!useVideo) {
                 const videoBtn = getId('videoBtn');
@@ -2609,7 +2675,6 @@ async function loadLocalMedia(stream, kind) {
         case 'audio':
             //alert('local audio');
             console.log('SETUP LOCAL AUDIO STREAM');
-            localAudioMediaStream = stream;
             // handle remote audio elements
             const audioMediaContainer = getId('audioMediaContainer');
             const localAudioWrap = document.createElement('div');
@@ -2621,9 +2686,9 @@ async function loadLocalMedia(stream, kind) {
             localAudioMedia.volume = 0;
             localAudioWrap.appendChild(localAudioMedia);
             audioMediaContainer.appendChild(localAudioWrap);
-            logStreamSettingsInfo('localAudioMediaStream', localAudioMediaStream);
-            attachMediaStream(localAudioMedia, localAudioMediaStream);
-            refreshMyAudioStatus(localAudioMediaStream);
+            logStreamSettingsInfo('localAudioMediaStream', stream);
+            attachMediaStream(localAudioMedia, stream);
+            refreshMyAudioStatus(stream);
             break;
         default:
             break;
@@ -3715,8 +3780,8 @@ function setAudioBtn() {
  * Video hide - show button click event
  */
 function setVideoBtn() {
-    videoBtn.addEventListener('click', (e) => {
-        handleVideo(e, false);
+    videoBtn.addEventListener('click', async (e) => {
+        await handleVideo(e, false);
     });
 }
 
@@ -4384,7 +4449,7 @@ function setupMySettings() {
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
         myVideoChange = false;
-        await refreshLocalMedia();
+        await changeLocalMicrophone(audioInputSelect.value);
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
     });
     // select audio output
@@ -4395,7 +4460,8 @@ function setupMySettings() {
     // select video input
     videoSelect.addEventListener('change', async () => {
         myVideoChange = true;
-        await refreshLocalMedia();
+        await changeLocalCamera(videoSelect.value);
+        await handleLocalCameraMirror();
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
     });
     // select video quality
@@ -4408,7 +4474,7 @@ function setupMySettings() {
     } else {
         // select video fps
         videoFpsSelect.addEventListener('change', (e) => {
-            videoMaxFrameRate = parseInt(videoFpsSelect.value);
+            videoMaxFrameRate = parseInt(videoFpsSelect.value, 10);
             setLocalMaxFps(videoMaxFrameRate);
             lsSettings.video_fps = e.currentTarget.selectedIndex;
             lS.setSettings(lsSettings);
@@ -4416,7 +4482,7 @@ function setupMySettings() {
     }
     // select screen fps
     screenFpsSelect.addEventListener('change', (e) => {
-        screenMaxFrameRate = parseInt(screenFpsSelect.value);
+        screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
         if (isScreenStreaming) setLocalMaxFps(screenMaxFrameRate);
         lsSettings.screen_fps = e.currentTarget.selectedIndex;
         lS.setSettings(lsSettings);
@@ -4489,8 +4555,8 @@ function loadSettingsFromLocalStorage() {
     msgerSpeechMsg.checked = speechInMessages;
     screenFpsSelect.selectedIndex = lsSettings.screen_fps;
     videoFpsSelect.selectedIndex = lsSettings.video_fps;
-    screenMaxFrameRate = parseInt(getSelectedIndexValue(screenFpsSelect));
-    videoMaxFrameRate = parseInt(getSelectedIndexValue(videoFpsSelect));
+    screenMaxFrameRate = parseInt(getSelectedIndexValue(screenFpsSelect), 10);
+    videoMaxFrameRate = parseInt(getSelectedIndexValue(videoFpsSelect), 10);
     notifyBySound = lsSettings.sounds;
     isAudioPitchBar = lsSettings.pitch_bar;
     switchSounds.checked = notifyBySound;
@@ -4538,18 +4604,15 @@ function setupVideoUrlPlayer() {
 }
 
 /**
- * Refresh Local media audio video in - out
+ * Camera mirror
  */
-async function refreshLocalMedia() {
-    console.log('Refresh local media', {
-        audioStatus: myAudioStatus,
-        videoStatus: myVideoStatus,
-    });
-    // some devices can't swap the video track, if already in execution.
-    await stopLocalVideoTrack();
-    await stopLocalAudioTrack();
-    const audioVideoConstraints = await getAudioVideoConstraints();
-    navigator.mediaDevices.getUserMedia(audioVideoConstraints).then(gotStream).then(gotDevices).catch(handleError);
+async function handleLocalCameraMirror() {
+    await setMyVideoStatusTrue();
+    // This fix IPadPro - Tablet mirror of the back camera
+    if ((isMobileDevice || isIPadDevice || isTabletDevice) && !isCamMirrored) {
+        myVideo.classList.toggle('mirror');
+        isCamMirrored = true;
+    }
 }
 
 /**
@@ -4582,7 +4645,7 @@ async function getAudioVideoConstraints() {
  * @returns {object} video constraints
  */
 async function getVideoConstraints(videoQuality) {
-    const frameRate = { max: videoMaxFrameRate };
+    const frameRate = videoMaxFrameRate;
 
     switch (videoQuality) {
         case 'default':
@@ -4657,10 +4720,10 @@ async function getAudioConstraints() {
  * @returns void
  */
 async function refreshConstraints(stream, maxFrameRate) {
-    if (!useVideo || stream.getVideoTracks().length == 0) return;
+    if (!useVideo || !hasVideoTrack(stream)) return;
     stream
         .getVideoTracks()[0]
-        .applyConstraints({ frameRate: { max: maxFrameRate } })
+        .applyConstraints({ frameRate: maxFrameRate })
         .then(() => {
             logStreamSettingsInfo('refreshConstraints', stream);
         })
@@ -4675,10 +4738,10 @@ async function refreshConstraints(stream, maxFrameRate) {
  * @param {string} maxFrameRate desired max frame rate
  */
 function setLocalMaxFps(maxFrameRate) {
-    if (!useVideo) return;
+    if (!useVideo || !localVideoMediaStream) return;
     localVideoMediaStream
         .getVideoTracks()[0]
-        .applyConstraints({ frameRate: { max: maxFrameRate } })
+        .applyConstraints({ frameRate: maxFrameRate })
         .then(() => {
             logStreamSettingsInfo('setLocalMaxFps', localVideoMediaStream);
         })
@@ -4692,7 +4755,7 @@ function setLocalMaxFps(maxFrameRate) {
  * Set local video quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 async function setLocalVideoQuality() {
-    if (!useVideo) return;
+    if (!useVideo || !localVideoMediaStream) return;
     let videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     localVideoMediaStream
         .getVideoTracks()[0]
@@ -4738,95 +4801,6 @@ function attachSinkId(element, sinkId) {
             });
     } else {
         console.warn('Browser does not support output device selection.');
-    }
-}
-
-/**
- * Got Stream and append to local media
- * @param {object} stream media stream audio - video
- * @returns {object} media Devices Info
- */
-async function gotStream(stream) {
-    const videoFPS = isScreenStreaming ? screenMaxFrameRate : videoMaxFrameRate;
-    await refreshConstraints(stream, videoFPS);
-    await refreshMyLocalStream(stream, true);
-    await refreshMyStreamToPeers(stream, true);
-    if (myVideoChange) {
-        setMyVideoStatusTrue();
-        // This fix IPadPro - Tablet mirror of the back camera
-        if ((isMobileDevice || isIPadDevice || isTabletDevice) && !isCamMirrored) {
-            myVideo.classList.toggle('mirror');
-            isCamMirrored = true;
-        }
-    }
-    // Refresh button list in case labels have become available
-    return navigator.mediaDevices.enumerateDevices();
-}
-
-/**
- * Get audio-video Devices and show it to select box
- * https://webrtc.github.io/samples/src/content/devices/input-output/
- * https://github.com/webrtc/samples/tree/gh-pages/src/content/devices/input-output
- * @param {object} deviceInfos device infos
- */
-function gotDevices(deviceInfos) {
-    // Handles being called several times to update labels. Preserve values.
-    const values = selectors.map((select) => select.value);
-    selectors.forEach((select) => {
-        while (select.firstChild) {
-            select.removeChild(select.firstChild);
-        }
-    });
-    // check devices
-    for (let i = 0; i !== deviceInfos.length; ++i) {
-        const deviceInfo = deviceInfos[i];
-        // console.log("device-info ------> ", deviceInfo);
-        const option = document.createElement('option');
-        option.value = deviceInfo.deviceId;
-
-        switch (deviceInfo.kind) {
-            case 'videoinput':
-                option.text = `📹 ` + deviceInfo.label || `📹 camera ${videoSelect.length + 1}`;
-                videoSelect.appendChild(option);
-                break;
-
-            case 'audioinput':
-                option.text = `🎤 ` + deviceInfo.label || `🎤 microphone ${audioInputSelect.length + 1}`;
-                audioInputSelect.appendChild(option);
-                break;
-
-            case 'audiooutput':
-                option.text = `🔈 ` + deviceInfo.label || `🔈 speaker ${audioOutputSelect.length + 1}`;
-                audioOutputSelect.appendChild(option);
-                break;
-
-            default:
-                console.log('Some other kind of source/device: ', deviceInfo);
-        }
-    } // end for devices
-
-    selectors.forEach((select, selectorIndex) => {
-        if (Array.prototype.slice.call(select.childNodes).some((n) => n.value === values[selectorIndex])) {
-            select.value = values[selectorIndex];
-        }
-    });
-}
-
-/**
- * Handle getUserMedia error: https://blog.addpipe.com/common-getusermedia-errors/
- * @param {object} err user media error
- */
-function handleError(err) {
-    console.error('navigator.MediaDevices.getUserMedia error: ', err);
-    switch (err.name) {
-        case 'OverconstrainedError':
-            userLog(
-                'error',
-                "GetUserMedia: Your device doesn't support the selected video quality or fps, please select the another one.",
-            );
-            break;
-        default:
-            userLog('error', 'GetUserMedia error ' + err);
     }
 }
 
@@ -5018,6 +4992,8 @@ function handleAudio(e, init, force = null) {
     const audioStatus = force !== null ? force : !localAudioMediaStream.getAudioTracks()[0].enabled;
     const audioClassName = audioStatus ? className.audioOn : className.audioOff;
 
+    myAudioStatus = audioStatus;
+
     localAudioMediaStream.getAudioTracks()[0].enabled = audioStatus;
 
     force != null ? (e.className = audioClassName) : (e.target.className = audioClassName);
@@ -5032,8 +5008,18 @@ function handleAudio(e, init, force = null) {
         lS.setInitConfig(lS.MEDIA_TYPE.audio, audioStatus);
     }
 
-    myAudioStatus = audioStatus;
     setMyAudioStatus(myAudioStatus);
+}
+
+/**
+ * Stop audio track from MediaStream
+ * @param {MediaStream} stream
+ */
+async function stopAudioTracks(stream) {
+    if (!stream) return;
+    stream.getTracks().forEach((track) => {
+        if (track.kind === 'audio') track.stop();
+    });
 }
 
 /**
@@ -5042,12 +5028,14 @@ function handleAudio(e, init, force = null) {
  * @param {boolean} init on join room
  * @param {null|boolean} force video off (default null can be true/false)
  */
-function handleVideo(e, init, force = null) {
+async function handleVideo(e, init, force = null) {
     if (!useVideo) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
 
     const videoStatus = force !== null ? force : !localVideoMediaStream.getVideoTracks()[0].enabled;
     const videoClassName = videoStatus ? className.videoOn : className.videoOff;
+
+    myVideoStatus = videoStatus;
 
     localVideoMediaStream.getVideoTracks()[0].enabled = videoStatus;
 
@@ -5063,8 +5051,37 @@ function handleVideo(e, init, force = null) {
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
     }
 
-    myVideoStatus = videoStatus;
-    setMyVideoStatus(myVideoStatus);
+    if (!videoStatus) {
+        if (!isScreenStreaming) {
+            // Stop the video track based on the condition
+            if (init) {
+                await stopVideoTracks(initStream); // Stop init video track (camera LED off)
+            } else {
+                await stopVideoTracks(localVideoMediaStream); // Stop local video track (camera LED off)
+            }
+        }
+    } else {
+        if (init) {
+            // Resume the video track for the init camera (camera LED on)
+            await changeInitCamera(initVideoSelect.value);
+        } else if (!isScreenStreaming) {
+            // Resume the video track for the local camera (camera LED on)
+            await changeLocalCamera(videoSelect.value);
+        }
+    }
+
+    setMyVideoStatus(videoStatus);
+}
+
+/**
+ * Stop video track from MediaStream
+ * @param {MediaStream} stream
+ */
+async function stopVideoTracks(stream) {
+    if (!stream) return;
+    stream.getTracks().forEach((track) => {
+        if (track.kind === 'video') track.stop();
+    });
 }
 
 /**
@@ -5132,10 +5149,10 @@ async function stopLocalAudioTrack() {
 async function toggleScreenSharing(init = false) {
     try {
         // Set screen frame rate
-        screenMaxFrameRate = parseInt(screenFpsSelect.value);
+        screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
         const constraints = {
             audio: false,
-            video: { frameRate: { max: screenMaxFrameRate } },
+            video: { frameRate: screenMaxFrameRate },
         };
 
         // Store webcam video status before screen sharing
@@ -5166,10 +5183,11 @@ async function toggleScreenSharing(init = false) {
             } else {
                 emitPeersAction('screenStop');
                 adaptAspectRatio();
-                await refreshConstraints(screenMediaPromise, videoMaxFrameRate);
+                //await refreshConstraints(screenMediaPromise, videoMaxFrameRate);
             }
 
             await emitPeerStatus('screen', myScreenStatus);
+
             await stopLocalVideoTrack();
             await refreshMyLocalStream(screenMediaPromise);
             await refreshMyStreamToPeers(screenMediaPromise);
@@ -5398,21 +5416,23 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     // enable video
     if (useVideo || isScreenStreaming) stream.getVideoTracks()[0].enabled = true;
 
-    // enable audio
-    if (localAudioTrackChange && myAudioStatus === false) {
+    // enable audio if changed and disabled
+    if (localAudioTrackChange && !myAudioStatus) {
         audioBtn.className = className.audioOn;
         setMyAudioStatus(true);
         myAudioStatus = true;
     }
 
     const tracksToInclude = [];
+
     const videoTrack = hasVideoTrack(stream)
         ? stream.getVideoTracks()[0]
-        : localVideoMediaStream && localVideoMediaStream.getVideoTracks()[0];
+        : hasVideoTrack(localVideoMediaStream) && localVideoMediaStream.getVideoTracks()[0];
+
     const audioTrack =
         hasAudioTrack(stream) && localAudioTrackChange
             ? stream.getAudioTracks()[0]
-            : localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
+            : hasAudioTrack(localAudioMediaStream) && localAudioMediaStream.getAudioTracks()[0];
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
     if (useVideo || isScreenStreaming) {
@@ -5440,21 +5460,19 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
         }
     }
 
-    // refresh video privacy mode on screen sharing
     if (isScreenStreaming) {
+        // refresh video privacy mode on screen sharing
         isVideoPrivacyActive = false;
         setVideoPrivacyStatus('myVideo', isVideoPrivacyActive);
-    }
 
-    // adapt video object fit on screen streaming
-    getId('myVideo').style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
-
-    // on toggleScreenSharing video stop from popup bar
-    if (useVideo || isScreenStreaming) {
+        // on toggleScreenSharing video stop from popup bar
         stream.getVideoTracks()[0].onended = () => {
             toggleScreenSharing();
         };
     }
+
+    // adapt video object fit on screen streaming
+    getId('myVideo').style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
 }
 
 /**
@@ -5612,11 +5630,11 @@ function startMobileRecording(options, audioMixerTracks) {
  */
 function startDesktopRecording(options, audioMixerTracks) {
     // Get the desired frame rate for screen recording
-    screenMaxFrameRate = parseInt(screenFpsSelect.value);
+    screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
 
     // Define constraints for capturing the screen
     const constraints = {
-        video: { frameRate: { max: screenMaxFrameRate } },
+        video: { frameRate: screenMaxFrameRate },
     };
 
     // Request access to screen capture using the specified constraints
@@ -6915,6 +6933,7 @@ function setMyHandStatus() {
  * @param {boolean} status of my audio
  */
 function setMyAudioStatus(status) {
+    console.log('My audio status', status);
     const audioClassName = status ? className.audioOn : className.audioOff;
     audioBtn.className = audioClassName;
     myAudioStatusIcon.className = audioClassName;
@@ -6923,7 +6942,6 @@ function setMyAudioStatus(status) {
     setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
     setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', placement);
     status ? playSound('on') : playSound('off');
-    console.log('My audio status', status);
 }
 
 /**
@@ -6935,8 +6953,10 @@ function setMyVideoStatus(status) {
     // on vdeo OFF display my video avatar name
     if (myVideoAvatarImage) myVideoAvatarImage.style.display = status ? 'none' : 'block';
     if (myVideoStatusIcon) myVideoStatusIcon.className = status ? className.videoOn : className.videoOff;
+
     // send my video status to all peers in the room
     emitPeerStatus('video', status);
+
     if (!isMobileDevice) {
         if (myVideoStatusIcon) setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
         setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', placement);
