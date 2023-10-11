@@ -5554,7 +5554,7 @@ function startStreamRecording() {
         const audioStreams = getAudioStreamFromAudioElements();
         console.log('Audio streams tracks --->', audioStreams.getTracks());
 
-        const audioMixerStreams = audioRecorder.getMixedAudioStream([audioStreams, localAudioMediaStream]);
+        const audioMixerStreams = audioRecorder.getMixedAudioStream([audioStreams]);
         const audioMixerTracks = audioMixerStreams.getTracks();
         console.log('Audio mixer tracks --->', audioMixerTracks);
 
@@ -5675,40 +5675,6 @@ function getAudioStreamFromAudioElements() {
         const audioTrack = audio.srcObject.getAudioTracks()[0];
         if (audioTrack) {
             audioStream.addTrack(audioTrack);
-        }
-    });
-    return audioStream;
-}
-
-/**
- * Get a MediaStream containing audio tracks from video elements on the page.
- * @returns {MediaStream} A MediaStream containing audio tracks.
- */
-function getAudioStreamFromVideoElements() {
-    // Find all video elements on the page
-    const videoElements = document.querySelectorAll('video');
-    // Create a new MediaStream to hold audio tracks
-    const audioStream = new MediaStream();
-    // Iterate through each video element
-    videoElements.forEach((video) => {
-        // Check if the video element has a source object
-        if (video.srcObject) {
-            const audioTracks = video.srcObject.getAudioTracks();
-            // Iterate through audio tracks and add them to the audio stream
-            audioTracks.forEach((audioTrack) => {
-                audioStream.addTrack(audioTrack);
-            });
-        } else {
-            // If the video element doesn't have a source object, try to capture audio from the audio element
-            const audioElement = video.querySelector('audio');
-            if (audioElement) {
-                const audioSource = audioElement.captureStream();
-                const audioTracks = audioSource.getAudioTracks();
-                // Iterate through audio tracks and add them to the audio stream
-                audioTracks.forEach((audioTrack) => {
-                    audioStream.addTrack(audioTrack);
-                });
-            }
         }
     });
     return audioStream;
