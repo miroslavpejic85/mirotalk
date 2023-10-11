@@ -5391,20 +5391,6 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name });
         }
     }
-
-    // Handle audio state when sharing a screen with audio
-    if (isScreenStreaming && streamHasAudioTrack) {
-        setMyAudioOff('you');
-        needToEnableMyAudio = true;
-        audioBtn.disabled = true;
-    }
-
-    // Enable audio if screen sharing ends and audio needs to be enabled
-    if (!isScreenStreaming && needToEnableMyAudio) {
-        setMyAudioOn('you');
-        needToEnableMyAudio = false;
-        audioBtn.disabled = false;
-    }
 }
 
 /**
