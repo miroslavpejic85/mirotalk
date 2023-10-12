@@ -1498,6 +1498,7 @@ async function loadLocalStorage() {
         myVideoChange = true;
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
+        await checkInitConfig();
     }
 }
 
@@ -1542,7 +1543,6 @@ async function changeInitCamera(deviceId) {
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
             console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
-            checkInitConfig();
         })
         .catch((err) => {
             console.error('[Error] changeInitCamera', err);
@@ -3519,7 +3519,7 @@ function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null)
 
     function setTransform() {
         if (isVideoOf(id) || isVideoPrivacyMode(video)) return;
-        if (zoom < 1) zoom = 1;
+        zoom = Math.max(1, Math.min(15, zoom));
         video.style.scale = zoom;
     }
 
@@ -4989,7 +4989,7 @@ function handleAudio(e, init, force = null) {
     if (!useAudio) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
 
-    const audioStatus = force !== null ? force : !localAudioMediaStream.getAudioTracks()[0].enabled;
+    const audioStatus = force !== null ? force : !myAudioStatus;
     const audioClassName = audioStatus ? className.audioOn : className.audioOff;
 
     myAudioStatus = audioStatus;
@@ -5032,7 +5032,7 @@ async function handleVideo(e, init, force = null) {
     if (!useVideo) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getVideoTracks
 
-    const videoStatus = force !== null ? force : !localVideoMediaStream.getVideoTracks()[0].enabled;
+    const videoStatus = force !== null ? force : !myVideoStatus;
     const videoClassName = videoStatus ? className.videoOn : className.videoOff;
 
     myVideoStatus = videoStatus;
