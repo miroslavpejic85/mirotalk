@@ -5550,19 +5550,17 @@ function startStreamRecording() {
     const options = { mimeType: supportedMimeTypes[0] };
 
     try {
-        const allAudioStreams = [];
-
         audioRecorder = new MixedAudioRecorder();
         const audioStreams = getAudioStreamFromAudioElements();
         console.log('Audio streams tracks --->', audioStreams.getTracks());
 
-        audioStreams.getTracks().forEach((track) => {
-            if (track.kind === 'audio') {
-                allAudioStreams.push(new MediaStream([track]));
-            }
-        });
+        const audioMixerStreams = audioRecorder.getMixedAudioStream(
+            audioStreams
+                .getTracks()
+                .filter((track) => track.kind === 'audio')
+                .map((track) => new MediaStream([track])),
+        );
 
-        const audioMixerStreams = audioRecorder.getMixedAudioStream(allAudioStreams);
         const audioMixerTracks = audioMixerStreams.getTracks();
         console.log('Audio mixer tracks --->', audioMixerTracks);
 
