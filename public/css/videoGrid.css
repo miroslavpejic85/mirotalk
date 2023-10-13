@@ -34,8 +34,6 @@
 
 .Camera {
     position: relative;
-    vertical-align: middle;
-    align-self: center;
     border-radius: 10px;
     overflow: hidden;
     display: inline-block;
@@ -150,6 +148,8 @@ video {
     object-fit: var(--video-object-fit);
     border-radius: 10px;
     cursor: pointer;
+    transform-origin: center;
+    transition: transform 0.3s ease-in-out;
 }
 
 video:hover {

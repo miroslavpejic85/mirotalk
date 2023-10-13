@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.1
+ * @version 1.1.2
  *
  */
 
@@ -248,6 +248,13 @@ const isRulesActive = true; // Presenter can do anything, guest is slightly mode
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
 
 const useAvatarSvg = true; // if false the cam-Off avatar = avatarImg
+
+/**
+ * Determines the video zoom mode.
+ * If set to true, the video zooms at the center of the frame.
+ * If set to false, the video zooms at the cursor position.
+ */
+const ZOOM_CENTER_MODE = false;
 
 let isHideMeActive = false; // Hide myself from the meeting view
 
@@ -1010,7 +1017,7 @@ function getScreenEnabled() {
  * Check if there is peer connections
  * @returns {boolean} true/false
  */
-function thereIsPeerConnections() {
+function thereArePeerConnections() {
     if (Object.keys(peerConnections).length === 0) return false;
     return true;
 }
@@ -1108,7 +1115,7 @@ async function sendToServer(msg, config = {}) {
  * @param {object} config data
  */
 async function sendToDataChannel(config) {
-    if (thereIsPeerConnections() && typeof config === 'object' && config !== null) {
+    if (thereArePeerConnections() && typeof config === 'object' && config !== null) {
         for (let peer_id in chatDataChannels) {
             if (chatDataChannels[peer_id].readyState === 'open')
                 await chatDataChannels[peer_id].send(JSON.stringify(config));
@@ -3503,7 +3510,7 @@ function toggleVideoPin(position) {
 }
 
 /**
- * Zoom in/out video element
+ * Zoom in/out video element center or by cursor position
  * @param {string} zoomInBtnId
  * @param {string} zoomOutBtnId
  * @param {string} mediaId
@@ -3511,24 +3518,82 @@ function toggleVideoPin(position) {
  */
 function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null) {
     const id = peerId ? peerId + '_videoStatus' : 'myVideoStatusIcon';
+    const videoWrap = getId(peerId ? peerId + '_videoWrap' : 'myVideoWrap');
     const zoomIn = getId(zoomInBtnId);
     const zoomOut = getId(zoomOutBtnId);
     const video = getId(mediaId);
+
+    /**
+     * 1.1: This value is used when the `zoomDirection` is 'zoom-in'.
+     * It means that when the user scrolls the mouse wheel up (indicating a zoom-in action), the scale factor is set to 1.1.
+     * This means that the content will be scaled up to 110% of its original size with each scroll event, effectively making it larger.
+     */
+    const ZOOM_IN_FACTOR = 1.1;
+    /**
+     * 0.9: This value is used when the zoomDirection is 'zoom-out'.
+     * It means that when the user scrolls the mouse wheel down (indicating a zoom-out action), the scale factor is set to 0.9.
+     * This means that the content will be scaled down to 90% of its original size with each scroll event, effectively making it smaller.
+     */
+    const ZOOM_OUT_FACTOR = 0.9;
+    const MAX_ZOOM = 15;
+    const MIN_ZOOM = 1;
 
     let zoom = 1;
 
     function setTransform() {
         if (isVideoOf(id) || isVideoPrivacyMode(video)) return;
-        zoom = Math.max(1, Math.min(15, zoom));
+        zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
         video.style.scale = zoom;
     }
 
-    video.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        let delta = e.wheelDelta ? e.wheelDelta : -e.deltaY;
-        delta > 0 ? (zoom *= 1.2) : (zoom /= 1.2);
-        setTransform();
-    });
+    function resetZoom(video) {
+        zoom = 1;
+        video.style.transform = '';
+        video.style.transformOrigin = 'center';
+    }
+
+    if (!isMobileDevice) {
+        // Zoom center
+        if (ZOOM_CENTER_MODE) {
+            video.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                let delta = e.wheelDelta ? e.wheelDelta : -e.deltaY;
+                delta > 0 ? (zoom *= 1.2) : (zoom /= 1.2);
+                setTransform();
+            });
+        } else {
+            // Zoom on cursor position
+            video.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (isVideoOf(id) || isVideoPrivacyMode(video)) return;
+
+                const rect = videoWrap.getBoundingClientRect();
+                const cursorX = e.clientX - rect.left;
+                const cursorY = e.clientY - rect.top;
+
+                const zoomDirection = e.deltaY > 0 ? 'zoom-out' : 'zoom-in';
+                const scaleFactor = zoomDirection === 'zoom-out' ? ZOOM_OUT_FACTOR : ZOOM_IN_FACTOR;
+
+                zoom *= scaleFactor;
+                zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+
+                video.style.transformOrigin = `${cursorX}px ${cursorY}px`;
+                video.style.transform = `scale(${zoom})`;
+                video.style.cursor = zoomDirection;
+            });
+
+            videoWrap.addEventListener('mouseleave', () => {
+                video.style.cursor = 'pointer';
+                if (video.id === myVideo.id && !isScreenStreaming) {
+                    resetZoom(video);
+                }
+            });
+
+            video.addEventListener('mouseleave', () => {
+                video.style.cursor = 'pointer';
+            });
+        }
+    }
 
     if (buttons.local.showZoomInOutBtn) {
         zoomIn.addEventListener('click', () => {
@@ -3889,7 +3954,7 @@ function setChatRoomBtn() {
 
     // show msger participants section
     msgerCPBtn.addEventListener('click', (e) => {
-        if (!thereIsPeerConnections()) {
+        if (!thereArePeerConnections()) {
             return userLog('info', 'No participants detected');
         }
         msgerCP.style.display = 'flex';
@@ -5183,6 +5248,10 @@ async function toggleScreenSharing(init = false) {
             } else {
                 emitPeersAction('screenStop');
                 adaptAspectRatio();
+                // Reset zoom
+                myVideo.style.transform = '';
+                // myVideo.style.scale = zoom;
+                myVideo.style.transformOrigin = 'center';
                 //await refreshConstraints(screenMediaPromise, videoMaxFrameRate);
             }
 
@@ -5347,7 +5416,7 @@ function toggleFullScreen() {
  * @param {boolean} localAudioTrackChange - Indicates whether there's a change in the local audio track (default false).
  */
 async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
-    if (!thereIsPeerConnections()) return;
+    if (!thereArePeerConnections()) return;
 
     // Log peer connections and all peers
     console.log('PEER-CONNECTIONS', peerConnections);
@@ -6020,7 +6089,7 @@ function hideCaptionBox() {
  * Send Chat messages to peers in the room
  */
 async function sendChatMessage() {
-    if (!thereIsPeerConnections() && !isChatGPTOn) {
+    if (!thereArePeerConnections() && !isChatGPTOn) {
         cleanMessageInput();
         isChatPasteTxt = false;
         return userLog('info', "Can't send message, no participants in the room");
@@ -7115,7 +7184,7 @@ function setPeerVideoStatus(peer_id, status) {
  * @param {object} peerAction to all peers
  */
 async function emitPeersAction(peerAction) {
-    if (!thereIsPeerConnections()) return;
+    if (!thereArePeerConnections()) return;
 
     sendToServer('peerAction', {
         room_id: roomId,
@@ -7134,7 +7203,7 @@ async function emitPeersAction(peerAction) {
  * @param {object} peerAction to specified peer
  */
 async function emitPeerAction(peer_id, peerAction) {
-    if (!thereIsPeerConnections()) return;
+    if (!thereArePeerConnections()) return;
 
     sendToServer('peerAction', {
         room_id: roomId,
@@ -7282,7 +7351,7 @@ function setMyVideoOff(peer_name) {
  * @param {string} element type audio/video
  */
 function disableAllPeers(element) {
-    if (!thereIsPeerConnections()) {
+    if (!thereArePeerConnections()) {
         return userLog('info', 'No participants detected');
     }
     Swal.fire({
@@ -7319,7 +7388,7 @@ function disableAllPeers(element) {
  * Eject all participants in the room expect yourself
  */
 function ejectEveryone() {
-    if (!thereIsPeerConnections()) {
+    if (!thereArePeerConnections()) {
         return userLog('info', 'No participants detected');
     }
     Swal.fire({
@@ -7346,7 +7415,7 @@ function ejectEveryone() {
  * @param {string} element type audio/video
  */
 function disablePeer(peer_id, element) {
-    if (!thereIsPeerConnections()) {
+    if (!thereArePeerConnections()) {
         return userLog('info', 'No participants detected');
     }
     Swal.fire({
@@ -7523,7 +7592,7 @@ function handleUnlockTheRoom() {
  * Handle whiteboard toogle
  */
 function handleWhiteboardToggle() {
-    thereIsPeerConnections() ? whiteboardAction(getWhiteboardAction('toggle')) : toggleWhiteboard();
+    thereArePeerConnections() ? whiteboardAction(getWhiteboardAction('toggle')) : toggleWhiteboard();
 }
 
 /**
@@ -8027,7 +8096,7 @@ function saveDataToFile(dataURL, fileName) {
  */
 function wbCanvasToJson() {
     if (!isPresenter && wbIsLock) return;
-    if (thereIsPeerConnections()) {
+    if (thereArePeerConnections()) {
         const config = {
             room_id: roomId,
             wbCanvasJson: JSON.stringify(wbCanvas.toJSON()),
@@ -8040,7 +8109,7 @@ function wbCanvasToJson() {
  * If whiteboard opened, update canvas to all peers connected
  */
 async function wbUpdate() {
-    if (wbIsOpen && thereIsPeerConnections()) {
+    if (wbIsOpen && thereArePeerConnections()) {
         wbCanvasToJson();
         whiteboardAction(getWhiteboardAction(wbIsLock ? 'lock' : 'unlock'));
     }
@@ -8104,7 +8173,7 @@ function confirmCleanBoard() {
  * @param {object} config data
  */
 function whiteboardAction(config) {
-    if (thereIsPeerConnections()) {
+    if (thereArePeerConnections()) {
         sendToServer('whiteboardAction', config);
     }
     handleWhiteboardAction(config, false);
@@ -8375,7 +8444,7 @@ function sendFileInformations(file, peer_id, broadcast = false) {
     // check if valid
     if (fileToSend && fileToSend.size > 0) {
         // no peers in the room
-        if (!thereIsPeerConnections()) {
+        if (!thereArePeerConnections()) {
             return userLog('info', 'No participants detected');
         }
 
@@ -8574,7 +8643,7 @@ function sendVideoUrl(peer_id = null) {
     }).then((result) => {
         if (result.value) {
             result.value = filterXSS(result.value);
-            if (!thereIsPeerConnections()) {
+            if (!thereArePeerConnections()) {
                 return userLog('info', 'No participants detected');
             }
             console.log('Video URL: ' + result.value);

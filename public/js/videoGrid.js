@@ -69,6 +69,8 @@ function resizeVideoMedia() {
 
     //console.log('videoMediaContainer.childElementCount', videoMediaContainer.childElementCount - optional);
 
+    resetZoom(); //...
+
     let bigWidth = Width * 4;
     if (videoMediaContainer.childElementCount - optional == 1) {
         Width = Width - bigWidth;
@@ -88,6 +90,17 @@ function resizeVideoMedia() {
     max = max - Margin * 2;
     setWidth(Cameras, max, bigWidth, Margin, Height, isOneVideoElement);
     document.documentElement.style.setProperty('--vmi-wh', max / 3 + 'px');
+}
+
+/**
+ * Reset zoom to avoid incorrect UI on screen resize
+ */
+function resetZoom() {
+    const videoElements = document.querySelectorAll('video');
+    videoElements.forEach((video) => {
+        video.style.transform = '';
+        video.style.transformOrigin = 'center';
+    });
 }
 
 /**
