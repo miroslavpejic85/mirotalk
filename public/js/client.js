@@ -315,7 +315,6 @@ let isEnumerateVideoDevices = false;
 let isEnumerateAudioDevices = false;
 let camera = 'user'; // user = front-facing camera on a smartphone. | environment = the back camera on a smartphone.
 let roomLocked = false;
-let myVideoChange = false;
 let myHandStatus = false;
 let myVideoStatusBefore = false;
 let myVideoStatus = false;
@@ -784,14 +783,6 @@ function setButtonsToolTip() {
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
-    // tab buttons
-    // setTippy(tabVideoBtn, 'Video devices', 'top');
-    // setTippy(tabAudioBtn, 'Audio devices', 'top');
-    // setTippy(tabParticipantsBtn, 'Participants', 'top');
-    // setTippy(tabProfileBtn, 'Profile', 'top');
-    // setTippy(tabRoomBtn, 'Room', 'top');
-    // setTippy(tabStylingBtn, 'Styling', 'top');
-    // setTippy(tabLanguagesBtn, 'Languages', 'top');
     // whiteboard buttons
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
@@ -813,10 +804,6 @@ function setButtonsToolTip() {
     setTippy(whiteboardCleanBtn, 'Clean the board', 'bottom');
     setTippy(whiteboardLockBtn, 'If enabled, participants cannot interact', 'right');
     setTippy(whiteboardCloseBtn, 'Close', 'right');
-    // room actions buttons
-    // setTippy(muteEveryoneBtn, 'Mute everyone except yourself', 'top');
-    // setTippy(hideEveryoneBtn, 'Hide everyone except yourself', 'top');
-    // setTippy(ejectEveryoneBtn, 'Eject everyone except yourself', 'top');
     // Suspend/Hide File transfer buttons
     setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
@@ -1379,14 +1366,12 @@ async function whoAreYou() {
     initVideoSelect.onchange = async () => {
         videoSelect.selectedIndex = initVideoSelect.selectedIndex;
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
-        myVideoChange = true;
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
     };
     initMicrophoneSelect.onchange = async () => {
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
-        myVideoChange = false;
         await changeLocalMicrophone(audioInputSelect.value);
     };
     initSpeakerSelect.onchange = () => {
@@ -1502,7 +1487,6 @@ async function loadLocalStorage() {
     }
     // Start init cam
     if (useVideo && initVideoSelect.value) {
-        myVideoChange = true;
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
         await checkInitConfig();
@@ -4511,7 +4495,6 @@ function setupMySettings() {
     });
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
-        myVideoChange = false;
         await changeLocalMicrophone(audioInputSelect.value);
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
     });
@@ -4522,7 +4505,6 @@ function setupMySettings() {
     });
     // select video input
     videoSelect.addEventListener('change', async () => {
-        myVideoChange = true;
         await changeLocalCamera(videoSelect.value);
         await handleLocalCameraMirror();
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
@@ -5467,13 +5449,6 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
 async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     // enable video
     if (useVideo || isScreenStreaming) stream.getVideoTracks()[0].enabled = true;
-
-    // enable audio if changed and disabled
-    if (localAudioTrackChange && !myAudioStatus) {
-        audioBtn.className = className.audioOn;
-        setMyAudioStatus(true);
-        myAudioStatus = true;
-    }
 
     const tracksToInclude = [];
 
