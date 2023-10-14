@@ -1530,7 +1530,6 @@ async function checkInitConfig() {
 async function changeInitCamera(deviceId) {
     if (initStream) {
         stopTracks(initStream);
-        initVideo.style.display = 'block';
         if (!initVideo.classList.contains('mirror')) {
             initVideo.classList.toggle('mirror');
         }
@@ -1564,7 +1563,6 @@ async function changeInitCamera(deviceId) {
 async function changeLocalCamera(deviceId) {
     if (localVideoMediaStream) {
         await stopVideoTracks(localVideoMediaStream);
-        myVideo.style.display = 'block';
         if (!myVideo.classList.contains('mirror')) {
             myVideo.classList.toggle('mirror');
         }
@@ -4672,7 +4670,6 @@ function setupVideoUrlPlayer() {
  * Camera mirror
  */
 async function handleLocalCameraMirror() {
-    await setMyVideoStatusTrue();
     // This fix IPadPro - Tablet mirror of the back camera
     if ((isMobileDevice || isIPadDevice || isTabletDevice) && !isCamMirrored) {
         myVideo.classList.toggle('mirror');
@@ -5268,9 +5265,7 @@ async function toggleScreenSharing(init = false) {
                 if (hasVideoTrack(initStream)) {
                     const newStream = new MediaStream([initStream.getVideoTracks()[0]]);
                     initVideo.style.display = 'block';
-                    if (initVideo.classList.contains('mirror')) {
-                        initVideo.classList.toggle('mirror');
-                    }
+                    initVideo.classList.toggle('mirror');
                     initVideo.srcObject = newStream;
                     disable(initVideoSelect, isScreenStreaming);
                     disable(initVideoBtn, isScreenStreaming);
@@ -5417,6 +5412,8 @@ function toggleFullScreen() {
  */
 async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereArePeerConnections()) return;
+
+    if (useAudio && localAudioTrackChange) localAudioMediaStream.getAudioTracks()[0].enabled = myAudioStatus;
 
     // Log peer connections and all peers
     console.log('PEER-CONNECTIONS', peerConnections);
