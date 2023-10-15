@@ -54,8 +54,8 @@
     --btns-top: 95%;
     --btns-right: 25%;
     --btns-left: 50%;
-    --btns-margin-left: -300px;
-    --btns-width: 600px;
+    --btns-margin-left: -320px;
+    --btns-width: auto;
     --btns-flex-direction: row;
     */
 
@@ -749,14 +749,48 @@ button:hover {
 }
 
 /*--------------------------------------------------------------
-# Emoji picker
+# Chat/room/user emoji picker
 --------------------------------------------------------------*/
 
-em-emoji-picker {
+.chatEmojiPicker {
     z-index: 12;
     position: absolute;
     bottom: 105px;
     left: 10px;
+}
+
+.roomEmoji {
+    z-index: 18;
+    position: absolute;
+    display: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.userEmoji {
+    z-index: 18;
+    position: absolute;
+    left: 80px;
+    bottom: 60px;
+}
+
+.emojiPickerHeader {
+    display: flex;
+    justify-content: flex-start;
+    background: #151616;
+    border-radius: 10px;
+    padding: 10px;
+    color: #fff;
+    cursor: move;
+}
+
+#closeEmojiPickerContainer {
+    font-size: 1.3rem;
+    color: #ffffff;
+    background: transparent;
+    border-radius: 10px;
+    border: none;
 }
 
 /*--------------------------------------------------------------
@@ -1635,4 +1669,5 @@ z-index
 15 video iframe
 16 settings
 17 send File Div
+18 room Emoji reaction
 */

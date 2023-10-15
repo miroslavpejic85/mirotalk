@@ -112,6 +112,7 @@ access to use this app.
             <button id="fullScreenBtn" class="fas fa-expand-alt"></button>
             <button id="chatRoomBtn" class="fas fa-comment"></button>
             <button id="captionBtn" class="fas fa-closed-captioning"></button>
+            <button id="roomEmojiPickerBtn" class="fas fa-face-smile"></button>
             <button id="myHandBtn" class="fas fa-hand-paper"></button>
             <button id="whiteboardBtn" class="fas fa-chalkboard-teacher"></button>
             <button id="fileShareBtn" class="fas fa-folder-open"></button>
@@ -121,6 +122,17 @@ access to use this app.
             <button id="leaveRoomBtn" class="fas fa-right-from-bracket"></button>
         </div>
         <!-- End left buttons -->
+
+        <!-- Start room emoji picker -->
+
+        <div id="emojiPickerContainer" class="roomEmoji fadein">
+            <div id="emojiPickerHeader" class="emojiPickerHeader">
+                <button id="closeEmojiPickerContainer" class="fas fa-times"></button>
+            </div>
+        </div>
+        <div id="userEmoji" class="userEmoji"></div>
+
+        <!-- End room emoji picker -->
 
         <!-- Start chat room 
         https://codepen.io/sajadhsm/pen/odaBdd
@@ -160,7 +172,7 @@ access to use this app.
 
                 <!-- Start emoji picker -->
 
-                <section id="msgerEmojiPicker" class="hidden fadein"></section>
+                <section id="msgerEmojiPicker" class="hidden fadein chatEmojiPicker"></section>
 
                 <!-- End emoji picker -->
 

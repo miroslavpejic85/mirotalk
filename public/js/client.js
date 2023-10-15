@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.2
+ * @version 1.1.3
  *
  */
 
@@ -186,6 +186,7 @@ const buttons = {
         showRecordStreamBtn: true,
         showChatRoomBtn: true,
         showCaptionRoomBtn: true,
+        showRoomEmojiPickerBtn: true,
         showMyHandBtn: true,
         showWhiteboardBtn: true,
         showFileShareBtn: true,
@@ -386,6 +387,7 @@ let recordStreamBtn;
 let fullScreenBtn;
 let chatRoomBtn;
 let captionBtn;
+let roomEmojiPickerBtn;
 let myHandBtn;
 let whiteboardBtn;
 let fileShareBtn;
@@ -433,6 +435,11 @@ let msgerCP;
 let msgerCPHeader;
 let msgerCPCloseBtn;
 let msgerCPList;
+// room emoji picker
+let closeEmojiPickerContainer;
+let emojiPickerContainer;
+let emojiPickerHeader;
+let userEmoji;
 // chat room emoji picker
 let msgerEmojiPicker;
 // my settings
@@ -589,6 +596,7 @@ function getHtmlElementsById() {
     recordStreamBtn = getId('recordStreamBtn');
     fullScreenBtn = getId('fullScreenBtn');
     captionBtn = getId('captionBtn');
+    roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
     chatRoomBtn = getId('chatRoomBtn');
     whiteboardBtn = getId('whiteboardBtn');
     fileShareBtn = getId('fileShareBtn');
@@ -625,6 +633,11 @@ function getHtmlElementsById() {
     msgerCPHeader = getId('msgerCPHeader');
     msgerCPCloseBtn = getId('msgerCPCloseBtn');
     msgerCPList = getId('msgerCPList');
+    // room emoji picker
+    closeEmojiPickerContainer = getId('closeEmojiPickerContainer');
+    emojiPickerContainer = getId('emojiPickerContainer');
+    emojiPickerHeader = getId('emojiPickerHeader');
+    userEmoji = getId(`userEmoji`);
     // chat room emoji picker
     msgerEmojiPicker = getId('msgerEmojiPicker');
     //caption box elements
@@ -831,6 +844,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(fullScreenBtn, 'View full screen', placement);
     setTippy(chatRoomBtn, 'Open the chat', placement);
     setTippy(captionBtn, 'Open the caption', placement);
+    setTippy(roomEmojiPickerBtn, 'Send reaction', placement);
     setTippy(myHandBtn, 'Raise your hand', placement);
     setTippy(whiteboardBtn, 'Open the whiteboard', placement);
     setTippy(fileShareBtn, 'Share file', placement);
@@ -1078,6 +1092,7 @@ function initClientPeer() {
     signalingSocket.on('peerName', handlePeerName);
     signalingSocket.on('peerStatus', handlePeerStatus);
     signalingSocket.on('peerAction', handlePeerAction);
+    signalingSocket.on('message', handleMessage);
     signalingSocket.on('wbCanvasToJson', handleJsonToWbCanvas);
     signalingSocket.on('whiteboardAction', handleWhiteboardAction);
     signalingSocket.on('kickOut', handleKickedOut);
@@ -1243,6 +1258,7 @@ function handleButtonsRule() {
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
     elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn && speechRecognition); // auto-detected
+    elemDisplay(roomEmojiPickerBtn, buttons.main.showRoomEmojiPickerBtn);
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
     elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
@@ -2033,12 +2049,12 @@ function handleDisconnect(reason) {
 
     checkRecording();
 
-    for (let peer_id in peerVideoMediaElements) {
+    for (let peer_id in peerConnections) {
         let peerVideoId = peer_id + '_video';
         peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
         adaptAspectRatio();
     }
-    for (let peer_id in peerAudioMediaElements) {
+    for (let peer_id in peerConnections) {
         let peerAudioId = peer_id + '_audio';
         peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
     }
@@ -2228,8 +2244,8 @@ function setButtonsBarPosition(position) {
             document.documentElement.style.setProperty('--btns-top', '95%');
             document.documentElement.style.setProperty('--btns-right', '25%');
             document.documentElement.style.setProperty('--btns-left', '50%');
-            document.documentElement.style.setProperty('--btns-margin-left', '-300px');
-            document.documentElement.style.setProperty('--btns-width', '600px');
+            document.documentElement.style.setProperty('--btns-margin-left', '-320px');
+            document.documentElement.style.setProperty('--btns-width', 'auto');
             document.documentElement.style.setProperty('--btns-flex-direction', 'row');
             break;
         default:
@@ -3766,6 +3782,7 @@ function manageLeftButtons() {
     setFullScreenBtn();
     setChatRoomBtn();
     setCaptionRoomBtn();
+    setRoomEmojiButton();
     setChatEmojiBtn();
     setMyHandBtn();
     setMyWhiteboardBtn();
@@ -4143,6 +4160,56 @@ function setCaptionRoomBtn() {
     } else {
         captionBtn.style.display = 'none';
         // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility
+    }
+}
+
+/**
+ * Set room emoji reaction button
+ */
+function setRoomEmojiButton() {
+    const pickerRoomOptions = {
+        theme: 'dark',
+        onEmojiSelect: sendEmojiToRoom,
+    };
+
+    const emojiRoomPicker = new EmojiMart.Picker(pickerRoomOptions);
+
+    emojiPickerContainer.appendChild(emojiRoomPicker);
+    emojiPickerContainer.style.display = 'none';
+
+    if (!isMobileDevice) {
+        dragElement(emojiPickerContainer, emojiPickerHeader);
+    }
+
+    roomEmojiPickerBtn.addEventListener('click', (e) => {
+        toggleEmojiPicker();
+    });
+    closeEmojiPickerContainer.addEventListener('click', (e) => {
+        toggleEmojiPicker();
+    });
+
+    function sendEmojiToRoom(data) {
+        console.log('Selected Emoji:', data.native);
+        const message = {
+            type: 'roomEmoji',
+            room_id: roomId,
+            peer_name: myPeerName,
+            emoji: data.native,
+        };
+        if (thereArePeerConnections()) {
+            sendToServer('message', message);
+        }
+        handleEmoji(message);
+    }
+
+    function toggleEmojiPicker() {
+        if (emojiPickerContainer.style.display === 'block') {
+            emojiPickerContainer.style.display = 'none';
+            setColor(roomEmojiPickerBtn, 'black');
+        } else {
+            emojiPickerContainer.style.display = 'block';
+            setColor(roomEmojiPickerBtn, 'green');
+        }
     }
 }
 
@@ -7218,6 +7285,45 @@ function handlePeerAction(config) {
         case 'ejectAll':
             handleKickedOut(config);
             break;
+    }
+}
+
+/**
+ * Handle incoming message
+ * @param {object} message
+ */
+function handleMessage(message) {
+    console.log('Got message', message);
+
+    switch (message.type) {
+        case 'roomEmoji':
+            handleEmoji(message);
+            break;
+        //....
+        default:
+            break;
+    }
+}
+
+/**
+ * Handle room emoji reaction
+ * @param {object} message
+ * @param {integer} duration time in ms
+ */
+function handleEmoji(message, duration = 5000) {
+    if (userEmoji) {
+        const emojiDisplay = document.createElement('div');
+        emojiDisplay.className = 'animate__animated animate__backInUp';
+        emojiDisplay.style.padding = '10px';
+        emojiDisplay.style.fontSize = '3vh';
+        emojiDisplay.style.color = '#FFF';
+        emojiDisplay.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+        emojiDisplay.style.borderRadius = '10px';
+        emojiDisplay.innerText = `${message.emoji} ${message.peer_name}`;
+        userEmoji.appendChild(emojiDisplay);
+        setTimeout(() => {
+            emojiDisplay.remove();
+        }, duration);
     }
 }
 
