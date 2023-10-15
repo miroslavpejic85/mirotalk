@@ -5229,7 +5229,6 @@ async function toggleScreenSharing(init = false) {
                 adaptAspectRatio();
                 // Reset zoom
                 myVideo.style.transform = '';
-                // myVideo.style.scale = zoom;
                 myVideo.style.transformOrigin = 'center';
                 //await refreshConstraints(screenMediaPromise, videoMaxFrameRate);
             }
@@ -5274,7 +5273,9 @@ async function toggleScreenSharing(init = false) {
             if (isScreenStreaming || isVideoPinned) getId('myVideoPinBtn').click();
         }
     } catch (err) {
-        await handleToggleScreenException(`[Warning] Unable to share the screen: ${err}`, init);
+        err.name === 'NotAllowedError'
+            ? console.error('Screen sharing permission was denied by the user.')
+            : await handleToggleScreenException(`[Warning] Unable to share the screen: ${err}`, init);
         if (init) return;
     }
 }
