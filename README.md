@@ -1,11 +1,11 @@
 # <p align="center">MiroTalk P2P</p>
 
-<p align="center">Free WebRTC - P2P - Simple, Secure, Fast Real-Time Video Conferences Up to 4k and 60fps, compatible with all browsers and platforms.</p>
+<p align="center">Free WebRTC - P2P - Simple, Secure, Fast Real-Time Video Conferences with support for up to 4k resolution and 60fps. It's compatible with all major browsers and platforms.</p>
 
 <hr />
 
 <p align="center">
-    <a href="https://p2p.mirotalk.com">p2p.mirotalk.com</a>
+    <a href="https://p2p.mirotalk.com">Explore MiroTalk P2P</a>
 </p>
 
 <hr />
@@ -17,7 +17,7 @@
 <hr />
 
 <p align="center">
-    For questions, discussions, help & support, join with us on <a href="https://discord.gg/rgGYfeYW3N">discord</a>
+    Join our community for questions, discussions, and support on <a href="https://discord.gg/rgGYfeYW3N">Discord</a>
 </p>
 
 <hr />
@@ -27,45 +27,47 @@
 
 <br/>
 
--   Is `100% Free` - `Open Source` - `Self Hosted` and [PWA](https://en.wikipedia.org/wiki/Progressive_web_application)!
--   No download, plug-in, or login required, entirely browser-based
--   Unlimited number of conference rooms without call time limitation
--   Translated in 133 languages
--   Host protection to ensure unauthorized access to your host
--   Possibility to Password protect the Room for the meeting
--   Desktop and Mobile compatible
--   Optimized Room URL Sharing for mobile
--   Webcam Streaming (Front - Rear for mobile)
--   Audio Streaming crystal clear with detect speaking and volume indicator
--   Screen Sharing to present documents, slides, and more...
--   File Sharing (with drag-and-drop), share any files to your participants in the room
--   Select Audio Input - Output and Video source
--   Ability to set video quality up to 4K and 60 FPS
--   Recording your Screen, Audio and Video
--   Snapshot the video frame and save it as image png
--   Chat with Emoji Picker to show you feeling, private messages, Markdown support, possibility to Save the conversations, and many more
--   ChatGPT (openAI), designed to answer users' questions, provide relevant information, and connect them with relevant resources
--   Speech recognition to send the speeches
--   Push to talk, like a walkie-talkie.
--   Advance collaborative whiteboard for the teachers
--   Share any YT Embed video, video mp4, webm, ogg and audio mp3 in real-time
--   Full-Screen Mode on mouse click on the Video element, Pin/Unpin, Zoom in-out video element
--   Possibility to Change UI Themes
--   Right-click on the Video elements for more options
--   Direct `peer-to-peer` connection ensures the lowest latency thanks to `WebRTC`
--   Supports [REST API](app/api/README.md) (Application Programming Interface)
--   [Slack](https://api.slack.com/apps/) API integration
--   [Sentry](https://sentry.io/) for error reporting
--   ...
+-   Is `100% Free` - `Open Source (AGPLv3)` - `Self Hosted` and [PWA](https://en.wikipedia.org/wiki/Progressive_web_application)!
+-   No downloads, plugins, or logins required – completely browser-based.
+-   Unlimited conference rooms with no time limitations.
+-   Translated into 133 languages.
+-   Host protection to prevent unauthorized access.
+-   Room password protection.
+-   Compatible with desktop and mobile devices.
+-   Optimized mobile room URL sharing.
+-   Webcam streaming with front and rear camera support for mobile devices.
+-   Crystal-clear audio streaming with speaking detection and volume indicators.
+-   Screen sharing for presentations.
+-   File sharing with drag-and-drop support.
+-   Choose your audio input, output, and video source.
+-   Supports video quality up to 4K and 60 FPS.
+-   Supports advance Picture-in-Picture (PiP) offering a more streamlined and flexible viewing experience.
+-   Record your screen, audio, and video.
+-   Snapshot video frames and save them as PNG images.
+-   Chat with an Emoji Picker for expressing feelings, private messages, Markdown support, and conversation saving.
+-   ChatGPT (powered by OpenAI) for answering questions, providing information, and connecting users to relevant resources.
+-   Speech recognition for sending spoken messages.
+-   Push-to-talk functionality, similar to a walkie-talkie.
+-   Advanced collaborative whiteboard for teachers.
+-   Real-time sharing of YouTube embed videos, video files (MP4, WebM, OGG), and audio files (MP3).
+-   Full-screen mode with one-click video element zooming and pin/unpin.
+-   Customizable UI themes.
+-   Right-click options on video elements for additional controls.
+-   Direct peer-to-peer connections for low-latency communication through WebRTC.
+-   Supports [REST API](app/api/README.md) (Application Programming Interface).
+-   Integration with [Slack](https://api.slack.com/apps/) for enhanced communication.
+-   Utilizes [Sentry](https://sentry.io/) for error reporting.
+-   And much more...
 
 </details>
 
 <details>
 <summary>About</summary>
 
--   [Presentation](https://www.canva.com/design/DAE693uLOIU/view)
+<br>
 
--   [Video](https://www.youtube.com/watch?v=_IVn2aINYww)
+-   [Presentation](https://www.canva.com/design/DAE693uLOIU/view)
+-   [Video Overview](https://www.youtube.com/watch?v=_IVn2aINYww)
 
 </details>
 
@@ -74,11 +76,10 @@
 
 <br/>
 
--   `Open` https://p2p.mirotalk.com/newcall or
--   https://mirotalk.up.railway.app/newcall
--   `Pick` your Room name and Join
--   `Allow` using the camera and microphone
--   `Share` the Room URL and Wait for someone to join for the video conference
+1. `Open` [MiroTalk P2P](https://p2p.mirotalk.com/newcall) or [alternative link](https://mirotalk.up.railway.app/newcall).
+2. `Choose` a room name and click **Join Room**.
+3. `Grant` camera and microphone access.
+4. `Share` the room URL and wait for participants to join the video conference.
 
 </details>
 
@@ -87,18 +88,18 @@
 
 <br/>
 
--   You can `join` directly to `room` by going to:
+-   You can `directly join a room` by using links like:
 -   https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
 
     | Params | Type    | Description     |
     | ------ | ------- | --------------- |
-    | room   | string  | room Id         |
-    | name   | string  | user name       |
-    | audio  | boolean | audio stream    |
-    | video  | boolean | video stream    |
-    | screen | boolean | screen stream   |
-    | notify | boolean | welcome message |
+    | room   | string  | Room Id         |
+    | name   | string  | User name       |
+    | audio  | boolean | Audio stream    |
+    | video  | boolean | Video stream    |
+    | screen | boolean | Screen stream   |
+    | notify | boolean | Welcome message |
 
 > **Note**
 >
@@ -116,7 +117,7 @@
 
 <br/>
 
-Embedding a meeting into a service or app using an iframe.
+To embed a meeting in `your service or app` using an iframe, use the following code:
 
 ```html
 <iframe
@@ -133,7 +134,7 @@ Embedding a meeting into a service or app using an iframe.
 
 <br/>
 
--   You will need to have `Node.js` installed, this project has been tested with Node versions [12.X](https://nodejs.org/en/blog/release/v12.22.1/), [14.X](https://nodejs.org/en/blog/release/v14.17.5/), [16.X](https://nodejs.org/en/blog/release/v16.15.1/) and [18.x](https://nodejs.org/en/blog/release/v18.16.0).
+-   Before running MiroTalk P2P, ensure you have `Node.js` installed. This project has been tested with Node versions [12.X](https://nodejs.org/en/blog/release/v12.22.1/), [14.X](https://nodejs.org/en/blog/release/v14.17.5/), [16.X](https://nodejs.org/en/blog/release/v16.15.1/) and [18.x](https://nodejs.org/en/download).
 
 ```bash
 # clone this repo
@@ -148,7 +149,7 @@ $ npm install
 $ npm start
 ```
 
--   Open http://localhost:3000 in browser
+-   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 </details>
 
@@ -159,8 +160,8 @@ $ npm start
 
 ![docker](public/images/docker.png)
 
--   Install [docker engine](https://docs.docker.com/engine/install/)
--   Install [docker compose](https://docs.docker.com/compose/install/)
+-   Repository [docker hub](https://hub.docker.com/r/mirotalk/p2p)
+-   Install [docker engine](https://docs.docker.com/engine/install/) and [docker compose](https://docs.docker.com/compose/install/)
 
 ```bash
 # copy .env.template to .env (edit it according to your needs)
@@ -175,8 +176,7 @@ $ docker-compose up # -d
 $ docker-compose down
 ```
 
--   Open http://localhost:3000 in browser
--   Repository [docker hub](https://hub.docker.com/r/mirotalk/p2p)
+-   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 </details>
 
@@ -185,7 +185,7 @@ $ docker-compose down
 
 <br/>
 
-You can start videoconferencing directly from your Local PC, and be reachable from any device outside your network, simply by reading [these documentation](docs/ngrok.md), or expose it directly on [HTTPS](app/ssl/README.md)
+You can start a video conference directly from your local PC and make it accessible from any device outside your network by following [these instructions](docs/ngrok.md), or expose it directly on [HTTPS](app/ssl/README.md).
 
 </details>
 
@@ -194,7 +194,16 @@ You can start videoconferencing directly from your Local PC, and be reachable fr
 
 <br/>
 
-Install your own [Stun](https://en.wikipedia.org/wiki/STUN) & [Turn](https://en.wikipedia.org/wiki/TURN) by following [this steps](./docs/coturn.md).
+Install your own [Stun & Turn](https://docs.mirotalk.com/coturn/stun-turn/) by following [this instructions](./docs/coturn.md).
+
+</details>
+
+<details>
+<summary>Self Hosting</summary>
+
+<br/>
+
+For `self-hosting MiroTalk P2P` on your own dedicated server, please refer to [this comprehensive guide](docs/self-hosting.md). It will provide you with all the necessary instructions to get your MiroTalk P2P instance up and running smoothly.
 
 </details>
 
@@ -203,16 +212,14 @@ Install your own [Stun](https://en.wikipedia.org/wiki/STUN) & [Turn](https://en.
 
 <br/>
 
+-   The [API documentation](https://docs.mirotalk.com/mirotalk-p2p/api/) uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.com/api/v1/docs).
+
 ```bash
 # The response will give you a entrypoint / Room URL for your meeting, where authorization: API_KEY_SECRET.
 $ curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://p2p.mirotalk.com/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json"
 ```
-
-## API Documentation
-
-The API documentation uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.com/api/v1/docs).
 
 </details>
 
@@ -231,7 +238,7 @@ Use [my personal link](https://hetzner.cloud/?ref=XdRifCzCK3bn) to receive `€�
 
 ---
 
-If you need help to deploy `MiroTalk P2P` instance on `your dedicated cloud server`, or for other needs, don't hesitate to contact us at p2p.mirotalk@gmail.com
+To set up your own instance of `MiroTalk P2P` on a dedicated cloud server, please refer to our comprehensive [self-hosting documentation](https://docs.mirotalk.com/mirotalk-p2p/self-hosting/). This guide will walk you through the process step by step, ensuring a smooth and successful deployment.
 
 </details>
 
@@ -253,15 +260,6 @@ https://p2p.mirotalk.com
 https://mirotalk.up.railway.app
 
 [![railway-qr](public/images/mirotalk-railway-qr.png)](https://mirotalk.up.railway.app)
-
-</details>
-
-<details>
-<summary>Self Hosting</summary>
-
-<br/>
-
-To `Self-Host MiroTalk P2P` on `Your` dedicated `Server`, read [this documentation](docs/self-hosting.md).
 
 </details>
 
@@ -302,9 +300,9 @@ For `Security` concerning, please follow [this documentation](./SECURITY.md).
 
 [![AGPLv3](public/images/AGPLv3.png)](LICENSE)
 
-MiroTalk is free and can be modified and forked. But the conditions of the AGPLv3 (GNU Affero General Public License v3.0) need to be respected. In particular modifications need to be free as well and made available to the public. Get a quick overview of the license at [Choose an open source license](https://choosealicense.com/licenses/agpl-3.0/).
+MiroTalk P2P is free and open-source under the terms of AGPLv3 (GNU Affero General Public License v3.0). Please `respect the license conditions`, In particular `modifications need to be free as well and made available to the public`. Get a quick overview of the license at [Choose an open source license](https://choosealicense.com/licenses/agpl-3.0/).
 
-For a MiroTalk license under conditions other than AGPLv3, please contact us at license.mirotalk@gmail.com or [purchase directly from CodeCanyon](https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661).
+To obtain a [MiroTalk P2P license](https://docs.mirotalk.com/license/licensing-options/) with terms different from the AGPLv3, you can conveniently make your [purchase on CodeCanyon](https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661). This allows you to tailor the licensing conditions to better suit your specific requirements.
 
 </details>
 
@@ -313,9 +311,7 @@ For a MiroTalk license under conditions other than AGPLv3, please contact us at 
 
 <br/>
 
-Do you find MiroTalk useful?
-
-Support the project by [becoming a backer or sponsor](https://github.com/sponsors/miroslavpejic85). Your logo will show up here with a link to your website.
+Do you find MiroTalk P2P indispensable for your needs? Join us in supporting this transformative project by [becoming a backer or sponsor](https://github.com/sponsors/miroslavpejic85). By doing so, not only will your logo prominently feature here, but you'll also drive the growth and sustainability of MiroTalk P2P. Your support is vital in ensuring that this valuable platform continues to thrive and remain accessible for all. Make an impact – back MiroTalk P2P today and be part of this exciting journey!
 
 |                                                                                   |                                                                                    |
 | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
@@ -342,6 +338,15 @@ Try also [MiroTalk SFU](https://github.com/miroslavpejic85/mirotalksfu), the dif
 <br>
 
 Try also [MiroTalk C2C](https://github.com/miroslavpejic85/mirotalkc2c) cam 2 cam.
+
+</details>
+
+<details>
+<summary>MiroTalk BRO</summary>
+
+<br>
+
+Try also [MiroTalk BRO](https://github.com/miroslavpejic85/mirotalkbro) live broadcasting.
 
 </details>
 
