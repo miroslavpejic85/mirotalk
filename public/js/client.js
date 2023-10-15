@@ -2244,8 +2244,8 @@ function setButtonsBarPosition(position) {
             document.documentElement.style.setProperty('--btns-top', '95%');
             document.documentElement.style.setProperty('--btns-right', '25%');
             document.documentElement.style.setProperty('--btns-left', '50%');
-            document.documentElement.style.setProperty('--btns-margin-left', '-320px');
-            document.documentElement.style.setProperty('--btns-width', 'auto');
+            document.documentElement.style.setProperty('--btns-margin-left', '-330px');
+            document.documentElement.style.setProperty('--btns-width', '660px');
             document.documentElement.style.setProperty('--btns-flex-direction', 'row');
             break;
         default:
