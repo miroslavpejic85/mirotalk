@@ -1,4 +1,4 @@
-# <p align="center">MiroTalk P2P</p>
+<h1 align="center">MiroTalk P2P</h1>
 
 <p align="center">Free WebRTC - P2P - Simple, Secure, Fast Real-Time Video Conferences with support for up to 4k resolution and 60fps. It's compatible with all major browsers and platforms.</p>
 
