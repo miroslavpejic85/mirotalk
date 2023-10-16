@@ -3577,7 +3577,7 @@ function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null)
 
                 video.style.transformOrigin = `${cursorX}px ${cursorY}px`;
                 video.style.transform = `scale(${zoom})`;
-                video.style.cursor = zoomDirection;
+                video.style.cursor = zoom === 1 ? 'pointer' : zoomDirection;
             });
 
             videoWrap.addEventListener('mouseleave', () => {
