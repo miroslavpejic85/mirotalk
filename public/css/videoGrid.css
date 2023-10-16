@@ -34,6 +34,8 @@
 
 .Camera {
     position: relative;
+    vertical-align: middle;
+    align-self: center;
     border-radius: 10px;
     overflow: hidden;
     display: inline-block;
