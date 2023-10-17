@@ -283,6 +283,7 @@ let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
 let userAgent; // User agent info
 
+let isDesktopDevice = false;
 let isTabletDevice = false;
 let isIPadDevice = false;
 let isVideoFullScreenSupported = true;
@@ -292,6 +293,8 @@ let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
 
 let videoQualitySelectedIndex = 0; // default
+let videoFpsSelectedIndex = 1; // 30 fps
+let screenFpsSelectedIndex = 1; // 30 fps
 
 let leftChatAvatar;
 let rightChatAvatar;
@@ -308,7 +311,6 @@ let myPeerName = getPeerName();
 let myPeerUUID = getUUID();
 let isScreenEnabled = getScreenEnabled();
 let isScreenSharingSupported = false;
-let isCamMirrored = false;
 let notify = getNotify();
 let useAudio = true;
 let useVideo = true;
@@ -884,7 +886,7 @@ function getPeerInfo() {
     return {
         detectRTCversion: DetectRTC.version,
         isWebRTCSupported: DetectRTC.isWebRTCSupported,
-        isDesktopDevice: !DetectRTC.isMobileDevice && !isTabletDevice && !isIPadDevice,
+        isDesktopDevice: isDesktopDevice,
         isMobileDevice: DetectRTC.isMobileDevice,
         isTabletDevice: isTabletDevice,
         isIPadDevice: isIPadDevice,
@@ -1045,7 +1047,7 @@ function initClientPeer() {
 
     isTabletDevice = isTablet(userAgent);
     isIPadDevice = isIpad(userAgent);
-    peerInfo = getPeerInfo();
+    (isDesktopDevice = !isMobileDevice && !isTabletDevice && !isIPadDevice), (peerInfo = getPeerInfo());
 
     // check if video Full screen supported on default true
     if (peerInfo.isMobileDevice && peerInfo.osName === 'iOS') {
@@ -1530,12 +1532,10 @@ async function checkInitConfig() {
 async function changeInitCamera(deviceId) {
     if (initStream) {
         stopTracks(initStream);
-        if (!initVideo.classList.contains('mirror')) {
-            initVideo.classList.toggle('mirror');
-        }
     }
+
     // Get video constraints
-    let videoConstraints = await getVideoConstraints('default');
+    const videoConstraints = await getVideoConstraints('default');
     videoConstraints['deviceId'] = { exact: deviceId };
 
     navigator.mediaDevices
@@ -1545,7 +1545,7 @@ async function changeInitCamera(deviceId) {
             initVideo.srcObject = camStream;
             initStream = camStream;
             console.log('Success attached init video stream', initStream.getVideoTracks()[0].getSettings());
-            // We going to update also the local video
+            // We going to update also the local video stream
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
             console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
@@ -1553,6 +1553,12 @@ async function changeInitCamera(deviceId) {
         .catch((err) => {
             console.error('[Error] changeInitCamera', err);
             userLog('error', 'Error while swapping init camera' + err);
+            initVideoSelect.selectedIndex = 0;
+            lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
+            // Refresh page...
+            setTimeout(function () {
+                location.reload();
+            }, 3000);
         });
 }
 
@@ -1563,13 +1569,10 @@ async function changeInitCamera(deviceId) {
 async function changeLocalCamera(deviceId) {
     if (localVideoMediaStream) {
         await stopVideoTracks(localVideoMediaStream);
-        if (!myVideo.classList.contains('mirror')) {
-            myVideo.classList.toggle('mirror');
-        }
     }
 
     // Get video constraints
-    let videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+    const videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     videoConstraints['deviceId'] = { exact: deviceId };
 
     navigator.mediaDevices
@@ -1579,6 +1582,7 @@ async function changeLocalCamera(deviceId) {
             localVideoMediaStream = camStream;
             console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
             refreshMyStreamToPeers(camStream);
+            setLocalMaxFps(videoMaxFrameRate);
         })
         .catch((err) => {
             console.error('[Error] changeLocalCamera', err);
@@ -4580,22 +4584,17 @@ function setupMySettings() {
     videoQualitySelect.addEventListener('change', async (e) => {
         await setLocalVideoQuality();
     });
-    // Firefox not support video cam Fps O.o
-    if (myBrowserName === 'Firefox') {
-        videoFpsDiv.style.display = 'none';
-    } else {
-        // select video fps
-        videoFpsSelect.addEventListener('change', (e) => {
-            videoMaxFrameRate = parseInt(videoFpsSelect.value, 10);
-            setLocalMaxFps(videoMaxFrameRate);
-            lsSettings.video_fps = e.currentTarget.selectedIndex;
-            lS.setSettings(lsSettings);
-        });
-    }
+    // select video fps
+    videoFpsSelect.addEventListener('change', (e) => {
+        videoMaxFrameRate = parseInt(videoFpsSelect.value, 10);
+        setLocalMaxFps(videoMaxFrameRate);
+        lsSettings.video_fps = e.currentTarget.selectedIndex;
+        lS.setSettings(lsSettings);
+    });
     // select screen fps
     screenFpsSelect.addEventListener('change', (e) => {
         screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
-        if (isScreenStreaming) setLocalMaxFps(screenMaxFrameRate);
+        if (isScreenStreaming) setLocalMaxFps(screenMaxFrameRate, 'screen');
         lsSettings.screen_fps = e.currentTarget.selectedIndex;
         lS.setSettings(lsSettings);
     });
@@ -4667,6 +4666,8 @@ function loadSettingsFromLocalStorage() {
     msgerSpeechMsg.checked = speechInMessages;
     screenFpsSelect.selectedIndex = lsSettings.screen_fps;
     videoFpsSelect.selectedIndex = lsSettings.video_fps;
+    screenFpsSelectedIndex = screenFpsSelect.selectedIndex;
+    videoFpsSelectedIndex = videoFpsSelect.selectedIndex;
     screenMaxFrameRate = parseInt(getSelectedIndexValue(screenFpsSelect), 10);
     videoMaxFrameRate = parseInt(getSelectedIndexValue(videoFpsSelect), 10);
     notifyBySound = lsSettings.sounds;
@@ -4716,13 +4717,25 @@ function setupVideoUrlPlayer() {
 }
 
 /**
- * Camera mirror
+ * Handle Camera mirror logic
  */
 async function handleLocalCameraMirror() {
-    // This fix IPadPro - Tablet mirror of the back camera
-    if ((isMobileDevice || isIPadDevice || isTabletDevice) && !isCamMirrored) {
-        myVideo.classList.toggle('mirror');
-        isCamMirrored = true;
+    if (isDesktopDevice) {
+        // Desktop devices...
+        if (!initVideo.classList.contains('mirror')) {
+            initVideo.classList.toggle('mirror');
+        }
+        if (!myVideo.classList.contains('mirror')) {
+            myVideo.classList.toggle('mirror');
+        }
+    } else {
+        // Mobile, Tablet, IPad devices...
+        if (initVideo.classList.contains('mirror')) {
+            initVideo.classList.remove('mirror');
+        }
+        if (myVideo.classList.contains('mirror')) {
+            myVideo.classList.remove('mirror');
+        }
     }
 }
 
@@ -4825,39 +4838,26 @@ async function getAudioConstraints() {
 }
 
 /**
- * Refresh stream constraints
- * @param {MediaStream} stream
- * @param {integer} maxFrameRate
- * @returns void
- */
-async function refreshConstraints(stream, maxFrameRate) {
-    if (!useVideo || !hasVideoTrack(stream)) return;
-    stream
-        .getVideoTracks()[0]
-        .applyConstraints({ frameRate: maxFrameRate })
-        .then(() => {
-            logStreamSettingsInfo('refreshConstraints', stream);
-        })
-        .catch((err) => {
-            console.error('refreshConstraints', err);
-            userLog('error', "Your device doesn't support the selected fps, please select the another one.");
-        });
-}
-
-/**
  * Set local max fps: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  * @param {string} maxFrameRate desired max frame rate
+ * @param {string} type camera/screen default camera
  */
-function setLocalMaxFps(maxFrameRate) {
+async function setLocalMaxFps(maxFrameRate, type = 'camera') {
     if (!useVideo || !localVideoMediaStream) return;
     localVideoMediaStream
         .getVideoTracks()[0]
         .applyConstraints({ frameRate: maxFrameRate })
         .then(() => {
             logStreamSettingsInfo('setLocalMaxFps', localVideoMediaStream);
+            type === 'camera'
+                ? (videoFpsSelectedIndex = videoFpsSelect.selectedIndex)
+                : (screenFpsSelectedIndex = screenFpsSelect.selectedIndex);
         })
         .catch((err) => {
             console.error('setLocalMaxFps', err);
+            type === 'camera'
+                ? (videoFpsSelect.selectedIndex = videoFpsSelectedIndex)
+                : (screenFpsSelect.selectedIndex = screenFpsSelectedIndex);
             userLog('error', "Your device doesn't support the selected fps, please select the another one.");
         });
 }
@@ -5207,20 +5207,15 @@ async function swapCamera() {
     // some devices can't swap the cam, if have Video Track already in execution.
     await stopLocalVideoTrack();
 
-    let camStream = null;
-
     try {
         // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-        camStream = await navigator.mediaDevices.getUserMedia({ video: camVideo });
+        const camStream = await navigator.mediaDevices.getUserMedia({ video: camVideo });
         if (camStream) {
-            await refreshConstraints(camStream, videoMaxFrameRate);
             await refreshMyLocalStream(camStream);
             await refreshMyStreamToPeers(camStream);
+            await setLocalMaxFps(videoMaxFrameRate);
+            await handleLocalCameraMirror();
             await setMyVideoStatusTrue();
-            if (!isCamMirrored) {
-                myVideo.classList.toggle('mirror');
-                isCamMirrored = true;
-            }
         }
     } catch (err) {
         console.log('[Error] to swapping camera', err);
@@ -5297,7 +5292,6 @@ async function toggleScreenSharing(init = false) {
                 // Reset zoom
                 myVideo.style.transform = '';
                 myVideo.style.transformOrigin = 'center';
-                //await refreshConstraints(screenMediaPromise, videoMaxFrameRate);
             }
 
             await emitPeerStatus('screen', myScreenStatus);
