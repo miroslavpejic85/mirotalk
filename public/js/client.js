@@ -1047,7 +1047,8 @@ function initClientPeer() {
 
     isTabletDevice = isTablet(userAgent);
     isIPadDevice = isIpad(userAgent);
-    (isDesktopDevice = !isMobileDevice && !isTabletDevice && !isIPadDevice), (peerInfo = getPeerInfo());
+    isDesktopDevice = !isMobileDevice && !isTabletDevice && !isIPadDevice;
+    peerInfo = getPeerInfo();
 
     // check if video Full screen supported on default true
     if (peerInfo.isMobileDevice && peerInfo.osName === 'iOS') {
