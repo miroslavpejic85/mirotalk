@@ -325,22 +325,15 @@ body {
 }
 
 .caption-inputarea {
-    display: flex;
+    display: inline-flex;
     padding: 10px;
-    background: var(--msger-bg);
-}
-
-.caption-inputarea * {
     border: none;
-    border-radius: 3px;
-    color: #fff;
-    background-color: var(--select-bg) !important;
-    font-size: 1rem;
+    border: var(--border);
 }
 
 .caption-inputarea select {
-    padding: 10px;
-    margin-left: 5px;
+    margin: 0 5px;
+    cursor: pointer;
 }
 
 .left-msg .msg-caption-bubble {
@@ -355,13 +348,10 @@ body {
     display: none;
 }
 
-#speechRecognitionIcon,
 #speechRecognitionStart,
 #speechRecognitionStop {
-    padding: 10px;
-    margin: auto;
+    margin: 0 5px;
     border: none;
-    font-size: 0.7rem;
     border-radius: 5px;
     color: #fff;
     background-color: transparent;

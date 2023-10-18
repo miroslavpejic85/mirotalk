@@ -785,6 +785,7 @@ function setButtonsToolTip() {
     setTippy(captionTheme, 'Ghost theme', 'bottom');
     setTippy(captionClean, 'Clean the messages', 'bottom');
     setTippy(captionSaveBtn, 'Save the messages', 'bottom');
+    setTippy(speechRecognitionIcon, 'Status', 'bottom');
     setTippy(speechRecognitionStart, 'Start', 'top');
     setTippy(speechRecognitionStop, 'Stop', 'top');
     // settings
