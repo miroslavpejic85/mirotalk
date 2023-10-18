@@ -92,6 +92,7 @@ if (speechRecognition) {
         speechRecognitionStart.style.display = 'none';
         speechRecognitionStop.style.display = 'block';
         setColor(speechRecognitionIcon, 'lime');
+        userLog('toast', 'Start speech recognition');
     };
 
     // Detect the said words
@@ -99,20 +100,30 @@ if (speechRecognition) {
         let current = e.resultIndex;
         // Get a transcript of what was said.
         let transcript = e.results[current][0].transcript;
-        let config = {
-            type: 'speech',
-            room_id: roomId,
-            peer_name: myPeerName,
-            text_data: transcript,
-            time_stamp: new Date(),
-        };
-        // save also my speech to text
-        handleSpeechTranscript(config);
-        sendToDataChannel(config);
+        if (transcript) {
+            let config = {
+                type: 'speech',
+                room_id: roomId,
+                peer_name: myPeerName,
+                text_data: transcript,
+                time_stamp: new Date(),
+            };
+            // save also my speech to text
+            handleSpeechTranscript(config);
+            sendToDataChannel(config);
+        }
+    };
+
+    recognition.onaudiostart = () => {
+        console.log('Speech recognition start to capture your voice');
+    };
+
+    recognition.onaudioend = () => {
+        console.log('Speech recognition stop to capture your voice');
     };
 
     recognition.onerror = function (event) {
-        console.warn('Speech recognition error', event.error);
+        console.error('Speech recognition error', event.error);
     };
 
     recognition.onend = function () {
@@ -121,6 +132,7 @@ if (speechRecognition) {
         speechRecognitionStop.style.display = 'none';
         speechRecognitionStart.style.display = 'block';
         setColor(speechRecognitionIcon, 'white');
+        userLog('toast', 'Stop speech recognition');
     };
 
     isWebkitSpeechRecognitionSupported = true;
@@ -161,28 +173,33 @@ function handleRecognitionLanguages() {
 }
 
 /**
- * Start or Stop speech recognition
- * @param {object} config data
+ * Start speech recognition
  */
-function startSpeech(config) {
-    if (isWebkitSpeechRecognitionSupported) {
-        if (config) {
-            try {
-                recognitionRunning = true;
-                recognition.lang = recognitionDialect.value;
-                recognitionLanguage.disabled = true;
-                recognitionDialect.disabled = true;
-                recognition.start();
-            } catch (error) {
-                console.log('Start speech', error);
-            }
-        } else {
-            recognitionRunning = false;
-            recognitionLanguage.disabled = false;
-            recognitionDialect.disabled = false;
-            recognition.stop();
-        }
-    } else {
-        userLog('info', 'This browser not supports webkitSpeechRecognition');
+function startSpeech() {
+    try {
+        recognitionRunning = true;
+        recognition.lang = recognitionDialect.value;
+        recognitionSelectDisabled(true);
+        recognition.start();
+    } catch (error) {
+        console.error('Start speech', error);
     }
+}
+
+/**
+ * Stop speech recognition
+ */
+function stopSpeech() {
+    recognitionRunning = false;
+    recognitionSelectDisabled(false);
+    recognition.stop();
+}
+
+/**
+ * Disable recognition select options
+ * @param {boolean} disabled
+ */
+function recognitionSelectDisabled(disabled = false) {
+    recognitionLanguage.disabled = disabled;
+    recognitionDialect.disabled = disabled;
 }

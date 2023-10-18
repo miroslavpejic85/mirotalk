@@ -4157,11 +4157,11 @@ function setCaptionRoomBtn() {
 
         // start recognition speech
         speechRecognitionStart.addEventListener('click', (e) => {
-            startSpeech(true);
+            startSpeech();
         });
         // stop recognition speech
         speechRecognitionStop.addEventListener('click', (e) => {
-            startSpeech(false);
+            stopSpeech();
         });
     } else {
         captionBtn.style.display = 'none';
