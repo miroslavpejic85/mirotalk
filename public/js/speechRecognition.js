@@ -73,11 +73,12 @@ const langs = [
 ];
 
 const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognitionLanguage = getId('recognitionLanguage');
+const recognitionDialect = getId('recognitionDialect');
+
 let isWebkitSpeechRecognitionSupported = false;
 let recognitionRunning = false;
 let recognition;
-let recognitionLanguage = getId('recognitionLanguage');
-let recognitionDialect = getId('recognitionDialect');
 
 if (speechRecognition) {
     handleRecognitionLanguages();
@@ -88,11 +89,11 @@ if (speechRecognition) {
     recognition.lang = recognitionDialect.value;
 
     recognition.onstart = function () {
-        console.log('Start speech recognition');
+        console.log('Speech recognition started');
         speechRecognitionStart.style.display = 'none';
         speechRecognitionStop.style.display = 'block';
         setColor(speechRecognitionIcon, 'lime');
-        userLog('toast', 'Start speech recognition');
+        userLog('toast', 'Speech recognition started');
     };
 
     // Detect the said words
@@ -127,12 +128,12 @@ if (speechRecognition) {
     };
 
     recognition.onend = function () {
-        console.log('Stop speech recognition');
+        console.log('Speech recognition stopped');
         // if (recognitionRunning) recognition.start();
         speechRecognitionStop.style.display = 'none';
         speechRecognitionStart.style.display = 'block';
         setColor(speechRecognitionIcon, 'white');
-        userLog('toast', 'Stop speech recognition');
+        userLog('toast', 'Speech recognition stopped');
     };
 
     isWebkitSpeechRecognitionSupported = true;
@@ -182,7 +183,7 @@ function startSpeech() {
         recognitionSelectDisabled(true);
         recognition.start();
     } catch (error) {
-        console.error('Start speech', error);
+        console.error('Speech recognition start error', error);
     }
 }
 
