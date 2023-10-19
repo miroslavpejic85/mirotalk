@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.3
+ * @version 1.1.4
  *
  */
 
@@ -5669,12 +5669,38 @@ function startStreamRecording() {
         const audioMixerTracks = audioMixerStreams.getTracks();
         console.log('Audio mixer tracks --->', audioMixerTracks);
 
-        isMobileDevice
-            ? startMobileRecording(options, audioMixerTracks)
-            : startDesktopRecording(options, audioMixerTracks);
+        isMobileDevice ? startMobileRecording(options, audioMixerTracks) : recordingOptions(options, audioMixerTracks);
     } catch (err) {
         handleRecordingError('Exception while creating MediaRecorder: ' + err);
     }
+}
+
+/**
+ * Recording options Camera or Screen/Window for Desktop devices
+ * @param {MediaRecorderOptions} options - MediaRecorder options.
+ * @param {array} audioMixerTracks - Array of audio tracks from the audio mixer.
+ */
+function recordingOptions(options, audioMixerTracks) {
+    Swal.fire({
+        background: swalBackground,
+        position: 'center',
+        title: 'Recording options',
+        showDenyButton: true,
+        showCancelButton: true,
+        cancelButtonColor: 'red',
+        denyButtonColor: 'green',
+        confirmButtonText: `Camera`,
+        denyButtonText: `Screen/Window`,
+        cancelButtonText: `Cancel`,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            startMobileRecording(options, audioMixerTracks);
+        } else if (result.isDenied) {
+            startDesktopRecording(options, audioMixerTracks);
+        }
+    });
 }
 
 /**
