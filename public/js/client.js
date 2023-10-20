@@ -4359,6 +4359,8 @@ async function documentPictureInPictureOpen() {
         pipWindow.document.body.append(pipVideoContainer);
 
         function cloneVideoElements() {
+            let foundVideo = false;
+
             pipVideoContainer.innerHTML = '';
 
             [...document.querySelectorAll('video')].forEach((video) => {
@@ -4369,12 +4371,16 @@ async function documentPictureInPictureOpen() {
 
                 let videoPIPAllowed = false;
 
+                // get video element
+                const videoPlayer = getId(video.id);
+
+                // Check if video can be add on pipVideo
                 if (video.id === 'myVideo') {
                     const localVideoStatus = getId('myVideoStatusIcon');
 
                     videoPIPAllowed =
                         localVideoStatus.className === className.videoOn && // video is ON
-                        !localVideoStatus.classList.contains('videoCircle'); // not in privacy mode
+                        !videoPlayer.classList.contains('videoCircle'); // not in privacy mode
 
                     console.log('DOCUMENT PIP LOCAL videoPIPAllowed -----> ' + videoPIPAllowed);
                 } else {
@@ -4384,7 +4390,7 @@ async function documentPictureInPictureOpen() {
 
                     videoPIPAllowed =
                         remoteVideoStatus.className === className.videoOn && // video is ON
-                        !remoteVideoStatus.classList.contains('videoCircle'); // not in privacy mode
+                        !videoPlayer.classList.contains('videoCircle'); // not in privacy mode
 
                     console.log('DOCUMENT PIP REMOTE videoPIPAllowed -----> ' + videoPIPAllowed);
                 }
@@ -4392,6 +4398,9 @@ async function documentPictureInPictureOpen() {
                 if (!videoPIPAllowed) return;
 
                 // Video is ON not in privacy mode continue....
+
+                foundVideo = true;
+
                 const pipVideo = document.createElement('video');
 
                 pipVideo.classList.add('pipVideo');
@@ -4402,9 +4411,14 @@ async function documentPictureInPictureOpen() {
 
                 pipVideoContainer.append(pipVideo);
             });
+
+            return foundVideo;
         }
 
-        cloneVideoElements();
+        if (!cloneVideoElements()) {
+            documentPictureInPictureClose();
+            return userLog('toast', 'No video allowed for Document PIP');
+        }
 
         const videoObserver = new MutationObserver(() => {
             cloneVideoElements();
