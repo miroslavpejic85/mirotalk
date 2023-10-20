@@ -159,6 +159,12 @@ const icons = {
     fileReceive: '<i class="fas fa-file-import"></i>',
 };
 
+// Video/Audio media container
+const videoMediaContainer = getId('videoMediaContainer');
+const videoPinMediaContainer = getId('videoPinMediaContainer');
+const audioMediaContainer = getId('audioMediaContainer');
+//....
+
 // Local Storage class
 const lS = new LocalStorage();
 const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
@@ -1794,8 +1800,8 @@ async function handleOnTrack(peer_id, peers) {
     console.log('[ON TRACK] - peer_id', { peer_id: peer_id });
 
     peerConnections[peer_id].ontrack = (event) => {
-        const remoteVideoStream = getId(`${peer_id}_video`);
-        const remoteAudioStream = getId(`${peer_id}_audio`);
+        const remoteVideoStream = getId(`${peer_id}___video`);
+        const remoteAudioStream = getId(`${peer_id}___audio`);
         const remoteAvatarImage = getId(`${peer_id}_avatar`);
 
         const peerInfo = peers[peer_id];
@@ -2054,8 +2060,8 @@ function handleDisconnect(reason) {
     checkRecording();
 
     for (const peer_id in peerConnections) {
-        const peerVideoId = peer_id + '_video';
-        const peerAudioId = peer_id + '_audio';
+        const peerVideoId = peer_id + '___video';
+        const peerAudioId = peer_id + '___audio';
         peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
         peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
         peerConnections[peer_id].close();
@@ -2086,8 +2092,8 @@ function handleRemovePeer(config) {
 
     const { peer_id } = config;
 
-    const peerVideoId = peer_id + '_video';
-    const peerAudioId = peer_id + '_audio';
+    const peerVideoId = peer_id + '___video';
+    const peerAudioId = peer_id + '___audio';
 
     if (peerVideoId in peerVideoMediaElements) {
         peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
@@ -2579,28 +2585,18 @@ async function loadLocalMedia(stream, kind) {
             // attach to video nav bar
             myVideoNavBar.appendChild(myCountTime);
 
-            if (!isMobileDevice) {
-                myVideoNavBar.appendChild(myVideoPinBtn);
-            }
+            !isMobileDevice && myVideoNavBar.appendChild(myVideoPinBtn);
 
-            if (buttons.local.showVideoPipBtn) {
-                myVideoNavBar.appendChild(myVideoPiPBtn);
-            }
+            buttons.local.showVideoPipBtn && myVideoNavBar.appendChild(myVideoPiPBtn);
 
             if (buttons.local.showZoomInOutBtn) {
                 myVideoNavBar.appendChild(myVideoZoomInBtn);
                 myVideoNavBar.appendChild(myVideoZoomOutBtn);
             }
 
-            if (isVideoFullScreenSupported) {
-                myVideoNavBar.appendChild(myVideoFullScreenBtn);
-            }
-            if (buttons.local.showSnapShotBtn) {
-                myVideoNavBar.appendChild(myVideoToImgBtn);
-            }
-            if (buttons.local.showVideoCircleBtn) {
-                myVideoNavBar.appendChild(myPrivacyBtn);
-            }
+            isVideoFullScreenSupported && myVideoNavBar.appendChild(myVideoFullScreenBtn);
+            buttons.local.showSnapShotBtn && myVideoNavBar.appendChild(myVideoToImgBtn);
+            buttons.local.showVideoCircleBtn && myVideoNavBar.appendChild(myPrivacyBtn);
 
             myVideoNavBar.appendChild(myVideoStatusIcon);
             myVideoNavBar.appendChild(myAudioStatusIcon);
@@ -2630,31 +2626,24 @@ async function loadLocalMedia(stream, kind) {
             myVideoWrap.appendChild(myPitchMeter);
             myVideoWrap.appendChild(myPeerName);
 
-            getId('videoMediaContainer').appendChild(myVideoWrap);
+            videoMediaContainer.appendChild(myVideoWrap);
             myVideoWrap.style.display = 'none';
 
             logStreamSettingsInfo('localVideoMediaStream', stream);
             attachMediaStream(myLocalMedia, stream);
             adaptAspectRatio();
 
-            if (isVideoFullScreenSupported) {
-                handleVideoPlayerFs(myLocalMedia.id, myVideoFullScreenBtn.id);
-            }
+            isVideoFullScreenSupported && handleVideoPlayerFs(myLocalMedia.id, myVideoFullScreenBtn.id);
 
             handleFileDragAndDrop(myLocalMedia.id, myPeerId, true);
 
-            if (buttons.local.showSnapShotBtn) {
-                handleVideoToImg(myLocalMedia.id, myVideoToImgBtn.id);
-            }
-            if (buttons.local.showVideoCircleBtn) {
-                handleVideoPrivacyBtn(myLocalMedia.id, myPrivacyBtn.id);
-            }
+            buttons.local.showSnapShotBtn && handleVideoToImg(myLocalMedia.id, myVideoToImgBtn.id);
+
+            buttons.local.showVideoCircleBtn && handleVideoPrivacyBtn(myLocalMedia.id, myPrivacyBtn.id);
 
             handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
-            if (buttons.local.showVideoPipBtn) {
-                handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id);
-            }
+            buttons.local.showVideoPipBtn && handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id);
 
             handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
 
@@ -2683,7 +2672,6 @@ async function loadLocalMedia(stream, kind) {
             //alert('local audio');
             console.log('SETUP LOCAL AUDIO STREAM');
             // handle remote audio elements
-            const audioMediaContainer = getId('audioMediaContainer');
             const localAudioWrap = document.createElement('div');
             const localAudioMedia = document.createElement('audio');
             localAudioMedia.id = 'myAudio';
@@ -2881,25 +2869,18 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteVideoNavBar.className = 'navbar fadein';
 
             // attach to remote video nav bar
-            if (!isMobileDevice) {
-                remoteVideoNavBar.appendChild(remoteVideoPinBtn);
-            }
+            !isMobileDevice && remoteVideoNavBar.appendChild(remoteVideoPinBtn);
 
-            if (buttons.remote.showVideoPipBtn) {
-                remoteVideoNavBar.appendChild(remoteVideoPiPBtn);
-            }
+            buttons.remote.showVideoPipBtn && remoteVideoNavBar.appendChild(remoteVideoPiPBtn);
 
             if (buttons.remote.showZoomInOutBtn) {
                 remoteVideoNavBar.appendChild(remoteVideoZoomInBtn);
                 remoteVideoNavBar.appendChild(remoteVideoZoomOutBtn);
             }
 
-            if (isVideoFullScreenSupported) {
-                remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
-            }
-            if (buttons.remote.showSnapShotBtn) {
-                remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
-            }
+            isVideoFullScreenSupported && remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
+
+            buttons.remote.showSnapShotBtn && remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
 
             remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
             remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
@@ -2909,20 +2890,12 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             }
             remoteVideoNavBar.appendChild(remoteHandStatusIcon);
 
-            if (buttons.remote.showPrivateMessageBtn) {
-                remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
-            }
-            if (buttons.remote.showFileShareBtn) {
-                remoteVideoNavBar.appendChild(remoteFileShareBtn);
-            }
-            if (buttons.remote.showShareVideoAudioBtn) {
-                remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
-            }
-            if (buttons.remote.showKickOutBtn) {
-                remoteVideoNavBar.appendChild(remotePeerKickOut);
-            }
+            buttons.remote.showPrivateMessageBtn && remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
+            buttons.remote.showFileShareBtn && remoteVideoNavBar.appendChild(remoteFileShareBtn);
+            buttons.remote.showShareVideoAudioBtn && remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
+            buttons.remote.showKickOutBtn && remoteVideoNavBar.appendChild(remotePeerKickOut);
 
-            remoteMedia.setAttribute('id', peer_id + '_video');
+            remoteMedia.setAttribute('id', peer_id + '___video');
             remoteMedia.setAttribute('playsinline', true);
             remoteMedia.autoplay = true;
             isMobileDevice ? (remoteMediaControls = false) : (remoteMediaControls = remoteMediaControls);
@@ -2941,27 +2914,23 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteVideoWrap.appendChild(remotePeerName);
 
             // need later on disconnect or remove peers
-            peerVideoMediaElements[peer_id + '_video'] = remoteVideoWrap;
+            peerVideoMediaElements[peer_id + '___video'] = remoteVideoWrap;
 
             // append all elements to videoMediaContainer
-            getId('videoMediaContainer').appendChild(remoteVideoWrap);
+            videoMediaContainer.appendChild(remoteVideoWrap);
             // attachMediaStream is a part of the adapter.js library
             attachMediaStream(remoteMedia, stream);
             // resize video elements
             adaptAspectRatio();
 
-            if (buttons.remote.showSnapShotBtn) {
-                // handle video to image
-                handleVideoToImg(remoteMedia.id, remoteVideoToImgBtn.id, peer_id);
-            }
+            // handle video to image
+            buttons.remote.showSnapShotBtn && handleVideoToImg(remoteMedia.id, remoteVideoToImgBtn.id, peer_id);
 
             // handle video pin/unpin
             handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
 
             // handle vide picture in picture
-            if (buttons.remote.showVideoPipBtn) {
-                handlePictureInPicture(remoteVideoPiPBtn.id, remoteMedia.id);
-            }
+            buttons.remote.showVideoPipBtn && handlePictureInPicture(remoteVideoPiPBtn.id, remoteMedia.id);
 
             // handle video zoomIn/Out
             handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
@@ -2971,23 +2940,17 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 getId(remoteVideoPinBtn.id).click();
             }
 
-            if (isVideoFullScreenSupported) {
-                // handle video full screen mode
-                handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
-            }
+            // handle video full screen mode
+            isVideoFullScreenSupported && handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
 
             // handle file share drag and drop
             handleFileDragAndDrop(remoteMedia.id, peer_id);
 
-            if (buttons.remote.showKickOutBtn) {
-                // handle kick out button event
-                handlePeerKickOutBtn(peer_id);
-            }
+            // handle kick out button event
+            buttons.remote.showKickOutBtn && handlePeerKickOutBtn(peer_id);
 
-            if (peer_privacy_status) {
-                // set video privacy true
-                setVideoPrivacyStatus(remoteMedia.id, peer_privacy_status);
-            }
+            // set video privacy true
+            peer_privacy_status && setVideoPrivacyStatus(remoteMedia.id, peer_privacy_status);
 
             // refresh remote peers avatar name
             setPeerAvatarImgName(remoteVideoAvatarImage.id, peer_name);
@@ -3002,21 +2965,16 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // handle remote peers video on-off
             handlePeerVideoBtn(peer_id);
 
-            if (buttons.remote.showPrivateMessageBtn) {
-                // handle remote private messages
-                handlePeerPrivateMsg(peer_id, peer_name);
-            }
-            if (buttons.remote.showFileShareBtn) {
-                // handle remote send file
-                handlePeerSendFile(peer_id);
-            }
-            if (buttons.remote.showShareVideoAudioBtn) {
-                // handle remote video - audio URL
-                handlePeerVideoAudioUrl(peer_id);
-            }
+            // handle remote private messages
+            buttons.remote.showPrivateMessageBtn && handlePeerPrivateMsg(peer_id, peer_name);
+            // handle remote send file
+            buttons.remote.showFileShareBtn && handlePeerSendFile(peer_id);
+            // handle remote video - audio URL
+            buttons.remote.showShareVideoAudioBtn && handlePeerVideoAudioUrl(peer_id);
 
             // show status menu
             toggleClassElements('statusMenu', 'inline');
+
             // notify if peer started to recording own screen + audio
             if (peer_rec_status) notifyRecording(peer_id, peer_name, 'Started');
 
@@ -3034,17 +2992,16 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // alert('remote audio');
             console.log('SETUP REMOTE AUDIO STREAM');
             // handle remote audio elements
-            const audioMediaContainer = getId('audioMediaContainer');
             const remoteAudioWrap = document.createElement('div');
             const remoteAudioMedia = document.createElement('audio');
             const remoteAudioVolumeId = peer_id + '_audioVolume';
-            remoteAudioMedia.id = peer_id + '_audio';
+            remoteAudioMedia.id = peer_id + '___audio';
             remoteAudioMedia.autoplay = true;
             remoteAudioMedia.audio = 1.0;
             remoteAudioWrap.appendChild(remoteAudioMedia);
             audioMediaContainer.appendChild(remoteAudioWrap);
             attachMediaStream(remoteAudioMedia, stream);
-            peerAudioMediaElements[peer_id + '_audio'] = remoteAudioWrap;
+            peerAudioMediaElements[peer_id + '___audio'] = remoteAudioWrap;
             // handle remote peers audio volume
             handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
             break;
@@ -3434,8 +3391,6 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
     const videoPlayer = getId(elemId);
     const btnPn = getId(pnId);
     const cam = getId(camId);
-    const videoMediaContainer = getId('videoMediaContainer');
-    const videoPinMediaContainer = getId('videoPinMediaContainer');
     if (btnPn && videoPlayer && cam) {
         btnPn.addEventListener('click', () => {
             if (isMobileDevice) return;
@@ -3475,8 +3430,6 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
 
 function toggleVideoPin(position) {
     if (!isVideoPinned) return;
-    const videoMediaContainer = getId('videoMediaContainer');
-    const videoPinMediaContainer = getId('videoPinMediaContainer');
     switch (position) {
         case 'top':
             videoPinMediaContainer.style.top = '25%';
@@ -3649,11 +3602,9 @@ function handlePictureInPicture(btnId, videoId) {
 function removeVideoPinMediaContainer(peer_id, force_remove = false) {
     //alert(pinnedVideoPlayerId + '==' + peer_id);
     if (
-        (isVideoPinned && (pinnedVideoPlayerId == peer_id + '_video' || pinnedVideoPlayerId == peer_id)) ||
+        (isVideoPinned && (pinnedVideoPlayerId == peer_id + '___video' || pinnedVideoPlayerId == peer_id)) ||
         force_remove
     ) {
-        const videoPinMediaContainer = getId('videoPinMediaContainer');
-        const videoMediaContainer = getId('videoMediaContainer');
         videoPinMediaContainer.style.display = 'none';
         videoMediaContainer.style.top = 0;
         videoMediaContainer.style.right = null;
@@ -4356,83 +4307,128 @@ function setMyFileShareBtn() {
  */
 function setDocumentPiPBtn() {
     documentPiPBtn.addEventListener('click', async () => {
-        try {
-            if (documentPictureInPicture.window) {
-                documentPictureInPicture.window.close();
-                return;
-            }
-
-            const pipWindow = await documentPictureInPicture.requestWindow({
-                width: 300,
-                height: 720,
-            });
-
-            function updateCustomProperties() {
-                const documentStyle = getComputedStyle(document.documentElement);
-
-                pipWindow.document.documentElement.style = `
-                    --body-bg: ${documentStyle.getPropertyValue('--body-bg')};
-                `;
-            }
-
-            updateCustomProperties();
-
-            const pipStylesheet = document.createElement('link');
-            const pipVideoContainer = document.createElement('div');
-
-            pipStylesheet.type = 'text/css';
-            pipStylesheet.rel = 'stylesheet';
-            pipStylesheet.href = '../css/documentPiP.css';
-
-            pipVideoContainer.className = 'pipVideoContainer';
-
-            pipWindow.document.head.append(pipStylesheet);
-            pipWindow.document.body.append(pipVideoContainer);
-
-            function cloneVideoElements() {
-                pipVideoContainer.innerHTML = '';
-
-                [...document.querySelectorAll('video')].forEach((video) => {
-                    if (!video.srcObject) return;
-
-                    const pipVideo = document.createElement('video');
-
-                    pipVideo.classList.add('pipVideo');
-                    pipVideo.classList.toggle('mirror', video.classList.contains('mirror'));
-                    pipVideo.srcObject = video.srcObject;
-                    pipVideo.autoplay = true;
-                    pipVideo.muted = true;
-
-                    pipVideoContainer.append(pipVideo);
-                });
-            }
-
-            cloneVideoElements();
-
-            const videoObserver = new MutationObserver(() => {
-                cloneVideoElements();
-            });
-
-            videoObserver.observe(getId('videoMediaContainer'), {
-                childList: true,
-            });
-
-            const documentObserver = new MutationObserver(() => {
-                updateCustomProperties();
-            });
-
-            documentObserver.observe(document.documentElement, {
-                attributeFilter: ['style'],
-            });
-
-            pipWindow.addEventListener('unload', () => {
-                videoObserver.disconnect();
-                documentObserver.disconnect();
-            });
-        } catch (err) {
-            userLog('warning', err.message);
+        if (documentPictureInPicture.window) {
+            documentPictureInPicture.window.close();
+            console.log('DOCUMENT PIP close');
+            return;
         }
+        await documentPictureInPictureOpen();
     });
+}
+
+/**
+ *  Close documentPictureInPicture
+ */
+async function documentPictureInPictureClose() {
+    if (documentPictureInPicture.window) {
+        documentPictureInPicture.window.close();
+        console.log('DOCUMENT PIP close');
+    }
+}
+
+/**
+ * Open documentPictureInPicture
+ */
+async function documentPictureInPictureOpen() {
+    try {
+        const pipWindow = await documentPictureInPicture.requestWindow({
+            width: 300,
+            height: 720,
+        });
+
+        function updateCustomProperties() {
+            const documentStyle = getComputedStyle(document.documentElement);
+
+            pipWindow.document.documentElement.style = `
+                --body-bg: ${documentStyle.getPropertyValue('--body-bg')};
+            `;
+        }
+
+        updateCustomProperties();
+
+        const pipStylesheet = document.createElement('link');
+        const pipVideoContainer = document.createElement('div');
+
+        pipStylesheet.type = 'text/css';
+        pipStylesheet.rel = 'stylesheet';
+        pipStylesheet.href = '../css/documentPiP.css';
+
+        pipVideoContainer.className = 'pipVideoContainer';
+
+        pipWindow.document.head.append(pipStylesheet);
+        pipWindow.document.body.append(pipVideoContainer);
+
+        function cloneVideoElements() {
+            pipVideoContainer.innerHTML = '';
+
+            [...document.querySelectorAll('video')].forEach((video) => {
+                console.log('DOCUMENT PIP found video id -----> ' + video.id);
+
+                // No video stream detected or is video share from URL...
+                if (!video.srcObject || video.id === 'videoAudioUrlElement') return;
+
+                let videoPIPAllowed = false;
+
+                if (video.id === 'myVideo') {
+                    const localVideoStatus = getId('myVideoStatusIcon');
+
+                    videoPIPAllowed =
+                        localVideoStatus.className === className.videoOn && // video is ON
+                        !localVideoStatus.classList.contains('videoCircle'); // not in privacy mode
+
+                    console.log('DOCUMENT PIP LOCAL videoPIPAllowed -----> ' + videoPIPAllowed);
+                } else {
+                    const parts = video.id.split('___'); // peerId___video
+                    const peer_id = parts[0];
+                    const remoteVideoStatus = getId(peer_id + '_videoStatus');
+
+                    videoPIPAllowed =
+                        remoteVideoStatus.className === className.videoOn && // video is ON
+                        !remoteVideoStatus.classList.contains('videoCircle'); // not in privacy mode
+
+                    console.log('DOCUMENT PIP REMOTE videoPIPAllowed -----> ' + videoPIPAllowed);
+                }
+
+                if (!videoPIPAllowed) return;
+
+                // Video is ON not in privacy mode continue....
+                const pipVideo = document.createElement('video');
+
+                pipVideo.classList.add('pipVideo');
+                pipVideo.classList.toggle('mirror', video.classList.contains('mirror'));
+                pipVideo.srcObject = video.srcObject;
+                pipVideo.autoplay = true;
+                pipVideo.muted = true;
+
+                pipVideoContainer.append(pipVideo);
+            });
+        }
+
+        cloneVideoElements();
+
+        const videoObserver = new MutationObserver(() => {
+            cloneVideoElements();
+        });
+
+        videoObserver.observe(videoMediaContainer, {
+            childList: true,
+        });
+
+        const documentObserver = new MutationObserver(() => {
+            updateCustomProperties();
+        });
+
+        documentObserver.observe(document.documentElement, {
+            attributeFilter: ['style'],
+        });
+
+        pipWindow.addEventListener('unload', () => {
+            videoObserver.disconnect();
+            documentObserver.disconnect();
+        });
+    } catch (err) {
+        userLog('warning', err.message, 6000);
+    }
 }
 
 /**
@@ -4577,6 +4573,7 @@ function setupMySettings() {
     videoSelect.addEventListener('change', async () => {
         await changeLocalCamera(videoSelect.value);
         await handleLocalCameraMirror();
+        await documentPictureInPictureClose();
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
     });
     // select video quality
@@ -5168,6 +5165,7 @@ async function handleVideo(e, init, force = null) {
                 await stopVideoTracks(initStream); // Stop init video track (camera LED off)
             } else {
                 await stopVideoTracks(localVideoMediaStream); // Stop local video track (camera LED off)
+                await documentPictureInPictureClose(); // Close doc PIP if open
             }
         }
     } else {
@@ -7073,7 +7071,7 @@ function handlePeerStatus(config) {
             setPeerHandStatus(peer_id, peer_name, status);
             break;
         case 'privacy':
-            setVideoPrivacyStatus(peer_id + '_video', status);
+            setVideoPrivacyStatus(peer_id + '___video', status);
             break;
     }
 }
@@ -7230,7 +7228,7 @@ function handlePeerVideoAudioUrl(peer_id) {
  * @param {boolean} status of peer video
  */
 function setPeerVideoStatus(peer_id, status) {
-    const peerVideoPlayer = getId(peer_id + '_video');
+    const peerVideoPlayer = getId(peer_id + '___video');
     const peerVideoAvatarImage = getId(peer_id + '_avatar');
     const peerVideoStatus = getId(peer_id + '_videoStatus');
     if (peerVideoPlayer) peerVideoPlayer.style.display = status ? 'block' : 'none';
@@ -7357,7 +7355,7 @@ function handleEmoji(message, duration = 5000) {
 function handleScreenStart(peer_id) {
     const remoteVideoAvatarImage = getId(peer_id + '_avatar');
     const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
-    const remoteVideoStream = getId(peer_id + '_video');
+    const remoteVideoStream = getId(peer_id + '___video');
     if (remoteVideoStatusBtn) {
         remoteVideoStatusBtn.className = className.videoOn;
         setTippy(remoteVideoStatusBtn, 'Participant screen share is on', 'bottom');
@@ -7378,7 +7376,7 @@ function handleScreenStart(peer_id) {
  * @param {boolean} peer_use_video
  */
 function handleScreenStop(peer_id, peer_use_video) {
-    const remoteVideoStream = getId(peer_id + '_video');
+    const remoteVideoStream = getId(peer_id + '___video');
     const remoteVideoAvatarImage = getId(peer_id + '_avatar');
     const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
     if (remoteVideoStatusBtn) {
