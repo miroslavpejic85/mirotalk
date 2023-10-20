@@ -14,7 +14,7 @@ let ratio = getAspectRatio();
  */
 function getAspectRatio() {
     customRatio = aspect == 0 ? true : false;
-    let ratio = ratios[aspect].split(':');
+    const ratio = ratios[aspect].split(':');
     return ratio[1] / ratio[0];
 }
 
@@ -58,11 +58,12 @@ function Area(Increment, Count, Width, Height, Margin = 10) {
  * Resize video elements
  */
 function resizeVideoMedia() {
-    let Margin = 5;
-    let videoMediaContainer = getId('videoMediaContainer');
+    const videoMediaContainer = getId('videoMediaContainer');
+    const Cameras = getEcN('Camera');
+
+    const Margin = 5;
     let Width = videoMediaContainer.offsetWidth - Margin * 2;
     let Height = videoMediaContainer.offsetHeight - Margin * 2;
-    let Cameras = getEcN('Camera');
     let max = 0;
     let optional = isHideMeActive ? 1 : 0;
     let isOneVideoElement = videoMediaContainer.childElementCount - optional == 1 ? true : false;

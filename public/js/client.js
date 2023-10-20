@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.4
+ * @version 1.1.5
  *
  */
 
@@ -1716,12 +1716,10 @@ async function handleAddPeer(config) {
 
     // As P2P check who I am connected with
     let connectedPeersName = [];
-    for (let peer_id in peerConnections) {
-        connectedPeersName.push({
-            peer_name: peers[peer_id]['peer_name'],
-        });
+    for (const id in peerConnections) {
+        connectedPeersName.push(peers[id]['peer_name']);
     }
-    console.log('[RTCPeerConnection] - CONNECTED TO', JSON.stringify(connectedPeersName));
+    console.log('[RTCPeerConnection] - CONNECTED TO PEERS', JSON.stringify(connectedPeersName));
     // userLog('info', 'Connected to: ' + JSON.stringify(connectedPeersName));
 
     await handlePeersConnectionStatus(peer_id);
@@ -2055,20 +2053,18 @@ function handleDisconnect(reason) {
 
     checkRecording();
 
-    for (let peer_id in peerConnections) {
-        let peerVideoId = peer_id + '_video';
+    for (const peer_id in peerConnections) {
+        const peerVideoId = peer_id + '_video';
+        const peerAudioId = peer_id + '_audio';
         peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
-        adaptAspectRatio();
-    }
-    for (let peer_id in peerConnections) {
-        let peerAudioId = peer_id + '_audio';
         peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
-    }
-    for (let peer_id in peerConnections) {
         peerConnections[peer_id].close();
         msgerRemovePeer(peer_id);
         removeVideoPinMediaContainer(peer_id);
     }
+
+    adaptAspectRatio();
+
     chatDataChannels = {};
     fileDataChannels = {};
     peerConnections = {};
@@ -3001,8 +2997,6 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             setPeerVideoStatus(peer_id, peer_screen_status ? peer_screen_status : peer_video_status);
             // refresh remote peers audio icon status and title
             setPeerAudioStatus(peer_id, peer_audio_status);
-            // handle remote peers audio volume
-            handleAudioVolume(remoteAudioVolume.id, remoteMedia.id);
             // handle remote peers audio on-off
             handlePeerAudioBtn(peer_id);
             // handle remote peers video on-off
@@ -3043,6 +3037,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const audioMediaContainer = getId('audioMediaContainer');
             const remoteAudioWrap = document.createElement('div');
             const remoteAudioMedia = document.createElement('audio');
+            const remoteAudioVolumeId = peer_id + '_audioVolume';
             remoteAudioMedia.id = peer_id + '_audio';
             remoteAudioMedia.autoplay = true;
             remoteAudioMedia.audio = 1.0;
@@ -3050,6 +3045,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             audioMediaContainer.appendChild(remoteAudioWrap);
             attachMediaStream(remoteAudioMedia, stream);
             peerAudioMediaElements[peer_id + '_audio'] = remoteAudioWrap;
+            // handle remote peers audio volume
+            handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
             break;
         default:
             break;
@@ -3237,14 +3234,14 @@ function setPeerChatAvatarImgName(avatar, peerName) {
  * @param {string} peer_id socket.id
  */
 function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
-    let videoPlayer = getId(videoId);
-    let videoFullScreenBtn = getId(videoFullScreenBtnId);
+    const videoPlayer = getId(videoId);
+    const videoFullScreenBtn = getId(videoFullScreenBtnId);
 
     // handle Chrome Firefox Opera Microsoft Edge videoPlayer ESC
     videoPlayer.addEventListener('fullscreenchange', (e) => {
         // if Controls enabled, or document on FS do nothing
         if (videoPlayer.controls || isDocumentOnFullScreen) return;
-        let fullscreenElement = document.fullscreenElement;
+        const fullscreenElement = document.fullscreenElement;
         if (!fullscreenElement) {
             videoPlayer.style.pointerEvents = 'auto';
             isVideoOnFullScreen = false;
@@ -3256,7 +3253,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
     videoPlayer.addEventListener('webkitfullscreenchange', (e) => {
         // if Controls enabled, or document on FS do nothing
         if (videoPlayer.controls || isDocumentOnFullScreen) return;
-        let webkitIsFullScreen = document.webkitIsFullScreen;
+        const webkitIsFullScreen = document.webkitIsFullScreen;
         if (!webkitIsFullScreen) {
             videoPlayer.style.pointerEvents = 'auto';
             isVideoOnFullScreen = false;
@@ -3289,7 +3286,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
     function gotoFS() {
         // handle remote peer video fs
         if (peer_id !== null) {
-            let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+            const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
             if (remoteVideoStatusBtn.className === className.videoOn) {
                 handleFSVideo();
             } else {
@@ -3352,7 +3349,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
  * @param {boolean} itsMe true/false
  */
 function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
-    let videoPeer = getId(elemId);
+    const videoPeer = getId(elemId);
 
     videoPeer.addEventListener('dragover', function (e) {
         e.preventDefault();
@@ -3372,12 +3369,12 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
         // Use DataTransferItemList interface to access the file(s)
         if (e.dataTransfer.items) {
             // If dropped items aren't files, reject them
-            let item = e.dataTransfer.items[0].webkitGetAsEntry();
+            const item = e.dataTransfer.items[0].webkitGetAsEntry();
             console.log('Drag and drop', item);
             if (item.isDirectory) {
                 return userLog('warning', 'Please drag and drop a single file not a folder.', 'top-end');
             }
-            let file = e.dataTransfer.items[0].getAsFile();
+            const file = e.dataTransfer.items[0].getAsFile();
             sendFileInformations(file, peer_id);
         } else {
             // Use DataTransfer interface to access the file(s)
@@ -3392,8 +3389,8 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
  * @param {boolean} privacyBtnId
  */
 function handleVideoPrivacyBtn(videoId, privacyBtnId) {
-    let video = getId(videoId);
-    let privacyBtn = getId(privacyBtnId);
+    const video = getId(videoId);
+    const privacyBtn = getId(privacyBtnId);
     if (useVideo && video && privacyBtn) {
         privacyBtn.addEventListener('click', () => {
             playSound('click');
@@ -3412,7 +3409,7 @@ function handleVideoPrivacyBtn(videoId, privacyBtnId) {
  * @param {boolean} peerPrivacyActive
  */
 function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
-    let video = getId(peerVideoId);
+    const video = getId(peerVideoId);
     if (!video) return;
     if (peerPrivacyActive) {
         video.classList.remove('videoDefault');
@@ -3434,11 +3431,11 @@ function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
  * @param {boolean} isScreen stream
  */
 function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
-    let videoPlayer = getId(elemId);
-    let btnPn = getId(pnId);
-    let cam = getId(camId);
-    let videoMediaContainer = getId('videoMediaContainer');
-    let videoPinMediaContainer = getId('videoPinMediaContainer');
+    const videoPlayer = getId(elemId);
+    const btnPn = getId(pnId);
+    const cam = getId(camId);
+    const videoMediaContainer = getId('videoMediaContainer');
+    const videoPinMediaContainer = getId('videoPinMediaContainer');
     if (btnPn && videoPlayer && cam) {
         btnPn.addEventListener('click', () => {
             if (isMobileDevice) return;
@@ -3675,15 +3672,15 @@ function removeVideoPinMediaContainer(peer_id, force_remove = false) {
  * @param {string} peer_id socket.id
  */
 function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
-    let videoBtn = getId(videoToImgBtn);
-    let video = getId(videoStream);
+    const videoBtn = getId(videoToImgBtn);
+    const video = getId(videoStream);
     videoBtn.addEventListener('click', () => {
         if (video.classList.contains('videoCircle')) {
             return userLog('toast', 'Snapshot not allowed if video on privacy mode');
         }
         if (peer_id !== null) {
             // handle remote video snapshot
-            let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+            const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
             if (remoteVideoStatusBtn.className === className.videoOn) {
                 return takeSnapshot(video);
             }
@@ -3734,15 +3731,15 @@ function startCountTime() {
  * @return {string} format HH:MM:SS
  */
 function getTimeToString(time) {
-    let diffInHrs = time / 3600000;
-    let hh = Math.floor(diffInHrs);
-    let diffInMin = (diffInHrs - hh) * 60;
-    let mm = Math.floor(diffInMin);
-    let diffInSec = (diffInMin - mm) * 60;
-    let ss = Math.floor(diffInSec);
-    let formattedHH = hh.toString().padStart(2, '0');
-    let formattedMM = mm.toString().padStart(2, '0');
-    let formattedSS = ss.toString().padStart(2, '0');
+    const diffInHrs = time / 3600000;
+    const hh = Math.floor(diffInHrs);
+    const diffInMin = (diffInHrs - hh) * 60;
+    const mm = Math.floor(diffInMin);
+    const diffInSec = (diffInMin - mm) * 60;
+    const ss = Math.floor(diffInSec);
+    const formattedHH = hh.toString().padStart(2, '0');
+    const formattedMM = mm.toString().padStart(2, '0');
+    const formattedSS = ss.toString().padStart(2, '0');
     return `${formattedHH}:${formattedMM}:${formattedSS}`;
 }
 
@@ -4869,7 +4866,7 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
  */
 async function setLocalVideoQuality() {
     if (!useVideo || !localVideoMediaStream) return;
-    let videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+    const videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     localVideoMediaStream
         .getVideoTracks()[0]
         .applyConstraints(videoConstraints)
@@ -5047,8 +5044,8 @@ function makeRoomQR() {
  * Copy Room URL to clipboard
  */
 function copyRoomURL() {
-    let roomURL = window.location.href;
-    let tmpInput = document.createElement('input');
+    const roomURL = window.location.href;
+    const tmpInput = document.createElement('input');
     document.body.appendChild(tmpInput);
     tmpInput.value = roomURL;
     tmpInput.select();
@@ -5307,10 +5304,10 @@ async function toggleScreenSharing(init = false) {
                 if (initStream) stopTracks(initStream);
                 initStream = screenMediaPromise;
                 if (hasVideoTrack(initStream)) {
-                    const newStream = new MediaStream([initStream.getVideoTracks()[0]]);
+                    const newInitStream = new MediaStream([initStream.getVideoTracks()[0]]);
                     initVideo.style.display = 'block';
                     initVideo.classList.toggle('mirror');
-                    initVideo.srcObject = newStream;
+                    initVideo.srcObject = newInitStream;
                     disable(initVideoSelect, isScreenStreaming);
                     disable(initVideoBtn, isScreenStreaming);
                 } else {
@@ -5422,10 +5419,10 @@ async function setMyVideoStatusTrue() {
     videoBtn.className = className.videoOn;
     myVideoStatusIcon.className = className.videoOn;
     myVideoAvatarImage.style.display = 'none';
-    emitPeerStatus('video', myVideoStatus);
     myVideo.style.display = 'block';
     setTippy(videoBtn, 'Stop the video', placement);
     setTippy(initVideoBtn, 'Stop the video', 'top');
+    emitPeerStatus('video', myVideoStatus);
 }
 
 /**
@@ -5824,8 +5821,8 @@ function getAudioStreamFromAudioElements() {
  * @param {string} action recording action
  */
 function notifyRecording(fromId, from, action) {
-    let msg = '[ 🔴 REC ] : ' + action + ' to recording his own screen and audio';
-    let chatMessage = {
+    const msg = '[ 🔴 REC ] : ' + action + ' to recording his own screen and audio';
+    const chatMessage = {
         from: from,
         fromId: fromId,
         to: myPeerName,
@@ -6449,16 +6446,17 @@ function copyToClipboard(id) {
 async function msgerAddPeers(peers) {
     // console.log("peers", peers);
     // add all current Participants
-    for (let peer_id in peers) {
-        let peer_name = peers[peer_id]['peer_name'];
+    for (const peer_id in peers) {
+        const peer_name = peers[peer_id]['peer_name'];
         // bypass insert to myself in the list :)
         if (peer_id != myPeerId && peer_name) {
-            let exsistMsgerPrivateDiv = getId(peer_id + '_pMsgDiv');
+            const exsistMsgerPrivateDiv = getId(peer_id + '_pMsgDiv');
             // if there isn't add it....
             if (!exsistMsgerPrivateDiv) {
-                let avatarSvg = genAvatarSvg(peer_name, 24);
-                let msgerPrivateDiv = `
+                const avatarSvg = genAvatarSvg(peer_name, 24);
+                const msgerPrivateDiv = `
                 <div id="${peer_id}_pMsgDiv" class="msger-peer-inputarea">
+                <span style="display: none">${peer_name}</span>
                 <img id="${peer_id}_pMsgAvatar" src="${avatarSvg}"> 
                     <textarea
                         rows="1"
@@ -6473,8 +6471,8 @@ async function msgerAddPeers(peers) {
                 msgerCPList.insertAdjacentHTML('beforeend', msgerPrivateDiv);
                 msgerCPList.scrollTop += 500;
 
-                let msgerPrivateMsgInput = getId(peer_id + '_pMsgInput');
-                let msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
+                const msgerPrivateMsgInput = getId(peer_id + '_pMsgInput');
+                const msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
                 addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, myPeerId);
             }
         }
@@ -6485,14 +6483,15 @@ async function msgerAddPeers(peers) {
  * Search peer by name in chat room lists to send the private messages
  */
 function searchPeer() {
-    let searchPeerBarName = getId('searchPeerBarName').value;
-    let msgerPeerInputarea = getEcN('msger-peer-inputarea');
-    searchPeerBarName = searchPeerBarName.toLowerCase();
+    const searchPeerBarName = getId('searchPeerBarName').value.toLowerCase();
+    const msgerPeerInputarea = getEcN('msger-peer-inputarea');
     for (let i = 0; i < msgerPeerInputarea.length; i++) {
-        if (!msgerPeerInputarea[i].innerText.toLowerCase().includes(searchPeerBarName)) {
-            msgerPeerInputarea[i].style.display = 'none';
-        } else {
+        const span = msgerPeerInputarea[i].getElementsByTagName('span')[0];
+        //console.log(span);
+        if (span && span.innerText.toLowerCase().includes(searchPeerBarName)) {
             msgerPeerInputarea[i].style.display = 'flex';
+        } else {
+            msgerPeerInputarea[i].style.display = 'none';
         }
     }
 }
@@ -6502,7 +6501,7 @@ function searchPeer() {
  * @param {string} peer_id socket.id
  */
 function msgerRemovePeer(peer_id) {
-    let msgerPrivateDiv = getId(peer_id + '_pMsgDiv');
+    const msgerPrivateDiv = getId(peer_id + '_pMsgDiv');
     if (msgerPrivateDiv) {
         let peerToRemove = msgerPrivateDiv.firstChild;
         while (peerToRemove) {
@@ -6769,7 +6768,7 @@ function emitMsg(from, to, msg, privateMsg, id) {
     const getPrivateMsg = filterXSS(privateMsg);
     const getId = filterXSS(id);
 
-    let chatMessage = {
+    const chatMessage = {
         type: 'chat',
         from: getFrom,
         fromId: getFromId,
@@ -7086,7 +7085,7 @@ function handlePeerStatus(config) {
  * @param {boolean} status of the hand
  */
 function setPeerHandStatus(peer_id, peer_name, status) {
-    let peerHandStatus = getId(peer_id + '_handStatus');
+    const peerHandStatus = getId(peer_id + '_handStatus');
     peerHandStatus.style.display = status ? 'inline' : 'none';
     if (status) {
         userLog('toast', `${icons.user} ${peer_name} \n has raised the hand!`);
@@ -7100,7 +7099,7 @@ function setPeerHandStatus(peer_id, peer_name, status) {
  * @param {boolean} status of peer audio
  */
 function setPeerAudioStatus(peer_id, status) {
-    let peerAudioStatus = getId(peer_id + '_audioStatus');
+    const peerAudioStatus = getId(peer_id + '_audioStatus');
     if (peerAudioStatus) {
         peerAudioStatus.className = status ? className.audioOn : className.audioOff;
         setTippy(peerAudioStatus, status ? 'Participant audio is on' : 'Participant audio is off', 'bottom');
@@ -7111,11 +7110,11 @@ function setPeerAudioStatus(peer_id, status) {
 /**
  * Handle Peer audio volume 0/100
  * @param {string} audioVolumeId audio volume input id
- * @param {string} mediaId media id
+ * @param {string} mediaId peer audio id
  */
 function handleAudioVolume(audioVolumeId, mediaId) {
-    let media = getId(mediaId);
-    let audioVolume = getId(audioVolumeId);
+    const media = getId(mediaId);
+    const audioVolume = getId(audioVolumeId);
     if (audioVolume && media) {
         audioVolume.style.maxWidth = '40px';
         audioVolume.style.display = 'inline';
@@ -7133,7 +7132,7 @@ function handleAudioVolume(audioVolumeId, mediaId) {
  */
 function handlePeerAudioBtn(peer_id) {
     if (!buttons.remote.audioBtnClickAllowed) return;
-    let peerAudioBtn = getId(peer_id + '_audioStatus');
+    const peerAudioBtn = getId(peer_id + '_audioStatus');
     peerAudioBtn.onclick = () => {
         if (peerAudioBtn.className === className.audioOn) disablePeer(peer_id, 'audio');
     };
@@ -7145,7 +7144,7 @@ function handlePeerAudioBtn(peer_id) {
  */
 function handlePeerVideoBtn(peer_id) {
     if (!useVideo || !buttons.remote.videoBtnClickAllowed) return;
-    let peerVideoBtn = getId(peer_id + '_videoStatus');
+    const peerVideoBtn = getId(peer_id + '_videoStatus');
     peerVideoBtn.onclick = () => {
         if (peerVideoBtn.className === className.videoOn) disablePeer(peer_id, 'video');
     };
@@ -7157,7 +7156,7 @@ function handlePeerVideoBtn(peer_id) {
  * @param {string} toPeerName peer name to send message
  */
 function handlePeerPrivateMsg(peer_id, toPeerName) {
-    let peerPrivateMsg = getId(peer_id + '_privateMsg');
+    const peerPrivateMsg = getId(peer_id + '_privateMsg');
     peerPrivateMsg.onclick = (e) => {
         e.preventDefault();
         sendPrivateMsgToPeer(myPeerId, toPeerName);
@@ -7183,7 +7182,7 @@ function sendPrivateMsgToPeer(toPeerId, toPeerName) {
     }).then((result) => {
         if (result.value) {
             result.value = filterXSS(result.value);
-            let pMsg = checkMsg(result.value);
+            const pMsg = checkMsg(result.value);
             if (!pMsg) {
                 isChatPasteTxt = false;
                 return;
@@ -7206,7 +7205,7 @@ function sendPrivateMsgToPeer(toPeerId, toPeerName) {
  * @param {string} peer_id
  */
 function handlePeerSendFile(peer_id) {
-    let peerFileSendBtn = getId(peer_id + '_shareFile');
+    const peerFileSendBtn = getId(peer_id + '_shareFile');
     peerFileSendBtn.onclick = () => {
         selectFileToShare(peer_id);
     };
@@ -7217,7 +7216,7 @@ function handlePeerSendFile(peer_id) {
  * @param {string} peer_id socket.id
  */
 function handlePeerVideoAudioUrl(peer_id) {
-    let peerYoutubeBtn = getId(peer_id + '_videoAudioUrl');
+    const peerYoutubeBtn = getId(peer_id + '_videoAudioUrl');
     peerYoutubeBtn.onclick = () => {
         sendVideoUrl(peer_id);
     };
@@ -7229,9 +7228,9 @@ function handlePeerVideoAudioUrl(peer_id) {
  * @param {boolean} status of peer video
  */
 function setPeerVideoStatus(peer_id, status) {
-    let peerVideoPlayer = getId(peer_id + '_video');
-    let peerVideoAvatarImage = getId(peer_id + '_avatar');
-    let peerVideoStatus = getId(peer_id + '_videoStatus');
+    const peerVideoPlayer = getId(peer_id + '_video');
+    const peerVideoAvatarImage = getId(peer_id + '_avatar');
+    const peerVideoStatus = getId(peer_id + '_videoStatus');
     if (peerVideoPlayer) peerVideoPlayer.style.display = status ? 'block' : 'none';
     if (peerVideoAvatarImage) peerVideoAvatarImage.style.display = status ? 'none' : 'block';
     if (peerVideoStatus) {
@@ -7354,9 +7353,9 @@ function handleEmoji(message, duration = 5000) {
  * @param {string} peer_id
  */
 function handleScreenStart(peer_id) {
-    let remoteVideoAvatarImage = getId(peer_id + '_avatar');
-    let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
-    let remoteVideoStream = getId(peer_id + '_video');
+    const remoteVideoAvatarImage = getId(peer_id + '_avatar');
+    const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+    const remoteVideoStream = getId(peer_id + '_video');
     if (remoteVideoStatusBtn) {
         remoteVideoStatusBtn.className = className.videoOn;
         setTippy(remoteVideoStatusBtn, 'Participant screen share is on', 'bottom');
@@ -7377,9 +7376,9 @@ function handleScreenStart(peer_id) {
  * @param {boolean} peer_use_video
  */
 function handleScreenStop(peer_id, peer_use_video) {
-    let remoteVideoStream = getId(peer_id + '_video');
-    let remoteVideoAvatarImage = getId(peer_id + '_avatar');
-    let remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
+    const remoteVideoStream = getId(peer_id + '_video');
+    const remoteVideoAvatarImage = getId(peer_id + '_avatar');
+    const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
     if (remoteVideoStatusBtn) {
         remoteVideoStatusBtn.className = className.videoOff;
         setTippy(remoteVideoStatusBtn, 'Participant screen share is off', 'bottom');
@@ -7736,9 +7735,9 @@ function setupWhiteboardCanvas() {
  * Whiteboard: setup canvas size
  */
 function setupWhiteboardCanvasSize() {
-    let optimalSize = [wbWidth, wbHeight];
-    let scaleFactorX = window.innerWidth / optimalSize[0];
-    let scaleFactorY = window.innerHeight / optimalSize[1];
+    const optimalSize = [wbWidth, wbHeight];
+    const scaleFactorX = window.innerWidth / optimalSize[0];
+    const scaleFactorY = window.innerHeight / optimalSize[1];
     if (scaleFactorX < scaleFactorY && scaleFactorX < 1) {
         wbCanvas.setWidth(optimalSize[0] * scaleFactorX);
         wbCanvas.setHeight(optimalSize[1] * scaleFactorX);
@@ -8407,7 +8406,7 @@ function sendFileData(peer_id, broadcast) {
         if (!sendInProgress) return;
 
         // peer to peer over DataChannels
-        let data = {
+        const data = {
             peer_id: peer_id,
             broadcast: broadcast,
             fileData: e.target.result,
@@ -8428,7 +8427,7 @@ function sendFileData(peer_id, broadcast) {
         if (offset < fileToSend.size) readSlice(offset);
     });
     const readSlice = (o) => {
-        for (let peer_id in fileDataChannels) {
+        for (const peer_id in fileDataChannels) {
             // https://stackoverflow.com/questions/71285807/i-am-trying-to-share-a-file-over-webrtc-but-after-some-time-it-stops-and-log-rt
             if (fileDataChannels[peer_id].bufferedAmount > fileDataChannels[peer_id].bufferedAmountLowThreshold) {
                 fileDataChannels[peer_id].onbufferedamountlow = () => {
@@ -8449,16 +8448,16 @@ function sendFileData(peer_id, broadcast) {
  * @param {object} data to sent
  */
 function sendFSData(data) {
-    let broadcast = data.broadcast;
-    let peer_id_to_send = data.peer_id;
+    const broadcast = data.broadcast;
+    const peer_id_to_send = data.peer_id;
     if (broadcast) {
         // send to all peers
-        for (let peer_id in fileDataChannels) {
+        for (const peer_id in fileDataChannels) {
             if (fileDataChannels[peer_id].readyState === 'open') fileDataChannels[peer_id].send(data.fileData);
         }
     } else {
         // send to peer
-        for (let peer_id in fileDataChannels) {
+        for (const peer_id in fileDataChannels) {
             if (peer_id_to_send == peer_id && fileDataChannels[peer_id].readyState === 'open') {
                 fileDataChannels[peer_id].send(data.fileData);
             }
@@ -8842,8 +8841,8 @@ function isVideoTypeSupported(url) {
  * @returns {string} YouTube Embed URL
  */
 function getYoutubeEmbed(url) {
-    let regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    let match = url.match(regExp);
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
     return match && match[7].length == 11 ? 'https://www.youtube.com/embed/' + match[7] + '?autoplay=1' : false;
 }
 
@@ -8902,7 +8901,7 @@ function handleVideoPlayer(config) {
  */
 function handlePeerKickOutBtn(peer_id) {
     if (!buttons.remote.showKickOutBtn) return;
-    let peerKickOutBtn = getId(peer_id + '_kickOut');
+    const peerKickOutBtn = getId(peer_id + '_kickOut');
     peerKickOutBtn.addEventListener('click', (e) => {
         kickOut(peer_id);
     });
@@ -8913,7 +8912,7 @@ function handlePeerKickOutBtn(peer_id) {
  * @param {string} peer_id socket.id
  */
 function kickOut(peer_id) {
-    let pName = getId(peer_id + '_name').innerText;
+    const pName = getId(peer_id + '_name').innerText;
 
     Swal.fire({
         background: swalBackground,
@@ -9134,9 +9133,9 @@ function getDataTimeString() {
  * @returns {string} converted size
  */
 function bytesToSize(bytes) {
-    let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if (bytes == 0) return '0 Byte';
-    let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
@@ -9146,8 +9145,8 @@ function bytesToSize(bytes) {
  */
 function handlePeerVolume(data) {
     if (!isAudioPitchBar) return;
-    let peer_id = data.peer_id;
-    let element = getId(peer_id + '_pitch_bar');
+    const peer_id = data.peer_id;
+    const element = getId(peer_id + '_pitch_bar');
     //let remoteVideoWrap = getId(peer_id + '_videoWrap');
     let volume = data.volume;
     if (!element) return;
@@ -9169,8 +9168,8 @@ function handlePeerVolume(data) {
  */
 function handleMyVolume(data) {
     if (!isAudioPitchBar) return;
-    let element = getId('myPitchBar');
-    let volume = data.volume;
+    const element = getId('myPitchBar');
+    const volume = data.volume;
     if (!element) return;
     if (volume > 50) {
         element.style.backgroundColor = 'orange';
@@ -9281,8 +9280,8 @@ function msgPopup(icon, message, position, timer = 1000) {
  */
 async function playSound(name, force = false) {
     if (!notifyBySound && !force) return;
-    let sound = '../sounds/' + name + '.mp3';
-    let audioToPlay = new Audio(sound);
+    const sound = '../sounds/' + name + '.mp3';
+    const audioToPlay = new Audio(sound);
     try {
         audioToPlay.volume = 0.5;
         await audioToPlay.play();
@@ -9308,7 +9307,7 @@ function openURL(url, blank = false) {
  * @param {string} displayState of the element
  */
 function toggleClassElements(className, displayState) {
-    let elements = getEcN(className);
+    const elements = getEcN(className);
     for (let i = 0; i < elements.length; i++) {
         elements[i].style.display = displayState;
     }
