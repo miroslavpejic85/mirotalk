@@ -7123,6 +7123,8 @@ function handleAudioVolume(audioVolumeId, mediaId) {
         audioVolume.addEventListener('input', () => {
             media.volume = audioVolume.value / 100;
         });
+    } else {
+        if (audioVolume) audioVolume.style.display = 'none';
     }
 }
 
