@@ -4844,7 +4844,6 @@ async function getAudioConstraints() {
     return {
         echoCancellation: true,
         noiseSuppression: true,
-        sampleRate: 44100,
     };
 }
 
