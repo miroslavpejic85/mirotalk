@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.5
+ * @version 1.1.6
  *
  */
 
@@ -5692,7 +5692,7 @@ function startStreamRecording() {
 function recordingOptions(options, audioMixerTracks) {
     Swal.fire({
         background: swalBackground,
-        position: 'center',
+        position: 'top',
         imageUrl: recordingImg,
         title: 'Recording options',
         showDenyButton: true,
@@ -5834,7 +5834,7 @@ function getAudioStreamFromAudioElements() {
  * @param {string} action recording action
  */
 function notifyRecording(fromId, from, action) {
-    const msg = '🔴 Recording: ' + action;
+    const msg = '🔴 ' + action + ' recording.';
     const chatMessage = {
         from: from,
         fromId: fromId,
@@ -5844,7 +5844,7 @@ function notifyRecording(fromId, from, action) {
     };
     handleDataChannelChat(chatMessage);
     if (!showChatOnMessage) {
-        msgHTML(null, recordingImg, null, `${icons.user} ${from}: <h1>${action} recording</h1>`, 'top');
+        msgHTML(null, recordingImg, from, `<h1>${action} recording</h1>`);
     }
 }
 
