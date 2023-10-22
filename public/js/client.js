@@ -5612,9 +5612,9 @@ function checkRecording() {
  * Handle recording errors
  * @param {string} error
  */
-function handleRecordingError(error) {
+function handleRecordingError(error, popupLog = true) {
     console.error('Recording error', error);
-    userLog('error', error, 6000);
+    if (popupLog) userLog('error', error, 6000);
 }
 
 /**
@@ -5751,7 +5751,7 @@ function startMobileRecording(options, audioMixerTracks) {
         handleMediaRecorder(mediaRecorder);
     } catch (err) {
         // Handle any errors that occur during the recording setup
-        handleRecordingError('Unable to record the camera + audio: ' + err);
+        handleRecordingError('Unable to record the camera + audio: ' + err, false);
     }
 }
 
@@ -5807,7 +5807,7 @@ function startDesktopRecording(options, audioMixerTracks) {
         })
         .catch((err) => {
             // Handle any errors that occur during screen recording setup
-            handleRecordingError('Unable to record the screen + audio: ' + err);
+            handleRecordingError('Unable to record the screen + audio: ' + err, false);
         });
 }
 
