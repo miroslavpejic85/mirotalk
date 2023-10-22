@@ -47,6 +47,7 @@ const imgFeedback = '../images/feedback.png';
 const forbiddenImg = '../images/forbidden.png';
 const avatarImg = '../images/mirotalk-logo.png';
 const camMicOff = '../images/cam-mic-off.png';
+const recordingImg = '../images/recording.png';
 
 // nice free icon: https://www.iconfinder.com
 
@@ -1683,7 +1684,7 @@ async function joinToChannel() {
         peer_audio_status: myAudioStatus,
         peer_screen_status: myScreenStatus,
         peer_hand_status: myHandStatus,
-        peer_rec_status: isRecScreenStream,
+        peer_rec_status: isStreamRecording,
         peer_privacy_status: isVideoPrivacyActive,
         userAgent: userAgent,
     });
@@ -5693,6 +5694,7 @@ function recordingOptions(options, audioMixerTracks) {
     Swal.fire({
         background: swalBackground,
         position: 'center',
+        imageUrl: recordingImg,
         title: 'Recording options',
         showDenyButton: true,
         showCancelButton: true,
@@ -5827,13 +5829,13 @@ function getAudioStreamFromAudioElements() {
 }
 
 /**
- * Notify me if someone start to recording they screen + audio
+ * Notify me if someone start to recording they camera/screen/window + audio
  * @param {string} fromId peer_id
  * @param {string} from peer_name
  * @param {string} action recording action
  */
 function notifyRecording(fromId, from, action) {
-    const msg = '[ 🔴 REC ] : ' + action + ' to recording his own screen and audio';
+    const msg = '🔴 Recording: ' + action;
     const chatMessage = {
         from: from,
         fromId: fromId,
@@ -5842,7 +5844,9 @@ function notifyRecording(fromId, from, action) {
         privateMsg: false,
     };
     handleDataChannelChat(chatMessage);
-    userLog('toast', from + ' ' + msg);
+    if (!showChatOnMessage) {
+        msgHTML(null, recordingImg, null, `${icons.user} ${from}: <h1>${action} recording</h1>`, 'top');
+    }
 }
 
 /**
@@ -5861,10 +5865,8 @@ function handleMediaRecorder(mediaRecorder) {
  * @param {object} event of media recorder
  */
 function handleMediaRecorderStart(event) {
-    if (isRecScreenStream) {
-        emitPeersAction('recStart');
-        emitPeerStatus('rec', isRecScreenStream);
-    }
+    emitPeersAction('recStart');
+    emitPeerStatus('rec', true);
     console.log('MediaRecorder started: ', event);
     isStreamRecording = true;
     recordStreamBtn.style.setProperty('color', '#ff4500');
@@ -5894,13 +5896,13 @@ function handleMediaRecorderStop(event) {
     console.log('MediaRecorder Blobs: ', recordedBlobs);
     isStreamRecording = false;
     myVideoParagraph.innerText = myPeerName + ' (me)';
+    emitPeersAction('recStop');
+    emitPeerStatus('rec', false);
     if (isRecScreenStream) {
         recScreenStream.getTracks().forEach((track) => {
             if (track.kind === 'video') track.stop();
         });
         isRecScreenStream = false;
-        emitPeersAction('recStop');
-        emitPeerStatus('rec', isRecScreenStream);
     }
     recordStreamBtn.style.setProperty('color', '#000');
     downloadRecordedStream();
@@ -7306,10 +7308,10 @@ function handlePeerAction(config) {
             setMyVideoOff(peer_name);
             break;
         case 'recStart':
-            notifyRecording(peer_id, peer_name, 'Started');
+            notifyRecording(peer_id, peer_name, 'Start');
             break;
         case 'recStop':
-            notifyRecording(peer_id, peer_name, 'Stopped');
+            notifyRecording(peer_id, peer_name, 'Stop');
             break;
         case 'screenStart':
             handleScreenStart(peer_id);
@@ -9261,6 +9263,29 @@ function userLog(type, message, timer = 3000) {
         default:
             alert(message);
     }
+}
+
+/**
+ * Popup html message
+ * @param {string} icon info, success, alert, warning
+ * @param {string} imageUrl image path
+ * @param {string} title message title
+ * @param {string} html message in html format
+ * @param {string} position message position
+ */
+function msgHTML(icon, imageUrl, title, html, position = 'center') {
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swalBackground,
+        position: position,
+        icon: icon,
+        imageUrl: imageUrl,
+        title: title,
+        html: html,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    });
 }
 
 /**
