@@ -905,7 +905,7 @@ button:hover {
     width: auto;
     color: white;
     font-size: 14px;
-    font-weight: bold;
+    /* font-weight: bold; */
 }
 
 .buttons {
