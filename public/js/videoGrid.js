@@ -90,14 +90,14 @@ function resizeVideoMedia() {
 
     max = max - Margin * 2;
     setWidth(Cameras, max, bigWidth, Margin, Height, isOneVideoElement);
-    document.documentElement.style.setProperty('--vmi-wh', max / 3 + 'px');
+    setSP('--vmi-wh', max / 3 + 'px');
 }
 
 /**
  * Reset zoom to avoid incorrect UI on screen resize
  */
 function resetZoom() {
-    const videoElements = document.querySelectorAll('video');
+    const videoElements = getSlALL('video');
     videoElements.forEach((video) => {
         video.style.transform = '';
         video.style.transformOrigin = 'center';

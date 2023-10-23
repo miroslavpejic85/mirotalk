@@ -1,6 +1,6 @@
 'use strict';
 
-const bars = document.querySelectorAll('.volume-bar');
+const bars = getSlALL('.volume-bar');
 
 let scriptProcessor = null;
 

@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.7
+ * @version 1.1.8
  *
  */
 
@@ -23,10 +23,13 @@
 
 // https://www.w3schools.com/js/js_strict.asp
 
-let myRoomId; // this room id
-
+// Signaling server URL
 const signalingServer = getSignalingServer();
+
+// This room
+const myRoomId = getId('myRoomId');
 const roomId = getRoomId();
+
 const myRoomUrl = window.location.origin + '/join/' + roomId; // share room url
 const welcomeImg = '../images/image-placeholder.png';
 const shareUrlImg = '../images/image-placeholder.png';
@@ -48,7 +51,6 @@ const forbiddenImg = '../images/forbidden.png';
 const avatarImg = '../images/mirotalk-logo.png';
 const camMicOff = '../images/cam-mic-off.png';
 const recordingImg = '../images/recording.png';
-
 // nice free icon: https://www.iconfinder.com
 
 const fileSharingInput = '*'; // allow all file extensions
@@ -62,55 +64,6 @@ const wbPdfInput = 'application/pdf';
 const wbImageInput = 'image/*';
 const wbWidth = 1200;
 const wbHeight = 600;
-
-const chatInputEmoji = {
-    '<3': '❤️',
-    '</3': '💔',
-    ':D': '😀',
-    ':)': '😃',
-    ';)': '😉',
-    ':(': '😒',
-    ':p': '😛',
-    ';p': '😜',
-    ":'(": '😢',
-    ':+1:': '👍',
-    ':*': '😘',
-    ':O': '😲',
-    ':|': '😐',
-    ':*(': '😭',
-    XD: '😆',
-    ':B': '😎',
-    ':P': '😜',
-    '<(': '👎',
-    '>:(': '😡',
-    ':S': '😟',
-    ':X': '🤐',
-    ';(': '😥',
-    ':T': '😖',
-    ':@': '😠',
-    ':$': '🤑',
-    ':&': '🤗',
-    ':#': '🤔',
-    ':!': '😵',
-    ':W': '😷',
-    ':%': '🤒',
-    ':*!': '🤩',
-    ':G': '😬',
-    ':R': '😋',
-    ':M': '🤮',
-    ':L': '🥴',
-    ':C': '🥺',
-    ':F': '🥳',
-    ':Z': '🤢',
-    ':^': '🤓',
-    ':K': '🤫',
-    ':D!': '🤯',
-    ':H': '🧐',
-    ':U': '🤥',
-    ':V': '🤪',
-    ':N': '🥶',
-    ':J': '🥴',
-}; // https://github.com/wooorm/gemoji/blob/main/support.md
 
 const className = {
     user: 'fas fa-user',
@@ -159,38 +112,6 @@ const icons = {
     fileSend: '<i class="fas fa-file-export"></i>',
     fileReceive: '<i class="fas fa-file-import"></i>',
 };
-
-// Video/Audio media container
-const videoMediaContainer = getId('videoMediaContainer');
-const videoPinMediaContainer = getId('videoPinMediaContainer');
-const audioMediaContainer = getId('audioMediaContainer');
-
-// Audio options
-const dropDownMicOptions = getId('dropDownMicOptions');
-const switchAutoGainControl = getId('switchAutoGainControl');
-const switchNoiseSuppression = getId('switchNoiseSuppression');
-const switchEchoCancellation = getId('switchEchoCancellation');
-const sampleRateSelect = getId('sampleRateSelect');
-const sampleSizeSelect = getId('sampleSizeSelect');
-const channelCountSelect = getId('channelCountSelect');
-const micLatencyRange = getId('micLatencyRange');
-const micVolumeRange = getId('micVolumeRange');
-const applyAudioOptionsBtn = getId('applyAudioOptionsBtn');
-const micOptionsBtn = document.getElementById('micOptionsBtn');
-const micDropDownMenu = document.querySelector('.dropdown-menu');
-const micLatencyValue = getId('micLatencyValue');
-const micVolumeValue = getId('micVolumeValue');
-
-// Tab Media
-const shareMediaAudioVideoBtn = getId('shareMediaAudioVideoBtn');
-
-//....
-
-// Local Storage class
-const lS = new LocalStorage();
-const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
-const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
-console.log('LS_SETTINGS', lsSettings);
 
 // Check if PIP is supported by this browser
 const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
@@ -267,6 +188,275 @@ const buttons = {
     },
 };
 
+// Loading div
+const loadingDiv = getId('loadingDiv');
+
+// Video/Audio media container
+const videoMediaContainer = getId('videoMediaContainer');
+const videoPinMediaContainer = getId('videoPinMediaContainer');
+const audioMediaContainer = getId('audioMediaContainer');
+
+// Init audio-video
+const initUser = getId('initUser');
+const initVideo = getId('initVideo');
+const initVideoBtn = getId('initVideoBtn');
+const initAudioBtn = getId('initAudioBtn');
+const initScreenShareBtn = getId('initScreenShareBtn');
+const initVideoSelect = getId('initVideoSelect');
+const initMicrophoneSelect = getId('initMicrophoneSelect');
+const initSpeakerSelect = getId('initSpeakerSelect');
+
+// Buttons bar
+const buttonsBar = getId('buttonsBar');
+const shareRoomBtn = getId('shareRoomBtn');
+const hideMeBtn = getId('hideMeBtn');
+const videoBtn = getId('videoBtn');
+const swapCameraBtn = getId('swapCameraBtn');
+const audioBtn = getId('audioBtn');
+const screenShareBtn = getId('screenShareBtn');
+const recordStreamBtn = getId('recordStreamBtn');
+const fullScreenBtn = getId('fullScreenBtn');
+const chatRoomBtn = getId('chatRoomBtn');
+const captionBtn = getId('captionBtn');
+const roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
+const myHandBtn = getId('myHandBtn');
+const whiteboardBtn = getId('whiteboardBtn');
+const fileShareBtn = getId('fileShareBtn');
+const documentPiPBtn = getId('documentPiPBtn');
+const mySettingsBtn = getId('mySettingsBtn');
+const aboutBtn = getId('aboutBtn');
+const leaveRoomBtn = getId('leaveRoomBtn');
+
+// Room Emoji Picker
+const closeEmojiPickerContainer = getId('closeEmojiPickerContainer');
+const emojiPickerContainer = getId('emojiPickerContainer');
+const emojiPickerHeader = getId('emojiPickerHeader');
+const userEmoji = getId(`userEmoji`);
+
+// Chat room
+const msgerDraggable = getId('msgerDraggable');
+const msgerHeader = getId('msgerHeader');
+const msgerTheme = getId('msgerTheme');
+const msgerCPBtn = getId('msgerCPBtn');
+const msgerClean = getId('msgerClean');
+const msgerSaveBtn = getId('msgerSaveBtn');
+const msgerClose = getId('msgerClose');
+const msgerMaxBtn = getId('msgerMaxBtn');
+const msgerMinBtn = getId('msgerMinBtn');
+const msgerChat = getId('msgerChat');
+const msgerEmojiBtn = getId('msgerEmojiBtn');
+const msgerMarkdownBtn = getId('msgerMarkdownBtn');
+const msgerGPTBtn = getId('msgerGPTBtn');
+const msgerShareFileBtn = getId('msgerShareFileBtn');
+const msgerVideoUrlBtn = getId('msgerVideoUrlBtn');
+const msgerInput = getId('msgerInput');
+const msgerCleanTextBtn = getId('msgerCleanTextBtn');
+const msgerPasteBtn = getId('msgerPasteBtn');
+const msgerShowChatOnMsgDiv = getId('msgerShowChatOnMsgDiv');
+const msgerShowChatOnMsg = getId('msgerShowChatOnMsg');
+const msgerSpeechMsgDiv = getId('msgerSpeechMsgDiv');
+const msgerSpeechMsg = getId('msgerSpeechMsg');
+const msgerSendBtn = getId('msgerSendBtn');
+
+const chatInputEmoji = {
+    '<3': '❤️',
+    '</3': '💔',
+    ':D': '😀',
+    ':)': '😃',
+    ';)': '😉',
+    ':(': '😒',
+    ':p': '😛',
+    ';p': '😜',
+    ":'(": '😢',
+    ':+1:': '👍',
+    ':*': '😘',
+    ':O': '😲',
+    ':|': '😐',
+    ':*(': '😭',
+    XD: '😆',
+    ':B': '😎',
+    ':P': '😜',
+    '<(': '👎',
+    '>:(': '😡',
+    ':S': '😟',
+    ':X': '🤐',
+    ';(': '😥',
+    ':T': '😖',
+    ':@': '😠',
+    ':$': '🤑',
+    ':&': '🤗',
+    ':#': '🤔',
+    ':!': '😵',
+    ':W': '😷',
+    ':%': '🤒',
+    ':*!': '🤩',
+    ':G': '😬',
+    ':R': '😋',
+    ':M': '🤮',
+    ':L': '🥴',
+    ':C': '🥺',
+    ':F': '🥳',
+    ':Z': '🤢',
+    ':^': '🤓',
+    ':K': '🤫',
+    ':D!': '🤯',
+    ':H': '🧐',
+    ':U': '🤥',
+    ':V': '🤪',
+    ':N': '🥶',
+    ':J': '🥴',
+}; // https://github.com/wooorm/gemoji/blob/main/support.md
+
+// Chat room emoji picker
+const msgerEmojiPicker = getId('msgerEmojiPicker');
+
+// Chat room connected peers
+const msgerCP = getId('msgerCP');
+const msgerCPHeader = getId('msgerCPHeader');
+const msgerCPCloseBtn = getId('msgerCPCloseBtn');
+const msgerCPList = getId('msgerCPList');
+
+// Caption section
+const captionDraggable = getId('captionDraggable');
+const captionHeader = getId('captionHeader');
+const captionTheme = getId('captionTheme');
+const captionMaxBtn = getId('captionMaxBtn');
+const captionMinBtn = getId('captionMinBtn');
+const captionClean = getId('captionClean');
+const captionSaveBtn = getId('captionSaveBtn');
+const captionClose = getId('captionClose');
+const captionChat = getId('captionChat');
+
+// My settings
+const mySettings = getId('mySettings');
+const mySettingsHeader = getId('mySettingsHeader');
+const tabVideoBtn = getId('tabVideoBtn');
+const tabAudioBtn = getId('tabAudioBtn');
+const tabVideoShareBtn = getId('tabVideoShareBtn');
+const tabParticipantsBtn = getId('tabParticipantsBtn');
+const tabProfileBtn = getId('tabProfileBtn');
+const tabRoomBtn = getId('tabRoomBtn');
+const roomSendEmailBtn = getId('roomSendEmailBtn');
+const tabStylingBtn = getId('tabStylingBtn');
+const tabLanguagesBtn = getId('tabLanguagesBtn');
+const mySettingsCloseBtn = getId('mySettingsCloseBtn');
+const myPeerNameSet = getId('myPeerNameSet');
+const myPeerNameSetBtn = getId('myPeerNameSetBtn');
+const switchSounds = getId('switchSounds');
+const switchShare = getId('switchShare');
+const switchPushToTalk = getId('switchPushToTalk');
+const switchAudioPitchBar = getId('switchAudioPitchBar');
+const audioInputSelect = getId('audioSource');
+const audioOutputSelect = getId('audioOutput');
+const audioOutputDiv = getId('audioOutputDiv');
+const speakerTestBtn = getId('speakerTestBtn');
+const videoSelect = getId('videoSource');
+const videoQualitySelect = getId('videoQuality');
+const videoFpsSelect = getId('videoFps');
+const videoFpsDiv = getId('videoFpsDiv');
+const screenFpsSelect = getId('screenFps');
+const themeSelect = getId('mirotalkTheme');
+const videoObjFitSelect = getId('videoObjFitSelect');
+const btnsBarSelect = getId('mirotalkBtnsBar');
+const pinUnpinGridDiv = getId('pinUnpinGridDiv');
+const pinVideoPositionSelect = getId('pinVideoPositionSelect');
+const tabRoomPeerName = getId('tabRoomPeerName');
+const tabRoomParticipants = getId('tabRoomParticipants');
+const tabRoomSecurity = getId('tabRoomSecurity');
+const isPeerPresenter = getId('isPeerPresenter');
+const peersCount = getId('peersCount');
+const screenFpsDiv = getId('screenFpsDiv');
+
+// Audio options
+const dropDownMicOptions = getId('dropDownMicOptions');
+const switchAutoGainControl = getId('switchAutoGainControl');
+const switchNoiseSuppression = getId('switchNoiseSuppression');
+const switchEchoCancellation = getId('switchEchoCancellation');
+const sampleRateSelect = getId('sampleRateSelect');
+const sampleSizeSelect = getId('sampleSizeSelect');
+const channelCountSelect = getId('channelCountSelect');
+const micLatencyRange = getId('micLatencyRange');
+const micVolumeRange = getId('micVolumeRange');
+const applyAudioOptionsBtn = getId('applyAudioOptionsBtn');
+const micOptionsBtn = getId('micOptionsBtn');
+const micDropDownMenu = getSl('.dropdown-menu');
+const micLatencyValue = getId('micLatencyValue');
+const micVolumeValue = getId('micVolumeValue');
+
+// Tab Media
+const shareMediaAudioVideoBtn = getId('shareMediaAudioVideoBtn');
+
+// My whiteboard
+const whiteboard = getId('whiteboard');
+const whiteboardHeader = getId('whiteboardHeader');
+const whiteboardTitle = getId('whiteboardTitle');
+const whiteboardOptions = getId('whiteboardOptions');
+const wbDrawingColorEl = getId('wbDrawingColorEl');
+const whiteboardGhostButton = getId('whiteboardGhostButton');
+const wbBackgroundColorEl = getId('wbBackgroundColorEl');
+const whiteboardPencilBtn = getId('whiteboardPencilBtn');
+const whiteboardObjectBtn = getId('whiteboardObjectBtn');
+const whiteboardUndoBtn = getId('whiteboardUndoBtn');
+const whiteboardRedoBtn = getId('whiteboardRedoBtn');
+const whiteboardImgFileBtn = getId('whiteboardImgFileBtn');
+const whiteboardPdfFileBtn = getId('whiteboardPdfFileBtn');
+const whiteboardImgUrlBtn = getId('whiteboardImgUrlBtn');
+const whiteboardTextBtn = getId('whiteboardTextBtn');
+const whiteboardLineBtn = getId('whiteboardLineBtn');
+const whiteboardRectBtn = getId('whiteboardRectBtn');
+const whiteboardTriangleBtn = getId('whiteboardTriangleBtn');
+const whiteboardCircleBtn = getId('whiteboardCircleBtn');
+const whiteboardSaveBtn = getId('whiteboardSaveBtn');
+const whiteboardEraserBtn = getId('whiteboardEraserBtn');
+const whiteboardCleanBtn = getId('whiteboardCleanBtn');
+const whiteboardLockBtn = getId('whiteboardLockBtn');
+const whiteboardCloseBtn = getId('whiteboardCloseBtn');
+
+// Room actions buttons
+const muteEveryoneBtn = getId('muteEveryoneBtn');
+const hideEveryoneBtn = getId('hideEveryoneBtn');
+const ejectEveryoneBtn = getId('ejectEveryoneBtn');
+const lockRoomBtn = getId('lockRoomBtn');
+const unlockRoomBtn = getId('unlockRoomBtn');
+
+// File send progress
+const sendFileDiv = getId('sendFileDiv');
+const imgShareSend = getId('imgShareSend');
+const sendFileInfo = getId('sendFileInfo');
+const sendProgress = getId('sendProgress');
+const sendAbortBtn = getId('sendAbortBtn');
+
+// File receive progress
+const receiveFileDiv = getId('receiveFileDiv');
+const imgShareReceive = getId('imgShareReceive');
+const receiveFileInfo = getId('receiveFileInfo');
+const receiveProgress = getId('receiveProgress');
+const receiveHideBtn = getId('receiveHideBtn');
+const receiveFilePercentage = getId('receiveFilePercentage');
+
+// Video/audio url player
+const videoUrlCont = getId('videoUrlCont');
+const videoAudioUrlCont = getId('videoAudioUrlCont');
+const videoUrlHeader = getId('videoUrlHeader');
+const videoAudioUrlHeader = getId('videoAudioUrlHeader');
+const videoUrlCloseBtn = getId('videoUrlCloseBtn');
+const videoAudioCloseBtn = getId('videoAudioCloseBtn');
+const videoUrlIframe = getId('videoUrlIframe');
+const videoAudioUrlElement = getId('videoAudioUrlElement');
+
+// Speech recognition
+const speechRecognitionIcon = getId('speechRecognitionIcon');
+const speechRecognitionStart = getId('speechRecognitionStart');
+const speechRecognitionStop = getId('speechRecognitionStop');
+
+//....
+
+// Local Storage class
+const lS = new LocalStorage();
+const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
+const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
+console.log('LS_SETTINGS', lsSettings);
+
 const userLimits = {
     active: false, // Limit users per room
     count: 2, // Limit 2 users per room if userLimits.active true
@@ -333,7 +523,6 @@ let callElapsedTime;
 let recStartTime;
 let recElapsedTime;
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
-let pinVideoPositionSelect;
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let myPeerName = getPeerName();
 let myPeerUUID = getUUID();
@@ -396,124 +585,17 @@ let chatMessages = []; // collect chat messages to save it later if want
 let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
 let transcripts = []; //collect all the transcripts to save it later if you need
 let countTime; // conference count time
-// init audio-video
-let initAudioBtn;
-let initVideoBtn;
-let initScreenShareBtn;
-// init Devices select
-let initVideo;
-let initVideoSelect;
-let initMicrophoneSelect;
-let initSpeakerSelect;
 // buttons bar
-let buttonsBar;
-let shareRoomBtn;
-let hideMeBtn;
-let audioBtn;
-let videoBtn;
-let swapCameraBtn;
-let screenShareBtn;
-let recordStreamBtn;
-let fullScreenBtn;
-let chatRoomBtn;
-let captionBtn;
-let roomEmojiPickerBtn;
-let myHandBtn;
-let whiteboardBtn;
-let fileShareBtn;
-let documentPiPBtn;
-let mySettingsBtn;
-let aboutBtn;
-let leaveRoomBtn;
-let placement = 'right';
-// https://atomiks.github.io/tippyjs/#placements
-// chat room elements
-let msgerDraggable;
-let msgerHeader;
-let msgerTheme;
-let msgerCPBtn;
-let msgerClean;
-let msgerSaveBtn;
-let msgerClose;
-let msgerMaxBtn;
-let msgerMinBtn;
-let msgerChat;
-let msgerEmojiBtn;
-let msgerMarkdownBtn;
-let msgerGPTBtn;
-let msgerShareFileBtn;
-let msgerInput;
-let msgerCleanTextBtn;
-let msgerPasteBtn;
-let msgerShowChatOnMsgDiv;
-let msgerShowChatOnMsg;
-let msgerSpeechMsgDiv;
-let msgerSpeechMsg;
-let msgerSendBtn;
-//caption section
-let captionDraggable;
-let captionHeader;
-let captionTheme;
-let captionMaxBtn;
-let captionMinBtn;
-let captionClean;
-let captionSaveBtn;
-let captionClose;
-let captionChat;
-// chat room connected peers
-let msgerCP;
-let msgerCPHeader;
-let msgerCPCloseBtn;
-let msgerCPList;
-// room emoji picker
-let closeEmojiPickerContainer;
-let emojiPickerContainer;
-let emojiPickerHeader;
-let userEmoji;
-// chat room emoji picker
-let msgerEmojiPicker;
-// my settings
-let mySettings;
-let mySettingsHeader;
-let tabVideoBtn;
-let tabAudioBtn;
-let tabVideoShareBtn;
-let tabParticipantsBtn;
-let tabProfileBtn;
-let tabRoomBtn;
-let roomSendEmailBtn;
-let tabStylingBtn;
-let tabLanguagesBtn;
-let mySettingsCloseBtn;
-let myPeerNameSet;
-let myPeerNameSetBtn;
-let switchSounds;
-let switchShare;
-let switchPushToTalk;
-let switchAudioPitchBar;
-let audioInputSelect;
-let audioOutputSelect;
-let audioOutputDiv;
-let speakerTestBtn;
-let videoSelect;
-let videoQualitySelect;
-let videoFpsSelect;
-let videoFpsDiv;
-let screenFpsSelect;
-let themeSelect;
-let videoObjFitSelect;
-
-let btnsBarSelect;
-let selectors;
-let tabRoomPeerName;
-let tabRoomParticipants;
-let tabRoomSecurity;
+let placement = 'right'; // https://atomiks.github.io/tippyjs/#placements
 // my video element
 let myVideo;
 let myAudio;
 let myVideoWrap;
 let myVideoAvatarImage;
-// name && hand video audio status
+let myPrivacyBtn;
+let myVideoPinBtn;
+let myPitchBar;
+// username/hand/video/audio status
 let myVideoParagraph;
 let myHandStatusIcon;
 let myVideoStatusIcon;
@@ -522,31 +604,6 @@ let myAudioStatusIcon;
 let mediaRecorder;
 let recordedBlobs;
 let isStreamRecording = false;
-// whiteboard init
-let whiteboard;
-let whiteboardHeader;
-let whiteboardTitle;
-let whiteboardOptions;
-let wbDrawingColorEl;
-let whiteboardGhostButton;
-let wbBackgroundColorEl;
-let whiteboardPencilBtn;
-let whiteboardObjectBtn;
-let whiteboardUndoBtn;
-let whiteboardRedoBtn;
-let whiteboardImgFileBtn;
-let whiteboardPdfFileBtn;
-let whiteboardImgUrlBtn;
-let whiteboardTextBtn;
-let whiteboardLineBtn;
-let whiteboardRectBtn;
-let whiteboardTriangleBtn;
-let whiteboardCircleBtn;
-let whiteboardSaveBtn;
-let whiteboardEraserBtn;
-let whiteboardCleanBtn;
-let whiteboardLockBtn;
-let whiteboardCloseBtn;
 // whiteboard settings
 let wbCanvas = null;
 let wbIsLock = false;
@@ -556,12 +613,6 @@ let wbIsRedoing = false;
 let wbIsEraser = false;
 let wbIsBgTransparent = false;
 let wbPop = [];
-// room actions btns
-let muteEveryoneBtn;
-let hideEveryoneBtn;
-let ejectEveryoneBtn;
-let lockRoomBtn;
-let unlockRoomBtn;
 // file transfer settings
 let fileToSend;
 let fileReader;
@@ -569,213 +620,32 @@ let receiveBuffer = [];
 let receivedSize = 0;
 let incomingFileInfo;
 let incomingFileData;
-// send form
-let sendFileDiv;
-let sendFileInfo;
-let sendProgress;
-let sendAbortBtn;
 let sendInProgress = false;
-// receive form
-let receiveFileDiv;
-let receiveFileInfo;
-let receiveProgress;
-let receiveHideBtn;
-let receiveFilePercentage;
 let receiveInProgress = false;
-// MTU 1kb to prevent drop.
-const chunkSize = 1024; // 1kb/s Note: FireFox seems not supports chunkSize > 1024?
-//const chunkSize = 1024 * 16; // 16kb/s
-// video URL player
-let videoUrlCont;
-let videoAudioUrlCont;
-let videoUrlHeader;
-let videoAudioUrlHeader;
-let videoUrlCloseBtn;
-let videoAudioCloseBtn;
-let videoUrlIframe;
-let videoAudioUrlElement;
-// speech recognition
-let speechRecognitionIcon;
-let speechRecognitionStart;
-let speechRecognitionStop;
+/**
+ * MTU 1kb to prevent drop.
+ * 1kb/s Note: FireFox seems not supports chunkSize > 1024?
+ */
+const chunkSize = 1024; // 1024 * 16; // 16kb/s
 
 /**
  * Load all Html elements by Id
  */
 function getHtmlElementsById() {
     countTime = getId('countTime');
-    // init buttons
-    initScreenShareBtn = getId('initScreenShareBtn');
-    // Init devices select
-    initVideo = getId('initVideo');
-    initVideoSelect = getId('initVideoSelect');
-    initMicrophoneSelect = getId('initMicrophoneSelect');
-    initSpeakerSelect = getId('initSpeakerSelect');
-    // my video
+    // My video elements
     myVideo = getId('myVideo');
     myAudio = getId('myAudio');
     myVideoWrap = getId('myVideoWrap');
     myVideoAvatarImage = getId('myVideoAvatarImage');
-    // buttons Bar
-    buttonsBar = getId('buttonsBar');
-    shareRoomBtn = getId('shareRoomBtn');
-    hideMeBtn = getId('hideMeBtn');
-    audioBtn = getId('audioBtn');
-    videoBtn = getId('videoBtn');
-    swapCameraBtn = getId('swapCameraBtn');
-    screenShareBtn = getId('screenShareBtn');
-    recordStreamBtn = getId('recordStreamBtn');
-    fullScreenBtn = getId('fullScreenBtn');
-    captionBtn = getId('captionBtn');
-    roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
-    chatRoomBtn = getId('chatRoomBtn');
-    whiteboardBtn = getId('whiteboardBtn');
-    fileShareBtn = getId('fileShareBtn');
-    myHandBtn = getId('myHandBtn');
-    documentPiPBtn = getId('documentPiPBtn');
-    mySettingsBtn = getId('mySettingsBtn');
-    aboutBtn = getId('aboutBtn');
-    leaveRoomBtn = getId('leaveRoomBtn');
-    // chat Room elements
-    msgerDraggable = getId('msgerDraggable');
-    msgerHeader = getId('msgerHeader');
-    msgerTheme = getId('msgerTheme');
-    msgerCPBtn = getId('msgerCPBtn');
-    msgerClean = getId('msgerClean');
-    msgerSaveBtn = getId('msgerSaveBtn');
-    msgerClose = getId('msgerClose');
-    msgerMaxBtn = getId('msgerMaxBtn');
-    msgerMinBtn = getId('msgerMinBtn');
-    msgerChat = getId('msgerChat');
-    msgerEmojiBtn = getId('msgerEmojiBtn');
-    msgerMarkdownBtn = getId('msgerMarkdownBtn');
-    msgerGPTBtn = getId('msgerGPTBtn');
-    msgerShareFileBtn = getId('msgerShareFileBtn');
-    msgerInput = getId('msgerInput');
-    msgerCleanTextBtn = getId('msgerCleanTextBtn');
-    msgerPasteBtn = getId('msgerPasteBtn');
-    msgerShowChatOnMsgDiv = getId('msgerShowChatOnMsgDiv');
-    msgerShowChatOnMsg = getId('msgerShowChatOnMsg');
-    msgerSpeechMsgDiv = getId('msgerSpeechMsgDiv');
-    msgerSpeechMsg = getId('msgerSpeechMsg');
-    msgerSendBtn = getId('msgerSendBtn');
-    // chat room connected peers
-    msgerCP = getId('msgerCP');
-    msgerCPHeader = getId('msgerCPHeader');
-    msgerCPCloseBtn = getId('msgerCPCloseBtn');
-    msgerCPList = getId('msgerCPList');
-    // room emoji picker
-    closeEmojiPickerContainer = getId('closeEmojiPickerContainer');
-    emojiPickerContainer = getId('emojiPickerContainer');
-    emojiPickerHeader = getId('emojiPickerHeader');
-    userEmoji = getId(`userEmoji`);
-    // chat room emoji picker
-    msgerEmojiPicker = getId('msgerEmojiPicker');
-    //caption box elements
-    captionDraggable = getId('captionDraggable');
-    captionHeader = getId('captionHeader');
-    captionTheme = getId('captionTheme');
-    captionMaxBtn = getId('captionMaxBtn');
-    captionMinBtn = getId('captionMinBtn');
-    captionClean = getId('captionClean');
-    captionSaveBtn = getId('captionSaveBtn');
-    captionClose = getId('captionClose');
-    captionChat = getId('captionChat');
-    // my settings
-    mySettings = getId('mySettings');
-    mySettingsHeader = getId('mySettingsHeader');
-    tabVideoBtn = getId('tabVideoBtn');
-    tabAudioBtn = getId('tabAudioBtn');
-    tabVideoShareBtn = getId('tabVideoShareBtn');
-    tabParticipantsBtn = getId('tabParticipantsBtn');
-    tabProfileBtn = getId('tabProfileBtn');
-    tabRoomBtn = getId('tabRoomBtn');
-    roomSendEmailBtn = getId('roomSendEmailBtn');
-    tabStylingBtn = getId('tabStylingBtn');
-    tabLanguagesBtn = getId('tabLanguagesBtn');
-    mySettingsCloseBtn = getId('mySettingsCloseBtn');
-    myPeerNameSet = getId('myPeerNameSet');
-    myPeerNameSetBtn = getId('myPeerNameSetBtn');
-    switchSounds = getId('switchSounds');
-    switchShare = getId('switchShare');
-    switchPushToTalk = getId('switchPushToTalk');
-    switchAudioPitchBar = getId('switchAudioPitchBar');
-    audioInputSelect = getId('audioSource');
-    audioOutputSelect = getId('audioOutput');
-    audioOutputDiv = getId('audioOutputDiv');
-    speakerTestBtn = getId('speakerTestBtn');
-    videoSelect = getId('videoSource');
-    videoQualitySelect = getId('videoQuality');
-    videoFpsSelect = getId('videoFps');
-    videoFpsDiv = getId('videoFpsDiv');
-    screenFpsSelect = getId('screenFps');
-    themeSelect = getId('mirotalkTheme');
-    videoObjFitSelect = getId('videoObjFitSelect');
-    btnsBarSelect = getId('mirotalkBtnsBar');
-    pinVideoPositionSelect = getId('pinVideoPositionSelect');
-    tabRoomPeerName = getId('tabRoomPeerName');
-    tabRoomParticipants = getId('tabRoomParticipants');
-    tabRoomSecurity = getId('tabRoomSecurity');
-    // my conference name, hand, video - audio status
+    myPrivacyBtn = getId('myPrivacyBtn');
+    myVideoPinBtn = getId('myVideoPinBtn');
+    myPitchBar = getId('myPitchBar');
+    // My username, hand/video/audio status
     myVideoParagraph = getId('myVideoParagraph');
     myHandStatusIcon = getId('myHandStatusIcon');
     myVideoStatusIcon = getId('myVideoStatusIcon');
     myAudioStatusIcon = getId('myAudioStatusIcon');
-    // my whiteboard
-    whiteboard = getId('whiteboard');
-    whiteboardHeader = getId('whiteboardHeader');
-    whiteboardTitle = getId('whiteboardTitle');
-    whiteboardOptions = getId('whiteboardOptions');
-    wbDrawingColorEl = getId('wbDrawingColorEl');
-    whiteboardGhostButton = getId('whiteboardGhostButton');
-    wbBackgroundColorEl = getId('wbBackgroundColorEl');
-    whiteboardPencilBtn = getId('whiteboardPencilBtn');
-    whiteboardObjectBtn = getId('whiteboardObjectBtn');
-    whiteboardUndoBtn = getId('whiteboardUndoBtn');
-    whiteboardRedoBtn = getId('whiteboardRedoBtn');
-    whiteboardImgFileBtn = getId('whiteboardImgFileBtn');
-    whiteboardPdfFileBtn = getId('whiteboardPdfFileBtn');
-    whiteboardImgUrlBtn = getId('whiteboardImgUrlBtn');
-    whiteboardTextBtn = getId('whiteboardTextBtn');
-    whiteboardLineBtn = getId('whiteboardLineBtn');
-    whiteboardRectBtn = getId('whiteboardRectBtn');
-    whiteboardTriangleBtn = getId('whiteboardTriangleBtn');
-    whiteboardCircleBtn = getId('whiteboardCircleBtn');
-    whiteboardSaveBtn = getId('whiteboardSaveBtn');
-    whiteboardEraserBtn = getId('whiteboardEraserBtn');
-    whiteboardCleanBtn = getId('whiteboardCleanBtn');
-    whiteboardLockBtn = getId('whiteboardLockBtn');
-    whiteboardCloseBtn = getId('whiteboardCloseBtn');
-    // room actions buttons
-    muteEveryoneBtn = getId('muteEveryoneBtn');
-    hideEveryoneBtn = getId('hideEveryoneBtn');
-    ejectEveryoneBtn = getId('ejectEveryoneBtn');
-    lockRoomBtn = getId('lockRoomBtn');
-    unlockRoomBtn = getId('unlockRoomBtn');
-    // file send progress
-    sendFileDiv = getId('sendFileDiv');
-    sendFileInfo = getId('sendFileInfo');
-    sendProgress = getId('sendProgress');
-    sendAbortBtn = getId('sendAbortBtn');
-    // file receive progress
-    receiveFileDiv = getId('receiveFileDiv');
-    receiveFileInfo = getId('receiveFileInfo');
-    receiveProgress = getId('receiveProgress');
-    receiveHideBtn = getId('receiveHideBtn');
-    receiveFilePercentage = getId('receiveFilePercentage');
-    // video url player
-    videoUrlCont = getId('videoUrlCont');
-    videoAudioUrlCont = getId('videoAudioUrlCont');
-    videoUrlHeader = getId('videoUrlHeader');
-    videoAudioUrlHeader = getId('videoAudioUrlHeader');
-    videoUrlCloseBtn = getId('videoUrlCloseBtn');
-    videoAudioCloseBtn = getId('videoAudioCloseBtn');
-    videoUrlIframe = getId('videoUrlIframe');
-    videoAudioUrlElement = getId('videoAudioUrlElement');
-    // speech recognition
-    speechRecognitionIcon = getId('speechRecognitionIcon');
-    speechRecognitionStart = getId('speechRecognitionStart');
-    speechRecognitionStop = getId('speechRecognitionStop');
 }
 
 /**
@@ -783,13 +653,13 @@ function getHtmlElementsById() {
  * https://atomiks.github.io/tippyjs/
  */
 function setButtonsToolTip() {
-    // not need for mobile
+    // Not need for mobile
     if (isMobileDevice) return;
-    // init buttons
+    // Init buttons
     setTippy(initScreenShareBtn, 'Toggle screen sharing', 'top');
-    // main buttons
+    // Main buttons
     refreshMainButtonsToolTipPlacement();
-    // chat room buttons
+    // Chat room buttons
     setTippy(msgerClose, 'Close', 'bottom');
     setTippy(msgerShowChatOnMsgDiv, 'Show chat when you receive a new message', 'bottom');
     setTippy(msgerSpeechMsgDiv, 'Speech the incoming messages', 'bottom');
@@ -806,9 +676,9 @@ function setButtonsToolTip() {
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
-    // chat participants buttons
+    // Chat participants buttons
     setTippy(msgerCPCloseBtn, 'Close', 'bottom');
-    // caption buttons
+    // Caption buttons
     setTippy(captionClose, 'Close', 'bottom');
     setTippy(captionMaxBtn, 'Maximize', 'bottom');
     setTippy(captionMinBtn, 'Minimize', 'bottom');
@@ -818,18 +688,18 @@ function setButtonsToolTip() {
     setTippy(speechRecognitionIcon, 'Status', 'bottom');
     setTippy(speechRecognitionStart, 'Start', 'top');
     setTippy(speechRecognitionStop, 'Stop', 'top');
-    // settings
+    // Settings
     setTippy(mySettingsCloseBtn, 'Close', 'bottom');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
     setTippy(myRoomId, 'Room name (click to copy/share)', 'right');
     setTippy(
         switchPushToTalk,
-        'If Active, When SpaceBar keydown the microphone will be activated, on keyup will be deactivated, like a walkie-talkie.',
+        'If Active, When SpaceBar keydown the microphone will be activated, on keyup will be deactivated, like a walkie-talkie',
         'right',
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
-    // whiteboard buttons
+    // Whiteboard buttons
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(wbBackgroundColorEl, 'Background color', 'bottom');
@@ -853,7 +723,7 @@ function setButtonsToolTip() {
     // Suspend/Hide File transfer buttons
     setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
-    // video URL player
+    // Video/audio URL player
     setTippy(videoUrlCloseBtn, 'Close the video player', 'bottom');
     setTippy(videoAudioCloseBtn, 'Close the video player', 'bottom');
     setTippy(msgerVideoUrlBtn, 'Share a video or audio to all participants', 'top');
@@ -958,7 +828,6 @@ function getRoomId() {
     console.log('Direct join', { room: roomId });
 
     // Update Room name in settings
-    myRoomId = getId('myRoomId');
     if (myRoomId) myRoomId.innerText = roomId;
 
     // Save room name in local storage
@@ -1210,7 +1079,7 @@ function handleServerInfo(config) {
 
     // Let start with some basic rules
     isPresenter = isPeerReconnected ? isPresenter : is_presenter;
-    getId('isPeerPresenter').innerText = isPresenter;
+    isPeerPresenter.innerText = isPresenter;
 
     if (isRulesActive) {
         handleRules(isPresenter);
@@ -1333,7 +1202,7 @@ function handleButtonsRule() {
 async function whoAreYou() {
     console.log('11. Who are you?');
 
-    getId('loadingDiv').style.display = 'none';
+    loadingDiv.style.display = 'none';
     document.body.style.background = 'var(--body-bg)';
 
     if (myPeerName) {
@@ -1373,7 +1242,6 @@ async function whoAreYou() {
         elemDisplay(document.getElementById('initScreenShareBtn'), false);
     }
 
-    const initUser = getId('initUser');
     initUser.classList.toggle('hidden');
 
     Swal.fire({
@@ -1434,10 +1302,6 @@ async function whoAreYou() {
     };
 
     // init video -audio buttons
-
-    initAudioBtn = getId('initAudioBtn');
-    initVideoBtn = getId('initVideoBtn');
-
     if (!useVideo) {
         initVideoBtn.className = className.videoOff;
         setMyVideoStatus(useVideo);
@@ -1553,8 +1417,6 @@ async function checkInitConfig() {
     const initConfig = lS.getInitConfig();
     console.log('Get init config', initConfig);
     if (initConfig) {
-        initAudioBtn = getId('initAudioBtn');
-        initVideoBtn = getId('initVideoBtn');
         if (useAudio && !initConfig.audio) initAudioBtn.click();
         if (useVideo && !initConfig.video) initVideoBtn.click();
     }
@@ -2158,95 +2020,95 @@ function setTheme() {
         case 'dark':
             // dark theme
             swalBackground = 'radial-gradient(#393939, #000000)';
-            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#393939, #000000)');
-            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--select-bg', '#2c2c2c');
-            document.documentElement.style.setProperty('--tab-btn-active', 'rgb(30 29 29)');
-            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
-            document.documentElement.style.setProperty('--right-msg-bg', '#056162');
-            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
-            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
-            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
+            setSP('--body-bg', 'radial-gradient(#393939, #000000)');
+            setSP('--msger-bg', 'radial-gradient(#393939, #000000)');
+            setSP('--msger-private-bg', 'radial-gradient(#393939, #000000)');
+            setSP('--wb-bg', 'radial-gradient(#393939, #000000)');
+            setSP('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            setSP('--select-bg', '#2c2c2c');
+            setSP('--tab-btn-active', 'rgb(30 29 29)');
+            setSP('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            setSP('--left-msg-bg', '#252d31');
+            setSP('--right-msg-bg', '#056162');
+            setSP('--private-msg-bg', '#6b1226');
+            setSP('--btn-bar-bg-color', '#FFFFFF');
+            setSP('--btn-bar-color', '#000000');
             document.body.style.background = 'radial-gradient(#393939, #000000)';
             mirotalkTheme.selectedIndex = 0;
             break;
         case 'grey':
             // grey theme
             swalBackground = 'radial-gradient(#666, #333)';
-            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#666, #333)');
-            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#666, #333)');
-            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#797979, #000)');
-            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--select-bg', '#2c2c2c');
-            document.documentElement.style.setProperty('--tab-btn-active', 'rgb(30 29 29)');
-            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
-            document.documentElement.style.setProperty('--left-msg-bg', '#252d31');
-            document.documentElement.style.setProperty('--right-msg-bg', '#056162');
-            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
-            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
-            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
+            setSP('--body-bg', 'radial-gradient(#666, #333)');
+            setSP('--msger-bg', 'radial-gradient(#666, #333)');
+            setSP('--wb-bg', 'radial-gradient(#797979, #000)');
+            setSP('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            setSP('--select-bg', '#2c2c2c');
+            setSP('--tab-btn-active', 'rgb(30 29 29)');
+            setSP('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            setSP('--msger-private-bg', 'radial-gradient(#666, #333)');
+            setSP('--left-msg-bg', '#252d31');
+            setSP('--right-msg-bg', '#056162');
+            setSP('--private-msg-bg', '#6b1226');
+            setSP('--btn-bar-bg-color', '#FFFFFF');
+            setSP('--btn-bar-color', '#000000');
             document.body.style.background = 'radial-gradient(#666, #333)';
             mirotalkTheme.selectedIndex = 1;
             break;
         case 'green':
             // green theme
             swalBackground = 'radial-gradient(#003934, #001E1A)';
-            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#003934, #001E1A)');
-            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#003934, #001E1A)');
-            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#003934, #001E1A)');
-            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--select-bg', '#001E1A');
-            document.documentElement.style.setProperty('--tab-btn-active', '#003934');
-            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
-            document.documentElement.style.setProperty('--left-msg-bg', '#003934');
-            document.documentElement.style.setProperty('--right-msg-bg', '#001E1A');
-            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
-            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
-            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
+            setSP('--body-bg', 'radial-gradient(#003934, #001E1A)');
+            setSP('--msger-bg', 'radial-gradient(#003934, #001E1A)');
+            setSP('--wb-bg', 'radial-gradient(#003934, #001E1A)');
+            setSP('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            setSP('--select-bg', '#001E1A');
+            setSP('--tab-btn-active', '#003934');
+            setSP('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            setSP('--msger-private-bg', 'radial-gradient(#666, #333)');
+            setSP('--left-msg-bg', '#003934');
+            setSP('--right-msg-bg', '#001E1A');
+            setSP('--private-msg-bg', '#6b1226');
+            setSP('--btn-bar-bg-color', '#FFFFFF');
+            setSP('--btn-bar-color', '#000000');
             document.body.style.background = 'radial-gradient(#003934, #001E1A)';
             mirotalkTheme.selectedIndex = 2;
             break;
         case 'blue':
             // blue theme
             swalBackground = 'radial-gradient(#306bac, #141B41)';
-            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#306bac, #141B41)');
-            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#306bac, #141B41)');
-            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#306bac, #141B41)');
-            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--select-bg', '#141B41');
-            document.documentElement.style.setProperty('--tab-btn-active', '#306bac');
-            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
-            document.documentElement.style.setProperty('--left-msg-bg', '#306bac');
-            document.documentElement.style.setProperty('--right-msg-bg', '#141B41');
-            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
-            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
-            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
+            setSP('--body-bg', 'radial-gradient(#306bac, #141B41)');
+            setSP('--msger-bg', 'radial-gradient(#306bac, #141B41)');
+            setSP('--wb-bg', 'radial-gradient(#306bac, #141B41)');
+            setSP('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            setSP('--select-bg', '#141B41');
+            setSP('--tab-btn-active', '#306bac');
+            setSP('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            setSP('--msger-private-bg', 'radial-gradient(#666, #333)');
+            setSP('--left-msg-bg', '#306bac');
+            setSP('--right-msg-bg', '#141B41');
+            setSP('--private-msg-bg', '#6b1226');
+            setSP('--btn-bar-bg-color', '#FFFFFF');
+            setSP('--btn-bar-color', '#000000');
             document.body.style.background = 'radial-gradient(#306bac, #141B41)';
             mirotalkTheme.selectedIndex = 3;
             break;
         case 'red':
             // red theme
             swalBackground = 'radial-gradient(#69140E, #3C1518)';
-            document.documentElement.style.setProperty('--body-bg', 'radial-gradient(#69140E, #3C1518)');
-            document.documentElement.style.setProperty('--msger-bg', 'radial-gradient(#69140E, #3C1518)');
-            document.documentElement.style.setProperty('--wb-bg', 'radial-gradient(#69140E, #3C1518)');
-            document.documentElement.style.setProperty('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--select-bg', '#3C1518');
-            document.documentElement.style.setProperty('--tab-btn-active', '#69140E');
-            document.documentElement.style.setProperty('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
-            document.documentElement.style.setProperty('--msger-private-bg', 'radial-gradient(#666, #333)');
-            document.documentElement.style.setProperty('--left-msg-bg', '#69140E');
-            document.documentElement.style.setProperty('--right-msg-bg', '#3C1518');
-            document.documentElement.style.setProperty('--private-msg-bg', '#6b1226');
-            document.documentElement.style.setProperty('--btn-bar-bg-color', '#FFFFFF');
-            document.documentElement.style.setProperty('--btn-bar-color', '#000000');
+            setSP('--body-bg', 'radial-gradient(#69140E, #3C1518)');
+            setSP('--msger-bg', 'radial-gradient(#69140E, #3C1518)');
+            setSP('--wb-bg', 'radial-gradient(#69140E, #3C1518)');
+            setSP('--navbar-bg', 'rgba(0, 0, 0, 0.2)');
+            setSP('--select-bg', '#3C1518');
+            setSP('--tab-btn-active', '#69140E');
+            setSP('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
+            setSP('--msger-private-bg', 'radial-gradient(#666, #333)');
+            setSP('--left-msg-bg', '#69140E');
+            setSP('--right-msg-bg', '#3C1518');
+            setSP('--private-msg-bg', '#6b1226');
+            setSP('--btn-bar-bg-color', '#FFFFFF');
+            setSP('--btn-bar-color', '#000000');
             document.body.style.background = 'radial-gradient(#69140E, #3C1518)';
             mirotalkTheme.selectedIndex = 4;
             break;
@@ -2267,20 +2129,20 @@ function setButtonsBarPosition(position) {
     mirotalkBtnsBar = position;
     switch (mirotalkBtnsBar) {
         case 'vertical':
-            document.documentElement.style.setProperty('--btns-top', '50%');
-            document.documentElement.style.setProperty('--btns-right', '0px');
-            document.documentElement.style.setProperty('--btns-left', '15px');
-            document.documentElement.style.setProperty('--btns-margin-left', '0px');
-            document.documentElement.style.setProperty('--btns-width', '40px');
-            document.documentElement.style.setProperty('--btns-flex-direction', 'column');
+            setSP('--btns-top', '50%');
+            setSP('--btns-right', '0px');
+            setSP('--btns-left', '15px');
+            setSP('--btns-margin-left', '0px');
+            setSP('--btns-width', '40px');
+            setSP('--btns-flex-direction', 'column');
             break;
         case 'horizontal':
-            document.documentElement.style.setProperty('--btns-top', '95%');
-            document.documentElement.style.setProperty('--btns-right', '25%');
-            document.documentElement.style.setProperty('--btns-left', '50%');
-            document.documentElement.style.setProperty('--btns-margin-left', '-330px');
-            document.documentElement.style.setProperty('--btns-width', '660px');
-            document.documentElement.style.setProperty('--btns-flex-direction', 'row');
+            setSP('--btns-top', '95%');
+            setSP('--btns-right', '25%');
+            setSP('--btns-left', '50%');
+            setSP('--btns-margin-left', '-330px');
+            setSP('--btns-width', '660px');
+            setSP('--btns-flex-direction', 'row');
             break;
         default:
             console.log('No position found');
@@ -2347,11 +2209,11 @@ function enumerateAudioDevices(stream) {
                 let el,
                     eli = null;
                 if ('audioinput' === device.kind) {
-                    el = getId('audioSource');
-                    eli = getId('initMicrophoneSelect');
+                    el = audioInputSelect;
+                    eli = initMicrophoneSelect;
                 } else if ('audiooutput' === device.kind) {
-                    el = getId('audioOutput');
-                    eli = getId('initSpeakerSelect');
+                    el = audioOutputSelect;
+                    eli = initSpeakerSelect;
                 }
                 if (!el) return;
                 addChild(device, [el, eli]);
@@ -2361,11 +2223,11 @@ function enumerateAudioDevices(stream) {
             stopTracks(stream);
             isEnumerateAudioDevices = true;
             const sinkId = 'sinkId' in HTMLMediaElement.prototype;
-            getId('audioOutput').disabled = !sinkId;
+            audioOutputSelect.disabled = !sinkId;
             // Check if there is speakers
-            if (!sinkId || getId('initSpeakerSelect').options.length === 0) {
-                getId('initSpeakerSelect').style.display = 'none';
-                getId('audioOutputDiv').style.display = 'none';
+            if (!sinkId || initSpeakerSelect.options.length === 0) {
+                initSpeakerSelect.style.display = 'none';
+                audioOutputDiv.style.display = 'none';
             }
         });
 }
@@ -2383,8 +2245,8 @@ function enumerateVideoDevices(stream) {
                 let el,
                     eli = null;
                 if ('videoinput' === device.kind) {
-                    el = getId('videoSource');
-                    eli = getId('initVideoSelect');
+                    el = videoSelect;
+                    eli = initVideoSelect;
                 }
                 if (!el) return;
                 addChild(device, [el, eli]);
@@ -2431,7 +2293,6 @@ function addChild(device, els) {
         }
         el.appendChild(option);
     });
-    selectors = [getId('audioSource'), getId('audioOutput'), getId('videoSource')];
 }
 
 /**
@@ -2676,7 +2537,6 @@ async function loadLocalMedia(stream, kind) {
             refreshMyVideoStatus(stream);
 
             if (!useVideo) {
-                const videoBtn = getId('videoBtn');
                 myVideoAvatarImage.style.display = 'block';
                 myVideoStatusIcon.className = className.videoOff;
                 videoBtn.className = className.videoOff;
@@ -2686,7 +2546,6 @@ async function loadLocalMedia(stream, kind) {
             }
 
             if (!useAudio) {
-                const audioBtn = getId('audioBtn');
                 myAudioStatusIcon.className = className.audioOff;
                 audioBtn.className = className.audioOff;
                 if (!isMobileDevice) {
@@ -3066,8 +2925,7 @@ function logStreamSettingsInfo(name, stream) {
  *    0      1       2      3      4
  */
 function adaptAspectRatio() {
-    let participantsCount = getId('videoMediaContainer').childElementCount;
-    const peersCount = getId('peersCount');
+    const participantsCount = videoMediaContainer.childElementCount;
     if (peersCount) peersCount.innerText = participantsCount;
     let desktop,
         mobile = 1;
@@ -3864,7 +3722,7 @@ function setScreenShareBtn() {
     } else {
         initScreenShareBtn.style.display = 'none';
         screenShareBtn.style.display = 'none';
-        elemDisplay(getId('screenFpsDiv'), false);
+        elemDisplay(screenFpsDiv, false);
     }
 }
 
@@ -3924,7 +3782,7 @@ function setChatRoomBtn() {
     msgerTheme.addEventListener('click', (e) => {
         if (e.target.className == className.ghost) {
             e.target.className = className.undo;
-            document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
+            setSP('--msger-bg', 'rgba(0, 0, 0, 0.100)');
         } else {
             e.target.className = className.ghost;
             setTheme();
@@ -4096,7 +3954,7 @@ function setCaptionRoomBtn() {
         captionTheme.addEventListener('click', (e) => {
             if (e.target.className == className.ghost) {
                 e.target.className = className.undo;
-                document.documentElement.style.setProperty('--msger-bg', 'rgba(0, 0, 0, 0.100)');
+                setSP('--msger-bg', 'rgba(0, 0, 0, 0.100)');
             } else {
                 e.target.className = className.ghost;
                 setTheme();
@@ -4312,8 +4170,8 @@ function setMyWhiteboardBtn() {
 function setMyFileShareBtn() {
     // make send-receive file div draggable
     if (!isMobileDevice) {
-        dragElement(getId('sendFileDiv'), getId('imgShareSend'));
-        dragElement(getId('receiveFileDiv'), getId('imgShareReceive'));
+        dragElement(sendFileDiv, imgShareSend);
+        dragElement(receiveFileDiv, imgShareReceive);
     }
 
     fileShareBtn.addEventListener('click', (e) => {
@@ -4389,7 +4247,7 @@ async function documentPictureInPictureOpen() {
 
             pipVideoContainer.innerHTML = '';
 
-            [...document.querySelectorAll('video')].forEach((video) => {
+            [...getSlALL('video')].forEach((video) => {
                 console.log('DOCUMENT PIP found video id -----> ' + video.id);
 
                 // No video stream detected or is video share from URL...
@@ -4713,7 +4571,7 @@ function setupMySettings() {
     videoObjFitSelect.addEventListener('change', (e) => {
         lsSettings.video_obj_fit = videoObjFitSelect.selectedIndex;
         lS.setSettings(lsSettings);
-        document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
+        setSP('--video-object-fit', videoObjFitSelect.value);
     });
     // Mobile not support buttons bar position horizontal
     if (isMobileDevice) {
@@ -4734,7 +4592,7 @@ function setupMySettings() {
             toggleVideoPin(pinVideoPositionSelect.value);
         });
     } else {
-        getId('pinUnpinGridDiv').style.display = 'none';
+        pinUnpinGridDiv.style.display = 'none';
     }
     // room actions
     muteEveryoneBtn.addEventListener('click', (e) => {
@@ -4788,7 +4646,7 @@ function loadSettingsFromLocalStorage() {
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
-    document.documentElement.style.setProperty('--video-object-fit', videoObjFitSelect.value);
+    setSP('--video-object-fit', videoObjFitSelect.value);
     setButtonsBarPosition(btnsBarSelect.value);
     toggleVideoPin(pinVideoPositionSelect.value);
 }
@@ -4808,8 +4666,8 @@ function getSelectedIndexValue(elem) {
 function setupVideoUrlPlayer() {
     if (isMobileDevice) {
         // adapt video player iframe for mobile
-        document.documentElement.style.setProperty('--iframe-width', '320px');
-        document.documentElement.style.setProperty('--iframe-height', '240px');
+        setSP('--iframe-width', '320px');
+        setSP('--iframe-height', '240px');
     } else {
         dragElement(videoUrlCont, videoUrlHeader);
         dragElement(videoAudioUrlCont, videoAudioUrlHeader);
@@ -5246,8 +5104,8 @@ function handleAudio(e, init, force = null) {
     if (init) {
         initAudioBtn.className = audioClassName;
         setTippy(initAudioBtn, audioStatus ? 'Stop the audio' : 'Start the audio', 'top');
-        getId('initMicrophoneSelect').disabled = !audioStatus;
-        getId('initSpeakerSelect').disabled = !audioStatus;
+        initMicrophoneSelect.disabled = !audioStatus;
+        initSpeakerSelect.disabled = !audioStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.audio, audioStatus);
     }
 
@@ -5461,7 +5319,6 @@ async function toggleScreenSharing(init = false) {
                 myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
             }
 
-            const myPrivacyBtn = getId('myPrivacyBtn');
             if (myPrivacyBtn) myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
 
             if (isScreenStreaming || isVideoPinned) getId('myVideoPinBtn').click();
@@ -5523,7 +5380,7 @@ async function handleToggleScreenException(reason, init) {
 
         // Automatically pin the video if screen sharing or video is pinned
         if (isScreenStreaming || isVideoPinned) {
-            getId('myVideoPinBtn').click();
+            myVideoPinBtn.click();
         }
     } catch (error) {
         console.error('[Error] An unexpected error occurred', error);
@@ -5694,7 +5551,7 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     }
 
     // adapt video object fit on screen streaming
-    getId('myVideo').style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
+    myVideo.style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
 }
 
 /**
@@ -5938,7 +5795,7 @@ function startDesktopRecording(options, audioMixerTracks) {
  * @returns {MediaStream} A MediaStream containing audio tracks.
  */
 function getAudioStreamFromAudioElements() {
-    const audioElements = document.querySelectorAll('audio');
+    const audioElements = getSlALL('audio');
     const audioStream = new MediaStream();
     audioElements.forEach((audio) => {
         const audioTrack = audio.srcObject.getAudioTracks()[0];
@@ -6089,11 +5946,11 @@ function createChatDataChannel(peer_id) {
 function setChatRoomAndCaptionForMobile() {
     if (isMobileDevice) {
         // chat full screen
-        document.documentElement.style.setProperty('--msger-height', '99%');
-        document.documentElement.style.setProperty('--msger-width', '99%');
+        setSP('--msger-height', '99%');
+        setSP('--msger-width', '99%');
         // caption full screen
-        document.documentElement.style.setProperty('--caption-height', '99%');
-        document.documentElement.style.setProperty('--caption-width', '99%');
+        setSP('--caption-height', '99%');
+        setSP('--caption-width', '99%');
     } else {
         // make chat room draggable for desktop
         dragElement(msgerDraggable, msgerHeader);
@@ -6143,8 +6000,8 @@ function chatMaximize() {
     elemDisplay(msgerMaxBtn, false);
     elemDisplay(msgerMinBtn, true);
     chatCenter();
-    document.documentElement.style.setProperty('--msger-width', '100%');
-    document.documentElement.style.setProperty('--msger-height', '100%');
+    setSP('--msger-width', '100%');
+    setSP('--msger-height', '100%');
 }
 
 /**
@@ -6154,8 +6011,8 @@ function chatMinimize() {
     elemDisplay(msgerMinBtn, false);
     elemDisplay(msgerMaxBtn, true);
     chatCenter();
-    document.documentElement.style.setProperty('--msger-width', '420px');
-    document.documentElement.style.setProperty('--msger-height', '680px');
+    setSP('--msger-width', '420px');
+    setSP('--msger-height', '680px');
 }
 
 /**
@@ -6173,8 +6030,8 @@ function captionMaximize() {
     elemDisplay(captionMaxBtn, false);
     elemDisplay(captionMinBtn, true);
     captionCenter();
-    document.documentElement.style.setProperty('--caption-width', '100%');
-    document.documentElement.style.setProperty('--caption-height', '100%');
+    setSP('--caption-width', '100%');
+    setSP('--caption-height', '100%');
 }
 
 /**
@@ -6184,8 +6041,8 @@ function captionMinimize() {
     elemDisplay(captionMinBtn, false);
     elemDisplay(captionMaxBtn, true);
     captionCenter();
-    document.documentElement.style.setProperty('--caption-width', '420px');
-    document.documentElement.style.setProperty('--caption-height', '680px');
+    setSP('--caption-width', '420px');
+    setSP('--caption-height', '680px');
 }
 
 /**
@@ -7001,7 +6858,7 @@ function hideShowMySettings() {
         if (isMobileDevice) {
             mySettings.style.setProperty('width', '100%');
             mySettings.style.setProperty('height', '100%');
-            document.documentElement.style.setProperty('--mySettings-select-w', '99%');
+            setSP('--mySettings-select-w', '99%');
         }
         // my current peer name
         myPeerNameSet.placeholder = myPeerName;
@@ -7120,8 +6977,6 @@ async function emitPeerStatus(element, status) {
  * @param {boolean} isHideMeActive
  */
 function handleHideMe(isHideMeActive) {
-    const myVideoWrap = getId('myVideoWrap');
-    const myVideoPinBtn = getId('myVideoPinBtn');
     if (isHideMeActive && isVideoPinned) myVideoPinBtn.click();
     myVideoWrap.style.display = isHideMeActive ? 'none' : 'inline-block';
     hideMeBtn.className = isHideMeActive ? className.hideMeOn : className.hideMeOff;
@@ -7901,8 +7756,8 @@ function setupWhiteboardCanvasSize() {
  * @param {string} h height
  */
 function setWhiteboardSize(w, h) {
-    document.documentElement.style.setProperty('--wb-width', w);
-    document.documentElement.style.setProperty('--wb-height', h);
+    setSP('--wb-width', w);
+    setSP('--wb-height', h);
 }
 
 /**
@@ -8267,7 +8122,7 @@ function objectAdded() {
  * @param {string} color to set
  */
 function wbCanvasBackgroundColor(color) {
-    document.documentElement.style.setProperty('--wb-bg', color);
+    setSP('--wb-bg', color);
     wbBackgroundColorEl.value = color;
     wbCanvas.setBackgroundColor(color);
     wbCanvas.renderAll();
@@ -9283,18 +9138,19 @@ function bytesToSize(bytes) {
 function handlePeerVolume(data) {
     if (!isAudioPitchBar) return;
     const peer_id = data.peer_id;
-    const element = getId(peer_id + '_pitch_bar');
+    const remotePitchBar = getId(peer_id + '_pitch_bar');
     //let remoteVideoWrap = getId(peer_id + '_videoWrap');
-    let volume = data.volume;
-    if (!element) return;
+    if (!remotePitchBar) return;
+
+    const volume = data.volume;
     if (volume > 50) {
-        element.style.backgroundColor = 'orange';
+        remotePitchBar.style.backgroundColor = 'orange';
     }
-    element.style.height = volume + '%';
+    remotePitchBar.style.height = volume + '%';
     //remoteVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
-        element.style.backgroundColor = '#19bb5c';
-        element.style.height = '0%';
+        remotePitchBar.style.backgroundColor = '#19bb5c';
+        remotePitchBar.style.height = '0%';
         //remoteVideoWrap.classList.toggle('speaking');
     }, 100);
 }
@@ -9304,18 +9160,17 @@ function handlePeerVolume(data) {
  * @param {object} data my audio
  */
 function handleMyVolume(data) {
-    if (!isAudioPitchBar) return;
-    const element = getId('myPitchBar');
+    if (!isAudioPitchBar || !myPitchBar) return;
+
     const volume = data.volume;
-    if (!element) return;
     if (volume > 50) {
-        element.style.backgroundColor = 'orange';
+        myPitchBar.style.backgroundColor = 'orange';
     }
-    element.style.height = volume + '%';
+    myPitchBar.style.height = volume + '%';
     //myVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
-        element.style.backgroundColor = '#19bb5c';
-        element.style.height = '0%';
+        myPitchBar.style.backgroundColor = '#19bb5c';
+        myPitchBar.style.height = '0%';
         //myVideoWrap.classList.toggle('speaking');
     }, 100);
 }
@@ -9513,12 +9368,31 @@ function getId(id) {
 }
 
 /**
+ * Set document style property
+ * @param {string} key
+ * @param {string} value
+ * @returns {objects} element
+ */
+function setSP(key, value) {
+    return document.documentElement.style.setProperty(key, value);
+}
+
+/**
  * Get Html element by selector
  * @param {string} selector of the element
  * @returns {object} element
  */
 function getSl(selector) {
     return document.querySelector(selector);
+}
+
+/**
+ * Get ALL Html elements by selector
+ * @param {string} selector of the element
+ * @returns {object} element
+ */
+function getSlALL(selector) {
+    return document.querySelectorAll(selector);
 }
 
 /**
