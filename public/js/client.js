@@ -53,12 +53,11 @@ const camMicOff = '../images/cam-mic-off.png';
 const recordingImg = '../images/recording.png';
 // nice free icon: https://www.iconfinder.com
 
-const fileSharingInput = '*'; // allow all file extensions
-
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
 const isMobileDevice = DetectRTC.isMobileDevice;
 const myBrowserName = DetectRTC.browser.name;
 
+const fileSharingInput = '*'; // allow all file extensions
 const Base64Prefix = 'data:application/pdf;base64,';
 const wbPdfInput = 'application/pdf';
 const wbImageInput = 'image/*';
@@ -422,6 +421,7 @@ const unlockRoomBtn = getId('unlockRoomBtn');
 // File send progress
 const sendFileDiv = getId('sendFileDiv');
 const imgShareSend = getId('imgShareSend');
+const sendFilePercentage = getId('sendFilePercentage');
 const sendFileInfo = getId('sendFileInfo');
 const sendProgress = getId('sendProgress');
 const sendAbortBtn = getId('sendAbortBtn');
@@ -429,10 +429,10 @@ const sendAbortBtn = getId('sendAbortBtn');
 // File receive progress
 const receiveFileDiv = getId('receiveFileDiv');
 const imgShareReceive = getId('imgShareReceive');
+const receiveFilePercentage = getId('receiveFilePercentage');
 const receiveFileInfo = getId('receiveFileInfo');
 const receiveProgress = getId('receiveProgress');
 const receiveHideBtn = getId('receiveHideBtn');
-const receiveFilePercentage = getId('receiveFilePercentage');
 
 // Video/audio url player
 const videoUrlCont = getId('videoUrlCont');
@@ -463,9 +463,7 @@ const userLimits = {
 };
 
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
-
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
-
 const useAvatarSvg = true; // if false the cam-Off avatar = avatarImg
 
 /**
@@ -475,75 +473,47 @@ const useAvatarSvg = true; // if false the cam-Off avatar = avatarImg
  */
 const ZOOM_CENTER_MODE = false;
 
-let isHideMeActive = false; // Hide myself from the meeting view
-
-let notifyBySound = true; // turn on - off sound notifications
-
-let thisRoomPassword = null;
-
-let isRoomLocked = false;
-
-let isPresenter = false; // Who init the room (aka first peer joined)
-
-let needToEnableMyAudio = false; // On screen sharing end, check if need to enable my audio
-
-let initEnumerateDevicesFailed = false; // Check if user webcam and audio init is failed
-
-let isVideoPrivacyActive = false; // Video circle for privacy
-
-let surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
-
-let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
-
-let audioRecorder = null; // helpers.js
-
-let myPeerId; // socket.id
-let peerInfo = {}; // Some peer info
+let myPeerId; // This socket.id
 let userAgent; // User agent info
-
+let isPresenter = false; // Who init the room (aka first peer joined)
+let isHideMeActive = false; // Hide myself from the meeting view
+let notifyBySound = true; // turn on - off sound notifications
+let thisRoomPassword = null;
+let isRoomLocked = false;
+let isVideoPrivacyActive = false; // Video circle for privacy
+let surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
+let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 let isDesktopDevice = false;
 let isTabletDevice = false;
 let isIPadDevice = false;
 let isVideoFullScreenSupported = true;
-
 // video cam - screen max frame rate
 let videoMaxFrameRate = 30;
 let screenMaxFrameRate = 30;
-
 let videoQualitySelectedIndex = 0; // default
 let videoFpsSelectedIndex = 1; // 30 fps
 let screenFpsSelectedIndex = 1; // 30 fps
-
-let leftChatAvatar;
-let rightChatAvatar;
-let chatMessagesId = 0;
-
 let callStartTime;
 let callElapsedTime;
-let recStartTime;
-let recElapsedTime;
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let myPeerName = getPeerName();
 let myPeerUUID = getUUID();
 let isScreenEnabled = getScreenEnabled();
-let isScreenSharingSupported = false;
 let notify = getNotify();
-let useAudio = true;
-let useVideo = true;
+let useAudio = true; // User allow for microphone usage
+let useVideo = true; // User allow for camera usage
+let isScreenSharingSupported = false;
 let isEnumerateVideoDevices = false;
 let isEnumerateAudioDevices = false;
+let initEnumerateDevicesFailed = false; // Check if user webcam and audio init is failed
 let camera = 'user'; // user = front-facing camera on a smartphone. | environment = the back camera on a smartphone.
-let roomLocked = false;
+let isSpeechSynthesisSupported = 'speechSynthesis' in window;
 let myHandStatus = false;
 let myVideoStatusBefore = false;
 let myVideoStatus = false;
 let myAudioStatus = false;
 let myScreenStatus = false;
-let pitchDetectionStatus = false;
-let audioContext;
-let mediaStreamSource;
-let meter;
 let isPushToTalkActive = false;
 let isAudioPitchBar = true;
 let isSpaceDown = false;
@@ -554,7 +524,6 @@ let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
 let isChatMarkdownOn = false;
 let isChatGPTOn = false;
-let isSpeechSynthesisSupported = 'speechSynthesis' in window;
 let speechInMessages = false;
 let isButtonsVisible = false;
 let isButtonsBarOver = false;
@@ -582,6 +551,7 @@ let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
 let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
 let chatMessages = []; // collect chat messages to save it later if want
+let peerInfo = {}; // this peer info
 let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
 let transcripts = []; //collect all the transcripts to save it later if you need
 let countTime; // conference count time
@@ -600,9 +570,16 @@ let myVideoParagraph;
 let myHandStatusIcon;
 let myVideoStatusIcon;
 let myAudioStatusIcon;
+// chat settings
+let leftChatAvatar;
+let rightChatAvatar;
+let chatMessagesId = 0;
 // record Media Stream
 let mediaRecorder;
 let recordedBlobs;
+let audioRecorder; // helpers.js
+let recStartTime;
+let recElapsedTime;
 let isStreamRecording = false;
 // whiteboard settings
 let wbCanvas = null;
@@ -623,8 +600,8 @@ let incomingFileData;
 let sendInProgress = false;
 let receiveInProgress = false;
 /**
- * MTU 1kb to prevent drop.
- * 1kb/s Note: FireFox seems not supports chunkSize > 1024?
+ * MTU 1kb/s to prevent drop.
+ * Note: FireFox seems not supports chunkSize > 1024?
  */
 const chunkSize = 1024; // 1024 * 16; // 16kb/s
 
@@ -779,7 +756,7 @@ function setTippy(element, content, placement) {
 }
 
 /**
- * Get peer info using DetecRTC
+ * Get peer info using DetectRTC
  * https://github.com/muaz-khan/DetectRTC
  * @returns {object} peer info
  */
@@ -1693,7 +1670,7 @@ async function handleOnTrack(peer_id, peers) {
         const remoteAvatarImage = getId(`${peer_id}_avatar`);
 
         const peerInfo = peers[peer_id];
-        const { peer_name, peer_video } = peerInfo;
+        const { peer_name } = peerInfo;
         const { kind } = event.track;
 
         console.log('[ON TRACK] - info', { peer_id, peer_name, kind });
@@ -2799,7 +2776,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteVideoWrap.appendChild(remotePeerName);
 
             // need later on disconnect or remove peers
-            peerVideoMediaElements[peer_id + '___video'] = remoteVideoWrap;
+            peerVideoMediaElements[remoteMedia.id] = remoteVideoWrap;
 
             // append all elements to videoMediaContainer
             videoMediaContainer.appendChild(remoteVideoWrap);
@@ -2821,9 +2798,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
 
             // pin video on screen share detected
-            if (peer_video_status && peer_screen_status) {
-                getId(remoteVideoPinBtn.id).click();
-            }
+            if (peer_video_status && peer_screen_status) remoteVideoPinBtn.click();
 
             // handle video full screen mode
             isVideoFullScreenSupported && handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
@@ -2886,7 +2861,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteAudioWrap.appendChild(remoteAudioMedia);
             audioMediaContainer.appendChild(remoteAudioWrap);
             attachMediaStream(remoteAudioMedia, stream);
-            peerAudioMediaElements[peer_id + '___audio'] = remoteAudioWrap;
+            peerAudioMediaElements[remoteAudioMedia.id] = remoteAudioWrap;
             // handle remote peers audio volume
             handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
             break;
@@ -2996,9 +2971,9 @@ function genAvatarSvg(peerName, avatarImgSize) {
     const red = Math.pow(charCodeRed, 7) % 200;
     const green = Math.pow(charCodeGreen, 7) % 200;
     const blue = (red + green) % 200;
-    let bgColor = `rgb(${red}, ${green}, ${blue})`;
-    let textColor = '#ffffff';
-    let svg = `
+    const bgColor = `rgb(${red}, ${green}, ${blue})`;
+    const textColor = '#ffffff';
+    const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" 
     xmlns:xlink="http://www.w3.org/1999/xlink" 
     width="${avatarImgSize}px" 
