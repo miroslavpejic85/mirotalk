@@ -332,6 +332,7 @@ const mySettingsHeader = getId('mySettingsHeader');
 const tabVideoBtn = getId('tabVideoBtn');
 const tabAudioBtn = getId('tabAudioBtn');
 const tabVideoShareBtn = getId('tabVideoShareBtn');
+const tabRecordingBtn = getId('tabRecordingBtn');
 const tabParticipantsBtn = getId('tabParticipantsBtn');
 const tabProfileBtn = getId('tabProfileBtn');
 const tabRoomBtn = getId('tabRoomBtn');
@@ -354,6 +355,8 @@ const videoQualitySelect = getId('videoQuality');
 const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
+const lastRecordingInfo = getId('lastRecordingInfo');
+const recordingTime = getId('recordingTime');
 const themeSelect = getId('mirotalkTheme');
 const videoObjFitSelect = getId('videoObjFitSelect');
 const btnsBarSelect = getId('mirotalkBtnsBar');
@@ -493,8 +496,7 @@ let screenMaxFrameRate = 30;
 let videoQualitySelectedIndex = 0; // default
 let videoFpsSelectedIndex = 1; // 30 fps
 let screenFpsSelectedIndex = 1; // 30 fps
-let callStartTime;
-let callElapsedTime;
+let callElapsedTime; // Call HH:MM:SS
 let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
 let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
 let myPeerName = getPeerName();
@@ -578,7 +580,6 @@ let chatMessagesId = 0;
 let mediaRecorder;
 let recordedBlobs;
 let audioRecorder; // helpers.js
-let recStartTime;
 let recElapsedTime;
 let isStreamRecording = false;
 // whiteboard settings
@@ -3528,29 +3529,11 @@ function takeSnapshot(video) {
  */
 function startCountTime() {
     countTime.style.display = 'inline';
-    callStartTime = Date.now();
+    callElapsedTime = 0;
     setInterval(function printTime() {
-        callElapsedTime = Date.now() - callStartTime;
-        countTime.innerText = getTimeToString(callElapsedTime);
+        callElapsedTime++;
+        countTime.innerText = secondsToHms(callElapsedTime);
     }, 1000);
-}
-
-/**
- * Convert time to string
- * @param {integer} time
- * @return {string} format HH:MM:SS
- */
-function getTimeToString(time) {
-    const diffInHrs = time / 3600000;
-    const hh = Math.floor(diffInHrs);
-    const diffInMin = (diffInHrs - hh) * 60;
-    const mm = Math.floor(diffInMin);
-    const diffInSec = (diffInMin - mm) * 60;
-    const ss = Math.floor(diffInSec);
-    const formattedHH = hh.toString().padStart(2, '0');
-    const formattedMM = mm.toString().padStart(2, '0');
-    const formattedSS = ss.toString().padStart(2, '0');
-    return `${formattedHH}:${formattedMM}:${formattedSS}`;
 }
 
 /**
@@ -4414,6 +4397,9 @@ function setupMySettings() {
     });
     tabVideoShareBtn.addEventListener('click', (e) => {
         openTab(e, 'tabMedia');
+    });
+    tabRecordingBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabRecording');
     });
     tabParticipantsBtn.addEventListener('click', (e) => {
         openTab(e, 'tabParticipants');
@@ -5572,14 +5558,32 @@ function handleRecordingError(error, popupLog = true) {
 }
 
 /**
+ * Seconds to HMS
+ * @param {number} d
+ * @return {string} format HH:MM:SS
+ */
+function secondsToHms(d) {
+    d = Number(d);
+    const h = Math.floor(d / 3600);
+    const m = Math.floor((d % 3600) / 60);
+    const s = Math.floor((d % 3600) % 60);
+    const hDisplay = h > 0 ? h + 'h' : '';
+    const mDisplay = m > 0 ? m + 'm' : '';
+    const sDisplay = s > 0 ? s + 's' : '';
+    return hDisplay + ' ' + mDisplay + ' ' + sDisplay;
+}
+
+/**
  * Start recording time
  */
 function startRecordingTime() {
-    recStartTime = Date.now();
+    recElapsedTime = 0;
     let rc = setInterval(function printTime() {
         if (isStreamRecording) {
-            recElapsedTime = Date.now() - recStartTime;
-            myVideoParagraph.innerText = myPeerName + ' 🔴 REC ' + getTimeToString(recElapsedTime);
+            recElapsedTime++;
+            const recTimeElapsed = secondsToHms(recElapsedTime);
+            myVideoParagraph.innerText = myPeerName + ' 🔴 REC ' + recTimeElapsed;
+            recordingTime.innerText = recTimeElapsed;
             return;
         }
         clearInterval(rc);
@@ -5885,15 +5889,24 @@ function downloadRecordedStream() {
         const currentDevice = isMobileDevice ? 'MOBILE' : 'PC';
         const blobFileSize = bytesToSize(blob.size);
 
+        const recordingInfo = `
+        <br/>
+        <br/>
+            <ul>
+                <li>Time: ${recordingTime.innerText}</li>
+                <li>File: ${recFileName}</li>
+                <li>Size: ${blobFileSize}</li>
+            </ul>
+        <br/>
+        `;
+        lastRecordingInfo.innerHTML = `Last recording info: ${recordingInfo}`;
+        recordingTime.innerText = '';
+
         userLog(
             'success-html',
             `<div style="text-align: left;">
                 🔴 &nbsp; Recording Info: <br/>
-                <ul>
-                    <li>File: ${recFileName}</li>
-                    <li>Size: ${blobFileSize}</li>
-                </ul>
-                <br/>
+                ${recordingInfo}
                 Please wait to be processed, then will be downloaded to your ${currentDevice} device.
             </div>`,
         );

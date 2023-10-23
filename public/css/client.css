@@ -1593,6 +1593,10 @@ button {
     animation-duration: 1s;
 }
 
+.clw {
+    color: #ffffff;
+}
+
 /*--------------------------------------------------------------
 # Toggle button 
 # https://danklammer.com/articles/simple-css-toggle-switch/

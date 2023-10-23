@@ -278,6 +278,9 @@ access to use this app.
                     <button id="tabAudioBtn" class="fas fa-microphone tablinks">
                         <p class="tabButtonText">Audio</p>
                     </button>
+                    <button id="tabRecordingBtn" class="fas fa-record-vinyl tablinks">
+                        <p class="tabButtonText">Recording</p>
+                    </button>
                     <button id="tabVideoShareBtn" class="fab fa-youtube tablinks">
                         <p class="tabButtonText">Media</p>
                     </button>
@@ -601,6 +604,13 @@ access to use this app.
                                 <td><input id="switchPushToTalk" class="toggle" type="checkbox" /></td>
                             </tr>
                         </table>
+                    </div>
+
+                    <div id="tabRecording" class="tabcontent">
+                        <br />
+                        <span class="clw" id="recordingTime"></span>
+                        <!-- TODO add pause/resume recording -->
+                        <div class="clw" id="lastRecordingInfo"></div>
                     </div>
 
                     <div id="tabMedia" class="tabcontent">
