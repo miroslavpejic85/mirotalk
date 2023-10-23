@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.6
+ * @version 1.1.7
  *
  */
 
@@ -164,6 +164,26 @@ const icons = {
 const videoMediaContainer = getId('videoMediaContainer');
 const videoPinMediaContainer = getId('videoPinMediaContainer');
 const audioMediaContainer = getId('audioMediaContainer');
+
+// Audio options
+const dropDownMicOptions = getId('dropDownMicOptions');
+const switchAutoGainControl = getId('switchAutoGainControl');
+const switchNoiseSuppression = getId('switchNoiseSuppression');
+const switchEchoCancellation = getId('switchEchoCancellation');
+const sampleRateSelect = getId('sampleRateSelect');
+const sampleSizeSelect = getId('sampleSizeSelect');
+const channelCountSelect = getId('channelCountSelect');
+const micLatencyRange = getId('micLatencyRange');
+const micVolumeRange = getId('micVolumeRange');
+const applyAudioOptionsBtn = getId('applyAudioOptionsBtn');
+const micOptionsBtn = document.getElementById('micOptionsBtn');
+const micDropDownMenu = document.querySelector('.dropdown-menu');
+const micLatencyValue = getId('micLatencyValue');
+const micVolumeValue = getId('micVolumeValue');
+
+// Tab Media
+const shareMediaAudioVideoBtn = getId('shareMediaAudioVideoBtn');
+
 //....
 
 // Local Storage class
@@ -214,6 +234,7 @@ const buttons = {
         showMaxBtn: true,
     },
     settings: {
+        showMicOptionsBtn: true,
         showTabRoomPeerName: true,
         showTabRoomParticipants: true,
         showTabRoomSecurity: true,
@@ -456,6 +477,7 @@ let mySettings;
 let mySettingsHeader;
 let tabVideoBtn;
 let tabAudioBtn;
+let tabVideoShareBtn;
 let tabParticipantsBtn;
 let tabProfileBtn;
 let tabRoomBtn;
@@ -664,6 +686,7 @@ function getHtmlElementsById() {
     mySettingsHeader = getId('mySettingsHeader');
     tabVideoBtn = getId('tabVideoBtn');
     tabAudioBtn = getId('tabAudioBtn');
+    tabVideoShareBtn = getId('tabVideoShareBtn');
     tabParticipantsBtn = getId('tabParticipantsBtn');
     tabProfileBtn = getId('tabProfileBtn');
     tabRoomBtn = getId('tabRoomBtn');
@@ -1235,6 +1258,7 @@ function roomIsBusy() {
 function handleRules(isPresenter) {
     console.log('14. Peer isPresenter: ' + isPresenter + ' Reconnected to signaling server: ' + isPeerReconnected);
     if (!isPresenter) {
+        buttons.settings.showMicOptionsBtn = false;
         buttons.settings.showTabRoomParticipants = false;
         buttons.settings.showTabRoomSecurity = false;
         buttons.remote.audioBtnClickAllowed = false;
@@ -1243,6 +1267,7 @@ function handleRules(isPresenter) {
         buttons.whiteboard.whiteboardLockBtn = false;
         //...
     } else {
+        buttons.settings.showMicOptionsBtn = true;
         buttons.settings.showTabRoomParticipants = true;
         buttons.settings.showTabRoomSecurity = true;
         buttons.settings.showLockRoomBtn = !isRoomLocked;
@@ -1265,7 +1290,7 @@ function handleButtonsRule() {
     elemDisplay(hideMeBtn, buttons.main.showHideMeBtn);
     elemDisplay(audioBtn, buttons.main.showAudioBtn);
     elemDisplay(videoBtn, buttons.main.showVideoBtn);
-    //elemDisplay(screenShareBtn, buttons.main.showScreenBtn); // auto-detected
+    //elemDisplay(screenShareBtn, buttons.main.showScreenBtn, ); // auto-detected
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
     elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn && speechRecognition); // auto-detected
@@ -1287,6 +1312,7 @@ function handleButtonsRule() {
     // caption
     elemDisplay(captionMaxBtn, !isMobileDevice && buttons.caption.showMaxBtn);
     // Settings
+    elemDisplay(dropDownMicOptions, buttons.settings.showMicOptionsBtn && isPresenter); // auto-detected
     elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
     elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
     elemDisplay(ejectEveryoneBtn, buttons.settings.showEjectEveryoneBtn);
@@ -1583,13 +1609,14 @@ async function changeLocalCamera(deviceId) {
     // Get video constraints
     const videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     videoConstraints['deviceId'] = { exact: deviceId };
+    console.log('videoConstraints', videoConstraints);
 
     navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
-            console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
+            logStreamSettingsInfo('Success attached local video stream', camStream);
             refreshMyStreamToPeers(camStream);
             setLocalMaxFps(videoMaxFrameRate);
         })
@@ -1609,18 +1636,16 @@ async function changeLocalMicrophone(deviceId) {
     }
 
     // Get audio constraints
-    let audioConstraints = await getAudioConstraints();
+    const audioConstraints = await getAudioConstraints();
     audioConstraints['deviceId'] = { exact: deviceId };
+    console.log('audioConstraints', audioConstraints);
 
     navigator.mediaDevices
         .getUserMedia({ audio: audioConstraints })
         .then((micStream) => {
             myAudio.srcObject = micStream;
             localAudioMediaStream = micStream;
-            console.log(
-                'Success attached local microphone stream',
-                localAudioMediaStream.getAudioTracks()[0].getSettings(),
-            );
+            logStreamSettingsInfo('Success attached local microphone stream', micStream);
             getMicrophoneVolumeIndicator(micStream);
             refreshMyStreamToPeers(micStream, true);
         })
@@ -4554,6 +4579,9 @@ function setupMySettings() {
     tabAudioBtn.addEventListener('click', (e) => {
         openTab(e, 'tabAudio');
     });
+    tabVideoShareBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabMedia');
+    });
     tabParticipantsBtn.addEventListener('click', (e) => {
         openTab(e, 'tabParticipants');
     });
@@ -4574,10 +4602,70 @@ function setupMySettings() {
     roomSendEmailBtn.addEventListener('click', () => {
         shareRoomByEmail();
     });
+    // tab media
+    shareMediaAudioVideoBtn.addEventListener('click', (e) => {
+        sendVideoUrl();
+    });
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
         await changeLocalMicrophone(audioInputSelect.value);
         lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
+    });
+    // advance audio options
+    micOptionsBtn.addEventListener('click', function () {
+        if (micDropDownMenu.style.display === 'block') {
+            micDropDownMenu.style.display = 'none';
+        } else {
+            micDropDownMenu.style.display = 'block';
+        }
+    });
+    // audio options
+    switchAutoGainControl.onchange = (e) => {
+        lsSettings.mic_auto_gain_control = e.currentTarget.checked;
+        lS.setSettings(lsSettings);
+        e.target.blur();
+    };
+    switchEchoCancellation.onchange = (e) => {
+        lsSettings.mic_echo_cancellations = e.currentTarget.checked;
+        lS.setSettings(lsSettings);
+        e.target.blur();
+    };
+    switchNoiseSuppression.onchange = (e) => {
+        lsSettings.mic_noise_suppression = e.currentTarget.checked;
+        lS.setSettings(lsSettings);
+        e.target.blur();
+    };
+    sampleRateSelect.onchange = (e) => {
+        lsSettings.mic_sample_rate = e.currentTarget.selectedIndex;
+        lS.setSettings(lsSettings);
+        e.target.blur();
+    };
+    sampleSizeSelect.onchange = (e) => {
+        lsSettings.mic_sample_size = e.currentTarget.selectedIndex;
+        lS.setSettings(lsSettings);
+        e.target.blur();
+    };
+    channelCountSelect.onchange = (e) => {
+        lsSettings.mic_channel_count = e.currentTarget.selectedIndex;
+        lS.setSettings(lsSettings);
+        e.target.blur();
+    };
+    micLatencyRange.oninput = (e) => {
+        lsSettings.mic_latency = e.currentTarget.value;
+        lS.setSettings(lsSettings);
+        micLatencyValue.innerText = e.currentTarget.value;
+        e.target.blur();
+    };
+    micVolumeRange.oninput = (e) => {
+        lsSettings.mic_volume = e.currentTarget.value;
+        lS.setSettings(lsSettings);
+        micVolumeValue.innerText = e.currentTarget.value;
+        e.target.blur();
+    };
+    // apply audio options constraints
+    applyAudioOptionsBtn.addEventListener('click', async () => {
+        await changeLocalMicrophone(audioInputSelect.value);
+        micOptionsBtn.click();
     });
     // select audio output
     audioOutputSelect.addEventListener('change', (e) => {
@@ -4648,7 +4736,6 @@ function setupMySettings() {
     } else {
         getId('pinUnpinGridDiv').style.display = 'none';
     }
-
     // room actions
     muteEveryoneBtn.addEventListener('click', (e) => {
         disableAllPeers('audio');
@@ -4686,6 +4773,18 @@ function loadSettingsFromLocalStorage() {
     switchSounds.checked = notifyBySound;
     switchShare.checked = notify;
     switchAudioPitchBar.checked = isAudioPitchBar;
+
+    switchAutoGainControl.checked = lsSettings.mic_auto_gain_control;
+    switchEchoCancellation.checked = lsSettings.mic_echo_cancellations;
+    switchNoiseSuppression.checked = lsSettings.mic_noise_suppression;
+    sampleRateSelect.selectedIndex = lsSettings.mic_sample_rate;
+    sampleSizeSelect.selectedIndex = lsSettings.mic_sample_size;
+    channelCountSelect.selectedIndex = lsSettings.mic_channel_count;
+    micLatencyRange.value = lsSettings.mic_latency || '50';
+    micLatencyValue.innerText = lsSettings.mic_latency || '50';
+    micVolumeRange.value = lsSettings.mic_volume || '100';
+    micVolumeValue.innerText = lsSettings.mic_volume || '100';
+
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
@@ -4841,10 +4940,33 @@ async function getVideoConstraints(videoQuality) {
  * Get audio constraints
  */
 async function getAudioConstraints() {
-    return {
-        echoCancellation: true,
-        noiseSuppression: true,
+    let constraints = {
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+        },
+        video: false,
     };
+    if (isRulesActive && isPresenter) {
+        constraints = {
+            audio: {
+                autoGainControl: switchAutoGainControl.checked,
+                echoCancellation: switchNoiseSuppression.checked,
+                noiseSuppression: switchEchoCancellation.checked,
+                sampleRate: parseInt(sampleRateSelect.value),
+                sampleSize: parseInt(sampleSizeSelect.value),
+                channelCount: parseInt(channelCountSelect.value),
+                latency: parseInt(micLatencyRange.value),
+                volume: parseInt(micVolumeRange.value / 100),
+            },
+            video: false,
+        };
+    }
+    return constraints;
+    // return {
+    //     echoCancellation: true,
+    //     noiseSuppression: true,
+    // };
 }
 
 /**

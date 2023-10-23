@@ -901,11 +901,11 @@ button:hover {
 }
 
 .title {
-    display: inline-flex;
-    align-items: center;
-    text-align: left;
+    display: inline-table;
+    width: auto;
     color: white;
     font-size: 14px;
+    font-weight: bold;
 }
 
 .buttons {
@@ -1030,7 +1030,10 @@ th {
     position: relative;
     width: 65%;
     background-color: var(--body-bg);
-    min-height: 480px;
+    min-height: 500px;
+    max-height: 500px;
+    overflow-x: none;
+    overflow-y: auto;
 }
 
 @media screen and (max-width: 830px) {
@@ -1042,7 +1045,6 @@ th {
     }
     .tabActions {
         width: 100%;
-        min-height: 100px;
         border-radius: 10px;
     }
     .tabButtonText {
@@ -1642,6 +1644,74 @@ button {
 
 .toggle:checked:before {
     left: 32px;
+}
+
+/*--------------------------------------------------------------
+# DropDown menu
+--------------------------------------------------------------*/
+
+/* Styles for the dropdown button */
+.dropdown-toggle {
+    background-color: var(--body-bg); /* Change this to your desired button background color */
+    color: #fff; /* Change this to your desired text color */
+    border: none;
+    border-radius: 5px;
+    /* padding: 10px 20px; */
+    cursor: pointer;
+}
+
+/* Styles for the dropdown menu container */
+.dropdown-menu {
+    display: none;
+    background-color: var(--body-bg); /* Change this to your desired menu background color */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    border: none;
+    margin-bottom: 20px;
+}
+
+/* Styles for table cell with title (td) */
+.microphone-table-width {
+    width: 50%;
+}
+
+/* Styles for the Apply Options button */
+#applyAudioOptionsBtn {
+    margin: 5px;
+    width: 100%;
+    background-color: #0077ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+#applyAudioOptionsBtn:hover {
+    background-color: var(--select-bg) !important;
+    transform: scale(0.95);
+    transition: all 0.3s ease-in-out;
+}
+
+/*--------------------------------------------------------------
+# Webkit-Scrollbar Styles
+--------------------------------------------------------------*/
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--body-bg);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--body-bg);
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1b1f;
 }
 
 /*
