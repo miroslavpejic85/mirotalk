@@ -356,6 +356,8 @@ const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
 const lastRecordingInfo = getId('lastRecordingInfo');
+const pauseRecBtn = getId('pauseRecBtn');
+const resumeRecBtn = getId('resumeRecBtn');
 const recordingTime = getId('recordingTime');
 const themeSelect = getId('mirotalkTheme');
 const videoObjFitSelect = getId('videoObjFitSelect');
@@ -580,8 +582,10 @@ let chatMessagesId = 0;
 let mediaRecorder;
 let recordedBlobs;
 let audioRecorder; // helpers.js
+let recTimer;
 let recElapsedTime;
 let isStreamRecording = false;
+let isStreamRecordingPaused = false;
 // whiteboard settings
 let wbCanvas = null;
 let wbIsLock = false;
@@ -4344,6 +4348,14 @@ function setMySettingsBtn() {
 
     // make chat room draggable for desktop
     if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
+
+    // Recording pause/resume
+    pauseRecBtn.addEventListener('click', (e) => {
+        pauseRecording();
+    });
+    resumeRecBtn.addEventListener('click', (e) => {
+        resumeRecording();
+    });
 }
 
 /**
@@ -5574,20 +5586,23 @@ function secondsToHms(d) {
 }
 
 /**
- * Start recording time
+ * Start/Stop recording timer
  */
-function startRecordingTime() {
+function startRecordingTimer() {
+    resumeRecButtons();
     recElapsedTime = 0;
-    let rc = setInterval(function printTime() {
-        if (isStreamRecording) {
+    recTimer = setInterval(function printTime() {
+        if (!isStreamRecordingPaused) {
             recElapsedTime++;
-            const recTimeElapsed = secondsToHms(recElapsedTime);
+            let recTimeElapsed = secondsToHms(recElapsedTime);
             myVideoParagraph.innerText = myPeerName + ' 🔴 REC ' + recTimeElapsed;
             recordingTime.innerText = recTimeElapsed;
-            return;
         }
-        clearInterval(rc);
     }, 1000);
+}
+function stopRecordingTimer() {
+    clearInterval(recTimer);
+    resetRecButtons();
 }
 
 /**
@@ -5822,12 +5837,12 @@ function handleMediaRecorder(mediaRecorder) {
  * @param {object} event of media recorder
  */
 function handleMediaRecorderStart(event) {
+    startRecordingTimer();
     emitPeersAction('recStart');
     emitPeerStatus('rec', true);
     console.log('MediaRecorder started: ', event);
     isStreamRecording = true;
     recordStreamBtn.style.setProperty('color', '#ff4500');
-    startRecordingTime();
     setTippy(recordStreamBtn, 'Stop recording', placement);
     if (isMobileDevice) {
         swapCameraBtn.style.display = 'none';
@@ -5851,10 +5866,11 @@ function handleMediaRecorderData(event) {
 function handleMediaRecorderStop(event) {
     console.log('MediaRecorder stopped: ', event);
     console.log('MediaRecorder Blobs: ', recordedBlobs);
-    isStreamRecording = false;
-    myVideoParagraph.innerText = myPeerName + ' (me)';
+    stopRecordingTimer();
     emitPeersAction('recStop');
     emitPeerStatus('rec', false);
+    isStreamRecording = false;
+    myVideoParagraph.innerText = myPeerName + ' (me)';
     if (isRecScreenStream) {
         recScreenStream.getTracks().forEach((track) => {
             if (track.kind === 'video') track.stop();
@@ -5876,6 +5892,52 @@ function handleMediaRecorderStop(event) {
 function stopStreamRecording() {
     mediaRecorder.stop();
     audioRecorder.stopMixedAudioStream();
+}
+
+/**
+ * Pause recording display buttons
+ */
+function pauseRecButtons() {
+    pauseRecBtn.style.display = 'none';
+    resumeRecBtn.style.display = 'block';
+}
+/**
+ * Resume recording display buttons
+ */
+function resumeRecButtons() {
+    resumeRecBtn.style.display = 'none';
+    pauseRecBtn.style.display = 'block';
+}
+/**
+ * Reset recording display buttons
+ */
+function resetRecButtons() {
+    resumeRecBtn.style.display = 'none';
+    pauseRecBtn.style.display = 'none';
+}
+
+/**
+ * Pause recording
+ */
+function pauseRecording() {
+    if (mediaRecorder) {
+        isStreamRecordingPaused = true;
+        mediaRecorder.pause();
+        pauseRecButtons();
+        console.log('Pause recording');
+    }
+}
+
+/**
+ * Resume recording
+ */
+function resumeRecording() {
+    if (mediaRecorder) {
+        mediaRecorder.resume();
+        isStreamRecordingPaused = false;
+        resumeRecButtons();
+        console.log('Resume recording');
+    }
 }
 
 /**

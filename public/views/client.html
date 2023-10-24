@@ -608,9 +608,19 @@ access to use this app.
 
                     <div id="tabRecording" class="tabcontent">
                         <br />
-                        <span class="clw" id="recordingTime"></span>
-                        <!-- TODO add pause/resume recording -->
-                        <div class="clw" id="lastRecordingInfo"></div>
+                        <div style="display: table-row">
+                            <span class="clw" id="recordingTime"></span>
+                            <br />
+                            <button id="pauseRecBtn" class="buttons" style="display: none">
+                                <i class="far fa-pause-circle"></i>
+                                <p>Pause recording</p>
+                            </button>
+                            <button id="resumeRecBtn" class="buttons" style="display: none">
+                                <i class="far fa-play-circle"></i>
+                                <p>Resume recording</p>
+                            </button>
+                            <div class="clw" id="lastRecordingInfo"></div>
+                        </div>
                     </div>
 
                     <div id="tabMedia" class="tabcontent">
