@@ -1597,6 +1597,11 @@ button {
     color: #ffffff;
 }
 
+.mic-input-range {
+    width: 85px;
+    cursor: pointer;
+}
+
 /*--------------------------------------------------------------
 # Toggle button 
 # https://danklammer.com/articles/simple-css-toggle-switch/
