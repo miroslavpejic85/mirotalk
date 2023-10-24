@@ -2317,6 +2317,14 @@ textarea.form-input {
     color: #959cb1;
 }
 
+.footer-social-icon {
+    transform: scale(1);
+    transition: transform 0.2s;
+}
+.footer-social-icon:hover {
+    transform: scale(2);
+}
+
 .invert-color .footer-nav a {
     text-decoration: none;
 }
