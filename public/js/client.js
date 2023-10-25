@@ -5898,22 +5898,22 @@ function stopStreamRecording() {
  * Pause recording display buttons
  */
 function pauseRecButtons() {
-    pauseRecBtn.style.display = 'none';
-    resumeRecBtn.style.display = 'block';
+    elemDisplay(pauseRecBtn, false);
+    elemDisplay(resumeRecBtn, true);
 }
 /**
  * Resume recording display buttons
  */
 function resumeRecButtons() {
-    resumeRecBtn.style.display = 'none';
-    pauseRecBtn.style.display = 'block';
+    elemDisplay(resumeRecBtn, false);
+    elemDisplay(pauseRecBtn, true);
 }
 /**
  * Reset recording display buttons
  */
 function resetRecButtons() {
-    resumeRecBtn.style.display = 'none';
-    pauseRecBtn.style.display = 'none';
+    elemDisplay(pauseRecBtn, false);
+    elemDisplay(resumeRecBtn, false);
 }
 
 /**
