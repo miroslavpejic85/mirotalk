@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.9
+ * @version 1.2.0
  *
  */
 
@@ -52,17 +52,6 @@ const avatarImg = '../images/mirotalk-logo.png';
 const camMicOff = '../images/cam-mic-off.png';
 const recordingImg = '../images/recording.png';
 // nice free icon: https://www.iconfinder.com
-
-const isWebRTCSupported = DetectRTC.isWebRTCSupported;
-const isMobileDevice = DetectRTC.isMobileDevice;
-const myBrowserName = DetectRTC.browser.name;
-
-const fileSharingInput = '*'; // allow all file extensions
-const Base64Prefix = 'data:application/pdf;base64,';
-const wbPdfInput = 'application/pdf';
-const wbImageInput = 'image/*';
-const wbWidth = 1200;
-const wbHeight = 600;
 
 const className = {
     user: 'fas fa-user',
@@ -111,6 +100,34 @@ const icons = {
     fileSend: '<i class="fas fa-file-export"></i>',
     fileReceive: '<i class="fas fa-file-import"></i>',
 };
+
+// Whiteboard and fileSharing
+const fileSharingInput = '*'; // allow all file extensions
+const Base64Prefix = 'data:application/pdf;base64,';
+const wbPdfInput = 'application/pdf';
+const wbImageInput = 'image/*';
+const wbWidth = 1200;
+const wbHeight = 600;
+
+// Peer infos
+const userAgent = navigator.userAgent.toLowerCase();
+const detectRtcVersion = DetectRTC.version;
+const isWebRTCSupported = DetectRTC.isWebRTCSupported;
+const isMobileDevice = DetectRTC.isMobileDevice;
+const isTabletDevice = isTablet(userAgent);
+const isIPadDevice = isIpad(userAgent);
+const isDesktopDevice = !isMobileDevice && !isTabletDevice && !isIPadDevice;
+const osName = DetectRTC.osName;
+const osVersion = DetectRTC.osVersion;
+const browserName = DetectRTC.browser.name;
+const browserVersion = DetectRTC.browser.version;
+const peerInfo = getPeerInfo();
+
+// Local Storage class
+const lS = new LocalStorage();
+const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
+const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
+console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 
 // Check if PIP is supported by this browser
 const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
@@ -362,7 +379,7 @@ const resumeRecBtn = getId('resumeRecBtn');
 const recordingTime = getId('recordingTime');
 const themeSelect = getId('mirotalkTheme');
 const videoObjFitSelect = getId('videoObjFitSelect');
-const btnsBarSelect = getId('mirotalkBtnsBar');
+const btnsBarSelect = getId('mainButtonsBarPosition');
 const pinUnpinGridDiv = getId('pinUnpinGridDiv');
 const pinVideoPositionSelect = getId('pinVideoPositionSelect');
 const tabRoomPeerName = getId('tabRoomPeerName');
@@ -457,19 +474,13 @@ const speechRecognitionStop = getId('speechRecognitionStop');
 
 //....
 
-// Local Storage class
-const lS = new LocalStorage();
-const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
-const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
-console.log('LS_SETTINGS', lsSettings);
-
 const userLimits = {
     active: false, // Limit users per room
     count: 2, // Limit 2 users per room if userLimits.active true
 };
 
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
-const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
+const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution as default, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
 const useAvatarSvg = true; // if false the cam-Off avatar = avatarImg
 
 /**
@@ -479,90 +490,59 @@ const useAvatarSvg = true; // if false the cam-Off avatar = avatarImg
  */
 const ZOOM_CENTER_MODE = false;
 
+// misc
+let swBg = 'rgba(0, 0, 0, 0.7)'; // swAlert background color
+let callElapsedTime; // count time
+let mySessionTime; // conference session time
+let isDocumentOnFullScreen = false;
+
+// peer
 let myPeerId; // This socket.id
-let userAgent; // User agent info
-let isPresenter = false; // Who init the room (aka first peer joined)
-let isHideMeActive = false; // Hide myself from the meeting view
-let notifyBySound = true; // turn on - off sound notifications
-let thisRoomPassword = null;
-let isRoomLocked = false;
-let isVideoPrivacyActive = false; // Video circle for privacy
-let surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
-let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
-let isDesktopDevice = false;
-let isTabletDevice = false;
-let isIPadDevice = false;
-let isVideoFullScreenSupported = true;
-// video cam - screen max frame rate
-let videoMaxFrameRate = 30;
-let screenMaxFrameRate = 30;
-let videoQualitySelectedIndex = 0; // default
-let videoFpsSelectedIndex = 1; // 30 fps
-let screenFpsSelectedIndex = 1; // 30 fps
-let callElapsedTime; // Call HH:MM:SS
-let mirotalkBtnsBar = 'vertical'; // vertical - horizontal
-let swalBackground = 'rgba(0, 0, 0, 0.7)'; // black - #16171b - transparent ...
+let myPeerUUID = getUUID(); // Unique peer id
 let myPeerName = getPeerName();
-let myPeerUUID = getUUID();
-let isScreenEnabled = getScreenEnabled();
-let notify = getNotify();
-let useAudio = true; // User allow for microphone usage
-let useVideo = true; // User allow for camera usage
-let isScreenSharingSupported = false;
-let isEnumerateVideoDevices = false;
-let isEnumerateAudioDevices = false;
-let initEnumerateDevicesFailed = false; // Check if user webcam and audio init is failed
-let camera = 'user'; // user = front-facing camera on a smartphone. | environment = the back camera on a smartphone.
-let isSpeechSynthesisSupported = 'speechSynthesis' in window;
+let isPresenter = false; // True Who init the room (aka first peer joined)
 let myHandStatus = false;
-let myVideoStatusBefore = false;
 let myVideoStatus = false;
 let myAudioStatus = false;
+let myVideoStatusBefore = false;
 let myScreenStatus = false;
-let isPushToTalkActive = false;
-let isAudioPitchBar = true;
-let isSpaceDown = false;
-let isScreenStreaming = false;
-let showChatOnMessage = true;
-let isChatRoomVisible = false;
-let isCaptionBoxVisible = false;
-let isChatEmojiVisible = false;
-let isChatMarkdownOn = false;
-let isChatGPTOn = false;
-let speechInMessages = false;
-let isButtonsVisible = false;
-let isButtonsBarOver = false;
-let isMySettingsVisible = false;
-let isVideoOnFullScreen = false;
-let isDocumentOnFullScreen = false;
-let isWhiteboardFs = false;
-let isVideoUrlPlayerOpen = false;
-let isVideoPinned = false;
-let pinnedVideoPlayerId = null;
-let isRecScreenStream = false;
-let isChatPasteTxt = false;
-let needToCreateOffer = false; // after session description answer
-let signalingSocket; // socket.io connection to our webserver
-let initStream; // initial webcam stream
-let localVideoMediaStream; // my webcam
-let localAudioMediaStream; // my microphone
-let recScreenStream; // recorded screen stream
-let remoteMediaControls = false; // enable - disable peers video player controls (default false)
+let isScreenEnabled = getScreenEnabled();
+let notify = getNotify(); // popup room sharing on join
+let notifyBySound = true; // turn on - off sound notifications
 let isPeerReconnected = false;
-let peerConnection = null; // RTCPeerConnection
+
+// media
+let useAudio = true; // User allow for microphone usage
+let useVideo = true; // User allow for camera usage
+let isEnumerateVideoDevices = false;
+let isEnumerateAudioDevices = false;
+
+// video/audio player
+let isVideoUrlPlayerOpen = false;
+let pinnedVideoPlayerId = null;
+
+// connection
+let signalingSocket; // socket.io connection to our webserver
+let needToCreateOffer = false; // after session description answer
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
+let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
+
+// stream
+let initStream; // initial webcam stream
+let localVideoMediaStream; // my webcam
+let localAudioMediaStream; // my microphone
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
 let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
-let chatMessages = []; // collect chat messages to save it later if want
-let peerInfo = {}; // this peer info
-let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
-let transcripts = []; //collect all the transcripts to save it later if you need
-let countTime; // conference count time
-// buttons bar
+
+// main buttons
+let mainButtonsBarPosition = 'vertical'; // vertical - horizontal
 let placement = 'right'; // https://atomiks.github.io/tippyjs/#placements
-// my video element
+let isButtonsVisible = false;
+let isButtonsBarOver = false;
+
+// video
 let myVideo;
 let myAudio;
 let myVideoWrap;
@@ -570,24 +550,61 @@ let myVideoAvatarImage;
 let myPrivacyBtn;
 let myVideoPinBtn;
 let myPitchBar;
-// username/hand/video/audio status
 let myVideoParagraph;
 let myHandStatusIcon;
 let myVideoStatusIcon;
 let myAudioStatusIcon;
-// chat settings
+let isVideoPrivacyActive = false; // Video circle for privacy
+let isVideoPinned = false;
+let isVideoFullScreenSupported = true;
+let isVideoOnFullScreen = false;
+let isScreenSharingSupported = false;
+let isScreenStreaming = false;
+let isHideMeActive = false; // Hide myself from the meeting view
+let remoteMediaControls = false; // enable - disable peers video player controls (default false)
+let camera = 'user'; // user = front-facing camera on a smartphone. | environment = the back camera on a smartphone.
+
+// chat
 let leftChatAvatar;
 let rightChatAvatar;
 let chatMessagesId = 0;
-// record Media Stream
+let showChatOnMessage = true;
+let isChatRoomVisible = false;
+let isCaptionBoxVisible = false;
+let isChatEmojiVisible = false;
+let isChatMarkdownOn = false;
+let isChatGPTOn = false;
+let isChatPasteTxt = false;
+let speechInMessages = false;
+let isSpeechSynthesisSupported = 'speechSynthesis' in window;
+let transcripts = []; // collect all the transcripts to save it later if you need
+let chatMessages = []; // collect chat messages to save it later if want
+
+// settings
+let videoMaxFrameRate = 30;
+let screenMaxFrameRate = 30;
+let videoQualitySelectedIndex = 0; // default HD and 30fps
+let videoFpsSelectedIndex = 1; // 30 fps
+let screenFpsSelectedIndex = 1; // 30 fps
+let isMySettingsVisible = false;
+let thisRoomPassword = null;
+let isRoomLocked = false;
+let isAudioPitchBar = true;
+let isPushToTalkActive = false;
+let isSpaceDown = false;
+
+// recording
 let mediaRecorder;
 let recordedBlobs;
 let audioRecorder; // helpers.js
+let recScreenStream; // screen media to recording
 let recTimer;
 let recElapsedTime;
 let isStreamRecording = false;
 let isStreamRecordingPaused = false;
-// whiteboard settings
+let isRecScreenStream = false;
+
+// whiteboard
 let wbCanvas = null;
 let wbIsLock = false;
 let wbIsDrawing = false;
@@ -596,7 +613,9 @@ let wbIsRedoing = false;
 let wbIsEraser = false;
 let wbIsBgTransparent = false;
 let wbPop = [];
-// file transfer settings
+let isWhiteboardFs = false;
+
+// file transfer
 let fileToSend;
 let fileReader;
 let receiveBuffer = [];
@@ -611,11 +630,15 @@ let receiveInProgress = false;
  */
 const chunkSize = 1024; // 1024 * 16; // 16kb/s
 
+// survey
+let surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
+let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
+
 /**
  * Load all Html elements by Id
  */
 function getHtmlElementsById() {
-    countTime = getId('countTime');
+    mySessionTime = getId('mySessionTime');
     // My video elements
     myVideo = getId('myVideo');
     myAudio = getId('myAudio');
@@ -768,16 +791,16 @@ function setTippy(element, content, placement) {
  */
 function getPeerInfo() {
     return {
-        detectRTCversion: DetectRTC.version,
-        isWebRTCSupported: DetectRTC.isWebRTCSupported,
+        detectRTCversion: detectRtcVersion,
+        isWebRTCSupported: isWebRTCSupported,
         isDesktopDevice: isDesktopDevice,
-        isMobileDevice: DetectRTC.isMobileDevice,
+        isMobileDevice: isMobileDevice,
         isTabletDevice: isTabletDevice,
         isIPadDevice: isIPadDevice,
-        osName: DetectRTC.osName,
-        osVersion: DetectRTC.osVersion,
-        browserName: DetectRTC.browser.name,
-        browserVersion: DetectRTC.browser.version,
+        osName: osName,
+        osVersion: osVersion,
+        browserName: browserName,
+        browserVersion: browserVersion,
     };
 }
 
@@ -926,13 +949,6 @@ function initClientPeer() {
         return userLog('error', 'This browser seems not supported WebRTC!');
     }
 
-    userAgent = navigator.userAgent.toLowerCase();
-
-    isTabletDevice = isTablet(userAgent);
-    isIPadDevice = isIpad(userAgent);
-    isDesktopDevice = !isMobileDevice && !isTabletDevice && !isIPadDevice;
-    peerInfo = getPeerInfo();
-
     // check if video Full screen supported on default true
     if (peerInfo.isMobileDevice && peerInfo.osName === 'iOS') {
         isVideoFullScreenSupported = false;
@@ -1037,7 +1053,7 @@ async function handleConnect() {
         setupMySettings();
         loadSettingsFromLocalStorage();
         setupVideoUrlPlayer();
-        startCountTime();
+        startSessionTime();
         await whoAreYou();
     }
 }
@@ -1085,7 +1101,7 @@ function roomIsBusy() {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: swalBackground,
+        background: swBg,
         imageUrl: forbiddenImg,
         position: 'center',
         title: 'Room is busy',
@@ -1230,7 +1246,7 @@ async function whoAreYou() {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: swalBackground,
+        background: swBg,
         title: 'MiroTalk P2P',
         position: 'center',
         input: 'text',
@@ -1324,7 +1340,7 @@ function userNameAlreadyInRoom() {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: swalBackground,
+        background: swBg,
         imageUrl: forbiddenImg,
         position: 'center',
         title: 'Username',
@@ -1582,7 +1598,7 @@ async function handleAddPeer(config) {
     console.log('iceServers', iceServers[0]);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection
-    peerConnection = new RTCPeerConnection({ iceServers: iceServers });
+    const peerConnection = new RTCPeerConnection({ iceServers: iceServers });
     peerConnections[peer_id] = peerConnection;
 
     allPeers = peers;
@@ -2002,7 +2018,7 @@ function setTheme() {
     switch (theme) {
         case 'dark':
             // dark theme
-            swalBackground = 'radial-gradient(#393939, #000000)';
+            swBg = 'radial-gradient(#393939, #000000)';
             setSP('--body-bg', 'radial-gradient(#393939, #000000)');
             setSP('--msger-bg', 'radial-gradient(#393939, #000000)');
             setSP('--msger-private-bg', 'radial-gradient(#393939, #000000)');
@@ -2021,7 +2037,7 @@ function setTheme() {
             break;
         case 'grey':
             // grey theme
-            swalBackground = 'radial-gradient(#666, #333)';
+            swBg = 'radial-gradient(#666, #333)';
             setSP('--body-bg', 'radial-gradient(#666, #333)');
             setSP('--msger-bg', 'radial-gradient(#666, #333)');
             setSP('--wb-bg', 'radial-gradient(#797979, #000)');
@@ -2040,7 +2056,7 @@ function setTheme() {
             break;
         case 'green':
             // green theme
-            swalBackground = 'radial-gradient(#003934, #001E1A)';
+            swBg = 'radial-gradient(#003934, #001E1A)';
             setSP('--body-bg', 'radial-gradient(#003934, #001E1A)');
             setSP('--msger-bg', 'radial-gradient(#003934, #001E1A)');
             setSP('--wb-bg', 'radial-gradient(#003934, #001E1A)');
@@ -2059,7 +2075,7 @@ function setTheme() {
             break;
         case 'blue':
             // blue theme
-            swalBackground = 'radial-gradient(#306bac, #141B41)';
+            swBg = 'radial-gradient(#306bac, #141B41)';
             setSP('--body-bg', 'radial-gradient(#306bac, #141B41)');
             setSP('--msger-bg', 'radial-gradient(#306bac, #141B41)');
             setSP('--wb-bg', 'radial-gradient(#306bac, #141B41)');
@@ -2078,7 +2094,7 @@ function setTheme() {
             break;
         case 'red':
             // red theme
-            swalBackground = 'radial-gradient(#69140E, #3C1518)';
+            swBg = 'radial-gradient(#69140E, #3C1518)';
             setSP('--body-bg', 'radial-gradient(#69140E, #3C1518)');
             setSP('--msger-bg', 'radial-gradient(#69140E, #3C1518)');
             setSP('--wb-bg', 'radial-gradient(#69140E, #3C1518)');
@@ -2099,7 +2115,7 @@ function setTheme() {
         default:
             return console.log('No theme found');
     }
-    //setButtonsBarPosition(mirotalkBtnsBar);
+    //setButtonsBarPosition(mainButtonsBarPosition);
 }
 
 /**
@@ -2109,8 +2125,8 @@ function setTheme() {
 function setButtonsBarPosition(position) {
     if (!position || isMobileDevice) return;
 
-    mirotalkBtnsBar = position;
-    switch (mirotalkBtnsBar) {
+    mainButtonsBarPosition = position;
+    switch (mainButtonsBarPosition) {
         case 'vertical':
             setSP('--btns-top', '50%');
             setSP('--btns-right', '0px');
@@ -2284,7 +2300,7 @@ function addChild(device, els) {
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  */
 async function setupLocalVideoMedia() {
-    if (!useVideo || localVideoMediaStream || initEnumerateDevicesFailed) {
+    if (!useVideo || localVideoMediaStream) {
         return;
     }
 
@@ -2310,7 +2326,7 @@ async function setupLocalVideoMedia() {
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
  */
 async function setupLocalAudioMedia() {
-    if (!useAudio || localAudioMediaStream || initEnumerateDevicesFailed) {
+    if (!useAudio || localAudioMediaStream) {
         return;
     }
 
@@ -2360,7 +2376,7 @@ async function loadLocalMedia(stream, kind) {
 
             // html elements
             const myVideoNavBar = document.createElement('div');
-            const myCountTime = document.createElement('button');
+            const mySessionTime = document.createElement('button');
             const myPeerName = document.createElement('p');
             const myHandStatusIcon = document.createElement('button');
             const myVideoToImgBtn = document.createElement('button');
@@ -2377,7 +2393,7 @@ async function loadLocalMedia(stream, kind) {
             const myPitchBar = document.createElement('div');
 
             // session time
-            myCountTime.setAttribute('id', 'countTime');
+            mySessionTime.setAttribute('id', 'mySessionTime');
 
             // my peer name
             myPeerName.setAttribute('id', 'myVideoParagraph');
@@ -2424,7 +2440,7 @@ async function loadLocalMedia(stream, kind) {
 
             // no mobile devices
             if (!isMobileDevice) {
-                setTippy(myCountTime, 'Session Time', 'bottom');
+                setTippy(mySessionTime, 'Session Time', 'bottom');
                 setTippy(myPeerName, 'My name', 'bottom');
                 setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
                 setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
@@ -2453,7 +2469,7 @@ async function loadLocalMedia(stream, kind) {
             myVideoNavBar.className = 'navbar fadein';
 
             // attach to video nav bar
-            myVideoNavBar.appendChild(myCountTime);
+            myVideoNavBar.appendChild(mySessionTime);
 
             !isMobileDevice && myVideoNavBar.appendChild(myVideoPinBtn);
 
@@ -2567,7 +2583,7 @@ function checkShareScreen() {
         // screenShareBtn.click(); // Chrome - Opera - Edge - Brave
         // handle error: getDisplayMedia requires transient activation from a user gesture on Safari - FireFox
         Swal.fire({
-            background: swalBackground,
+            background: swBg,
             position: 'center',
             icon: 'question',
             text: 'Do you want to share your screen?',
@@ -3530,14 +3546,14 @@ function takeSnapshot(video) {
 }
 
 /**
- * Start talk time
+ * Start session time
  */
-function startCountTime() {
+function startSessionTime() {
     callElapsedTime = 0;
-    elemDisplay(countTime, true);
+    elemDisplay(mySessionTime, true);
     setInterval(function printTime() {
         callElapsedTime++;
-        countTime.innerText = secondsToHms(callElapsedTime);
+        mySessionTime.innerText = secondsToHms(callElapsedTime);
     }, 1000);
 }
 
@@ -3706,7 +3722,7 @@ function setRecordStreamBtn() {
  * Full screen button click event
  */
 function setFullScreenBtn() {
-    if (myBrowserName != 'Safari') {
+    if (browserName != 'Safari') {
         // detect esc from full screen mode
         document.addEventListener('fullscreenchange', (e) => {
             let fullscreenElement = document.fullscreenElement;
@@ -4957,7 +4973,7 @@ async function shareRoomUrl() {
 function shareRoomMeetingURL(checkScreen = false) {
     playSound('newMessage');
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         title: 'Share the room',
         html: `
@@ -5026,7 +5042,7 @@ function shareRoomByEmail() {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: swalBackground,
+        background: swBg,
         imageUrl: messageImg,
         position: 'center',
         title: 'Select a Date and Time',
@@ -5669,7 +5685,7 @@ function startStreamRecording() {
  */
 function recordingOptions(options, audioMixerTracks) {
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'top',
         imageUrl: recordingImg,
         title: 'Recording options',
@@ -6110,7 +6126,7 @@ function captionCenter() {
 function cleanMessages() {
     playSound('newMessage');
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         title: 'Clean up chat messages?',
         imageUrl: deleteImg,
@@ -6140,7 +6156,7 @@ function cleanMessages() {
 function cleanCaptions() {
     playSound('newMessage');
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         title: 'Clean up all caption transcripts?',
         imageUrl: deleteImg,
@@ -6448,7 +6464,7 @@ function speechMessage(newMsg = true, from, msg) {
 function deleteMessage(id) {
     playSound('newMessage');
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         title: 'Delete this messages?',
         imageUrl: deleteImg,
@@ -7234,7 +7250,7 @@ function handlePeerPrivateMsg(peer_id, toPeerName) {
  */
 function sendPrivateMsgToPeer(toPeerId, toPeerName) {
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         imageUrl: messageImg,
         title: 'Send private message',
@@ -7525,7 +7541,7 @@ function disableAllPeers(element) {
         return userLog('info', 'No participants detected');
     }
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         imageUrl: element == 'audio' ? audioOffImg : camOffImg,
         title: element == 'audio' ? 'Mute everyone except yourself?' : 'Hide everyone except yourself?',
@@ -7562,7 +7578,7 @@ function ejectEveryone() {
         return userLog('info', 'No participants detected');
     }
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         imageUrl: kickedOutImg,
         position: 'center',
         title: 'Eject everyone except yourself?',
@@ -7589,7 +7605,7 @@ function disablePeer(peer_id, element) {
         return userLog('info', 'No participants detected');
     }
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         imageUrl: element == 'audio' ? audioOffImg : camOffImg,
         title: element == 'audio' ? 'Mute this participant?' : 'Hide this participant?',
@@ -7642,7 +7658,7 @@ function handleRoomAction(config, emit = false) {
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     showDenyButton: true,
-                    background: swalBackground,
+                    background: swBg,
                     imageUrl: roomLockedImg,
                     input: 'text',
                     inputPlaceholder: 'Set Room password',
@@ -7710,7 +7726,7 @@ function handleRoomLocked() {
     console.log('Room is Locked, try with another one');
     Swal.fire({
         allowOutsideClick: false,
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         imageUrl: roomLockedImg,
         title: 'Oops, Wrong Room Password',
@@ -7733,7 +7749,7 @@ function handleUnlockTheRoom() {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: swalBackground,
+        background: swBg,
         imageUrl: roomLockedImg,
         title: 'Oops, Room is Locked',
         input: 'text',
@@ -7896,7 +7912,7 @@ function whiteboardAddObj(type) {
     switch (type) {
         case 'imgUrl':
             Swal.fire({
-                background: swalBackground,
+                background: swBg,
                 title: 'Image URL',
                 input: 'text',
                 showCancelButton: true,
@@ -7919,7 +7935,7 @@ function whiteboardAddObj(type) {
         case 'imgFile':
             Swal.fire({
                 allowOutsideClick: false,
-                background: swalBackground,
+                background: swBg,
                 position: 'center',
                 title: 'Select image',
                 input: 'file',
@@ -7956,7 +7972,7 @@ function whiteboardAddObj(type) {
         case 'pdfFile':
             Swal.fire({
                 allowOutsideClick: false,
-                background: swalBackground,
+                background: swBg,
                 position: 'center',
                 title: 'Select the PDF',
                 input: 'file',
@@ -8320,7 +8336,7 @@ function confirmCleanBoard() {
     playSound('newMessage');
 
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         imageUrl: deleteImg,
         position: 'center',
         title: 'Clean the board',
@@ -8580,7 +8596,7 @@ function selectFileToShare(peer_id, broadcast = false) {
 
     Swal.fire({
         allowOutsideClick: false,
-        background: swalBackground,
+        background: swBg,
         imageAlt: 'mirotalk-file-sharing',
         imageUrl: fileSharingImg,
         position: 'center',
@@ -8734,7 +8750,7 @@ function endDownload() {
         reader.onload = (e) => {
             Swal.fire({
                 allowOutsideClick: false,
-                background: swalBackground,
+                background: swBg,
                 position: 'center',
                 title: 'Received file',
                 text: incomingFileInfo.file.fileName + ' size ' + bytesToSize(incomingFileInfo.file.fileSize),
@@ -8755,7 +8771,7 @@ function endDownload() {
         // not img file
         Swal.fire({
             allowOutsideClick: false,
-            background: swalBackground,
+            background: swBg,
             imageAlt: 'mirotalk-file-download',
             imageUrl: fileSharingImg,
             position: 'center',
@@ -8800,7 +8816,7 @@ function sendVideoUrl(peer_id = null) {
     playSound('newMessage');
 
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         imageUrl: videoAudioShare,
         title: 'Share a Video or Audio',
@@ -8985,7 +9001,7 @@ function kickOut(peer_id) {
     const pName = getId(peer_id + '_name').innerText;
 
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         imageUrl: confirmImg,
         title: 'Kick out ' + pName,
@@ -9023,7 +9039,7 @@ function handleKickedOut(config) {
 
     Swal.fire({
         allowOutsideClick: false,
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         imageUrl: kickedOutImg,
         title: 'Kicked out!',
@@ -9062,7 +9078,7 @@ function showAbout() {
     playSound('newMessage');
 
     Swal.fire({
-        background: swalBackground,
+        background: swBg,
         position: 'center',
         title: '<strong>WebRTC P2P</strong>',
         imageAlt: 'mirotalk-about',
@@ -9119,7 +9135,7 @@ function leaveFeedback() {
         allowOutsideClick: false,
         allowEscapeKey: false,
         showDenyButton: true,
-        background: swalBackground,
+        background: swBg,
         imageUrl: imgFeedback,
         title: 'Leave a feedback',
         text: 'Do you want to rate your MiroTalk experience?',
@@ -9264,7 +9280,7 @@ function userLog(type, message, timer = 3000) {
         case 'warning':
         case 'error':
             Swal.fire({
-                background: swalBackground,
+                background: swBg,
                 position: 'center',
                 icon: type,
                 title: type,
@@ -9277,7 +9293,7 @@ function userLog(type, message, timer = 3000) {
         case 'info':
         case 'success':
             Swal.fire({
-                background: swalBackground,
+                background: swBg,
                 position: 'center',
                 icon: type,
                 title: type,
@@ -9288,7 +9304,7 @@ function userLog(type, message, timer = 3000) {
             break;
         case 'success-html':
             Swal.fire({
-                background: swalBackground,
+                background: swBg,
                 position: 'center',
                 icon: 'success',
                 title: 'Success',
@@ -9299,7 +9315,7 @@ function userLog(type, message, timer = 3000) {
             break;
         case 'toast':
             const Toast = Swal.mixin({
-                background: swalBackground,
+                background: swBg,
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
@@ -9331,7 +9347,7 @@ function msgHTML(icon, imageUrl, title, html, position = 'center') {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
-        background: swalBackground,
+        background: swBg,
         position: position,
         icon: icon,
         imageUrl: imageUrl,
@@ -9351,7 +9367,7 @@ function msgHTML(icon, imageUrl, title, html, position = 'center') {
  */
 function msgPopup(icon, message, position, timer = 1000) {
     const Toast = Swal.mixin({
-        background: swalBackground,
+        background: swBg,
         toast: true,
         position: position,
         showConfirmButton: false,
