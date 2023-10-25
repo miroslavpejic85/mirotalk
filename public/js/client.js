@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.1.8
+ * @version 1.1.9
  *
  */
 
@@ -355,6 +355,7 @@ const videoQualitySelect = getId('videoQuality');
 const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
+const pushToTalkDiv = getId('pushToTalkDiv');
 const lastRecordingInfo = getId('lastRecordingInfo');
 const pauseRecBtn = getId('pauseRecBtn');
 const resumeRecBtn = getId('resumeRecBtn');
@@ -1184,7 +1185,7 @@ function handleButtonsRule() {
 async function whoAreYou() {
     console.log('11. Who are you?');
 
-    loadingDiv.style.display = 'none';
+    elemDisplay(loadingDiv, false);
     document.body.style.background = 'var(--body-bg)';
 
     if (myPeerName) {
@@ -1511,14 +1512,14 @@ function checkPeerAudioVideo() {
         audio = audio.toLowerCase();
         let queryPeerAudio = useAudio ? audio === '1' || audio === 'true' : false;
         if (queryPeerAudio != null) handleAudio(audioBtn, false, queryPeerAudio);
-        //elemDisplay(document.getElementById('tabAudioBtn'), queryPeerAudio);
+        //elemDisplay(tabAudioBtn, queryPeerAudio);
         console.log('Direct join', { audio: queryPeerAudio });
     }
     if (video) {
         video = video.toLowerCase();
         let queryPeerVideo = useVideo ? video === '1' || video === 'true' : false;
         if (queryPeerVideo != null) handleVideo(videoBtn, false, queryPeerVideo);
-        //elemDisplay(document.getElementById('tabVideoBtn'), queryPeerVideo);
+        //elemDisplay(tabVideoBtn, queryPeerVideo);
         console.log('Direct join', { video: queryPeerVideo });
     }
 }
@@ -1527,7 +1528,7 @@ function checkPeerAudioVideo() {
  * Room and Peer name are ok Join Channel
  */
 async function whoAreYouJoin() {
-    myVideoWrap.style.display = 'inline';
+    elemDisplay(myVideoWrap, true);
     myVideoParagraph.innerText = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName);
     setPeerAvatarImgName('myProfileAvatar', myPeerName);
@@ -1702,8 +1703,8 @@ async function handleOnTrack(peer_id, peers) {
             // Create a new screen share video stream from track video (refreshMyStreamToPeers)
             const inboundStream = new MediaStream([event.track]);
             attachMediaStream(remoteVideoStream, inboundStream);
-            remoteAvatarImage.style.display = 'none';
-            remoteVideoStream.style.display = 'block';
+            elemDisplay(remoteAvatarImage, false);
+            elemDisplay(remoteVideoStream, true, 'block');
         }
     };
 }
@@ -2208,8 +2209,8 @@ function enumerateAudioDevices(stream) {
             audioOutputSelect.disabled = !sinkId;
             // Check if there is speakers
             if (!sinkId || initSpeakerSelect.options.length === 0) {
-                initSpeakerSelect.style.display = 'none';
-                audioOutputDiv.style.display = 'none';
+                elemDisplay(initSpeakerSelect, false);
+                elemDisplay(audioOutputDiv, false);
             }
         });
 }
@@ -2475,7 +2476,7 @@ async function loadLocalMedia(stream, kind) {
             myPitchMeter.appendChild(myPitchBar);
 
             // hand display none on default menad is raised == false
-            myHandStatusIcon.style.display = 'none';
+            elemDisplay(myHandStatusIcon, false);
 
             myLocalMedia.setAttribute('id', 'myVideo');
             myLocalMedia.setAttribute('playsinline', true);
@@ -2496,7 +2497,7 @@ async function loadLocalMedia(stream, kind) {
             myVideoWrap.appendChild(myPeerName);
 
             videoMediaContainer.appendChild(myVideoWrap);
-            myVideoWrap.style.display = 'none';
+            elemDisplay(myVideoWrap, false);
 
             logStreamSettingsInfo('localVideoMediaStream', stream);
             attachMediaStream(myLocalMedia, stream);
@@ -2519,7 +2520,7 @@ async function loadLocalMedia(stream, kind) {
             refreshMyVideoStatus(stream);
 
             if (!useVideo) {
-                myVideoAvatarImage.style.display = 'block';
+                elemDisplay(myVideoAvatarImage, true, 'block');
                 myVideoStatusIcon.className = className.videoOff;
                 videoBtn.className = className.videoOff;
                 if (!isMobileDevice) {
@@ -2845,7 +2846,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // Peer without camera, screen sharing OFF
             if (!peer_video && !peer_screen_status) {
-                remoteVideoAvatarImage.style.display = 'block';
+                elemDisplay(remoteVideoAvatarImage, true, 'block');
                 remoteVideoStatusIcon.className = className.videoOff;
             }
             // Peer without camera, screen sharing ON
@@ -3220,7 +3221,7 @@ function handleVideoPrivacyBtn(videoId, privacyBtnId) {
             emitPeerStatus('privacy', isVideoPrivacyActive);
         });
     } else {
-        if (privacyBtn) privacyBtn.style.display = 'none';
+        if (privacyBtn) elemDisplay(privacyBtn, false);
     }
 }
 
@@ -3269,7 +3270,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
                 cam.style.height = '100%';
                 toggleVideoPin(pinVideoPositionSelect.value);
                 videoPinMediaContainer.appendChild(cam);
-                videoPinMediaContainer.style.display = 'block';
+                elemDisplay(videoPinMediaContainer, true, 'block');
                 pinnedVideoPlayerId = elemId;
                 setColor(btnPn, 'lime');
             } else {
@@ -3469,7 +3470,7 @@ function removeVideoPinMediaContainer(peer_id, force_remove = false) {
         (isVideoPinned && (pinnedVideoPlayerId == peer_id + '___video' || pinnedVideoPlayerId == peer_id)) ||
         force_remove
     ) {
-        videoPinMediaContainer.style.display = 'none';
+        elemDisplay(videoPinMediaContainer, false);
         videoMediaContainer.style.top = 0;
         videoMediaContainer.style.right = null;
         videoMediaContainer.style.width = '100%';
@@ -3532,8 +3533,8 @@ function takeSnapshot(video) {
  * Start talk time
  */
 function startCountTime() {
-    countTime.style.display = 'inline';
     callElapsedTime = 0;
+    elemDisplay(countTime, true);
     setInterval(function printTime() {
         callElapsedTime++;
         countTime.innerText = secondsToHms(callElapsedTime);
@@ -3660,7 +3661,7 @@ function setSwapCameraBtn() {
                 swapCamera();
             });
         } else {
-            swapCameraBtn.style.display = 'none';
+            elemDisplay(swapCameraBtn, false);
         }
     });
 }
@@ -3682,8 +3683,8 @@ function setScreenShareBtn() {
             await toggleScreenSharing();
         });
     } else {
-        initScreenShareBtn.style.display = 'none';
-        screenShareBtn.style.display = 'none';
+        elemDisplay(initScreenShareBtn, false);
+        elemDisplay(screenShareBtn, false);
         elemDisplay(screenFpsDiv, false);
     }
 }
@@ -3719,7 +3720,7 @@ function setFullScreenBtn() {
             toggleFullScreen();
         });
     } else {
-        fullScreenBtn.style.display = 'none';
+        elemDisplay(fullScreenBtn, false);
     }
 }
 
@@ -3756,12 +3757,12 @@ function setChatRoomBtn() {
         if (!thereArePeerConnections()) {
             return userLog('info', 'No participants detected');
         }
-        msgerCP.style.display = 'flex';
+        elemDisplay(msgerCP, true, 'flex');
     });
 
     // hide msger participants section
     msgerCPCloseBtn.addEventListener('click', (e) => {
-        msgerCP.style.display = 'none';
+        elemDisplay(msgerCP, false);
     });
 
     // clean chat messages
@@ -3947,7 +3948,7 @@ function setCaptionRoomBtn() {
         });
 
         // hide it
-        speechRecognitionStop.style.display = 'none';
+        elemDisplay(speechRecognitionStop, false);
 
         // start recognition speech
         speechRecognitionStart.addEventListener('click', (e) => {
@@ -3958,7 +3959,7 @@ function setCaptionRoomBtn() {
             stopSpeech();
         });
     } else {
-        captionBtn.style.display = 'none';
+        elemDisplay(captionBtn, false);
         // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility
     }
 }
@@ -3975,7 +3976,7 @@ function setRoomEmojiButton() {
     const emojiRoomPicker = new EmojiMart.Picker(pickerRoomOptions);
 
     emojiPickerContainer.appendChild(emojiRoomPicker);
-    emojiPickerContainer.style.display = 'none';
+    elemDisplay(emojiPickerContainer, false);
 
     if (!isMobileDevice) {
         dragElement(emojiPickerContainer, emojiPickerHeader);
@@ -4004,7 +4005,7 @@ function setRoomEmojiButton() {
 
     function toggleEmojiPicker() {
         if (emojiPickerContainer.style.display === 'block') {
-            emojiPickerContainer.style.display = 'none';
+            elemDisplay(emojiPickerContainer, false);
             setColor(roomEmojiPickerBtn, 'black');
         } else {
             emojiPickerContainer.style.display = 'block';
@@ -4297,7 +4298,7 @@ async function documentPictureInPictureOpen() {
 function setMySettingsBtn() {
     mySettingsBtn.addEventListener('click', (e) => {
         if (isMobileDevice) {
-            buttonsBar.style.display = 'none';
+            elemDisplay(buttonsBar, false);
             isButtonsVisible = false;
         }
         hideShowMySettings();
@@ -4328,7 +4329,7 @@ function setMySettingsBtn() {
     });
 
     if (isMobileDevice) {
-        document.getElementById('pushToTalkDiv').style.display = 'none';
+        elemDisplay(pushToTalkDiv, false);
     } else {
         // Push to talk
         switchPushToTalk.addEventListener('change', (e) => {
@@ -4444,11 +4445,9 @@ function setupMySettings() {
     });
     // advance audio options
     micOptionsBtn.addEventListener('click', function () {
-        if (micDropDownMenu.style.display === 'block') {
-            micDropDownMenu.style.display = 'none';
-        } else {
-            micDropDownMenu.style.display = 'block';
-        }
+        micDropDownMenu.style.display === 'block'
+            ? elemDisplay(micDropDownMenu, false)
+            : elemDisplay(micDropDownMenu, true, 'block');
     });
     // audio options
     switchAutoGainControl.onchange = (e) => {
@@ -4565,7 +4564,7 @@ function setupMySettings() {
             toggleVideoPin(pinVideoPositionSelect.value);
         });
     } else {
-        pinUnpinGridDiv.style.display = 'none';
+        elemDisplay(pinUnpinGridDiv, false);
     }
     // room actions
     muteEveryoneBtn.addEventListener('click', (e) => {
@@ -4907,7 +4906,7 @@ function showButtonsBarAndMenu() {
     )
         return;
     toggleClassElements('navbar', 'block');
-    buttonsBar.style.display = 'flex';
+    elemDisplay(buttonsBar, true, 'flex');
     isButtonsVisible = true;
 }
 
@@ -4917,7 +4916,7 @@ function showButtonsBarAndMenu() {
 function checkButtonsBarAndMenu() {
     if (!isButtonsBarOver) {
         toggleClassElements('navbar', 'none');
-        buttonsBar.style.display = 'none';
+        elemDisplay(buttonsBar, false);
         isButtonsVisible = false;
     }
     setTimeout(() => {
@@ -5120,7 +5119,7 @@ async function handleVideo(e, init, force = null) {
     if (init) {
         initVideoBtn.className = videoClassName;
         setTippy(initVideoBtn, videoStatus ? 'Stop the video' : 'Start the video', 'top');
-        initVideo.style.display = videoStatus ? 'block' : 'none';
+        videoStatus ? elemDisplay(initVideo, true, 'block') : elemDisplay(initVideo, false);
         initVideoSelect.disabled = !videoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
     }
@@ -5270,13 +5269,13 @@ async function toggleScreenSharing(init = false) {
                 initStream = screenMediaPromise;
                 if (hasVideoTrack(initStream)) {
                     const newInitStream = new MediaStream([initStream.getVideoTracks()[0]]);
-                    initVideo.style.display = 'block';
+                    elemDisplay(initVideo, true, 'block');
                     initVideo.classList.toggle('mirror');
                     initVideo.srcObject = newInitStream;
                     disable(initVideoSelect, isScreenStreaming);
                     disable(initVideoBtn, isScreenStreaming);
                 } else {
-                    initVideo.style.display = 'none';
+                    elemDisplay(initVideo, false);
                 }
             }
 
@@ -5289,12 +5288,16 @@ async function toggleScreenSharing(init = false) {
             setScreenSharingStatus(isScreenStreaming);
 
             if (myVideoAvatarImage && !useVideo) {
-                myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
+                isScreenStreaming
+                    ? elemDisplay(myVideoAvatarImage, false)
+                    : elemDisplay(myVideoAvatarImage, true, 'block');
             }
 
-            if (myPrivacyBtn) myPrivacyBtn.style.display = isScreenStreaming ? 'none' : 'inline';
+            if (myPrivacyBtn) {
+                isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
+            }
 
-            if (isScreenStreaming || isVideoPinned) getId('myVideoPinBtn').click();
+            if (isScreenStreaming || isVideoPinned) myVideoPinBtn.click();
         }
     } catch (err) {
         err.name === 'NotAllowedError'
@@ -5348,7 +5351,7 @@ async function handleToggleScreenException(reason, init) {
 
         // Handle video avatar image and privacy button visibility
         if (myVideoAvatarImage && !useVideo) {
-            myVideoAvatarImage.style.display = isScreenStreaming ? 'none' : 'block';
+            isScreenStreaming ? elemDisplay(myVideoAvatarImage, false) : elemDisplay(myVideoAvatarImage, true, 'block');
         }
 
         // Automatically pin the video if screen sharing or video is pinned
@@ -5365,7 +5368,9 @@ async function handleToggleScreenException(reason, init) {
  * @param {boolean} status of screen sharing
  */
 function setScreenSharingStatus(status) {
-    if (!useVideo) myVideo.style.display = status ? 'block' : 'none';
+    if (!useVideo) {
+        status ? elemDisplay(myVideo, true, 'block') : elemDisplay(myVideo, false);
+    }
     initScreenShareBtn.className = status ? className.screenOff : className.screenOn;
     screenShareBtn.className = status ? className.screenOff : className.screenOn;
     setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', placement);
@@ -5382,8 +5387,8 @@ async function setMyVideoStatusTrue() {
     initVideoBtn.className = className.videoOn;
     videoBtn.className = className.videoOn;
     myVideoStatusIcon.className = className.videoOn;
-    myVideoAvatarImage.style.display = 'none';
-    myVideo.style.display = 'block';
+    elemDisplay(myVideoAvatarImage, false);
+    elemDisplay(myVideo, true, 'block');
     setTippy(videoBtn, 'Stop the video', placement);
     setTippy(initVideoBtn, 'Stop the video', 'top');
     emitPeerStatus('video', myVideoStatus);
@@ -5702,7 +5707,7 @@ function startMobileRecording(options, audioMixerTracks) {
         }
 
         // Check if there's a local media stream (presumably for the camera)
-        if (localVideoMediaStream !== null) {
+        if (useVideo && localVideoMediaStream !== null) {
             const videoTracks = localVideoMediaStream.getVideoTracks();
             console.log('Cam video tracks --->', videoTracks);
 
@@ -5844,9 +5849,7 @@ function handleMediaRecorderStart(event) {
     isStreamRecording = true;
     recordStreamBtn.style.setProperty('color', '#ff4500');
     setTippy(recordStreamBtn, 'Stop recording', placement);
-    if (isMobileDevice) {
-        swapCameraBtn.style.display = 'none';
-    }
+    if (isMobileDevice) elemDisplay(swapCameraBtn, false);
     playSound('recStart');
 }
 
@@ -5880,9 +5883,7 @@ function handleMediaRecorderStop(event) {
     recordStreamBtn.style.setProperty('color', '#000');
     downloadRecordedStream();
     setTippy(recordStreamBtn, 'Start recording', placement);
-    if (isMobileDevice) {
-        swapCameraBtn.style.display = 'block';
-    }
+    if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
     playSound('recStop');
 }
 
@@ -6015,7 +6016,7 @@ function setChatRoomAndCaptionForMobile() {
 function showChatRoomDraggable() {
     playSound('newMessage');
     if (isMobileDevice) {
-        buttonsBar.style.display = 'none';
+        elemDisplay(buttonsBar, false);
         isButtonsVisible = false;
     }
     chatRoomBtn.className = className.chatOff;
@@ -6032,7 +6033,7 @@ function showChatRoomDraggable() {
 function showCaptionDraggable() {
     playSound('newMessage');
     if (isMobileDevice) {
-        buttonsBar.style.display = 'none';
+        elemDisplay(buttonsBar, false);
         isButtonsVisible = false;
     }
     captionBtn.className = 'far fa-closed-captioning';
@@ -6167,9 +6168,9 @@ function cleanCaptions() {
  * Hide chat room and emoji picker
  */
 function hideChatRoomAndEmojiPicker() {
-    msgerDraggable.style.display = 'none';
-    msgerEmojiPicker.style.display = 'none';
-    msgerEmojiBtn.style.color = '#FFFFFF';
+    elemDisplay(msgerDraggable, false);
+    elemDisplay(msgerEmojiPicker, false);
+    setColor(msgerEmojiBtn, '#FFFFFF');
     chatRoomBtn.className = className.chatOn;
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
@@ -6180,7 +6181,7 @@ function hideChatRoomAndEmojiPicker() {
  * Hide chat room and emoji picker
  */
 function hideCaptionBox() {
-    captionDraggable.style.display = 'none';
+    elemDisplay(captionDraggable, false);
     captionBtn.className = className.captionOn;
     isCaptionBoxVisible = false;
     setTippy(captionBtn, 'Open the caption', placement);
@@ -6530,11 +6531,9 @@ function searchPeer() {
     for (let i = 0; i < msgerPeerInputarea.length; i++) {
         const span = msgerPeerInputarea[i].getElementsByTagName('span')[0];
         //console.log(span);
-        if (span && span.innerText.toLowerCase().includes(searchPeerBarName)) {
-            msgerPeerInputarea[i].style.display = 'flex';
-        } else {
-            msgerPeerInputarea[i].style.display = 'none';
-        }
+        span && span.innerText.toLowerCase().includes(searchPeerBarName)
+            ? elemDisplay(msgerPeerInputarea[i], true, 'flex')
+            : elemDisplay(msgerPeerInputarea[i], false);
     }
 }
 
@@ -6601,7 +6600,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
         emitMsg(myPeerName, toPeerName, pMsg, true, peerId);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<hr>Private message to ' + toPeerName, true);
         msgerPrivateMsgInput.value = '';
-        msgerCP.style.display = 'none';
+        elemDisplay(msgerCP, false);
     }
 }
 
@@ -6860,13 +6859,13 @@ async function getChatGPTmessage(msg) {
  */
 function hideShowEmojiPicker() {
     if (!isChatEmojiVisible) {
-        msgerEmojiPicker.style.display = 'block';
-        msgerEmojiBtn.style.color = '#FFFF00';
+        elemDisplay(msgerEmojiPicker, true, 'block');
+        setColor(msgerEmojiBtn, '#FFFF00');
         isChatEmojiVisible = true;
         return;
     }
-    msgerEmojiPicker.style.display = 'none';
-    msgerEmojiBtn.style.color = '#FFFFFF';
+    elemDisplay(msgerEmojiPicker, false);
+    setColor(msgerEmojiBtn, '#FFFFFF');
     isChatEmojiVisible = false;
 }
 
@@ -6915,14 +6914,14 @@ function hideShowMySettings() {
         // center screen on show
         mySettings.style.top = '50%';
         mySettings.style.left = '50%';
-        mySettings.style.display = 'block';
-        isMySettingsVisible = true;
+        elemDisplay(mySettings, true, 'block');
         setTippy(mySettingsBtn, 'Close the settings', placement);
+        isMySettingsVisible = true;
         return;
     }
-    mySettings.style.display = 'none';
-    isMySettingsVisible = false;
+    elemDisplay(mySettings, false);
     setTippy(mySettingsBtn, 'Open the settings', placement);
+    isMySettingsVisible = false;
 }
 
 /**
@@ -6932,16 +6931,17 @@ function hideShowMySettings() {
  * @param {string} tabName name of the tab to open
  */
 function openTab(evt, tabName) {
-    let i, tabcontent, tablinks;
-    tabcontent = getEcN('tabcontent');
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = 'none';
+    const tabN = getId(tabName);
+    const tabContent = getEcN('tabcontent');
+    const tabLinks = getEcN('tablinks');
+    let i;
+    for (i = 0; i < tabContent.length; i++) {
+        elemDisplay(tabContent[i], false);
     }
-    tablinks = getEcN('tablinks');
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(' active', '');
+    for (i = 0; i < tabLinks.length; i++) {
+        tabLinks[i].className = tabLinks[i].className.replace(' active', '');
     }
-    getId(tabName).style.display = 'block';
+    elemDisplay(tabN, true, 'block');
     evt.currentTarget.className += ' active';
 }
 
@@ -7027,11 +7027,18 @@ async function emitPeerStatus(element, status) {
  * @param {boolean} isHideMeActive
  */
 function handleHideMe(isHideMeActive) {
-    if (isHideMeActive && isVideoPinned) myVideoPinBtn.click();
-    myVideoWrap.style.display = isHideMeActive ? 'none' : 'inline-block';
-    hideMeBtn.className = isHideMeActive ? className.hideMeOn : className.hideMeOff;
-    hideMeBtn.style.color = isHideMeActive ? 'red' : 'black';
-    isHideMeActive ? playSound('off') : playSound('on');
+    if (isHideMeActive) {
+        if (isVideoPinned) myVideoPinBtn.click();
+        elemDisplay(myVideoWrap, false);
+        setColor(hideMeBtn, 'red');
+        hideMeBtn.className = className.hideMeOn;
+        playSound('off');
+    } else {
+        elemDisplay(myVideoWrap, true, 'inline-block');
+        hideMeBtn.className = className.hideMeOff;
+        setColor(hideMeBtn, 'black');
+        playSound('on');
+    }
     if (Object.keys(peerConnections).length === 1) {
         resizeVideoMedia();
     }
@@ -7041,18 +7048,19 @@ function handleHideMe(isHideMeActive) {
  * Set my Hand Status and Icon
  */
 function setMyHandStatus() {
+    myHandStatus = !myHandStatus;
     if (myHandStatus) {
         // Raise hand
-        myHandStatus = false;
+        setColor(myHandBtn, 'green');
+        elemDisplay(myHandStatusIcon, true);
         setTippy(myHandBtn, 'Raise your hand', placement);
+        playSound('raiseHand');
     } else {
         // Lower hand
-        myHandStatus = true;
+        setColor(myHandBtn, 'black');
+        elemDisplay(myHandStatusIcon, false);
         setTippy(myHandBtn, 'Lower your hand', placement);
-        playSound('raiseHand');
     }
-    myHandBtn.style.color = myHandStatus ? 'green' : 'black';
-    myHandStatusIcon.style.display = myHandStatus ? 'inline' : 'none';
     emitPeerStatus('hand', myHandStatus);
 }
 
@@ -7078,9 +7086,14 @@ function setMyAudioStatus(status) {
  */
 function setMyVideoStatus(status) {
     console.log('My video status', status);
-    // on vdeo OFF display my video avatar name
-    if (myVideoAvatarImage) myVideoAvatarImage.style.display = status ? 'none' : 'block';
-    if (myVideoStatusIcon) myVideoStatusIcon.className = status ? className.videoOn : className.videoOff;
+
+    // On video OFF display my video avatar name
+    if (myVideoAvatarImage) {
+        status ? elemDisplay(myVideoAvatarImage, false) : elemDisplay(myVideoAvatarImage, true, 'block');
+    }
+    if (myVideoStatusIcon) {
+        myVideoStatusIcon.className = status ? className.videoOn : className.videoOff;
+    }
 
     // send my video status to all peers in the room
     emitPeerStatus('video', status);
@@ -7089,9 +7102,16 @@ function setMyVideoStatus(status) {
         if (myVideoStatusIcon) setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
         setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', placement);
     }
-    myVideo.style.display = status ? 'block' : 'none';
-    initVideo.style.display = status ? 'block' : 'none';
-    status ? playSound('on') : playSound('off');
+
+    if (status) {
+        elemDisplay(myVideo, true, 'block');
+        elemDisplay(initVideo, true, 'block');
+        playSound('on');
+    } else {
+        elemDisplay(myVideo, false);
+        elemDisplay(initVideo, false);
+        playSound('off');
+    }
 }
 
 /**
@@ -7126,10 +7146,12 @@ function handlePeerStatus(config) {
  */
 function setPeerHandStatus(peer_id, peer_name, status) {
     const peerHandStatus = getId(peer_id + '_handStatus');
-    peerHandStatus.style.display = status ? 'inline' : 'none';
     if (status) {
+        elemDisplay(peerHandStatus, true);
         userLog('toast', `${icons.user} ${peer_name} \n has raised the hand!`);
         playSound('raiseHand');
+    } else {
+        elemDisplay(peerHandStatus, false);
     }
 }
 
@@ -7164,7 +7186,7 @@ function handleAudioVolume(audioVolumeId, mediaId) {
             media.volume = audioVolume.value / 100;
         });
     } else {
-        if (audioVolume) audioVolume.style.display = 'none';
+        if (audioVolume) elemDisplay(audioVolume, false);
     }
 }
 
@@ -7273,12 +7295,22 @@ function setPeerVideoStatus(peer_id, status) {
     const peerVideoPlayer = getId(peer_id + '___video');
     const peerVideoAvatarImage = getId(peer_id + '_avatar');
     const peerVideoStatus = getId(peer_id + '_videoStatus');
-    if (peerVideoPlayer) peerVideoPlayer.style.display = status ? 'block' : 'none';
-    if (peerVideoAvatarImage) peerVideoAvatarImage.style.display = status ? 'none' : 'block';
-    if (peerVideoStatus) {
-        peerVideoStatus.className = status ? className.videoOn : className.videoOff;
-        setTippy(peerVideoStatus, status ? 'Participant video is on' : 'Participant video is off', 'bottom');
-        status ? playSound('on') : playSound('off');
+    if (status) {
+        if (peerVideoPlayer) elemDisplay(peerVideoPlayer, true, 'block');
+        if (peerVideoAvatarImage) elemDisplay(peerVideoAvatarImage, false);
+        if (peerVideoStatus) {
+            peerVideoStatus.className = className.videoOn;
+            setTippy(peerVideoStatus, 'Participant video is on', 'bottom');
+            playSound('on');
+        }
+    } else {
+        if (peerVideoPlayer) elemDisplay(peerVideoPlayer, false);
+        if (peerVideoAvatarImage) elemDisplay(peerVideoAvatarImage, true, 'block');
+        if (peerVideoStatus) {
+            peerVideoStatus.className = className.videoOff;
+            setTippy(peerVideoStatus, 'Participant video is off', 'bottom');
+            playSound('off');
+        }
     }
 }
 
@@ -7407,9 +7439,7 @@ function handleScreenStart(peer_id) {
         remoteVideoStream.style.objectFit = 'contain';
         remoteVideoStream.style.name = peer_id + '_typeScreen';
     }
-    if (remoteVideoAvatarImage) {
-        remoteVideoAvatarImage.style.display = 'none';
-    }
+    if (remoteVideoAvatarImage) elemDisplay(remoteVideoAvatarImage, false);
 }
 
 /**
@@ -7432,16 +7462,14 @@ function handleScreenStop(peer_id, peer_use_video) {
         adaptAspectRatio();
     }
     if (remoteVideoAvatarImage && remoteVideoStream && !peer_use_video) {
-        remoteVideoAvatarImage.style.display = 'block';
+        elemDisplay(remoteVideoAvatarImage, true, 'block');
         remoteVideoStream.srcObject.getVideoTracks().forEach((track) => {
             track.stop();
             // track.enabled = false;
         });
-        remoteVideoStream.style.display = 'none';
+        elemDisplay(remoteVideoStream, false);
     } else {
-        if (remoteVideoAvatarImage) {
-            remoteVideoAvatarImage.style.display = 'none';
-        }
+        if (remoteVideoAvatarImage) elemDisplay(remoteVideoAvatarImage, false);
     }
 }
 
@@ -8222,7 +8250,7 @@ function wbCanvasSaveImg() {
  */
 function saveDataToFile(dataURL, fileName) {
     const a = document.createElement('a');
-    a.style.display = 'none';
+    elemDisplay(a, false);
     a.href = dataURL;
     a.download = fileName;
     document.body.appendChild(a);
@@ -8406,7 +8434,7 @@ function handleDataChannelFileSharing(data) {
     receiveFilePercentage.innerText =
         'Receive progress: ' + ((receivedSize / incomingFileInfo.file.fileSize) * 100).toFixed(2) + '%';
     if (receivedSize === incomingFileInfo.file.fileSize) {
-        receiveFileDiv.style.display = 'none';
+        elemDisplay(receiveFileDiv, false);
         incomingFileData = receiveBuffer;
         receiveBuffer = [];
         endDownload();
@@ -8437,7 +8465,7 @@ function sendFileData(peer_id, broadcast) {
         bytesToSize(fileToSend.size) +
         '\n';
 
-    sendFileDiv.style.display = 'inline';
+    elemDisplay(sendFileDiv, true);
     sendProgress.max = fileToSend.size;
     fileReader = new FileReader();
     let offset = 0;
@@ -8462,7 +8490,7 @@ function sendFileData(peer_id, broadcast) {
         // send file completed
         if (offset === fileToSend.size) {
             sendInProgress = false;
-            sendFileDiv.style.display = 'none';
+            elemDisplay(sendFileDiv, false);
             userLog('success', 'The file ' + fileToSend.name + ' was sent successfully.');
         }
 
@@ -8513,7 +8541,7 @@ function sendFSData(data) {
 function abortFileTransfer() {
     if (fileReader && fileReader.readyState === 1) {
         fileReader.abort();
-        sendFileDiv.style.display = 'none';
+        elemDisplay(sendFileDiv, false);
         sendInProgress = false;
         sendToServer('fileAbort', {
             room_id: roomId,
@@ -8530,7 +8558,7 @@ function handleFileAbort() {
     incomingFileData = [];
     receivedSize = 0;
     receiveInProgress = false;
-    receiveFileDiv.style.display = 'none';
+    elemDisplay(receiveFileDiv, false);
     console.log('File transfer aborted');
     userLog('toast', '⚠️ File transfer aborted');
 }
@@ -8539,7 +8567,7 @@ function handleFileAbort() {
  * Hide incoming file transfer
  */
 function hideFileTransfer() {
-    receiveFileDiv.style.display = 'none';
+    elemDisplay(receiveFileDiv, false);
 }
 
 /**
@@ -8681,7 +8709,7 @@ function handleFileInfo(config) {
         incomingFileInfo.peer_id,
     );
     receiveFileInfo.innerText = fileToReceiveInfo;
-    receiveFileDiv.style.display = 'inline';
+    elemDisplay(receiveFileDiv, true);
     receiveProgress.max = incomingFileInfo.file.fileSize;
     receiveInProgress = true;
     userLog('toast', fileToReceiveInfo);
@@ -8753,7 +8781,7 @@ function endDownload() {
 function saveBlobToFile(blob, file) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.style.display = 'none';
+    elemDisplay(a, false);
     a.href = url;
     a.download = file;
     document.body.appendChild(a);
@@ -8824,12 +8852,12 @@ function openVideoUrlPlayer(config) {
             playSound('newMessage');
             console.log('Load element type: iframe');
             videoUrlIframe.src = videoEmbed;
-            videoUrlCont.style.display = 'flex';
+            elemDisplay(videoUrlCont, true, 'flex');
             isVideoUrlPlayerOpen = true;
         } else {
             playSound('newMessage');
             console.log('Load element type: Video');
-            videoAudioUrlCont.style.display = 'flex';
+            elemDisplay(videoAudioUrlCont, true, 'flex');
             videoAudioUrlElement.setAttribute('src', videoSrc);
             videoAudioUrlElement.type = videoType;
             if (videoAudioUrlElement.type == 'video/mp3') {
@@ -8898,8 +8926,8 @@ function closeVideoUrlPlayer() {
     });
     if (videoUrlIframe.src != '') videoUrlIframe.setAttribute('src', '');
     if (videoAudioUrlElement.src != '') videoAudioUrlElement.setAttribute('src', '');
-    videoUrlCont.style.display = 'none';
-    videoAudioUrlCont.style.display = 'none';
+    elemDisplay(videoUrlCont, false);
+    elemDisplay(videoAudioUrlCont, false);
     isVideoUrlPlayerOpen = false;
 }
 
