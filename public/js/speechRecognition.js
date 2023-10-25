@@ -90,8 +90,8 @@ if (speechRecognition) {
 
     recognition.onstart = function () {
         console.log('Speech recognition started');
-        speechRecognitionStart.style.display = 'none';
-        speechRecognitionStop.style.display = 'block';
+        elemDisplay(speechRecognitionStart, false);
+        elemDisplay(speechRecognitionStop, true, 'block');
         setColor(speechRecognitionIcon, 'lime');
         userLog('toast', 'Speech recognition started');
     };
@@ -130,8 +130,8 @@ if (speechRecognition) {
     recognition.onend = function () {
         console.log('Speech recognition stopped');
         // if (recognitionRunning) recognition.start();
-        speechRecognitionStop.style.display = 'none';
-        speechRecognitionStart.style.display = 'block';
+        elemDisplay(speechRecognitionStop, false);
+        elemDisplay(speechRecognitionStart, true, 'block');
         setColor(speechRecognitionIcon, 'white');
         userLog('toast', 'Speech recognition stopped');
     };
