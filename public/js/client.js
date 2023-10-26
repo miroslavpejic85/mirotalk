@@ -4170,6 +4170,7 @@ function setMyFileShareBtn() {
  */
 function setDocumentPiPBtn() {
     documentPiPBtn.addEventListener('click', async () => {
+        if (!showDocumentPipBtn) return;
         if (documentPictureInPicture.window) {
             documentPictureInPicture.window.close();
             console.log('DOCUMENT PIP close');
@@ -4183,6 +4184,7 @@ function setDocumentPiPBtn() {
  *  Close documentPictureInPicture
  */
 async function documentPictureInPictureClose() {
+    if (!showDocumentPipBtn) return;
     if (documentPictureInPicture.window) {
         documentPictureInPicture.window.close();
         console.log('DOCUMENT PIP close');
@@ -4193,6 +4195,7 @@ async function documentPictureInPictureClose() {
  * Open documentPictureInPicture
  */
 async function documentPictureInPictureOpen() {
+    if (!showDocumentPipBtn) return;
     try {
         const pipWindow = await documentPictureInPicture.requestWindow({
             width: 300,
