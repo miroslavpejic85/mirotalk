@@ -636,7 +636,7 @@ let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 
 // Redirect on leave room
 let redirectActive = false;
-let redirectURL = '/newcall'
+let redirectURL = '/newcall';
 
 /**
  * Load all Html elements by Id
@@ -1076,8 +1076,7 @@ function handleServerInfo(config) {
     surveyURL = survey.url;
 
     // Get redirect settings from server
-    redirectActive = redirect.active,
-    redirectURL = redirect.url
+    (redirectActive = redirect.active), (redirectURL = redirect.url);
 
     // Limit room to n peers
     if (userLimits.active && peers_count > userLimits.count) {

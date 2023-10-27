@@ -773,7 +773,7 @@ io.sockets.on('connect', async (socket) => {
             redirect: {
                 active: redirectEnabled,
                 url: redirectURL,
-            }
+            },
             //...
         });
     });
