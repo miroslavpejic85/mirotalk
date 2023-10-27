@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.0
+ * @version 1.2.1
  *
  */
 
@@ -634,6 +634,10 @@ const chunkSize = 1024; // 1024 * 16; // 16kb/s
 let surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
 let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 
+// Redirect on leave room
+let redirectActive = false;
+let redirectURL = '/newcall'
+
 /**
  * Load all Html elements by Id
  */
@@ -1063,13 +1067,17 @@ async function handleConnect() {
  * @param {object} config data
  */
 function handleServerInfo(config) {
-    const { peers_count, is_presenter, survey } = config;
+    console.log('13. Server info', config);
+
+    const { peers_count, is_presenter, survey, redirect } = config;
 
     // Get survey settings from server
     surveyActive = survey.active;
     surveyURL = survey.url;
 
-    console.log('13. Server info', config);
+    // Get redirect settings from server
+    redirectActive = redirect.active,
+    redirectURL = redirect.url
 
     // Limit room to n peers
     if (userLimits.active && peers_count > userLimits.count) {
@@ -9122,11 +9130,11 @@ function showAbout() {
  * Leave the Room and create a new one
  */
 function leaveRoom() {
+    checkRecording();
     if (surveyActive) {
         leaveFeedback();
     } else {
-        checkRecording();
-        openURL('/newcall');
+        redirectOnLeave();
     }
 }
 
@@ -9147,13 +9155,16 @@ function leaveFeedback() {
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
-        checkRecording();
         if (result.isConfirmed) {
             openURL(surveyURL);
         } else {
-            openURL('/newcall');
+            redirectOnLeave();
         }
     });
+}
+
+function redirectOnLeave() {
+    redirectActive ? openURL(redirectURL) : openURL('/newcall');
 }
 
 /**
