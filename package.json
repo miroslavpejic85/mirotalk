@@ -17,7 +17,16 @@
         "docker-rune": "docker run -d -p 3000:3000 -v .env:/src/.env:ro --name mirotalk mirotalk/p2p:latest",
         "docker-run-vm": "docker run -d -p 3000:3000 -v .env:/src/.env:ro -v ./app/:/src/app/:ro -v ./public/:/src/public/:ro --name mirotalk mirotalk/p2p:latest",
         "docker-start": "docker start mirotalk",
-        "docker-stop": "docker stop mirotalk"
+        "docker-stop": "docker stop mirotalk",
+        "prepare": "husky install"
+    },
+    "lint-staged": {
+        "**/*": "prettier --write --ignore-unknown"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
     },
     "repository": {
         "type": "git",
@@ -54,6 +63,9 @@
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
+        "eslint-config-prettier": "^9.0.0",
+        "husky": "^8.0.3",
+        "lint-staged": "^15.0.2",
         "node-fetch": "^3.3.2",
         "nodemon": "^3.0.1",
         "prettier": "3.0.3"
