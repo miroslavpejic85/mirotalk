@@ -211,7 +211,6 @@ const views = {
     login: path.join(__dirname, '../../', 'public/views/login.html'),
     newCall: path.join(__dirname, '../../', 'public/views/newcall.html'),
     notFound: path.join(__dirname, '../../', 'public/views/404.html'),
-    permission: path.join(__dirname, '../../', 'public/views/permission.html'),
     privacy: path.join(__dirname, '../../', 'public/views/privacy.html'),
     stunTurn: path.join(__dirname, '../../', 'public/views/testStunTurn.html'),
 };
@@ -295,11 +294,6 @@ app.get(['/newcall'], (req, res) => {
     } else {
         res.sendFile(views.newCall);
     }
-});
-
-// if not allow video/audio
-app.get(['/permission'], (req, res) => {
-    res.sendFile(views.permission);
 });
 
 // privacy policy
