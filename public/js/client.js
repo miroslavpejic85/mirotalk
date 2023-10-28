@@ -129,11 +129,14 @@ const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
 const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
 console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 
+// Check if embedded inside an iFrame
+const isEmbedded = window.self !== window.top;
+
 // Check if PIP is supported by this browser
 const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
 
 // Check if Document PIP is supported by this browser
-const showDocumentPipBtn = !isMobileDevice && 'documentPictureInPicture' in window;
+const showDocumentPipBtn = !isMobileDevice && !isEmbedded && 'documentPictureInPicture' in window;
 
 /**
  * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
