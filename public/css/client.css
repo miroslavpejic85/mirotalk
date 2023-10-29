@@ -982,6 +982,14 @@ button:hover {
     transition: all 0.3s ease-in-out;
 }
 
+#recImage {
+    width: 128px;
+    height: auto;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
 /*--------------------------------------------------------------
 # Settings Table
 --------------------------------------------------------------*/

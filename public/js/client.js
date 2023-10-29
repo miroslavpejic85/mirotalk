@@ -373,10 +373,11 @@ const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
 const pushToTalkDiv = getId('pushToTalkDiv');
-const lastRecordingInfo = getId('lastRecordingInfo');
+const recImage = getId('recImage');
 const pauseRecBtn = getId('pauseRecBtn');
 const resumeRecBtn = getId('resumeRecBtn');
 const recordingTime = getId('recordingTime');
+const lastRecordingInfo = getId('lastRecordingInfo');
 const themeSelect = getId('mirotalkTheme');
 const videoObjFitSelect = getId('videoObjFitSelect');
 const btnsBarSelect = getId('mainButtonsBarPosition');
@@ -709,6 +710,7 @@ function setButtonsToolTip() {
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
+    setTippy(recImage, 'Toggle recording', 'right');
     // Whiteboard buttons
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
@@ -1167,6 +1169,7 @@ function handleButtonsRule() {
     elemDisplay(videoBtn, buttons.main.showVideoBtn);
     //elemDisplay(screenShareBtn, buttons.main.showScreenBtn, ); // auto-detected
     elemDisplay(recordStreamBtn, buttons.main.showRecordStreamBtn);
+    elemDisplay(recImage, buttons.main.showRecordStreamBtn);
     elemDisplay(chatRoomBtn, buttons.main.showChatRoomBtn);
     elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn && speechRecognition); // auto-detected
     elemDisplay(roomEmojiPickerBtn, buttons.main.showRoomEmojiPickerBtn);
@@ -3722,6 +3725,9 @@ function setRecordStreamBtn() {
         } else {
             startStreamRecording();
         }
+    });
+    recImage.addEventListener('click', (e) => {
+        recordStreamBtn.click();
     });
 }
 
