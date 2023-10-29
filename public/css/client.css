@@ -965,6 +965,15 @@ button:hover {
     background-color: transparent;
 }
 
+#recImage {
+    width: 128px;
+    height: auto;
+    margin-bottom: 10px;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+#recImage:hover,
 #myPeerNameSetBtn:hover,
 #roomSendEmailBtn:hover,
 #lockRoomBtn:hover,
@@ -980,14 +989,6 @@ button:hover {
     color: #ff2d00;
     transform: scale(0.95);
     transition: all 0.3s ease-in-out;
-}
-
-#recImage {
-    width: 128px;
-    height: auto;
-    margin-bottom: 10px;
-    margin-top: 5px;
-    cursor: pointer;
 }
 
 /*--------------------------------------------------------------
