@@ -116,7 +116,7 @@
             // handle error
             pc.onicecandidateerror = (e) => {
                 console.error(e);
-                Err.innerText = '🔴 Error: ' + e.errorText;
+                Err.innerText = '⚠️ ' + e.errorText;
             };
 
             pc.createDataChannel('test');
