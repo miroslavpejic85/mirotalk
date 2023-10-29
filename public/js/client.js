@@ -5854,7 +5854,7 @@ function notifyRecording(fromId, from, action) {
     };
     handleDataChannelChat(chatMessage);
     if (!showChatOnMessage) {
-        msgHTML(null, images.recording, from, `<h1>${action} recording</h1>`);
+        msgHTML(null, images.recording, null, `${from}<br /><h1>${action} recording</h1>`);
     }
 }
 
