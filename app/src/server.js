@@ -502,8 +502,8 @@ async function ngrokStart() {
             slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
-            survey_url: surveyURL,
             redirect_enabled: redirectEnabled,
+            survey_url: surveyURL,
             redirect_url: redirectURL,
             node_version: process.versions.node,
         });
@@ -552,8 +552,8 @@ server.listen(port, null, () => {
             slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
-            survey_url: surveyURL,
             redirect_enabled: redirectEnabled,
+            survey_url: surveyURL,
             redirect_url: redirectURL,
             node_version: process.versions.node,
         });
@@ -1233,13 +1233,14 @@ function isValidFileName(fileName) {
 function isValidHttpURL(url) {
     const pattern = new RegExp(
         '^(https?:\\/\\/)?' + // protocol
-            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(localhost|' + // allow localhost
+            '(([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,})' + // domain name
+            '(\\:\\d+)?' + // port
+            '(\\/[-a-z\\d%_.~+]*)*' + // path
             '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
             '(\\#[-a-z\\d_]*)?$',
-        'i',
-    ); // fragment locator
+        'i', // fragment locator
+    );
     return pattern.test(url);
 }
 
