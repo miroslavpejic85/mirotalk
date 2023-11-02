@@ -306,9 +306,10 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 | [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)               | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com)         |
 | [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com) | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)           |
 
-<br />
+</details>
 
-Our `Advertisers`
+<details open>
+<summary>Advertisers</summary>
 
 ---
 
@@ -317,8 +318,6 @@ Our `Advertisers`
 ---
 
 </details>
-
-<br>
 
 ## Diving into Additional MiroTalk Projects:
 
