@@ -1050,7 +1050,7 @@ th {
         width: 100%;
         min-height: auto;
         flex-direction: row;
-        border-right: none;
+        border-right: none !important;
     }
     .tabActions {
         width: 100%;
