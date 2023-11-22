@@ -71,14 +71,14 @@
                 i
                     ? (i.classList.add('is-active'), l.classList.add('is-active'))
                     : 'next' === t
-                    ? (e.firstElementChild.classList.add('is-active'),
-                      e.parentNode
-                          .getElementsByClassName('carousel-bullets')[0]
-                          .firstElementChild.classList.add('is-active'))
-                    : (e.lastElementChild.classList.add('is-active'),
-                      e.parentNode
-                          .getElementsByClassName('carousel-bullets')[0]
-                          .lastElementChild.classList.add('is-active'));
+                      ? (e.firstElementChild.classList.add('is-active'),
+                        e.parentNode
+                            .getElementsByClassName('carousel-bullets')[0]
+                            .firstElementChild.classList.add('is-active'))
+                      : (e.lastElementChild.classList.add('is-active'),
+                        e.parentNode
+                            .getElementsByClassName('carousel-bullets')[0]
+                            .lastElementChild.classList.add('is-active'));
         }
 
         function i(e, t) {

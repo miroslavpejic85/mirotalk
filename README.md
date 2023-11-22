@@ -34,6 +34,7 @@
 -   Unlimited conference rooms with no time limitations.
 -   Translated into 133 languages.
 -   Host protection to prevent unauthorized access.
+-   User auth to prevent unauthorized access.
 -   Room password protection.
 -   Compatible with desktop and mobile devices.
 -   Optimized mobile room URL sharing.
@@ -91,26 +92,74 @@
 <br/>
 
 -   You can `directly join a room` by using links like:
--   https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
--   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
+-   https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
+-   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
 
-    | Params | Type    | Description     |
-    | ------ | ------- | --------------- |
-    | room   | string  | Room Id         |
-    | name   | string  | User name       |
-    | audio  | boolean | Audio stream    |
-    | video  | boolean | Video stream    |
-    | screen | boolean | Screen stream   |
-    | notify | boolean | Welcome message |
+    | Params   | Type    | Description     |
+    | -------- | ------- | --------------- |
+    | room     | string  | Room Id         |
+    | name     | string  | User name       |
+    | audio    | boolean | Audio stream    |
+    | video    | boolean | Video stream    |
+    | screen   | boolean | Screen stream   |
+    | hide     | boolean | Hide myself     |
+    | notify   | boolean | Welcome message |
+    | username | string  | auth username   |
+    | password | string  | auth password   |
 
 > **Note**
 >
-> When [host protection is enabled](https://github.com/miroslavpejic85/mirotalk/commit/285c92605585bf204996dc0bade9b3e7c62d75df#commitcomment-103108955) the host needs to provide a valid username and password as specified in the `.env`.
->
-> After host authentication, participants can join the room using any of the following URL formats:
->
-> -   https://p2p.mirotalk.com/join/test (URL path)
-> -   https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0 (URL with query parameters for direct join)
+> The `username` and `password` parameters are required when either `HOST_PROTECTED` or `HOST_USER_AUTH` is set to `true` in the `.env` file. The valid list of users is defined in the `HOST_USERS` configuration.
+
+</details>
+
+<details>
+<summary>Host Protection Configuration</summary>
+
+<br/>
+
+When [host protection](https://github.com/miroslavpejic85/mirotalk/commit/285c92605585bf204996dc0bade9b3e7c62d75df#commitcomment-103108955) or host user auth is enabled, the host/users must provide a valid username and password as specified in the `.env` file.
+
+### `HOST_PROTECTED`
+
+-   **Description:** Requires the host to provide a valid username and password during room initialization.
+-   **Values:** `true` if protection is enabled, `false` if not (default false).
+
+### `HOST_USER_AUTH`
+
+-   **Description:** Determines whether host authentication is required.
+-   **Values:** `true` if user authentication is required, `false` if not (default false).
+
+### `HOST_USERS`
+
+-   **Description:** List of valid host users with their credentials.
+-   **Format:** JSON array with user objects: `{"username": "username", "password": "password"}`
+
+Example:
+
+```bash
+HOST_USERS='[{"username": "username", "password": "password"},{"username": "username2", "password": "password2"}]'
+```
+
+### Room Initialization
+
+To bypass the login page, join the room with URL parameters:
+
+-   [https://p2p.mirotalk.com/join/?room=test&username=username&password=password](https://p2p.mirotalk.com/join/?room=test&username=username&password=password)
+
+### Participant Room Entry
+
+If `HOST_PROTECTED` is enabled, participants can join using:
+
+-   [https://p2p.mirotalk.com/join/test](https://p2p.mirotalk.com/join/test) (URL path)
+-   [https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0](https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0) (URL with query parameters)
+
+If `HOST_USER_AUTH` is enabled, participants can join with mandatory credentials:
+
+-   [https://p2p.mirotalk.com/join/?room=test&username=username&password=password](https://p2p.mirotalk.com/join/?room=test&username=username&password=password) (URL path)
+-   [https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0&username=username&password=password](https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0&username=username&password=password) (URL with query parameters)
+
+</details>
 
 </details>
 

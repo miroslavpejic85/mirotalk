@@ -153,6 +153,10 @@
                                                         .then(function (response) {
                                                             console.log(response);
 
+                                                            // Store in session
+                                                            window.sessionStorage.peer_username = username;
+                                                            window.sessionStorage.peer_password = password;
+
                                                             if (room) {
                                                                 return (window.location.href =
                                                                     '/join/' + window.location.search);

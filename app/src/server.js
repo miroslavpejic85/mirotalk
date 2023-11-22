@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.3
+ * @version 1.2.4
  *
  */
 
@@ -90,10 +90,13 @@ io = new Server({
 
 // Host protection (disabled by default)
 const hostProtected = getEnvBoolean(process.env.HOST_PROTECTED);
+const userAuth = getEnvBoolean(process.env.HOST_USER_AUTH);
+const hostUsersString = process.env.HOST_USERS || '[{"username": "MiroTalk", "password": "P2P"}]';
+const hostUsers = JSON.parse(hostUsersString);
 const hostCfg = {
     protected: hostProtected,
-    username: process.env.HOST_USERNAME,
-    password: process.env.HOST_PASSWORD,
+    user_auth: userAuth,
+    users: hostUsers,
     authenticated: !hostProtected,
 };
 
@@ -311,19 +314,36 @@ app.get(['/test'], (req, res) => {
 
 // no room name specified to join
 app.get('/join/', (req, res) => {
-    if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
+    if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
         /* 
-            http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
-            https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
-            https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=1&notify=1
+            http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=1&username=username&password=password
+            https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=0
+            https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=0
         */
-        const { room, name, audio, video, screen, notify } = checkXSS(req.query);
-        // all the params are mandatory for the direct room join
-        // if (room && name && audio && video && screen && notify) {
-        if (room) {
+        const { room, name, audio, video, screen, notify, hide, username, password } = checkXSS(req.query);
+
+        // check if valid peer
+        const isPeerValid = isAuthPeer(username, password);
+
+        // Peer valid going to auth as host
+        if (hostCfg.protected && isPeerValid && !hostCfg.authenticated) {
+            const ip = getIP(req);
+            hostCfg.authenticated = true;
+            authHost = new Host(ip, true);
+            log.debug('Direct Join user auth as host done', {
+                ip: ip,
+                username: username,
+                password: password,
+            });
+        }
+
+        // Check if peer authenticated or valid
+        if (room && (hostCfg.authenticated || isPeerValid)) {
             // only room mandatory
             return res.sendFile(views.client);
+        } else {
+            return res.sendFile(views.login);
         }
     }
     if (hostCfg.protected) {
@@ -350,7 +370,12 @@ app.get('/join/*', function (req, res) {
     res.redirect('/');
 });
 
-// logged
+// Login
+app.get(['/login'], (req, res) => {
+    res.sendFile(views.login);
+});
+
+// Logged
 app.get(['/logged'], (req, res) => {
     const ip = getIP(req);
     if (allowedIP(ip)) {
@@ -365,22 +390,29 @@ app.get(['/logged'], (req, res) => {
 
 // handle login on host protected
 app.post(['/login'], (req, res) => {
-    if (hostCfg.protected) {
+    //
+    const ip = getIP(req);
+    log.debug(`Request login to host from: ${ip}`, req.body);
+
+    const { username, password } = checkXSS(req.body);
+
+    const isPeerValid = isAuthPeer(username, password);
+
+    // Peer valid going to auth as host
+    if (hostCfg.protected && isPeerValid && !hostCfg.authenticated) {
         const ip = getIP(req);
-        log.debug(`Request login to host from: ${ip}`, req.body);
-        const { username, password } = checkXSS(req.body);
-        if (username == hostCfg.username && password == hostCfg.password) {
-            hostCfg.authenticated = true;
-            authHost = new Host(ip, true);
-            log.debug('LOGIN OK', { ip: ip, authorized: authHost.isAuthorized(ip) });
-            res.status(200).json({ message: 'authorized' });
-        } else {
-            log.debug('LOGIN KO', { ip: ip, authorized: false });
-            hostCfg.authenticated = false;
-            res.status(401).json({ message: 'unauthorized' });
-        }
+        hostCfg.authenticated = true;
+        authHost = new Host(ip, true);
+        log.debug('HOST LOGIN OK', { ip: ip, authorized: authHost.isAuthorized(ip) });
+        return res.status(200).json({ message: 'authorized' });
+    }
+
+    // Peer auth valid
+    if (isPeerValid) {
+        log.debug('PEER LOGIN OK', { ip: ip, authorized: true });
+        return res.status(200).json({ message: 'authorized' });
     } else {
-        res.redirect('/');
+        return res.status(401).json({ message: 'unauthorized' });
     }
 });
 
@@ -482,10 +514,8 @@ async function ngrokStart() {
         const tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
         // server settings
         log.debug('settings', {
-            host_protected: hostCfg.protected,
-            host_username: hostCfg.username,
-            host_password: hostCfg.password,
             iceServers: iceServers,
+            host: hostCfg,
             ngrok: {
                 ngrok_enabled: ngrokEnabled,
                 ngrok_token: ngrokAuthToken,
@@ -537,10 +567,8 @@ server.listen(port, null, () => {
     } else {
         // server settings
         log.debug('settings', {
-            host_protected: hostCfg.protected,
-            host_username: hostCfg.username,
-            host_password: hostCfg.password,
             iceServers: iceServers,
+            host: hostCfg,
             server: host,
             test_ice_servers: testStunTurn,
             api_docs: api_docs,
@@ -691,6 +719,8 @@ io.sockets.on('connect', async (socket) => {
             channel_password,
             peer_uuid,
             peer_name,
+            peer_username,
+            peer_password,
             peer_video,
             peer_audio,
             peer_video_status,
@@ -712,6 +742,23 @@ io.sockets.on('connect', async (socket) => {
 
         // no presenter aka host in presenters init
         if (!(channel in presenters)) presenters[channel] = {};
+
+        // User Auth required, we check if peer valid
+        if (hostCfg.user_auth) {
+            const isPeerValid = isAuthPeer(peer_username, peer_password);
+
+            log.debug('[' + socket.id + '] JOIN ROOM - HOST PROTECTED - USER AUTH check peer', {
+                ip: peer_ip,
+                peer_username: peer_username,
+                peer_password: peer_password,
+                peer_valid: isPeerValid,
+            });
+
+            if (!isPeerValid) {
+                // redirect peer to login page
+                return socket.emit('unauthorized');
+            }
+        }
 
         // room locked by the participants can't join
         if (peers[channel]['lock'] === true && peers[channel]['password'] != channel_password) {
@@ -759,6 +806,8 @@ io.sockets.on('connect', async (socket) => {
         // Send some server info to joined peer
         await sendToPeer(socket.id, sockets, 'serverInfo', {
             peers_count: peerCounts,
+            host_protected: hostCfg.protected,
+            user_auth: hostCfg.user_auth,
             is_presenter: isPresenter,
             survey: {
                 active: surveyEnabled,
@@ -1279,13 +1328,19 @@ async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
         log.error('isPeerPresenter', err);
         return false;
     }
-    log.debug('[' + peer_id + '] isPeerPresenter', {
-        peer_name: peer_name,
-        peer_uuid: peer_uuid,
-        isPresenter: isPresenter,
-        presenter: presenters[room_id],
-    });
+    log.debug('[' + peer_id + '] isPeerPresenter', presenters[room_id]);
+
     return isPresenter;
+}
+
+/**
+ * Check if peer is present in the host users
+ * @param {string} username
+ * @param {string} password
+ * @returns Boolean true/false
+ */
+function isAuthPeer(username, password) {
+    return hostCfg.users && hostCfg.users.some((user) => user.username === username && user.password === password);
 }
 
 /**
