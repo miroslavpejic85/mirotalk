@@ -120,26 +120,11 @@
 
 When [host protection](https://github.com/miroslavpejic85/mirotalk/commit/285c92605585bf204996dc0bade9b3e7c62d75df#commitcomment-103108955) or host user auth is enabled, the host/users must provide a valid username and password as specified in the `.env` file.
 
-### `HOST_PROTECTED`
-
--   **Description:** Requires the host to provide a valid username and password during room initialization.
--   **Values:** `true` if protection is enabled, `false` if not (default false).
-
-### `HOST_USER_AUTH`
-
--   **Description:** Determines whether host authentication is required.
--   **Values:** `true` if user authentication is required, `false` if not (default false).
-
-### `HOST_USERS`
-
--   **Description:** List of valid host users with their credentials.
--   **Format:** JSON array with user objects: `{"username": "username", "password": "password"}`
-
-Example:
-
-```bash
-HOST_USERS='[{"username": "username", "password": "password"},{"username": "username2", "password": "password2"}]'
-```
+| Params           | Value                                                                            | Description                                                                            |
+| ---------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `HOST_PROTECTED` | `true` if protection is enabled, `false` if not (default false)                  | Requires the host to provide a valid username and password during room initialization. |
+| `HOST_USER_AUTH` | `true` if user authentication is required, `false` if not (default false).       | Determines whether host authentication is required.                                    |
+| `HOST_USERS`     | JSON array with user objects: `{"username": "username", "password": "password"}` | List of valid host users with their credentials.                                       |
 
 ### Room Initialization
 
