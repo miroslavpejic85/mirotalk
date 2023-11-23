@@ -501,8 +501,8 @@ let isDocumentOnFullScreen = false;
 let myPeerId; // This socket.id
 let myPeerUUID = getUUID(); // Unique peer id
 let myPeerName = getPeerName();
-let myUsername = window.sessionStorage.peer_username ? window.sessionStorage.peer_username : getPeerUsername(); // default false if not passed by query params
-let myPassword = window.sessionStorage.peer_password ? window.sessionStorage.peer_password : getPeerPassword(); // default false if not passed by query params
+let myUsername = getPeerUsername(); // default false if not passed by query params
+let myPassword = getPeerPassword(); // default false if not passed by query params
 let isPresenter = false; // True Who init the room (aka first peer joined)
 let myHandStatus = false;
 let myVideoStatus = false;
@@ -907,6 +907,7 @@ function getNotify() {
  * @returns {mixed} boolean false or username string
  */
 function getPeerUsername() {
+    if (window.sessionStorage.peer_username) return window.sessionStorage.peer_username;
     let qs = new URLSearchParams(window.location.search);
     let username = filterXSS(qs.get('username'));
     let queryUsername = false;
@@ -922,6 +923,7 @@ function getPeerUsername() {
  * @returns {mixed} boolean false or password string
  */
 function getPeerPassword() {
+    if (window.sessionStorage.peer_password) return window.sessionStorage.peer_password;
     let qs = new URLSearchParams(window.location.search);
     let password = filterXSS(qs.get('password'));
     let queryPassword = false;
