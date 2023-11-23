@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.4
+ * @version 1.2.5
  *
  */
 
@@ -99,6 +99,10 @@ const hostCfg = {
     users: hostUsers,
     authenticated: !hostProtected,
 };
+
+// Room presenters
+const roomPresentersString = process.env.PRESENTERS || '["MiroTalk P2P"]';
+const roomPresenters = JSON.parse(roomPresentersString);
 
 // Swagger config
 const yamlJS = require('yamljs');
@@ -516,6 +520,7 @@ async function ngrokStart() {
         log.debug('settings', {
             iceServers: iceServers,
             host: hostCfg,
+            presenters: roomPresenters,
             ngrok: {
                 ngrok_enabled: ngrokEnabled,
                 ngrok_token: ngrokAuthToken,
@@ -569,6 +574,7 @@ server.listen(port, null, () => {
         log.debug('settings', {
             iceServers: iceServers,
             host: hostCfg,
+            presenters: roomPresenters,
             server: host,
             test_ice_servers: testStunTurn,
             api_docs: api_docs,
@@ -766,14 +772,21 @@ io.sockets.on('connect', async (socket) => {
             return socket.emit('roomIsLocked');
         }
 
-        // collect presenters grp by channels
-        if (Object.keys(presenters[channel]).length === 0) {
-            presenters[channel] = {
-                peer_ip: peer_ip,
-                peer_name: peer_name,
-                peer_uuid: peer_uuid,
-                is_presenter: true,
-            };
+        // Set the presenters
+        const presenter = {
+            peer_ip: peer_ip,
+            peer_name: peer_name,
+            peer_uuid: peer_uuid,
+            is_presenter: true,
+        };
+        // first we check if the username match the presenters username
+        if (roomPresenters && roomPresenters.includes(peer_name)) {
+            presenters[channel][socket.id] = presenter;
+        } else {
+            // if not match the presenters username, the first one join room is the presenter
+            if (Object.keys(presenters[channel]).length === 0) {
+                presenters[channel][socket.id] = presenter;
+            }
         }
 
         // Check if peer is presenter
@@ -917,7 +930,7 @@ io.sockets.on('connect', async (socket) => {
         for (let peer_id in peers[room_id]) {
             if (peers[room_id][peer_id]['peer_name'] == peer_name_old && peer_id == socket.id) {
                 peers[room_id][peer_id]['peer_name'] = peer_name_new;
-                presenters[room_id]['peer_name'] = peer_name_new;
+                presenters[room_id][peer_id]['peer_name'] = peer_name_new;
                 peer_id_to_update = peer_id;
             }
         }
@@ -1312,25 +1325,37 @@ async function getPeerGeoLocation(ip) {
  * Check if peer is Presenter
  * @param {string} room_id
  * @param {string} peer_id
+ * @param {string} peer_name
  * @param {string} peer_uuid
  * @returns boolean
  */
 async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
-    let isPresenter = false;
-    if (typeof presenters[room_id] === 'undefined' || presenters[room_id] === null) return false;
     try {
-        isPresenter =
-            typeof presenters === 'object' &&
-            Object.keys(presenters[room_id]).length > 1 &&
-            presenters[room_id]['peer_name'] === peer_name &&
-            presenters[room_id]['peer_uuid'] === peer_uuid;
+        if (!presenters[room_id] || !presenters[room_id][peer_id]) {
+            // Presenter not in the presenters config list, disconnected, or peer_id changed...
+            for (const [existingPeerID, presenter] of Object.entries(presenters[room_id] || {})) {
+                if (presenter.peer_name === peer_name) {
+                    log.debug('[' + peer_id + '] Presenter found', presenters[room_id][existingPeerID]);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const isPresenter =
+            (typeof presenters[room_id] === 'object' &&
+                Object.keys(presenters[room_id][peer_id]).length > 1 &&
+                presenters[room_id][peer_id]['peer_name'] === peer_name &&
+                presenters[room_id][peer_id]['peer_uuid'] === peer_uuid) ||
+            (roomPresenters && roomPresenters.includes(peer_name));
+
+        log.debug('[' + peer_id + '] isPeerPresenter', presenters[room_id][peer_id]);
+
+        return isPresenter;
     } catch (err) {
         log.error('isPeerPresenter', err);
         return false;
     }
-    log.debug('[' + peer_id + '] isPeerPresenter', presenters[room_id]);
-
-    return isPresenter;
 }
 
 /**
