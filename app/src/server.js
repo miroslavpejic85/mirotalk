@@ -936,8 +936,8 @@ io.sockets.on('connect', async (socket) => {
                 }
                 peer_id_to_update = peer_id;
                 log.debug('[' + socket.id + '] Peer name changed', {
-                    old_name: peer_name_old,
-                    new_name: peer_name_new,
+                    peer_name_old: peer_name_old,
+                    peer_name_new: peer_name_new,
                 });
             }
         }
