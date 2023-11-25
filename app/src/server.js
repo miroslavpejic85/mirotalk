@@ -930,8 +930,15 @@ io.sockets.on('connect', async (socket) => {
         for (let peer_id in peers[room_id]) {
             if (peers[room_id][peer_id]['peer_name'] == peer_name_old && peer_id == socket.id) {
                 peers[room_id][peer_id]['peer_name'] = peer_name_new;
-                presenters[room_id][peer_id]['peer_name'] = peer_name_new;
+                // presenter
+                if (presenters && presenters[room_id] && presenters[room_id][peer_id]) {
+                    presenters[room_id][peer_id]['peer_name'] = peer_name_new;
+                }
                 peer_id_to_update = peer_id;
+                log.debug('[' + socket.id + '] Peer name changed', {
+                    old_name: peer_name_old,
+                    new_name: peer_name_new,
+                });
             }
         }
 
