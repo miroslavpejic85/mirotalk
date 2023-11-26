@@ -792,8 +792,6 @@ io.sockets.on('connect', async (socket) => {
         // Check if peer is presenter
         const isPresenter = await isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
-        log.debug('[Join] - connected presenters grp by roomId', presenters);
-
         // collect peers info grp by channels
         peers[channel][socket.id] = {
             peer_name: peer_name,
@@ -807,7 +805,14 @@ io.sockets.on('connect', async (socket) => {
             peer_rec_status: peer_rec_status,
             peer_privacy_status: peer_privacy_status,
         };
-        log.debug('[Join] - connected peers grp by roomId', peers);
+
+        const activeRooms = getActiveRooms();
+
+        log.info('[Join] - active rooms and peers count', activeRooms);
+
+        log.info('[Join] - connected presenters grp by roomId', presenters);
+
+        log.info('[Join] - connected peers grp by roomId', peers);
 
         await addPeerTo(channel);
 
@@ -1222,8 +1227,14 @@ io.sockets.on('connect', async (socket) => {
         } catch (err) {
             log.error('Remove Peer', toJson(err));
         }
-        log.debug('[removePeerFrom] - connected peers grp by roomId', peers);
-        log.debug('[removePeerFrom] - connected presenters grp by roomId', presenters);
+
+        const activeRooms = getActiveRooms();
+
+        log.info('[removePeerFrom] - active rooms and peers count', activeRooms);
+
+        log.info('[removePeerFrom] - connected presenters grp by roomId', presenters);
+
+        log.info('[removePeerFrom] - connected peers grp by roomId', peers);
 
         for (let id in channels[channel]) {
             await channels[channel][id].emit('removePeer', { peer_id: socket.id });
@@ -1373,6 +1384,26 @@ async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
  */
 function isAuthPeer(username, password) {
     return hostCfg.users && hostCfg.users.some((user) => user.username === username && user.password === password);
+}
+
+/**
+ * Get All connected peers count grouped by roomId
+ * @return {object} array
+ */
+function getActiveRooms() {
+    // Iterate through each room
+    let roomPeersArray = [];
+    for (const roomId in peers) {
+        if (peers.hasOwnProperty(roomId)) {
+            // Get the count of peers in the current room
+            const peersCount = Object.keys(peers[roomId]).length;
+            roomPeersArray.push({
+                roomId: roomId,
+                peersCount: peersCount,
+            });
+        }
+    }
+    return roomPeersArray;
 }
 
 /**
