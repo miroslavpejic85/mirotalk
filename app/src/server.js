@@ -1391,8 +1391,8 @@ function isAuthPeer(username, password) {
  * @return {object} array
  */
 function getActiveRooms() {
+    const roomPeersArray = [];
     // Iterate through each room
-    let roomPeersArray = [];
     for (const roomId in peers) {
         if (peers.hasOwnProperty(roomId)) {
             // Get the count of peers in the current room
