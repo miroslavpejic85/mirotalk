@@ -206,6 +206,9 @@ if (configChatGPT.enabled) {
     }
 }
 
+// make sure we prioritize h264/aac when recording screen
+const isPrioritizeH264 = getEnvBoolean(process.env.PRIORITIZE_H264)
+
 // directory
 const dir = {
     public: path.join(__dirname, '../../', 'public'),
@@ -835,6 +838,7 @@ io.sockets.on('connect', async (socket) => {
                 active: redirectEnabled,
                 url: redirectURL,
             },
+	    is_prioritize_h264: isPrioritizeH264,
             //...
         });
     });
