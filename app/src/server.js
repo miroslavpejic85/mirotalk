@@ -206,8 +206,8 @@ if (configChatGPT.enabled) {
     }
 }
 
-// make sure we prioritize h264/aac when recording screen
-const isPrioritizeH264 = getEnvBoolean(process.env.PRIORITIZE_H264)
+// make sure we prioritize h264,aac/h264,opus when recording
+const recPrioritizeH264 = getEnvBoolean(process.env.REC_PRIORITIZE_H264);
 
 // directory
 const dir = {
@@ -541,6 +541,7 @@ async function ngrokStart() {
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
             redirect_enabled: redirectEnabled,
+            rec_prioritize_h264: recPrioritizeH264,
             survey_url: surveyURL,
             redirect_url: redirectURL,
             node_version: process.versions.node,
@@ -590,6 +591,7 @@ server.listen(port, null, () => {
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
             redirect_enabled: redirectEnabled,
+            rec_prioritize_h264: recPrioritizeH264,
             survey_url: surveyURL,
             redirect_url: redirectURL,
             node_version: process.versions.node,
@@ -838,7 +840,7 @@ io.sockets.on('connect', async (socket) => {
                 active: redirectEnabled,
                 url: redirectURL,
             },
-	    is_prioritize_h264: isPrioritizeH264,
+            rec_prioritize_h264: recPrioritizeH264,
             //...
         });
     });

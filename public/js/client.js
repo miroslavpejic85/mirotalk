@@ -496,7 +496,6 @@ let swBg = 'rgba(0, 0, 0, 0.7)'; // swAlert background color
 let callElapsedTime; // count time
 let mySessionTime; // conference session time
 let isDocumentOnFullScreen = false;
-let isPrioritizeH264 = false;
 
 // peer
 let myPeerId; // This socket.id
@@ -604,6 +603,7 @@ let audioRecorder; // helpers.js
 let recScreenStream; // screen media to recording
 let recTimer;
 let recElapsedTime;
+let recPrioritizeH264 = false;
 let isStreamRecording = false;
 let isStreamRecordingPaused = false;
 let isRecScreenStream = false;
@@ -1127,7 +1127,7 @@ async function handleConnect() {
 function handleServerInfo(config) {
     console.log('13. Server info', config);
 
-    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect, is_prioritize_h264 } = config;
+    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect, rec_prioritize_h264 } = config;
 
     isHostProtected = host_protected;
     isPeerAuthEnabled = user_auth;
@@ -1149,7 +1149,7 @@ function handleServerInfo(config) {
     isPeerPresenter.innerText = isPresenter;
 
     // prioritize h264
-    isPrioritizeH264 = is_prioritize_h264;
+    recPrioritizeH264 = rec_prioritize_h264;
 
     if (isRulesActive) {
         handleRules(isPresenter);
@@ -5746,17 +5746,9 @@ function stopRecordingTimer() {
  * @returns {boolean} is mimeType supported by media recorder
  */
 function getSupportedMimeTypes() {
-    const possibleTypes = [
-        'video/webm;codecs=vp9,opus',
-        'video/webm;codecs=vp8,opus',
-        'video/mp4',
-    ];
-    possibleTypes.splice(
-        isPrioritizeH264 ? 0 : 2,
-        0,
-        'video/mp4;codecs=h264,aac',
-        'video/webm;codecs=h264,opus'
-    );
+    const possibleTypes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/mp4'];
+    possibleTypes.splice(recPrioritizeH264 ? 0 : 2, 0, 'video/mp4;codecs=h264,aac', 'video/webm;codecs=h264,opus');
+    console.log('POSSIBLE CODECS', possibleTypes);
     return possibleTypes.filter((mimeType) => {
         return MediaRecorder.isTypeSupported(mimeType);
     });
