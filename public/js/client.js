@@ -602,6 +602,7 @@ let recordedBlobs;
 let audioRecorder; // helpers.js
 let recScreenStream; // screen media to recording
 let recTimer;
+let recCodecs;
 let recElapsedTime;
 let recPrioritizeH264 = false;
 let isStreamRecording = false;
@@ -5768,6 +5769,8 @@ function startStreamRecording() {
     console.log('MediaRecorder supported options', supportedMimeTypes);
     const options = { mimeType: supportedMimeTypes[0] };
 
+    recCodecs = supportedMimeTypes[0];
+
     try {
         audioRecorder = new MixedAudioRecorder();
         const audioStreams = getAudioStreamFromAudioElements();
@@ -6085,6 +6088,7 @@ function downloadRecordedStream() {
             <ul>
                 <li>Time: ${recordingTime.innerText}</li>
                 <li>File: ${recFileName}</li>
+                <li>Codecs: ${recCodecs}</li>
                 <li>Size: ${blobFileSize}</li>
             </ul>
         <br/>
