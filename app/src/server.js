@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.5
+ * @version 1.2.6
  *
  */
 
@@ -205,9 +205,6 @@ if (configChatGPT.enabled) {
         log.warning('ChatGPT seems enabled, but you missing the apiKey!');
     }
 }
-
-// make sure we prioritize h264,aac/h264,opus when recording
-const recPrioritizeH264 = getEnvBoolean(process.env.REC_PRIORITIZE_H264);
 
 // directory
 const dir = {
@@ -541,7 +538,6 @@ async function ngrokStart() {
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
             redirect_enabled: redirectEnabled,
-            rec_prioritize_h264: recPrioritizeH264,
             survey_url: surveyURL,
             redirect_url: redirectURL,
             node_version: process.versions.node,
@@ -591,7 +587,6 @@ server.listen(port, null, () => {
             sentry_enabled: sentryEnabled,
             survey_enabled: surveyEnabled,
             redirect_enabled: redirectEnabled,
-            rec_prioritize_h264: recPrioritizeH264,
             survey_url: surveyURL,
             redirect_url: redirectURL,
             node_version: process.versions.node,
@@ -840,7 +835,6 @@ io.sockets.on('connect', async (socket) => {
                 active: redirectEnabled,
                 url: redirectURL,
             },
-            rec_prioritize_h264: recPrioritizeH264,
             //...
         });
     });

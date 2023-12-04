@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.5
+ * @version 1.2.6
  *
  */
 
@@ -96,6 +96,7 @@ const icons = {
     user: '<i class="fas fa-user"></i>',
     fileSend: '<i class="fas fa-file-export"></i>',
     fileReceive: '<i class="fas fa-file-import"></i>',
+    codecs: '<i class="fa-solid fa-film"></i>',
 };
 
 // Whiteboard and fileSharing
@@ -374,6 +375,7 @@ const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
 const pushToTalkDiv = getId('pushToTalkDiv');
 const recImage = getId('recImage');
+const switchH264Recording = getId('switchH264Recording');
 const pauseRecBtn = getId('pauseRecBtn');
 const resumeRecBtn = getId('resumeRecBtn');
 const recordingTime = getId('recordingTime');
@@ -719,6 +721,11 @@ function setButtonsToolTip() {
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
     setTippy(recImage, 'Toggle recording', 'right');
+    setTippy(
+        switchH264Recording,
+        'Prioritize h.264 with AAC or h.264 with Opus codecs over VP8 with Opus or VP9 with Opus codecs',
+        'right',
+    );
     // Whiteboard buttons
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
@@ -1148,9 +1155,6 @@ function handleServerInfo(config) {
     // Let start with some basic rules
     isPresenter = isPeerReconnected ? isPresenter : is_presenter;
     isPeerPresenter.innerText = isPresenter;
-
-    // prioritize h264
-    recPrioritizeH264 = rec_prioritize_h264;
 
     if (isRulesActive) {
         handleRules(isPresenter);
@@ -4469,6 +4473,14 @@ function setMySettingsBtn() {
     // make chat room draggable for desktop
     if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
 
+    // recording codecs
+    switchH264Recording.addEventListener('change', (e) => {
+        recPrioritizeH264 = e.currentTarget.checked;
+        lsSettings.rec_prioritize_h264 = recPrioritizeH264;
+        lS.setSettings(lsSettings);
+        userLog('toast', `${icons.codecs} Recording prioritize h.264 ` + (recPrioritizeH264 ? 'ON' : 'OFF'));
+        playSound('switch');
+    });
     // Recording pause/resume
     pauseRecBtn.addEventListener('click', (e) => {
         pauseRecording();
@@ -4719,9 +4731,11 @@ function loadSettingsFromLocalStorage() {
     videoMaxFrameRate = parseInt(getSelectedIndexValue(videoFpsSelect), 10);
     notifyBySound = lsSettings.sounds;
     isAudioPitchBar = lsSettings.pitch_bar;
+    recPrioritizeH264 = lsSettings.rec_prioritize_h264;
     switchSounds.checked = notifyBySound;
     switchShare.checked = notify;
     switchAudioPitchBar.checked = isAudioPitchBar;
+    switchH264Recording.checked = recPrioritizeH264;
 
     switchAutoGainControl.checked = lsSettings.mic_auto_gain_control;
     switchEchoCancellation.checked = lsSettings.mic_echo_cancellations;
@@ -6093,7 +6107,7 @@ function downloadRecordedStream() {
             </ul>
         <br/>
         `;
-        lastRecordingInfo.innerHTML = `Last recording info: ${recordingInfo}`;
+        lastRecordingInfo.innerHTML = `<br/>Last recording info: ${recordingInfo}`;
         recordingTime.innerText = '';
 
         userLog(

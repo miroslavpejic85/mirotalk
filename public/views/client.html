@@ -610,6 +610,20 @@ access to use this app.
 
                     <div id="tabRecording" class="tabcontent">
                         <img id="recImage" src="../images/recording.png" />
+                        <div id="recOptions">
+                            <table class="settingsTable">
+                                <tr>
+                                    <td class="width-160">
+                                        <div class="title">
+                                            <i class="fa-solid fa-film"></i>
+                                            <p>Prioritize H.264</p>
+                                        </div>
+                                    </td>
+                                    <td><input class="toggle" id="switchH264Recording" type="checkbox" /></td>
+                                </tr>
+                            </table>
+                            <hr class="hr" />
+                        </div>
                         <div style="display: table-row">
                             <span class="clw notranslate" id="recordingTime"></span>
                             <br />
@@ -621,8 +635,8 @@ access to use this app.
                                 <i class="far fa-play-circle"></i>
                                 <p>Resume recording</p>
                             </button>
-                            <div class="clw" id="lastRecordingInfo"></div>
                         </div>
+                        <div class="clw" id="lastRecordingInfo"></div>
                     </div>
 
                     <div id="tabMedia" class="tabcontent">
