@@ -603,6 +603,7 @@ let audioRecorder; // helpers.js
 let recScreenStream; // screen media to recording
 let recTimer;
 let recElapsedTime;
+let recPrioritizeH264 = false;
 let isStreamRecording = false;
 let isStreamRecordingPaused = false;
 let isRecScreenStream = false;
@@ -1126,7 +1127,7 @@ async function handleConnect() {
 function handleServerInfo(config) {
     console.log('13. Server info', config);
 
-    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect } = config;
+    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect, rec_prioritize_h264 } = config;
 
     isHostProtected = host_protected;
     isPeerAuthEnabled = user_auth;
@@ -1146,6 +1147,9 @@ function handleServerInfo(config) {
     // Let start with some basic rules
     isPresenter = isPeerReconnected ? isPresenter : is_presenter;
     isPeerPresenter.innerText = isPresenter;
+
+    // prioritize h264
+    recPrioritizeH264 = rec_prioritize_h264;
 
     if (isRulesActive) {
         handleRules(isPresenter);
@@ -5742,13 +5746,9 @@ function stopRecordingTimer() {
  * @returns {boolean} is mimeType supported by media recorder
  */
 function getSupportedMimeTypes() {
-    const possibleTypes = [
-        'video/webm;codecs=vp9,opus',
-        'video/webm;codecs=vp8,opus',
-        'video/webm;codecs=h264,opus',
-        'video/mp4;codecs=h264,aac',
-        'video/mp4',
-    ];
+    const possibleTypes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/mp4'];
+    possibleTypes.splice(recPrioritizeH264 ? 0 : 2, 0, 'video/mp4;codecs=h264,aac', 'video/webm;codecs=h264,opus');
+    console.log('POSSIBLE CODECS', possibleTypes);
     return possibleTypes.filter((mimeType) => {
         return MediaRecorder.isTypeSupported(mimeType);
     });
