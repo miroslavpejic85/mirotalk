@@ -197,7 +197,7 @@ body {
     width: var(--btns-width);
     flex-direction: var(--btns-flex-direction);
 
-    justify-content: space-around;
+    justify-content: center;
     grid-gap: 0.4rem;
 
     -webkit-transform: translate(0%, -50%);
