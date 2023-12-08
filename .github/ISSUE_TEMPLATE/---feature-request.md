@@ -7,14 +7,14 @@ assignees: ''
 
 ---
 
-### Feature request
+# Feature request
 
 A clear and concise description of the feature request.
 
-### Pros
+## Pros
 
 A clear and concise description of the feature request pros.
 
-### Additional context
+## Additional context
 
 Add any other context or screenshots about the feature request here.

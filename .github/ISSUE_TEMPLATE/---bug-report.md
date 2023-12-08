@@ -7,11 +7,18 @@ assignees: ''
 
 ---
 
-### Describe the bug
+# Bug Report
+
+`IMPORTANT`: We primarily use GitHub as an issue tracker. Just open an issue here if you have encountered a bug in MiroTalk.
+If you have `ideas, suggestions, questions, doubts` about MiroTalk or `need support`, please use the MiroTalk Forum instead:
+
+👉 [https://discord.gg/rgGYfeYW3N](https://discord.gg/rgGYfeYW3N)
+
+## Describe the bug
 
 A clear and concise description of what the bug is.
 
-### To Reproduce
+## To reproduce
 
 Steps to reproduce the behavior:
 
@@ -20,15 +27,15 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-### Expected behavior
+## Expected behavior
 
 A clear and concise description of what you expected to happen.
 
-### Screenshots
+## Screenshots
 
 If applicable, add screenshots to help explain your problem.
 
-### Desktop - Mobile
+## Desktop - Mobile
 
 Please complete the following information:
 
@@ -36,6 +43,6 @@ Please complete the following information:
  - Browser [e.g. Chrome, Safari]
  - Version [e.g. 22]
 
-### Additional context
+## Additional context
 
 Add any other context about the problem here.
