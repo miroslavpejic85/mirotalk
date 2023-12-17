@@ -382,8 +382,8 @@ const recordingTime = getId('recordingTime');
 const lastRecordingInfo = getId('lastRecordingInfo');
 const themeSelect = getId('mirotalkTheme');
 const videoObjFitSelect = getId('videoObjFitSelect');
-const mainButtonsBar = document.querySelectorAll('#buttonsBar button');
-const mainButtonsIcon = document.querySelectorAll('#buttonsBar button i');
+const mainButtonsBar = getQsA('#buttonsBar button');
+const mainButtonsIcon = getQsA('#buttonsBar button i');
 const btnsBarSelect = getId('mainButtonsBarPosition');
 const pinUnpinGridDiv = getId('pinUnpinGridDiv');
 const pinVideoPositionSelect = getId('pinVideoPositionSelect');
@@ -9593,6 +9593,15 @@ function isIpad(userAgent) {
  */
 function getId(id) {
     return document.getElementById(id);
+}
+
+/**
+ * Get all element descendants of node
+ * @param {string} selectors
+ * @returns all element descendants of node that match selectors.
+ */
+function getQsA(selectors) {
+    return document.querySelectorAll(selectors);
 }
 
 /**
