@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.61
+ * @version 1.2.62
  *
  */
 
@@ -223,10 +223,10 @@ const views = {
     stunTurn: path.join(__dirname, '../../', 'public/views/testStunTurn.html'),
 };
 
-let channels = {}; // collect channels
-let sockets = {}; // collect sockets
-let peers = {}; // collect peers info grp by channels
-let presenters = {}; // collect presenters grp by channels
+const channels = {}; // collect channels
+const sockets = {}; // collect sockets
+const peers = {}; // collect peers info grp by channels
+const presenters = {}; // collect presenters grp by channels
 
 app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
