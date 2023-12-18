@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.62
+ * @version 1.2.63
  *
  */
 
@@ -1228,8 +1228,8 @@ function handleRules(isPresenter) {
         buttons.settings.showMicOptionsBtn = false;
         buttons.settings.showTabRoomParticipants = false;
         buttons.settings.showTabRoomSecurity = false;
-        buttons.remote.audioBtnClickAllowed = false;
-        buttons.remote.videoBtnClickAllowed = false;
+        // buttons.remote.audioBtnClickAllowed = false;
+        // buttons.remote.videoBtnClickAllowed = false;
         buttons.remote.showKickOutBtn = false;
         buttons.whiteboard.whiteboardLockBtn = false;
         //...
@@ -2872,7 +2872,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
             remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
 
-            if (peer_audio && buttons.remote.showAudioVolume) {
+            // Disabled audio volume control on Mobile devices
+            if (!isMobileDevice && peer_audio && buttons.remote.showAudioVolume) {
                 remoteVideoNavBar.appendChild(remoteAudioVolume);
             }
             remoteVideoNavBar.appendChild(remoteHandStatusIcon);
@@ -7345,7 +7346,11 @@ function handlePeerAudioBtn(peer_id) {
     if (!buttons.remote.audioBtnClickAllowed) return;
     const peerAudioBtn = getId(peer_id + '_audioStatus');
     peerAudioBtn.onclick = () => {
-        if (peerAudioBtn.className === className.audioOn) disablePeer(peer_id, 'audio');
+        if (peerAudioBtn.className === className.audioOn) {
+            isPresenter
+                ? disablePeer(peer_id, 'audio')
+                : msgPopup('warning', 'Only the presenter can mute the participants', 'top-end', 4000);
+        }
     };
 }
 
@@ -7357,7 +7362,11 @@ function handlePeerVideoBtn(peer_id) {
     if (!useVideo || !buttons.remote.videoBtnClickAllowed) return;
     const peerVideoBtn = getId(peer_id + '_videoStatus');
     peerVideoBtn.onclick = () => {
-        if (peerVideoBtn.className === className.videoOn) disablePeer(peer_id, 'video');
+        if (peerVideoBtn.className === className.videoOn) {
+            isPresenter
+                ? disablePeer(peer_id, 'video')
+                : msgPopup('warning', 'Only the presenter can hide the participants', 'top-end', 4000);
+        }
     };
 }
 
@@ -9120,7 +9129,9 @@ function handlePeerKickOutBtn(peer_id) {
     if (!buttons.remote.showKickOutBtn) return;
     const peerKickOutBtn = getId(peer_id + '_kickOut');
     peerKickOutBtn.addEventListener('click', (e) => {
-        kickOut(peer_id);
+        isPresenter
+            ? kickOut(peer_id)
+            : msgPopup('warning', 'Only the presenter can eject the participants', 'top-end', 4000);
     });
 }
 
