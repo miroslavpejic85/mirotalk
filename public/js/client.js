@@ -7349,7 +7349,7 @@ function handlePeerAudioBtn(peer_id) {
         if (peerAudioBtn.className === className.audioOn) {
             isPresenter
                 ? disablePeer(peer_id, 'audio')
-                : msgPopup('warning', 'Only the presenter can mute the participants', 'top-end', 4000);
+                : msgPopup('warning', 'Only the presenter can mute participants', 'top-end', 4000);
         }
     };
 }
@@ -7365,7 +7365,7 @@ function handlePeerVideoBtn(peer_id) {
         if (peerVideoBtn.className === className.videoOn) {
             isPresenter
                 ? disablePeer(peer_id, 'video')
-                : msgPopup('warning', 'Only the presenter can hide the participants', 'top-end', 4000);
+                : msgPopup('warning', 'Only the presenter can hide participants', 'top-end', 4000);
         }
     };
 }
@@ -9131,7 +9131,7 @@ function handlePeerKickOutBtn(peer_id) {
     peerKickOutBtn.addEventListener('click', (e) => {
         isPresenter
             ? kickOut(peer_id)
-            : msgPopup('warning', 'Only the presenter can eject the participants', 'top-end', 4000);
+            : msgPopup('warning', 'Only the presenter can eject participants', 'top-end', 4000);
     });
 }
 
