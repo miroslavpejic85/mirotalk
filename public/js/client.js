@@ -1486,11 +1486,7 @@ async function loadLocalStorage() {
             console.log('12.2 Speaker devices seems changed, use default index 0');
             initSpeakerSelect.selectedIndex = 0;
             audioOutputSelect.selectedIndex = 0;
-            lS.setLocalStorageDevices(
-                lS.MEDIA_TYPE.speaker,
-                initSpeakerSelect.selectedIndexIndex,
-                initSpeakerSelect.value,
-            );
+            lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, initSpeakerSelect.selectedIndex, initSpeakerSelect.value);
         }
         if (lS.DEVICES_COUNT.video != localStorageDevices.video.count) {
             console.log('12.3 Video devices seems changed, use default index 0');
@@ -2312,9 +2308,11 @@ function enumerateAudioDevices(stream) {
                 if ('audioinput' === device.kind) {
                     el = audioInputSelect;
                     eli = initMicrophoneSelect;
+                    lS.DEVICES_COUNT.audio++;
                 } else if ('audiooutput' === device.kind) {
                     el = audioOutputSelect;
                     eli = initSpeakerSelect;
+                    lS.DEVICES_COUNT.speaker++;
                 }
                 if (!el) return;
                 addChild(device, [el, eli]);
@@ -2348,6 +2346,7 @@ function enumerateVideoDevices(stream) {
                 if ('videoinput' === device.kind) {
                     el = videoSelect;
                     eli = initVideoSelect;
+                    lS.DEVICES_COUNT.video++;
                 }
                 if (!el) return;
                 addChild(device, [el, eli]);
