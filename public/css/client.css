@@ -144,9 +144,39 @@ body {
 # Init User
 --------------------------------------------------------------*/
 
+.init-modal-size {
+    width: 1024px !important;
+    height: auto !important;
+}
+
 .init-user {
-    display: block;
+    display: flex;
     padding: 5px;
+}
+
+.init-video-container {
+    position: relative;
+    padding: 10px;
+    width: 100%;
+}
+
+.init-video-container video {
+    z-index: 0;
+    position: relative;
+    height: 240px;
+}
+
+.initComands {
+    width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+    .init-modal-size {
+        width: auto !important;
+    }
+    .init-user {
+        display: block;
+    }
 }
 
 .init-user select {
@@ -163,15 +193,15 @@ body {
 }
 
 .init-user button {
-    margin-top: 20px;
-    margin-bottom: 10px;
     width: 50px;
     padding: 10px;
-    background: transparent;
+    margin-top: 20px;
+    margin-bottom: 10px;
     font-size: 1.5rem;
+    color: white;
     border: var(--border);
     border-radius: 5px;
-    color: white;
+    background-color: transparent;
 }
 
 .init-user button:hover {

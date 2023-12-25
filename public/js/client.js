@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.63
+ * @version 1.2.64
  *
  */
 
@@ -215,6 +215,7 @@ const audioMediaContainer = getId('audioMediaContainer');
 
 // Init audio-video
 const initUser = getId('initUser');
+const initVideoContainer = getId('initVideoContainer');
 const initVideo = getId('initVideo');
 const initVideoBtn = getId('initVideoBtn');
 const initAudioBtn = getId('initAudioBtn');
@@ -1355,6 +1356,7 @@ async function whoAreYou() {
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: initUser, // inject html
         confirmButtonText: `Join meeting`,
+        customClass: { popup: 'init-modal-size' },
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         inputValidator: async (value) => {
@@ -5270,6 +5272,8 @@ async function handleVideo(e, init, force = null) {
         initVideoBtn.className = videoClassName;
         setTippy(initVideoBtn, videoStatus ? 'Stop the video' : 'Start the video', 'top');
         videoStatus ? elemDisplay(initVideo, true, 'block') : elemDisplay(initVideo, false);
+        initVideoContainer.style.padding = videoStatus ? '10px' : '0px';
+        initVideoContainer.style.width = videoStatus ? '100%' : 'auto';
         initVideoSelect.disabled = !videoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
     }

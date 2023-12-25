@@ -115,15 +115,6 @@
 # Video 
 --------------------------------------------------------------*/
 
-.container {
-    position: relative;
-}
-.container video {
-    z-index: 0;
-    position: relative;
-    height: 240px;
-}
-
 .videoCircle {
     position: absolute;
     width: var(--vmi-wh);

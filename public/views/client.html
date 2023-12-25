@@ -81,7 +81,7 @@ access to use this app.
 
         <div id="initUser" class="init-user hidden">
             <!-- <p>Please allow the camera & microphone access to use this app.</p> -->
-            <div class="container">
+            <div id="initVideoContainer" class="init-video-container">
                 <video
                     id="initVideo"
                     playsinline="true"
@@ -91,12 +91,14 @@ access to use this app.
                     style="object-fit: contain"
                 ></video>
             </div>
-            <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>
-            <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
-            <button id="initScreenShareBtn" class="fas fa-desktop"></button>
-            <select id="initVideoSelect" class="form-select text-light bg-dark"></select>
-            <select id="initMicrophoneSelect" class="form-select text-light bg-dark"></select>
-            <select id="initSpeakerSelect" class="form-select text-light bg-dark"></select>
+            <div class="initComands">
+                <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>
+                <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
+                <button id="initScreenShareBtn" class="fas fa-desktop"></button>
+                <select id="initVideoSelect" class="form-select text-light bg-dark"></select>
+                <select id="initMicrophoneSelect" class="form-select text-light bg-dark"></select>
+                <select id="initSpeakerSelect" class="form-select text-light bg-dark"></select>
+            </div>
         </div>
 
         <!-- Start buttons bar https://fontawesome.com/icons?d=gallery -->
