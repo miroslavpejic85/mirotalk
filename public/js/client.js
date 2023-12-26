@@ -215,7 +215,7 @@ const audioMediaContainer = getId('audioMediaContainer');
 
 // Init audio-video
 const initUser = getId('initUser');
-const initVideoContainer = getId('initVideoContainer');
+const initVideoContainer = getQs('.init-video-container');
 const initVideo = getId('initVideo');
 const initVideoBtn = getId('initVideoBtn');
 const initAudioBtn = getId('initAudioBtn');
@@ -1343,6 +1343,8 @@ async function whoAreYou() {
     }
 
     initUser.classList.toggle('hidden');
+
+    initVideoContainerShow();
 
     Swal.fire({
         allowOutsideClick: false,
@@ -5272,10 +5274,9 @@ async function handleVideo(e, init, force = null) {
         initVideoBtn.className = videoClassName;
         setTippy(initVideoBtn, videoStatus ? 'Stop the video' : 'Start the video', 'top');
         videoStatus ? elemDisplay(initVideo, true, 'block') : elemDisplay(initVideo, false);
-        initVideoContainer.style.padding = videoStatus ? '10px' : '0px';
-        initVideoContainer.style.width = videoStatus ? '100%' : 'auto';
         initVideoSelect.disabled = !videoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
+        initVideoContainerShow(videoStatus);
     }
 
     if (!videoStatus) {
@@ -5299,6 +5300,16 @@ async function handleVideo(e, init, force = null) {
     }
 
     setMyVideoStatus(videoStatus);
+}
+
+/**
+ * Handle initVideoContainer
+ * @param {boolean} show
+ */
+function initVideoContainerShow(show = true) {
+    const windowWidth = window.innerWidth;
+    initVideoContainer.style.padding = show && windowWidth >= 1024 ? '10px' : '0px';
+    initVideoContainer.style.width = show ? '100%' : 'auto';
 }
 
 /**
@@ -9616,6 +9627,15 @@ function getId(id) {
  */
 function getQsA(selectors) {
     return document.querySelectorAll(selectors);
+}
+
+/**
+ * Get element by selector
+ * @param {string} selector
+ * @returns element
+ */
+function getQs(selector) {
+    return document.querySelector(selector);
 }
 
 /**

@@ -177,6 +177,9 @@ body {
     .init-user {
         display: block;
     }
+    .init-video-container {
+        padding: 0px;
+    }
 }
 
 .init-user select {
