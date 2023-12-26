@@ -180,6 +180,9 @@ body {
     .init-video-container {
         padding: 0px;
     }
+    .init-modal-size {
+        width: 480px !important;
+    }
 }
 
 .init-user select {
