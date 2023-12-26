@@ -1344,7 +1344,7 @@ async function whoAreYou() {
 
     initUser.classList.toggle('hidden');
 
-    initVideoContainerShow();
+    initVideoContainerShow(myVideoStatus);
 
     Swal.fire({
         allowOutsideClick: false,
