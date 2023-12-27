@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.64
+ * @version 1.2.65
  *
  */
 
@@ -495,6 +495,7 @@ const useAvatarSvg = true; // if false the cam-Off avatar = images.avatar
  * If set to false, the video zooms at the cursor position.
  */
 const ZOOM_CENTER_MODE = false;
+const ZOOM_IN_OUT_ENABLED = true; // Video Zoom in/out default (true)
 
 // misc
 let swBg = 'rgba(0, 0, 0, 0.7)'; // swAlert background color
@@ -2637,7 +2638,7 @@ async function loadLocalMedia(stream, kind) {
 
             buttons.local.showVideoPipBtn && handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id);
 
-            handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
+            ZOOM_IN_OUT_ENABLED && handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
 
             refreshMyVideoStatus(stream);
 
@@ -2924,7 +2925,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             buttons.remote.showVideoPipBtn && handlePictureInPicture(remoteVideoPiPBtn.id, remoteMedia.id);
 
             // handle video zoomIn/Out
-            handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
+            ZOOM_IN_OUT_ENABLED && handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
 
             // pin video on screen share detected
             if (peer_video_status && peer_screen_status) remoteVideoPinBtn.click();
