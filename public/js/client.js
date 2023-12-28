@@ -131,10 +131,10 @@ console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 const isEmbedded = window.self !== window.top;
 
 // Check if PIP is supported by this browser
-const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
+const showVideoPipBtn = !!document.pictureInPictureEnabled;
 
 // Check if Document PIP is supported by this browser
-const showDocumentPipBtn = !isMobileDevice && !isEmbedded && 'documentPictureInPicture' in window;
+const showDocumentPipBtn = !isEmbedded && 'documentPictureInPicture' in window;
 
 /**
  * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
