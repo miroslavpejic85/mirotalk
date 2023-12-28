@@ -571,6 +571,12 @@ body {
     border-radius: 50%;
 }
 
+.peer-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50px !important;
+}
+
 .private-msg-bubble,
 .msg-bubble {
     /* max-width: 200px; */
@@ -984,6 +990,7 @@ button:hover {
     margin-top: 10px;
     width: 64px;
     height: 64px;
+    border-radius: 50px;
 }
 
 #myPeerNameSetBtn,
