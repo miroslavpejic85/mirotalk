@@ -131,7 +131,7 @@ console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 const isEmbedded = window.self !== window.top;
 
 // Check if PIP is supported by this browser
-const showVideoPipBtn = !isMobileDevice && document.pictureInPictureEnabled;
+const showVideoPipBtn = document.pictureInPictureEnabled;
 
 // Check if Document PIP is supported by this browser
 const showDocumentPipBtn = !isEmbedded && 'documentPictureInPicture' in window;
@@ -3606,6 +3606,8 @@ function handlePictureInPicture(btnId, videoId) {
         } else if (document.pictureInPictureEnabled) {
             video.requestPictureInPicture().catch((error) => {
                 console.error('Failed to enter Picture-in-Picture mode:', error);
+                msgPopup('warning', error.message, 'top-end', 6000);
+                elemDisplay(btnPiP, false);
             });
         }
     });
