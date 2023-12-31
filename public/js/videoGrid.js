@@ -136,6 +136,7 @@ function setWidth(Cameras, width, bigWidth, margin, maxHeight, isOneVideoElement
  * Handle main buttons size (responsive)
  */
 function resizeMainButtons() {
+    if (!mainButtonsBar) return;
     // Devices break point
     const MOBILE_BREAKPOINT = 500;
     const TABLET_BREAKPOINT = 580;
