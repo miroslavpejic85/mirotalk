@@ -667,7 +667,7 @@ io.sockets.on('connect', async (socket) => {
                 try {
                     // https://platform.openai.com/docs/api-reference/completions/create
                     const completion = await chatGPT.completions.create({
-                        model: configChatGPT.model || 'text-davinci-003',
+                        model: configChatGPT.model || 'gpt-3.5-turbo-instruct',
                         prompt: params.prompt,
                         max_tokens: configChatGPT.max_tokens || 1000,
                         temperature: configChatGPT.temperature || 0,
