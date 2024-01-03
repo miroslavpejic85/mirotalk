@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.66
+ * @version 1.2.67
  *
  */
 
@@ -5212,11 +5212,12 @@ function shareRoomByEmail() {
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         preConfirm: () => {
             const roomURL = getRoomURL();
-            const selectedDateTime = document.getElementById('datetimePicker').value;
             const newLine = '%0D%0A%0D%0A';
+            const selectedDateTime = document.getElementById('datetimePicker').value;
+            const roomPassword = isRoomLocked && thisRoomPassword ? 'Password: ' + thisRoomPassword + newLine : '';
             const email = '';
             const emailSubject = `Please join our MiroTalk P2P Video Chat Meeting`;
-            const emailBody = `The meeting is scheduled at: ${newLine} DateTime: ${selectedDateTime} ${newLine} Click to join: ${roomURL} ${newLine}`;
+            const emailBody = `The meeting is scheduled at: ${newLine} DateTime: ${selectedDateTime} ${newLine}${roomPassword}Click to join: ${roomURL} ${newLine}`;
             document.location = 'mailto:' + email + '?subject=' + emailSubject + '&body=' + emailBody;
         },
     });
