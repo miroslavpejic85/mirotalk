@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.68
+ * @version 1.2.69
  *
  */
 
@@ -2997,6 +2997,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             peerAudioMediaElements[remoteAudioMedia.id] = remoteAudioWrap;
             // handle remote peers audio volume
             handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
+            // Toggle visibility of volume control based on the audio status of the peer
+            elemDisplay(getId(remoteAudioVolumeId), peer_audio_status);
             break;
         default:
             break;
@@ -7350,16 +7352,20 @@ function setPeerHandStatus(peer_id, peer_name, status) {
 }
 
 /**
- * Set Participant Audio Status Icon and Title
+ * Set Participant Audio Status Icon and Volume bar
  * @param {string} peer_id socket.id
  * @param {boolean} status of peer audio
  */
 function setPeerAudioStatus(peer_id, status) {
     const peerAudioStatus = getId(peer_id + '_audioStatus');
+    const remoteAudioVolumeId = getId(peer_id + '_audioVolume');
     if (peerAudioStatus) {
         peerAudioStatus.className = status ? className.audioOn : className.audioOff;
         setTippy(peerAudioStatus, status ? 'Participant audio is on' : 'Participant audio is off', 'bottom');
         status ? playSound('on') : playSound('off');
+    }
+    if (remoteAudioVolumeId) {
+        elemDisplay(remoteAudioVolumeId, status);
     }
 }
 
