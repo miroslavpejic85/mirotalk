@@ -7358,14 +7358,14 @@ function setPeerHandStatus(peer_id, peer_name, status) {
  */
 function setPeerAudioStatus(peer_id, status) {
     const peerAudioStatus = getId(peer_id + '_audioStatus');
-    const remoteAudioVolume = getId(peer_id + '_audioVolume');
+    const peerAudioVolume = getId(peer_id + '_audioVolume');
     if (peerAudioStatus) {
         peerAudioStatus.className = status ? className.audioOn : className.audioOff;
         setTippy(peerAudioStatus, status ? 'Participant audio is on' : 'Participant audio is off', 'bottom');
         status ? playSound('on') : playSound('off');
     }
-    if (remoteAudioVolume) {
-        elemDisplay(remoteAudioVolume, status);
+    if (peerAudioVolume) {
+        elemDisplay(peerAudioVolume, status);
     }
 }
 
