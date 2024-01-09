@@ -7352,20 +7352,20 @@ function setPeerHandStatus(peer_id, peer_name, status) {
 }
 
 /**
- * Set Participant Audio Status Icon and Volume bar
+ * Set Participant Audio Status and toggle Audio Volume
  * @param {string} peer_id socket.id
  * @param {boolean} status of peer audio
  */
 function setPeerAudioStatus(peer_id, status) {
     const peerAudioStatus = getId(peer_id + '_audioStatus');
-    const remoteAudioVolumeId = getId(peer_id + '_audioVolume');
+    const remoteAudioVolume = getId(peer_id + '_audioVolume');
     if (peerAudioStatus) {
         peerAudioStatus.className = status ? className.audioOn : className.audioOff;
         setTippy(peerAudioStatus, status ? 'Participant audio is on' : 'Participant audio is off', 'bottom');
         status ? playSound('on') : playSound('off');
     }
-    if (remoteAudioVolumeId) {
-        elemDisplay(remoteAudioVolumeId, status);
+    if (remoteAudioVolume) {
+        elemDisplay(remoteAudioVolume, status);
     }
 }
 
