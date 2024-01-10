@@ -1530,7 +1530,7 @@ async function checkInitConfig() {
  */
 async function changeInitCamera(deviceId) {
     if (initStream) {
-        stopTracks(initStream);
+        await stopTracks(initStream);
     }
 
     // Get video constraints
@@ -2325,8 +2325,8 @@ function enumerateAudioDevices(stream) {
                 addChild(device, [el, eli]);
             }),
         )
-        .then(() => {
-            stopTracks(stream);
+        .then(async () => {
+            await stopTracks(stream);
             isEnumerateAudioDevices = true;
             const sinkId = 'sinkId' in HTMLMediaElement.prototype;
             audioOutputSelect.disabled = !sinkId;
@@ -2359,8 +2359,8 @@ function enumerateVideoDevices(stream) {
                 addChild(device, [el, eli]);
             }),
         )
-        .then(() => {
-            stopTracks(stream);
+        .then(async () => {
+            await stopTracks(stream);
             isEnumerateVideoDevices = true;
         });
 }
@@ -5462,7 +5462,7 @@ async function toggleScreenSharing(init = false) {
 
             if (init) {
                 // Handle init media stream
-                if (initStream) stopTracks(initStream);
+                if (initStream) await stopTracks(initStream);
                 initStream = screenMediaPromise;
                 if (hasVideoTrack(initStream)) {
                     const newInitStream = new MediaStream([initStream.getVideoTracks()[0]]);
