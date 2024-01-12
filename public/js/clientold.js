@@ -731,33 +731,33 @@ function setButtonsToolTip() {
         'right',
     );
     // Whiteboard buttons
-    setTippy(wbDrawingColorEl, 'Цвет рисования', 'bottom');
-    setTippy(whiteboardGhostButton, 'Прозрачный фон', 'bottom');
-    setTippy(wbBackgroundColorEl, 'Цвет фона', 'bottom');
-    setTippy(whiteboardPencilBtn, 'Режим рисования', 'bottom');
-    setTippy(whiteboardObjectBtn, 'Режим объектов', 'bottom');
-    setTippy(whiteboardUndoBtn, 'Отменить', 'bottom');
-    setTippy(whiteboardRedoBtn, 'Вернуть', 'bottom'); 
-    setTippy(whiteboardImgFileBtn, 'Добавить изображение из файла', 'bottom');
-    setTippy(whiteboardPdfFileBtn, 'Добавить PDF файл', 'bottom');
-    setTippy(whiteboardImgUrlBtn, 'Добавить изображение по URL', 'bottom');
-    setTippy(whiteboardTextBtn, 'Добавить текст', 'bottom');
-    setTippy(whiteboardLineBtn, 'Добавить линию', 'bottom');
-    setTippy(whiteboardRectBtn, 'Добавить прямоугольник', 'bottom');
-    setTippy(whiteboardTriangleBtn, 'Добавить треугольник', 'bottom');
-    setTippy(whiteboardCircleBtn, 'Добавить круг', 'bottom');
-    setTippy(whiteboardSaveBtn, 'Сохранить доску', 'bottom');
-    setTippy(whiteboardEraserBtn, 'Стереть объект', 'bottom');
-    setTippy(whiteboardCleanBtn, 'Очистить доску', 'bottom');
-    setTippy(whiteboardLockBtn, 'Если включено, участники не могут взаимодействовать', 'right');
-    setTippy(whiteboardCloseBtn, 'Закрыть', 'right');
+    setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
+    setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
+    setTippy(wbBackgroundColorEl, 'Background color', 'bottom');
+    setTippy(whiteboardPencilBtn, 'Drawing mode', 'bottom');
+    setTippy(whiteboardObjectBtn, 'Object mode', 'bottom');
+    setTippy(whiteboardUndoBtn, 'Undo', 'bottom');
+    setTippy(whiteboardRedoBtn, 'Redo', 'bottom');
+    setTippy(whiteboardImgFileBtn, 'Add image from file', 'bottom');
+    setTippy(whiteboardPdfFileBtn, 'Add pdf from file', 'bottom');
+    setTippy(whiteboardImgUrlBtn, 'Add image from URL', 'bottom');
+    setTippy(whiteboardTextBtn, 'Add the text', 'bottom');
+    setTippy(whiteboardLineBtn, 'Add the line', 'bottom');
+    setTippy(whiteboardRectBtn, 'Add the rectangle', 'bottom');
+    setTippy(whiteboardTriangleBtn, 'Add triangle', 'bottom');
+    setTippy(whiteboardCircleBtn, 'Add the circle', 'bottom');
+    setTippy(whiteboardSaveBtn, 'Save the board', 'bottom');
+    setTippy(whiteboardEraserBtn, 'Erase the object', 'bottom');
+    setTippy(whiteboardCleanBtn, 'Clean the board', 'bottom');
+    setTippy(whiteboardLockBtn, 'If enabled, participants cannot interact', 'right');
+    setTippy(whiteboardCloseBtn, 'Close', 'right');
     // Suspend/Hide File transfer buttons
-    setTippy(sendAbortBtn, 'Прервать передачу файла', 'right-start');
-    setTippy(receiveHideBtn, 'Скрыть передачу файла', 'right-start');
+    setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
+    setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
     // Video/audio URL player
-    setTippy(videoUrlCloseBtn, 'Закрыть видеоплеер', 'bottom');
-    setTippy(videoAudioCloseBtn, 'Закрыть видеоплеер', 'bottom');
-    setTippy(msgerVideoUrlBtn, 'Поделиться видео или аудио с участниками', 'top');
+    setTippy(videoUrlCloseBtn, 'Close the video player', 'bottom');
+    setTippy(videoAudioCloseBtn, 'Close the video player', 'bottom');
+    setTippy(msgerVideoUrlBtn, 'Share a video or audio to all participants', 'top');
 }
 
 /**
@@ -769,23 +769,23 @@ function refreshMainButtonsToolTipPlacement() {
     if (isMobileDevice) return;
     // main buttons
     placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top';
-    setTippy(shareRoomBtn, 'Поделиться приглашением', placement);
-    setTippy(hideMeBtn, 'Скрыть меня из комнаты', placement); 
-    setTippy(audioBtn, useAudio ? 'Отключить микрофон' : 'Мой микрофон отключен', placement);
-    setTippy(videoBtn, useVideo ? 'Остановить видео' : 'Моё видео отключено', placement);
-    setTippy(screenShareBtn, 'Начать трансляцию экрана', placement);
-    setTippy(recordStreamBtn, 'Начать запись', placement);
-    setTippy(fullScreenBtn, 'Полноэкранный режим', placement);
-    setTippy(chatRoomBtn, 'Открыть чат', placement);
-    setTippy(captionBtn, 'Открыть субтитры', placement);
-    setTippy(roomEmojiPickerBtn, 'Отправить реакцию', placement);
-    setTippy(myHandBtn, 'Поднять руку', placement);
-    setTippy(whiteboardBtn, 'Открыть доску', placement);
-    setTippy(fileShareBtn, 'Поделиться файлом', placement);
-    setTippy(documentPiPBtn, 'Режим картинка в картинке', placement);
-    setTippy(mySettingsBtn, 'Открыть настройки', placement);
-    setTippy(aboutBtn, 'Об исходном проекте', placement);
-    setTippy(leaveRoomBtn, 'Покинуть комнату', placement);
+    setTippy(shareRoomBtn, 'Invite others to join', placement);
+    setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
+    setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', placement);
+    setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', placement);
+    setTippy(screenShareBtn, 'Start screen sharing', placement);
+    setTippy(recordStreamBtn, 'Start recording', placement);
+    setTippy(fullScreenBtn, 'View full screen', placement);
+    setTippy(chatRoomBtn, 'Open the chat', placement);
+    setTippy(captionBtn, 'Open the caption', placement);
+    setTippy(roomEmojiPickerBtn, 'Send reaction', placement);
+    setTippy(myHandBtn, 'Raise your hand', placement);
+    setTippy(whiteboardBtn, 'Open the whiteboard', placement);
+    setTippy(fileShareBtn, 'Share file', placement);
+    setTippy(documentPiPBtn, 'Toggle picture in picture', placement);
+    setTippy(mySettingsBtn, 'Open the settings', placement);
+    setTippy(aboutBtn, 'About this project', placement);
+    setTippy(leaveRoomBtn, 'Leave this room', placement);
 }
 
 /**
@@ -1019,7 +1019,7 @@ function initClientPeer() {
     setTheme();
 
     if (!isWebRTCSupported) {
-        return userLog('error', 'Похоже, что этот браузер не поддерживает WebRTC!');
+        return userLog('error', 'This browser seems not supported WebRTC!');
     }
 
     // check if video Full screen supported on default true
@@ -1181,14 +1181,14 @@ function handleUnauthorized() {
         allowEscapeKey: false,
         background: swBg,
         imageUrl: images.forbidden,
-        title: 'Упс, вы не авторизованы',  
-        text: 'Хост включил аутентификацию пользователей',
-        confirmButtonText: `Войти`,
-        showClass: { popup: 'animate__animated animate__fadeInDown' }, 
-        hideClass: { popup: 'animate__animated animate__fadeOutUp' }
+        title: 'Oops, Unauthorized',
+        text: 'The host has user authentication enabled',
+        confirmButtonText: `Login`,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then(() => {
-        // Необходимо авторизоваться, чтобы присоединиться к комнате
-        openURL(`/login/?room=${roomId}`); 
+        // Login required to join room
+        openURL(`/login/?room=${roomId}`);
     });
 }
 
@@ -1205,8 +1205,8 @@ function roomIsBusy() {
         background: swBg,
         imageUrl: images.forbidden,
         position: 'center',
-        title: 'Комната занята',
-        html: `Комната ограничена ${userLimits.count} пользователями. <br/> Пожалуйста, попробуйте позже`,
+        title: 'Room is busy',
+        html: `The room is limited to ${userLimits.count} users. <br/> Please try again later`,
         showDenyButton: false,
         confirmButtonText: `OK`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
@@ -1417,8 +1417,8 @@ async function whoAreYou() {
         setMyAudioStatus(useAudio);
     }
 
-    setTippy(initAudioBtn, 'Отключить микрофон', 'top');
-    setTippy(initVideoBtn, 'Отключить видео', 'top');
+    setTippy(initAudioBtn, 'Stop the audio', 'top');
+    setTippy(initVideoBtn, 'Stop the video', 'top');
 }
 
 /**
@@ -1450,8 +1450,8 @@ function userNameAlreadyInRoom() {
         background: swBg,
         imageUrl: images.forbidden,
         position: 'center',
-        title: 'Имя пользователя (псевдоним)',
-        html: `Имя пользователя уже используется. <br/> Пожалуйста, попробуйте другое`, 
+        title: 'Username',
+        html: `The Username is already in use. <br/> Please try with another one`,
         showDenyButton: false,
         confirmButtonText: `OK`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
@@ -1540,21 +1540,21 @@ async function changeInitCamera(deviceId) {
     navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
-            // Мы собираемся обновить начальный видеопоток
-            initVideo.srcObject = camStream;  
+            // We going to update init video stream
+            initVideo.srcObject = camStream;
             initStream = camStream;
-            console.log('Начальный видеопоток успешно подключен', initStream.getVideoTracks()[0].getSettings());
-            // Мы также обновим локальный видеопоток
+            console.log('Success attached init video stream', initStream.getVideoTracks()[0].getSettings());
+            // We going to update also the local video stream
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
-            console.log('Локальный видеопоток успешно подключен', localVideoMediaStream.getVideoTracks()[0].getSettings());  
+            console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
         })
         .catch((err) => {
-            console.error('[Ошибка] changeInitCamera', err);
-            userLog('error', 'Ошибка при замене начальной камеры: ' + err);
+            console.error('[Error] changeInitCamera', err);
+            userLog('error', 'Error while swapping init camera' + err);
             initVideoSelect.selectedIndex = 0;
             lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
-            // Обновить страницу...
+            // Refresh page...
             setTimeout(function () {
                 location.reload();
             }, 3000);
@@ -1586,7 +1586,7 @@ async function changeLocalCamera(deviceId) {
         })
         .catch((err) => {
             console.error('[Error] changeLocalCamera', err);
-            userLog('ошибка', 'Ошибка при переключении локальной камеры' + err);
+            userLog('error', 'Error while swapping local camera' + err);
         });
 }
 
@@ -1615,7 +1615,7 @@ async function changeLocalMicrophone(deviceId) {
         })
         .catch((err) => {
             console.error('[Error] changeLocalMicrophone', err);
-            userLog('ошибка', 'Ошибка при замене локального микрофона' + err);
+            userLog('error', 'Error while swapping local microphone' + err);
         });
 }
 
@@ -2549,18 +2549,18 @@ async function loadLocalMedia(stream, kind) {
 
             // no mobile devices
             if (!isMobileDevice) {
-                setTippy(mySessionTime, 'Время сессии', 'bottom');
-                setTippy(myPeerName, 'Мое имя', 'bottom');
-                setTippy(myHandStatusIcon, 'Моя рука поднята', 'bottom');
-                setTippy(myPrivacyBtn, 'Переключить конфиденциальность видео', 'bottom');
-                setTippy(myVideoStatusIcon, 'Камера', 'bottom');
-                setTippy(myAudioStatusIcon, 'Микрофон', 'bottom');
-                setTippy(myVideoToImgBtn, 'Сделать снимок', 'bottom');
-                setTippy(myVideoFullScreenBtn, 'Полноэкранный режим', 'bottom');
-                setTippy(myVideoZoomInBtn, 'Увеличить видео', 'bottom');
-                setTippy(myVideoPiPBtn, 'Режим картинка в картинке', 'bottom');
-                setTippy(myVideoZoomOutBtn, 'Уменьшить видео', 'bottom');
-                setTippy(myVideoPinBtn, 'Закрепить видео', 'bottom');
+                setTippy(mySessionTime, 'Session Time', 'bottom');
+                setTippy(myPeerName, 'My name', 'bottom');
+                setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
+                setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
+                setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
+                setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
+                setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
+                setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+                setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
+                setTippy(myVideoPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
+                setTippy(myVideoPinBtn, 'Toggle Pin video', 'bottom');
             }
 
             // my video avatar image
@@ -2649,7 +2649,7 @@ async function loadLocalMedia(stream, kind) {
                 myVideoStatusIcon.className = className.videoOff;
                 videoBtn.className = className.videoOff;
                 if (!isMobileDevice) {
-                    setTippy(myVideoStatusIcon, 'Моё видео отключено', 'bottom');
+                    setTippy(myVideoStatusIcon, 'My video is disabled', 'bottom');
                 }
             }
 
@@ -2657,7 +2657,7 @@ async function loadLocalMedia(stream, kind) {
                 myAudioStatusIcon.className = className.audioOff;
                 audioBtn.className = className.audioOff;
                 if (!isMobileDevice) {
-                    setTippy(myAudioStatusIcon, 'Мой микрофон отключен', 'bottom');
+                    setTippy(myAudioStatusIcon, 'My audio is disabled', 'bottom');
                 }
             }
             break;
@@ -2695,15 +2695,15 @@ function checkShareScreen() {
             background: swBg,
             position: 'center',
             icon: 'question',
-            text: 'Вы действительно хотите продемонстрировать экран?',
-            showDenyButton: true, 
-            confirmButtonText: `Да`,
-            denyButtonText: `Нет`,
+            text: 'Do you want to share your screen?',
+            showDenyButton: true,
+            confirmButtonText: `Yes`,
+            denyButtonText: `No`,
             showClass: { popup: 'animate__animated animate__fadeInDown' },
-            hideClass: { popup: 'animate__animated animate__fadeOutUp' }  
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         }).then((result) => {
             if (result.isConfirmed) {
-              screenShareBtn.click();
+                screenShareBtn.click();
             }
         });
     }
@@ -2828,21 +2828,21 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // no mobile devices
             if (!isMobileDevice) {
-                setTippy(remotePeerName, 'Имя участника', 'bottom');
-                setTippy(remoteHandStatusIcon, 'Участник поднял руку', 'bottom');
-                setTippy(remoteVideoStatusIcon, 'Видео участника включено', 'bottom');
-                setTippy(remoteAudioStatusIcon, 'Микрофон участника включено', 'bottom');
-                setTippy(remoteAudioVolume, '🔊 Громкость', 'top');
-                setTippy(remoteVideoAudioUrlBtn, 'Отправить видео или аудио', 'bottom');
-                setTippy(remotePrivateMsgBtn, 'Отправить личное сообщение', 'bottom'); 
-                setTippy(remoteFileShareBtn, 'Отправить файл', 'bottom');
-                setTippy(remoteVideoToImgBtn, 'Сделать снимок', 'bottom');
-                setTippy(remotePeerKickOut, 'Выбросить из комнаты', 'bottom');
-                setTippy(remoteVideoFullScreenBtn, 'Полноэкранный режим', 'bottom');
-                setTippy(remoteVideoZoomInBtn, 'Увеличить видео', 'bottom');
-                setTippy(remoteVideoZoomOutBtn, 'Уменьшить видео', 'bottom');
-                setTippy(remoteVideoPiPBtn, 'Вкл/выкл картинка в картинке', 'bottom');
-                setTippy(remoteVideoPinBtn, 'Закрепить видео', 'bottom'); 
+                setTippy(remotePeerName, 'Participant name', 'bottom');
+                setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
+                setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
+                setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
+                setTippy(remoteAudioVolume, '🔊 Volume', 'top');
+                setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
+                setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+                setTippy(remoteFileShareBtn, 'Send file', 'bottom');
+                setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
+                setTippy(remotePeerKickOut, 'Kick out', 'bottom');
+                setTippy(remoteVideoFullScreenBtn, 'Full screen mode', 'bottom');
+                setTippy(remoteVideoZoomInBtn, 'Zoom in video', 'bottom');
+                setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
+                setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
             }
 
             // my video avatar image
@@ -3237,25 +3237,25 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
         }
     });
 
-    // при нажатии кнопки перейти на полноэкранный режим на мобильном/десктопе
+    // on button click go on FS mobile/desktop
     videoFullScreenBtn.addEventListener('click', (e) => {
         if (videoPlayer.classList.contains('videoCircle')) {
-            return userLog('toast', 'Полноэкранный режим недоступен если видео в режиме конфиденциальности');
+            return userLog('toast', 'Full Screen not allowed if video on privacy mode');
         }
-        gotoFS(); 
+        gotoFS();
     });
 
-    // при нажатии на видео перейти в полноэкранный режим
+    // on video click go on FS
     videoPlayer.addEventListener('click', (e) => {
         if (videoPlayer.classList.contains('videoCircle')) {
-            return userLog('toast', 'Полноэкранный режим недоступен если видео в режиме конфиденциальности');
+            return userLog('toast', 'Full Screen not allowed if video on privacy mode');
         }
-        // не на мобильном, при нажатии перейти в полноэкранный режим или выйти из него  
+        // not mobile on click go on FS or exit from FS
         if (!isMobileDevice) {
             gotoFS();
         } else {
-            // на мобильном, при нажатии выйти из полноэкранного режима, для входа используйте videoFullScreenBtn
-            if (isVideoOnFullScreen) handleFSVideo();  
+            // mobile on click exit from FS, for enter use videoFullScreenBtn
+            if (isVideoOnFullScreen) handleFSVideo();
         }
     });
 
@@ -3279,7 +3279,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
     }
 
     function showMsg() {
-        userLog('toast', 'Полноэкранный режим работает только когда видео включено');
+        userLog('toast', 'Full screen mode work when video is on');
     }
 
     function handleFSVideo() {
@@ -3334,27 +3334,27 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
     videoPeer.addEventListener('drop', function (e) {
         e.preventDefault();
         if (itsMe) {
-            return userLog('warning', 'Вы не можете отправлять файлы самому себе.');  
+            return userLog('warning', 'You cannot send files to yourself.');
         }
         if (sendInProgress) {
-            return userLog('warning', 'Пожалуйста, дождитесь завершения отправки предыдущего файла.');
+            return userLog('warning', 'Please wait for the previous file to be sent.');
         }
         if (e.dataTransfer.items && e.dataTransfer.items.length > 1) {
-            return userLog('warning', 'Пожалуйста, перетащите один файл.');
+            return userLog('warning', 'Please drag and drop a single file.');
         }
-        // Используйте интерфейс DataTransferItemList для доступа к файлу (ам)
+        // Use DataTransferItemList interface to access the file(s)
         if (e.dataTransfer.items) {
-            // Если перемещенные элементы не являются файлами, отклоните их
+            // If dropped items aren't files, reject them
             const item = e.dataTransfer.items[0].webkitGetAsEntry();
-            console.log('Перетаскивание и отпускание', item);
+            console.log('Drag and drop', item);
             if (item.isDirectory) {
-                return userLog('warning', 'Пожалуйста, перетащите один файл, а не папку.', 'top-end');
+                return userLog('warning', 'Please drag and drop a single file not a folder.', 'top-end');
             }
             const file = e.dataTransfer.items[0].getAsFile();
             sendFileInformations(file, peer_id);
         } else {
-            // Используйте интерфейс DataTransfer для доступа к файлу (ам)
-            sendFileInformations(e.dataTransfer.files[0], peer_id); 
+            // Use DataTransfer interface to access the file(s)
+            sendFileInformations(e.dataTransfer.files[0], peer_id);
         }
     });
 }
@@ -3431,7 +3431,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
                 if (pinnedVideoPlayerId != videoPlayer.id) {
                     isVideoPinned = true;
                     if (isScreenEnabled) return;
-                    return userLog('toast', 'Похоже, другое видео уже закреплено, сначала открепите его', 5000);
+                    return userLog('toast', 'Another video seems pinned, unpin it before to pin this one', 5000);
                 }
                 if (!isScreenStreaming) videoPlayer.style.objectFit = 'var(--video-object-fit)';
                 if (isScreen || videoPlayer.style.name == peerId + '_typeScreen')
@@ -3570,15 +3570,15 @@ function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null)
 
     if (buttons.local.showZoomInOutBtn) {
         zoomIn.addEventListener('click', () => {
-            if (isVideoOf(id)) return userLog('toast', 'Увеличение работает, когда видео включено'); 
-            if (isVideoPrivacyMode(video)) return userLog('toast', 'Увеличение не разрешено, если видео в режиме конфиденциальности');
+            if (isVideoOf(id)) return userLog('toast', 'Zoom in work when video is on');
+            if (isVideoPrivacyMode(video)) return userLog('toast', 'Zoom in not allowed if video on privacy mode');
             zoom = zoom + 0.1;
             setTransform();
         });
- 
+
         zoomOut.addEventListener('click', () => {
-            if (isVideoOf(id)) return userLog('toast', 'Уменьшение работает, когда видео включено');
-            if (isVideoPrivacyMode(video)) return userLog('toast', 'Уменьшение не разрешено, если видео в режиме конфиденциальности');
+            if (isVideoOf(id)) return userLog('toast', 'Zoom out work when video is on');
+            if (isVideoPrivacyMode(video)) return userLog('toast', 'Zoom out not allowed if video on privacy mode');
             zoom = zoom - 0.1;
             setTransform();
         });
@@ -3607,7 +3607,7 @@ function handlePictureInPicture(btnId, videoId) {
             video.exitPictureInPicture();
         } else if (document.pictureInPictureEnabled) {
             video.requestPictureInPicture().catch((error) => {
-                console.error('Не удалось включить режим картинка в картинке:', error);
+                console.error('Failed to enter Picture-in-Picture mode:', error);
                 msgPopup('warning', error.message, 'top-end', 6000);
                 elemDisplay(btnPiP, false);
             });
@@ -3648,7 +3648,7 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
     const video = getId(videoStream);
     videoBtn.addEventListener('click', () => {
         if (video.classList.contains('videoCircle')) {
-            return userLog('toast', 'Снимок экрана не разрешен, если видео в режиме конфиденциальности');
+            return userLog('toast', 'Snapshot not allowed if video on privacy mode');
         }
         if (peer_id !== null) {
             // handle remote video snapshot
@@ -3662,7 +3662,7 @@ function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
                 return takeSnapshot(video);
             }
         }
-        userLog('toast', 'Снимок экрана не работает, когда видео отключено');
+        userLog('toast', 'Snapshot not work on video disabled');
     });
 }
 
@@ -3911,25 +3911,25 @@ function setChatRoomBtn() {
         }
     });
 
-    // показать секцию участников msger
+    // show msger participants section
     msgerCPBtn.addEventListener('click', (e) => {
         if (!thereArePeerConnections()) {
-            return userLog('info', 'Участники не обнаружены'); 
+            return userLog('info', 'No participants detected');
         }
         elemDisplay(msgerCP, true, 'flex');
     });
 
-    // скрыть секцию участников msger 
+    // hide msger participants section
     msgerCPCloseBtn.addEventListener('click', (e) => {
         elemDisplay(msgerCP, false);
     });
 
-    // очистить сообщения чата
+    // clean chat messages
     msgerClean.addEventListener('click', (e) => {
         if (chatMessages.length != 0) {
-            return cleanMessages();  
+            return cleanMessages();
         }
-        userLog('info', 'Нет сообщений для удаления');
+        userLog('info', 'No chat messages to delete');
     });
 
     // save chat messages to file
@@ -3937,7 +3937,7 @@ function setChatRoomBtn() {
         if (chatMessages.length != 0) {
             return downloadChatMsgs();
         }
-        userLog('info', 'Нет сообщений для сохранения');
+        userLog('info', 'No chat messages to save');
     });
 
     // close chat room - show left button and status menu if hide
@@ -4017,20 +4017,20 @@ function setChatRoomBtn() {
         playSound('switch');
         showChatOnMessage = e.currentTarget.checked;
         showChatOnMessage
-          ? msgPopup('info', 'Чат будет показан при получении нового сообщения', 'top-end', 3000)
-          : msgPopup('info', 'Чат не будет открыт при получении нового сообщения', 'top-end', 3000);
+            ? msgPopup('info', 'Chat will be shown, when you receive a new message', 'top-end', 3000)
+            : msgPopup('info', 'Chat not will be shown, when you receive a new message', 'top-end', 3000);
         lsSettings.show_chat_on_msg = showChatOnMessage;
-        lS.setSettings(lsSettings);  
+        lS.setSettings(lsSettings);
     });
 
-    // входящее речевое сообщение
+    // speech incoming message
     if (isSpeechSynthesisSupported) {
         msgerSpeechMsg.addEventListener('change', (e) => {
             playSound('switch');
             speechInMessages = e.currentTarget.checked;
             speechInMessages
-                ? msgPopup('info', 'Когда вы получите новое сообщение, оно будет преобразовано в речь', 'top-end', 3000)
-                : msgPopup('info', 'Вы отключили речевые сообщения', 'top-end', 3000);
+                ? msgPopup('info', 'When You receive a new message, it will be converted into speech', 'top-end', 3000)
+                : msgPopup('info', 'You have disabled speech messages', 'top-end', 3000);
             lsSettings.speech_in_msg = speechInMessages;
             lS.setSettings(lsSettings);
         });
@@ -4426,7 +4426,7 @@ async function documentPictureInPictureOpen() {
 
         if (!cloneVideoElements()) {
             documentPictureInPictureClose();
-            return userLog('toast', 'Видео не разрешено для PIP документа');
+            return userLog('toast', 'No video allowed for Document PIP');
         }
 
         const videoObserver = new MutationObserver(() => {
@@ -4474,50 +4474,50 @@ function setMySettingsBtn() {
     myPeerNameSetBtn.addEventListener('click', (e) => {
         updateMyPeerName();
     });
-    // Звуки
+    // Sounds
     switchSounds.addEventListener('change', (e) => {
-        notifyBySound = e.currentTarget.checked; 
+        notifyBySound = e.currentTarget.checked;
         lsSettings.sounds = notifyBySound;
         lS.setSettings(lsSettings);
-        userLog('toast', `${icons.sounds} Уведомления и звуки ` + (notifyBySound ? 'ВКЛ' : 'ВЫКЛ'));
+        userLog('toast', `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'));
         playSound('switch');
     });
     switchShare.addEventListener('change', (e) => {
         notify = e.currentTarget.checked;
         lsSettings.share_on_join = notify;
         lS.setSettings(lsSettings);
-        userLog('toast', `${icons.share} Отображать меню отправки приглашения в комнату при входе ` + (notify ? 'ВКЛ' : 'ВЫКЛ'));
+        userLog('toast', `${icons.share} Share room on join ` + (notify ? 'ON' : 'OFF'));
         playSound('switch');
     });
 
     if (isMobileDevice) {
         elemDisplay(pushToTalkDiv, false);
     } else {
-        // Нажмите, чтобы поговорить
+        // Push to talk
         switchPushToTalk.addEventListener('change', (e) => {
             isPushToTalkActive = e.currentTarget.checked;
-            userLog('toast', `👆 Удерживайте пробел, чтобы поговорить ` + (isPushToTalkActive ? 'ВКЛ' : 'ВЫКЛ'));
+            userLog('toast', `👆 Push to talk ` + (isPushToTalkActive ? 'ON' : 'OFF'));
             playSound('switch');
         });
     }
 
     switchAudioPitchBar.addEventListener('change', (e) => {
         isAudioPitchBar = e.currentTarget.checked;
-        lsSettings.pitch_bar = isAudioPitchBar; 
+        lsSettings.pitch_bar = isAudioPitchBar;
         lS.setSettings(lsSettings);
-        userLog('toast', `${icons.pitchBar} Аудио шкала ` + (isAudioPitchBar ? 'ВКЛ' : 'ВЫКЛ'));
+        userLog('toast', `${icons.pitchBar} Audio pitch bar ` + (isAudioPitchBar ? 'ON' : 'OFF'));
         playSound('switch');
     });
- 
+
     // make chat room draggable for desktop
     if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
- 
+
     // recording codecs
     switchH264Recording.addEventListener('change', (e) => {
         recPrioritizeH264 = e.currentTarget.checked;
         lsSettings.rec_prioritize_h264 = recPrioritizeH264;
         lS.setSettings(lsSettings);
-        userLog('toast', `${icons.codecs} Предпочитать запись h.264 ` + (recPrioritizeH264 ? 'ВКЛ' : 'ВЫКЛ'));
+        userLog('toast', `${icons.codecs} Recording prioritize h.264 ` + (recPrioritizeH264 ? 'ON' : 'OFF'));
         playSound('switch');
     });
     // Recording pause/resume
@@ -4994,7 +4994,7 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
             type === 'camera'
                 ? (videoFpsSelect.selectedIndex = videoFpsSelectedIndex)
                 : (screenFpsSelect.selectedIndex = screenFpsSelectedIndex);
-            userLog('error', "Ваше устройство не поддерживает выбранный FPS");
+            userLog('error', "Your device doesn't support the selected fps, please select the another one.");
         });
 }
 
@@ -5014,7 +5014,7 @@ async function setLocalVideoQuality() {
         .catch((err) => {
             videoQualitySelect.selectedIndex = videoQualitySelectedIndex;
             console.error('setLocalVideoQuality', err);
-            userLog('error', "Ваше устройство не поддерживает выбранное разрешение");
+            userLog('error', "Your device doesn't support the selected video quality, please select the another one.");
         });
 }
 
@@ -5184,15 +5184,15 @@ function makeRoomQR() {
  */
 function copyRoomURL() {
     const roomURL = getRoomURL();
-    const tmpInput = document.createElement('input'); 
+    const tmpInput = document.createElement('input');
     document.body.appendChild(tmpInput);
     tmpInput.value = roomURL;
-    tmpInput.select(); 
-    tmpInput.setSelectionRange(0, 99999); // Для мобильных устройств
+    tmpInput.select();
+    tmpInput.setSelectionRange(0, 99999); // For mobile devices
     navigator.clipboard.writeText(tmpInput.value);
-    console.log('Ссылка для подключения скопирована в буфер обмена ', roomURL);
+    console.log('Copied to clipboard Join Link ', roomURL);
     document.body.removeChild(tmpInput);
-    userLog('toast', 'URL встречи скопирован в буфер обмена 👍');  
+    userLog('toast', 'Meeting URL copied to clipboard 👍');
 }
 
 /**
@@ -5263,7 +5263,7 @@ function handleAudio(e, init, force = null) {
 
     if (init) {
         initAudioBtn.className = audioClassName;
-        setTippy(initAudioBtn, audioStatus ? 'Отключить микрофон' : 'Мой микрофон отключен', 'top');
+        setTippy(initAudioBtn, audioStatus ? 'Stop the audio' : 'Start the audio', 'top');
         initMicrophoneSelect.disabled = !audioStatus;
         initSpeakerSelect.disabled = !audioStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.audio, audioStatus);
@@ -5306,7 +5306,7 @@ async function handleVideo(e, init, force = null) {
 
     if (init) {
         initVideoBtn.className = videoClassName;
-        setTippy(initVideoBtn, videoStatus ? 'Остановить видео' : 'Моё видео отключено', 'top');
+        setTippy(initVideoBtn, videoStatus ? 'Stop the video' : 'Start the video', 'top');
         videoStatus ? elemDisplay(initVideo, true, 'block') : elemDisplay(initVideo, false);
         initVideoSelect.disabled = !videoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
@@ -5607,7 +5607,7 @@ function toggleFullScreen() {
             isDocumentOnFullScreen = false;
         }
     }
-    setTippy(fullScreenBtn, document.fullscreenElement ? 'Выйти из полноэкранного режима' : 'Перейти в полноэкранный режим', placement);
+    setTippy(fullScreenBtn, isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen', placement);
 }
 
 /**
@@ -6043,7 +6043,7 @@ function handleMediaRecorderStart(event) {
     console.log('MediaRecorder started: ', event);
     isStreamRecording = true;
     recordStreamBtn.style.setProperty('color', '#ff4500');
-    setTippy(recordStreamBtn, 'Остановить запись', placement);
+    setTippy(recordStreamBtn, 'Stop recording', placement);
     if (isMobileDevice) elemDisplay(swapCameraBtn, false);
     playSound('recStart');
 }
@@ -6077,7 +6077,7 @@ function handleMediaRecorderStop(event) {
     }
     recordStreamBtn.style.setProperty('color', '#000');
     downloadRecordedStream();
-    setTippy(recordStreamBtn, 'Насать запись', placement);
+    setTippy(recordStreamBtn, 'Start recording', placement);
     if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
     playSound('recStop');
 }
@@ -6220,7 +6220,7 @@ function showChatRoomDraggable() {
     msgerDraggable.style.left = isMobileDevice ? '50%' : '25%';
     msgerDraggable.style.display = 'flex';
     isChatRoomVisible = true;
-    setTippy(chatRoomBtn, 'Закрыть чат', placement);
+    setTippy(chatRoomBtn, 'Close the chat', placement);
 }
 
 /**
@@ -6237,7 +6237,7 @@ function showCaptionDraggable() {
     captionDraggable.style.left = isMobileDevice ? '50%' : '75%';
     captionDraggable.style.display = 'flex';
     isCaptionBoxVisible = true;
-    setTippy(captionBtn, 'Закрыть субтитры', placement);
+    setTippy(captionBtn, 'Close the caption', placement);
 }
 
 /**
@@ -6370,7 +6370,7 @@ function hideChatRoomAndEmojiPicker() {
     chatRoomBtn.className = className.chatOn;
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
-    setTippy(chatRoomBtn, 'Открыть чат', placement);
+    setTippy(chatRoomBtn, 'Open the chat', placement);
 }
 
 /**
@@ -6380,7 +6380,7 @@ function hideCaptionBox() {
     elemDisplay(captionDraggable, false);
     captionBtn.className = className.captionOn;
     isCaptionBoxVisible = false;
-    setTippy(captionBtn, 'Открыть субтитры', placement);
+    setTippy(captionBtn, 'Open the caption', placement);
 }
 
 /**
@@ -6612,9 +6612,9 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     msgerChat.insertAdjacentHTML('beforeend', msgHTML);
     msgerChat.scrollTop += 500;
     if (!isMobileDevice) {
-        setTippy(getId('msg-delete-' + chatMessagesId), 'Удалить', 'top');
-        setTippy(getId('msg-copy-' + chatMessagesId), 'Скопировать', 'top');
-        setTippy(getId('msg-speech-' + chatMessagesId), 'Речь', 'top');
+        setTippy(getId('msg-delete-' + chatMessagesId), 'Delete', 'top');
+        setTippy(getId('msg-copy-' + chatMessagesId), 'Copy', 'top');
+        setTippy(getId('msg-speech-' + chatMessagesId), 'Speech', 'top');
         if (isValidPrivateMessage) {
             setTippy(getId('msg-private-reply-' + chatMessagesId), 'Reply', 'top');
         }
@@ -7111,12 +7111,12 @@ function hideShowMySettings() {
         mySettings.style.top = '50%';
         mySettings.style.left = '50%';
         elemDisplay(mySettings, true, 'block');
-        setTippy(mySettingsBtn, 'Закрыть настройки', placement);
+        setTippy(mySettingsBtn, 'Close the settings', placement);
         isMySettingsVisible = true;
         return;
     }
     elemDisplay(mySettings, false);
-    setTippy(mySettingsBtn, 'Открыть настройки', placement);
+    setTippy(mySettingsBtn, 'Open the settings', placement);
     isMySettingsVisible = false;
 }
 
@@ -7249,13 +7249,13 @@ function setMyHandStatus() {
         // Raise hand
         setColor(myHandBtn, 'green');
         elemDisplay(myHandStatusIcon, true);
-        setTippy(myHandBtn, 'Поднять руку', placement);
+        setTippy(myHandBtn, 'Raise your hand', placement);
         playSound('raiseHand');
     } else {
         // Lower hand
         setColor(myHandBtn, 'black');
         elemDisplay(myHandStatusIcon, false);
-        setTippy(myHandBtn, 'Опустить руку', placement);
+        setTippy(myHandBtn, 'Lower your hand', placement);
     }
     emitPeerStatus('hand', myHandStatus);
 }
