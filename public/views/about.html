@@ -3,36 +3,26 @@
     <head>
         <!-- Title and Icon -->
 
-        <title>MiroTalk - About.</title>
-        <link rel="shortcut icon" href="../images/logo.svg" />
-        <link rel="apple-touch-icon" href="../images/logo.svg" />
-
+        <title>RepinaRoom</title>
+        <link rel="shortcut icon" href="../images/favicon.png" />
+        <link rel="apple-touch-icon" href="../images/favicon.png" />
         <!-- Meta Information -->
 
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta
-            name="description"
-            content="MiroTalk powered by WebRTC, Real-time Simple Secure Fast video calls, chat and screen sharing capabilities in the browser, from your mobile or desktop."
-        />
-        <meta
-            name="keywords"
-            content="webrtc, miro, self hosted, voip, sip, real-time communications, chat, messaging, meet, webrtc stun, webrtc turn, video meeting, video chat, video conference, multi video chat, multi video conference, peer to peer, p2p, rtc, alternative to, zoom, microsoft teams, google meet, jitsi, meeting"
+            name="viewport"
+            content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
         />
 
         <!-- https://ogp.me -->
 
         <meta property="og:type" content="app-webrtc" />
-        <meta property="og:site_name" content="MiroTalk" />
-        <meta property="og:title" content="Click the link to make a call." />
-        <meta
-            property="og:description"
-            content="MiroTalk calling provides real-time HD quality and latency simply not available with traditional technology."
-        />
+        <meta property="og:site_name" content="RepinaRoom" />
+        <meta property="og:title" content="Нажмите на ссылку, чтобы присоединится к звонку." />
+        <meta property="og:description" content="RepinaRoom WebRTC Video call" />
         <meta property="og:image" content="https://p2p.mirotalk.com/images/preview.png" />
-        <meta property="og:url" content="https://p2p.mirotalk.org" />
+        <!-- <meta property="og:url" content="https://p2p.mirotalk.org" /> -->
+        <link rel="icon" type="image/ico" sizes="32x32" href="../images/favicon.ico" />
 
         <!-- StyleSheet -->
 
@@ -52,31 +42,12 @@
                     height: 0;
                     padding-top: 56.25%;
                     padding-bottom: 48px;
-                    box-shadow: 0 2px 8px 0 rgba(63, 69, 81, 0.16);
                     margin-top: 1.6em;
                     margin-bottom: 0.9em;
                     overflow: hidden;
                     border-radius: 8px;
-                    will-change: transform;
                 "
             >
-                <iframe
-                    loading="lazy"
-                    style="
-                        position: absolute;
-                        width: 100%;
-                        height: 100%;
-                        top: 0;
-                        left: 0;
-                        border: none;
-                        padding: 0;
-                        margin: 0;
-                    "
-                    src="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAE693uLOIU&#x2F;view?embed"
-                    allowfullscreen="allowfullscreen"
-                    allow="fullscreen"
-                >
-                </iframe>
             </div>
         </main>
         <footer class="site-footer center-content-mobile">
@@ -84,7 +55,7 @@
                 <div class="site-footer-inner">
                     <div class="footer-top space-between text-xxs">
                         <div class="brand">
-                            <a href="/"><img src="../images/logo.svg" alt="Neon" width="32" height="32" /></a>
+                            <a href="/"><img src="../images/favicon.png" alt="Neon" width="64" height="64" /></a>
                         </div>
                         <div class="footer-social">
                             <ul class="list-reset">
@@ -153,17 +124,6 @@
                                 <li>
                                     <a
                                         class="github-button"
-                                        href="https://github.com/sponsors/miroslavpejic85"
-                                        data-color-scheme="no-preference: light; light: light; dark: dark;"
-                                        data-icon="octicon-heart"
-                                        data-size="large"
-                                        aria-label="Sponsor @miroslavpejic85 on GitHub"
-                                        >Sponsor</a
-                                    >
-                                </li>
-                                <li>
-                                    <a
-                                        class="github-button"
                                         href="https://github.com/miroslavpejic85/mirotalk"
                                         data-color-scheme="no-preference: light; light: light; dark: dark;"
                                         data-size="large"
@@ -179,16 +139,13 @@
                         <nav class="footer-nav">
                             <ul class="list-reset">
                                 <li>
-                                    <a href="/privacy">Privacy Policy</a>
-                                </li>
-                                <li>
-                                    <a target="_blank" href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
-                                        >Contact: Miroslav Pejic</a
-                                    >
+                                    <a href="#">Privacy Policy</a>
                                 </li>
                             </ul>
                         </nav>
-                        <div class="footer-copyright">&copy; 2023 MiroTalk, all rights reserved</div>
+                        <span id="currentYear" class="footer-copyright"></span>
+                        <script>document.getElementById("currentYear").innerText = (new Date().getFullYear()) + " RepinaRoom, all rights reserved"</script>
+                        </footer>
                     </div>
                 </div>
             </div>

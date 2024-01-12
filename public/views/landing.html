@@ -1,38 +1,29 @@
 <!doctype html>
 <html lang="en" class="no-js">
     <head>
-        <!-- Title and Icon -->
+       <!-- Title and Icon -->
 
-        <title>MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.</title>
-        <link rel="shortcut icon" href="../images/logo.svg" />
-        <link rel="apple-touch-icon" href="../images/logo.svg" />
+       <title>RepinaRoom</title>
+       <link rel="shortcut icon" href="../images/favicon.png" />
+       <link rel="apple-touch-icon" href="../images/favicon.png" />
+       <!-- Meta Information -->
 
-        <!-- Meta Information -->
+       <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+       <meta
+           name="viewport"
+           content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+       />
 
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+       <!-- https://ogp.me -->
 
-        <meta
-            name="description"
-            content="MiroTalk powered by WebRTC, Real-time Simple Secure Fast video calls, chat and screen sharing capabilities in the browser, from your mobile or desktop."
-        />
-        <meta
-            name="keywords"
-            content="webrtc, self hosted, voip, sip, real-time communications, chat, messaging, meet, webrtc stun, webrtc turn, video meeting, video chat, video conference, multi video chat, multi video conference, peer to peer, p2p, rtc, alternative to, zoom, microsoft teams, google meet, jitsi, meeting"
-        />
+       <meta property="og:type" content="app-webrtc" />
+       <meta property="og:site_name" content="RepinaRoom" />
+       <meta property="og:title" content="Нажмите на ссылку, чтобы присоединится к звонку." />
+       <meta property="og:description" content="RepinaRoom WebRTC Video call" />
+       <meta property="og:image" content="https://p2p.mirotalk.com/images/preview.png" />
 
-        <!-- https://ogp.me -->
-
-        <meta property="og:type" content="app-webrtc" />
-        <meta property="og:site_name" content="MiroTalk" />
-        <meta property="og:title" content="Click the link to make a call." />
-        <meta
-            property="og:description"
-            content="MiroTalk calling provides real-time HD quality and latency simply not available with traditional technology."
-        />
-        <meta property="og:image" content="https://p2p.mirotalk.com/images/preview.png" />
-        <meta property="og:url" content="https://p2p.mirotalk.com" />
+       <!-- <meta property="og:url" content="https://p2p.mirotalk.org" /> -->
+       <link rel="icon" type="image/ico" sizes="32x32" href="../images/favicon.ico" />
 
         <!-- xss -->
 
@@ -44,7 +35,6 @@
 
         <!-- StyleSheet -->
 
-        <link rel="stylesheet" href="../css/snow.css" />
         <link rel="stylesheet" href="../css/landing.css" />
         <link rel="stylesheet" href="../css/newcall.css" />
 
@@ -53,65 +43,25 @@
         <script async src="../js/umami.js"></script>
     </head>
     <body class="has-animations">
-        <div id="snow-container"></div>
         <div class="body-wrap">
             <header class="site-header reveal-from-top">
                 <div class="container">
-                    <div class="site-header-inner">
-                        <div class="brand">
-                            <div class="m-0">
-                                <a href="/">
-                                    <!-- <img src="../images/logo.svg" alt="MiroTalk P2P" width="32" height="32" /> -->
-                                    <img
-                                        src="../images/mirotalk-mc.png"
-                                        alt="MiroTalk P2P"
-                                        width="96"
-                                        height="auto"
-                                        style="margin-top: 80px"
-                                    />
-                                </a>
-                            </div>
-                        </div>
+                    <div class="site-header-inner mt-32">
+                        <div style="display: flex; align-items: center;">
+                            <img src="../images/favicon.png" alt="Logo" style="display: inline-block; width: 100px; height: 100px;">
+                            <h1 style="display: inline-block; margin-left: 25px;">RepinaRoom</h1>
+                        </div>  
                     </div>
                 </div>
             </header>
-            <main class="site-content">
-                <section class="hero section illustration-section-01">
-                    <div class="container">
-                        <div class="hero-inner section-inner">
-                            <div class="split-wrap invert-mobile">
-                                <div class="split-item">
-                                    <div class="hero-content split-item-content center-content-mobile">
-                                        <h1 class="mt-32 mb-16 reveal-from-bottom" data-reveal-delay="150">
-                                            MiroTalk<br />Free browser based Real-time video calls.<br />
-                                            Simple, Secure, Fast.
-                                        </h1>
-                                        <p class="mt-0 mb-32 reveal-from-bottom" data-reveal-delay="300">
-                                            Start your next video call with a single click. No download, plug-in, or
-                                            login is required. Just get straight to talking, messaging, and sharing your
-                                            screen.
-                                        </p>
-                                    </div>
-                                    <style>
-                                        @media (min-width: 641px) {
-                                            .hero .split-wrap .split-item {
-                                                min-height: 492px;
-                                            }
-                                        }
-                                    </style>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+            <main class="site-content" style="margin-top: 64px;">
 
                 <section class="cta section center-content-mobile reveal-from-bottom">
                     <div class="container">
                         <div class="cta-inner section-inner cta-split br-12">
                             <div class="cta-slogan">
                                 <h3 class="m-0">
-                                    Pick a room name.<br />
-                                    How about this one?
+                                    Подключись в комнату <br /> с именем ...
                                 </h3>
                             </div>
                             <div class="cta-action">
@@ -136,7 +86,7 @@
                                             class="button button-primary br-6 pulse"
                                             onclick="joinRoom()"
                                         >
-                                            Join Room
+                                            Войти
                                         </button>
                                         <script>
                                             document.getElementById('roomName').onkeyup = (e) => {
@@ -169,7 +119,7 @@
                                     </div>
                                 </div>
                                 <div id="lastRoomContainer" class="last-room">
-                                    <span>Your recent room:</span>
+                                    <span>Последняя комната:</span>
                                     <a id="lastRoom"></a>
                                 </div>
                                 <script>
@@ -198,9 +148,9 @@
                                         Unlimited number of conference rooms without call time limitation
                                     </h2>
                                     <p class="m-0">
-                                        MiroTalk is built radically differently. We left behind slow bulky servers,
-                                        opting for peer-to-peer calling. We engineered a platform with maximum video
-                                        quality lowest latency that makes your calls crystal clear.
+                                        Мы отказываемся от медленных и громоздких серверов, и переходим на одноранговую связь. 
+                                        Наша платформа была разработана для обеспечения наилучшего качества видео и минимальной задержки, 
+                                        что означает, что ваши звонки всегда будут кристально чистыми.
                                     </p>
                                 </div>
                             </div>
@@ -374,350 +324,108 @@
                     </div>
                 </section>
 
-                <section class="team section center-content">
+                <footer class="site-footer center-content-mobile">
                     <div class="container">
-                        <div class="team-inner section-inner has-top-divider">
-                            <div class="section-header center-content reveal-from-bottom">
-                                <div class="container-xs">
-                                    <h2 class="mt-0 mb-16">Supported Browsers</h2>
+                        <div class="site-footer-inner">
+                            <div class="footer-top space-between text-xxs">
+                                <div class="brand">
+                                    <a href="/"><img src="../images/favicon.png" alt="Neon" width="64" height="64" /></a>
                                 </div>
-                            </div>
-                            <div class="tiles-wrap">
-                                <div class="tiles-item reveal-from-bottom">
-                                    <div class="tiles-item-inner">
-                                        <div class="team-item-header">
-                                            <div class="team-item-image mb-24">
-                                                <img
-                                                    src="../images/browsers.png"
-                                                    alt="Supported Browsers"
-                                                    width="auto"
-                                                    height="auto"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div class="team-item-content">
-                                            <h5 class="team-item-name mt-0 mb-4">
-                                                Chrome, Edge, Firefox, Opera, Safari, Brave and more.
-                                            </h5>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="team section center-content">
-                    <div class="container">
-                        <div class="team-inner section-inner has-top-divider">
-                            <div class="section-header center-content reveal-from-bottom">
-                                <div class="container-xs">
-                                    <h2 class="mt-0 mb-16">Meet the team</h2>
-                                </div>
-                            </div>
-
-                            <div class="tiles-wrap">
-                                <!-- Author -->
-                                <div class="tiles-item reveal-from-bottom">
-                                    <div class="tiles-item-inner">
-                                        <div class="team-item-header">
-                                            <div class="team-item-image mb-24">
-                                                <img
-                                                    src="../images/miroslav-pejic.png"
-                                                    alt="Team member author"
-                                                    width="180"
-                                                    height="180"
-                                                    class="rounded-image"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div class="team-item-content">
-                                            <a
-                                                target="_blank"
-                                                href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
-                                            >
-                                                <h5 class="team-item-name mt-0 mb-4">Miroslav Pejic</h5>
+                                <div class="footer-social">
+                                    <ul class="list-reset">
+                                        <li class="footer-social-icon">
+                                            <a target="_blank" href="https://discord.gg/rgGYfeYW3N">
+                                                <svg
+                                                    width="16"
+                                                    height="16"
+                                                    viewBox="0 0 16 16"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <title>Forum</title>
+                                                    <path
+                                                        d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"
+                                                    />
+                                                </svg>
                                             </a>
-                                            <div class="team-item-role text-xxs fw-500 tt-u text-color-primary mb-8">
-                                                Full Stack Developer
-                                            </div>
-                                        </div>
-                                    </div>
+                                        </li>
+                                        <li class="footer-social-icon">
+                                            <a target="_blank" href="https://www.facebook.com/mirotalk">
+                                                <svg
+                                                    width="16"
+                                                    height="16"
+                                                    viewBox="0 0 16 16"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <title>Facebook</title>
+                                                    <path
+                                                        d="M6.023 16L6 9H3V6h3V4c0-2.7 1.672-4 4.08-4 1.153 0 2.144.086 2.433.124v2.821h-1.67c-1.31 0-1.563.623-1.563 1.536V6H13l-1 3H9.28v7H6.023z"
+                                                    />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        <li class="footer-social-icon">
+                                            <a target="_blank" href="https://www.youtube.com/watch?v=_IVn2aINYww">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="18"
+                                                    height="18"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <title>YouTube</title>
+                                                    <path
+                                                        d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.254,4,12,4,12,4S5.746,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.746,2,12,2,12s0,4.254,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.746,20,12,20,12,20s6.254,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.254,22,12,22,12S22,7.746,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"
+                                                        fill="#0270D7"
+                                                    />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        <li class="footer-social-icon">
+                                            <a target="_blank" href="mailto:miroslav.pejic.85@gmail.com">
+                                                <svg
+                                                    width="16"
+                                                    height="16"
+                                                    viewBox="0 0 16 16"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <title>Email</title>
+                                                    <path
+                                                        d="M7.9 7v2.4H12c-.2 1-1.2 3-4 3-2.4 0-4.3-2-4.3-4.4 0-2.4 2-4.4 4.3-4.4 1.4 0 2.3.6 2.8 1.1l1.9-1.8C11.5 1.7 9.9 1 8 1 4.1 1 1 4.1 1 8s3.1 7 7 7c4 0 6.7-2.8 6.7-6.8 0-.5 0-.8-.1-1.2H7.9z"
+                                                        fill="#0270D7"
+                                                    />
+                                                </svg>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a
+                                                class="github-button"
+                                                href="https://github.com/miroslavpejic85/mirotalk"
+                                                data-color-scheme="no-preference: light; light: light; dark: dark;"
+                                                data-size="large"
+                                                data-show-count="true"
+                                                aria-label="Star miroslavpejic85/mirotalk on GitHub"
+                                                >Star</a
+                                            >
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="section">
-                    <div class="container">
-                        <div class="section-inner has-top-divider">
-                            <div class="container-xs">
-                                <div class="section-header center-content">
-                                    <h2 class="m-0">Try an easier, more secure way of calling.</h2>
-                                </div>
-                                <div class="center-content">
-                                    <a
-                                        class="button button-primary button-wide-mobile br-6 pulse"
-                                        style="
-                                            border: 0;
-                                            background: linear-gradient(100deg, #376df9 0, #ff5fa0 75%, #ffc55a 100%);
-                                        "
-                                        href="/newcall"
-                                        >Try now</a
-                                    >
-                                </div>
+                            <div class="footer-bottom space-between text-xxs invert-order-desktop">
+                                <nav class="footer-nav">
+                                    <ul class="list-reset">
+                                        <li>
+                                            <a href="#">Privacy Policy</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <span id="currentYear" class="footer-copyright"></span>
+                                <script>document.getElementById("currentYear").innerText = (new Date().getFullYear()) + " RepinaRoom, all rights reserved"</script>
+                                </footer>
                             </div>
                         </div>
                     </div>
-                </section>
-
-                <section class="clients section">
-                    <div class="container">
-                        <p class="mt-24" style="text-align: center">Powered by</p>
-                        <div class="clients-inner section-inner has-animations has-top-divider has-bottom-divider">
-                            <ul class="list-reset">
-                                <li class="reveal-from-top" data-reveal-delay="150">
-                                    <a href="https://hetzner.cloud/?ref=XdRifCzCK3bn" target="_blank"
-                                        ><img
-                                            class="clients-size-logo"
-                                            src="../sponsors/Hetzner.png"
-                                            alt="Powered by Hetzner"
-                                    /></a>
-                                </li>
-                                <li class="reveal-from-top" data-reveal-delay="300">
-                                    <a href="https://www.dpbolvw.net/click-101027391-14462707" target="_blank"
-                                        ><img
-                                            class="clients-size-logo"
-                                            src="../advertisers/ContaboLogo.png"
-                                            alt="Powered by Contabo"
-                                    /></a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="clients section">
-                    <div class="container">
-                        <h2 class="mt-24" style="text-align: center">Our sponsors</h2>
-                        <div class="clients-inner section-inner has-animations has-top-divider has-bottom-divider">
-                            <ul class="list-reset">
-                                <li class="reveal-from-top" data-reveal-delay="150">
-                                    <div class="clients-logo">
-                                        <a href="https://broadcastx.de/" target="_blank"
-                                            ><img
-                                                class="clients-size-logo"
-                                                src="../sponsors/BroadcastX.png"
-                                                alt="BroadcastX"
-                                        /></a>
-                                    </div>
-                                </li>
-                                <li class="reveal-from-top" data-reveal-delay="300">
-                                    <div class="clients-logo">
-                                        <a href="https://hetzner.cloud/?ref=XdRifCzCK3bn" target="_blank"
-                                            ><img class="clients-size-logo" src="../sponsors/Hetzner.png" alt="Hetzner"
-                                        /></a>
-                                    </div>
-                                </li>
-                                <li class="reveal-from-top" data-reveal-delay="450">
-                                    <div class="clients-logo">
-                                        <a style="cursor: pointer" onclick="adultContent()"
-                                            ><img
-                                                class="clients-size-logo"
-                                                src="../sponsors/LuvLounge.png"
-                                                alt="LuvLounge"
-                                        /></a>
-                                    </div>
-                                </li>
-                                <script>
-                                    function adultContent() {
-                                        if (
-                                            confirm(
-                                                '18+ WARNING! ADULTS ONLY!\n\nExplicit material for viewing by adults 18 years of age or older. You must be at least 18 years old to access to this site!\n\nProceeding you are agree and confirm to have 18+ year.',
-                                            )
-                                        ) {
-                                            window.open('https://luvlounge.ca', '_blank');
-                                        }
-                                    }
-                                </script>
-                                <li class="reveal-from-top" data-reveal-delay="600">
-                                    <div class="clients-logo">
-                                        <a href="https://www.questionpro.com" target="_blank"
-                                            ><img
-                                                class="clients-size-logo"
-                                                src="../sponsors/QuestionPro.png"
-                                                alt="QuestionPro"
-                                        /></a>
-                                    </div>
-                                </li>
-                                <li class="reveal-from-top" data-reveal-delay="750">
-                                    <div class="clients-logo">
-                                        <a href="https://www.browserstack.com" target="_blank"
-                                            ><img
-                                                class="clients-size-logo"
-                                                src="../sponsors/BrowserStack.png"
-                                                alt="BrowserStack"
-                                        /></a>
-                                    </div>
-                                </li>
-                                <li class="reveal-from-top" data-reveal-delay="750">
-                                    <div class="clients-logo">
-                                        <a href="https://crystalsound.ai" target="_blank"
-                                            ><img
-                                                class="clients-size-logo"
-                                                src="../sponsors/CrystalSound.png"
-                                                alt="CrystalSound"
-                                        /></a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="clients section">
-                    <div class="container">
-                        <h2 class="mt-24" style="text-align: center">Our advertisers</h2>
-                        <div class="clients-inner section-inner has-animations has-top-divider has-bottom-divider">
-                            <ul class="list-reset">
-                                <li class="reveal-from-top" data-reveal-delay="150">
-                                    <div class="clients-logo">
-                                        <a href="https://www.dpbolvw.net/click-101027391-14462707" target="_blank"
-                                            ><img
-                                                class="clients-size-logo"
-                                                src="../advertisers/Contabo.png"
-                                                alt="Contabo"
-                                        /></a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-            </main>
-
-            <footer class="site-footer center-content-mobile">
-                <div class="container">
-                    <div class="site-footer-inner">
-                        <div class="footer-top space-between text-xxs">
-                            <div class="brand">
-                                <a href="/"><img src="../images/logo.svg" alt="Neon" width="32" height="32" /></a>
-                            </div>
-                            <div class="footer-social">
-                                <ul class="list-reset">
-                                    <li class="footer-social-icon">
-                                        <a target="_blank" href="https://discord.gg/rgGYfeYW3N">
-                                            <svg
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <title>Forum</title>
-                                                <path
-                                                    d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.041.041 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.01-.059.051.051 0 0 0-.018-.011 8.875 8.875 0 0 1-1.248-.595.05.05 0 0 1-.02-.066.051.051 0 0 1 .015-.019c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.052.052 0 0 1 .053.007c.08.066.164.132.248.195a.051.051 0 0 1-.004.085 8.254 8.254 0 0 1-1.249.594.05.05 0 0 0-.03.03.052.052 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019Zm-8.198 7.307c-.789 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612Zm5.316 0c-.788 0-1.438-.724-1.438-1.612 0-.889.637-1.613 1.438-1.613.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612Z"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    <li class="footer-social-icon">
-                                        <a target="_blank" href="https://www.facebook.com/mirotalk">
-                                            <svg
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <title>Facebook</title>
-                                                <path
-                                                    d="M6.023 16L6 9H3V6h3V4c0-2.7 1.672-4 4.08-4 1.153 0 2.144.086 2.433.124v2.821h-1.67c-1.31 0-1.563.623-1.563 1.536V6H13l-1 3H9.28v7H6.023z"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    <li class="footer-social-icon">
-                                        <a target="_blank" href="https://www.youtube.com/watch?v=_IVn2aINYww">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <title>YouTube</title>
-                                                <path
-                                                    d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.254,4,12,4,12,4S5.746,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.746,2,12,2,12s0,4.254,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.746,20,12,20,12,20s6.254,0,7.814-0.418c0.861-0.23,1.538-0.908,1.768-1.768C22,16.254,22,12,22,12S22,7.746,21.582,6.186z M10,15.464V8.536L16,12L10,15.464z"
-                                                    fill="#0270D7"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    <li class="footer-social-icon">
-                                        <a target="_blank" href="mailto:miroslav.pejic.85@gmail.com">
-                                            <svg
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 16 16"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <title>Email</title>
-                                                <path
-                                                    d="M7.9 7v2.4H12c-.2 1-1.2 3-4 3-2.4 0-4.3-2-4.3-4.4 0-2.4 2-4.4 4.3-4.4 1.4 0 2.3.6 2.8 1.1l1.9-1.8C11.5 1.7 9.9 1 8 1 4.1 1 1 4.1 1 8s3.1 7 7 7c4 0 6.7-2.8 6.7-6.8 0-.5 0-.8-.1-1.2H7.9z"
-                                                    fill="#0270D7"
-                                                />
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <!-- https://buttons.github.io/ -->
-                                        <a
-                                            class="github-button"
-                                            href="https://github.com/sponsors/miroslavpejic85"
-                                            data-color-scheme="no-preference: light; light: light; dark: dark;"
-                                            data-icon="octicon-heart"
-                                            data-size="large"
-                                            aria-label="Sponsor @miroslavpejic85 on GitHub"
-                                            >Sponsor</a
-                                        >
-                                    </li>
-                                    <li>
-                                        <a
-                                            class="github-button"
-                                            href="https://github.com/miroslavpejic85/mirotalk"
-                                            data-color-scheme="no-preference: light; light: light; dark: dark;"
-                                            data-size="large"
-                                            data-show-count="true"
-                                            aria-label="Star miroslavpejic85/mirotalk on GitHub"
-                                            >Star</a
-                                        >
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="footer-bottom space-between text-xxs invert-order-desktop">
-                            <nav class="footer-nav">
-                                <ul class="list-reset">
-                                    <li>
-                                        <a href="/about">About</a>
-                                    </li>
-                                    <li>
-                                        <a href="/privacy">Privacy Policy</a>
-                                    </li>
-                                    <li>
-                                        <a target="_blank" href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
-                                            >Contact: Miroslav Pejic</a
-                                        >
-                                    </li>
-                                </ul>
-                            </nav>
-                            <div class="footer-copyright">&copy; 2023 MiroTalk, all rights reserved</div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+                </footer>
         </div>
 
-        <script defer src="../js/snow.js"></script>
         <script defer src="../js/landing.js"></script>
         <script defer src="../js/newRoom.js"></script>
         <script async defer src="https://buttons.github.io/buttons.js"></script>

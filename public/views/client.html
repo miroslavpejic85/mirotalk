@@ -3,9 +3,9 @@
     <head>
         <!-- Title and Icon -->
 
-        <title>MiroTalk WebRTC Video call, Chat Room & Screen Sharing.</title>
-        <link rel="shortcut icon" href="../images/logo.svg" />
-        <link rel="apple-touch-icon" href="../images/logo.svg" />
+        <title>RepinaRoom WebRTC Video call</title>
+        <link rel="shortcut icon" href="../images/favicon.png" />
+        <link rel="apple-touch-icon" href="../images/favicon.png" />
 
         <!-- Meta Information -->
 
@@ -14,24 +14,16 @@
             name="viewport"
             content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
         />
-        <meta
-            name="description"
-            content="MiroTalk powered by WebRTC, Real-time Simple Secure Fast video calls, chat and screen sharing capabilities in the browser, from your mobile or desktop."
-        />
-        <meta
-            name="keywords"
-            content="webrtc, openAI, chatGPT, webrtc stun, webrtc turn, video meeting, video chat, multi video chat, peer to peer, p2p, zoom"
-        />
 
         <!-- https://ogp.me -->
 
         <meta property="og:type" content="app-webrtc" />
-        <meta property="og:site_name" content="MiroTalk" />
-        <meta property="og:title" content="Click the link to join this call." />
-        <meta property="og:description" content="Free WebRTC browser-based video call." />
+        <meta property="og:site_name" content="RepinaRoom" />
+        <meta property="og:title" content="Нажмите на ссылку, чтобы присоединится к звонку." />
+        <meta property="og:description" content="RepinaRoom WebRTC Video call" />
         <meta property="og:image" content="https://p2p.mirotalk.com/images/preview.png" />
-        <meta property="og:url" content="https://p2p.mirotalk.org" />
-        <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png" />
+        <!-- <meta property="og:url" content="https://p2p.mirotalk.org" /> -->
+        <link rel="icon" type="image/ico" sizes="32x32" href="../images/favicon.ico" />
 
         <!-- StyleSheet -->
 
@@ -69,11 +61,10 @@
         <!-- show this before to join -->
 
         <div id="loadingDiv" class="center pulsate">
-            <h1>Loading</h1>
-            <img src="../images/loading.gif" style="width: 400px" />
+            <h1>Загрузка</h1>
+            <img src="../images/loader2.gif" style="width: 600px" />
             <pre>
-Please allow the camera or microphone
-access to use this app.
+                Пожалуйста, разрешите сайту доступ к камере и микрофону, чтобы продолжить
             </pre>
         </div>
 
@@ -206,7 +197,7 @@ access to use this app.
             <section id="msgerCP" class="center fadein">
                 <section id="msgerCPSec" class="msger">
                     <header id="msgerCPHeader" class="msger-private-header">
-                        <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Send Private messages</div>
+                        <div class="msger-header-title"><i class="fas fa-comment-alt"></i> Отправить личное сообщение</div>
                         <div class="msger-header-options">
                             <button id="msgerCPCloseBtn" class="fas fa-times"></button>
                         </div>
@@ -216,7 +207,7 @@ access to use this app.
                             <input
                                 id="searchPeerBarName"
                                 type="text"
-                                placeholder=" 🔍 Search peer by name..."
+                                placeholder=" 🔍 Поиск по имени..."
                                 maxlength="32"
                                 name="search"
                                 onkeyup="searchPeer()"
@@ -255,8 +246,8 @@ access to use this app.
                 <div class="caption-inputarea">
                     <select id="recognitionLanguage"></select>
                     <select id="recognitionDialect"></select>
-                    <button id="speechRecognitionStart" class="fas fa-play">&nbsp;Start</button>
-                    <button id="speechRecognitionStop" class="fas fa-stop">&nbsp;Stop</button>
+                    <button id="speechRecognitionStart" class="fas fa-play">&nbsp;Запуск</button>
+                    <button id="speechRecognitionStop" class="fas fa-stop">&nbsp;Стоп</button>
                 </div>
             </section>
         </section>
@@ -272,30 +263,30 @@ access to use this app.
             <main class="mySettingsMain">
                 <div class="tab">
                     <button id="tabRoomBtn" class="fas fa-home tablinks">
-                        <p class="tabButtonText">Room</p>
+                        <p class="tabButtonText">Настройки комнаты</p>
                     </button>
                     <button id="tabVideoBtn" class="fas fa-video tablinks">
-                        <p class="tabButtonText">Video</p>
+                        <p class="tabButtonText">Видео</p>
                     </button>
                     <button id="tabAudioBtn" class="fas fa-microphone tablinks">
-                        <p class="tabButtonText">Audio</p>
+                        <p class="tabButtonText">Аудио</p>
                     </button>
                     <button id="tabRecordingBtn" class="fas fa-record-vinyl tablinks">
-                        <p class="tabButtonText">Recording</p>
+                        <p class="tabButtonText">Запись</p>
                     </button>
                     <button id="tabVideoShareBtn" class="fab fa-youtube tablinks">
-                        <p class="tabButtonText">Media</p>
+                        <p class="tabButtonText">Дополнительные медиа</p>
                     </button>
                     <button id="tabParticipantsBtn" class="fa-solid fa-users tablinks">
-                        <p class="tabButtonText">Participants</p>
+                        <p class="tabButtonText">Участники</p>
                     </button>
                     <button id="tabProfileBtn" class="fa-solid fa-user tablinks">
-                        <p class="tabButtonText">Profile</p>
+                        <p class="tabButtonText">Мой профиль</p>
                     </button>
                     <button id="tabStylingBtn" class="fas fa-palette tablinks">
-                        <p class="tabButtonText">Style</p>
+                        <p class="tabButtonText">Стиль</p>
                     </button>
-                    <button id="tabLanguagesBtn" class="fas fa-globe tablinks">
+                    <button id="tabLanguagesBtn" class="fas fa-globe tablinks" style="display: none;">
                         <p class="tabButtonText">Language</p>
                     </button>
                 </div>
@@ -316,8 +307,8 @@ access to use this app.
                             </tr>
                         </table>
                         <div id="tabRoomSecurity">
-                            <button id="lockRoomBtn"><i class="fas fa-lock-open"></i>&nbsp;Lock room</button>
-                            <button id="unlockRoomBtn"><i class="fas fa-lock"></i>&nbsp;Unlock room</button>
+                            <button id="lockRoomBtn"><i class="fas fa-lock-open"></i>&nbsp;Заблокировать комнату паролем</button>
+                            <button id="unlockRoomBtn"><i class="fas fa-lock"></i>&nbsp;Разблокировать</button>
                             <br />
                         </div>
                         <div style="margin-bottom: 5px">
@@ -329,28 +320,28 @@ access to use this app.
                         <br />
                         <table id="mySettingsTable">
                             <tr>
-                                <td class="width-130">
+                                <td class="width-140">
                                     <div class="title">
                                         <i class="fas fa-microphone-lines"></i>
-                                        <p>Volume bar</p>
+                                        <p>Микрофон</p>
                                     </div>
                                 </td>
                                 <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
                             </tr>
                             <tr>
-                                <td class="width-130">
+                                <td class="width-140">
                                     <div class="title">
                                         <i class="fas fa-music"></i>
-                                        <p>Sounds</p>
+                                        <p>Звук</p>
                                     </div>
                                 </td>
                                 <td><input id="switchSounds" class="toggle" type="checkbox" checked /></td>
                             </tr>
                             <tr id="shareOnJoinButton">
-                                <td class="width-130">
+                                <td class="width-140">
                                     <div class="title">
                                         <i class="fas fa-share-alt"></i>
-                                        <p>Share</p>
+                                        <p>Поделиться</p>
                                     </div>
                                 </td>
                                 <td><input id="switchShare" class="toggle" type="checkbox" checked /></td>
@@ -363,7 +354,7 @@ access to use this app.
                         <div>
                             <div class="title">
                                 <i class="fas fa-video"></i>
-                                <p>Video Source</p>
+                                <p>Источник видео</p>
                             </div>
                             <br />
                             <select id="videoSource"></select>
@@ -371,57 +362,57 @@ access to use this app.
                         <br />
                         <div class="title">
                             <i class="fas fa-palette"></i>
-                            <p>Video Quality</p>
+                            <p>Качество видео</p>
                         </div>
                         <br />
                         <select id="videoQuality">
-                            <option value="default">Default</option>
-                            <option value="qvgaVideo">QVGA</option>
-                            <option value="vgaVideo">VGA</option>
-                            <option value="hdVideo">HD</option>
-                            <option value="fhdVideo">FULL HD</option>
-                            <option value="2kVideo">2k</option>
-                            <option value="4kVideo">4K</option>
+                            <option value="default">По-умолчанию (рекомендуется)</option>
+                            <option value="qvgaVideo">Очень низкое (QVGA)</option>
+                            <option value="vgaVideo">Низкое (VGA)</option>
+                            <option value="hdVideo">Нормальное (HD)</option>
+                            <option value="fhdVideo">Хорошее (FullHD)</option>
+                            <option value="2kVideo">Высокое (2K)</option>
+                            <option value="4kVideo">Слишком высокое (4K)</option>
                         </select>
                         <br />
                         <div class="title">
                             <i class="fa-solid fa-film"></i>
-                            <p>Video fit</p>
+                            <p>Трансформация видеоизображения</p>
                         </div>
                         <br />
                         <select id="videoObjFitSelect">
-                            <option value="fill">Fill</option>
-                            <option value="contain">Contain</option>
-                            <option value="cover">Cover</option>
-                            <option value="scale-down">Scale-down</option>
-                            <option value="none">None</option>
+                            <option value="fill">Заполнять</option>
+                            <option value="contain">Составлять</option>
+                            <option value="cover">Перекрывать</option>
+                            <option value="scale-down">Сжать</option>
+                            <option value="none">Не изменять</option>
                         </select>
                         <div id="videoFpsDiv">
                             <br />
                             <div class="title">
                                 <i class="fa-solid fa-camera"></i>
-                                <p>Camera FPS</p>
+                                <p>Частота кадров камеры(FPS) - передача</p>
                             </div>
                             <br />
                             <select id="videoFps">
-                                <option value="60">60 - frame-per-second</option>
-                                <option value="30">30 - frame-per-second</option>
-                                <option value="15">15 - frame-per-second</option>
-                                <option value="5">5 - frame-per-second</option>
+                                <option value="60">60 fps - Высокая</option>
+                                <option value="30">30 fps - Нормальная</option>
+                                <option value="15">15 fps - Низкая (для плохого интернета)</option>
+                                <option value="5">5 fps - Очень низкая</option>
                             </select>
                         </div>
                         <div id="screenFpsDiv">
                             <br />
                             <div class="title">
                                 <i class="fa-solid fa-desktop"></i>
-                                <p>Screen FPS</p>
+                                <p>Частота кадров (FPS) собеседника - приём </p>
                             </div>
                             <br />
                             <select id="screenFps">
-                                <option value="60">60 - frame-per-second</option>
-                                <option value="30">30 - frame-per-second</option>
-                                <option value="15">15 - frame-per-second</option>
-                                <option value="5">5 - frame-per-second</option>
+                                <option value="60">60 fps - Высокая</option>
+                                <option value="30">30 fps - Нормальная</option>
+                                <option value="15">15 fps - Низкая (для плохого интернета)</option>
+                                <option value="5">5 fps - Очень низкая</option>
                             </select>
                         </div>
                     </div>
@@ -431,7 +422,7 @@ access to use this app.
                         <div>
                             <div class="title">
                                 <i class="fas fa-microphone"></i>
-                                <p>Microphone</p>
+                                <p>Микрофон</p>
                             </div>
                             <br />
                             <select id="audioSource"></select>
@@ -453,7 +444,7 @@ access to use this app.
                         <div class="dropdown" id="dropDownMicOptions">
                             <button class="buttons" id="micOptionsBtn" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-screwdriver-wrench"></i>
-                                <p>Advance options</p>
+                                <p>Расширенные настройки</p>
                                 <i class="fas fa-caret-down"></i>
                             </button>
                             <br /><br /><br /><br />
@@ -463,7 +454,7 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fas fa-ear-listen"></i> -->
-                                                <p>Auto gain control</p>
+                                                <p>Автоматическая настройка</p>
                                             </div>
                                         </td>
                                         <td><input class="toggle" id="switchAutoGainControl" type="checkbox" /></td>
@@ -472,7 +463,7 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fas fa-ear-listen"></i> -->
-                                                <p>Echo cancellation</p>
+                                                <p>Устранять эхо</p>
                                             </div>
                                         </td>
                                         <td>
@@ -483,7 +474,7 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fas fa-ear-listen"></i> -->
-                                                <p>Noise suppression</p>
+                                                <p>Шумоподавление</p>
                                             </div>
                                         </td>
                                         <td>
@@ -494,7 +485,7 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fab fa-audible"></i> -->
-                                                <p>Latency</p>
+                                                <p>Задкржка микрофона</p>
                                             </div>
                                         </td>
                                         <td>
@@ -517,7 +508,7 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fas fa-volume-high"></i> -->
-                                                <p>Volume</p>
+                                                <p>Уровень громкости</p>
                                             </div>
                                         </td>
                                         <td>
@@ -540,7 +531,7 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fas fa-microphone-lines"></i> -->
-                                                <p>Sample rate</p>
+                                                <p>Частота дискретизации</p>
                                             </div>
                                         </td>
                                         <td>
@@ -554,7 +545,7 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fas fa-microphone-lines"></i> -->
-                                                <p>Sample size</p>
+                                                <p>Размер пакета</p>
                                             </div>
                                         </td>
                                         <td>
@@ -568,19 +559,19 @@ access to use this app.
                                         <td class="microphone-table-width">
                                             <div class="title">
                                                 <!-- <i class="fas fa-microphone-lines"></i> -->
-                                                <p>Channel count</p>
+                                                <p>Число аудиоканалов</p>
                                             </div>
                                         </td>
                                         <td>
                                             <select id="channelCountSelect">
                                                 <option value="1">1 (mono)</option>
-                                                <option value="2">2 (stereo)</option>
+                                                <option value="2">2 (стерео-микрофон)</option>
                                             </select>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <button class="buttons" id="applyAudioOptionsBtn">Apply options</button>
+                                            <button class="buttons" id="applyAudioOptionsBtn">Сохранить изменения</button>
                                         </td>
                                     </tr>
                                 </table>
@@ -589,13 +580,13 @@ access to use this app.
                         <div id="audioOutputDiv">
                             <div class="title">
                                 <i class="fas fa-headphones"></i>
-                                <p>Speaker</p>
+                                <p>Громкоговоритель</p>
                             </div>
                             <br />
                             <select id="audioOutput"></select>
                             <button id="speakerTestBtn" class="buttons">
                                 <i class="fa-solid fa-circle-play"></i>
-                                <p>Test speaker</p>
+                                <p>Проверка звука</p>
                             </button>
                             <br /><br /><br /><br /><br />
                         </div>
@@ -620,7 +611,7 @@ access to use this app.
                                     <td class="width-160">
                                         <div class="title">
                                             <i class="fa-solid fa-film"></i>
-                                            <p>Prioritize H.264</p>
+                                            <p>Предпочитать H.264</p>
                                         </div>
                                     </td>
                                     <td><input class="toggle" id="switchH264Recording" type="checkbox" /></td>
@@ -633,11 +624,11 @@ access to use this app.
                             <br />
                             <button id="pauseRecBtn" class="buttons" style="display: none">
                                 <i class="far fa-pause-circle"></i>
-                                <p>Pause recording</p>
+                                <p>Приостановить запись</p>
                             </button>
                             <button id="resumeRecBtn" class="buttons" style="display: none">
                                 <i class="far fa-play-circle"></i>
-                                <p>Resume recording</p>
+                                <p>Продолжить запись</p>
                             </button>
                         </div>
                         <div class="clw" id="lastRecordingInfo"></div>
@@ -647,7 +638,7 @@ access to use this app.
                         <br />
                         <button id="shareMediaAudioVideoBtn" class="buttons">
                             <i class="fa-solid fa-circle-play"></i>
-                            <p>Share a Video or Audio</p>
+                            <p>Поделиться внешним аудио или видео</p>
                         </button>
                     </div>
 
@@ -660,10 +651,10 @@ access to use this app.
                         <br />
                         <div id="tabRoomParticipants">
                             <br />
-                            <button id="muteEveryoneBtn"><i class="fas fa-microphone"></i>&nbsp;Mute everyone</button>
-                            <button id="hideEveryoneBtn"><i class="fas fa-video"></i>&nbsp;Hide everyone</button>
+                            <button id="muteEveryoneBtn"><i class="fas fa-microphone"></i>&nbsp;Выключить микрофон всех участников</button>
+                            <button id="hideEveryoneBtn"><i class="fas fa-video"></i>&nbsp;Скрыть всех участников</button>
                             <button id="ejectEveryoneBtn">
-                                <i class="fas fa-right-from-bracket"></i>&nbsp;Eject everyone
+                                <i class="fas fa-right-from-bracket"></i>&nbsp;Выбросить всех из конференции
                             </button>
                         </div>
                     </div>
@@ -676,18 +667,18 @@ access to use this app.
                             <br />
                             <div class="title">
                                 <i class="fas fa-user"></i>
-                                <p>Name</p>
+                                <p>Имя</p>
                             </div>
                             <br /><br />
                             <div>
                                 <input id="myPeerNameSet" type="text" placeholder="Change name..." maxlength="32" />
-                                <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change name</button>
+                                <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Изменить имя</button>
                             </div>
                         </div>
                         <br />
                         <div class="title">
                             <i class="fa-solid fa-user-shield"></i>
-                            <p>Presenter:</p>
+                            <p>Говорящий:</p>
                             <p id="isPeerPresenter">true</p>
                         </div>
                     </div>
@@ -696,51 +687,41 @@ access to use this app.
                         <br />
                         <div class="title">
                             <i class="fa-solid fa-palette"></i>
-                            <p>Theme</p>
+                            <p>Тема</p>
                         </div>
                         <br />
                         <select id="mirotalkTheme">
-                            <option value="dark">⚫️ Dark</option>
-                            <option value="grey">⚪️ Grey</option>
-                            <option value="green">🟢 Green</option>
-                            <option value="blue">🔵 Blue</option>
-                            <option value="red">🔴 Red</option>
+                            <option value="dark">⚫️ Тёмый</option>
+                            <option value="grey">⚪️ Серый</option>
+                            <option value="green">🟢 Зелёный</option>
+                            <option value="blue">🔵 Синий</option>
+                            <option value="red">🔴 Красный</option>
                         </select>
                         <br />
                         <div class="title">
                             <i class="fa-solid fa-up-down-left-right"></i>
-                            <p>Buttons bar</p>
+                            <p>Панель кнопок</p>
                         </div>
                         <br />
                         <select id="mainButtonsBarPosition">
-                            <option value="vertical">Vertical</option>
-                            <option value="horizontal">Horizontal</option>
+                            <option value="vertical">Вертикально</option>
+                            <option value="horizontal">Горизонтально</option>
                         </select>
                         <br />
                         <div id="pinUnpinGridDiv">
                             <div class="title">
                                 <i class="fa-solid fa-map-pin"></i>
-                                <p>Pin video position</p>
+                                <p>Положеие закреплённого участника</p>
                             </div>
                             <br />
                             <select id="pinVideoPositionSelect">
-                                <option value="vertical">Vertical</option>
-                                <option value="horizontal">Horizontal</option>
-                                <option value="top">Top</option>
+                                <option value="vertical">Вертикально</option>
+                                <option value="horizontal">Горизонтально</option>
+                                <option value="top">Наверху</option>
                             </select>
                         </div>
                     </div>
 
-                    <div id="tabLanguages" class="tabcontent">
-                        <br />
-                        <div class="title">
-                            <i class="fa-solid fa-language"></i>
-                            <p>Language</p>
-                        </div>
-                        <br />
-                        <div id="google_translate_element"></div>
-                        <br />
-                    </div>
                     <br />
                 </div>
             </main>
@@ -804,7 +785,7 @@ access to use this app.
             <div id="sendFileInfo"></div>
             <div id="sendFilePercentage"></div>
             <progress id="sendProgress" max="0" value="0"></progress>
-            <button id="sendAbortBtn"><i class="fas fa-stop-circle"></i>&nbsp; Abort</button>
+            <button id="sendAbortBtn"><i class="fas fa-stop-circle"></i>&nbsp; Отмена</button>
         </div>
 
         <!-- End File Send -->
@@ -816,7 +797,7 @@ access to use this app.
             <div id="receiveFileInfo"></div>
             <div id="receiveFilePercentage"></div>
             <progress id="receiveProgress" max="0" value="0"></progress>
-            <button id="receiveHideBtn"><i class="fas fa-eye-slash"></i>&nbsp; Hide</button>
+            <button id="receiveHideBtn"><i class="fas fa-eye-slash"></i>&nbsp; Скрыть</button>
         </div>
 
         <!-- Stop File Receive -->
@@ -914,18 +895,5 @@ access to use this app.
 		in 'onAddStream', 'setupLocalMedia', and 'removePeer'/'disconnect'
 		-->
 
-        <!-- 
-            Start Google Translate 
-            https://www.w3schools.com/howto/howto_google_translate.asp
-        -->
-
-        <script>
-            function googleTranslateElementInit() {
-                new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
-            }
-        </script>
-        <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
-        <!-- End Google Translate -->
     </body>
 </html>

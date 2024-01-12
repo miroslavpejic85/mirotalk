@@ -3,36 +3,27 @@
     <head>
         <!-- Title and Icon -->
 
-        <title>MiroTalk - Create your Room name and start the new call.</title>
-        <link rel="shortcut icon" href="../images/logo.svg" />
-        <link rel="apple-touch-icon" href="../images/logo.svg" />
-
+        <title>RepinaRoom</title>
+        <link rel="shortcut icon" href="../images/favicon.png" />
+        <link rel="apple-touch-icon" href="../images/favicon.png" />
+        
         <!-- Meta Information -->
 
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta
-            name="description"
-            content="MiroTalk powered by WebRTC, Real-time secure video calls, chat and screen sharing capabilities in the browser, from your mobile or desktop"
-        />
-        <meta
-            name="keywords"
-            content="webrtc, self hosted, voip, sip, real-time communications, chat, messaging, meet, webrtc stun, webrtc turn, video meeting, video chat, video conference, multi video chat, multi video conference, peer to peer, p2p, rtc, alternative to, zoom, microsoft teams, google meet, jitsi, meeting"
+            name="viewport"
+            content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
         />
 
         <!-- https://ogp.me -->
 
         <meta property="og:type" content="app-webrtc" />
-        <meta property="og:site_name" content="MiroTalk" />
-        <meta property="og:title" content="Click the link to make a call." />
-        <meta
-            property="og:description"
-            content="MiroTalk calling provides real-time HD quality and latency simply not available with traditional technology."
-        />
+        <meta property="og:site_name" content="RepinaRoom" />
+        <meta property="og:title" content="Нажмите на ссылку, чтобы присоединится к звонку." />
+        <meta property="og:description" content="RepinaRoom WebRTC Video call" />
         <meta property="og:image" content="https://p2p.mirotalk.com/images/preview.png" />
-        <meta property="og:url" content="https://p2p.mirotalk.org" />
+        <!-- <meta property="og:url" content="https://p2p.mirotalk.org" /> -->
+        <link rel="icon" type="image/ico" sizes="32x32" href="../images/favicon.ico" />
 
         <!-- StyleSheet -->
 
@@ -53,26 +44,6 @@
     </head>
     <body class="has-animations">
         <div class="body-wrap">
-            <header class="site-header reveal-from-top">
-                <div class="container">
-                    <div class="site-header-inner">
-                        <div class="brand">
-                            <div class="m-0">
-                                <a href="/">
-                                    <!-- <img src="../images/logo.svg" alt="MiroTalk P2P" width="32" height="32" /> -->
-                                    <img
-                                        src="../images/mirotalk-mc.png"
-                                        alt="MiroTalk P2P"
-                                        width="96"
-                                        height="auto"
-                                        style="margin-top: 80px"
-                                    />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
             <main class="site-content">
                 <section class="hero section illustration-section-01">
                     <div class="container">
@@ -81,13 +52,13 @@
                                 <div class="split-item">
                                     <div class="hero-content split-item-content center-content-mobile">
                                         <h1 class="mt-32 mb-16 reveal-from-bottom" data-reveal-delay="150">
-                                            Pick name. <br />
-                                            Share URL. <br />
-                                            Start conference.
+                                            Выбеите имя. <br />
+                                            Поделитесь ссылкой. <br />
+                                            Начните конференцию.
                                         </h1>
                                         <p class="mt-0 mb-32 reveal-from-bottom" data-reveal-delay="300">
-                                            Each room has its disposable URL. Just pick a room name and share your
-                                            custom URL. It's that easy.
+                                            У каждой комнаты есть своё уникальное имя и URL-адрес. 
+                                            Просто придумайте своё и поделитесь с другими! <br /> Это так просто.
                                         </p>
                                     </div>
                                     <style>
@@ -108,13 +79,11 @@
                         <div class="cta-inner section-inner cta-split br-12">
                             <div class="cta-slogan">
                                 <h3 class="m-0">
-                                    Pick a room name.<br />
-                                    How about this one?
+                                    Подключись в комнату <br /> с именем ...
                                 </h3>
                             </div>
                             <div class="cta-action">
                                 <div class="mb-0">
-                                    <label class="form-label screen-reader" for="roomName">mirotalk</label>
                                     <div class="form-group-desktop">
                                         <input
                                             id="roomName"
@@ -134,7 +103,7 @@
                                             class="button button-primary br-6 pulse"
                                             onclick="joinRoom()"
                                         >
-                                            Join Room
+                                            Войти
                                         </button>
                                         <script>
                                             document.getElementById('roomName').onkeyup = (e) => {
@@ -167,7 +136,7 @@
                                     </div>
                                 </div>
                                 <div id="lastRoomContainer" class="last-room">
-                                    <span>Your recent room:</span>
+                                    <span>Последняя комната:</span>
                                     <a id="lastRoom"></a>
                                 </div>
                                 <script>
@@ -193,7 +162,7 @@
                     <div class="site-footer-inner">
                         <div class="footer-top space-between text-xxs">
                             <div class="brand">
-                                <a href="/"><img src="../images/logo.svg" alt="Neon" width="32" height="32" /></a>
+                                <a href="/"><img src="../images/favicon.png" alt="Neon" width="64" height="64" /></a>
                             </div>
                             <div class="footer-social">
                                 <ul class="list-reset">
@@ -262,17 +231,6 @@
                                     <li>
                                         <a
                                             class="github-button"
-                                            href="https://github.com/sponsors/miroslavpejic85"
-                                            data-color-scheme="no-preference: light; light: light; dark: dark;"
-                                            data-icon="octicon-heart"
-                                            data-size="large"
-                                            aria-label="Sponsor @miroslavpejic85 on GitHub"
-                                            >Sponsor</a
-                                        >
-                                    </li>
-                                    <li>
-                                        <a
-                                            class="github-button"
                                             href="https://github.com/miroslavpejic85/mirotalk"
                                             data-color-scheme="no-preference: light; light: light; dark: dark;"
                                             data-size="large"
@@ -288,19 +246,13 @@
                             <nav class="footer-nav">
                                 <ul class="list-reset">
                                     <li>
-                                        <a href="/about">About</a>
-                                    </li>
-                                    <li>
-                                        <a href="/privacy">Privacy Policy</a>
-                                    </li>
-                                    <li>
-                                        <a target="_blank" href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
-                                            >Contact: Miroslav Pejic</a
-                                        >
+                                        <a href="#">Privacy Policy</a>
                                     </li>
                                 </ul>
                             </nav>
-                            <div class="footer-copyright">&copy; 2023 MiroTalk, all rights reserved</div>
+                            <span id="currentYear" class="footer-copyright"></span>
+                            <script>document.getElementById("currentYear").innerText = (new Date().getFullYear()) + " RepinaRoom, all rights reserved"</script>
+                            </footer>
                         </div>
                     </div>
                 </div>

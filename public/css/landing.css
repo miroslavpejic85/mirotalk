@@ -310,8 +310,8 @@ html {
 }
 
 body {
-    /* background: #16171b; */
-    background: linear-gradient(to left, #171717, #000000);
+    background: #16171b;
+    /* background: linear-gradient(to left, #171717, #000000); */
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
 }
@@ -2195,7 +2195,7 @@ textarea.form-input {
 }
 
 .site-footer-inner {
-    padding: 48px 0;
+    padding: 20px 0;
 }
 
 .footer-top {
@@ -2203,7 +2203,7 @@ textarea.form-input {
 }
 
 .footer-bottom {
-    padding-top: 12px;
+    padding-top: 15px;
 }
 
 .footer-blocks {
@@ -2224,7 +2224,7 @@ textarea.form-input {
 
 .footer-block {
     flex-grow: 1;
-    flex-basis: 160px;
+    flex-basis: 140px;
     box-sizing: content-box;
     padding: 12px 24px;
 }
@@ -2338,7 +2338,7 @@ textarea.form-input {
 
 @media (min-width: 641px) {
     .site-footer-inner {
-        padding: 64px 0;
+        padding: 34px 0;
     }
 
     .footer-top.space-between,
@@ -2715,7 +2715,7 @@ ul.pricing-item-features-list li {
     max-width: 100%;
     height: 1024px;
     /* background-image: url(../images/illustration-section-01.svg); */
-    background-image: url(../images/bg.svg);
+    /* background-image: url(../images/bg.svg); */
     background-repeat: no-repeat;
     background-size: cover; /*auto*/
     left: 50%;
