@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.69
+ * @version 1.2.70
  *
  */
 
@@ -1392,18 +1392,18 @@ async function whoAreYou() {
 
     initVideoSelect.onchange = async () => {
         videoSelect.selectedIndex = initVideoSelect.selectedIndex;
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
     };
     initMicrophoneSelect.onchange = async () => {
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
-        await changeLocalMicrophone(audioInputSelect.value);
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, initMicrophoneSelect.selectedIndex, initMicrophoneSelect.value);
+        await changeLocalMicrophone(initMicrophoneSelect.value);
     };
     initSpeakerSelect.onchange = () => {
         audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
+        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, initSpeakerSelect.selectedIndex, initSpeakerSelect.value);
         changeAudioDestination();
     };
 
@@ -1529,8 +1529,12 @@ async function checkInitConfig() {
  * @param {string} deviceId
  */
 async function changeInitCamera(deviceId) {
+    // Stop media tracks to avoid issue on mobile
     if (initStream) {
         await stopTracks(initStream);
+    }
+    if (localVideoMediaStream) {
+        await stopVideoTracks(localVideoMediaStream);
     }
 
     // Get video constraints
@@ -2259,7 +2263,7 @@ function setButtonsBarPosition(position) {
  * Init to enumerate the devices
  */
 async function initEnumerateDevices() {
-    console.log('05. init Enumerate Devices');
+    console.log('05. init Enumerate Video and Audio Devices');
     await initEnumerateVideoDevices();
     await initEnumerateAudioDevices();
 }
@@ -2273,8 +2277,8 @@ async function initEnumerateAudioDevices() {
     // allow the audio
     await navigator.mediaDevices
         .getUserMedia({ audio: true })
-        .then((stream) => {
-            enumerateAudioDevices(stream);
+        .then(async (stream) => {
+            await enumerateAudioDevices(stream);
             useAudio = true;
         })
         .catch(() => {
@@ -2291,8 +2295,8 @@ async function initEnumerateVideoDevices() {
     // allow the video
     await navigator.mediaDevices
         .getUserMedia({ video: true })
-        .then((stream) => {
-            enumerateVideoDevices(stream);
+        .then(async (stream) => {
+            await enumerateVideoDevices(stream);
             useVideo = true;
         })
         .catch(() => {
@@ -2304,12 +2308,12 @@ async function initEnumerateVideoDevices() {
  * Enumerate Audio
  * @param {object} stream
  */
-function enumerateAudioDevices(stream) {
+async function enumerateAudioDevices(stream) {
     console.log('06. Get Audio Devices');
-    navigator.mediaDevices
+    await navigator.mediaDevices
         .enumerateDevices()
         .then((devices) =>
-            devices.forEach((device) => {
+            devices.forEach(async (device) => {
                 let el,
                     eli = null;
                 if ('audioinput' === device.kind) {
@@ -2322,7 +2326,7 @@ function enumerateAudioDevices(stream) {
                     lS.DEVICES_COUNT.speaker++;
                 }
                 if (!el) return;
-                addChild(device, [el, eli]);
+                await addChild(device, [el, eli]);
             }),
         )
         .then(async () => {
@@ -2342,12 +2346,12 @@ function enumerateAudioDevices(stream) {
  * Enumerate Video
  * @param {object} stream
  */
-function enumerateVideoDevices(stream) {
+async function enumerateVideoDevices(stream) {
     console.log('07. Get Video Devices');
-    navigator.mediaDevices
+    await navigator.mediaDevices
         .enumerateDevices()
         .then((devices) =>
-            devices.forEach((device) => {
+            devices.forEach(async (device) => {
                 let el,
                     eli = null;
                 if ('videoinput' === device.kind) {
@@ -2356,7 +2360,7 @@ function enumerateVideoDevices(stream) {
                     lS.DEVICES_COUNT.video++;
                 }
                 if (!el) return;
-                addChild(device, [el, eli]);
+                await addChild(device, [el, eli]);
             }),
         )
         .then(async () => {
@@ -2380,7 +2384,7 @@ async function stopTracks(stream) {
  * @param {object} device
  * @param {object} els
  */
-function addChild(device, els) {
+async function addChild(device, els) {
     const { kind, deviceId, label } = device;
     els.forEach((el) => {
         const option = document.createElement('option');
