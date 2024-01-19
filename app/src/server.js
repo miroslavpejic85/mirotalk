@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.72
+ * @version 1.2.75
  *
  */
 
@@ -56,6 +56,7 @@ const path = require('path');
 const axios = require('axios');
 const app = express();
 const checkXSS = require('./xss.js');
+const ServerApi = require('./api');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
@@ -426,29 +427,47 @@ app.post(['/login'], (req, res) => {
     For api docs we use: https://swagger.io/
 */
 
-// request meeting room endpoint
-app.post([apiBasePath + '/meeting'], (req, res) => {
-    // check if user was authorized for the api call
-    const { headers, body } = req;
-    const authorization = headers.authorization;
-    if (authorization != api_key_secret) {
+// API request meeting room endpoint
+app.post([`${apiBasePath}/meeting`], (req, res) => {
+    const host = req.headers.host;
+    const authorization = req.headers.authorization;
+    const api = new ServerApi(host, authorization, api_key_secret);
+    if (!api.isAuthorized()) {
         log.debug('MiroTalk get meeting - Unauthorized', {
-            headers: headers,
-            body: body,
+            header: req.headers,
+            body: req.body,
         });
         return res.status(403).json({ error: 'Unauthorized!' });
     }
-    // setup meeting URL
-    const host = req.headers.host;
-    const meetingURL = getMeetingURL(host);
+    const meetingURL = api.getMeetingURL();
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ meeting: meetingURL }));
-
-    // log.debug the output if all done
     log.debug('MiroTalk get meeting - Authorized', {
-        headers: headers,
-        body: body,
+        header: req.headers,
+        body: req.body,
         meeting: meetingURL,
+    });
+});
+
+// API request join room endpoint
+app.post([`${apiBasePath}/join`], (req, res) => {
+    const host = req.headers.host;
+    const authorization = req.headers.authorization;
+    const api = new ServerApi(host, authorization, api_key_secret);
+    if (!api.isAuthorized()) {
+        log.debug('MiroTalk get join - Unauthorized', {
+            header: req.headers,
+            body: req.body,
+        });
+        return res.status(403).json({ error: 'Unauthorized!' });
+    }
+    const joinURL = api.getJoinURL(req.body);
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ join: joinURL }));
+    log.debug('MiroTalk get join - Authorized', {
+        header: req.headers,
+        body: req.body,
+        join: joinURL,
     });
 });
 

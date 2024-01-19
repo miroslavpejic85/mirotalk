@@ -1,36 +1,54 @@
-[![restAPI](restAPI.png)](https://p2p.mirotalk.com/api/v1/docs)
+![restAPI](restAPI.png)
 
-## Create a meeting
+## Create a Meeting
 
-Create a meeting with a `HTTP request` containing the `API_KEY` sent to MiroTalk’s server. The response contains a `meeting` URL that can be `embedded` in your client within an `iframe`.
+To initiate a meeting, send an HTTP request to MiroTalk’s server with your API key. Replace the default secret key in `.env` with your own.
 
 ```bash
-cd meeting
-# js
-node meeting.js
-# php
-php meeting.php
-# python
-python meeting.py
-# bash
-./meeting.sh
+API_KEY_SECRET=mirotalk_default_secret
 ```
 
-## Embed a meeting
+Use the following examples to make API calls:
 
-Embedding a meeting into a `service` or `app` requires using an `iframe` with the `src` attribute specified as the `meeting` from `HTTP response`. Change the iframe `src` with your own instance of MiroTalk.
+```bash
+# Node.js
+node meeting.js
+node join.js
+
+# PHP
+php meeting.php
+php join.php
+
+# Python
+python3 meeting.py
+python3 join.py
+
+# Bash
+./meeting.sh
+./join.sh
+```
+
+The server response will contain a meeting URL that can be embedded in your client using an iframe.
+
+---
+
+## Embed a Meeting
+
+To embed a meeting in your service or app, use an iframe with the source attribute set to the meeting URL obtained from the HTTP response.
 
 ```html
 <iframe
     allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; autoplay"
-    src="https://p2p.mirotalk.com/join/room_name"
+    src="https://p2p.mirotalk.com/join/test"
     style="height: 100vh; width: 100vw; border: 0px;"
 ></iframe>
 ```
 
+---
+
 ## Fast Integration
 
-Develop your `website` or `application`, and bring `video meetings` in with a simple `iframe`.
+Integrate video meetings into your website or application quickly by incorporating the following iframe code:
 
 ```html
 <iframe
