@@ -54,18 +54,25 @@ paths:
                       properties:
                           room:
                               type: string
+                              default: 'test'
                           name:
                               type: string
+                              default: 'mirotalk'
                           audio:
                               type: boolean
+                              default: true
                           video:
                               type: boolean
+                              default: true
                           screen:
                               type: boolean
+                              default: false
                           hide:
                               type: boolean
+                              default: false
                           notify:
                               type: boolean
+                              default: true
             consumes:
                 - 'application/json'
             produces:
