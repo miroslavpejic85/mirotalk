@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.75
+ * @version 1.2.76
  *
  */
 
@@ -701,8 +701,9 @@ io.sockets.on('connect', async (socket) => {
                     });
                     cb(response);
                 } catch (error) {
-                    if (error instanceof OpenAI.APIError) {
+                    if (error.name === 'APIError') {
                         log.error('ChatGPT', {
+                            name: error.name,
                             status: error.status,
                             message: error.message,
                             code: error.code,
@@ -712,7 +713,7 @@ io.sockets.on('connect', async (socket) => {
                     } else {
                         // Non-API error
                         log.error('ChatGPT', error);
-                        cb(error);
+                        cb(error.message);
                     }
                 }
                 break;
