@@ -26,7 +26,7 @@ class LocalStorage {
             mic_latency: '50', // ms
             mic_volume: '100', // %
             video_fps: '1', // default 30fps
-            screen_fps: '3', // default 5fps
+            screen_fps: '1', // default 30fps
             pitch_bar: true,
             sounds: true,
             video_obj_fit: '2', // cover
