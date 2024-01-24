@@ -399,6 +399,10 @@ const isPeerPresenter = getId('isPeerPresenter');
 const peersCount = getId('peersCount');
 const screenFpsDiv = getId('screenFpsDiv');
 
+// Display Mode
+const displayMode = getId('displayMode');
+const displayModeCloseBtn = getId('displayModeCloseBtn');
+
 // Audio options
 const dropDownMicOptions = getId('dropDownMicOptions');
 const switchAutoGainControl = getId('switchAutoGainControl');
@@ -600,6 +604,7 @@ let videoQualitySelectedIndex = 0; // default HD and 30fps
 let videoFpsSelectedIndex = 1; // 30 fps
 let screenFpsSelectedIndex = 1; // 30 fps
 let isMySettingsVisible = false;
+let isDisplayModeVisible = false;
 let thisRoomPassword = null;
 let isRoomLocked = false;
 let isAudioPitchBar = true;
@@ -735,6 +740,9 @@ function setButtonsToolTip() {
         'Prioritize h.264 with AAC or h.264 with Opus codecs over VP8 with Opus or VP9 with Opus codecs',
         'right',
     );
+    // Display mode 
+
+    setTippy(displayModeCloseBtn, 'Close', 'bottom');
     // Whiteboard buttons
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
@@ -3795,6 +3803,7 @@ function manageLeftButtons() {
     setMyFileShareBtn();
     setDocumentPiPBtn();
     setMySettingsBtn();
+    setDisplayModeBtn();
     setAboutBtn();
     setLeaveRoomBtn();
 }
@@ -4576,6 +4585,22 @@ function setMySettingsBtn() {
     resumeRecBtn.addEventListener('click', (e) => {
         resumeRecording();
     });
+}
+
+function setDisplayModeBtn() {
+    displayModeBtn.addEventListener('click', (e) => {
+        hideShowDisplayMode();
+    });
+
+    displayModeCloseBtn.addEventListener('click', (e) => {
+        hideShowDisplayMode();
+    });
+    // sendAbortBtn.addEventListener('click', (e) => {
+    //     abortFileTransfer();
+    // });
+    // receiveHideBtn.addEventListener('click', (e) => {
+    //     hideFileTransfer();
+    // });
 }
 
 /**
@@ -7176,6 +7201,33 @@ function hideShowMySettings() {
     elemDisplay(mySettings, false);
     setTippy(mySettingsBtn, 'Open the settings', placement);
     isMySettingsVisible = false;
+}
+/**
+ * Hide - show display mode 
+ */
+function hideShowDisplayMode() {
+    if (!isDisplayModeVisible) {
+        // TODO: customize sound for display mode
+        playSound('newMessage');
+        // adapt it for mobile
+        if (isMobileDevice) {
+            displayMode.style.setProperty('width', '100%');
+            displayMode.style.setProperty('height', '100%');
+            // setSP('--mySettings-select-w', '99%');
+        }
+        // my current peer name
+        // myPeerNameSet.placeholder = myPeerName;
+        // center screen on show
+        displayMode.style.top = '50%';
+        displayMode.style.left = '50%';
+        elemDisplay(displayMode, true, 'block');
+        setTippy(displayModeBtn, 'Close display mode', placement);
+        isDisplayModeVisible = true;
+        return;
+    }
+    elemDisplay(displayMode, false);
+    setTippy(displayMode, 'Open display settings', placement);
+    isDisplayModeVisible = false;
 }
 
 /**

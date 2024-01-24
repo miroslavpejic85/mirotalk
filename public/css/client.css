@@ -1490,6 +1490,25 @@ progress {
 }
 
 /*--------------------------------------------------------------
+# Display mode 
+--------------------------------------------------------------*/
+
+#displayMode {
+    z-index: 16;
+    position: absolute;
+    display: none;
+    margin: auto;
+    padding: 10px;
+    width: 50%;
+    min-height: 480px;
+    background: var(--body-bg);
+    box-shadow: var(--box-shadow);
+    border: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
 
