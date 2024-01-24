@@ -158,6 +158,7 @@ const buttons = {
         showFileShareBtn: true,
         showDocumentPipBtn: showDocumentPipBtn,
         showMySettingsBtn: true,
+        displayModeBtn: true,
         showAboutBtn: true, // Please keep me always true, Thank you!
     },
     chat: {
@@ -244,6 +245,7 @@ const whiteboardBtn = getId('whiteboardBtn');
 const fileShareBtn = getId('fileShareBtn');
 const documentPiPBtn = getId('documentPiPBtn');
 const mySettingsBtn = getId('mySettingsBtn');
+const displayModeBtn = getId('displayModeBtn');
 const aboutBtn = getId('aboutBtn');
 const leaveRoomBtn = getId('leaveRoomBtn');
 
@@ -787,6 +789,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(fileShareBtn, 'Share file', placement);
     setTippy(documentPiPBtn, 'Toggle picture in picture', placement);
     setTippy(mySettingsBtn, 'Open the settings', placement);
+    setTippy(displayModeBtn, 'Display mode', placement);
     setTippy(aboutBtn, 'About this project', placement);
     setTippy(leaveRoomBtn, 'Leave this room', placement);
 }
@@ -1273,6 +1276,7 @@ function handleButtonsRule() {
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
     elemDisplay(documentPiPBtn, buttons.main.showDocumentPipBtn);
     elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
+    elemDisplay(displayModeBtn, buttons.main.displayModeBtn);
     elemDisplay(aboutBtn, buttons.main.showAboutBtn);
     // chat
     elemDisplay(msgerMaxBtn, !isMobileDevice && buttons.chat.showMaxBtn);
