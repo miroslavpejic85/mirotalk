@@ -4606,11 +4606,18 @@ function setDisplayModeBtn() {
     // });
 
     displayModeBtn.addEventListener('click', (e) => {
-        isDisplayModeVisible ? stopCarousel(carouselContainer) : showDisplayForm();
+        if (isDisplayModeVisible) {
+            stopCarousel(carouselContainer);
+            isDisplayModeVisible = false;
+        } else {
+            showDisplayForm();
+            isDisplayModeVisible = true;
+        }
     });
 
     displayModeCloseBtn.addEventListener('click', (e) => {
         hideDisplayForm();
+        isDisplayModeVisible = false
     });
 
     locationForm.addEventListener('submit', async (e) => {
@@ -4684,7 +4691,6 @@ function createCarouselImages(propertyList, imageListContainerId = 'carouselImag
     const carouselSlides = document.getElementById(imageListContainerId);
     const fragment = document.createDocumentFragment();
 
-    console.log({propertyList})
     const imageLinks = propertyList[0][0].images;
     imageLinks.forEach((imgLink) => {
         var li = document.createElement('li');
@@ -4716,7 +4722,7 @@ function startCarousel(nodeRef) {
     new Glide('.glide', {
         autoplay: 2000,
         type: 'carousel',
-    }).mount()
+    }).mount();
     // debugger
     // carousel.mount();
 }
@@ -7360,7 +7366,6 @@ function showDisplayForm() {
 function hideDisplayForm() {
     elemDisplay(displayMode, false);
     setTippy(displayMode, 'Open display settings', placement);
-    isDisplayModeVisible = false;
 }
 
 /**
