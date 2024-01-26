@@ -1,0 +1,19 @@
+
+#carouselContainer {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+
+    /* to ensure correct poistioning */
+    .glide {
+        display: block;
+        width: 100%; 
+    }
+    
+    .glide__slide {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

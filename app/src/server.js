@@ -392,6 +392,26 @@ app.get(['/logged'], (req, res) => {
     }
 });
 
+// introducing proxy routes to keep implementation details and sensitive data (api keys/endpoints) on the server
+app.get('/properties', (req, res) => {
+    const endpoint = 'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/api/properties.json';
+    axios
+        .get(endpoint)
+        .then((response) => res.send(response.data))
+        .catch((error) => log.error(error));
+});
+
+app.get('/location-coords', (req, res) => {
+    const queryString = new URLSearchParams(req.query).toString();
+    axios
+        .get(`https://geocode.maps.co/search?q=${queryString}&api_key=65b123731c549385528153wtc769e10`)
+        .then((response) => {
+            // return first item, since we'll be using only one location coords as a target
+            return res.send(response.data[0]);
+        })
+        .catch((err) => log.error(err));
+});
+
 /* AXIOS */
 
 // handle login on host protected

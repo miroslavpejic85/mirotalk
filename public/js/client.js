@@ -85,6 +85,8 @@ const className = {
     speech: 'fas fa-volume-high',
     heart: 'fas fa-heart',
     pip: 'fas fa-images',
+    displayModeOn: 'fa-solid fa-shop-slash',
+    displayModeOff: 'fa-solid fa-shop',
 };
 // https://fontawesome.com/search?o=r&m=free
 
@@ -402,6 +404,8 @@ const screenFpsDiv = getId('screenFpsDiv');
 // Display Mode
 const displayMode = getId('displayMode');
 const displayModeCloseBtn = getId('displayModeCloseBtn');
+const locationForm = getId('locationForm');
+const carouselContainer = getId('carouselContainer');
 
 // Audio options
 const dropDownMicOptions = getId('dropDownMicOptions');
@@ -604,12 +608,16 @@ let videoQualitySelectedIndex = 0; // default HD and 30fps
 let videoFpsSelectedIndex = 1; // 30 fps
 let screenFpsSelectedIndex = 1; // 30 fps
 let isMySettingsVisible = false;
-let isDisplayModeVisible = false;
 let thisRoomPassword = null;
 let isRoomLocked = false;
 let isAudioPitchBar = true;
 let isPushToTalkActive = false;
 let isSpaceDown = false;
+
+// display mode
+// let isDisplayMode = false;
+let isDisplayModeVisible = false;
+// let carouselRef = null;
 
 // recording
 let mediaRecorder;
@@ -740,7 +748,7 @@ function setButtonsToolTip() {
         'Prioritize h.264 with AAC or h.264 with Opus codecs over VP8 with Opus or VP9 with Opus codecs',
         'right',
     );
-    // Display mode 
+    // Display mode
 
     setTippy(displayModeCloseBtn, 'Close', 'bottom');
     // Whiteboard buttons
@@ -2654,6 +2662,7 @@ async function loadLocalMedia(stream, kind) {
 
             logStreamSettingsInfo('localVideoMediaStream', stream);
             attachMediaStream(myLocalMedia, stream);
+            console.log('load local media called');
             adaptAspectRatio();
 
             handleVideoToggleMirror(myLocalMedia.id, myVideoMirrorBtn.id);
@@ -3464,6 +3473,7 @@ function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
  * @param {boolean} isScreen stream
  */
 function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
+    console.log(2, 'handleVideoPin called');
     const videoPlayer = getId(elemId);
     const btnPn = getId(pnId);
     const cam = getId(camId);
@@ -4588,19 +4598,137 @@ function setMySettingsBtn() {
 }
 
 function setDisplayModeBtn() {
+    // delete after testing
+
+    // displayModeBtn.className = className.displayModeOn
+    // displayModeBtn.addEventListener('click', (e) => {
+    //     initDisplayMode('lisbon');
+    // });
+
     displayModeBtn.addEventListener('click', (e) => {
-        hideShowDisplayMode();
+        isDisplayModeVisible ? stopCarousel(carouselContainer) : showDisplayForm();
     });
 
     displayModeCloseBtn.addEventListener('click', (e) => {
-        hideShowDisplayMode();
+        hideDisplayForm();
     });
-    // sendAbortBtn.addEventListener('click', (e) => {
-    //     abortFileTransfer();
-    // });
-    // receiveHideBtn.addEventListener('click', (e) => {
-    //     hideFileTransfer();
-    // });
+
+    locationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        /* 
+        --------- start display mode -----------
+        1. get user specified location from the form
+        2. fetch location coordinates
+        3. fetch available properties from the server
+        4. compose new array of nearest->farest locations 
+        5. display carousel with selected locations on the initiator's fe with controls, 
+        6. emit event to display carousel on peer's end with payload wo controls
+        */
+
+        const form = e.currentTarget;
+        const targetAddress = form['propertyLocation'].value;
+        hideDisplayForm();
+        console.log(111, {targetAddress})
+        const propertyList = await getDisplayData(targetAddress);
+        createCarouselImages(propertyList);
+        startCarousel(carouselContainer);
+    });
+}
+
+// async function toggleDisplayMode(init = false) {
+//     if (isDisplayMode) {
+//         carouselRef.destroy();
+//     } else {
+//         // carouselRef = new Glide('.glide', {
+//         //     autoplay: 2000,
+//         //     type: 'carousel',
+//         // });
+//         // carouselRef.mount();
+//     }
+
+//     isDisplayMode = !isDisplayMode;
+
+//     elemDisplay(carouselContainer, !isDisplayMode, 'flex');
+//     elemDisplay(myVideoAvatarImage, isDisplayMode);
+
+//     myVideoPinBtn.click();
+//     adaptAspectRatio();
+//     // displayModeBtn.classList
+
+//     isDisplayMode = !isDisplayMode;
+
+//     return;
+// }
+
+async function getDisplayData(targetAddressString) {
+    // TODO: handle network errors
+    const targetLocationPromise = await fetchLocationCoordinates(targetAddressString);
+
+    const availablePropertiesLocationsPromise = await fetchProperties();
+
+    try {
+        const values = await Promise.all([targetLocationPromise, availablePropertiesLocationsPromise]);
+
+        const [targetLocationCoords, propertiesLocations] = values;
+
+        const sortedPropertyList = getSortedLocationChunks(propertiesLocations, targetLocationCoords);
+        return sortedPropertyList;
+    } catch (error) {
+        console.log('Error getting data', error);
+    }
+    // TODO: what should this function return type be? in case of error?
+}
+
+function createCarouselImages(propertyList, imageListContainerId = 'carouselImagesList') {
+    const carouselSlides = document.getElementById(imageListContainerId);
+    const fragment = document.createDocumentFragment();
+
+    console.log({propertyList})
+    const imageLinks = propertyList[0][0].images;
+    imageLinks.forEach((imgLink) => {
+        var li = document.createElement('li');
+        li.className = 'glide__slide';
+
+        var img = document.createElement('img');
+        // img.setAttribute('referrerpolicy', 'no-referrer');
+        img.src = imgLink;
+        // img.alt = "Image"; // You can also dynamically set alt text if available
+
+        li.appendChild(img);
+        fragment.appendChild(li);
+    });
+
+    carouselSlides.appendChild(fragment);
+}
+
+// TODO: move to suitable place
+
+function startCarousel(nodeRef) {
+    displayModeBtn.className = className.displayModeOn;
+    const carousel = new Glide('.glide', {
+        // autoplay: 2000,
+        type: 'carousel',
+    });
+    carousel.mount();
+    elemDisplay(nodeRef, true, 'flex');
+    elemDisplay(myVideoAvatarImage, false);
+
+
+    myVideoPinBtn.click();
+    adaptAspectRatio();
+}
+
+function stopCarousel(nodeRef) {
+    displayModeBtn.className = className.displayModeOff;
+    elemDisplay(nodeRef, false);
+    elemDisplay(myVideoAvatarImage, true);
+
+    nodeRef?.destroy();
+
+    // ?
+    // myVideoPinBtn.click();
+    // adaptAspectRatio();
 }
 
 /**
@@ -7203,9 +7331,9 @@ function hideShowMySettings() {
     isMySettingsVisible = false;
 }
 /**
- * Hide - show display mode 
+ * Hide - show display mode
  */
-function hideShowDisplayMode() {
+function showDisplayForm() {
     if (!isDisplayModeVisible) {
         // TODO: customize sound for display mode
         playSound('newMessage');
@@ -7225,6 +7353,9 @@ function hideShowDisplayMode() {
         isDisplayModeVisible = true;
         return;
     }
+}
+
+function hideDisplayForm() {
     elemDisplay(displayMode, false);
     setTippy(displayMode, 'Open display settings', placement);
     isDisplayModeVisible = false;
@@ -9858,3 +9989,40 @@ function sanitizeXSS(src) {
 function disable(elem, disabled) {
     elem.disabled = disabled;
 }
+
+// TODO: implement sorting out based on user provided locations coords
+// const locationsJson = [
+//     {
+//         name: 'Property 0',
+//         id: 0,
+//         location: {
+//             lon: -73.41188045793135,
+//             lat: 41.34561772276373,
+//         },
+//         numberOfRooms: 1,
+//         images: [
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_17.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_88.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_42.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_55.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_48.jpeg',
+//         ],
+//     },
+//     {
+//         name: 'Property 1',
+//         id: 1,
+//         location: {
+//             lon: -73.59794176652241,
+//             lat: 41.122497981428744,
+//         },
+//         numberOfRooms: 2,
+//         images: [
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_93.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_55.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_66.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_95.jpeg',
+//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_34.jpeg',
+//         ],
+//     },
+// ];
+//  new Glide('glide').mount();

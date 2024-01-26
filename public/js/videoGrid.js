@@ -23,6 +23,7 @@ function getAspectRatio() {
  * @param {integer} index ratios index
  */
 function setAspectRatio(index) {
+    console.log("setting aspect ratio")
     aspect = index;
     ratio = getAspectRatio();
     resizeVideoMedia();
@@ -58,6 +59,7 @@ function Area(Increment, Count, Width, Height, Margin = 10) {
  * Resize video elements
  */
 function resizeVideoMedia() {
+    // debugger;
     const videoMediaContainer = getId('videoMediaContainer');
     const Cameras = getEcN('Camera');
 
