@@ -4629,7 +4629,7 @@ function setDisplayModeBtn() {
         const form = e.currentTarget;
         const targetAddress = form['propertyLocation'].value;
         hideDisplayForm();
-        console.log(111, {targetAddress})
+        // console.log(111, {targetAddress})
         const propertyList = await getDisplayData(targetAddress);
         createCarouselImages(propertyList);
         startCarousel(carouselContainer);
@@ -4706,17 +4706,19 @@ function createCarouselImages(propertyList, imageListContainerId = 'carouselImag
 
 function startCarousel(nodeRef) {
     displayModeBtn.className = className.displayModeOn;
-    const carousel = new Glide('.glide', {
-        // autoplay: 2000,
-        type: 'carousel',
-    });
-    carousel.mount();
+    // debugger
     elemDisplay(nodeRef, true, 'flex');
     elemDisplay(myVideoAvatarImage, false);
 
-
     myVideoPinBtn.click();
     adaptAspectRatio();
+
+    new Glide('.glide', {
+        autoplay: 2000,
+        type: 'carousel',
+    }).mount()
+    // debugger
+    // carousel.mount();
 }
 
 function stopCarousel(nodeRef) {
