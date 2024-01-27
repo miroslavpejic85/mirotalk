@@ -1,6 +1,6 @@
 
 #carouselContainer {
-    display: none;
+    /* display: none; */
     flex-direction: column;
     justify-content: center;
     height: 100%;
@@ -16,4 +16,17 @@
         justify-content: center;
         align-items: center;
     }
+}
+
+#videoMediaContainer {
+    /* display: none; */
+}
+#myVideoWrap,
+.Camera {
+
+    display: none !important;
+}
+
+#videoPinMediaContainer {
+    display: block;
 }

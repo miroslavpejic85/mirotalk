@@ -10041,3 +10041,10 @@ function disable(elem, disabled) {
 //     },
 // ];
 //  new Glide('glide').mount();
+
+
+    carouselEl = new Glide('.glide', {
+        autoplay: 2000,
+        type: 'carousel',
+        perView: 1,
+    }).mount();
