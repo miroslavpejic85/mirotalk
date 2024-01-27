@@ -617,7 +617,7 @@ let isSpaceDown = false;
 // display mode
 // let isDisplayMode = false;
 let isDisplayModeVisible = false;
-// let carouselRef = null;
+let carouselEl = null;
 
 // recording
 let mediaRecorder;
@@ -3468,12 +3468,11 @@ function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
  * Handle video pin/unpin
  * @param {string} elemId video id
  * @param {string} pnId button pin id
- * @param {string} camId video wrap id
+ * @param {string} camId video wrap
  * @param {string} peerId peer id
  * @param {boolean} isScreen stream
  */
 function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
-    console.log(2, 'handleVideoPin called');
     const videoPlayer = getId(elemId);
     const btnPn = getId(pnId);
     const cam = getId(camId);
@@ -3514,8 +3513,8 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
     }
 }
 
-function toggleVideoPin(position) {
-    if (!isVideoPinned) return;
+function toggleVideoPin(position, force = false) {
+    if (!isVideoPinned && !force) return;
     switch (position) {
         case 'top':
             videoPinMediaContainer.style.top = '25%';
@@ -4606,18 +4605,47 @@ function setDisplayModeBtn() {
     // });
 
     displayModeBtn.addEventListener('click', (e) => {
+        /*
+        TODO: handle case when:
+        - all cameras stay visible when form opens (user may close it right away). In that case no need to stop carousel
+        */
         if (isDisplayModeVisible) {
-            stopCarousel(carouselContainer);
+            // Carousel turn off
+
+            elemDisplay(myVideoAvatarImage, true);
+            elemDisplay(myVideoWrap, true);
+            elemDisplay(videoPinMediaContainer, false);
+
             isDisplayModeVisible = false;
+            stopCarousel(carouselEl);
+            // ! FIXME: return back to normal layout 
+            // toggleVideoPin(pinVideoPositionSelect.value, true);
+            toggleVideoPin('horizontal', true);
+            // videoMediaContainer.style.width='100%'
         } else {
-            showDisplayForm();
+            // Carousel turn on
+            // toggleDisplay(true)
+            elemDisplay(myVideoAvatarImage, false);
+            elemDisplay(myVideoWrap, false); // debugger
+
+            toggleVideoPin(pinVideoPositionSelect.value, true);
+
+            elemDisplay(videoPinMediaContainer, true, 'block');
+
+            // videoPinMediaContainer.appendChild(myVideoWrap)
+            // elemDisplay(videoPinMediaContainer, true)
+            // myVideoPinBtn.click();
+
             isDisplayModeVisible = true;
+            showDisplayForm();
         }
+
+        adaptAspectRatio();
     });
 
     displayModeCloseBtn.addEventListener('click', (e) => {
         hideDisplayForm();
-        isDisplayModeVisible = false
+        isDisplayModeVisible = false;
     });
 
     locationForm.addEventListener('submit', async (e) => {
@@ -4637,36 +4665,14 @@ function setDisplayModeBtn() {
         const targetAddress = form['propertyLocation'].value;
         hideDisplayForm();
         // console.log(111, {targetAddress})
-        const propertyList = await getDisplayData(targetAddress);
+        // const propertyList = await getDisplayData(targetAddress);
+        const propertyList = await getDisplayData('lisbon');
         createCarouselImages(propertyList);
         startCarousel(carouselContainer);
+        adaptAspectRatio();
     });
 }
 
-// async function toggleDisplayMode(init = false) {
-//     if (isDisplayMode) {
-//         carouselRef.destroy();
-//     } else {
-//         // carouselRef = new Glide('.glide', {
-//         //     autoplay: 2000,
-//         //     type: 'carousel',
-//         // });
-//         // carouselRef.mount();
-//     }
-
-//     isDisplayMode = !isDisplayMode;
-
-//     elemDisplay(carouselContainer, !isDisplayMode, 'flex');
-//     elemDisplay(myVideoAvatarImage, isDisplayMode);
-
-//     myVideoPinBtn.click();
-//     adaptAspectRatio();
-//     // displayModeBtn.classList
-
-//     isDisplayMode = !isDisplayMode;
-
-//     return;
-// }
 
 async function getDisplayData(targetAddressString) {
     // TODO: handle network errors
@@ -4712,31 +4718,28 @@ function createCarouselImages(propertyList, imageListContainerId = 'carouselImag
 
 function startCarousel(nodeRef) {
     displayModeBtn.className = className.displayModeOn;
-    // debugger
     elemDisplay(nodeRef, true, 'flex');
-    elemDisplay(myVideoAvatarImage, false);
+    // elemDisplay(myVideoWrap, false);
+    // elemDisplay(myVideoAvatarImage, false);
 
-    myVideoPinBtn.click();
-    adaptAspectRatio();
-
-    new Glide('.glide', {
-        autoplay: 2000,
-        type: 'carousel',
+    carouselEl = new Glide('.glide', {
+        // autoplay: 2000,
+        // type: 'carousel',
+        perView: 1,
     }).mount();
-    // debugger
-    // carousel.mount();
+    // adaptAspectRatio()
 }
 
-function stopCarousel(nodeRef) {
+function stopCarousel(ref) {
     displayModeBtn.className = className.displayModeOff;
-    elemDisplay(nodeRef, false);
-    elemDisplay(myVideoAvatarImage, true);
+    ref.destroy();
+    elemDisplay(carouselContainer, false);
+    // elemDisplay(myVideoAvatarImage, true);
+    // elemDisplay(myVideoWrap, true);
 
-    nodeRef?.destroy();
 
     // ?
     // myVideoPinBtn.click();
-    // adaptAspectRatio();
 }
 
 /**
@@ -5713,7 +5716,11 @@ async function toggleScreenSharing(init = false) {
                 isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
             }
 
-            if (isScreenStreaming || isVideoPinned) myVideoPinBtn.click();
+            if (isScreenStreaming || isVideoPinned) {
+                console.log('video pin called');
+
+                myVideoPinBtn.click();
+            }
         }
     } catch (err) {
         err.name === 'NotAllowedError'
@@ -7342,25 +7349,26 @@ function hideShowMySettings() {
  * Hide - show display mode
  */
 function showDisplayForm() {
-    if (!isDisplayModeVisible) {
-        // TODO: customize sound for display mode
-        playSound('newMessage');
-        // adapt it for mobile
-        if (isMobileDevice) {
-            displayMode.style.setProperty('width', '100%');
-            displayMode.style.setProperty('height', '100%');
-            // setSP('--mySettings-select-w', '99%');
-        }
-        // my current peer name
-        // myPeerNameSet.placeholder = myPeerName;
-        // center screen on show
-        displayMode.style.top = '50%';
-        displayMode.style.left = '50%';
-        elemDisplay(displayMode, true, 'block');
-        setTippy(displayModeBtn, 'Close display mode', placement);
-        isDisplayModeVisible = true;
-        return;
+    console.log('calling show dispaly');
+    // if (!isDisplayModeVisible) {
+    // TODO: customize sound for display mode
+    playSound('newMessage');
+    // adapt it for mobile
+    if (isMobileDevice) {
+        displayMode.style.setProperty('width', '100%');
+        displayMode.style.setProperty('height', '100%');
+        // setSP('--mySettings-select-w', '99%');
     }
+    // my current peer name
+    // myPeerNameSet.placeholder = myPeerName;
+    // center screen on show
+    displayMode.style.top = '50%';
+    displayMode.style.left = '50%';
+    elemDisplay(displayMode, true, 'block');
+    setTippy(displayModeBtn, 'Close display mode', placement);
+    // isDisplayModeVisible = true;
+    return;
+    // }
 }
 
 function hideDisplayForm() {
