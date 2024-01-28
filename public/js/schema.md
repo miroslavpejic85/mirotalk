@@ -46,5 +46,6 @@ TODO: check if we need this :
 
 
 todo: 
-- stop display mode on peer
+[x] stop display mode on peer
 - hide controls on peer
+[x] - add emit controls events

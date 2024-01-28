@@ -7927,6 +7927,22 @@ function handlePeerAction(config) {
         case DISPLAY_MODE_ACTION.STOP:
             handleDisplayModeStop();
             break;
+
+        case DISPLAY_MODE_ACTION.NEXT_ITEM:
+            handleDisplayModeNextItem();
+            break;
+
+        case DISPLAY_MODE_ACTION.PREV_ITEM:
+            handleDisplayModePrevItem();
+            break;
+
+        case DISPLAY_MODE_ACTION.NEXT_GROUP:
+            handleDisplayModeNextGroup();
+            break;
+
+        case DISPLAY_MODE_ACTION.PREV_GROUP:
+            handleDisplayModePrevGroup();
+            break;
     }
 }
 
@@ -10136,8 +10152,8 @@ function disable(elem, disabled) {
 // carouselEl.setupWrapper();
 
 // const nextObjectBtn = document.getElementById('glide-next-object');
-const nextObjectBtn = document.getElementById('next_property_obj');
-const prevObjectBtn = document.getElementById('prev_property_obj');
+const nextItemBtn = document.getElementById('next_property_obj');
+const prevItemBtn = document.getElementById('prev_property_obj');
 const nextGroupBtn = document.getElementById('next_property_group');
 const prevGroupBtn = document.getElementById('prev_property_group');
 
@@ -10151,16 +10167,25 @@ nextGroupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
+    emitPeersAction(DISPLAY_MODE_ACTION.NEXT_GROUP);
+    await handleDisplayModeNextGroup();
+});
+async function handleDisplayModeNextGroup() {
     const propList = await getObjectImageLinksFromDb(currentGroupIdx, currentItemIdx);
     currentGroupIdx = (currentGroupIdx + 1) % propList.length;
     currentItemIdx = 0;
     await updateCarousel(currentGroupIdx, currentItemIdx);
-});
+}
 
 prevGroupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
+    emitPeersAction(DISPLAY_MODE_ACTION.PREV_GROUP);
+    await handleDisplayModePrevGroup();
+});
+
+async function handleDisplayModePrevGroup() {
     const propList = await idbKeyval.get(PROPERTY_LIST);
 
     if (currentGroupIdx === 0) {
@@ -10172,30 +10197,37 @@ prevGroupBtn.addEventListener('click', async (e) => {
 
     currentItemIdx = 0;
     await updateCarousel(currentGroupIdx, currentItemIdx);
-});
+}
 
-nextObjectBtn.addEventListener('click', async (e) => {
+nextItemBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    emitPeersAction(DISPLAY_MODE_ACTION.NEXT_ITEM);
+    await handleDisplayModeNextItem();
+});
 
+async function handleDisplayModeNextItem() {
     currentItemIdx = (currentItemIdx + 1) % CAROUSEL_IMAGE_BATCH_SIZE;
     await updateCarousel(currentGroupIdx, currentItemIdx);
-});
+}
 
-prevObjectBtn.addEventListener('click', async (e) => {
+prevItemBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
+    emitPeersAction(DISPLAY_MODE_ACTION.PREV_ITEM);
+    await handleDisplayModePrevItem();
+});
+
+async function handleDisplayModePrevItem() {
     if (currentItemIdx === 0) {
         const propList = await idbKeyval.get(PROPERTY_LIST);
         const groupSize = propList[currentGroupIdx].length;
         currentItemIdx = groupSize;
     }
-    // debugger
     currentItemIdx = (currentItemIdx - 1) % CAROUSEL_IMAGE_BATCH_SIZE;
-    // currentItemIdx = 0;
     await updateCarousel(currentGroupIdx, currentItemIdx);
-});
+}
 
 async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
     let propList;
@@ -10210,12 +10242,10 @@ async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
 
 // replace
 function replaceImageLinksInCarousel(targetNode, newImageLinks) {
-    // debugger
     if (carouselEl) {
         carouselEl.destroy();
     }
     targetNode.innerHTML = '';
-
     const fragment = document.createDocumentFragment();
     newImageLinks.forEach((imgLink) => {
         const li = document.createElement('li');
@@ -10234,23 +10264,21 @@ function replaceImageLinksInCarousel(targetNode, newImageLinks) {
 }
 
 const DISPLAY_MODE_ACTION = {
-    START: 'displayModeStart',
-    STOP: 'displayModeStop',
+    START: 'DISPLAY_MODE_START',
+    STOP: 'DISPLAY_MODE_STOP',
+    NEXT_ITEM: 'DISPLAY_MODE_NEXT_ITEM',
+    PREV_ITEM: 'DISPLAY_MODE_PREV_ITEM',
+    NEXT_GROUP: 'DISPLAY_MODE_NEXT_GROUP',
+    PREV_GROUP: 'DISPLAY_MODE_PREV_GROUP',
 };
-
-const DISPLAY_MODE_START = 'displayModeStart';
-// const DISPLAY_MODE_START = 'displayModeStop';
 
 function handleDisplayModeStart(config) {
     isDisplayModeVisible = true;
     initCarousel(config.payload);
-
-    // console.log('handle display mode start from peers action', config.payload, {config});
 }
 
 async function handleDisplayModeStop() {
     console.log('stopping carousel');
-
     isDisplayModeVisible = false;
     elemDisplay(videoPinMediaContainer, false);
     elemDisplay(myVideoAvatarImage, true);
