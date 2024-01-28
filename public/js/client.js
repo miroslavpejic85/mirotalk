@@ -135,6 +135,7 @@ const PROPERTY_LIST = 'propertyList';
 const CAROUSEL_IMAGE_LIST = 'carouselImageList';
 const CAROUSEL_IMAGE_BATCH_SIZE = 5;
 const DISPLAY_MODE_ACTION = 'displayModeAction';
+const CAROUSEL_GROUP_IMAGE_BATCH_SIZE = 5;
 
 // Check if embedded inside an iFrame
 const isEmbedded = window.self !== window.top;
@@ -625,8 +626,8 @@ let isSpaceDown = false;
 // let isDisplayMode = false;
 let isDisplayModeVisible = false;
 let carouselEl = null;
-let currentImageGroupIdx = 0;
-let currentImageItemIdx = 0;
+let currentGroupIdx = 0;
+let currentItemIdx = 0;
 
 // recording
 let mediaRecorder;
@@ -10139,37 +10140,51 @@ nextGroupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const propList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
-    currentImageGroupIdx = (currentImageGroupIdx + 1) % propList.length;
-    currentImageItemIdx = 0;
-    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+    const propList = await getObjectImageLinksFromDb(currentGroupIdx, currentItemIdx);
+    currentGroupIdx = (currentGroupIdx + 1) % propList.length;
+    currentItemIdx = 0;
+    await updateCarousel(currentGroupIdx, currentItemIdx);
 });
 
 prevGroupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const propList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
+    const propList = await idbKeyval.get(PROPERTY_LIST)
 
-    currentImageGroupIdx = (currentImageGroupIdx - 1) % propList.length;
-    currentImageItemIdx = 0;
-    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+    if (currentGroupIdx === 0) {
+        const listSize = propList.length
+        currentGroupIdx = listSize;
+
+    }
+
+    currentGroupIdx = (currentGroupIdx - 1) % propList.length;
+
+    currentItemIdx = 0;
+    await updateCarousel(currentGroupIdx, currentItemIdx);
 });
 
 nextObjectBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    currentImageItemIdx = (currentImageItemIdx + 1) % CAROUSEL_IMAGE_BATCH_SIZE;
-    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+    currentItemIdx = (currentItemIdx + 1) % CAROUSEL_IMAGE_BATCH_SIZE;
+    await updateCarousel(currentGroupIdx, currentItemIdx);
 });
 
 prevObjectBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    currentImageItemIdx = (currentImageItemIdx - 1) % CAROUSEL_IMAGE_BATCH_SIZE;
-    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+    if (currentItemIdx === 0) {
+        const propList = await idbKeyval.get(PROPERTY_LIST) 
+        const groupSize = propList[currentGroupIdx].length
+        currentItemIdx = groupSize;
+    }
+    // debugger
+    currentItemIdx = (currentItemIdx - 1) % CAROUSEL_IMAGE_BATCH_SIZE;
+    // currentItemIdx = 0;
+    await updateCarousel(currentGroupIdx, currentItemIdx);
 });
 
 async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
@@ -10185,6 +10200,7 @@ async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
 
 // replace
 function replaceImageLinksInCarousel(targetNode, newImageLinks) {
+    // debugger
     if (carouselEl) {
         carouselEl.destroy();
     }

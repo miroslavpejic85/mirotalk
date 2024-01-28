@@ -40,3 +40,6 @@ mention i opted not to use local variables as fn arguments because it's already 
 more consistent way to log error, that just console.log?
 
 when unpin i need to resize Camera el w/h in px?
+
+TODO: check if we need this :
+`const CAROUSEL_GROUP_IMAGE_BATCH_SIZE = 5;`
