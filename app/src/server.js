@@ -38,7 +38,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.76
+ * @version 1.2.77
  *
  */
 
@@ -208,6 +208,13 @@ if (configChatGPT.enabled) {
     }
 }
 
+// stats configuration
+const statsData = {
+    enabled: process.env.STATS_ENABLED ? getEnvBoolean(process.env.STATS_ENABLED) : true,
+    src: process.env.STATS_SCR || 'https://stats.mirotalk.com/script.js',
+    id: process.env.STATS_ID || 'c7615aa7-ceec-464a-baba-54cb605d7261',
+};
+
 // directory
 const dir = {
     public: path.join(__dirname, '../../', 'public'),
@@ -283,6 +290,12 @@ app.get(['/'], (req, res) => {
     } else {
         res.sendFile(views.landing);
     }
+});
+
+// Get stats endpoint
+app.get(['/stats'], (req, res) => {
+    //log.debug('Send stats', statsData);
+    res.send(statsData);
 });
 
 // mirotalk about
@@ -539,6 +552,7 @@ async function ngrokStart() {
         // server settings
         log.debug('settings', {
             iceServers: iceServers,
+            stats: statsData,
             host: hostCfg,
             presenters: roomPresenters,
             ngrok: {
@@ -594,6 +608,7 @@ server.listen(port, null, () => {
         // server settings
         log.debug('settings', {
             iceServers: iceServers,
+            stats: statsData,
             host: hostCfg,
             presenters: roomPresenters,
             server: host,
