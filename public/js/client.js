@@ -134,7 +134,6 @@ console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 const PROPERTY_LIST = 'propertyList';
 const CAROUSEL_IMAGE_LIST = 'carouselImageList';
 const CAROUSEL_IMAGE_BATCH_SIZE = 5;
-const DISPLAY_MODE_ACTION = 'displayModeAction';
 const CAROUSEL_GROUP_IMAGE_BATCH_SIZE = 5;
 
 // Check if embedded inside an iFrame
@@ -4648,7 +4647,7 @@ function setDisplayModeBtn() {
     //     initDisplayMode('lisbon');
     // });
 
-    displayModeBtn.addEventListener('click', (e) => {
+    displayModeBtn.addEventListener('click', async (e) => {
         /*
         TODO: handle case when:
         - all cameras stay visible when form opens (user may close it right away). In that case no need to stop carousel
@@ -4656,12 +4655,16 @@ function setDisplayModeBtn() {
         if (isDisplayModeVisible) {
             // Carousel turn off
 
-            elemDisplay(myVideoAvatarImage, true);
-            elemDisplay(myVideoWrap, true);
-            elemDisplay(videoPinMediaContainer, false);
+            // elemDisplay(myVideoAvatarImage, true);
+            // elemDisplay(myVideoWrap, true);
+            // elemDisplay(videoPinMediaContainer, false);
 
-            isDisplayModeVisible = false;
-            stopCarousel(carouselEl);
+            // isDisplayModeVisible = false;
+            // stopCarousel(carouselEl);
+
+            emitPeersAction(DISPLAY_MODE_ACTION.STOP);
+            await handleDisplayModeStop();
+
             // ! FIXME: return back to normal layout
             // toggleVideoPin(pinVideoPositionSelect.value, true);
             toggleVideoPin('horizontal', true);
@@ -4705,7 +4708,7 @@ function setDisplayModeBtn() {
         // createCarouselImages(propertyList);
         // startCarousel(carouselContainer);
 
-        emitPeersAction(DISPLAY_MODE_START, propertyList);
+        emitPeersAction(DISPLAY_MODE_ACTION.START, propertyList);
         // adaptAspectRatio();
         await initCarousel(propertyList);
     });
@@ -4797,7 +4800,11 @@ function startCarousel(nodeRef) {
 
 function stopCarousel(ref) {
     displayModeBtn.className = className.displayModeOff;
+
+    const carouselSlides = document.getElementById(CAROUSEL_IMAGE_LIST);
+
     ref.destroy();
+    carouselSlides.innerHTML = '';
     elemDisplay(carouselContainer, false);
     // elemDisplay(myVideoAvatarImage, true);
     // elemDisplay(myVideoWrap, true);
@@ -7913,8 +7920,12 @@ function handlePeerAction(config) {
             handleKickedOut(config);
             break;
 
-        case DISPLAY_MODE_START:
+        case DISPLAY_MODE_ACTION.START:
             handleDisplayModeStart(config);
+            break;
+
+        case DISPLAY_MODE_ACTION.STOP:
+            handleDisplayModeStop();
             break;
     }
 }
@@ -10150,12 +10161,11 @@ prevGroupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const propList = await idbKeyval.get(PROPERTY_LIST)
+    const propList = await idbKeyval.get(PROPERTY_LIST);
 
     if (currentGroupIdx === 0) {
-        const listSize = propList.length
+        const listSize = propList.length;
         currentGroupIdx = listSize;
-
     }
 
     currentGroupIdx = (currentGroupIdx - 1) % propList.length;
@@ -10177,8 +10187,8 @@ prevObjectBtn.addEventListener('click', async (e) => {
     e.stopPropagation();
 
     if (currentItemIdx === 0) {
-        const propList = await idbKeyval.get(PROPERTY_LIST) 
-        const groupSize = propList[currentGroupIdx].length
+        const propList = await idbKeyval.get(PROPERTY_LIST);
+        const groupSize = propList[currentGroupIdx].length;
         currentItemIdx = groupSize;
     }
     // debugger
@@ -10223,11 +10233,28 @@ function replaceImageLinksInCarousel(targetNode, newImageLinks) {
     carouselEl = new Glide('.glide').mount();
 }
 
+const DISPLAY_MODE_ACTION = {
+    START: 'displayModeStart',
+    STOP: 'displayModeStop',
+};
+
 const DISPLAY_MODE_START = 'displayModeStart';
+// const DISPLAY_MODE_START = 'displayModeStop';
 
 function handleDisplayModeStart(config) {
     isDisplayModeVisible = true;
     initCarousel(config.payload);
 
     // console.log('handle display mode start from peers action', config.payload, {config});
+}
+
+async function handleDisplayModeStop() {
+    console.log('stopping carousel');
+
+    isDisplayModeVisible = false;
+    elemDisplay(videoPinMediaContainer, false);
+    elemDisplay(myVideoAvatarImage, true);
+    elemDisplay(myVideoWrap, true);
+    stopCarousel(carouselEl);
+    await idbKeyval.del(PROPERTY_LIST);
 }

@@ -43,3 +43,8 @@ when unpin i need to resize Camera el w/h in px?
 
 TODO: check if we need this :
 `const CAROUSEL_GROUP_IMAGE_BATCH_SIZE = 5;`
+
+
+todo: 
+- stop display mode on peer
+- hide controls on peer
