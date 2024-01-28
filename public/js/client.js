@@ -4710,11 +4710,19 @@ function setDisplayModeBtn() {
 
         emitPeersAction(DISPLAY_MODE_ACTION.START, propertyList);
         // adaptAspectRatio();
-        await initCarousel(propertyList);
+        await initCarousel({ propertyList, hasControls: true });
     });
 }
 
-async function initCarousel(propertyList) {
+function showCarouselControls() {
+    controlBtns.classList.toggle('hidden', false);
+}
+
+function hideCarouselControls() {
+    controlBtns.classList.toggle('hidden', true);
+}
+
+async function initCarousel({ propertyList, hasControls = false }) {
     console.info('launched initCarousel', propertyList);
 
     elemDisplay(myVideoAvatarImage, false);
@@ -4728,7 +4736,7 @@ async function initCarousel(propertyList) {
     await storeImagesInDb(propertyList);
 
     createCarouselImages(propertyList);
-    startCarousel(carouselContainer);
+    startCarousel(carouselContainer, hasControls);
 
     adaptAspectRatio();
 }
@@ -4765,7 +4773,7 @@ function createCarouselImages(propertyList, imageListContainerId = CAROUSEL_IMAG
 
     const imageLinks = propertyList[0][0].images;
 
-    replaceImageLinksInCarousel(carouselSlides, imageLinks);
+    addReplaceImageLinksInCarousel(carouselSlides, imageLinks);
     // imageLinks.forEach((imgLink) => {
     //     const li = document.createElement('li');
     //     li.className = 'glide__slide';
@@ -4784,9 +4792,12 @@ function createCarouselImages(propertyList, imageListContainerId = CAROUSEL_IMAG
 
 // TODO: move to suitable place
 
-function startCarousel(nodeRef) {
+function startCarousel(nodeRef, hasControls) {
     displayModeBtn.className = className.displayModeOn;
     elemDisplay(nodeRef, true, 'flex');
+    if (hasControls) {
+        showCarouselControls();
+    }
     // elemDisplay(myVideoWrap, false);
     // elemDisplay(myVideoAvatarImage, false);
 
@@ -10156,10 +10167,11 @@ const nextItemBtn = document.getElementById('next_property_obj');
 const prevItemBtn = document.getElementById('prev_property_obj');
 const nextGroupBtn = document.getElementById('next_property_group');
 const prevGroupBtn = document.getElementById('prev_property_group');
+const controlBtns = document.getElementById('carouselCustomControls');
 
 async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
     const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
-    replaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
+    addReplaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
     // carouselEl.update();
 }
 
@@ -10170,6 +10182,7 @@ nextGroupBtn.addEventListener('click', async (e) => {
     emitPeersAction(DISPLAY_MODE_ACTION.NEXT_GROUP);
     await handleDisplayModeNextGroup();
 });
+
 async function handleDisplayModeNextGroup() {
     const propList = await getObjectImageLinksFromDb(currentGroupIdx, currentItemIdx);
     currentGroupIdx = (currentGroupIdx + 1) % propList.length;
@@ -10240,8 +10253,9 @@ async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
     return propList[groupIdx]?.[itemIdx]?.images;
 }
 
+function addCarouselControls() {}
 // replace
-function replaceImageLinksInCarousel(targetNode, newImageLinks) {
+function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
     if (carouselEl) {
         carouselEl.destroy();
     }
@@ -10274,7 +10288,7 @@ const DISPLAY_MODE_ACTION = {
 
 function handleDisplayModeStart(config) {
     isDisplayModeVisible = true;
-    initCarousel(config.payload);
+    initCarousel({propertyList: config.payload});
 }
 
 async function handleDisplayModeStop() {
