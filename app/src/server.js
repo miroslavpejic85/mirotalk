@@ -1067,7 +1067,7 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer action', config);
-        const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, send_to_all } = config;
+        const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, send_to_all, payload } = config;
 
         // Only the presenter can do this actions
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
@@ -1083,6 +1083,7 @@ io.sockets.on('connect', async (socket) => {
             peer_name: peer_name,
             peer_action: peer_action,
             peer_use_video: peer_use_video,
+            ...(payload ? {payload} : {})
         };
 
         if (send_to_all) {

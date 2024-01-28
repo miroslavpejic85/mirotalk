@@ -134,6 +134,7 @@ console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 const PROPERTY_LIST = 'propertyList';
 const CAROUSEL_IMAGE_LIST = 'carouselImageList';
 const CAROUSEL_IMAGE_BATCH_SIZE = 5;
+const DISPLAY_MODE_ACTION = 'displayModeAction';
 
 // Check if embedded inside an iFrame
 const isEmbedded = window.self !== window.top;
@@ -1104,11 +1105,45 @@ function initClientPeer() {
     signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('fileAbort', handleFileAbort);
-    signalingSocket.on('videoPlayer', handleVideoPlayer);
+    signalingSocket.on('videoPlaRemovePeeryer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
+    // signalingSocket.on(DISPLAY_MODE_ACTION, handleDisplayModeAction);
 } // end [initClientPeer]
 
+// function handleDisplayModeAction(config) {
+//     console.log('Handle peer action: ', config);
+//     const { peer_id, peer_name, peer_use_video, peer_action } = config;
+
+//     switch (peer_action) {
+//         case 'muteAudio':
+//             setMyAudioOff(peer_name);
+//             break;
+//         case 'hideVideo':
+//             setMyVideoOff(peer_name);
+//             break;
+//         case 'recStart':
+//             notifyRecording(peer_id, peer_name, 'Start');
+//             break;
+//         case 'recStop':
+//             notifyRecording(peer_id, peer_name, 'Stop');
+//             break;
+//         case 'screenStart':
+//             handleScreenStart(peer_id);
+//             break;
+//         case 'screenStop':
+//             handleScreenStop(peer_id, peer_use_video);
+//             break;
+//         case 'ejectAll':
+//             handleKickedOut(config);
+//             break;
+
+//         case DISPLAY_MODE_START:
+//             handleDisplayModeStart(config);
+//             break;
+//     }
+//     console.log('received display mode action', {e});
+// }
 /**
  * Send async data to signaling server (server.js)
  * @param {string} msg msg to send to signaling server
@@ -4632,17 +4667,6 @@ function setDisplayModeBtn() {
             // videoMediaContainer.style.width='100%'
         } else {
             // Carousel turn on
-            // toggleDisplay(true)
-            elemDisplay(myVideoAvatarImage, false);
-            elemDisplay(myVideoWrap, false); // debugger
-
-            toggleVideoPin(pinVideoPositionSelect.value, true);
-
-            elemDisplay(videoPinMediaContainer, true, 'block');
-
-            // videoPinMediaContainer.appendChild(myVideoWrap)
-            // elemDisplay(videoPinMediaContainer, true)
-            // myVideoPinBtn.click();
 
             isDisplayModeVisible = true;
             showDisplayForm();
@@ -4671,18 +4695,39 @@ function setDisplayModeBtn() {
 
         const form = e.currentTarget;
         const targetAddress = form['propertyLocation'].value;
-        hideDisplayForm();
+        // hideDisplayForm();
         // console.log(111, {targetAddress})
         // const propertyList = await getDisplayData(targetAddress);
         const propertyList = await getDisplayData('lisbon');
-        await storeImagesInDb(propertyList);
+        // await storeImagesInDb(propertyList);
 
-        createCarouselImages(propertyList);
-        startCarousel(carouselContainer);
-        adaptAspectRatio();
+        // createCarouselImages(propertyList);
+        // startCarousel(carouselContainer);
+
+        emitPeersAction(DISPLAY_MODE_START, propertyList);
+        // adaptAspectRatio();
+        await initCarousel(propertyList);
     });
 }
 
+async function initCarousel(propertyList) {
+    console.info('launched initCarousel', propertyList);
+
+    elemDisplay(myVideoAvatarImage, false);
+    elemDisplay(myVideoWrap, false); // debugger
+
+    toggleVideoPin(pinVideoPositionSelect.value, true);
+
+    elemDisplay(videoPinMediaContainer, true, 'block');
+    hideDisplayForm();
+
+    await storeImagesInDb(propertyList);
+
+    createCarouselImages(propertyList);
+    startCarousel(carouselContainer);
+
+    adaptAspectRatio();
+}
 async function storeImagesInDb(propertyList) {
     try {
         await idbKeyval.set(PROPERTY_LIST, propertyList);
@@ -7799,10 +7844,13 @@ function setPeerVideoStatus(peer_id, status) {
 /**
  * Emit actions to all peers in the same room except yourself
  * @param {object} peerAction to all peers
+ *
+ *  TODO: add description to payload
  */
-async function emitPeersAction(peerAction) {
+async function emitPeersAction(peerAction, payload = null) {
     if (!thereArePeerConnections()) return;
 
+    console.log({ payload });
     sendToServer('peerAction', {
         room_id: roomId,
         peer_name: myPeerName,
@@ -7811,6 +7859,7 @@ async function emitPeersAction(peerAction) {
         peer_use_video: useVideo,
         peer_action: peerAction,
         send_to_all: true,
+        ...(payload ? { payload: payload } : {}),
     });
 }
 
@@ -7861,6 +7910,10 @@ function handlePeerAction(config) {
             break;
         case 'ejectAll':
             handleKickedOut(config);
+            break;
+
+        case DISPLAY_MODE_START:
+            handleDisplayModeStart(config);
             break;
     }
 }
@@ -10143,7 +10196,7 @@ function replaceImageLinksInCarousel(targetNode, newImageLinks) {
         li.className = 'glide__slide';
 
         const img = document.createElement('img');
-        // img.setAttribute('referrerpolicy', 'no-referrer'); 
+        // img.setAttribute('referrerpolicy', 'no-referrer');
         img.src = imgLink;
         // img.alt = "Image"; // possible add property name here
         li.appendChild(img);
@@ -10152,4 +10205,13 @@ function replaceImageLinksInCarousel(targetNode, newImageLinks) {
 
     targetNode.appendChild(fragment);
     carouselEl = new Glide('.glide').mount();
+}
+
+const DISPLAY_MODE_START = 'displayModeStart';
+
+function handleDisplayModeStart(config) {
+    isDisplayModeVisible = true;
+    initCarousel(config.payload);
+
+    // console.log('handle display mode start from peers action', config.payload, {config});
 }
