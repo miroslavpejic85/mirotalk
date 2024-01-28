@@ -1,32 +1,37 @@
 
 #carouselContainer {
-    /* display: none; */
-    flex-direction: column;
+    display: none;
+    /* flex-direction: column;
     justify-content: center;
-    height: 100%;
+    height: 100%; */
 
     /* to ensure correct poistioning */
-    .glide {
+    /* .glide {
         display: block;
         width: 100%; 
-    }
+    } */
     
     .glide__slide {
-        display: flex;
+        img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+        /* display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: center; */
     }
 }
 
 #videoMediaContainer {
     /* display: none; */
 }
-#myVideoWrap,
+/* #myVideoWrap,
 .Camera {
-
     display: none !important;
-}
+} */
 
-#videoPinMediaContainer {
+/* #videoPinMediaContainer {
+    z-index: 3;
     display: block;
-}
+} */

@@ -37,3 +37,4 @@ resizeVideoMedia() - to resize cameras in videoMediaContainer
 
 toggleScreenSharing() - container toggle
 mention i opted not to use local variables as fn arguments because it's already polluted global space
+more consistent way to log error, that just console.log?

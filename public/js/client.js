@@ -130,6 +130,11 @@ const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
 const lsSettings = localStorageSettings ? localStorageSettings : lS.P2P_SETTINGS;
 console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 
+// Idb constants
+const PROPERTY_LIST = 'propertyList';
+const CAROUSEL_IMAGE_LIST = 'carouselImageList';
+const CAROUSEL_IMAGE_BATCH_SIZE = 5;
+
 // Check if embedded inside an iFrame
 const isEmbedded = window.self !== window.top;
 
@@ -406,6 +411,7 @@ const displayMode = getId('displayMode');
 const displayModeCloseBtn = getId('displayModeCloseBtn');
 const locationForm = getId('locationForm');
 const carouselContainer = getId('carouselContainer');
+const carouselImageList = getId(CAROUSEL_IMAGE_LIST);
 
 // Audio options
 const dropDownMicOptions = getId('dropDownMicOptions');
@@ -618,6 +624,8 @@ let isSpaceDown = false;
 // let isDisplayMode = false;
 let isDisplayModeVisible = false;
 let carouselEl = null;
+let currentImageGroupIdx = 0;
+let currentImageItemIdx = 0;
 
 // recording
 let mediaRecorder;
@@ -4618,7 +4626,7 @@ function setDisplayModeBtn() {
 
             isDisplayModeVisible = false;
             stopCarousel(carouselEl);
-            // ! FIXME: return back to normal layout 
+            // ! FIXME: return back to normal layout
             // toggleVideoPin(pinVideoPositionSelect.value, true);
             toggleVideoPin('horizontal', true);
             // videoMediaContainer.style.width='100%'
@@ -4667,12 +4675,21 @@ function setDisplayModeBtn() {
         // console.log(111, {targetAddress})
         // const propertyList = await getDisplayData(targetAddress);
         const propertyList = await getDisplayData('lisbon');
+        await storeImagesInDb(propertyList);
+
         createCarouselImages(propertyList);
         startCarousel(carouselContainer);
         adaptAspectRatio();
     });
 }
 
+async function storeImagesInDb(propertyList) {
+    try {
+        await idbKeyval.set(PROPERTY_LIST, propertyList);
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 async function getDisplayData(targetAddressString) {
     // TODO: handle network errors
@@ -4693,25 +4710,27 @@ async function getDisplayData(targetAddressString) {
     // TODO: what should this function return type be? in case of error?
 }
 
-function createCarouselImages(propertyList, imageListContainerId = 'carouselImagesList') {
+function createCarouselImages(propertyList, imageListContainerId = CAROUSEL_IMAGE_LIST) {
     const carouselSlides = document.getElementById(imageListContainerId);
-    const fragment = document.createDocumentFragment();
+    // const fragment = document.createDocumentFragment();
 
     const imageLinks = propertyList[0][0].images;
-    imageLinks.forEach((imgLink) => {
-        var li = document.createElement('li');
-        li.className = 'glide__slide';
 
-        var img = document.createElement('img');
-        // img.setAttribute('referrerpolicy', 'no-referrer');
-        img.src = imgLink;
-        // img.alt = "Image"; // You can also dynamically set alt text if available
+    replaceImageLinksInCarousel(carouselSlides, imageLinks);
+    // imageLinks.forEach((imgLink) => {
+    //     const li = document.createElement('li');
+    //     li.className = 'glide__slide';
 
-        li.appendChild(img);
-        fragment.appendChild(li);
-    });
+    //     var img = document.createElement('img');
+    //     // img.setAttribute('referrerpolicy', 'no-referrer');
+    //     img.src = imgLink;
+    //     // img.alt = "Image"; // You can also dynamically set alt text if available
 
-    carouselSlides.appendChild(fragment);
+    //     li.appendChild(img);
+    //     fragment.appendChild(li);
+    // });
+
+    // carouselSlides.appendChild(fragment);
 }
 
 // TODO: move to suitable place
@@ -4724,7 +4743,7 @@ function startCarousel(nodeRef) {
 
     carouselEl = new Glide('.glide', {
         // autoplay: 2000,
-        // type: 'carousel',
+        type: 'carousel',
         perView: 1,
     }).mount();
     // adaptAspectRatio()
@@ -4736,7 +4755,6 @@ function stopCarousel(ref) {
     elemDisplay(carouselContainer, false);
     // elemDisplay(myVideoAvatarImage, true);
     // elemDisplay(myVideoWrap, true);
-
 
     // ?
     // myVideoPinBtn.click();
@@ -10042,9 +10060,96 @@ function disable(elem, disabled) {
 // ];
 //  new Glide('glide').mount();
 
+// const propertyList = await getDisplayData('lisbon');
+// createCarouselImages(propertyList);
+// carouselEl = new Glide('.glide', {
+//     // autoplay: 2000,
+//     type: 'carousel',
+//     perView: 1,
+//     slideWidth: '100px',
+// }).mount();
+// carouselEl.setupWrapper();
 
-    carouselEl = new Glide('.glide', {
-        autoplay: 2000,
-        type: 'carousel',
-        perView: 1,
-    }).mount();
+// const nextObjectBtn = document.getElementById('glide-next-object');
+const nextObjectBtn = document.getElementById('next_property_obj');
+const prevObjectBtn = document.getElementById('prev_property_obj');
+const nextGroupBtn = document.getElementById('next_property_group');
+const prevGroupBtn = document.getElementById('prev_property_group');
+
+async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
+    const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
+    replaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
+    // carouselEl.update();
+}
+
+nextGroupBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const propList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
+    currentImageGroupIdx = (currentImageGroupIdx + 1) % propList.length;
+    currentImageItemIdx = 0;
+    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+});
+
+prevGroupBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const propList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
+
+    currentImageGroupIdx = (currentImageGroupIdx - 1) % propList.length;
+    currentImageItemIdx = 0;
+    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+});
+
+nextObjectBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    currentImageItemIdx = (currentImageItemIdx + 1) % CAROUSEL_IMAGE_BATCH_SIZE;
+    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+});
+
+prevObjectBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    currentImageItemIdx = (currentImageItemIdx - 1) % CAROUSEL_IMAGE_BATCH_SIZE;
+    await updateCarousel(currentImageGroupIdx, currentImageItemIdx);
+});
+
+async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
+    let propList;
+    try {
+        propList = await idbKeyval.get(PROPERTY_LIST);
+    } catch (error) {
+        console.error(error);
+    }
+
+    return propList[groupIdx]?.[itemIdx]?.images;
+}
+
+// replace
+function replaceImageLinksInCarousel(targetNode, newImageLinks) {
+    if (carouselEl) {
+        carouselEl.destroy();
+    }
+    targetNode.innerHTML = '';
+
+    const fragment = document.createDocumentFragment();
+    newImageLinks.forEach((imgLink) => {
+        const li = document.createElement('li');
+        li.className = 'glide__slide';
+
+        const img = document.createElement('img');
+        // img.setAttribute('referrerpolicy', 'no-referrer'); 
+        img.src = imgLink;
+        // img.alt = "Image"; // possible add property name here
+        li.appendChild(img);
+        fragment.appendChild(li);
+    });
+
+    targetNode.appendChild(fragment);
+    carouselEl = new Glide('.glide').mount();
+}
