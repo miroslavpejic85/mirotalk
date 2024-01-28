@@ -49,3 +49,4 @@ todo:
 [x] stop display mode on peer
 - hide controls on peer
 [x] - add emit controls events
+[] - fix display mode btn unclick when form is visible

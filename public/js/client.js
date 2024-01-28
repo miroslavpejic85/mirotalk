@@ -4715,11 +4715,11 @@ function setDisplayModeBtn() {
 }
 
 function showCarouselControls() {
-    controlBtns.classList.toggle('hidden', false);
+    Array.from(controlBtns).forEach(el => el.classList.toggle('hidden', false));
 }
 
 function hideCarouselControls() {
-    controlBtns.classList.toggle('hidden', true);
+    Array.from(controlBtns).forEach(el => el.classList.toggle('hidden', true));
 }
 
 async function initCarousel({ propertyList, hasControls = false }) {
@@ -10167,7 +10167,7 @@ const nextItemBtn = document.getElementById('next_property_obj');
 const prevItemBtn = document.getElementById('prev_property_obj');
 const nextGroupBtn = document.getElementById('next_property_group');
 const prevGroupBtn = document.getElementById('prev_property_group');
-const controlBtns = document.getElementById('carouselCustomControls');
+const controlBtns = document.getElementsByClassName('carouselCustomControls');
 
 async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
     const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
