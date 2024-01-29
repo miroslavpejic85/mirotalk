@@ -392,6 +392,26 @@ app.get(['/logged'], (req, res) => {
     }
 });
 
+// introducing proxy routes to keep implementation details and sensitive data (api keys/endpoints) on the server
+app.get('/properties', (req, res) => {
+    const endpoint = process.env.PROPERTIES_API_URL;
+    axios
+        .get(endpoint)
+        .then((response) => res.send(response.data))
+        .catch((error) => log.error(error));
+});
+
+app.get('/location-coords', (req, res) => {
+    const queryString = new URLSearchParams(req.query).toString();
+    axios
+        .get(`https://geocode.maps.co/search?q=${queryString}&api_key=${process.env.COORDS_API_KEY}`)
+        .then((response) => {
+            // return first item, since we'll be using only one location coords as a target
+            return res.send(response.data[0]);
+        })
+        .catch((err) => log.error(err));
+});
+
 /* AXIOS */
 
 // handle login on host protected
@@ -1047,7 +1067,7 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer action', config);
-        const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, send_to_all } = config;
+        const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, send_to_all, payload } = config;
 
         // Only the presenter can do this actions
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
@@ -1063,6 +1083,7 @@ io.sockets.on('connect', async (socket) => {
             peer_name: peer_name,
             peer_action: peer_action,
             peer_use_video: peer_use_video,
+            ...(payload ? {payload} : {})
         };
 
         if (send_to_all) {
