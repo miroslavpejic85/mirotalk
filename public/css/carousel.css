@@ -83,3 +83,7 @@
 .splide__list {
     align-items: center;
 }
+
+.addPaddings {
+   padding: 0 6em; 
+}

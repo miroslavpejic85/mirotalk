@@ -635,7 +635,7 @@ const DISPLAY_MODE_ACTION = {
 };
 let isDisplayModeVisible = false;
 let carouselEl = null;
-let splide = null
+let splide = null;
 let currentGroupIdx = 0;
 let currentItemIdx = 0;
 
@@ -5649,7 +5649,7 @@ async function toggleScreenSharing(init = false) {
                 isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
             }
 
-            if (isScreenStreaming || isVideoPinned)  myVideoPinBtn.click();
+            if (isScreenStreaming || isVideoPinned) myVideoPinBtn.click();
         }
     } catch (err) {
         err.name === 'NotAllowedError'
@@ -10015,18 +10015,26 @@ function startCarousel(carouselContainer, hasControls) {
     displayModeBtn.className = className.displayModeOn;
 
     elemDisplay(carouselContainer, true, 'flex');
+
+    splide = new Splide('#image-carousel', {
+        type: 'loop',
+        perPage: 1,
+        autoplay: true,
+        interval: 3000,
+    }).mount();
     if (hasControls) {
         showCarouselControls();
+        carouselContainer.classList.toggle('addPaddings', false)
+    } else {
+        carouselContainer.classList.toggle('addPaddings', true)
     }
 
-    splide = new Splide( '#image-carousel' ).mount();
 }
 
 function stopCarousel(carouselEl) {
     displayModeBtn.className = className.displayModeOff;
 
-
-    splide.innerHTML = ''
+    splide.innerHTML = '';
 
     // carouselEl.destroy();
     // carouselImageList.innerHTML = '';
@@ -10040,7 +10048,7 @@ function stopCarousel(carouselEl) {
 
 async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
     const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
-    addReplaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
+    addReplaceImageLinksInCarousel(newPropertyImageList);
 }
 // <---[END]----- Carousel management
 
@@ -10063,7 +10071,7 @@ async function fetchCarouselData(targetAddressString) {
 
 function createCarouselImages(propertyList) {
     const imageLinks = propertyList[0][0].images;
-    addReplaceImageLinksInCarousel(carouselImageList, imageLinks);
+    addReplaceImageLinksInCarousel(imageLinks);
 }
 
 async function storeImagesInDb(propertyList) {
@@ -10084,12 +10092,11 @@ async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
     return propList[groupIdx]?.[itemIdx]?.images;
 }
 
-function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
-
+function addReplaceImageLinksInCarousel(newImageLinks) {
     const splideList = document.querySelector('.splide__list');
     splideList.innerHTML = ''; // This clears out all existing slides
 
-    newImageLinks.forEach(url => {
+    newImageLinks.forEach((url) => {
         var newSlide = document.createElement('li');
         newSlide.className = 'splide__slide';
         newSlide.innerHTML = `<img src="${url}" alt="">`;
