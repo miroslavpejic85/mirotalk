@@ -52,21 +52,8 @@
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
         <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
 
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.2.0/css/glide.core.min.css"
-            integrity="sha512-YQlbvfX5C6Ym6fTUSZ9GZpyB3F92hmQAZTO5YjciedwAaGRI9ccNs4iw2QTCJiSPheUQZomZKHQtuwbHkA9lgw=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.2.0/css/glide.theme.min.css"
-            integrity="sha512-wCwx+DYp8LDIaTem/rpXubV/C1WiNRsEVqoztV0NZm8tiTvsUeSlA/Uz02VTGSiqfzAHD4RnqVoevMcRZgYEcQ=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        />
         <!-- JavaScripts -->
 
         <script async src="../js/umami.js"></script>
@@ -902,23 +889,19 @@ access to use this app.
                     <button id="prev_property_obj" class="caroselControlBtn">Prev property</button>
                     <button id="prev_property_group" class="caroselControlBtn">Prev group</button>
                 </div>
-                <div class="glide">
-                    <div class="glide__track" data-glide-el="track">
-                        <ul class="glide__slides" id="carouselImageList"></ul>
+                <section id="image-carousel" class="splide" aria-label="Beautiful Images">
+                    <div class="splide__track">
+                          <ul class="splide__list">
+                          </ul>
                     </div>
-
-                    <div class="glide__arrows" data-glide-el="controls">
-                        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">prev</button>
-                        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">next</button>
-                    </div>
-                </div>
-
+                  </section>
                 <div class="carouselCustomControls hidden">
                     <button id="next_property_obj" class="caroselControlBtn">Next property</button>
                     <button id="next_property_group" class="caroselControlBtn">Next group</button>
                 </div>
             </div>
         </div>
+
         <div id="videoMediaContainer">
             <!-- <div class="Camera">
                 <video></video>
@@ -963,7 +946,7 @@ access to use this app.
         <script defer src="https://unpkg.com/@popperjs/core@2"></script>
         <script defer src="https://unpkg.com/tippy.js@6"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/@glidejs/glide"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js"></script>
         <script defer src="/socket.io/socket.io.js"></script>
         <script defer src="../js/localStorage.js"></script>

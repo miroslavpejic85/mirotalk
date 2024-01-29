@@ -635,6 +635,7 @@ const DISPLAY_MODE_ACTION = {
 };
 let isDisplayModeVisible = false;
 let carouselEl = null;
+let splide = null
 let currentGroupIdx = 0;
 let currentItemIdx = 0;
 
@@ -10018,21 +10019,23 @@ function startCarousel(carouselContainer, hasControls) {
         showCarouselControls();
     }
 
-    carouselEl = new Glide('.glide', {
-        type: 'carousel',
-        perView: 1,
-    }).mount();
+    splide = new Splide( '#image-carousel' ).mount();
 }
 
 function stopCarousel(carouselEl) {
     displayModeBtn.className = className.displayModeOff;
-    carouselEl.destroy();
-    carouselImageList.innerHTML = '';
+
+
+    splide.innerHTML = ''
+
+    // carouselEl.destroy();
+    // carouselImageList.innerHTML = '';
     hideCarouselControls();
     elemDisplay(carouselContainer, false);
     elemDisplay(videoPinMediaContainer, false);
     videoMediaContainer.removeAttribute('style');
-    resizeVideoMedia();
+    // ??
+    // resizeVideoMedia();
 }
 
 async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
@@ -10082,21 +10085,18 @@ async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
 }
 
 function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
-    carouselEl?.destroy();
-    targetNode.innerHTML = '';
-    newImageLinks.forEach((imgLink) => {
-        const li = document.createElement('li');
-        li.className = 'glide__slide';
-        const img = document.createElement('img');
-        img.src = imgLink;
-        li.appendChild(img);
-        targetNode.appendChild(li);
+
+    const splideList = document.querySelector('.splide__list');
+    splideList.innerHTML = ''; // This clears out all existing slides
+
+    newImageLinks.forEach(url => {
+        var newSlide = document.createElement('li');
+        newSlide.className = 'splide__slide';
+        newSlide.innerHTML = `<img src="${url}" alt="">`;
+        splideList.appendChild(newSlide);
     });
 
-    carouselEl = new Glide('.glide', {
-        type: 'carousel',
-        perView: 1,
-    }).mount();
+    splide?.refresh();
 }
 // <---[END]----- Carousel helper functions
 

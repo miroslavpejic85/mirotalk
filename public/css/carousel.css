@@ -44,24 +44,6 @@
     justify-content: center;
     align-items: center;
 
-    .glide {
-        width: 70%;
-    }
-
-    .glide__slides {
-        align-items: center;
-    }
-
-    .glide__slide {
-        width: 100%;
-
-        img {
-            object-fit: cover;
-            width: 100%;
-            height: 100%;
-        }
-    }
-
     .carouselCustomControls {
         display: flex;
         flex-direction: column;
@@ -91,4 +73,13 @@
     label.locationInputLabel {
         color: white;
     }
+}
+
+.splide__slide img {
+    width: 100%;
+    height: auto;
+}
+
+.splide__list {
+    align-items: center;
 }
