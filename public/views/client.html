@@ -768,49 +768,23 @@ access to use this app.
         </section>
 
         <!-- End my settings -->
+
         <!-- Start of display mode -->
 
         <section id="displayMode" class="center fadein">
-            <header id="displayModeHeader">
+            <header class="displayModeHeader">
                 <button id="displayModeCloseBtn" class="fas fa-times"></button>
             </header>
             <main class="displayModeMain">
-                <p>Hello display mode</p>
                 <form id="locationForm">
-                    <label for="propertyLocation">Location</label>
-                    <input type="text" name="propertyLocation" id="propertyLocation" />
-                    <button type="submit">Submit</button>
+                    <div class="formInput">
+                        <label for="propertyLocation" class="locationInputLabel">Location: </label>
+                        <input type="text" name="propertyLocation" id="propertyLocation" class="swal2-input" required />
+                    </div>
+
+                    <button type="submit" class="swal2-styled swal2-confirm">Submit</button>
+
                 </form>
-                <!-- <div class="tab">
-                    <button id="tabRoomBtn" class="fas fa-home tablinks">
-                        <p class="tabButtonText">Room</p>
-                    </button>
-                    <button id="tabVideoBtn" class="fas fa-video tablinks">
-                        <p class="tabButtonText">Video</p>
-                    </button>
-                    <button id="tabAudioBtn" class="fas fa-microphone tablinks">
-                        <p class="tabButtonText">Audio</p>
-                    </button>
-                    <button id="tabRecordingBtn" class="fas fa-record-vinyl tablinks">
-                        <p class="tabButtonText">Recording</p>
-                    </button>
-                    <button id="tabVideoShareBtn" class="fab fa-youtube tablinks">
-                        <p class="tabButtonText">Media</p>
-                    </button>
-                    <button id="tabParticipantsBtn" class="fa-solid fa-users tablinks">
-                        <p class="tabButtonText">Participants</p>
-                    </button>
-                    <button id="tabProfileBtn" class="fa-solid fa-user tablinks">
-                        <p class="tabButtonText">Profile</p>
-                    </button>
-                    <button id="tabStylingBtn" class="fas fa-palette tablinks">
-                        <p class="tabButtonText">Style</p>
-                    </button>
-                    <button id="tabLanguagesBtn" class="fas fa-globe tablinks">
-                        <p class="tabButtonText">Language</p>
-                    </button>
-                </div> -->
-                <!-- < -->
             </main>
         </section>
 
@@ -931,6 +905,11 @@ access to use this app.
                 <div class="glide">
                     <div class="glide__track" data-glide-el="track">
                         <ul class="glide__slides" id="carouselImageList"></ul>
+                    </div>
+
+                    <div class="glide__arrows" data-glide-el="controls">
+                        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">prev</button>
+                        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">next</button>
                     </div>
                 </div>
 

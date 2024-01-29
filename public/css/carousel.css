@@ -1,3 +1,44 @@
+#displayMode {
+    z-index: 16;
+    position: absolute;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    margin: auto;
+    padding: 2em;
+    width: 50%;
+    max-width: 80ch;
+    background: var(--body-bg);
+    box-shadow: var(--box-shadow);
+    border: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+
+    main {
+        display: flex;
+        flex-direction: column;
+        padding: 3em 0;
+
+        #locationForm {
+            display: flex;
+            flex-direction: column;
+
+            .formInput {
+                margin-bottom: 1em;
+
+                input {
+                    width: 100%;
+                    margin: 1em 0 0.5em 0;
+                }
+            }
+
+            button[type='submit'] {
+                min-width: 16em;
+                align-self: center;
+            }
+        }
+    }
+}
+
 #carouselContainer {
     height: 100%;
     justify-content: center;
@@ -13,6 +54,7 @@
 
     .glide__slide {
         width: 100%;
+
         img {
             object-fit: cover;
             width: 100%;
@@ -31,7 +73,22 @@
             min-width: 9em;
         }
     }
+
     .hidden {
         display: none;
+    }
+}
+
+#displayMode {
+    .displayModeHeader {
+        display: flex;
+
+        #displayModeCloseBtn {
+            margin-left: auto;
+        }
+    }
+
+    label.locationInputLabel {
+        color: white;
     }
 }

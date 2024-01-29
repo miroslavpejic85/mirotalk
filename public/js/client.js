@@ -4682,14 +4682,11 @@ async function storeImagesInDb(propertyList) {
 async function getDisplayData(targetAddressString) {
     // TODO: handle network errors
     const targetLocationPromise = await fetchLocationCoordinates(targetAddressString);
-
     const availablePropertiesLocationsPromise = await fetchProperties();
 
     try {
         const values = await Promise.all([targetLocationPromise, availablePropertiesLocationsPromise]);
-
         const [targetLocationCoords, propertiesLocations] = values;
-
         const sortedPropertyList = getSortedLocationChunks(propertiesLocations, targetLocationCoords);
         return sortedPropertyList;
     } catch (error) {
@@ -4698,24 +4695,22 @@ async function getDisplayData(targetAddressString) {
     // TODO: what should this function return type be? in case of error?
 }
 
-function createCarouselImages(propertyList, imageListContainerId = CAROUSEL_IMAGE_LIST) {
-    const carouselSlides = document.getElementById(imageListContainerId);
+function createCarouselImages(propertyList) {
     const imageLinks = propertyList[0][0].images;
-    addReplaceImageLinksInCarousel(carouselSlides, imageLinks);
+    addReplaceImageLinksInCarousel(carouselImageList, imageLinks);
 }
 
 // TODO: move to suitable place
 
 function startCarousel(carouselContainer, hasControls) {
     displayModeBtn.className = className.displayModeOn;
-    
+
     elemDisplay(carouselContainer, true, 'flex');
     if (hasControls) {
         showCarouselControls();
     }
 
     carouselEl = new Glide('.glide', {
-        autoplay: 2000,
         type: 'carousel',
         perView: 1,
     }).mount();
@@ -7340,7 +7335,6 @@ function hideShowMySettings() {
  */
 function showDisplayForm() {
     console.log('calling show dispaly');
-    // if (!isDisplayModeVisible) {
     // TODO: customize sound for display mode
     playSound('newMessage');
     // adapt it for mobile
@@ -7349,16 +7343,11 @@ function showDisplayForm() {
         displayMode.style.setProperty('height', '100%');
         // setSP('--mySettings-select-w', '99%');
     }
-    // my current peer name
-    // myPeerNameSet.placeholder = myPeerName;
-    // center screen on show
     displayMode.style.top = '50%';
     displayMode.style.left = '50%';
-    elemDisplay(displayMode, true, 'block');
+    elemDisplay(displayMode, true, 'grid');
     setTippy(displayModeBtn, 'Close display mode', placement);
-    // isDisplayModeVisible = true;
     return;
-    // }
 }
 
 function hideDisplayForm() {
@@ -10106,31 +10095,21 @@ async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
 }
 
 function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
-    // if (carouselEl) {
-    //     carouselEl?.destroy();
-    // }
-    carouselEl?.pause()
-    carouselEl?.destroy()
+    carouselEl?.destroy();
     targetNode.innerHTML = '';
-    const fragment = document.createDocumentFragment();
     newImageLinks.forEach((imgLink) => {
         const li = document.createElement('li');
         li.className = 'glide__slide';
         const img = document.createElement('img');
         img.src = imgLink;
         li.appendChild(img);
-        fragment.appendChild(li);
+        targetNode.appendChild(li);
     });
 
-    targetNode.appendChild(fragment);
     carouselEl = new Glide('.glide', {
-        autoplay: 2000,
         type: 'carousel',
         perView: 1,
     }).mount();
-    // if (carouselEl) {
-    //     carouselEl.update();
-    // }
 }
 
 const DISPLAY_MODE_ACTION = {
