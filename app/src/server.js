@@ -394,7 +394,7 @@ app.get(['/logged'], (req, res) => {
 
 // introducing proxy routes to keep implementation details and sensitive data (api keys/endpoints) on the server
 app.get('/properties', (req, res) => {
-    const endpoint = 'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/api/properties.json';
+    const endpoint = process.env.PROPERTIES_API_URL;
     axios
         .get(endpoint)
         .then((response) => res.send(response.data))
@@ -404,7 +404,7 @@ app.get('/properties', (req, res) => {
 app.get('/location-coords', (req, res) => {
     const queryString = new URLSearchParams(req.query).toString();
     axios
-        .get(`https://geocode.maps.co/search?q=${queryString}&api_key=65b123731c549385528153wtc769e10`)
+        .get(`https://geocode.maps.co/search?q=${queryString}&api_key=${process.env.COORDS_API_KEY}`)
         .then((response) => {
             // return first item, since we'll be using only one location coords as a target
             return res.send(response.data[0]);
@@ -427,8 +427,7 @@ app.post(['/login'], (req, res) => {
     // Peer valid going to auth as host
     if (hostCfg.protected && isPeerValid && !hostCfg.authenticated) {
         const ip = getIP(req);
-        hostCfg.authenticated = true;
-        authHost = new Host(ip, true);
+        hostCfg.authenticated = true; authHost = new Host(ip, true);
         log.debug('HOST LOGIN OK', { ip: ip, authorized: authHost.isAuthorized(ip) });
         return res.status(200).json({ message: 'authorized' });
     }
