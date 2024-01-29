@@ -19,7 +19,7 @@ function chunkArray(array, chunkSize) {
     return result;
 }
 
-// Function to get sorted chunks of locations
+// Function to get sorted chunks of locations 
 function getSortedLocationChunks(locations, target, chunkSize = CAROUSEL_IMAGE_BATCH_SIZE) {
     // Sort locations by distance from the target
     const sortedLocations = locations.sort((a, b) => {

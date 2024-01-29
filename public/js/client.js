@@ -626,12 +626,12 @@ let isSpaceDown = false;
 
 // display mode
 const DISPLAY_MODE_ACTION = {
-    START: 'DISPLAY_MODE_START',
-    STOP: 'DISPLAY_MODE_STOP',
-    NEXT_ITEM: 'DISPLAY_MODE_NEXT_ITEM',
-    PREV_ITEM: 'DISPLAY_MODE_PREV_ITEM',
-    NEXT_GROUP: 'DISPLAY_MODE_NEXT_GROUP',
-    PREV_GROUP: 'DISPLAY_MODE_PREV_GROUP',
+    START: 'CAROUSEL_START',
+    STOP: 'CAROUSEL_STOP',
+    NEXT_ITEM: 'CAROUSEL_NEXT_ITEM',
+    PREV_ITEM: 'CAROUSEL_PREV_ITEM',
+    NEXT_GROUP: 'CAROUSEL_NEXT_GROUP',
+    PREV_GROUP: 'CAROUSEL_PREV_GROUP',
 };
 let isDisplayModeVisible = false;
 let carouselEl = null;
@@ -9998,6 +9998,7 @@ function hideCarouselControls() {
     Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', true));
 }
 
+
 async function initCarousel({ propertyList, hasControls = false }) {
     elemDisplay(myVideoAvatarImage, false);
     elemDisplay(myVideoWrap, false);
@@ -10031,19 +10032,15 @@ function startCarousel(carouselContainer, hasControls) {
 
 }
 
-function stopCarousel(carouselEl) {
+function stopCarousel() {
     displayModeBtn.className = className.displayModeOff;
 
     splide.innerHTML = '';
 
-    // carouselEl.destroy();
-    // carouselImageList.innerHTML = '';
     hideCarouselControls();
     elemDisplay(carouselContainer, false);
     elemDisplay(videoPinMediaContainer, false);
     videoMediaContainer.removeAttribute('style');
-    // ??
-    // resizeVideoMedia();
 }
 
 async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
@@ -10066,7 +10063,6 @@ async function fetchCarouselData(targetAddressString) {
     } catch (error) {
         console.log('Error getting data', error);
     }
-    // TODO: what should this function return type be? in case of error?
 }
 
 function createCarouselImages(propertyList) {
@@ -10118,7 +10114,7 @@ async function handleDisplayModeStop() {
     elemDisplay(videoPinMediaContainer, false);
     elemDisplay(myVideoAvatarImage, true);
     elemDisplay(myVideoWrap, true);
-    stopCarousel(carouselEl);
+    stopCarousel();
     await idbKeyval.del(PROPERTY_LIST);
 }
 // <----[END]----- Event handlers on peer side
