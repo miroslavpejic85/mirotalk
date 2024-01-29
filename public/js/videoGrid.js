@@ -23,7 +23,6 @@ function getAspectRatio() {
  * @param {integer} index ratios index
  */
 function setAspectRatio(index) {
-    console.log("setting aspect ratio")
     aspect = index;
     ratio = getAspectRatio();
     resizeVideoMedia();
