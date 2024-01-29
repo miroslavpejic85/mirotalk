@@ -3835,9 +3835,10 @@ function manageLeftButtons() {
     setMyFileShareBtn();
     setDocumentPiPBtn();
     setMySettingsBtn();
-    setDisplayModeBtn();
     setAboutBtn();
     setLeaveRoomBtn();
+    setDisplayModeBtn();
+    setCarouselBtns();
 }
 
 /**
@@ -4625,10 +4626,6 @@ function setDisplayModeBtn() {
             // Carousel turn off
             emitPeersAction(DISPLAY_MODE_ACTION.STOP);
             await handleDisplayModeStop();
-
-            // ! FIXME: return back to normal layout
-            // toggleVideoPin(pinVideoPositionSelect.value, true);
-            // toggleVideoPin('horizontal', true);
         } else {
             // Carousel turn on
             isDisplayModeVisible = true;
@@ -4645,98 +4642,12 @@ function setDisplayModeBtn() {
 
     locationForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        /* 
-        --------- start display mode -----------
-        1. get user specified location from the form
-        2. fetch location coordinates
-        3. fetch available properties from the server
-        4. compose new array of nearest->farest locations 
-        5. display carousel with selected locations on the initiator's fe with controls, 
-        6. emit event to display carousel on peer's end with payload w/o controls
-        */
-
         const form = e.currentTarget;
         const targetAddress = form['propertyLocation'].value;
-        const propertyList = await getDisplayData(targetAddress);
+        const propertyList = await fetchCarouselData(targetAddress);
         emitPeersAction(DISPLAY_MODE_ACTION.START, propertyList);
         await initCarousel({ propertyList, hasControls: true });
     });
-}
-
-function showCarouselControls() {
-    Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', false));
-}
-
-function hideCarouselControls() {
-    Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', true));
-}
-
-async function initCarousel({ propertyList, hasControls = false }) {
-    elemDisplay(myVideoAvatarImage, false);
-    elemDisplay(myVideoWrap, false);
-    toggleVideoPin(pinVideoPositionSelect.value, true);
-    elemDisplay(videoPinMediaContainer, true, 'block');
-    hideDisplayForm();
-    await storeImagesInDb(propertyList);
-    createCarouselImages(propertyList);
-    startCarousel(carouselContainer, hasControls);
-    adaptAspectRatio();
-}
-async function storeImagesInDb(propertyList) {
-    try {
-        await idbKeyval.set(PROPERTY_LIST, propertyList);
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-async function getDisplayData(targetAddressString) {
-    // TODO: handle network errors
-    const targetLocationPromise = await fetchLocationCoordinates(targetAddressString);
-    const availablePropertiesLocationsPromise = await fetchProperties();
-
-    try {
-        const values = await Promise.all([targetLocationPromise, availablePropertiesLocationsPromise]);
-        const [targetLocationCoords, propertiesLocations] = values;
-        const sortedPropertyList = getSortedLocationChunks(propertiesLocations, targetLocationCoords);
-        return sortedPropertyList;
-    } catch (error) {
-        console.log('Error getting data', error);
-    }
-    // TODO: what should this function return type be? in case of error?
-}
-
-function createCarouselImages(propertyList) {
-    const imageLinks = propertyList[0][0].images;
-    addReplaceImageLinksInCarousel(carouselImageList, imageLinks);
-}
-
-// TODO: move to suitable place
-
-function startCarousel(carouselContainer, hasControls) {
-    displayModeBtn.className = className.displayModeOn;
-
-    elemDisplay(carouselContainer, true, 'flex');
-    if (hasControls) {
-        showCarouselControls();
-    }
-
-    carouselEl = new Glide('.glide', {
-        type: 'carousel',
-        perView: 1,
-    }).mount();
-}
-
-function stopCarousel(carouselEl) {
-    displayModeBtn.className = className.displayModeOff;
-    carouselEl.destroy();
-    carouselImageList.innerHTML = '';
-    hideCarouselControls();
-    elemDisplay(carouselContainer, false);
-    elemDisplay(videoPinMediaContainer, false);
-    videoMediaContainer.removeAttribute('style');
-    resizeVideoMedia();
 }
 
 /**
@@ -4754,6 +4665,36 @@ function setAboutBtn() {
 function setLeaveRoomBtn() {
     leaveRoomBtn.addEventListener('click', (e) => {
         leaveRoom();
+    });
+}
+
+function setCarouselBtns() {
+    nextGroupBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        emitPeersAction(DISPLAY_MODE_ACTION.NEXT_GROUP);
+        await handleDisplayModeNextGroup();
+    });
+
+    prevGroupBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        emitPeersAction(DISPLAY_MODE_ACTION.PREV_GROUP);
+        await handleDisplayModePrevGroup();
+    });
+
+    nextItemBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        emitPeersAction(DISPLAY_MODE_ACTION.NEXT_ITEM);
+        await handleDisplayModeNextItem();
+    });
+
+    prevItemBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        emitPeersAction(DISPLAY_MODE_ACTION.PREV_ITEM);
+        await handleDisplayModePrevItem();
     });
 }
 
@@ -10023,18 +9964,16 @@ function disable(elem, disabled) {
     elem.disabled = disabled;
 }
 
-async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
-    const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
-    addReplaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
+//  Carousel control button click handlers  ---[START]------->
+async function handleDisplayModePrevItem() {
+    if (currentItemIdx === 0) {
+        const propList = await idbKeyval.get(PROPERTY_LIST);
+        const groupSize = propList[currentGroupIdx].length;
+        currentItemIdx = groupSize;
+    }
+    currentItemIdx = (currentItemIdx - 1) % CAROUSEL_IMAGE_BATCH_SIZE;
+    await updateCarousel(currentGroupIdx, currentItemIdx);
 }
-
-// TODO: Move to setCarouselControlButtons function and init it in the `manageLeftButtons`
-nextGroupBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    emitPeersAction(DISPLAY_MODE_ACTION.NEXT_GROUP);
-    await handleDisplayModeNextGroup();
-});
 
 async function handleDisplayModeNextGroup() {
     const propList = await getObjectImageLinksFromDb(currentGroupIdx, currentItemIdx);
@@ -10042,13 +9981,6 @@ async function handleDisplayModeNextGroup() {
     currentItemIdx = 0;
     await updateCarousel(currentGroupIdx, currentItemIdx);
 }
-
-prevGroupBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    emitPeersAction(DISPLAY_MODE_ACTION.PREV_GROUP);
-    await handleDisplayModePrevGroup();
-});
 
 async function handleDisplayModePrevGroup() {
     const propList = await idbKeyval.get(PROPERTY_LIST);
@@ -10061,33 +9993,92 @@ async function handleDisplayModePrevGroup() {
     await updateCarousel(currentGroupIdx, currentItemIdx);
 }
 
-nextItemBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    emitPeersAction(DISPLAY_MODE_ACTION.NEXT_ITEM);
-    await handleDisplayModeNextItem();
-});
-
 async function handleDisplayModeNextItem() {
     currentItemIdx = (currentItemIdx + 1) % CAROUSEL_IMAGE_BATCH_SIZE;
     await updateCarousel(currentGroupIdx, currentItemIdx);
 }
+// <------[END]------- Carousel control button click handlers
 
-prevItemBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    emitPeersAction(DISPLAY_MODE_ACTION.PREV_ITEM);
-    await handleDisplayModePrevItem();
-});
+function showCarouselControls() {
+    Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', false));
+}
 
-async function handleDisplayModePrevItem() {
-    if (currentItemIdx === 0) {
-        const propList = await idbKeyval.get(PROPERTY_LIST);
-        const groupSize = propList[currentGroupIdx].length;
-        currentItemIdx = groupSize;
+function hideCarouselControls() {
+    Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', true));
+}
+
+async function initCarousel({ propertyList, hasControls = false }) {
+    elemDisplay(myVideoAvatarImage, false);
+    elemDisplay(myVideoWrap, false);
+    toggleVideoPin(pinVideoPositionSelect.value, true);
+    elemDisplay(videoPinMediaContainer, true, 'block');
+    hideDisplayForm();
+    await storeImagesInDb(propertyList);
+    createCarouselImages(propertyList);
+    startCarousel(carouselContainer, hasControls);
+    adaptAspectRatio();
+}
+
+// Carousel management ----[START]----->
+function startCarousel(carouselContainer, hasControls) {
+    displayModeBtn.className = className.displayModeOn;
+
+    elemDisplay(carouselContainer, true, 'flex');
+    if (hasControls) {
+        showCarouselControls();
     }
-    currentItemIdx = (currentItemIdx - 1) % CAROUSEL_IMAGE_BATCH_SIZE;
-    await updateCarousel(currentGroupIdx, currentItemIdx);
+
+    carouselEl = new Glide('.glide', {
+        type: 'carousel',
+        perView: 1,
+    }).mount();
+}
+
+function stopCarousel(carouselEl) {
+    displayModeBtn.className = className.displayModeOff;
+    carouselEl.destroy();
+    carouselImageList.innerHTML = '';
+    hideCarouselControls();
+    elemDisplay(carouselContainer, false);
+    elemDisplay(videoPinMediaContainer, false);
+    videoMediaContainer.removeAttribute('style');
+    resizeVideoMedia();
+}
+
+async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
+    const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
+    addReplaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
+}
+// <---[END]----- Carousel management
+
+// Carousel helper functions ----[START]----->
+async function fetchCarouselData(targetAddressString) {
+    // TODO: handle network errors more consistently
+    const targetLocationPromise = await fetchLocationCoordinates(targetAddressString);
+    const availablePropertiesLocationsPromise = await fetchProperties();
+
+    try {
+        const values = await Promise.all([targetLocationPromise, availablePropertiesLocationsPromise]);
+        const [targetLocationCoords, propertiesLocations] = values;
+        const sortedPropertyList = getSortedLocationChunks(propertiesLocations, targetLocationCoords);
+        return sortedPropertyList;
+    } catch (error) {
+        console.log('Error getting data', error);
+    }
+    // TODO: what should this function return type be? in case of error?
+}
+
+function createCarouselImages(propertyList) {
+    const imageLinks = propertyList[0][0].images;
+    addReplaceImageLinksInCarousel(carouselImageList, imageLinks);
+}
+
+async function storeImagesInDb(propertyList) {
+    try {
+        await idbKeyval.set(PROPERTY_LIST, propertyList);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
@@ -10117,7 +10108,9 @@ function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
         perView: 1,
     }).mount();
 }
+// <---[END]----- Carousel helper functions
 
+// Event handlers on peer side ----[START]----->
 function handleDisplayModeStart(config) {
     isDisplayModeVisible = true;
     initCarousel({ propertyList: config.payload });
@@ -10131,3 +10124,4 @@ async function handleDisplayModeStop() {
     stopCarousel(carouselEl);
     await idbKeyval.del(PROPERTY_LIST);
 }
+// <----[END]----- Event handlers on peer side
