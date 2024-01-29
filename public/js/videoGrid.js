@@ -59,7 +59,6 @@ function Area(Increment, Count, Width, Height, Margin = 10) {
  * Resize video elements
  */
 function resizeVideoMedia() {
-    console.log('resizing video media')
     const videoMediaContainer = getId('videoMediaContainer');
     const Cameras = getEcN('Camera');
 

@@ -413,6 +413,11 @@ const displayModeCloseBtn = getId('displayModeCloseBtn');
 const locationForm = getId('locationForm');
 const carouselContainer = getId('carouselContainer');
 const carouselImageList = getId(CAROUSEL_IMAGE_LIST);
+const nextItemBtn = getId('next_property_obj');
+const prevItemBtn = getId('prev_property_obj');
+const nextGroupBtn = getId('next_property_group');
+const prevGroupBtn = getId('prev_property_group');
+const controlBtns = document.getElementsByClassName('carouselCustomControls');
 
 // Audio options
 const dropDownMicOptions = getId('dropDownMicOptions');
@@ -622,7 +627,15 @@ let isPushToTalkActive = false;
 let isSpaceDown = false;
 
 // display mode
-// let isDisplayMode = false;
+
+const DISPLAY_MODE_ACTION = {
+    START: 'DISPLAY_MODE_START',
+    STOP: 'DISPLAY_MODE_STOP',
+    NEXT_ITEM: 'DISPLAY_MODE_NEXT_ITEM',
+    PREV_ITEM: 'DISPLAY_MODE_PREV_ITEM',
+    NEXT_GROUP: 'DISPLAY_MODE_NEXT_GROUP',
+    PREV_GROUP: 'DISPLAY_MODE_PREV_GROUP',
+};
 let isDisplayModeVisible = false;
 let carouselEl = null;
 let currentGroupIdx = 0;
@@ -2671,7 +2684,6 @@ async function loadLocalMedia(stream, kind) {
 
             logStreamSettingsInfo('localVideoMediaStream', stream);
             attachMediaStream(myLocalMedia, stream);
-            console.log('load local media called');
             adaptAspectRatio();
 
             handleVideoToggleMirror(myLocalMedia.id, myVideoMirrorBtn.id);
@@ -10011,12 +10023,6 @@ function disable(elem, disabled) {
     elem.disabled = disabled;
 }
 
-const nextItemBtn = document.getElementById('next_property_obj');
-const prevItemBtn = document.getElementById('prev_property_obj');
-const nextGroupBtn = document.getElementById('next_property_group');
-const prevGroupBtn = document.getElementById('prev_property_group');
-const controlBtns = document.getElementsByClassName('carouselCustomControls');
-
 async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
     const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
     addReplaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
@@ -10111,15 +10117,6 @@ function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
         perView: 1,
     }).mount();
 }
-
-const DISPLAY_MODE_ACTION = {
-    START: 'DISPLAY_MODE_START',
-    STOP: 'DISPLAY_MODE_STOP',
-    NEXT_ITEM: 'DISPLAY_MODE_NEXT_ITEM',
-    PREV_ITEM: 'DISPLAY_MODE_PREV_ITEM',
-    NEXT_GROUP: 'DISPLAY_MODE_NEXT_GROUP',
-    PREV_GROUP: 'DISPLAY_MODE_PREV_GROUP',
-};
 
 function handleDisplayModeStart(config) {
     isDisplayModeVisible = true;
