@@ -1108,42 +1108,8 @@ function initClientPeer() {
     signalingSocket.on('videoPlaRemovePeeryer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
-    // signalingSocket.on(DISPLAY_MODE_ACTION, handleDisplayModeAction);
 } // end [initClientPeer]
 
-// function handleDisplayModeAction(config) {
-//     console.log('Handle peer action: ', config);
-//     const { peer_id, peer_name, peer_use_video, peer_action } = config;
-
-//     switch (peer_action) {
-//         case 'muteAudio':
-//             setMyAudioOff(peer_name);
-//             break;
-//         case 'hideVideo':
-//             setMyVideoOff(peer_name);
-//             break;
-//         case 'recStart':
-//             notifyRecording(peer_id, peer_name, 'Start');
-//             break;
-//         case 'recStop':
-//             notifyRecording(peer_id, peer_name, 'Stop');
-//             break;
-//         case 'screenStart':
-//             handleScreenStart(peer_id);
-//             break;
-//         case 'screenStop':
-//             handleScreenStop(peer_id, peer_use_video);
-//             break;
-//         case 'ejectAll':
-//             handleKickedOut(config);
-//             break;
-
-//         case DISPLAY_MODE_START:
-//             handleDisplayModeStart(config);
-//             break;
-//     }
-//     console.log('received display mode action', {e});
-// }
 /**
  * Send async data to signaling server (server.js)
  * @param {string} msg msg to send to signaling server
@@ -3731,10 +3697,12 @@ function handlePictureInPicture(btnId, videoId) {
  */
 function removeVideoPinMediaContainer(peer_id, force_remove = false) {
     //alert(pinnedVideoPlayerId + '==' + peer_id);
+    console.log('removeVideoPinMediaContainer is called', peer_id);
     if (
         (isVideoPinned && (pinnedVideoPlayerId == peer_id + '___video' || pinnedVideoPlayerId == peer_id)) ||
         force_remove
     ) {
+        console.log('removeVideoPinMediaContainer is called with condition', peer_id);
         elemDisplay(videoPinMediaContainer, false);
         videoMediaContainer.style.top = 0;
         videoMediaContainer.style.right = null;
@@ -4640,38 +4608,17 @@ function setMySettingsBtn() {
 }
 
 function setDisplayModeBtn() {
-    // delete after testing
-
-    // displayModeBtn.className = className.displayModeOn
-    // displayModeBtn.addEventListener('click', (e) => {
-    //     initDisplayMode('lisbon');
-    // });
-
     displayModeBtn.addEventListener('click', async (e) => {
-        /*
-        TODO: handle case when:
-        - all cameras stay visible when form opens (user may close it right away). In that case no need to stop carousel
-        */
         if (isDisplayModeVisible) {
             // Carousel turn off
-
-            // elemDisplay(myVideoAvatarImage, true);
-            // elemDisplay(myVideoWrap, true);
-            // elemDisplay(videoPinMediaContainer, false);
-
-            // isDisplayModeVisible = false;
-            // stopCarousel(carouselEl);
-
             emitPeersAction(DISPLAY_MODE_ACTION.STOP);
             await handleDisplayModeStop();
 
             // ! FIXME: return back to normal layout
             // toggleVideoPin(pinVideoPositionSelect.value, true);
-            toggleVideoPin('horizontal', true);
-            // videoMediaContainer.style.width='100%'
+            // toggleVideoPin('horizontal', true);
         } else {
             // Carousel turn on
-
             isDisplayModeVisible = true;
             showDisplayForm();
         }
@@ -4694,50 +4641,34 @@ function setDisplayModeBtn() {
         3. fetch available properties from the server
         4. compose new array of nearest->farest locations 
         5. display carousel with selected locations on the initiator's fe with controls, 
-        6. emit event to display carousel on peer's end with payload wo controls
+        6. emit event to display carousel on peer's end with payload w/o controls
         */
 
         const form = e.currentTarget;
         const targetAddress = form['propertyLocation'].value;
-        // hideDisplayForm();
-        // console.log(111, {targetAddress})
-        // const propertyList = await getDisplayData(targetAddress);
-        const propertyList = await getDisplayData('lisbon');
-        // await storeImagesInDb(propertyList);
-
-        // createCarouselImages(propertyList);
-        // startCarousel(carouselContainer);
-
+        const propertyList = await getDisplayData(targetAddress);
         emitPeersAction(DISPLAY_MODE_ACTION.START, propertyList);
-        // adaptAspectRatio();
         await initCarousel({ propertyList, hasControls: true });
     });
 }
 
 function showCarouselControls() {
-    Array.from(controlBtns).forEach(el => el.classList.toggle('hidden', false));
+    Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', false));
 }
 
 function hideCarouselControls() {
-    Array.from(controlBtns).forEach(el => el.classList.toggle('hidden', true));
+    Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', true));
 }
 
 async function initCarousel({ propertyList, hasControls = false }) {
-    console.info('launched initCarousel', propertyList);
-
     elemDisplay(myVideoAvatarImage, false);
-    elemDisplay(myVideoWrap, false); // debugger
-
+    elemDisplay(myVideoWrap, false);
     toggleVideoPin(pinVideoPositionSelect.value, true);
-
     elemDisplay(videoPinMediaContainer, true, 'block');
     hideDisplayForm();
-
     await storeImagesInDb(propertyList);
-
     createCarouselImages(propertyList);
     startCarousel(carouselContainer, hasControls);
-
     adaptAspectRatio();
 }
 async function storeImagesInDb(propertyList) {
@@ -4769,59 +4700,36 @@ async function getDisplayData(targetAddressString) {
 
 function createCarouselImages(propertyList, imageListContainerId = CAROUSEL_IMAGE_LIST) {
     const carouselSlides = document.getElementById(imageListContainerId);
-    // const fragment = document.createDocumentFragment();
-
     const imageLinks = propertyList[0][0].images;
-
     addReplaceImageLinksInCarousel(carouselSlides, imageLinks);
-    // imageLinks.forEach((imgLink) => {
-    //     const li = document.createElement('li');
-    //     li.className = 'glide__slide';
-
-    //     var img = document.createElement('img');
-    //     // img.setAttribute('referrerpolicy', 'no-referrer');
-    //     img.src = imgLink;
-    //     // img.alt = "Image"; // You can also dynamically set alt text if available
-
-    //     li.appendChild(img);
-    //     fragment.appendChild(li);
-    // });
-
-    // carouselSlides.appendChild(fragment);
 }
 
 // TODO: move to suitable place
 
-function startCarousel(nodeRef, hasControls) {
+function startCarousel(carouselContainer, hasControls) {
     displayModeBtn.className = className.displayModeOn;
-    elemDisplay(nodeRef, true, 'flex');
+    
+    elemDisplay(carouselContainer, true, 'flex');
     if (hasControls) {
         showCarouselControls();
     }
-    // elemDisplay(myVideoWrap, false);
-    // elemDisplay(myVideoAvatarImage, false);
 
     carouselEl = new Glide('.glide', {
-        // autoplay: 2000,
+        autoplay: 2000,
         type: 'carousel',
         perView: 1,
     }).mount();
-    // adaptAspectRatio()
 }
 
-function stopCarousel(ref) {
+function stopCarousel(carouselEl) {
     displayModeBtn.className = className.displayModeOff;
-
-    const carouselSlides = document.getElementById(CAROUSEL_IMAGE_LIST);
-
-    ref.destroy();
-    carouselSlides.innerHTML = '';
+    carouselEl.destroy();
+    carouselImageList.innerHTML = '';
+    hideCarouselControls();
     elemDisplay(carouselContainer, false);
-    // elemDisplay(myVideoAvatarImage, true);
-    // elemDisplay(myVideoWrap, true);
-
-    // ?
-    // myVideoPinBtn.click();
+    elemDisplay(videoPinMediaContainer, false);
+    videoMediaContainer.removeAttribute('style');
+    resizeVideoMedia();
 }
 
 /**
@@ -7869,7 +7777,6 @@ function setPeerVideoStatus(peer_id, status) {
 async function emitPeersAction(peerAction, payload = null) {
     if (!thereArePeerConnections()) return;
 
-    console.log({ payload });
     sendToServer('peerAction', {
         room_id: roomId,
         peer_name: myPeerName,
@@ -10115,54 +10022,6 @@ function disable(elem, disabled) {
     elem.disabled = disabled;
 }
 
-// TODO: implement sorting out based on user provided locations coords
-// const locationsJson = [
-//     {
-//         name: 'Property 0',
-//         id: 0,
-//         location: {
-//             lon: -73.41188045793135,
-//             lat: 41.34561772276373,
-//         },
-//         numberOfRooms: 1,
-//         images: [
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_17.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_88.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_42.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_55.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_48.jpeg',
-//         ],
-//     },
-//     {
-//         name: 'Property 1',
-//         id: 1,
-//         location: {
-//             lon: -73.59794176652241,
-//             lat: 41.122497981428744,
-//         },
-//         numberOfRooms: 2,
-//         images: [
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_93.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_55.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_66.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_95.jpeg',
-//             'https://eself-tech-challenge.s3.us-east-2.amazonaws.com/images/property_34.jpeg',
-//         ],
-//     },
-// ];
-//  new Glide('glide').mount();
-
-// const propertyList = await getDisplayData('lisbon');
-// createCarouselImages(propertyList);
-// carouselEl = new Glide('.glide', {
-//     // autoplay: 2000,
-//     type: 'carousel',
-//     perView: 1,
-//     slideWidth: '100px',
-// }).mount();
-// carouselEl.setupWrapper();
-
-// const nextObjectBtn = document.getElementById('glide-next-object');
 const nextItemBtn = document.getElementById('next_property_obj');
 const prevItemBtn = document.getElementById('prev_property_obj');
 const nextGroupBtn = document.getElementById('next_property_group');
@@ -10172,13 +10031,12 @@ const controlBtns = document.getElementsByClassName('carouselCustomControls');
 async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
     const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
     addReplaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
-    // carouselEl.update();
 }
 
+// TODO: Move to setCarouselControlButtons function and init it in the `manageLeftButtons`
 nextGroupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     emitPeersAction(DISPLAY_MODE_ACTION.NEXT_GROUP);
     await handleDisplayModeNextGroup();
 });
@@ -10193,21 +10051,17 @@ async function handleDisplayModeNextGroup() {
 prevGroupBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     emitPeersAction(DISPLAY_MODE_ACTION.PREV_GROUP);
     await handleDisplayModePrevGroup();
 });
 
 async function handleDisplayModePrevGroup() {
     const propList = await idbKeyval.get(PROPERTY_LIST);
-
     if (currentGroupIdx === 0) {
         const listSize = propList.length;
         currentGroupIdx = listSize;
     }
-
     currentGroupIdx = (currentGroupIdx - 1) % propList.length;
-
     currentItemIdx = 0;
     await updateCarousel(currentGroupIdx, currentItemIdx);
 }
@@ -10227,7 +10081,6 @@ async function handleDisplayModeNextItem() {
 prevItemBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     emitPeersAction(DISPLAY_MODE_ACTION.PREV_ITEM);
     await handleDisplayModePrevItem();
 });
@@ -10249,32 +10102,35 @@ async function getObjectImageLinksFromDb(groupIdx, itemIdx) {
     } catch (error) {
         console.error(error);
     }
-
     return propList[groupIdx]?.[itemIdx]?.images;
 }
 
-function addCarouselControls() {}
-// replace
 function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
-    if (carouselEl) {
-        carouselEl.destroy();
-    }
+    // if (carouselEl) {
+    //     carouselEl?.destroy();
+    // }
+    carouselEl?.pause()
+    carouselEl?.destroy()
     targetNode.innerHTML = '';
     const fragment = document.createDocumentFragment();
     newImageLinks.forEach((imgLink) => {
         const li = document.createElement('li');
         li.className = 'glide__slide';
-
         const img = document.createElement('img');
-        // img.setAttribute('referrerpolicy', 'no-referrer');
         img.src = imgLink;
-        // img.alt = "Image"; // possible add property name here
         li.appendChild(img);
         fragment.appendChild(li);
     });
 
     targetNode.appendChild(fragment);
-    carouselEl = new Glide('.glide').mount();
+    carouselEl = new Glide('.glide', {
+        autoplay: 2000,
+        type: 'carousel',
+        perView: 1,
+    }).mount();
+    // if (carouselEl) {
+    //     carouselEl.update();
+    // }
 }
 
 const DISPLAY_MODE_ACTION = {
@@ -10288,11 +10144,10 @@ const DISPLAY_MODE_ACTION = {
 
 function handleDisplayModeStart(config) {
     isDisplayModeVisible = true;
-    initCarousel({propertyList: config.payload});
+    initCarousel({ propertyList: config.payload });
 }
 
 async function handleDisplayModeStop() {
-    console.log('stopping carousel');
     isDisplayModeVisible = false;
     elemDisplay(videoPinMediaContainer, false);
     elemDisplay(myVideoAvatarImage, true);
