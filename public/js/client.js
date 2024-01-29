@@ -410,7 +410,7 @@ const displayMode = getId('displayMode');
 const displayModeCloseBtn = getId('displayModeCloseBtn');
 const locationForm = getId('locationForm');
 const carouselContainer = getId('carouselContainer');
-const carouselImageList = getId( 'carouselImageList');
+const carouselImageList = getId('carouselImageList');
 const nextItemBtn = getId('next_property_obj');
 const prevItemBtn = getId('prev_property_obj');
 const nextGroupBtn = getId('next_property_group');
@@ -625,7 +625,6 @@ let isPushToTalkActive = false;
 let isSpaceDown = false;
 
 // display mode
-
 const DISPLAY_MODE_ACTION = {
     START: 'DISPLAY_MODE_START',
     STOP: 'DISPLAY_MODE_STOP',
@@ -768,7 +767,6 @@ function setButtonsToolTip() {
         'Prioritize h.264 with AAC or h.264 with Opus codecs over VP8 with Opus or VP9 with Opus codecs',
         'right',
     );
-    // Display mode
 
     setTippy(displayModeCloseBtn, 'Close', 'bottom');
     // Whiteboard buttons
@@ -1116,7 +1114,7 @@ function initClientPeer() {
     signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('fileAbort', handleFileAbort);
-    signalingSocket.on('videoPlaRemovePeeryer', handleVideoPlayer);
+    signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
@@ -3487,7 +3485,7 @@ function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
  * Handle video pin/unpin
  * @param {string} elemId video id
  * @param {string} pnId button pin id
- * @param {string} camId video wrap
+ * @param {string} camId video wrap id
  * @param {string} peerId peer id
  * @param {boolean} isScreen stream
  */
@@ -3707,12 +3705,10 @@ function handlePictureInPicture(btnId, videoId) {
  */
 function removeVideoPinMediaContainer(peer_id, force_remove = false) {
     //alert(pinnedVideoPlayerId + '==' + peer_id);
-    console.log('removeVideoPinMediaContainer is called', peer_id);
     if (
         (isVideoPinned && (pinnedVideoPlayerId == peer_id + '___video' || pinnedVideoPlayerId == peer_id)) ||
         force_remove
     ) {
-        console.log('removeVideoPinMediaContainer is called with condition', peer_id);
         elemDisplay(videoPinMediaContainer, false);
         videoMediaContainer.style.top = 0;
         videoMediaContainer.style.right = null;
@@ -5652,11 +5648,7 @@ async function toggleScreenSharing(init = false) {
                 isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
             }
 
-            if (isScreenStreaming || isVideoPinned) {
-                console.log('video pin called');
-
-                myVideoPinBtn.click();
-            }
+            if (isScreenStreaming || isVideoPinned)  myVideoPinBtn.click();
         }
     } catch (err) {
         err.name === 'NotAllowedError'
@@ -9995,7 +9987,7 @@ async function handleDisplayModeNextItem() {
     currentItemIdx = (currentItemIdx + 1) % CAROUSEL_IMAGE_BATCH_SIZE;
     await updateCarousel(currentGroupIdx, currentItemIdx);
 }
-// <------[END]------- Carousel control button click handlers  
+// <------[END]------- Carousel control button click handlers
 
 function showCarouselControls() {
     Array.from(controlBtns).forEach((el) => el.classList.toggle('hidden', false));
@@ -10016,7 +10008,6 @@ async function initCarousel({ propertyList, hasControls = false }) {
     startCarousel(carouselContainer, hasControls);
     adaptAspectRatio();
 }
-
 
 // Carousel management ----[START]----->
 function startCarousel(carouselContainer, hasControls) {
@@ -10048,7 +10039,7 @@ async function updateCarousel(currentImageGroupIdx, currentImageItemIdx) {
     const newPropertyImageList = await getObjectImageLinksFromDb(currentImageGroupIdx, currentImageItemIdx);
     addReplaceImageLinksInCarousel(carouselImageList, newPropertyImageList);
 }
-// <---[END]----- Carousel management 
+// <---[END]----- Carousel management
 
 // Carousel helper functions ----[START]----->
 async function fetchCarouselData(targetAddressString) {
@@ -10107,8 +10098,7 @@ function addReplaceImageLinksInCarousel(targetNode, newImageLinks) {
         perView: 1,
     }).mount();
 }
-// <---[END]----- Carousel helper functions 
-
+// <---[END]----- Carousel helper functions
 
 // Event handlers on peer side ----[START]----->
 function handleDisplayModeStart(config) {
@@ -10124,4 +10114,4 @@ async function handleDisplayModeStop() {
     stopCarousel(carouselEl);
     await idbKeyval.del(PROPERTY_LIST);
 }
-// <----[END]----- Event handlers on peer side 
+// <----[END]----- Event handlers on peer side
