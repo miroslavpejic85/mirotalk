@@ -109,7 +109,11 @@
 
 > **Note**
 >
-> The `username` and `password` parameters are required when either `HOST_PROTECTED` or `HOST_USER_AUTH` is set to `true` in the `.env` file. The valid list of users is defined in the `HOST_USERS` configuration.
+> The `username` and `password` parameters are optional when either `HOST_PROTECTED` or `HOST_USER_AUTH` is set to `true` in the `.env` file. The valid list of users is defined in the `HOST_USERS` configuration.
+
+> **Caution**
+> 
+> It is strongly advised against including usernames and passwords in URL parameters for security reasons.
 
 </details>
 
@@ -118,31 +122,13 @@
 
 <br/>
 
-When [host protection](https://github.com/miroslavpejic85/mirotalk/commit/285c92605585bf204996dc0bade9b3e7c62d75df#commitcomment-103108955) or host user auth is enabled, the host/users must provide a valid username and password as specified in the `.env` file.
+When [host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) or host user auth is enabled, the host/users must provide a valid username and password as specified in the `.env` file.
 
 | Params           | Value                                                                            | Description                                                                            |
 | ---------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `HOST_PROTECTED` | `true` if protection is enabled, `false` if not (default false)                  | Requires the host to provide a valid username and password during room initialization. |
 | `HOST_USER_AUTH` | `true` if user authentication is required, `false` if not (default false).       | Determines whether host authentication is required.                                    |
 | `HOST_USERS`     | JSON array with user objects: `{"username": "username", "password": "password"}` | List of valid host users with their credentials.                                       |
-
-### Room Initialization
-
-To bypass the login page, join the room with URL parameters:
-
--   [https://p2p.mirotalk.com/join/?room=test&username=username&password=password](https://p2p.mirotalk.com/join/?room=test&username=username&password=password)
-
-### Participant Room Entry
-
-If `HOST_PROTECTED` is enabled, participants can join using:
-
--   [https://p2p.mirotalk.com/join/test](https://p2p.mirotalk.com/join/test) (URL path)
--   [https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0](https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0) (URL with query parameters)
-
-If `HOST_USER_AUTH` is enabled, participants can join with mandatory credentials:
-
--   [https://p2p.mirotalk.com/join/?room=test&username=username&password=password](https://p2p.mirotalk.com/join/?room=test&username=username&password=password) (URL path)
--   [https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0&username=username&password=password](https://p2p.mirotalk.com/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0&username=username&password=password) (URL with query parameters)
 
 </details>
 

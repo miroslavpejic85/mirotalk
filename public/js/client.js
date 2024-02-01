@@ -5288,9 +5288,10 @@ function shareRoomByEmail() {
  * @returns {url} roomURL
  */
 function getRoomURL() {
-    return isHostProtected && isPeerAuthEnabled
-        ? window.location.origin + '/join/?room=' + roomId + '&username=' + myUsername + '&password=' + myPassword
-        : myRoomUrl;
+    return myRoomUrl;
+    // return isHostProtected && isPeerAuthEnabled
+    //     ? window.location.origin + '/join/?room=' + roomId + '&username=' + myUsername + '&password=' + myPassword
+    //     : myRoomUrl;
 }
 
 /**
