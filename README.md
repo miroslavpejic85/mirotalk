@@ -112,7 +112,7 @@
 > The `username` and `password` parameters are optional when either `HOST_PROTECTED` or `HOST_USER_AUTH` is set to `true` in the `.env` file. The valid list of users is defined in the `HOST_USERS` configuration.
 
 > **Caution**
-> 
+>
 > It is strongly advised against including usernames and passwords in URL parameters for security reasons.
 
 </details>
