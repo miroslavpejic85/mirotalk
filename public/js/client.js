@@ -5704,13 +5704,17 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
 
         // Replace video track
         const videoSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'video');
+        const videoStream = hasVideoTrack(stream)
+            ? stream.getVideoTracks()[0]
+            : localVideoMediaStream.getVideoTracks()[0];
+        const videoTracks = hasVideoTrack(stream) ? stream : localVideoMediaStream;
 
         if (useVideo && videoSender) {
-            videoSender.replaceTrack(stream.getVideoTracks()[0]);
+            videoSender.replaceTrack(videoStream);
             console.log('REPLACE VIDEO TRACK TO', { peer_id, peer_name });
         } else {
             // Add video track if sender does not exist
-            stream.getTracks().forEach((track) => {
+            videoTracks.getTracks().forEach((track) => {
                 if (track.kind === 'video') {
                     peerConnections[peer_id].addTrack(track);
                     handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
