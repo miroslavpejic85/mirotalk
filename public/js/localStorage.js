@@ -20,19 +20,19 @@ class LocalStorage {
             mic_auto_gain_control: false,
             mic_echo_cancellations: true,
             mic_noise_suppression: true,
-            mic_sample_rate: '0', // 0: 48000 Hz 1: 44100 Hz
-            mic_sample_size: '0', // 0: 16 bits 1: 32 bits
-            mic_channel_count: '0', // 0: 1(mono) 1: 2 (stereo)
-            mic_latency: '50', // ms
-            mic_volume: '100', // %
-            video_fps: '1', // default 30fps
-            screen_fps: '1', // default 30fps
+            mic_sample_rate: 0, // 0: 48000 Hz 1: 44100 Hz
+            mic_sample_size: 0, // 0: 16 bits 1: 32 bits
+            mic_channel_count: 0, // 0: 1(mono) 1: 2 (stereo)
+            mic_latency: 50, // ms
+            mic_volume: 100, // %
+            video_fps: 1, // default 30fps
+            screen_fps: 1, // default 30fps
             pitch_bar: true,
             sounds: true,
-            video_obj_fit: '2', // cover
-            theme: '0', // dark
-            buttons_bar: '0', // vertical
-            pin_grid: '0', // vertical
+            video_obj_fit: 2, // cover
+            theme: 0, // dark
+            buttons_bar: 0, // vertical
+            pin_grid: 0, // vertical
         };
 
         this.DEVICES_COUNT = {

@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.79
+ * @version 1.2.80
  *
  */
 
@@ -1396,18 +1396,18 @@ async function whoAreYou() {
 
     initVideoSelect.onchange = async () => {
         videoSelect.selectedIndex = initVideoSelect.selectedIndex;
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
+        await refreshLsDevices();
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
     };
     initMicrophoneSelect.onchange = async () => {
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, initMicrophoneSelect.selectedIndex, initMicrophoneSelect.value);
+        await refreshLsDevices();
         await changeLocalMicrophone(initMicrophoneSelect.value);
     };
-    initSpeakerSelect.onchange = () => {
+    initSpeakerSelect.onchange = async () => {
         audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, initSpeakerSelect.selectedIndex, initSpeakerSelect.value);
+        await refreshLsDevices();
         changeAudioDestination();
     };
 
@@ -1423,6 +1423,15 @@ async function whoAreYou() {
 
     setTippy(initAudioBtn, 'Stop the audio', 'top');
     setTippy(initVideoBtn, 'Stop the video', 'top');
+}
+
+/**
+ * Refresh all LS devices
+ */
+async function refreshLsDevices() {
+    lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
+    lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
+    lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
 }
 
 /**
@@ -1487,23 +1496,19 @@ async function loadLocalStorage() {
             console.log('12.1 Audio devices seems changed, use default index 0');
             initMicrophoneSelect.selectedIndex = 0;
             audioInputSelect.selectedIndex = 0;
-            lS.setLocalStorageDevices(
-                lS.MEDIA_TYPE.audio,
-                initMicrophoneSelect.selectedIndex,
-                initMicrophoneSelect.value,
-            );
+            await refreshLsDevices();
         }
         if (lS.DEVICES_COUNT.speaker != localStorageDevices.speaker.count) {
             console.log('12.2 Speaker devices seems changed, use default index 0');
             initSpeakerSelect.selectedIndex = 0;
             audioOutputSelect.selectedIndex = 0;
-            lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, initSpeakerSelect.selectedIndex, initSpeakerSelect.value);
+            await refreshLsDevices();
         }
         if (lS.DEVICES_COUNT.video != localStorageDevices.video.count) {
             console.log('12.3 Video devices seems changed, use default index 0');
             initVideoSelect.selectedIndex = 0;
             videoSelect.selectedIndex = 0;
-            lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
+            await refreshLsDevices();
         }
         //
         console.log('12.4 Get Local Storage Devices after', lS.getLocalStorageDevices());
@@ -1557,11 +1562,12 @@ async function changeInitCamera(deviceId) {
             localVideoMediaStream = camStream;
             console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
         })
-        .catch((err) => {
+        .catch(async (err) => {
             console.error('[Error] changeInitCamera', err);
             userLog('error', 'Error while swapping init camera' + err);
             initVideoSelect.selectedIndex = 0;
-            lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, initVideoSelect.selectedIndex, initVideoSelect.value);
+            videoSelect.selectedIndex = 0;
+            await refreshLsDevices();
             // Refresh page...
             setTimeout(function () {
                 location.reload();
@@ -4656,7 +4662,7 @@ function setupMySettings() {
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
         await changeLocalMicrophone(audioInputSelect.value);
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.audio, audioInputSelect.selectedIndex, audioInputSelect.value);
+        await refreshLsDevices();
     });
     // advance audio options
     micOptionsBtn.addEventListener('click', function () {
@@ -4713,16 +4719,16 @@ function setupMySettings() {
         micOptionsBtn.click();
     });
     // select audio output
-    audioOutputSelect.addEventListener('change', (e) => {
+    audioOutputSelect.addEventListener('change', async (e) => {
+        await refreshLsDevices();
         changeAudioDestination();
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.speaker, audioOutputSelect.selectedIndex, audioOutputSelect.value);
     });
     // select video input
     videoSelect.addEventListener('change', async () => {
         await changeLocalCamera(videoSelect.value);
         await handleLocalCameraMirror();
         await documentPictureInPictureClose();
-        lS.setLocalStorageDevices(lS.MEDIA_TYPE.video, videoSelect.selectedIndex, videoSelect.value);
+        await refreshLsDevices();
     });
     // select video quality
     videoQualitySelect.addEventListener('change', async (e) => {
