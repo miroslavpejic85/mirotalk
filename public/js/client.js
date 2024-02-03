@@ -1396,18 +1396,18 @@ async function whoAreYou() {
 
     initVideoSelect.onchange = async () => {
         videoSelect.selectedIndex = initVideoSelect.selectedIndex;
-        await refreshLsDevices();
+        refreshLsDevices();
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
     };
     initMicrophoneSelect.onchange = async () => {
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
-        await refreshLsDevices();
+        refreshLsDevices();
         await changeLocalMicrophone(initMicrophoneSelect.value);
     };
-    initSpeakerSelect.onchange = async () => {
+    initSpeakerSelect.onchange = () => {
         audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
-        await refreshLsDevices();
+        refreshLsDevices();
         changeAudioDestination();
     };
 
@@ -1496,19 +1496,19 @@ async function loadLocalStorage() {
             console.log('12.1 Audio devices seems changed, use default index 0');
             initMicrophoneSelect.selectedIndex = 0;
             audioInputSelect.selectedIndex = 0;
-            await refreshLsDevices();
+            refreshLsDevices();
         }
         if (lS.DEVICES_COUNT.speaker != localStorageDevices.speaker.count) {
             console.log('12.2 Speaker devices seems changed, use default index 0');
             initSpeakerSelect.selectedIndex = 0;
             audioOutputSelect.selectedIndex = 0;
-            await refreshLsDevices();
+            refreshLsDevices();
         }
         if (lS.DEVICES_COUNT.video != localStorageDevices.video.count) {
             console.log('12.3 Video devices seems changed, use default index 0');
             initVideoSelect.selectedIndex = 0;
             videoSelect.selectedIndex = 0;
-            await refreshLsDevices();
+            refreshLsDevices();
         }
         //
         console.log('12.4 Get Local Storage Devices after', lS.getLocalStorageDevices());
@@ -1562,12 +1562,12 @@ async function changeInitCamera(deviceId) {
             localVideoMediaStream = camStream;
             console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
         })
-        .catch(async (err) => {
+        .catch((err) => {
             console.error('[Error] changeInitCamera', err);
             userLog('error', 'Error while swapping init camera' + err);
             initVideoSelect.selectedIndex = 0;
             videoSelect.selectedIndex = 0;
-            await refreshLsDevices();
+            refreshLsDevices();
             // Refresh page...
             setTimeout(function () {
                 location.reload();
@@ -4662,7 +4662,7 @@ function setupMySettings() {
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
         await changeLocalMicrophone(audioInputSelect.value);
-        await refreshLsDevices();
+        refreshLsDevices();
     });
     // advance audio options
     micOptionsBtn.addEventListener('click', function () {
@@ -4719,8 +4719,8 @@ function setupMySettings() {
         micOptionsBtn.click();
     });
     // select audio output
-    audioOutputSelect.addEventListener('change', async (e) => {
-        await refreshLsDevices();
+    audioOutputSelect.addEventListener('change', (e) => {
+        refreshLsDevices();
         changeAudioDestination();
     });
     // select video input
@@ -4728,7 +4728,7 @@ function setupMySettings() {
         await changeLocalCamera(videoSelect.value);
         await handleLocalCameraMirror();
         await documentPictureInPictureClose();
-        await refreshLsDevices();
+        refreshLsDevices();
     });
     // select video quality
     videoQualitySelect.addEventListener('change', async (e) => {
