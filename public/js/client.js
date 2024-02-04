@@ -5698,16 +5698,16 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             ? stream.getAudioTracks()[0]
             : localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
 
+    // Determine the video track to replace to peers
+    const videoTracks = hasVideoTrack(stream) ? stream : localVideoMediaStream;
+    const videoStream = hasVideoTrack(stream) ? stream.getVideoTracks()[0] : localVideoMediaStream.getVideoTracks()[0];
+
     // Refresh my stream to connected peers except myself
     for (const peer_id in peerConnections) {
         const peer_name = allPeers[peer_id]['peer_name'];
 
         // Replace video track
         const videoSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'video');
-        const videoStream = hasVideoTrack(stream)
-            ? stream.getVideoTracks()[0]
-            : localVideoMediaStream.getVideoTracks()[0];
-        const videoTracks = hasVideoTrack(stream) ? stream : localVideoMediaStream;
 
         if (useVideo && videoSender) {
             videoSender.replaceTrack(videoStream);
