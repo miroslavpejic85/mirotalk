@@ -1537,11 +1537,12 @@ async function loadLocalStorage() {
         await handleLocalCameraMirror();
         await checkInitConfig();
     }
-    // Refresh audio/speaker
-    if (useAudio) {
-        if (audioInputSelect.value) await changeLocalMicrophone(audioInputSelect.value);
-        if (audioOutputSelect.value) changeAudioDestination();
+    // Refresh audio
+    if (useAudio && audioInputSelect.value) {
+        await changeLocalMicrophone(audioInputSelect.value);
     }
+    // Refresh speaker
+    if (audioOutputSelect.value) changeAudioDestination();
 }
 
 /**
