@@ -480,6 +480,9 @@ const speechRecognitionIcon = getId('speechRecognitionIcon');
 const speechRecognitionStart = getId('speechRecognitionStart');
 const speechRecognitionStop = getId('speechRecognitionStop');
 
+// Media
+const sinkId = 'sinkId' in HTMLMediaElement.prototype;
+
 //....
 
 const userLimits = {
@@ -1405,8 +1408,8 @@ async function whoAreYou() {
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
         refreshLsDevices();
     };
-    initSpeakerSelect.onchange = () => {
-        changeAudioDestination();
+    initSpeakerSelect.onchange = async () => {
+        await changeAudioDestination();
         audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
         refreshLsDevices();
     };
@@ -1509,7 +1512,8 @@ async function loadLocalStorage() {
             current: audioOutputSelect.value,
         });
 
-        if (!initSpeakerExist || !audioOutputExist) {
+        // TODO #208 true || Work around keep always the default speaker
+        if (true || !initSpeakerExist || !audioOutputExist) {
             console.log('12.2 Speaker devices seems changed, use default index 0');
             initSpeakerSelect.selectedIndex = 0;
             audioOutputSelect.selectedIndex = 0;
@@ -1542,7 +1546,7 @@ async function loadLocalStorage() {
         await changeLocalMicrophone(audioInputSelect.value);
     }
     // Refresh speaker
-    if (audioOutputSelect.value) changeAudioDestination();
+    if (audioOutputSelect.value) await changeAudioDestination();
 }
 
 /**
@@ -2385,7 +2389,7 @@ async function enumerateAudioDevices(stream) {
         .then(async () => {
             await stopTracks(stream);
             isEnumerateAudioDevices = true;
-            const sinkId = 'sinkId' in HTMLMediaElement.prototype;
+            //const sinkId = 'sinkId' in HTMLMediaElement.prototype;
             audioOutputSelect.disabled = !sinkId;
             // Check if there is speakers
             if (!sinkId || initSpeakerSelect.options.length === 0) {
@@ -4762,8 +4766,8 @@ function setupMySettings() {
         micOptionsBtn.click();
     });
     // select audio output
-    audioOutputSelect.addEventListener('change', (e) => {
-        changeAudioDestination();
+    audioOutputSelect.addEventListener('change', async () => {
+        await changeAudioDestination();
         refreshLsDevices();
     });
     // select video input
@@ -5123,9 +5127,9 @@ async function setLocalVideoQuality() {
 /**
  * Change Speaker
  */
-function changeAudioDestination() {
+async function changeAudioDestination() {
     const audioDestination = audioOutputSelect.value;
-    attachSinkId(myAudio, audioDestination);
+    await attachSinkId(myAudio, audioDestination);
 }
 
 /**
@@ -5133,7 +5137,7 @@ function changeAudioDestination() {
  * @param {object} element audio element to attach the audio output
  * @param {string} sinkId uuid audio output device
  */
-function attachSinkId(element, sinkId) {
+async function attachSinkId(element, sinkId) {
     if (typeof element.sinkId !== 'undefined') {
         element
             .setSinkId(sinkId)
@@ -5142,9 +5146,17 @@ function attachSinkId(element, sinkId) {
             })
             .catch((err) => {
                 let errorMessage = err;
-                if (err.name === 'SecurityError')
-                    errorMessage = `You need to use HTTPS for selecting audio output device: ${err}`;
+                if (err.name === 'SecurityError') {
+                    errorMessage = 'SecurityError: You need to use HTTPS for selecting audio output device';
+                } else if (err.name === 'NotAllowedError') {
+                    errorMessage = 'NotAllowedError: Permission to use audio output device is not granted';
+                } else if (err.name === 'NotFoundError') {
+                    errorMessage = 'NotFoundError: The specified audio output device was not found';
+                } else {
+                    errorMessage = `Error: ${err}`;
+                }
                 console.error(errorMessage);
+                userLog('error', `attachSinkId: ${errorMessage}`);
                 // Jump back to first output device in the list as it's the default.
                 audioOutputSelect.selectedIndex = 0;
             });
@@ -5879,7 +5891,7 @@ function checkRecording() {
  */
 function handleRecordingError(error, popupLog = true) {
     console.error('Recording error', error);
-    if (popupLog) userLog('error', error, 6000);
+    if (popupLog) userLog('error', error);
 }
 
 /**
