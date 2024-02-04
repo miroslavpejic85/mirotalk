@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.80
+ * @version 1.2.81
  *
  */
 
@@ -1395,20 +1395,20 @@ async function whoAreYou() {
     // select video - audio
 
     initVideoSelect.onchange = async () => {
-        videoSelect.selectedIndex = initVideoSelect.selectedIndex;
-        refreshLsDevices();
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
+        videoSelect.selectedIndex = initVideoSelect.selectedIndex;
+        refreshLsDevices();
     };
     initMicrophoneSelect.onchange = async () => {
+        await changeLocalMicrophone(initMicrophoneSelect.value);
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
         refreshLsDevices();
-        await changeLocalMicrophone(initMicrophoneSelect.value);
     };
     initSpeakerSelect.onchange = () => {
+        changeAudioDestination();
         audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
         refreshLsDevices();
-        changeAudioDestination();
     };
 
     // init video -audio buttons
@@ -1484,32 +1484,50 @@ async function loadLocalStorage() {
     console.log('12. Get Local Storage Devices before', localStorageDevices);
     if (localStorageDevices) {
         //
-        initMicrophoneSelect.selectedIndex = localStorageDevices.audio.index;
-        initSpeakerSelect.selectedIndex = localStorageDevices.speaker.index;
-        initVideoSelect.selectedIndex = localStorageDevices.video.index;
+        const initMicrophoneExist = selectOptionByValueExist(initMicrophoneSelect, localStorageDevices.audio.select);
+        const initSpeakerExist = selectOptionByValueExist(initSpeakerSelect, localStorageDevices.speaker.select);
+        const initVideoExist = selectOptionByValueExist(initVideoSelect, localStorageDevices.video.select);
         //
-        audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
-        audioOutputSelect.selectedIndex = initSpeakerSelect.selectedIndex;
-        videoSelect.selectedIndex = initVideoSelect.selectedIndex;
-        //
-        if (lS.DEVICES_COUNT.audio != localStorageDevices.audio.count) {
+        const audioInputExist = selectOptionByValueExist(audioInputSelect, localStorageDevices.audio.select);
+        const audioOutputExist = selectOptionByValueExist(audioOutputSelect, localStorageDevices.speaker.select);
+        const videoExist = selectOptionByValueExist(videoSelect, localStorageDevices.video.select);
+
+        console.log('Check for audio changes', {
+            previous: localStorageDevices.audio.select,
+            current: audioInputSelect.value,
+        });
+
+        if (!initMicrophoneExist || !audioInputExist) {
             console.log('12.1 Audio devices seems changed, use default index 0');
             initMicrophoneSelect.selectedIndex = 0;
             audioInputSelect.selectedIndex = 0;
             refreshLsDevices();
         }
-        if (lS.DEVICES_COUNT.speaker != localStorageDevices.speaker.count) {
+
+        console.log('Check for speaker changes', {
+            previous: localStorageDevices.speaker.select,
+            current: audioOutputSelect.value,
+        });
+
+        if (!initSpeakerExist || !audioOutputExist) {
             console.log('12.2 Speaker devices seems changed, use default index 0');
             initSpeakerSelect.selectedIndex = 0;
             audioOutputSelect.selectedIndex = 0;
             refreshLsDevices();
         }
-        if (lS.DEVICES_COUNT.video != localStorageDevices.video.count) {
+
+        console.log('Check for video changes', {
+            previous: localStorageDevices.video.select,
+            current: videoSelect.value,
+        });
+
+        if (!initVideoExist || !videoExist) {
             console.log('12.3 Video devices seems changed, use default index 0');
             initVideoSelect.selectedIndex = 0;
             videoSelect.selectedIndex = 0;
             refreshLsDevices();
         }
+
         //
         console.log('12.4 Get Local Storage Devices after', lS.getLocalStorageDevices());
     }
@@ -1519,6 +1537,30 @@ async function loadLocalStorage() {
         await handleLocalCameraMirror();
         await checkInitConfig();
     }
+    // Refresh audio/speaker
+    if (useAudio) {
+        if (audioInputSelect.value) await changeLocalMicrophone(audioInputSelect.value);
+        if (audioOutputSelect.value) changeAudioDestination();
+    }
+}
+
+/**
+ * Use the select element to check if a specific option value exists,
+ * and if it does, automatically set it as the selected option.
+ * @param {object} selectElement
+ * @param {string} value
+ * @return boolean
+ */
+function selectOptionByValueExist(selectElement, value) {
+    let foundValue = false;
+    for (let i = 0; i < selectElement.options.length; i++) {
+        if (selectElement.options[i].value === value) {
+            selectElement.selectedIndex = i;
+            foundValue = true;
+            break;
+        }
+    }
+    return foundValue;
 }
 
 /**
@@ -4720,8 +4762,8 @@ function setupMySettings() {
     });
     // select audio output
     audioOutputSelect.addEventListener('change', (e) => {
-        refreshLsDevices();
         changeAudioDestination();
+        refreshLsDevices();
     });
     // select video input
     videoSelect.addEventListener('change', async () => {
