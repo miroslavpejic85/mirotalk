@@ -5692,6 +5692,9 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     // Check if the passed stream has an audio track
     const streamHasAudioTrack = hasAudioTrack(stream);
 
+    // Check if the passed stream has an video track
+    const streamHasVideoTrack = hasVideoTrack(stream);
+
     // Determine the audio track to replace to peers
     const myAudioTrack =
         streamHasAudioTrack && (localAudioTrackChange || isScreenStreaming)
@@ -5699,8 +5702,8 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             : localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
 
     // Determine the video track to replace to peers
-    const videoTracks = hasVideoTrack(stream) ? stream : localVideoMediaStream;
-    const videoStream = hasVideoTrack(stream) ? stream.getVideoTracks()[0] : localVideoMediaStream.getVideoTracks()[0];
+    const videoTracks = streamHasVideoTrack ? stream : localVideoMediaStream;
+    const videoStream = streamHasVideoTrack ? stream.getVideoTracks()[0] : localVideoMediaStream.getVideoTracks()[0];
 
     // Refresh my stream to connected peers except myself
     for (const peer_id in peerConnections) {
