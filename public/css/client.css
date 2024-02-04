@@ -1012,10 +1012,16 @@ button:hover {
     height: auto;
     margin-bottom: 10px;
     margin-top: 5px;
+    border-radius: 30px;
     cursor: pointer;
 }
 
-#recImage:hover,
+#recImage:hover {
+    box-shadow: 0px 4px 8px 0px rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+    transition: all 0.3s ease-in-out;
+}
+
 #myPeerNameSetBtn:hover,
 #roomSendEmailBtn:hover,
 #lockRoomBtn:hover,
