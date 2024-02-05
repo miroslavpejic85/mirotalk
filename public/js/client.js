@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.81
+ * @version 1.2.82
  *
  */
 
@@ -5532,8 +5532,10 @@ async function toggleScreenSharing(init = false) {
     try {
         // Set screen frame rate
         screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
+
+        // Screen share constraints
         const constraints = {
-            audio: false,
+            audio: myAudioStatus ? false : true,
             video: { frameRate: screenMaxFrameRate },
         };
 
@@ -5573,8 +5575,8 @@ async function toggleScreenSharing(init = false) {
             await emitPeerStatus('screen', myScreenStatus);
 
             await stopLocalVideoTrack();
-            await refreshMyLocalStream(screenMediaPromise);
-            await refreshMyStreamToPeers(screenMediaPromise);
+            await refreshMyLocalStream(screenMediaPromise, !useAudio);
+            await refreshMyStreamToPeers(screenMediaPromise, !useAudio);
 
             if (init) {
                 // Handle init media stream
