@@ -5753,14 +5753,14 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     const streamHasVideoTrack = hasVideoTrack(stream);
 
     // Determine the audio track to replace to peers
-    const myAudioTrack =
+    const audioTrack =
         streamHasAudioTrack && (localAudioTrackChange || isScreenStreaming)
             ? stream.getAudioTracks()[0]
             : localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
 
     // Determine the video track to replace to peers
-    const videoTracks = streamHasVideoTrack ? stream : localVideoMediaStream;
-    const videoStream = streamHasVideoTrack ? stream.getVideoTracks()[0] : localVideoMediaStream.getVideoTracks()[0];
+    const videoStream = streamHasVideoTrack ? stream : localVideoMediaStream;
+    const videoTracks = streamHasVideoTrack ? stream.getVideoTracks()[0] : localVideoMediaStream.getVideoTracks()[0];
 
     // Refresh my stream to connected peers except myself
     for (const peer_id in peerConnections) {
@@ -5770,15 +5770,15 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
         const videoSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'video');
 
         if (useVideo && videoSender) {
-            videoSender.replaceTrack(videoStream);
-            console.log('REPLACE VIDEO TRACK TO', { peer_id, peer_name });
+            videoSender.replaceTrack(videoTracks);
+            console.log('REPLACE VIDEO TRACK TO', { peer_id, peer_name, video: videoTracks });
         } else {
             // Add video track if sender does not exist
-            videoTracks.getTracks().forEach(async (track) => {
+            videoStream.getTracks().forEach(async (track) => {
                 if (track.kind === 'video') {
                     peerConnections[peer_id].addTrack(track);
                     await handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
-                    console.log('ADD VIDEO TRACK TO', { peer_id, peer_name });
+                    console.log('ADD VIDEO TRACK TO', { peer_id, peer_name, video: track });
                 }
             });
         }
@@ -5787,8 +5787,8 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
         const audioSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'audio');
 
         if (audioSender) {
-            audioSender.replaceTrack(myAudioTrack);
-            console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name });
+            audioSender.replaceTrack(audioTrack);
+            console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name, audio: audioTrack });
         }
     }
 }
