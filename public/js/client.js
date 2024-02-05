@@ -5752,15 +5752,28 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     // Check if the passed stream has an video track
     const streamHasVideoTrack = hasVideoTrack(stream);
 
+    // Check if the local stream has an audio track
+    const localStreamHasAudioTrack = hasAudioTrack(localAudioMediaStream);
+
+    // Check if the local stream has an video track
+    const localStreamHasVideoTrack = hasVideoTrack(localVideoMediaStream);
+
+    // Determine the audio stream to add to peers
+    const audioStream = streamHasAudioTrack ? stream : localStreamHasAudioTrack && localAudioMediaStream;
+
     // Determine the audio track to replace to peers
     const audioTrack =
         streamHasAudioTrack && (localAudioTrackChange || isScreenStreaming)
             ? stream.getAudioTracks()[0]
-            : localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
+            : localStreamHasAudioTrack && localAudioMediaStream.getAudioTracks()[0];
+
+    // Determine the video stream to add to peers
+    const videoStream = streamHasVideoTrack ? stream : localStreamHasVideoTrack && localVideoMediaStream;
 
     // Determine the video track to replace to peers
-    const videoStream = streamHasVideoTrack ? stream : localVideoMediaStream;
-    const videoTracks = streamHasVideoTrack ? stream.getVideoTracks()[0] : localVideoMediaStream.getVideoTracks()[0];
+    const videoTracks = streamHasVideoTrack
+        ? stream.getVideoTracks()[0]
+        : localStreamHasVideoTrack && localVideoMediaStream.getVideoTracks()[0];
 
     // Refresh my stream to connected peers except myself
     for (const peer_id in peerConnections) {
@@ -5773,22 +5786,35 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             videoSender.replaceTrack(videoTracks);
             console.log('REPLACE VIDEO TRACK TO', { peer_id, peer_name, video: videoTracks });
         } else {
-            // Add video track if sender does not exist
-            videoStream.getTracks().forEach(async (track) => {
-                if (track.kind === 'video') {
-                    peerConnections[peer_id].addTrack(track);
-                    await handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
-                    console.log('ADD VIDEO TRACK TO', { peer_id, peer_name, video: track });
-                }
-            });
+            if (videoStream) {
+                // Add video track if sender does not exist
+                videoStream.getTracks().forEach(async (track) => {
+                    if (track.kind === 'video') {
+                        peerConnections[peer_id].addTrack(track);
+                        await handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
+                        console.log('ADD VIDEO TRACK TO', { peer_id, peer_name, video: track });
+                    }
+                });
+            }
         }
 
         // Replace audio track
         const audioSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'audio');
 
-        if (audioSender) {
+        if (audioSender && audioTrack) {
             audioSender.replaceTrack(audioTrack);
             console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name, audio: audioTrack });
+        } else {
+            if (audioStream) {
+                // Add video track if sender does not exist
+                audioStream.getTracks().forEach(async (track) => {
+                    if (track.kind === 'audio') {
+                        peerConnections[peer_id].addTrack(track);
+                        await handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
+                        console.log('ADD AUDIO TRACK TO', { peer_id, peer_name, audio: track });
+                    }
+                });
+            }
         }
     }
 }
