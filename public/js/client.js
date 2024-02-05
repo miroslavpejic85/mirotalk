@@ -5806,7 +5806,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
             console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name, audio: audioTrack });
         } else {
             if (audioStream) {
-                // Add video track if sender does not exist
+                // Add audio track if sender does not exist
                 audioStream.getTracks().forEach(async (track) => {
                     if (track.kind === 'audio') {
                         peerConnections[peer_id].addTrack(track);
