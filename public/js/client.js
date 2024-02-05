@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.82
+ * @version 1.2.83
  *
  */
 
@@ -1512,8 +1512,7 @@ async function loadLocalStorage() {
             current: audioOutputSelect.value,
         });
 
-        // TODO #208 true || Work around keep always the default speaker
-        if (true || !initSpeakerExist || !audioOutputExist) {
+        if (!initSpeakerExist || !audioOutputExist) {
             console.log('12.2 Speaker devices seems changed, use default index 0');
             initSpeakerSelect.selectedIndex = 0;
             audioOutputSelect.selectedIndex = 0;
@@ -3081,6 +3080,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
             // Toggle visibility of volume control based on the audio status of the peer
             elemDisplay(getId(remoteAudioVolumeId), peer_audio_status);
+            // Change audio output...
+            if (sinkId && audioOutputSelect.value) await changeAudioDestination(remoteAudioMedia);
             break;
         default:
             break;
@@ -5125,11 +5126,20 @@ async function setLocalVideoQuality() {
 }
 
 /**
- * Change Speaker
+ * Change audio output (Speaker)
  */
-async function changeAudioDestination() {
+async function changeAudioDestination(audioElement = false) {
     const audioDestination = audioOutputSelect.value;
-    await attachSinkId(myAudio, audioDestination);
+    if (audioElement) {
+        // change audio output to specified participant audio
+        await attachSinkId(audioElement, audioDestination);
+    } else {
+        const audioElements = audioMediaContainer.querySelectorAll('audio');
+        // change audio output for all participants audio
+        audioElements.forEach(async (audioElement) => {
+            await attachSinkId(audioElement, audioDestination);
+        });
+    }
 }
 
 /**
