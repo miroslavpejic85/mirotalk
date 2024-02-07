@@ -41,6 +41,7 @@
     display: inline-block;
     background: var(--body-bg);
     border: var(--elem-border-color);
+    box-shadow: var(--box-shadow);
     border-radius: 10px;
     animation: show 0.4s ease;
 }

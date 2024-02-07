@@ -52,6 +52,15 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
         <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css" />
 
+        <!--  pickr  https://github.com/simonwep/pickr -->
+
+        <!-- 'classic' theme -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
+        <!-- 'monolith' theme -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/monolith.min.css" />
+        <!-- 'nano' theme -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
+
         <!-- JavaScripts -->
 
         <script async src="../js/umami.js"></script>
@@ -713,6 +722,23 @@ access to use this app.
                         </select>
                         <br />
                         <div class="title">
+                            <i class="fas fa-fill-drip"></i>
+                            <p>Custom theme</p>
+                        </div>
+                        <br />
+                        <input id="themeColorPicker" class="theme-color-picker" type="text" />
+                        <br />
+                        <div class="inline-check-box">
+                            <div class="width-130">
+                                <div class="title">
+                                    <i class="fas fa-save"></i>
+                                    <p>Keep custom</p>
+                                </div>
+                            </div>
+                            <input id="keepCustomTheme" class="toggle" type="checkbox" />
+                        </div>
+                        <br />
+                        <div class="title">
                             <i class="fa-solid fa-up-down-left-right"></i>
                             <p>Buttons bar</p>
                         </div>
@@ -889,6 +915,8 @@ access to use this app.
         - https://www.jsdelivr.com/package/npm/crypto-js                    (https://github.com/brix/crypto-js/)
         - https://www.npmjs.com/package/tippy.js                            (https://github.com/atomiks/tippyjs) 
         - https://flatpickr.js.org/                                         (https://github.com/flatpickr/flatpickr)
+        - https://simonwep.github.io/pickr/                                 (https://github.com/simonwep/pickr)
+
         -->
         <script defer src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
         <script defer src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
@@ -904,6 +932,8 @@ access to use this app.
         <script defer src="https://unpkg.com/@popperjs/core@2"></script>
         <script defer src="https://unpkg.com/tippy.js@6"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.es5.min.js"></script>
         <script defer src="/socket.io/socket.io.js"></script>
         <script defer src="../js/localStorage.js"></script>
         <script defer src="../js/helpers.js"></script>

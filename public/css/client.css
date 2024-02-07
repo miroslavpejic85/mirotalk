@@ -35,7 +35,7 @@
     --hover-color: grey;
 
     /* video elem border color */
-    --elem-border-color: none; /* 1px solid rgb(255 255 255 / 32%) */
+    --elem-border-color: none;
 
     --tab-btn-active: rgb(30 29 29);
 
@@ -126,6 +126,7 @@ body {
     text-align: center;
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.7);
+    box-shadow: var(--box-shadow);
 }
 #loadingDiv h1 {
     font-size: 60px;
@@ -947,6 +948,32 @@ button:hover {
     color: white;
     font-size: 14px;
     /* font-weight: bold; */
+}
+
+.inline-check-box {
+    margin-bottom: 20px;
+    display: inline-flex;
+    justify-content: center; /* Vertical centering */
+    align-items: center; /* Horizontal centering */
+    text-align: left;
+    color: white;
+}
+
+#themeColorPicker {
+    z-index: 6;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    width: 130px;
+    border: var(--border);
+    border-radius: 5px;
+    background: var(--select-bg);
+    color: white;
+    cursor: pointer;
+}
+
+#keepCustomTheme {
+    margin-bottom: 10px;
 }
 
 .buttons {
@@ -1785,6 +1812,7 @@ button {
 
 /*
 z-index
+6 theme custom picker
 7 video avatar img
 8 video nav bar 
 8 peer name
