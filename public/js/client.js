@@ -5231,7 +5231,10 @@ async function changeAudioDestination(audioElement = false) {
         const audioElements = audioMediaContainer.querySelectorAll('audio');
         // change audio output for all participants audio
         audioElements.forEach(async (audioElement) => {
-            await attachSinkId(audioElement, audioDestination);
+            // discard my own audio on this device, so I won't hear myself.
+            if (audioElement.id != 'myAudio') {
+                await attachSinkId(audioElement, audioDestination);
+            }
         });
     }
 }
