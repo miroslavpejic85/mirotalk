@@ -20,6 +20,12 @@ data = {
     "screen": "false",
     "hide": "false",
     "notify": "true",
+    "token": {
+        "username": "username",
+        "password": "password",
+        "presenter": "true",
+        "expire": "1h",
+    }
 }
 
 response = requests.post(

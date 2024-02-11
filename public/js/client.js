@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.84
+ * @version 1.2.85
  *
  */
 
@@ -562,8 +562,7 @@ let isDocumentOnFullScreen = false;
 let myPeerId; // This socket.id
 let myPeerUUID = getUUID(); // Unique peer id
 let myPeerName = getPeerName();
-let myUsername = getPeerUsername(); // default false if not passed by query params
-let myPassword = getPeerPassword(); // default false if not passed by query params
+let myToken = getPeerToken(); // peer JWT
 let isPresenter = false; // True Who init the room (aka first peer joined)
 let myHandStatus = false;
 let myVideoStatus = false;
@@ -972,35 +971,19 @@ function getNotify() {
 }
 
 /**
- * Get Peer username
- * @returns {mixed} boolean false or username string
+ * Get Peer JWT
+ * @returns {mixed} boolean false or token string
  */
-function getPeerUsername() {
-    if (window.sessionStorage.peer_username) return window.sessionStorage.peer_username;
+function getPeerToken() {
+    if (window.sessionStorage.peer_token) return window.sessionStorage.peer_token;
     let qs = new URLSearchParams(window.location.search);
-    let username = filterXSS(qs.get('username'));
-    let queryUsername = false;
-    if (username) {
-        queryUsername = username;
+    let token = filterXSS(qs.get('token'));
+    let queryToken = false;
+    if (token) {
+        queryToken = token;
     }
-    console.log('Direct join', { username: queryUsername });
-    return queryUsername;
-}
-
-/**
- * Get Peer password
- * @returns {mixed} boolean false or password string
- */
-function getPeerPassword() {
-    if (window.sessionStorage.peer_password) return window.sessionStorage.peer_password;
-    let qs = new URLSearchParams(window.location.search);
-    let password = filterXSS(qs.get('password'));
-    let queryPassword = false;
-    if (password) {
-        queryPassword = password;
-    }
-    console.log('Direct join', { password: queryPassword });
-    return queryPassword;
+    console.log('Direct join', { token: queryToken });
+    return queryToken;
 }
 
 /**
@@ -1368,7 +1351,7 @@ async function whoAreYou() {
         console.log(`11.1 Check if ${myPeerName} exist in the room`, roomId);
 
         if (await checkUserName()) {
-            return userNameAlreadyInRoom();
+            if (!myToken) return userNameAlreadyInRoom(); // #209 Hack...
         }
 
         checkPeerAudioVideo();
@@ -1777,8 +1760,7 @@ async function joinToChannel() {
         peer_info: peerInfo,
         peer_uuid: myPeerUUID,
         peer_name: myPeerName,
-        peer_username: myUsername,
-        peer_password: myPassword,
+        peer_token: myToken,
         peer_video: useVideo,
         peer_audio: useAudio,
         peer_video_status: myVideoStatus,
@@ -5458,7 +5440,7 @@ function shareRoomByEmail() {
 function getRoomURL() {
     return myRoomUrl;
     // return isHostProtected && isPeerAuthEnabled
-    //     ? window.location.origin + '/join/?room=' + roomId + '&username=' + myUsername + '&password=' + myPassword
+    //     ? window.location.origin + '/join/?room=' + roomId + '&token=' + myToken
     //     : myRoomUrl;
 }
 

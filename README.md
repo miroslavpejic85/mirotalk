@@ -36,6 +36,7 @@
 -   Host protection to prevent unauthorized access.
 -   User auth to prevent unauthorized access.
 -   Room password protection.
+-   JWT.io securely manages credentials for host configurations and user authentication, enhancing security and streamlining processes.
 -   Compatible with desktop and mobile devices.
 -   Optimized mobile room URL sharing.
 -   Webcam streaming with front and rear camera support for mobile devices.
@@ -95,17 +96,16 @@
 -   https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
 -   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
 
-    | Params   | Type    | Description     |
-    | -------- | ------- | --------------- |
-    | room     | string  | Room Id         |
-    | name     | string  | User name       |
-    | audio    | boolean | Audio stream    |
-    | video    | boolean | Video stream    |
-    | screen   | boolean | Screen stream   |
-    | hide     | boolean | Hide myself     |
-    | notify   | boolean | Welcome message |
-    | username | string  | auth username   |
-    | password | string  | auth password   |
+    | Params | Type    | Description     |
+    | ------ | ------- | --------------- |
+    | room   | string  | Room Id         |
+    | name   | string  | User name       |
+    | audio  | boolean | Audio stream    |
+    | video  | boolean | Video stream    |
+    | screen | boolean | Screen stream   |
+    | hide   | boolean | Hide myself     |
+    | notify | boolean | Welcome message |
+    | token  | string  | jwt token       |
 
 > **Note**
 >
@@ -224,6 +224,10 @@ $ docker-compose down
     $ curl -X POST "http://localhost:3000/api/v1/join" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":"true","video":"true","screen":"false","hide":"false","notify":"true"}'
     $ curl -X POST "https://p2p.mirotalk.com/api/v1/join" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":"true","video":"true","screen":"false","hide":"false","notify":"true"}'
     $ curl -X POST "https://mirotalk.up.railway.app/api/v1/join" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":"true","video":"true","screen":"false","hide":"false","notify":"true"}'
+    # The response will give you an entry point/URL for direct joining to the meeting with a token.
+    $ curl -X POST "http://localhost:3000/api/v1/join" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":"true","video":"true","screen":"false","hide":"false","notify":"true","token":{"username":"username","password":"password","presenter":"true", "expire":"1h"}}'
+    $ curl -X POST "https://p2p.mirotalk.com/api/v1/join" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":"true","video":"true","screen":"false","hide":"false","notify":"true","token":{"username":"username","password":"password","presenter":"true", "expire":"1h"}}'
+    $ curl -X POST "https://mirotalk.up.railway.app/api/v1/join" -H "authorization: mirotalk_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":"true","video":"true","screen":"false","hide":"false","notify":"true","token":{"username":"username","password":"password","presenter":"true", "expire":"1h"}}'
     ```
 
 </details>

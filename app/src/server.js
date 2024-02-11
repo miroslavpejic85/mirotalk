@@ -18,6 +18,7 @@ dependencies: {
     crypto-js               : https://www.npmjs.com/package/crypto-js
     dotenv                  : https://www.npmjs.com/package/dotenv
     express                 : https://www.npmjs.com/package/express
+    jsonwebtoken            : https://www.npmjs.com/package/jsonwebtoken
     ngrok                   : https://www.npmjs.com/package/ngrok
     qs                      : https://www.npmjs.com/package/qs
     openai                  : https://www.npmjs.com/package/openai
@@ -38,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.84
+ * @version 1.2.85
  *
  */
 
@@ -54,6 +55,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 const app = express();
 const checkXSS = require('./xss.js');
 const ServerApi = require('./api');
@@ -100,6 +102,12 @@ const hostCfg = {
     user_auth: userAuth,
     users: hostUsers,
     authenticated: !hostProtected,
+};
+
+// JWT config
+const jwtCfg = {
+    JWT_KEY: process.env.JWT_KEY || 'mirotalk_jwt_secret',
+    JWT_EXP: process.env.JWT_EXP || '1h',
 };
 
 // Room presenters
@@ -355,24 +363,43 @@ app.get('/join/', (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
         /* 
-            http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=1&username=username&password=password
+            http://localhost:3000/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=1&token=token
             https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=0
             https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=0
         */
-        const { room, name, audio, video, screen, notify, hide, username, password } = checkXSS(req.query);
+        const { room, name, audio, video, screen, notify, hide, token } = checkXSS(req.query);
 
-        // check if valid peer
-        const isPeerValid = isAuthPeer(username, password);
+        let peerUsername,
+            peerPassword = '';
+        let isPeerValid = false;
+        let isPeerPresenter = false;
+
+        if (token) {
+            try {
+                const { username, password, presenter } = checkXSS(jwt.verify(token, jwtCfg.JWT_KEY));
+                // Peer credentials
+                peerUsername = username;
+                peerPassword = password;
+                // Check if valid peer
+                isPeerValid = isAuthPeer(username, password);
+                // Check if presenter
+                isPeerPresenter = presenter === '1' || presenter === 'true';
+            } catch (err) {
+                // Invalid token
+                log.error('Direct Join JWT error', err.message);
+                return hostCfg.protected || hostCfg.user_auth ? res.sendFile(views.login) : res.sendFile(views.landing);
+            }
+        }
 
         // Peer valid going to auth as host
-        if (hostCfg.protected && isPeerValid && !hostCfg.authenticated) {
+        if (hostCfg.protected && isPeerValid && isPeerPresenter && !hostCfg.authenticated) {
             const ip = getIP(req);
             hostCfg.authenticated = true;
             authHost = new Host(ip, true);
             log.debug('Direct Join user auth as host done', {
                 ip: ip,
-                username: username,
-                password: password,
+                username: peerUsername,
+                password: peerPassword,
             });
         }
 
@@ -442,13 +469,19 @@ app.post(['/login'], (req, res) => {
         hostCfg.authenticated = true;
         authHost = new Host(ip, true);
         log.debug('HOST LOGIN OK', { ip: ip, authorized: authHost.isAuthorized(ip) });
-        return res.status(200).json({ message: 'authorized' });
+        const token = jwt.sign({ username: username, password: password, presenter: true }, jwtCfg.JWT_KEY, {
+            expiresIn: jwtCfg.JWT_EXP,
+        });
+        return res.status(200).json({ message: token });
     }
 
     // Peer auth valid
     if (isPeerValid) {
         log.debug('PEER LOGIN OK', { ip: ip, authorized: true });
-        return res.status(200).json({ message: 'authorized' });
+        const token = jwt.sign({ username: username, password: password, presenter: false }, jwtCfg.JWT_KEY, {
+            expiresIn: jwtCfg.JWT_EXP,
+        });
+        return res.status(200).json({ message: token });
     } else {
         return res.status(401).json({ message: 'unauthorized' });
     }
@@ -573,6 +606,7 @@ async function ngrokStart() {
             iceServers: iceServers,
             stats: statsData,
             host: hostCfg,
+            jwtCfg: jwtCfg,
             presenters: roomPresenters,
             ip_whitelist: ipWhitelist,
             ngrok: {
@@ -630,6 +664,7 @@ server.listen(port, null, () => {
             iceServers: iceServers,
             stats: statsData,
             host: hostCfg,
+            jwtCfg: jwtCfg,
             presenters: roomPresenters,
             ip_whitelist: ipWhitelist,
             server: host,
@@ -784,8 +819,7 @@ io.sockets.on('connect', async (socket) => {
             channel_password,
             peer_uuid,
             peer_name,
-            peer_username,
-            peer_password,
+            peer_token,
             peer_video,
             peer_audio,
             peer_video_status,
@@ -808,18 +842,37 @@ io.sockets.on('connect', async (socket) => {
         // no presenter aka host in presenters init
         if (!(channel in presenters)) presenters[channel] = {};
 
+        let is_presenter = true;
+
         // User Auth required, we check if peer valid
         if (hostCfg.user_auth) {
-            const isPeerValid = isAuthPeer(peer_username, peer_password);
+            // Check JWT
+            if (peer_token) {
+                try {
+                    const { username, password, presenter } = checkXSS(jwt.verify(peer_token, jwtCfg.JWT_KEY));
 
-            log.debug('[' + socket.id + '] JOIN ROOM - HOST PROTECTED - USER AUTH check peer', {
-                ip: peer_ip,
-                peer_username: peer_username,
-                peer_password: peer_password,
-                peer_valid: isPeerValid,
-            });
+                    const isPeerValid = isAuthPeer(username, password);
 
-            if (!isPeerValid) {
+                    is_presenter = presenter === '1' || presenter === 'true';
+
+                    log.debug('[' + socket.id + '] JOIN ROOM - USER AUTH check peer', {
+                        ip: peer_ip,
+                        peer_username: username,
+                        peer_password: password,
+                        peer_valid: isPeerValid,
+                        peer_presenter: is_presenter,
+                    });
+
+                    if (!isPeerValid) {
+                        // redirect peer to login page
+                        return socket.emit('unauthorized');
+                    }
+                } catch (err) {
+                    // redirect peer to login page
+                    log.error('[' + socket.id + '] [Warning] Join Room JWT error', err.message);
+                    return socket.emit('unauthorized');
+                }
+            } else {
                 // redirect peer to login page
                 return socket.emit('unauthorized');
             }
@@ -836,7 +889,7 @@ io.sockets.on('connect', async (socket) => {
             peer_ip: peer_ip,
             peer_name: peer_name,
             peer_uuid: peer_uuid,
-            is_presenter: true,
+            is_presenter: is_presenter,
         };
         // first we check if the username match the presenters username
         if (roomPresenters && roomPresenters.includes(peer_name)) {
@@ -848,8 +901,8 @@ io.sockets.on('connect', async (socket) => {
             }
         }
 
-        // Check if peer is presenter
-        const isPresenter = await isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
+        // Check if peer is presenter, if token check the presenter key
+        const isPresenter = peer_token ? is_presenter : await isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
         // collect peers info grp by channels
         peers[channel][socket.id] = {

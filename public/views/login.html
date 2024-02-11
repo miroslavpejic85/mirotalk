@@ -163,16 +163,21 @@
                                                             console.log(response);
 
                                                             // Store in session
-                                                            window.sessionStorage.peer_username = username;
-                                                            window.sessionStorage.peer_password = password;
+                                                            const token = response.data.message;
+                                                            window.sessionStorage.peer_token = token;
 
                                                             if (room) {
                                                                 return (window.location.href =
                                                                     '/join/' + window.location.search);
+                                                                /*
+                                                                return (window.location.href =
+                                                                    '/join/?room=' + room + '&token=' + token); */
                                                             }
-
                                                             if (roomPath) {
                                                                 return (window.location.href = '/join/' + roomPath);
+                                                                /*
+                                                                return (window.location.href =
+                                                                    '/join/?room=' + roomPath + '&token=' + token); */
                                                             }
 
                                                             return (window.location.href = '/logged');

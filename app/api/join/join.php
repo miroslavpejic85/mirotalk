@@ -25,6 +25,12 @@ $data = array(
     "screen"        => false,
     "hide"          => false,
     "notify"        => true,
+    "token"         => array(
+        "username"      => "username",
+        "password"      => "password",
+        "presenter"     => true,
+        "expire"        => "1h",
+    ),
 );
 $data_string = json_encode($data);
 

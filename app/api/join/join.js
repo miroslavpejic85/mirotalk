@@ -26,6 +26,12 @@ async function getJoin() {
                 screen: false,
                 hide: false,
                 notify: true,
+                token: {
+                    username: 'username',
+                    password: 'password',
+                    presenter: true,
+                    expire: '1h',
+                },
             }),
         });
         const data = await response.json();
