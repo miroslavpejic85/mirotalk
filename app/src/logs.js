@@ -4,16 +4,24 @@ const util = require('util');
 
 const colors = require('colors');
 
-colors.enable(); //colors.disable();
+const LOGS_DEBUG = process.env.LOGS_DEBUG ? process.env.LOGS_DEBUG === 'true' : true;
+const LOGS_COLORS = process.env.LOGS_COLORS ? process.env.LOGS_COLORS === 'true' : true;
+
+console.log('Logs', {
+    colors: LOGS_COLORS,
+    debug: LOGS_DEBUG,
+});
+
+LOGS_COLORS ? colors.enable() : colors.disable();
 
 const options = {
     depth: null,
-    colors: true,
+    colors: LOGS_COLORS,
 };
 module.exports = class Logs {
-    constructor(appName = 'miroTalkP2P', debugOn = true) {
+    constructor(appName = 'miroTalkP2P') {
         this.appName = colors.yellow(appName);
-        this.debugOn = debugOn;
+        this.debugOn = LOGS_DEBUG;
         this.timeStart = Date.now();
         this.timeEnd = null;
         this.timeElapsedMs = null;

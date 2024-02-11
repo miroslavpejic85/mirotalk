@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.85
+ * @version 1.2.86
  *
  */
 
@@ -602,7 +602,7 @@ async function ngrokStart() {
         const pu1 = data.tunnels[1].public_url;
         const tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
         // server settings
-        log.debug('settings', {
+        log.info('settings', {
             iceServers: iceServers,
             stats: statsData,
             host: hostCfg,
@@ -660,7 +660,7 @@ server.listen(port, null, () => {
         ngrokStart();
     } else {
         // server settings
-        log.debug('settings', {
+        log.info('settings', {
             iceServers: iceServers,
             stats: statsData,
             host: hostCfg,
@@ -763,7 +763,7 @@ io.sockets.on('connect', async (socket) => {
                         temperature: configChatGPT.temperature || 0,
                     });
                     const response = completion.choices[0].text;
-                    log.debug('ChatGPT', {
+                    log.info('ChatGPT', {
                         time: params.time,
                         room: room_id,
                         name: peer_name,
