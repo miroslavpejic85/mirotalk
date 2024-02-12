@@ -26,7 +26,7 @@ module.exports = class ServerApi {
         const { room, name, audio, video, screen, hide, notify, token } = data;
 
         const roomValue = room || uuidV4();
-        const nameValue = name || uuidV4();
+        const nameValue = name || 'User-' + this.getRandomNumber();
         const audioValue = audio || false;
         const videoValue = video || false;
         const screenValue = screen || false;
@@ -73,5 +73,9 @@ module.exports = class ServerApi {
 
     getProtocol() {
         return 'http' + (this._host.includes('localhost') ? '' : 's') + '://';
+    }
+
+    getRandomNumber() {
+        return Math.floor(Math.random() * 999999);
     }
 };
