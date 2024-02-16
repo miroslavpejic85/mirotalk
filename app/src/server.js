@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.87
+ * @version 1.2.88
  *
  */
 
@@ -596,11 +596,8 @@ async function ngrokStart() {
         await ngrok.authtoken(ngrokAuthToken);
         await ngrok.connect(port);
         const api = ngrok.getApi();
-        //const data = JSON.parse(await api.get('api/tunnels')); // v3
-        const data = await api.listTunnels(); // v4
-        const pu0 = data.tunnels[0].public_url;
-        const pu1 = data.tunnels[1].public_url;
-        const tunnelHttps = pu0.startsWith('https') ? pu0 : pu1;
+        const list = await api.listTunnels();
+        const tunnel = list.tunnels[0].public_url;
         // server settings
         log.info('settings', {
             iceServers: iceServers,
@@ -614,7 +611,7 @@ async function ngrokStart() {
                 ngrok_token: ngrokAuthToken,
             },
             server: host,
-            server_tunnel: tunnelHttps,
+            server_tunnel: tunnel,
             test_ice_servers: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
