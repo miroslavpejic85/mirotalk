@@ -494,8 +494,7 @@ app.post(['/login'], (req, res) => {
 
 // API request meeting room endpoint
 app.post([`${apiBasePath}/meeting`], (req, res) => {
-    const host = req.headers.host;
-    const authorization = req.headers.authorization;
+    const { host, authorization } = req.headers;
     const api = new ServerApi(host, authorization, api_key_secret);
     if (!api.isAuthorized()) {
         log.debug('MiroTalk get meeting - Unauthorized', {
@@ -505,8 +504,7 @@ app.post([`${apiBasePath}/meeting`], (req, res) => {
         return res.status(403).json({ error: 'Unauthorized!' });
     }
     const meetingURL = api.getMeetingURL();
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ meeting: meetingURL }));
+    res.json({ meeting: meetingURL });
     log.debug('MiroTalk get meeting - Authorized', {
         header: req.headers,
         body: req.body,
@@ -516,8 +514,7 @@ app.post([`${apiBasePath}/meeting`], (req, res) => {
 
 // API request join room endpoint
 app.post([`${apiBasePath}/join`], (req, res) => {
-    const host = req.headers.host;
-    const authorization = req.headers.authorization;
+    const { host, authorization } = req.headers;
     const api = new ServerApi(host, authorization, api_key_secret);
     if (!api.isAuthorized()) {
         log.debug('MiroTalk get join - Unauthorized', {
@@ -527,8 +524,7 @@ app.post([`${apiBasePath}/join`], (req, res) => {
         return res.status(403).json({ error: 'Unauthorized!' });
     }
     const joinURL = api.getJoinURL(req.body);
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ join: joinURL }));
+    res.json({ join: joinURL });
     log.debug('MiroTalk get join - Authorized', {
         header: req.headers,
         body: req.body,
