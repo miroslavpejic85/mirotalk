@@ -38,6 +38,7 @@
         <link rel="stylesheet" href="../css/client.css" />
         <link rel="stylesheet" href="../css/videoGrid.css" />
         <link rel="stylesheet" href="../css/whiteboard.css" />
+        <link rel="stylesheet" href="../css/carousel.css" />
 
         <!-- https://cdnjs.com/libraries/font-awesome -->
 
@@ -135,6 +136,8 @@ access to use this app.
             <button id="documentPiPBtn" class="fas fa-images"></button>
             <button id="mySettingsBtn" class="fas fa-cogs"></button>
             <button id="aboutBtn" class="fas fa-question"></button>
+            <button id="displayModeBtn" class="fas fa-display"></button>
+
             <button id="leaveRoomBtn" class="fas fa-right-from-bracket"></button>
         </div>
         <!-- End left buttons -->
@@ -778,6 +781,21 @@ access to use this app.
         </section>
 
         <!-- End my settings -->
+
+        <!-- Start carousel -->
+        <section id="carousel">
+            <div id="carouselMain" class="carousel-main">
+                <div id="carouselItems" class="carousel-items"></div>
+            </div>
+
+            <img id="carouselImg" src="" alt="carousel-img" />
+
+            <div id="carouselFooter" class="carousel-footer">
+                <button id="carouselPrevBtn" class="fas fa-arrow-left"></button>
+                <button id="carouselNextBtn" class="fas fa-arrow-right"></button>
+            </div>
+        </section>
+        <!-- End carousel -->
 
         <!-- Start whiteboard -->
 

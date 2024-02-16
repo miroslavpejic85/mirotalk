@@ -27,6 +27,12 @@
     --wb-width: 800px;
     --wb-height: 600px;
 
+    /* carousel */
+    --carousel-width: 800px;
+    --carousel-height: 600px;
+    --carousel-btn-color: #fff;
+    --carousel-img-bg: #6b6b6b;
+
     /* my settings */
     --mySettings-select-w: 100%;
 

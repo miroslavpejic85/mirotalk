@@ -1,0 +1,66 @@
+/*--------------------------------------------------------------
+# Carousel
+--------------------------------------------------------------*/
+
+#carousel {
+    z-index: 11;
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    padding: 10px;
+    width: var(--carousel-width);
+    height: var(--carousel-height);
+    background: var(--body-bg);
+    border: var(--border);
+    box-shadow: var(--box-shadow);
+    border-radius: 10px;
+    /* center */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* fade in */
+    -webkit-animation: fadeIn ease-in 1;
+    -moz-animation: fadeIn ease-in 1;
+    animation: fadeIn ease-in 1;
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-duration: 1s;
+    -moz-animation-duration: 1s;
+    animation-duration: 1s;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+}
+
+#carouselImg {
+    width: 75%;
+    height: 75%;
+    object-fit: contain;
+    background: var(--carousel-img-bg);
+}
+
+#carouselFooter {
+    position: absolute;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    bottom: 0;
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--carousel-btn-color);
+    text-align: center;
+}
+
+#carouselPrevBtn,
+#carouselNextBtn {
+    padding: 0.5rem;
+    border: none;
+    color: var(--carousel-btn-color);
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.5rem;
+}

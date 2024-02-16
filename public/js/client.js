@@ -160,6 +160,7 @@ const buttons = {
         showDocumentPipBtn: showDocumentPipBtn,
         showMySettingsBtn: true,
         showAboutBtn: true, // Please keep me always true, Thank you!
+        showDisplayModeBtn: true,
     },
     chat: {
         showMaxBtn: true,
@@ -246,6 +247,7 @@ const fileShareBtn = getId('fileShareBtn');
 const documentPiPBtn = getId('documentPiPBtn');
 const mySettingsBtn = getId('mySettingsBtn');
 const aboutBtn = getId('aboutBtn');
+const displayModeBtn = getId('displayModeBtn');
 const leaveRoomBtn = getId('leaveRoomBtn');
 
 // Room Emoji Picker
@@ -442,6 +444,13 @@ const whiteboardEraserBtn = getId('whiteboardEraserBtn');
 const whiteboardCleanBtn = getId('whiteboardCleanBtn');
 const whiteboardLockBtn = getId('whiteboardLockBtn');
 const whiteboardCloseBtn = getId('whiteboardCloseBtn');
+
+// Carousel
+const carousel = getId('carousel');
+const carouselCloseBtn = getId('carouselCloseBtn');
+const carouselPrevBtn = getId('carouselPrevBtn');
+const carouselNextBtn = getId('carouselNextBtn');
+const carouselImg = getId('carouselImg');
 
 // Room actions buttons
 const muteEveryoneBtn = getId('muteEveryoneBtn');
@@ -680,6 +689,14 @@ let wbIsBgTransparent = false;
 let wbPop = [];
 let isWhiteboardFs = false;
 
+// carousel
+let isCarouselVisible = false;
+let carouselImages = [];
+let carouselIndex = 0;
+
+// locations
+let locations = [];
+
 // file transfer
 let fileToSend;
 let fileReader;
@@ -813,6 +830,11 @@ function setButtonsToolTip() {
     setTippy(videoUrlCloseBtn, 'Close the video player', 'bottom');
     setTippy(videoAudioCloseBtn, 'Close the video player', 'bottom');
     setTippy(msgerVideoUrlBtn, 'Share a video or audio to all participants', 'top');
+
+    // Carousel buttons
+    setTippy(carouselCloseBtn, 'Close', 'bottom');
+    setTippy(carouselPrevBtn, 'Previous', 'bottom');
+    setTippy(carouselNextBtn, 'Next', 'bottom');
 }
 
 /**
@@ -840,6 +862,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(documentPiPBtn, 'Toggle picture in picture', placement);
     setTippy(mySettingsBtn, 'Open the settings', placement);
     setTippy(aboutBtn, 'About this project', placement);
+    setTippy(displayModeBtn, 'Display mode', placement);
     setTippy(leaveRoomBtn, 'Leave this room', placement);
 }
 
@@ -1116,6 +1139,8 @@ function initClientPeer() {
     signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
+    signalingSocket.on('carouselSetImages', handleCarouselSetImages);
+    signalingSocket.on('carouselAction', handleCarouselAction);
 } // end [initClientPeer]
 
 /**
@@ -1310,6 +1335,7 @@ function handleButtonsRule() {
     elemDisplay(documentPiPBtn, buttons.main.showDocumentPipBtn);
     elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
     elemDisplay(aboutBtn, buttons.main.showAboutBtn);
+    elemDisplay(displayModeBtn, buttons.main.showDisplayModeBtn);
     // chat
     elemDisplay(msgerMaxBtn, !isMobileDevice && buttons.chat.showMaxBtn);
     elemDisplay(msgerSaveBtn, buttons.chat.showSaveMessageBtn);
@@ -2204,6 +2230,68 @@ function handleRemovePeer(config) {
 
     console.log('ALL PEERS', allPeers);
 }
+
+// Carousel handlers -----------------------------------------------------------
+
+/**
+ * Handle setting images for the carousel.
+ * @param {array} images - Array of image URLs.
+ */
+function handleCarouselSetImages(images) {
+    carouselImages = images;
+    toggleCarousel(true);
+    renderCarouselImage();
+}
+
+/**
+ * Handle carousel actions.
+ * @param {string} action - Action to be performed on the carousel.
+ */
+function handleCarouselAction(action) {
+    switch (action) {
+        case 'next':
+            carouselNext();
+            break;
+        case 'prev':
+            carouselPrev();
+            break;
+        case 'close':
+            toggleCarousel();
+            break;
+    }
+}
+
+/**
+ * Move to the next image in the carousel.
+ */
+function carouselNext() {
+    if (carouselIndex === carouselImages.length - 1) {
+        carouselIndex = 0;
+    } else {
+        carouselIndex++;
+    }
+    renderCarouselImage();
+}
+
+/**
+ * Move to the previous image in the carousel.
+ */
+function carouselPrev() {
+    if (carouselIndex === 0) {
+        carouselIndex = carouselImages.length - 1;
+    } else {
+        carouselIndex--;
+    }
+
+    renderCarouselImage();
+}
+
+function renderCarouselImage() {
+    const image = carouselImages[carouselIndex];
+    carouselImg.src = image;
+}
+
+// End of Carousel handlers ----------------------------------------------------
 
 /**
  * Set custom theme
@@ -3906,6 +3994,7 @@ function manageLeftButtons() {
     setDocumentPiPBtn();
     setMySettingsBtn();
     setAboutBtn();
+    setDisplayModeBtn();
     setLeaveRoomBtn();
 }
 
@@ -4706,6 +4795,16 @@ function setMySettingsBtn() {
 function setAboutBtn() {
     aboutBtn.addEventListener('click', (e) => {
         showAbout();
+    });
+}
+
+/**
+ * Set display mode button click event
+ */
+function setDisplayModeBtn() {
+    displayModeBtn.addEventListener('click', (e) => {
+        console.log('Display mode button click');
+        showDisplayMode();
     });
 }
 
@@ -8230,6 +8329,23 @@ function toggleWhiteboard() {
     wbIsOpen = !wbIsOpen;
 }
 
+function toggleCarousel(force = false) {
+    if (force || !isCarouselVisible) {
+        playSound('newMessage');
+        isVideoPinned = true;
+        elemDisplay(carousel, true, 'flex');
+        videoPinMediaContainer.appendChild(carousel);
+        toggleVideoPin('vertical');
+        elemDisplay(videoPinMediaContainer, true, 'block');
+    } else {
+        elemDisplay(carousel, false);
+        isVideoPinned = false;
+        removeVideoPinMediaContainer('peer_id', true);
+    }
+
+    isCarouselVisible = force || !isCarouselVisible;
+}
+
 /**
  * Whiteboard: setup
  */
@@ -9549,6 +9665,46 @@ function showAbout() {
     });
 }
 
+function showDisplayMode() {
+    if (isVideoPinned) {
+        toggleCarousel();
+        sendToServer('carouselAction', {
+            room_id: roomId,
+            peer_name: myPeerName,
+            action: 'close',
+        });
+        return;
+    }
+
+    playSound('newMessage');
+
+    Swal.fire({
+        background: swBg,
+        position: 'center',
+        imageUrl: images.share,
+        title: 'Share your address',
+        text: 'Enter your address to share with other participants',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: `Share`,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then(async (result) => {
+        if (result.value) {
+            const coordinate = await getGeoCoordinates(result.value);
+            const nearLocation = findNearestLocation(coordinate);
+            sendToServer('carouselSetImages', {
+                room_id: roomId,
+                peer_name: myPeerName,
+                images: nearLocation.images,
+            });
+            carouselImages = nearLocation.images;
+            renderCarouselImage();
+            toggleCarousel();
+        }
+    });
+}
+
 /**
  * Leave the Room and create a new one
  */
@@ -9988,3 +10144,78 @@ function sanitizeXSS(src) {
 function disable(elem, disabled) {
     elem.disabled = disabled;
 }
+
+(function initCarousel() {
+    carouselNextBtn.addEventListener('click', () => {
+        carouselNext();
+        sendToServer('carouselAction', { room_id: roomId, peer_name: myPeerName, action: 'next' });
+    });
+
+    carouselPrevBtn.addEventListener('click', () => {
+        carouselPrev();
+        sendToServer('carouselAction', { room_id: roomId, peer_name: myPeerName, action: 'prev' });
+    });
+})();
+
+async function getGeoCoordinates(address) {
+    const response = await fetch('/addressGeoCoordinates', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address: address }),
+    });
+
+    const data = await response.json();
+
+    if (data?.length > 0) {
+        const location = data[0];
+        return { lat: location.lat, lon: location.lon };
+    } else {
+        throw new Error('No results found');
+    }
+}
+
+function findNearestLocation({ lat, lon }) {
+    function toRad(value) {
+        return (value * Math.PI) / 180;
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        var R = 6371; // radius of Earth in km
+        var dLat = toRad(lat2 - lat1);
+        var dLon = toRad(lon2 - lon1);
+        var a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    var shortestDistance = Infinity;
+    var nearestLocation = null;
+
+    locations.forEach(function (property) {
+        const { location } = property;
+        var distance = calculateDistance(lat, lon, location.lat, location.lon);
+        if (distance < shortestDistance) {
+            shortestDistance = distance;
+            nearestLocation = property;
+        }
+    });
+
+    return nearestLocation;
+}
+
+(function initLocations() {
+    const url = '/locations';
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(async (response) => {
+        locations = await response.json();
+    });
+})();

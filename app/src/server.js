@@ -536,6 +536,38 @@ app.post([`${apiBasePath}/join`], (req, res) => {
     });
 });
 
+app.get(['/locations'], (req, res) => {
+    const url = process.env.PROPERTIES_API_URL;
+
+    axios
+        .get(url)
+        .then((response) => {
+            res.send(response.data);
+        })
+        .catch((error) => {
+            log.error(error);
+            res.status(500).send;
+        });
+});
+
+app.post(['/addressGeoCoordinates'], (req, res) => {
+    const address = req.body.address;
+    const encodedAddress = encodeURIComponent(address);
+    const apiKey = process.env.MAPS_API_KEY;
+    const baseUrl = process.env.MAPS_API_URL;
+    const url = `${baseUrl}/search?q=${encodedAddress}&api_key=${apiKey}`;
+
+    axios
+        .get(url)
+        .then((response) => {
+            res.send(response.data);
+        })
+        .catch((error) => {
+            log.error(error);
+            res.status(500).send;
+        });
+});
+
 /*
     MiroTalk Slack app v1
     https://api.slack.com/authentication/verifying-requests-from-slack
@@ -1394,6 +1426,22 @@ io.sockets.on('connect', async (socket) => {
             //console.log('Send to peer', { msg: msg, config: config });
         }
     }
+
+    /**
+     * Carousel set images to all peers in the same room
+     */
+    socket.on('carouselSetImages', async (cfg) => {
+        const { room_id, images } = checkXSS(cfg);
+        await sendToRoom(room_id, socket.id, 'carouselSetImages', images);
+    });
+
+    /**
+     * Carousel action to all peers in the same room
+     */
+    socket.on('carouselAction', async (cfg) => {
+        const { room_id, action } = cfg;
+        await sendToRoom(room_id, socket.id, 'carouselAction', action);
+    });
 }); // end [sockets.on-connect]
 
 /**
