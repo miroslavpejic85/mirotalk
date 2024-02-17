@@ -584,6 +584,43 @@ app.get('*', function (req, res) {
 });
 
 /**
+ * Get Server config
+ * @param {string} tunnel
+ * @returns server config
+ */
+function getServerConfig(tunnel = false) {
+    return {
+        iceServers: iceServers,
+        stats: statsData,
+        host: hostCfg,
+        jwtCfg: jwtCfg,
+        presenters: roomPresenters,
+        ip_whitelist: ipWhitelist,
+        ngrok: {
+            ngrok_enabled: ngrokEnabled,
+            ngrok_token: ngrokEnabled ? ngrokAuthToken : '',
+        },
+        server: host,
+        server_tunnel: tunnel,
+        test_ice_servers: testStunTurn,
+        api_docs: api_docs,
+        api_key_secret: api_key_secret,
+        use_self_signed_certificate: isHttps,
+        turn_enabled: turnServerEnabled,
+        ip_lookup_enabled: IPLookupEnabled,
+        chatGPT_enabled: configChatGPT.enabled,
+        slack_enabled: slackEnabled,
+        sentry_enabled: sentryEnabled,
+        survey_enabled: surveyEnabled,
+        redirect_enabled: redirectEnabled,
+        survey_url: surveyURL,
+        redirect_url: redirectURL,
+        node_version: process.versions.node,
+        app_version: packageJson.version,
+    };
+}
+
+/**
  * Expose server to external with https tunnel using ngrok
  * https://ngrok.com
  */
@@ -594,36 +631,7 @@ async function ngrokStart() {
         const api = ngrok.getApi();
         const list = await api.listTunnels();
         const tunnel = list.tunnels[0].public_url;
-        // server settings
-        log.info('settings', {
-            iceServers: iceServers,
-            stats: statsData,
-            host: hostCfg,
-            jwtCfg: jwtCfg,
-            presenters: roomPresenters,
-            ip_whitelist: ipWhitelist,
-            ngrok: {
-                ngrok_enabled: ngrokEnabled,
-                ngrok_token: ngrokAuthToken,
-            },
-            server: host,
-            server_tunnel: tunnel,
-            test_ice_servers: testStunTurn,
-            api_docs: api_docs,
-            api_key_secret: api_key_secret,
-            use_self_signed_certificate: isHttps,
-            turn_enabled: turnServerEnabled,
-            ip_lookup_enabled: IPLookupEnabled,
-            chatGPT_enabled: configChatGPT.enabled,
-            slack_enabled: slackEnabled,
-            sentry_enabled: sentryEnabled,
-            survey_enabled: surveyEnabled,
-            redirect_enabled: redirectEnabled,
-            survey_url: surveyURL,
-            redirect_url: redirectURL,
-            node_version: process.versions.node,
-            app_version: packageJson.version,
-        });
+        log.info('Server config', getServerConfig(tunnel));
     } catch (err) {
         log.warn('[Error] ngrokStart', err.body);
         process.exit(1);
@@ -652,31 +660,7 @@ server.listen(port, null, () => {
     if (ngrokEnabled && isHttps === false) {
         ngrokStart();
     } else {
-        // server settings
-        log.info('settings', {
-            iceServers: iceServers,
-            stats: statsData,
-            host: hostCfg,
-            jwtCfg: jwtCfg,
-            presenters: roomPresenters,
-            ip_whitelist: ipWhitelist,
-            server: host,
-            test_ice_servers: testStunTurn,
-            api_docs: api_docs,
-            api_key_secret: api_key_secret,
-            use_self_signed_certificate: isHttps,
-            turn_enabled: turnServerEnabled,
-            ip_lookup_enabled: IPLookupEnabled,
-            chatGPT_enabled: configChatGPT.enabled,
-            slack_enabled: slackEnabled,
-            sentry_enabled: sentryEnabled,
-            survey_enabled: surveyEnabled,
-            redirect_enabled: redirectEnabled,
-            survey_url: surveyURL,
-            redirect_url: redirectURL,
-            node_version: process.versions.node,
-            app_version: packageJson.version,
-        });
+        log.info('Server config', getServerConfig());
     }
 });
 
