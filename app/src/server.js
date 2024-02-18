@@ -83,22 +83,34 @@ if (isHttps) {
 }
 
 // Cors
-let corsOrigin;
-if (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN !== '*') {
+
+const cors_origin = process.env.CORS_ORIGIN;
+const cors_methods = process.env.CORS_METHODS;
+
+let corsOrigin = '*';
+let corsMethods = ['GET', 'POST'];
+
+if (cors_origin && cors_origin !== '*') {
     try {
-        corsOrigin = JSON.parse(process.env.CORS_ORIGIN);
+        corsOrigin = JSON.parse(cors_origin);
     } catch (error) {
-        // If parsing fails, handle the error accordingly
-        log.error('Error parsing CORS_ORIGIN:', error.message);
-        corsOrigin = '*'; // or set to a default value
+        log.error('Error parsing CORS_ORIGIN', error.message);
+        corsOrigin = '*';
     }
-} else {
-    corsOrigin = '*';
+}
+
+if (cors_methods && cors_methods !== '') {
+    try {
+        corsMethods = JSON.parse(cors_methods);
+    } catch (error) {
+        log.error('Error parsing CORS_METHODS', error.message);
+        corsMethods = ['GET', 'POST'];
+    }
 }
 
 const corsOptions = {
     origin: corsOrigin,
-    methods: process.env.CORS_METHOD ? JSON.parse(process.env.CORS_METHODS) : ['GET', 'POST'],
+    methods: corsMethods,
 };
 
 /*  
