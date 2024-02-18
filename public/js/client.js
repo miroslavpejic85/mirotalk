@@ -1741,6 +1741,10 @@ const showVideoPipBtn = document.pictureInPictureEnabled;
 // Check if Document PIP is supported by this browser
 const showDocumentPipBtn = !isEmbedded && 'documentPictureInPicture' in window;
 
+// Display Mode
+let displayModeData;
+let displayModeDataIndex = 0;
+
 /**
  * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
  * Set properties to true to show the corresponding buttons, or false to hide them.
@@ -4441,7 +4445,7 @@ function checkShareScreen() {
             hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         }).then((result) => {
             if (result.isConfirmed) {
-                screenShareBtn.click();
+                screenShareBtn?.click();
             }
         });
     }
@@ -6919,6 +6923,56 @@ function checkButtonsBarAndMenu() {
     }, 10000);
 }
 
+function startCarrousel() {
+    const slides = document.querySelectorAll('.slide');
+
+    // loop through slides and set each slides translateX
+    slides.forEach((slide, indx) => {
+        slide.style.transform = `translateX(${indx * 100}%)`;
+    });
+
+    // select next slide button
+    const nextSlide = document.querySelector('.btn-next');
+
+    // current slide counter
+    let curSlide = 0;
+    // maximum number of slides
+    let maxSlide = slides.length - 1;
+
+    // add event listener and navigation functionality
+    nextSlide.addEventListener('click', function () {
+        // check if current slide is the last and reset current slide
+        if (curSlide === maxSlide) {
+            curSlide = 0;
+        } else {
+            curSlide++;
+        }
+
+        //   move slide by -100%
+        slides.forEach((slide, indx) => {
+            slide.style.transform = `translateX(${100 * (indx - curSlide)}%)`;
+        });
+    });
+
+    // select next slide button
+    const prevSlide = document.querySelector('.btn-prev');
+
+    // add event listener and navigation functionality
+    prevSlide.addEventListener('click', function () {
+        // check if current slide is the first and reset current slide to last
+        if (curSlide === 0) {
+            curSlide = maxSlide;
+        } else {
+            curSlide--;
+        }
+
+        //   move slide by 100%
+        slides.forEach((slide, indx) => {
+            slide.style.transform = `translateX(${100 * (indx - curSlide)}%)`;
+        });
+    });
+}
+
 /**
  * Copy room url to clipboard and share it with navigator share if supported
  * https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
@@ -6946,80 +7000,96 @@ async function shareRoomUrl() {
     }
 }
 
+/**
+ * Exit Display mode and handle with disabled button
+ */
+function handleExitDisplayMode() {
+    document.getElementById('exitDisplayMode')?.addEventListener('click', () => {
+        displayModeBtn.disabled = false;
+        document.querySelector('#displayModeContainer').remove();
+        myVideoWrap.className = 'Camera';
+        resizeVideoMedia();
+    });
+}
+
+/**
+ * Show next 5 properties
+ */
+function handleNextProperties() {
+    document.getElementById('nextProperties')?.addEventListener('click', () => {
+        document.querySelector('#displayModeContainer').remove();
+        handleSliderInit();
+    });
+}
+
+/**
+ * Get slider data from json file
+ */
+async function requestSliderData() {
+    myVideoWrap.className = 'DisplayMode';
+    displayModeBtn.disabled = true;
+
+    const req = await fetch('https://raw.githubusercontent.com/orivelton/mirotalk/master/properties.json');
+    const data = await req.json();
+    displayModeData = data;
+
+    handleSliderInit();
+}
+
+/**
+ * Init slider
+ */
+function handleSliderInit() {
+    let imagesList = '';
+
+    for (let img of displayModeData[displayModeDataIndex].images) {
+        imagesList += `<div class="slide"><img src="${img}" alt="${displayModeData[displayModeDataIndex].name}" /></div>`;
+    }
+
+    videoMediaContainer.insertAdjacentHTML(
+        'beforeend',
+        `
+        <div id="displayModeContainer" style=" height: 70%; width: 80%; color: white;">
+            <h3>${displayModeData[displayModeDataIndex].name}</h3>
+            <div style=" position: absolute; width: 50%; left: 11%; top: 11%; height: 60%; display: flex; align-items: flex-end;">
+                <div class="slider">
+                    ${imagesList}
+                    <button class="btn btn-next">></button>
+                    <button class="btn btn-prev"><
+                </div>
+                <div style=" margin-top: 30%; width: 80%;">
+                    <button type="button"  id="nextProperties" class="swal2-deny swal2-styled swal2-default-outline" aria-label="" style="display: inline-block; background-color: green;">Next 5 properties</button>
+                    <button type="button" id="exitDisplayMode" class="swal2-cancel swal2-styled swal2-default-outline" aria-label="" style="display: inline-block; background-color: red;">Exit Display Mode</button>
+                </div>
+            </div>
+        </div>
+        `,
+    );
+
+    displayModeDataIndex === displayModeData.length ? (displayModeDataIndex = 0) : (displayModeDataIndex += 1);
+    startCarrousel();
+    handleExitDisplayMode();
+    handleNextProperties();
+}
+
+/**
+ * Location pop-up
+ */
 async function openDisplayModePopUp() {
     playSound('newMessage');
     Swal.fire({
         background: swBg,
         position: 'center',
         title: 'Share your location',
-        input: 'text',
-        inputPlaceholder: 'Location',
+        html: `<input class="swal2-input" placeholder="Location" type="text" value="41.34561772276373,-73.41188045793135"/>`,
         confirmButtonText: `OK`,
-        html: `
-        
-
-            <div class="slider">
-
-            <!-- slide 1 -->
-            <div class="slide">
-            <img
-                src="https://source.unsplash.com/random?landscape,mountain"
-                alt=""
-            />
-            </div>
-    
-            <!-- slide 2 -->
-            <div class="slide">
-            <img src="https://source.unsplash.com/random?landscape,cars" alt="" />
-            </div>
-    
-            <!-- slide 3 -->
-            <div class="slide">
-            <img src="https://source.unsplash.com/random?landscape,night" alt="" />
-            </div>
-    
-            <!-- slide 4 -->
-            <div class="slide">
-            <img src="https://source.unsplash.com/random?landscape,city" alt="" />
-            </div>
-    
-            <!-- Control buttons -->
-            <button class="btn btn-next">></button>
-            <button class="btn btn-prev"><
-        </div>
-        `,
         showCancelButton: true,
         cancelButtonColor: 'red',
         denyButtonText: `Cancel`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then(async ({ value }) => {
-        const req = await fetch('https://eself-tech-challenge.s3.us-east-2.amazonaws.com/api/properties.json', {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            method: 'GET',
-            mode: 'no-cors',
-        });
-        // const result = await req.json();
-        console.log('%cclient.js line:5364 result', 'color: #007acc;', mockData);
-
-        const slides = document.querySelectorAll('.slide');
-
-        // loop through slides and set each slides translateX property to index * 100%
-        slides.forEach((slide, indx) => {
-            slide.style.transform = `translateX(${indx * 100}%)`;
-        });
-
-        mockData;
-
-        // if (result.isConfirmed) {
-        //     copyRoomURL();
-        // } else if (result.isDenied) {
-        //     shareRoomByEmail();
-        // }
-        // // share screen on join room
-        // if (checkScreen) checkShareScreen();
+        value && requestSliderData();
     });
 }
 

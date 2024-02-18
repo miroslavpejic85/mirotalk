@@ -46,6 +46,12 @@
     animation: show 0.4s ease;
 }
 
+#videoMediaContainer .DisplayMode {
+    width: 40% !important;
+    position: absolute;
+    right: 0;
+}
+
 /*--------------------------------------------------------------
 # Video nav Bar
 --------------------------------------------------------------*/

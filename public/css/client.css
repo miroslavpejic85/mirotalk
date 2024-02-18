@@ -1812,10 +1812,12 @@ button {
 
 .slider {
     width: 100%;
-    max-width: 800px;
+    max-width: 500px;
     height: 350px;
     position: relative;
-    /* overflow: hidden; */
+    overflow: hidden;
+    position: absolute;
+    top: 25%;
 }
 
 .slide {
