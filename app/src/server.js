@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.88
+ * @version 1.2.89
  *
  */
 
@@ -69,7 +69,7 @@ const isHttps = process.env.HTTPS == 'true';
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
 
-let io, server, authHost;
+let server, authHost;
 
 if (isHttps) {
     const fs = require('fs');
@@ -82,12 +82,32 @@ if (isHttps) {
     server = http.createServer(app);
 }
 
+// Cors
+let corsOrigin;
+if (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN !== '*') {
+    try {
+        corsOrigin = JSON.parse(process.env.CORS_ORIGIN);
+    } catch (error) {
+        // If parsing fails, handle the error accordingly
+        console.error('Error parsing CORS_ORIGIN:', error.message);
+        corsOrigin = '*'; // or set to a default value
+    }
+} else {
+    corsOrigin = '*';
+}
+
+const corsOptions = {
+    origin: corsOrigin,
+    methods: process.env.CORS_METHOD ? JSON.parse(process.env.CORS_METHODS) : ['GET', 'POST'],
+};
+
 /*  
     Set maxHttpBufferSize from 1e6 (1MB) to 1e7 (10MB)
 */
-io = new Server({
+const io = new Server({
     maxHttpBufferSize: 1e7,
     transports: ['websocket'],
+    cors: corsOptions,
 }).listen(server);
 
 // console.log(io);
@@ -250,7 +270,7 @@ const sockets = {}; // collect sockets
 const peers = {}; // collect peers info grp by channels
 const presenters = {}; // collect presenters grp by channels
 
-app.use(cors()); // Enable All CORS Requests for all origins
+app.use(cors(corsOptions)); // Enable CORS with options
 app.use(compression()); // Compress all HTTP responses using GZip
 app.use(express.json()); // Api parse body data as json
 app.use(express.static(dir.public)); // Use all static files from the public folder
@@ -601,6 +621,7 @@ function getServerConfig(tunnel = false) {
             ngrok_token: ngrokEnabled ? ngrokAuthToken : '',
         },
         server: host,
+        cors: corsOptions,
         server_tunnel: tunnel,
         test_ice_servers: testStunTurn,
         api_docs: api_docs,
