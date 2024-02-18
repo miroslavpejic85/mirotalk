@@ -5405,7 +5405,11 @@ function handleExitDisplayMode() {
         displayModeBtn.disabled = false;
         document.querySelector('#displayModeContainer').remove();
         myVideoWrap.className = 'Camera';
-        resizeVideoMedia();
+
+        elemDisplay(myVideoWrap, true, 'inline-block');
+        hideMeBtn.className = className.hideMeOff;
+        setColor(hideMeBtn, 'black');
+        myVideoPinBtn.click();
     });
 }
 
@@ -5443,10 +5447,10 @@ function handleSliderInit() {
         imagesList += `<div class="slide"><img src="${img}" alt="${displayModeData[displayModeDataIndex].name}" /></div>`;
     }
 
-    videoMediaContainer.insertAdjacentHTML(
+    videoPinMediaContainer.insertAdjacentHTML(
         'beforeend',
         `
-        <div id="displayModeContainer" style=" height: 70%; width: 80%; color: white;">
+        <div id="displayModeContainer" style="color: #fff">
             <h3>${displayModeData[displayModeDataIndex].name}</h3>
             <div style=" position: absolute; width: 50%; left: 11%; top: 11%; height: 60%; display: flex; align-items: flex-end;">
                 <div class="slider">
@@ -5486,7 +5490,12 @@ async function openDisplayModePopUp() {
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then(async ({ value }) => {
-        value && requestSliderData();
+        if (value) {
+            myVideoPinBtn.click();
+            elemDisplay(myVideoWrap, false);
+            setColor(hideMeBtn, 'red');
+            requestSliderData();
+        }
     });
 }
 
