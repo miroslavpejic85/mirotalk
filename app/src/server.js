@@ -89,7 +89,7 @@ if (process.env.CORS_ORIGIN && process.env.CORS_ORIGIN !== '*') {
         corsOrigin = JSON.parse(process.env.CORS_ORIGIN);
     } catch (error) {
         // If parsing fails, handle the error accordingly
-        console.error('Error parsing CORS_ORIGIN:', error.message);
+        log.error('Error parsing CORS_ORIGIN:', error.message);
         corsOrigin = '*'; // or set to a default value
     }
 } else {
