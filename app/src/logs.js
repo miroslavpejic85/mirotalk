@@ -38,7 +38,7 @@ module.exports = class Logs {
             this.timeEnd = Date.now();
             this.timeElapsedMs = this.getFormatTime(Math.floor(this.timeEnd - this.timeStart));
             console.debug(
-                '[' + this.getDataTime() + '] [' + this.appName + '] ' + msg,
+                '[' + this.getDateTime() + '] [' + this.appName + '] ' + msg,
                 util.inspect(op, options),
                 this.timeElapsedMs,
             );
@@ -53,7 +53,7 @@ module.exports = class Logs {
      * @returns
      */
     log(msg, op = '') {
-        console.log('[' + this.getDataTime() + '] [' + this.appName + '] ' + msg, util.inspect(op, options));
+        console.log('[' + this.getDateTime() + '] [' + this.appName + '] ' + msg, util.inspect(op, options));
     }
 
     /**
@@ -64,7 +64,7 @@ module.exports = class Logs {
      */
     info(msg, op = '') {
         console.info(
-            '[' + this.getDataTime() + '] [' + this.appName + '] ' + colors.green(msg),
+            '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.green(msg),
             util.inspect(op, options),
         );
     }
@@ -77,7 +77,7 @@ module.exports = class Logs {
      */
     warn(msg, op = '') {
         console.info(
-            '[' + this.getDataTime() + '] [' + this.appName + '] ' + colors.yellow(msg),
+            '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.yellow(msg),
             util.inspect(op, options),
         );
     }
@@ -90,17 +90,20 @@ module.exports = class Logs {
      */
     error(msg, op = '') {
         console.info(
-            '[' + this.getDataTime() + '] [' + this.appName + '] ' + colors.red(msg),
+            '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.red(msg),
             util.inspect(op, options),
         );
     }
 
     /**
      * Get date time
-     * @returns {string} date to ISO string
+     * @returns {string} date to Local String
      */
-    getDataTime() {
-        return colors.cyan(new Date().toISOString().replace(/T/, ' ').replace(/Z/, ''));
+    getDateTime() {
+        const options = {
+            timeZone: process.env.TZ || 'UTC', // Fallback to UTC if TZ environment variable is not set
+        };
+        return colors.cyan(new Date().toLocaleString('en-US', options));
     }
 
     /**
