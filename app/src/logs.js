@@ -25,6 +25,10 @@ module.exports = class Logs {
         this.timeStart = Date.now();
         this.timeEnd = null;
         this.timeElapsedMs = null;
+        this.tmOptions = {
+            timeZone: process.env.TZ || 'UTC', // Fallback to UTC if TZ environment variable is not set
+            hour12: false, // Set hour12 to false for 24-hour format
+        };
     }
 
     /**
@@ -100,10 +104,9 @@ module.exports = class Logs {
      * @returns {string} date to Local String
      */
     getDateTime() {
-        const options = {
-            timeZone: process.env.TZ || 'UTC', // Fallback to UTC if TZ environment variable is not set
-        };
-        return colors.cyan(new Date().toLocaleString('en-US', options));
+        const currentTime = new Date().toLocaleString('en-US', this.tmOptions);
+        const milliseconds = String(new Date().getMilliseconds()).padStart(3, '0');
+        return colors.cyan(`${currentTime}:${milliseconds}`);
     }
 
     /**
