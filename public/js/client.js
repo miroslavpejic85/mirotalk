@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.90
+ * @version 1.2.91
  *
  */
 
@@ -2641,10 +2641,12 @@ async function loadLocalMedia(stream, kind) {
             // my video status element
             myVideoStatusIcon.setAttribute('id', 'myVideoStatusIcon');
             myVideoStatusIcon.className = className.videoOn;
+            myVideoStatusIcon.style.cursor = 'default';
 
             // my audio status element
             myAudioStatusIcon.setAttribute('id', 'myAudioStatusIcon');
             myAudioStatusIcon.className = className.audioOn;
+            myAudioStatusIcon.style.cursor = 'default';
 
             // my video to image
             myVideoToImgBtn.setAttribute('id', 'myVideoToImgBtn');
@@ -2907,10 +2909,12 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // remote video status element
             remoteVideoStatusIcon.setAttribute('id', peer_id + '_videoStatus');
             remoteVideoStatusIcon.className = className.videoOn;
+            remoteVideoStatusIcon.style.cursor = 'default';
 
             // remote audio status element
             remoteAudioStatusIcon.setAttribute('id', peer_id + '_audioStatus');
             remoteAudioStatusIcon.className = className.audioOn;
+            remoteAudioStatusIcon.style.cursor = 'default';
 
             // remote audio volume element
             remoteAudioVolume.setAttribute('id', peer_id + '_audioVolume');
