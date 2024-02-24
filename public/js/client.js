@@ -2624,6 +2624,7 @@ async function loadLocalMedia(stream, kind) {
             // session time
             mySessionTime.setAttribute('id', 'mySessionTime');
             mySessionTime.className = 'notranslate';
+            mySessionTime.style.cursor = 'default';
 
             // my peer name
             myPeerName.setAttribute('id', 'myVideoParagraph');

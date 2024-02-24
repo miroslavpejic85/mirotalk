@@ -22,53 +22,44 @@ module.exports = class ServerApi {
     }
 
     getJoinURL(data) {
-        // Get data...
-        const { room, name, audio, video, screen, hide, notify, token } = data;
+        // Get data
+        const { room, name, audio, video, screen, notify, token } = data;
 
         const roomValue = room || uuidV4();
         const nameValue = name || 'User-' + this.getRandomNumber();
         const audioValue = audio || false;
         const videoValue = video || false;
         const screenValue = screen || false;
-        const hideValue = hide || false;
         const notifyValue = notify || false;
+        const jwtToken = token ? '&token=' + this.getToken(token) : '';
 
-        let jwtToken = '';
-
-        if (token) {
-            // JWT.io
-            const { username, password, presenter, expire } = token;
-
-            const usernameValue = username || 'username';
-            const passwordValue = password || 'password';
-            const presenterValue = String(presenter);
-            const expireValue = expire || JWT_EXP;
-
-            jwtToken =
-                '&token=' +
-                jwt.sign({ username: usernameValue, password: passwordValue, presenter: presenterValue }, JWT_KEY, {
-                    expiresIn: expireValue,
-                });
-        }
-        return (
+        const joinURL =
             this.getProtocol() +
             this._host +
-            '/join?room=' +
-            roomValue +
-            '&name=' +
-            nameValue +
-            '&audio=' +
-            audioValue +
-            '&video=' +
-            videoValue +
-            '&screen=' +
-            screenValue +
-            '&hide=' +
-            hideValue +
-            '&notify=' +
-            notifyValue +
-            jwtToken
-        );
+            '/join?' +
+            `room=${roomValue}` +
+            `&name=${encodeURIComponent(nameValue)}` +
+            `&audio=${audioValue}` +
+            `&video=${videoValue}` +
+            `&screen=${screenValue}` +
+            `&notify=${notifyValue}` +
+            jwtToken;
+
+        return joinURL;
+    }
+
+    getToken(token) {
+        if (!token) return '';
+
+        const { username = 'username', password = 'password', presenter = false, expire } = token;
+        const expireValue = expire || JWT_EXP;
+        const payload = {
+            username: String(username),
+            password: String(password),
+            presenter: String(presenter),
+        };
+        const jwtToken = jwt.sign(payload, JWT_KEY, { expiresIn: expireValue });
+        return jwtToken;
     }
 
     getProtocol() {
