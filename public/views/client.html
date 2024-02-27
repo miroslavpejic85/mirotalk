@@ -306,6 +306,9 @@ access to use this app.
                     <button id="tabProfileBtn" class="fa-solid fa-user tablinks">
                         <p class="tabButtonText">Profile</p>
                     </button>
+                    <button id="tabNetworkBtn" class="fa-solid fa-network-wired">
+                        <p class="tabButtonText">Network</p>
+                    </button>
                     <button id="tabStylingBtn" class="fas fa-palette tablinks">
                         <p class="tabButtonText">Style</p>
                     </button>
@@ -704,6 +707,49 @@ access to use this app.
                             <p>Presenter:</p>
                             <p id="isPeerPresenter">true</p>
                         </div>
+                    </div>
+
+                    <div id="tabNetwork" class="tabcontent">
+                        <br />
+                        <table id="mySettingsTable">
+                            <tr>
+                                <td class="width-130">
+                                    <div class="title">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        <p>IP</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkIP"></p></td>
+                            </tr>
+                            <tr>
+                                <td class="width-130">
+                                    <div class="title">
+                                        <i class="fa-solid fa-house-signal"></i>
+                                        <p>Host</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkHost">🔴</p></td>
+                            </tr>
+                            <tr>
+                                <td class="width-130">
+                                    <div class="title">
+                                        <i class="fa-solid fa-globe"></i>
+                                        <p>Stun</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkStun">🔴</p></td>
+                            </tr>
+                            <tr id="shareOnJoinButton">
+                                <td class="width-130">
+                                    <div class="title">
+                                        <i class="fa-solid fa-tower-cell"></i>
+                                        <p>Turn</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkTurn">🔴</p></td>
+                            </tr>
+                        </table>
+                        <!-- <hr class="hr" /> -->
                     </div>
 
                     <div id="tabStyling" class="tabcontent">

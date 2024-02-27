@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.92
+ * @version 1.2.93
  *
  */
 
@@ -357,6 +357,11 @@ const tabVideoShareBtn = getId('tabVideoShareBtn');
 const tabRecordingBtn = getId('tabRecordingBtn');
 const tabParticipantsBtn = getId('tabParticipantsBtn');
 const tabProfileBtn = getId('tabProfileBtn');
+const tabNetworkBtn = getId('tabNetworkBtn');
+const networkIP = getId('networkIP');
+const networkHost = getId('networkHost');
+const networkStun = getId('networkStun');
+const networkTurn = getId('networkTurn');
 const tabRoomBtn = getId('tabRoomBtn');
 const roomSendEmailBtn = getId('roomSendEmailBtn');
 const tabStylingBtn = getId('tabStylingBtn');
@@ -783,6 +788,22 @@ function setButtonsToolTip() {
     setTippy(
         switchH264Recording,
         'Prioritize h.264 with AAC or h.264 with Opus codecs over VP8 with Opus or VP9 with Opus codecs',
+        'right',
+    );
+    setTippy(networkIP, 'IP address associated with the ICE candidate', 'right');
+    setTippy(
+        networkHost,
+        'This type of ICE candidate represents a candidate that corresponds to an interface on the local device. Host candidates are typically generated based on the local IP addresses of the device and can be used for direct peer-to-peer communication within the same network',
+        'right',
+    );
+    setTippy(
+        networkStun,
+        'Server reflexive candidates are obtained by the ICE agent when it sends a request to a STUN (Session Traversal Utilities for NAT) server. These candidates reflect the public IP address and port of the client as observed by the STUN server. They are useful for traversing NATs (Network Address Translators) and establishing connectivity between peers across different networks',
+        'right',
+    );
+    setTippy(
+        networkTurn,
+        'Relay candidates are obtained when communication between peers cannot be established directly due to symmetric NATs or firewall restrictions. In such cases, communication is relayed through a TURN (Traversal Using Relays around NAT) server. TURN servers act as intermediaries, relaying data between peers, allowing them to communicate even when direct connections are not possible. This is typically the fallback mechanism for establishing connectivity when direct peer-to-peer communication fails',
         'right',
     );
     // Whiteboard buttons
@@ -1865,20 +1886,48 @@ async function handlePeersConnectionStatus(peer_id) {
 async function handleOnIceCandidate(peer_id) {
     peerConnections[peer_id].onicecandidate = (event) => {
         if (!event.candidate) return;
+
+        const { type, candidate, address, sdpMLineIndex } = event.candidate;
+
+        // console.log('ICE-CANDIDATE ---->', { type, candidate });
+
         sendToServer('relayICE', {
-            peer_id: peer_id,
+            peer_id,
             ice_candidate: {
-                sdpMLineIndex: event.candidate.sdpMLineIndex,
-                candidate: event.candidate.candidate,
+                sdpMLineIndex,
+                candidate,
             },
         });
-        // Check if this is an ICE candidate for a relayed connection
-        if (event.candidate.candidate.indexOf('relay') !== -1) {
-            userLog(
-                'toast',
-                'WebRTC traffic is relayed through a TURN server due to restrictive NAT or firewall configurations',
-                6000,
-            );
+
+        // Get Ice address
+        const ipRegex = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
+        let addressInfo = candidate.match(ipRegex);
+        if (!addressInfo && address) addressInfo = [address];
+
+        // Display network information based on candidate type
+        switch (type) {
+            case 'host':
+                if (addressInfo) {
+                    networkIP.innerText = addressInfo;
+                    networkHost.innerText = '🟢';
+                }
+                break;
+            case 'srflx':
+                if (addressInfo) {
+                    networkIP.innerText = addressInfo;
+                    networkStun.innerText = '🟢';
+                }
+                break;
+            case 'relay':
+                networkTurn.innerText = '🟢';
+                userLog(
+                    'toast',
+                    'WebRTC traffic is relayed through a TURN server due to restrictive NAT or firewall configurations',
+                    6000,
+                );
+                break;
+            default:
+                console.warn(`Unknown ICE candidate type: ${type}`);
         }
     };
 }
@@ -4773,6 +4822,9 @@ function setupMySettings() {
     });
     tabProfileBtn.addEventListener('click', (e) => {
         openTab(e, 'tabProfile');
+    });
+    tabNetworkBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabNetwork');
     });
     tabStylingBtn.addEventListener('click', (e) => {
         openTab(e, 'tabStyling');
