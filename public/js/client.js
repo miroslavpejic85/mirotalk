@@ -1904,19 +1904,18 @@ async function handleOnIceCandidate(peer_id) {
         let addressInfo = candidate.match(ipRegex);
         if (!addressInfo && address) addressInfo = [address];
 
+        // IP
+        if (addressInfo) {
+            networkIP.innerText = addressInfo;
+        }
+
         // Display network information based on candidate type
         switch (type) {
             case 'host':
-                if (addressInfo) {
-                    networkIP.innerText = addressInfo;
-                    networkHost.innerText = '🟢';
-                }
+                networkHost.innerText = '🟢';
                 break;
             case 'srflx':
-                if (addressInfo) {
-                    networkIP.innerText = addressInfo;
-                    networkStun.innerText = '🟢';
-                }
+                networkStun.innerText = '🟢';
                 break;
             case 'relay':
                 networkTurn.innerText = '🟢';
