@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "1.2.93",
+    "version": "1.2.94",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
@@ -37,8 +37,8 @@
     "license": "AGPL-3.0",
     "homepage": "https://github.com/miroslavpejic85/mirotalk",
     "dependencies": {
-        "@sentry/integrations": "^7.102.1",
-        "@sentry/node": "^7.102.1",
+        "@sentry/integrations": "^7.103.0",
+        "@sentry/node": "^7.103.0",
         "axios": "^1.6.7",
         "body-parser": "^1.20.2",
         "colors": "^1.4.0",
