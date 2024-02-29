@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.94
+ * @version 1.2.95
  *
  */
 
@@ -1880,16 +1880,18 @@ async function handlePeersConnectionStatus(peer_id) {
 }
 
 /**
+ * Handle ICE candidate
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onicecandidate
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/icecandidateerror_event
  * @param {string} peer_id socket.id
  */
 async function handleOnIceCandidate(peer_id) {
     peerConnections[peer_id].onicecandidate = (event) => {
-        if (!event.candidate) return;
+        if (!event.candidate || !event.candidate.candidate) return;
 
         const { type, candidate, address, sdpMLineIndex } = event.candidate;
 
-        // console.log('ICE-CANDIDATE ---->', { type, candidate });
+        //console.log('[ICE-CANDIDATE] ---->', { type, address, candidate });
 
         sendToServer('relayICE', {
             peer_id,
@@ -1921,8 +1923,21 @@ async function handleOnIceCandidate(peer_id) {
                 networkTurn.innerText = '🟢';
                 break;
             default:
-                console.warn(`Unknown ICE candidate type: ${type}`);
+                console.warn(`[ICE candidate] unknown type: ${type}`, candidate);
         }
+    };
+
+    // handle ICE candidate errors
+    peerConnections[peer_id].onicecandidateerror = (event) => {
+        const { url, errorText } = event;
+
+        console.warn('[ICE candidate] error', { url, error: errorText });
+
+        if (url.startsWith('host:')) networkHost.innerText = '🔴';
+        if (url.startsWith('stun:')) networkStun.innerText = '🔴';
+        if (url.startsWith('turn:')) networkTurn.innerText = '🔴';
+
+        //msgPopup('warning', `${url}: ${errorText}`, 'top-end', 6000);
     };
 }
 
