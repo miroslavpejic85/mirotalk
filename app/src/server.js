@@ -861,7 +861,9 @@ io.sockets.on('connect', async (socket) => {
 
                     const isPeerValid = isAuthPeer(username, password);
 
-                    is_presenter = presenter === '1' || presenter === 'true';
+                    // Presenter if token 'presenter' is '1'/'true' or first to join room
+                    is_presenter =
+                        presenter === '1' || presenter === 'true' || Object.keys(presenters[channel]).length === 0;
 
                     log.debug('[' + socket.id + '] JOIN ROOM - USER AUTH check peer', {
                         ip: peer_ip,
