@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.95
+ * @version 1.2.96
  *
  */
 
@@ -2961,6 +2961,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remotePitchBar = document.createElement('div');
             const remoteAudioVolume = document.createElement('input');
 
+            // Expand button UI/UX
+            const remoteExpandBtnDiv = document.createElement('div');
+            const remoteExpandBtn = document.createElement('button');
+            const remoteExpandContainerDiv = document.createElement('div');
+
             // remote peer name element
             remotePeerName.setAttribute('id', peer_id + '_name');
             remotePeerName.className = 'videoPeerName';
@@ -3068,6 +3073,12 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // remote video nav bar
             remoteVideoNavBar.className = 'navbar fadein';
 
+            // remote expand buttons div
+            remoteExpandBtnDiv.className = 'expand-video';
+            remoteExpandBtn.id = peer_id + '_videoExpandBtn';
+            remoteExpandBtn.className = 'fas fa-ellipsis-vertical';
+            remoteExpandContainerDiv.className = 'expand-video-content';
+
             // attach to remote video nav bar
             !isMobileDevice && remoteVideoNavBar.appendChild(remoteVideoPinBtn);
 
@@ -3075,10 +3086,18 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             buttons.remote.showVideoPipBtn && remoteVideoNavBar.appendChild(remoteVideoPiPBtn);
 
+            // Add to expand container div...
             if (buttons.remote.showZoomInOutBtn) {
-                remoteVideoNavBar.appendChild(remoteVideoZoomInBtn);
-                remoteVideoNavBar.appendChild(remoteVideoZoomOutBtn);
+                remoteExpandContainerDiv.appendChild(remoteVideoZoomInBtn);
+                remoteExpandContainerDiv.appendChild(remoteVideoZoomOutBtn);
             }
+            buttons.remote.showPrivateMessageBtn && remoteExpandContainerDiv.appendChild(remotePrivateMsgBtn);
+            buttons.remote.showFileShareBtn && remoteExpandContainerDiv.appendChild(remoteFileShareBtn);
+            buttons.remote.showShareVideoAudioBtn && remoteExpandContainerDiv.appendChild(remoteVideoAudioUrlBtn);
+            buttons.remote.showKickOutBtn && remoteExpandContainerDiv.appendChild(remotePeerKickOut);
+
+            remoteExpandBtnDiv.appendChild(remoteExpandBtn);
+            remoteExpandBtnDiv.appendChild(remoteExpandContainerDiv);
 
             isVideoFullScreenSupported && remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
 
@@ -3093,10 +3112,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             }
             remoteVideoNavBar.appendChild(remoteHandStatusIcon);
 
-            buttons.remote.showPrivateMessageBtn && remoteVideoNavBar.appendChild(remotePrivateMsgBtn);
-            buttons.remote.showFileShareBtn && remoteVideoNavBar.appendChild(remoteFileShareBtn);
-            buttons.remote.showShareVideoAudioBtn && remoteVideoNavBar.appendChild(remoteVideoAudioUrlBtn);
-            buttons.remote.showKickOutBtn && remoteVideoNavBar.appendChild(remotePeerKickOut);
+            remoteVideoNavBar.appendChild(remoteExpandBtnDiv);
 
             remoteMedia.setAttribute('id', peer_id + '___video');
             remoteMedia.setAttribute('playsinline', true);

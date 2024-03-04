@@ -70,9 +70,36 @@
     color: #fff;
 }
 
+.navbar div {
+    display: inline;
+}
+
 .navbar button:hover {
     color: var(--hover-color);
     cursor: pointer;
+}
+
+/*--------------------------------------------------------------
+# Expand buttons 
+--------------------------------------------------------------*/
+
+.expand-video-content {
+    position: relative;
+    display: none;
+    float: right;
+    width: auto;
+}
+
+.expand-video-content button {
+    display: none;
+}
+
+.expand-video:hover .expand-video-content {
+    display: inline;
+}
+
+.expand-video:hover .expand-video-content button {
+    display: inline;
 }
 
 /*--------------------------------------------------------------
@@ -85,7 +112,7 @@
     right: 0;
     bottom: 0;
     color: #fff;
-    font-size: 14px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     margin: 5px;
