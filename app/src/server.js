@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.96
+ * @version 1.2.97
  *
  */
 
@@ -508,7 +508,8 @@ app.post(['/login'], (req, res) => {
     // Peer auth valid
     if (isPeerValid) {
         log.debug('PEER LOGIN OK', { ip: ip, authorized: true });
-        const token = jwt.sign({ username: username, password: password, presenter: false }, jwtCfg.JWT_KEY, {
+        const isPresenter = roomPresenters && roomPresenters.includes(username).toString();
+        const token = jwt.sign({ username: username, password: password, presenter: isPresenter }, jwtCfg.JWT_KEY, {
             expiresIn: jwtCfg.JWT_EXP,
         });
         return res.status(200).json({ message: token });
