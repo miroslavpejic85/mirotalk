@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.2.97
+ * @version 1.2.98
  *
  */
 
@@ -647,6 +647,7 @@ let speechInMessages = false;
 let isSpeechSynthesisSupported = 'speechSynthesis' in window;
 let transcripts = []; // collect all the transcripts to save it later if you need
 let chatMessages = []; // collect chat messages to save it later if want
+let chatGPTcontext = []; // keep chatGPT messages context
 
 // settings
 let videoMaxFrameRate = 30;
@@ -6653,8 +6654,10 @@ function cleanMessages() {
                 msgerChat.removeChild(msgs);
                 msgs = msgerChat.firstChild;
             }
-            // clean object
+            // clean chat messages
             chatMessages = [];
+            // clean chatGPT context
+            chatGPTcontext = [];
             playSound('delete');
         }
     });
@@ -7364,15 +7367,18 @@ async function getChatGPTmessage(msg) {
             params: {
                 time: getDataTimeString(),
                 prompt: msg,
+                context: chatGPTcontext,
             },
         })
         .then(
             function (completion) {
                 if (!completion) return;
+                const { message, context } = completion;
+                chatGPTcontext = context ? context : [];
                 setPeerChatAvatarImgName('left', 'ChatGPT');
-                appendMessage('ChatGPT', leftChatAvatar, 'left', completion, true);
+                appendMessage('ChatGPT', leftChatAvatar, 'left', message, true);
                 cleanMessageInput();
-                speechInMessages ? speechMessage(true, 'ChatGPT', completion) : playSound('message');
+                speechInMessages ? speechMessage(true, 'ChatGPT', message) : playSound('message');
             }.bind(this),
         )
         .catch((err) => {
