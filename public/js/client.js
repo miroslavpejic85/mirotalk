@@ -6894,6 +6894,8 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
 
     const isValidPrivateMessage = getPrivateMsg && getMsgId != null && getMsgId != myPeerId;
 
+    const message = getFrom === 'ChatGPT' ? `<pre>${getMsg}</pre>` : getMsg;
+
     let msgHTML = `
 	<div id="msg-${chatMessagesId}" class="msg ${getSide}-msg">
         <img class="msg-img" src="${getImg}" />
@@ -6902,7 +6904,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                 <div class="msg-info-name">${getFrom}</div>
                 <div class="msg-info-time">${time}</div>
             </div>
-            <div id="${chatMessagesId}" class="msg-text">${getMsg}
+            <div id="${chatMessagesId}" class="msg-text">${message}
                 <hr/>
     `;
     // add btn direct reply to private message
@@ -6934,7 +6936,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                     id="msg-speech-${chatMessagesId}"
                     class="${className.speech}" 
                     style="color:#fff; border:none; background:transparent;"
-                    onclick="speechMessage(false, '${getFrom}', '${checkMsg(getMsg)}')"
+                    onclick="speechMessage(false, '${getFrom}', '${checkMsg(message)}')"
                 ></button>`;
     }
     msgHTML += ` 
