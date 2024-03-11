@@ -228,8 +228,8 @@ let chatGPT;
 const configChatGPT = {
     enabled: getEnvBoolean(process.env.CHATGPT_ENABLED),
     basePath: process.env.CHATGPT_BASE_PATH,
-    apiKey: process.env.CHATGTP_APIKEY,
-    model: process.env.CHATGTP_MODEL,
+    apiKey: process.env.CHATGPT_APIKEY,
+    model: process.env.CHATGPT_MODEL,
     max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
     temperature: parseInt(process.env.CHATGPT_TEMPERATURE),
 };
