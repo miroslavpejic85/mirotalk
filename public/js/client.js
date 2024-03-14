@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.00
+ * @version 1.3.01
  *
  */
 
@@ -178,6 +178,7 @@ const buttons = {
         showTabRoomPeerName: true,
         showTabRoomParticipants: true,
         showTabRoomSecurity: true,
+        showTabEmailInvitation: true,
         showMuteEveryoneBtn: true,
         showHideEveryoneBtn: true,
         showEjectEveryoneBtn: true,
@@ -399,6 +400,7 @@ const pinVideoPositionSelect = getId('pinVideoPositionSelect');
 const tabRoomPeerName = getId('tabRoomPeerName');
 const tabRoomParticipants = getId('tabRoomParticipants');
 const tabRoomSecurity = getId('tabRoomSecurity');
+const tabEmailInvitation = getId('tabEmailInvitation');
 const isPeerPresenter = getId('isPeerPresenter');
 const peersCount = getId('peersCount');
 const screenFpsDiv = getId('screenFpsDiv');
@@ -1288,18 +1290,22 @@ function roomIsBusy() {
 function handleRules(isPresenter) {
     console.log('14. Peer isPresenter: ' + isPresenter + ' Reconnected to signaling server: ' + isPeerReconnected);
     if (!isPresenter) {
+        buttons.main.showShareRoomBtn = false;
         buttons.settings.showMicOptionsBtn = false;
         buttons.settings.showTabRoomParticipants = false;
         buttons.settings.showTabRoomSecurity = false;
+        buttons.settings.showTabEmailInvitation = false;
         // buttons.remote.audioBtnClickAllowed = false;
         // buttons.remote.videoBtnClickAllowed = false;
         buttons.remote.showKickOutBtn = false;
         buttons.whiteboard.whiteboardLockBtn = false;
         //...
     } else {
+        buttons.main.showShareRoomBtn = true;
         buttons.settings.showMicOptionsBtn = true;
         buttons.settings.showTabRoomParticipants = true;
         buttons.settings.showTabRoomSecurity = true;
+        buttons.settings.showTabEmailInvitation = true;
         buttons.settings.showLockRoomBtn = !isRoomLocked;
         buttons.settings.showUnlockRoomBtn = isRoomLocked;
         buttons.remote.audioBtnClickAllowed = true;
@@ -1352,6 +1358,7 @@ function handleButtonsRule() {
     elemDisplay(tabRoomPeerName, buttons.settings.showTabRoomPeerName);
     elemDisplay(tabRoomParticipants, buttons.settings.showTabRoomParticipants);
     elemDisplay(tabRoomSecurity, buttons.settings.showTabRoomSecurity);
+    elemDisplay(tabEmailInvitation, buttons.settings.showTabEmailInvitation);
     // Whiteboard
     buttons.whiteboard.whiteboardLockBtn
         ? elemDisplay(whiteboardLockBtn, true)
