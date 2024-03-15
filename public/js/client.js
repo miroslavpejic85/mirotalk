@@ -5338,7 +5338,7 @@ async function getVideoConstraints(videoQuality) {
                 constraints = {
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
-                    //frameRate: { ideal: 30 },
+                    frameRate: { ideal: 30 },
                 }; // on default as hdVideo
             }
             break;
