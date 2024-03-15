@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.01
+ * @version 1.3.02
  *
  */
 
@@ -2765,6 +2765,8 @@ async function setupLocalAudioMedia() {
  * @param {object} err - The error object
  */
 function handleMediaError(mediaType, err) {
+    playSound('alert');
+    //
     let errMessage = err.message;
     switch (err.name) {
         case 'NotFoundError':
@@ -2800,7 +2802,7 @@ function handleMediaError(mediaType, err) {
         </ul>
     `;
 
-    msgHTML(null, images.forbidden, 'Access denied', $html, 'center');
+    msgHTML(null, images.forbidden, 'Access denied', $html, 'center', '/');
 
     /*
         it immediately stops the execution of the current function and jumps to the nearest enclosing try...catch block or, 
@@ -5336,7 +5338,7 @@ async function getVideoConstraints(videoQuality) {
                 constraints = {
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
-                    frameRate: { ideal: 30 },
+                    //frameRate: { ideal: 30 },
                 }; // on default as hdVideo
             }
             break;
@@ -10070,8 +10072,9 @@ function userLog(type, message, timer = 3000) {
  * @param {string} title message title
  * @param {string} html message in html format
  * @param {string} position message position
+ * @param {string} redirectURL if set on press ok will be redirected to the URL
  */
-function msgHTML(icon, imageUrl, title, html, position = 'center') {
+function msgHTML(icon, imageUrl, title, html, position = 'center', redirectURL = false) {
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
@@ -10083,6 +10086,10 @@ function msgHTML(icon, imageUrl, title, html, position = 'center') {
         html: html,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed && redirectURL) {
+            openURL(redirectURL);
+        }
     });
 }
 
