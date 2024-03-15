@@ -2762,7 +2762,7 @@ async function setupLocalAudioMedia() {
  * https://blog.addpipe.com/common-getusermedia-errors/
  *
  * @param {string} mediaType - 'video' or 'audio'
- * @param {Error} err - The error object
+ * @param {object} err - The error object
  */
 function handleMediaError(mediaType, err) {
     let errMessage = err.message;
@@ -5332,11 +5332,11 @@ async function getVideoConstraints(videoQuality) {
                     frameRate: { ideal: 60 },
                 }; // video cam constraints default
             } else {
-                // This will make the browser use hdVideo and 30fps.
+                // This will make the browser use as ideal hdVideo and 30fps.
                 constraints = {
-                    width: { exact: 1280 },
-                    height: { exact: 720 },
-                    frameRate: { exact: 30 },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    frameRate: { ideal: 30 },
                 }; // on default as hdVideo
             }
             break;
