@@ -2796,7 +2796,7 @@ function handleMediaError(mediaType, err) {
             <li>Media type: ${mediaType}</li>
             <li>Error name: ${err.name}</li>
             <li>Error message: ${errMessage}</li>
-            <li>Common: <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">Common getUserMedia errors</a></li>
+            <li>Common: <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">getUserMedia errors</a></li>
         </ul>
     `;
     msgHTML(null, images.forbidden, 'Access denied', $html, 'center');
@@ -2806,7 +2806,7 @@ function handleMediaError(mediaType, err) {
         if none exists, it interrupts the script execution and displays an error message in the console.
     */
     throw new Error(
-        `Access denied for ${mediaType} device [${err.name}]: ${errMessage} \ncheck the common getUserMedia errors: https://blog.addpipe.com/common-getusermedia-errors/`,
+        `Access denied for ${mediaType} device [${err.name}]: ${errMessage} check the common getUserMedia errors: https://blog.addpipe.com/common-getusermedia-errors/`,
     );
 }
 
