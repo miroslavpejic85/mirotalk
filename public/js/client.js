@@ -2765,7 +2765,7 @@ async function setupLocalAudioMedia() {
  * @param {Error} err - The error object
  */
 function handleMediaError(mediaType, err) {
-    let errMessage = '';
+    let errMessage = err.message;
     switch (err.name) {
         case 'NotFoundError':
         case 'DevicesNotFoundError':
@@ -2799,6 +2799,7 @@ function handleMediaError(mediaType, err) {
             <li>Common: <a href="https://blog.addpipe.com/common-getusermedia-errors" target="_blank">getUserMedia errors</a></li>
         </ul>
     `;
+
     msgHTML(null, images.forbidden, 'Access denied', $html, 'center');
 
     /*
