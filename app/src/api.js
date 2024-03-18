@@ -1,6 +1,8 @@
 'use strict';
 
 const jwt = require('jsonwebtoken');
+const CryptoJS = require('crypto-js');
+
 const { v4: uuidV4 } = require('uuid');
 
 const JWT_KEY = process.env.JWT_KEY || 'mirotalk_jwt_secret';
@@ -61,6 +63,30 @@ module.exports = class ServerApi {
             presenter: String(presenter),
         };
         const jwtToken = jwt.sign(payload, JWT_KEY, { expiresIn: expireValue });
+        return jwtToken;
+    }
+
+    getToken(token) {
+        if (!token) return '';
+
+        const { username = 'username', password = 'password', presenter = false, expire } = token;
+
+        const expireValue = expire || JWT_EXP;
+
+        // Constructing payload
+        const payload = {
+            username: String(username),
+            password: String(password),
+            presenter: String(presenter),
+        };
+
+        // Encrypt payload using AES encryption
+        const payloadString = JSON.stringify(payload);
+        const encryptedPayload = CryptoJS.AES.encrypt(payloadString, JWT_KEY).toString();
+
+        // Constructing JWT token
+        const jwtToken = jwt.sign({ data: encryptedPayload }, JWT_KEY, { expiresIn: expireValue });
+
         return jwtToken;
     }
 

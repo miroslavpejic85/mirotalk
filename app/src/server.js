@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.04
+ * @version 1.3.05
  *
  */
 
@@ -408,7 +408,7 @@ app.get('/join/', (req, res) => {
 
         if (token) {
             try {
-                const { username, password, presenter } = checkXSS(jwt.verify(token, jwtCfg.JWT_KEY));
+                const { username, password, presenter } = checkXSS(decryptPayload(token));
                 // Peer credentials
                 peerUsername = username;
                 peerPassword = password;
@@ -914,7 +914,7 @@ io.sockets.on('connect', async (socket) => {
             // Check JWT
             if (peer_token) {
                 try {
-                    const { username, password, presenter } = checkXSS(jwt.verify(peer_token, jwtCfg.JWT_KEY));
+                    const { username, password, presenter } = checkXSS(decryptPayload(peer_token));
 
                     const isPeerValid = isAuthPeer(username, password);
 
@@ -1563,6 +1563,29 @@ async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
  */
 function isAuthPeer(username, password) {
     return hostCfg.users && hostCfg.users.some((user) => user.username === username && user.password === password);
+}
+
+/**
+ * Decode JWT Payload data
+ * @param {object} jwtToken
+ * @returns mixed
+ */
+function decryptPayload(jwtToken) {
+    if (!jwtToken) return null;
+
+    // Verify and decode the JWT token
+    const decodedToken = jwt.verify(jwtToken, jwtCfg.JWT_KEY);
+    if (!decodedToken || !decodedToken.data) {
+        throw new Error('Invalid token');
+    }
+
+    // Decrypt the payload using AES decryption
+    const decryptedPayload = CryptoJS.AES.decrypt(decodedToken.data, jwtCfg.JWT_KEY).toString(CryptoJS.enc.Utf8);
+
+    // Parse the decrypted payload as JSON
+    const payload = JSON.parse(decryptedPayload);
+
+    return payload;
 }
 
 /**
