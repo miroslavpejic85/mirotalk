@@ -617,7 +617,7 @@ app.post('/slack', (req, res) => {
 
     // Check if endpoint allowed
     if (api_disabled.includes('slack')) {
-        return res.end('This endpoint has been disabled. Please contact the administrator for further information.');
+        return res.end('`This endpoint has been disabled`. Please contact the administrator for further information.');
     }
 
     log.debug('Slack', req.headers);
