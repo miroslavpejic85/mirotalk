@@ -556,6 +556,12 @@ app.post([`${apiBasePath}/token`], (req, res) => {
 
 // API request meeting room endpoint
 app.post([`${apiBasePath}/meeting`], (req, res) => {
+    // Check if endpoint allowed
+    if (api_disabled.includes('meeting')) {
+        return res.status(403).json({
+            error: 'This endpoint has been disabled. Please contact the administrator for further information.',
+        });
+    }
     const { host, authorization } = req.headers;
     const api = new ServerApi(host, authorization, api_key_secret);
     if (!api.isAuthorized()) {
@@ -576,6 +582,12 @@ app.post([`${apiBasePath}/meeting`], (req, res) => {
 
 // API request join room endpoint
 app.post([`${apiBasePath}/join`], (req, res) => {
+    // Check if endpoint allowed
+    if (api_disabled.includes('join')) {
+        return res.status(403).json({
+            error: 'This endpoint has been disabled. Please contact the administrator for further information.',
+        });
+    }
     const { host, authorization } = req.headers;
     const api = new ServerApi(host, authorization, api_key_secret);
     if (!api.isAuthorized()) {
@@ -602,6 +614,11 @@ app.post([`${apiBasePath}/join`], (req, res) => {
 //Slack request meeting room endpoint
 app.post('/slack', (req, res) => {
     if (!slackEnabled) return res.end('`Under maintenance` - Please check back soon.');
+
+    // Check if endpoint allowed
+    if (api_disabled.includes('slack')) {
+        return res.end('This endpoint has been disabled. Please contact the administrator for further information.');
+    }
 
     log.debug('Slack', req.headers);
 
