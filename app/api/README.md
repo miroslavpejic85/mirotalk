@@ -14,18 +14,22 @@ Use the following examples to make API calls:
 # Node.js
 node meeting.js
 node join.js
+node token.js
 
 # PHP
 php meeting.php
 php join.php
+php token.php
 
 # Python
 python3 meeting.py
 python3 join.py
+python3 token.py # rename token in something else
 
 # Bash
 ./meeting.sh
 ./join.sh
+./token.sh
 ```
 
 The server response will contain a meeting URL that can be embedded in your client using an iframe.

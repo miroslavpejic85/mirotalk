@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.03
+ * @version 1.3.04
  *
  */
 
@@ -522,6 +522,29 @@ app.post(['/login'], (req, res) => {
     MiroTalk API v1
     For api docs we use: https://swagger.io/
 */
+
+// request token endpoint
+app.post([`${apiBasePath}/token`], (req, res) => {
+    // check if user was authorized for the api call
+    const { host, authorization } = req.headers;
+    const api = new ServerApi(host, authorization, api_key_secret);
+    if (!api.isAuthorized()) {
+        log.debug('MiroTalk get token - Unauthorized', {
+            header: req.headers,
+            body: req.body,
+        });
+        return res.status(403).json({ error: 'Unauthorized!' });
+    }
+    // Get Token
+    const token = api.getToken(req.body);
+    res.json({ token: token });
+    // log.debug the output if all done
+    log.debug('MiroTalk get token - Authorized', {
+        header: req.headers,
+        body: req.body,
+        token: token,
+    });
+});
 
 // API request meeting room endpoint
 app.post([`${apiBasePath}/meeting`], (req, res) => {

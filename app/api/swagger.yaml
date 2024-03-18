@@ -3,7 +3,7 @@ swagger: '2.0'
 info:
     title: MiroTalk P2P API
     description: API description for external applications that integrates with MiroTalk P2P.
-    version: 1.0.0
+    version: 1.0.1
 
 basePath: /api/v1
 
@@ -98,6 +98,32 @@ paths:
                 '403':
                     description: 'Unauthorized!'
 
+    /token:
+        post:
+            tags:
+                - 'token'
+            summary: 'Get token'
+            description: 'Get token'
+            parameters:
+                - in: body
+                  name: token
+                  description: Custom Token.
+                  schema:
+                      $ref: '#/definitions/TokenRequest'
+            consumes:
+                - 'application/json'
+            produces:
+                - 'application/json'
+            security:
+                - secretApiKey: []
+            responses:
+                '200':
+                    description: 'Get token done'
+                    schema:
+                        $ref: '#/definitions/TokenResponse'
+                '403':
+                    description: 'Unauthorized!'
+
 securityDefinitions:
     secretApiKey:
         type: 'apiKey'
@@ -116,3 +142,23 @@ definitions:
         properties:
             join:
                 type: 'string'
+    TokenRequest:
+        type: object
+        properties:
+            username:
+                type: string
+                default: 'username'
+            password:
+                type: string
+                default: 'password'
+            presenter:
+                type: boolean
+                default: true
+            expire:
+                type: string
+                default: '1h'
+    TokenResponse:
+        type: 'object'
+        properties:
+            token:
+                type: string
