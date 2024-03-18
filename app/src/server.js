@@ -154,6 +154,8 @@ const { v4: uuidV4 } = require('uuid');
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = host + apiBasePath + '/docs'; // api docs
 const api_key_secret = process.env.API_KEY_SECRET || 'mirotalkp2p_default_secret';
+const apiDisabledString = process.env.API_DISABLED || '[]';
+const api_disabled = JSON.parse(apiDisabledString);
 
 // Ngrok config
 const ngrok = require('ngrok');
@@ -525,6 +527,12 @@ app.post(['/login'], (req, res) => {
 
 // request token endpoint
 app.post([`${apiBasePath}/token`], (req, res) => {
+    // Check if endpoint allowed
+    if (api_disabled.includes('token')) {
+        return res.status(403).json({
+            error: 'This endpoint has been disabled. Please contact the administrator for further information.',
+        });
+    }
     // check if user was authorized for the api call
     const { host, authorization } = req.headers;
     const api = new ServerApi(host, authorization, api_key_secret);
