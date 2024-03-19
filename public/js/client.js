@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.05
+ * @version 1.3.06
  *
  */
 
@@ -1665,27 +1665,18 @@ async function changeInitCamera(deviceId) {
         })
         .catch(async (err) => {
             console.error('Error accessing init video device', err);
-            // If error is due to constraints, fallback to default constraints or no constraints or something else
-            if (
-                err.name === 'OverconstrainedError' ||
-                err.name === 'ConstraintNotSatisfiedError' ||
-                err.name === 'DOMException'
-            ) {
-                console.warn('Fallback to default or no constraints for init video');
-                try {
-                    const camStream = await navigator.mediaDevices.getUserMedia({
-                        video: {
-                            deviceId: {
-                                exact: deviceId, // Specify the exact device ID you want to access
-                            },
+            console.warn('Fallback to default constraints');
+            try {
+                const camStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        deviceId: {
+                            exact: deviceId, // Specify the exact device ID you want to access
                         },
-                    }); // Fallback to default constraints
-                    updateLocalVideoMediaStream(camStream);
-                } catch (fallbackErr) {
-                    console.error('Error accessing init video device with default constraints', fallbackErr);
-                    reloadBrowser(err);
-                }
-            } else {
+                    },
+                }); // Fallback to default constraints
+                updateLocalVideoMediaStream(camStream);
+            } catch (fallbackErr) {
+                console.error('Error accessing init video device with default constraints', fallbackErr);
                 reloadBrowser(err);
             }
         });
@@ -1745,21 +1736,18 @@ async function changeLocalCamera(deviceId) {
         })
         .catch(async (err) => {
             console.error('Error accessing local video device:', err);
-            // If error is due to constraints, fallback to default constraints or no constraints or something else
-            if (
-                err.name === 'OverconstrainedError' ||
-                err.name === 'ConstraintNotSatisfiedError' ||
-                err.name === 'DOMException'
-            ) {
-                console.warn('Fallback to default or no constraints for local video');
-                try {
-                    const camStream = await navigator.mediaDevices.getUserMedia({ video: true }); // Fallback to default constraints
-                    updateLocalVideoMediaStream(camStream);
-                } catch (fallbackErr) {
-                    console.error('Error accessing init video device with default constraints', fallbackErr);
-                    printError(err);
-                }
-            } else {
+            console.warn('Fallback to default constraints');
+            try {
+                const camStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        deviceId: {
+                            exact: deviceId, // Specify the exact device ID you want to access
+                        },
+                    },
+                });
+                updateLocalVideoMediaStream(camStream);
+            } catch (fallbackErr) {
+                console.error('Error accessing init video device with default constraints', fallbackErr);
                 printError(err);
             }
         });
@@ -2697,24 +2685,16 @@ async function setupLocalVideoMedia() {
         await updateLocalVideoMediaStream(stream);
     } catch (err) {
         console.error('Error accessing video device', err);
-        // If error is due to constraints, fallback to default constraints or no constraints or something else
-        if (
-            err.name === 'OverconstrainedError' ||
-            err.name === 'ConstraintNotSatisfiedError' ||
-            err.name === 'DOMException'
-        ) {
-            console.warn('Fallback to default or no constraints for video');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true }); // Fallback to default constraints
-                await updateLocalVideoMediaStream(stream);
-            } catch (fallbackErr) {
-                console.error('Error accessing video device with default constraints', fallbackErr);
-                handleMediaError('video', fallbackErr);
-            }
-        } else {
-            handleMediaError('video', err);
+        console.warn('Fallback to default constraints');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            await updateLocalVideoMediaStream(stream);
+        } catch (fallbackErr) {
+            console.error('Error accessing video device with default constraints', fallbackErr);
+            handleMediaError('video', fallbackErr);
         }
     }
+
     /**
      * Update Local Media Stream
      * @param {MediaStream} stream
