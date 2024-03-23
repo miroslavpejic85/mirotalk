@@ -56,20 +56,6 @@ module.exports = class ServerApi {
         if (!token) return '';
 
         const { username = 'username', password = 'password', presenter = false, expire } = token;
-        const expireValue = expire || JWT_EXP;
-        const payload = {
-            username: String(username),
-            password: String(password),
-            presenter: String(presenter),
-        };
-        const jwtToken = jwt.sign(payload, JWT_KEY, { expiresIn: expireValue });
-        return jwtToken;
-    }
-
-    getToken(token) {
-        if (!token) return '';
-
-        const { username = 'username', password = 'password', presenter = false, expire } = token;
 
         const expireValue = expire || JWT_EXP;
 
