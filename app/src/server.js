@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.07
+ * @version 1.3.08
  *
  */
 
@@ -69,7 +69,9 @@ const isHttps = process.env.HTTPS == 'true';
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
 
-let server, authHost;
+const authHost = new Host(); // Authenticated IP by Login
+
+let server;
 
 if (isHttps) {
     const fs = require('fs');
@@ -344,22 +346,16 @@ app.use((err, req, res, next) => {
 // main page
 app.get(['/'], (req, res) => {
     if (hostCfg.protected) {
-        hostCfg.authenticated = false;
-        res.sendFile(views.login);
+        let ip = getIP(req);
+        if (allowedIP(ip)) {
+            res.sendFile(views.landing);
+        } else {
+            hostCfg.authenticated = false;
+            res.sendFile(views.login);
+        }
     } else {
         res.sendFile(views.landing);
     }
-});
-
-// Get stats endpoint
-app.get(['/stats'], (req, res) => {
-    //log.debug('Send stats', statsData);
-    res.send(statsData);
-});
-
-// mirotalk about
-app.get(['/about'], (req, res) => {
-    res.sendFile(views.about);
 });
 
 // set new room name and join
@@ -375,6 +371,17 @@ app.get(['/newcall'], (req, res) => {
     } else {
         res.sendFile(views.newCall);
     }
+});
+
+// Get stats endpoint
+app.get(['/stats'], (req, res) => {
+    //log.debug('Send stats', statsData);
+    res.send(statsData);
+});
+
+// mirotalk about
+app.get(['/about'], (req, res) => {
+    res.sendFile(views.about);
 });
 
 // privacy policy
@@ -427,7 +434,7 @@ app.get('/join/', (req, res) => {
         if (hostCfg.protected && isPeerValid && isPeerPresenter && !hostCfg.authenticated) {
             const ip = getIP(req);
             hostCfg.authenticated = true;
-            authHost = new Host(ip, true);
+            authHost.setAuthorizedIP(ip, true);
             log.debug('Direct Join user auth as host done', {
                 ip: ip,
                 username: peerUsername,
@@ -499,8 +506,12 @@ app.post(['/login'], (req, res) => {
     if (hostCfg.protected && isPeerValid && !hostCfg.authenticated) {
         const ip = getIP(req);
         hostCfg.authenticated = true;
-        authHost = new Host(ip, true);
-        log.debug('HOST LOGIN OK', { ip: ip, authorized: authHost.isAuthorized(ip) });
+        authHost.setAuthorizedIP(ip, true);
+        log.debug('HOST LOGIN OK', {
+            ip: ip,
+            authorized: authHost.isAuthorizedIP(ip),
+            authorizedIps: authHost.getAuthorizedIPs(),
+        });
         const token = encodeToken({ username: username, password: password, presenter: true });
         return res.status(200).json({ message: token });
     }
@@ -1648,7 +1659,9 @@ function getIP(req) {
  * @returns boolean
  */
 function allowedIP(ip) {
-    return authHost != null && authHost.isAuthorized(ip);
+    const allowedIPs = authHost.getAuthorizedIPs();
+    log.info('[allowedIP] - Allowed IPs', { ip: ip, allowedIPs: allowedIPs });
+    return authHost != null && authHost.isAuthorizedIP(ip);
 }
 
 /**
@@ -1658,11 +1671,14 @@ function allowedIP(ip) {
 function removeIP(socket) {
     if (hostCfg.protected) {
         const ip = socket.handshake.address;
-        log.debug('Host protected check ip', { ip: ip });
+        log.debug('[removeIP] - Host protected check ip', { ip: ip });
         if (ip && allowedIP(ip)) {
             authHost.deleteIP(ip);
             hostCfg.authenticated = false;
-            log.debug('Remove IP from auth', { ip: ip });
+            log.info('[removeIP] - Remove IP from auth', {
+                ip: ip,
+                authorizedIps: authHost.getAuthorizedIPs(),
+            });
         }
     }
 }

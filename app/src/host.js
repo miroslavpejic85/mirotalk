@@ -4,15 +4,42 @@ const Logs = require('./logs');
 const log = new Logs('Host');
 
 module.exports = class Host {
-    constructor(ip, authorized) {
-        this.auth = new Map();
-        this.auth.set(ip, authorized);
-        //log.debug('AUTH ---> ', this.auth.get(ip));
+    constructor() {
+        this.authorizedIPs = new Map();
     }
-    isAuthorized(ip) {
-        return this.auth.has(ip);
+
+    /**
+     * Get authorized IPs
+     * @returns object
+     */
+    getAuthorizedIPs() {
+        return Object.fromEntries(this.authorizedIPs);
     }
+
+    /**
+     * Set authorized IP
+     * @param {string} ip
+     * @param {boolean} authorized
+     */
+    setAuthorizedIP(ip, authorized) {
+        this.authorizedIPs.set(ip, authorized);
+    }
+
+    /**
+     * Check if IP is authorized
+     * @param {string} ip
+     * @returns boolean
+     */
+    isAuthorizedIP(ip) {
+        return this.authorizedIPs.has(ip);
+    }
+
+    /**
+     * Delete ip from authorized IPs
+     * @param {string} ip
+     * @returns boolean
+     */
     deleteIP(ip) {
-        return this.auth.delete(ip);
+        return this.authorizedIPs.delete(ip);
     }
 };
