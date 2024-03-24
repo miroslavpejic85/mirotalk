@@ -19,6 +19,18 @@ module.exports = class ServerApi {
         return true;
     }
 
+    getMeetings(peers) {
+        const meetings = {};
+        for (const room_id in peers) {
+            const meeting = peers[room_id];
+            if (!meetings) {
+                meetings = {};
+            }
+            meetings[room_id] = meeting;
+        }
+        return meetings;
+    }
+
     getMeetingURL() {
         return this.getProtocol() + this._host + '/join/' + uuidV4();
     }

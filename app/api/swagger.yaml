@@ -12,6 +12,23 @@ schemes:
     - http
 
 paths:
+    /meetings:
+        get:
+            tags:
+                - 'meetings'
+            summary: 'Get meetings'
+            description: 'Get meetings'
+            produces:
+                - 'application/json'
+            security:
+                - secretApiKey: []
+            responses:
+                '200':
+                    description: 'Get Meetings done'
+                    schema:
+                        $ref: '#/definitions/MeetingsResponse'
+                '403':
+                    description: 'Unauthorized!'
     /meeting:
         post:
             tags:
@@ -132,6 +149,13 @@ securityDefinitions:
         description: 'Format like this: authorization: {API_KEY_SECRET}'
 
 definitions:
+    MeetingsResponse:
+        type: object
+        properties:
+            meetings:
+                type: array
+                items:
+                    $ref: '#/definitions/Meeting'
     MeetingResponse:
         type: 'object'
         properties:
@@ -162,3 +186,38 @@ definitions:
         properties:
             token:
                 type: string
+    Peer:
+        type: object
+        properties:
+            peer_name:
+                type: string
+            peer_presenter:
+                type: boolean
+            peer_video:
+                type: boolean
+            peer_audio:
+                type: boolean
+            peer_video_status:
+                type: boolean
+            peer_audio_status:
+                type: boolean
+            peer_screen_status:
+                type: boolean
+            peer_hand_status:
+                type: boolean
+            peer_privacy_status:
+                type: boolean
+            os:
+                type: string
+            browser:
+                type: string
+
+    Meeting:
+        type: object
+        properties:
+            roomId:
+                type: string
+            peers:
+                type: array
+                items:
+                    $ref: '#/definitions/Peer'

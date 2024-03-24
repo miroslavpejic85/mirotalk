@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.08
+ * @version 1.3.09
  *
  */
 
@@ -156,7 +156,7 @@ const { v4: uuidV4 } = require('uuid');
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = host + apiBasePath + '/docs'; // api docs
 const api_key_secret = process.env.API_KEY_SECRET || 'mirotalkp2p_default_secret';
-const apiDisabledString = process.env.API_DISABLED || '[]';
+const apiDisabledString = process.env.API_DISABLED || '["token", "meetings"]';
 const api_disabled = JSON.parse(apiDisabledString);
 
 // Ngrok config
@@ -561,6 +561,35 @@ app.post([`${apiBasePath}/token`], (req, res) => {
     });
 });
 
+// request meetings list
+app.get([`${apiBasePath}/meetings`], (req, res) => {
+    // Check if endpoint allowed
+    if (api_disabled.includes('meetings')) {
+        return res.status(403).json({
+            error: 'This endpoint has been disabled. Please contact the administrator for further information.',
+        });
+    }
+    // check if user was authorized for the api call
+    const { host, authorization } = req.headers;
+    const api = new ServerApi(host, authorization, api_key_secret);
+    if (!api.isAuthorized()) {
+        log.debug('MiroTalk get meetings - Unauthorized', {
+            header: req.headers,
+            body: req.body,
+        });
+        return res.status(403).json({ error: 'Unauthorized!' });
+    }
+    // Get meetings
+    const meetings = api.getMeetings(peers);
+    res.json({ meetings: meetings });
+    // log.debug the output if all done
+    log.debug('MiroTalk get meetings - Authorized', {
+        header: req.headers,
+        body: req.body,
+        meetings: meetings,
+    });
+});
+
 // API request meeting room endpoint
 app.post([`${apiBasePath}/meeting`], (req, res) => {
     // Check if endpoint allowed
@@ -900,6 +929,7 @@ io.sockets.on('connect', async (socket) => {
             peer_hand_status,
             peer_rec_status,
             peer_privacy_status,
+            peer_info,
         } = config;
 
         if (channel in socket.channels) {
@@ -978,6 +1008,9 @@ io.sockets.on('connect', async (socket) => {
         // Check if peer is presenter, if token check the presenter key
         const isPresenter = peer_token ? is_presenter : await isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
+        // Some peer info data
+        const { osName, osVersion, browserName, browserVersion } = peer_info;
+
         // collect peers info grp by channels
         peers[channel][socket.id] = {
             peer_name: peer_name,
@@ -990,6 +1023,8 @@ io.sockets.on('connect', async (socket) => {
             peer_hand_status: peer_hand_status,
             peer_rec_status: peer_rec_status,
             peer_privacy_status: peer_privacy_status,
+            os: osName ? `${osName} ${osVersion}` : '',
+            browser: browserName ? `${browserName} ${browserVersion}` : '',
         };
 
         const activeRooms = getActiveRooms();
