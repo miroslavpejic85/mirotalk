@@ -346,7 +346,7 @@ app.use((err, req, res, next) => {
 // main page
 app.get(['/'], (req, res) => {
     if (hostCfg.protected) {
-        let ip = getIP(req);
+        const ip = getIP(req);
         if (allowedIP(ip)) {
             res.sendFile(views.landing);
         } else {

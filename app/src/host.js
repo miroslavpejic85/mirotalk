@@ -1,8 +1,5 @@
 'use strict';
 
-const Logs = require('./logs');
-const log = new Logs('Host');
-
 module.exports = class Host {
     constructor() {
         this.authorizedIPs = new Map();
