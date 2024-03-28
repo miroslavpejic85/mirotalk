@@ -1927,6 +1927,9 @@ async function handleAddPeer(config) {
         await loadRemoteMediaStream(new MediaStream(), peers, peer_id, 'video');
     }
 
+    // Send my audio off...
+    !myAudioStatus && handleAudio(audioBtn, false, false);
+
     await wbUpdate();
     playSound('addPeer');
 }
@@ -3371,8 +3374,6 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             elemDisplay(getId(remoteAudioVolumeId), peer_audio_status);
             // Change audio output...
             if (sinkId && audioOutputSelect.value) await changeAudioDestination(remoteAudioMedia);
-            // Send my audio is off
-            !myAudioStatus && handleAudio(audioBtn, false, false);
             break;
         default:
             break;
