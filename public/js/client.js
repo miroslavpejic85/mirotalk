@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.09
+ * @version 1.3.10
  *
  */
 
@@ -3371,6 +3371,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             elemDisplay(getId(remoteAudioVolumeId), peer_audio_status);
             // Change audio output...
             if (sinkId && audioOutputSelect.value) await changeAudioDestination(remoteAudioMedia);
+            // Send my audio is off
+            !myAudioStatus && handleAudio(audioBtn, false, false);
             break;
         default:
             break;
