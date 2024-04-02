@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.10
+ * @version 1.3.11
  *
  */
 
@@ -65,7 +65,7 @@ const log = new Logs('server');
 const packageJson = require('../../package.json');
 
 const domain = process.env.HOST || 'localhost';
-const isHttps = process.env.HTTPS == 'true';
+const isHttps = process.env.HTTPS == 'true'; // Use self-signed certificates instead of Certbot and Let's Encrypt
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
 
@@ -75,10 +75,30 @@ let server;
 
 if (isHttps) {
     const fs = require('fs');
+
+    // Define paths to the SSL key and certificate files
+    const keyPath = path.join(__dirname, '../ssl/key.pem');
+    const certPath = path.join(__dirname, '../ssl/cert.pem');
+
+    // Check if SSL key file exists
+    if (!fs.existsSync(keyPath)) {
+        log.error('SSL key file not found.');
+        process.exit(1); // Exit the application if the key file is missing
+    }
+
+    // Check if SSL certificate file exists
+    if (!fs.existsSync(certPath)) {
+        log.error('SSL certificate file not found.');
+        process.exit(1); // Exit the application if the certificate file is missing
+    }
+
+    // Read SSL key and certificate files securely
     const options = {
-        key: fs.readFileSync(path.join(__dirname, '../ssl/key.pem'), 'utf-8'),
-        cert: fs.readFileSync(path.join(__dirname, '../ssl/cert.pem'), 'utf-8'),
+        key: fs.readFileSync(keyPath, 'utf-8'),
+        cert: fs.readFileSync(certPath, 'utf-8'),
     };
+
+    // Create HTTPS server using self-signed certificates
     server = https.createServer(options, app);
 } else {
     server = http.createServer(app);
@@ -715,9 +735,9 @@ function getServerConfig(tunnel = false) {
             ngrok_enabled: ngrokEnabled,
             ngrok_token: ngrokEnabled ? ngrokAuthToken : '',
         },
-        server: host,
         cors: corsOptions,
         server_tunnel: tunnel,
+        server: host,
         test_ice_servers: testStunTurn,
         api_docs: api_docs,
         api_key_secret: api_key_secret,
