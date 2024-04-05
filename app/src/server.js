@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.11
+ * @version 1.3.12
  *
  */
 
@@ -1714,9 +1714,10 @@ function getIP(req) {
  * @returns boolean
  */
 function allowedIP(ip) {
-    const allowedIPs = authHost.getAuthorizedIPs();
-    log.info('[allowedIP] - Allowed IPs', { ip: ip, allowedIPs: allowedIPs });
-    return authHost != null && authHost.isAuthorizedIP(ip);
+    const authorizedIPs = authHost.getAuthorizedIPs();
+    const authorizedIP = authHost.isAuthorizedIP(ip);
+    log.info('Allowed IPs', { ip: ip, authorizedIP: authorizedIP, authorizedIPs: authorizedIPs });
+    return authHost != null && authorizedIP;
 }
 
 /**
@@ -1725,7 +1726,7 @@ function allowedIP(ip) {
  */
 function removeIP(socket) {
     if (hostCfg.protected) {
-        const ip = socket.handshake.address;
+        const ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
         log.debug('[removeIP] - Host protected check ip', { ip: ip });
         if (ip && allowedIP(ip)) {
             authHost.deleteIP(ip);
