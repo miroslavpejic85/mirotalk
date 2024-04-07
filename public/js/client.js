@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.12
+ * @version 1.3.13
  *
  */
 
@@ -2982,7 +2982,7 @@ async function loadLocalMedia(stream, kind) {
 
             handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
-            buttons.local.showVideoPipBtn && handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id);
+            buttons.local.showVideoPipBtn && handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id, myPeerId);
 
             ZOOM_IN_OUT_ENABLED && handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
 
@@ -3297,7 +3297,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             handleVideoToggleMirror(remoteMedia.id, remoteVideoMirrorBtn.id);
 
             // handle vide picture in picture
-            buttons.remote.showVideoPipBtn && handlePictureInPicture(remoteVideoPiPBtn.id, remoteMedia.id);
+            buttons.remote.showVideoPipBtn && handlePictureInPicture(remoteVideoPiPBtn.id, remoteMedia.id, peer_id);
 
             // handle video zoomIn/Out
             ZOOM_IN_OUT_ENABLED &&
@@ -3993,14 +3993,23 @@ function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null)
  *
  * @param {string} btnId
  * @param {string} videoId
+ * @param {string} peerId
  */
-function handlePictureInPicture(btnId, videoId) {
+function handlePictureInPicture(btnId, videoId, peerId) {
     const btnPiP = getId(btnId);
     const video = getId(videoId);
+    const myVideoStatus = getId('myVideoStatusIcon');
+    const remoteVideoStatus = getId(peerId + '_videoStatus');
     btnPiP.addEventListener('click', () => {
         if (video.pictureInPictureElement) {
             video.exitPictureInPicture();
         } else if (document.pictureInPictureEnabled) {
+            if (
+                (myVideoStatus && myVideoStatus.className === className.videoOff) ||
+                (remoteVideoStatus && remoteVideoStatus.className === className.videoOff)
+            ) {
+                return msgPopup('warning', 'Prohibit Picture-in-Picture (PIP) on disabled video', 'top-end', 6000);
+            }
             video.requestPictureInPicture().catch((error) => {
                 console.error('Failed to enter Picture-in-Picture mode:', error);
                 msgPopup('warning', error.message, 'top-end', 6000);
