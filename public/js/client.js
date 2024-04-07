@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.13
+ * @version 1.3.14
  *
  */
 
@@ -1600,7 +1600,6 @@ async function loadLocalStorage() {
     if (useVideo && initVideoSelect.value) {
         await changeInitCamera(initVideoSelect.value);
         await handleLocalCameraMirror();
-        await checkInitConfig();
     }
     // Refresh audio
     if (useAudio && audioInputSelect.value) {
@@ -1608,6 +1607,9 @@ async function loadLocalStorage() {
     }
     // Refresh speaker
     if (audioOutputSelect.value) await changeAudioDestination();
+
+    // Check init audio/video
+    await checkInitConfig();
 }
 
 /**
@@ -1658,10 +1660,10 @@ async function changeInitCamera(deviceId) {
     const videoConstraints = await getVideoConstraints('default');
     videoConstraints['deviceId'] = { exact: deviceId };
 
-    navigator.mediaDevices
+    await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
-            updateLocalVideoMediaStream(camStream);
+            updateInitLocalVideoMediaStream(camStream);
         })
         .catch(async (err) => {
             console.error('Error accessing init video device', err);
@@ -1674,7 +1676,7 @@ async function changeInitCamera(deviceId) {
                         },
                     },
                 }); // Fallback to default constraints
-                updateLocalVideoMediaStream(camStream);
+                updateInitLocalVideoMediaStream(camStream);
             } catch (fallbackErr) {
                 console.error('Error accessing init video device with default constraints', fallbackErr);
                 reloadBrowser(err);
@@ -1682,10 +1684,10 @@ async function changeInitCamera(deviceId) {
         });
 
     /**
-     * Update Local Video Stream
+     * Update Init/Local Video Stream
      * @param {MediaStream} camStream
      */
-    function updateLocalVideoMediaStream(camStream) {
+    function updateInitLocalVideoMediaStream(camStream) {
         if (camStream) {
             // We going to update init video stream
             initVideo.srcObject = camStream;
@@ -1729,7 +1731,7 @@ async function changeLocalCamera(deviceId) {
     videoConstraints['deviceId'] = { exact: deviceId };
     console.log('videoConstraints', videoConstraints);
 
-    navigator.mediaDevices
+    await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
             updateLocalVideoMediaStream(camStream);
@@ -1790,7 +1792,7 @@ async function changeLocalMicrophone(deviceId) {
     audioConstraints['deviceId'] = { exact: deviceId };
     console.log('audioConstraints', audioConstraints);
 
-    navigator.mediaDevices
+    await navigator.mediaDevices
         .getUserMedia({ audio: audioConstraints })
         .then((micStream) => {
             myAudio.srcObject = micStream;
@@ -1926,9 +1928,6 @@ async function handleAddPeer(config) {
     if (!peer_video) {
         await loadRemoteMediaStream(new MediaStream(), peers, peer_id, 'video');
     }
-
-    // Send my audio off...
-    !myAudioStatus && handleAudio(audioBtn, false, false);
 
     await wbUpdate();
     playSound('addPeer');
