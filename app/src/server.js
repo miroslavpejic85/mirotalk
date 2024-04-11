@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.14
+ * @version 1.3.15
  *
  */
 
@@ -922,7 +922,7 @@ io.sockets.on('connect', async (socket) => {
      */
     socket.on('join', async (cfg) => {
         // Get peer IPv4 (::1 Its the loopback address in ipv6, equal to 127.0.0.1 in ipv4)
-        const peer_ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
+        const peer_ip = getSocketIP(socket);
 
         // Get peer Geo Location
         if (IPLookupEnabled && peer_ip != '::1') {
@@ -1705,7 +1705,20 @@ function getActiveRooms() {
  * @returns string ip
  */
 function getIP(req) {
-    return req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    return req.headers['x-forwarded-for'] || req.headers['X-Forwarded-For'] || req.socket.remoteAddress || req.ip;
+}
+
+/**
+ * Get IP from socket
+ * @param {object} socket
+ * @returns string
+ */
+function getSocketIP(socket) {
+    return (
+        socket.handshake.headers['x-forwarded-for'] ||
+        socket.handshake.headers['X-Forwarded-For'] ||
+        socket.handshake.address
+    );
 }
 
 /**
@@ -1726,7 +1739,7 @@ function allowedIP(ip) {
  */
 function removeIP(socket) {
     if (hostCfg.protected) {
-        const ip = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
+        const ip = getSocketIP(socket);
         log.debug('[removeIP] - Host protected check ip', { ip: ip });
         if (ip && allowedIP(ip)) {
             authHost.deleteIP(ip);
