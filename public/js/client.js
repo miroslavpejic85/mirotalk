@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.15
+ * @version 1.3.16
  *
  */
 
@@ -879,10 +879,14 @@ function setTippy(element, content, placement) {
         if (element._tippy) {
             element._tippy.destroy();
         }
-        tippy(element, {
-            content: content,
-            placement: placement,
-        });
+        try {
+            tippy(element, {
+                content: content,
+                placement: placement,
+            });
+        } catch (err) {
+            console.error('setTippy error', err.message);
+        }
     } else {
         console.warn('setTippy element not found with content', content);
     }
