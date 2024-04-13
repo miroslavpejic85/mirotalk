@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.16
+ * @version 1.3.17
  *
  */
 
@@ -365,7 +365,7 @@ app.use((err, req, res, next) => {
 
 // main page
 app.get(['/'], (req, res) => {
-    if (hostCfg.protected) {
+    if (hostCfg.protected && !hostCfg.authenticated) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
             res.sendFile(views.landing);
@@ -380,7 +380,7 @@ app.get(['/'], (req, res) => {
 
 // set new room name and join
 app.get(['/newcall'], (req, res) => {
-    if (hostCfg.protected) {
+    if (hostCfg.protected && !hostCfg.authenticated) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
             res.sendFile(views.newCall);
@@ -417,7 +417,7 @@ app.get(['/test'], (req, res) => {
     res.sendFile(views.stunTurn);
 });
 
-// no room name specified to join
+// Handle Direct join room with params
 app.get('/join/', (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
@@ -470,10 +470,6 @@ app.get('/join/', (req, res) => {
             return res.sendFile(views.login);
         }
     }
-    if (hostCfg.protected) {
-        return res.sendFile(views.login);
-    }
-    res.redirect('/');
 });
 
 // Join Room by id
