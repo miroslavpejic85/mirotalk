@@ -6,6 +6,7 @@ const log = new Logs('NodeMailer');
 
 const HTTPS = process.env.HTTPS === 'true' || false;
 const LOCAL_PORT = process.env.PORT || 3000;
+
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = process.env.EMAIL_PORT;
 const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
