@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.19
+ * @version 1.3.20
  *
  */
 
@@ -62,6 +62,10 @@ const ServerApi = require('./api');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
+
+// Email alerts and notifications
+const nodemailer = require('./lib/nodemailer');
+
 const packageJson = require('../../package.json');
 
 const domain = process.env.HOST || 'localhost';
@@ -1074,6 +1078,17 @@ io.sockets.on('connect', async (socket) => {
             },
             //...
         });
+
+        // SCENARIO: Notify when the first user join room and is awaiting assistance...
+        if (peerCounts === 1) {
+            nodemailer.sendEmailAlert('join', {
+                room_id: channel,
+                peer_name: peer_name,
+                domain: socket.handshake.headers.host.split(':')[0],
+                os: osName ? `${osName} ${osVersion}` : '',
+                browser: browserName ? `${browserName} ${browserVersion}` : '',
+            }); // .env EMAIL_ALERT=true
+        }
     });
 
     /**

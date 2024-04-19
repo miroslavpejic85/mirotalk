@@ -1,4 +1,4 @@
-'use-strict';
+'use strict';
 
 // https://codepen.io/tutsplus/pen/BaVqjvg
 
@@ -20,7 +20,7 @@ const getRandomStyles = () => {
     left: ${left}%;
     font-size: ${size}px;
     animation-duration: ${dur}s;
-  `;
+    `;
 };
 
 const createSnow = (num) => {
