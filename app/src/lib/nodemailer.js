@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const Logs = require('../logs');
 const log = new Logs('NodeMailer');
 
+const HTTPS = process.env.HTTPS === 'true' || false;
 const LOCAL_PORT = process.env.PORT || 3000;
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = process.env.EMAIL_PORT;
@@ -100,10 +101,10 @@ function getJoinRoomBody(data) {
     const localDomains = ['localhost', '127.0.0.1'];
 
     const currentDomain = localDomains.some((localDomain) => domain.includes(localDomain))
-        ? `${domain}:${LOCAL_PORT}`
+        ? `${HTTPS ? 'https' : 'http'}://${domain}:${LOCAL_PORT}`
         : domain;
 
-    const room_join = `https://${currentDomain}/join/`;
+    const room_join = `${currentDomain}/join/`;
 
     return `
         <h1>New user join</h1>
