@@ -87,6 +87,8 @@ class LocalStorage {
             case this.MEDIA_TYPE.video:
                 this.P2P_INIT_CONFIG.video = status;
                 break;
+            default:
+                break;
         }
         this.setObjectLocalStorage('P2P_INIT_CONFIG', this.P2P_INIT_CONFIG);
     }

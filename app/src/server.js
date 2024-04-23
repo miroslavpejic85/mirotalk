@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.21
+ * @version 1.3.22
  *
  */
 
@@ -1166,6 +1166,8 @@ io.sockets.on('connect', async (socket) => {
                     };
                     await sendToPeer(socket.id, sockets, 'roomAction', data);
                     break;
+                default:
+                    break;
             }
         } catch (err) {
             log.error('Room action', toJson(err));
@@ -1256,6 +1258,8 @@ io.sockets.on('connect', async (socket) => {
                             break;
                         case 'privacy':
                             peers[room_id][peer_id]['peer_privacy_status'] = status;
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -1474,6 +1478,8 @@ io.sockets.on('connect', async (socket) => {
                         delete peers[channel]; // clean lock and password value from the room
                         delete presenters[channel]; // clean the presenter from the channel
                     }
+                    break;
+                default:
                     break;
             }
         } catch (err) {
