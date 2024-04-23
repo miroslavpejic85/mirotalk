@@ -967,13 +967,18 @@ io.sockets.on('connect', async (socket) => {
         let is_presenter = true;
 
         // User Auth required, we check if peer valid
-        if (hostCfg.user_auth) {
+        if (hostCfg.user_auth || peer_token) {
             // Check JWT
             if (peer_token) {
                 try {
                     const { username, password, presenter } = checkXSS(decodeToken(peer_token));
 
                     const isPeerValid = isAuthPeer(username, password);
+
+                    if (!isPeerValid) {
+                        // redirect peer to login page
+                        return socket.emit('unauthorized');
+                    }
 
                     // Presenter if token 'presenter' is '1'/'true' or first to join room
                     is_presenter =
@@ -986,11 +991,6 @@ io.sockets.on('connect', async (socket) => {
                         peer_valid: isPeerValid,
                         peer_presenter: is_presenter,
                     });
-
-                    if (!isPeerValid) {
-                        // redirect peer to login page
-                        return socket.emit('unauthorized');
-                    }
                 } catch (err) {
                     // redirect peer to login page
                     log.error('[' + socket.id + '] [Warning] Join Room JWT error', err.message);
