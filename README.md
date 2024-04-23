@@ -29,7 +29,7 @@
 
 <br/>
 
--   Is `100% Free` - `Open Source (AGPLv3)` - `Self Hosted` and [PWA](https://en.wikipedia.org/wiki/Progressive_web_application)!
+-   Is `100% Free` - `Open Source under (AGPLv3)` - `Self Hosted` and [PWA](https://en.wikipedia.org/wiki/Progressive_web_application)!
 -   No downloads, plugins, or logins required – completely browser-based.
 -   Unlimited conference rooms with no time limitations.
 -   Translated into 133 languages.
