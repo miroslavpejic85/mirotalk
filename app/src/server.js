@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.22
+ * @version 1.3.23
  *
  */
 
@@ -422,7 +422,7 @@ app.get(['/test'], (req, res) => {
 });
 
 // Handle Direct join room with params
-app.get('/join/', (req, res) => {
+app.get('/join/', async (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
         /* 
@@ -439,6 +439,14 @@ app.get('/join/', (req, res) => {
 
         if (token) {
             try {
+                // Check if valid JWT token
+                const validToken = await isValidToken(token);
+
+                // Not valid token
+                if (!validToken) {
+                    return res.status(401).json({ message: 'Invalid Token' });
+                }
+
                 const { username, password, presenter } = checkXSS(decodeToken(token));
                 // Peer credentials
                 peerUsername = username;
@@ -971,6 +979,13 @@ io.sockets.on('connect', async (socket) => {
             // Check JWT
             if (peer_token) {
                 try {
+                    const validToken = await isValidToken(peer_token);
+
+                    if (!validToken) {
+                        // redirect peer to login page
+                        return socket.emit('unauthorized');
+                    }
+
                     const { username, password, presenter } = checkXSS(decodeToken(peer_token));
 
                     const isPeerValid = isAuthPeer(username, password);
@@ -1642,6 +1657,25 @@ async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
  */
 function isAuthPeer(username, password) {
     return hostCfg.users && hostCfg.users.some((user) => user.username === username && user.password === password);
+}
+
+/**
+ * Check if valid JWT token
+ * @param {string} token
+ * @returns boolean
+ */
+async function isValidToken(token) {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, jwtCfg.JWT_KEY, (err, decoded) => {
+            if (err) {
+                // Token is invalid
+                resolve(false);
+            } else {
+                // Token is valid
+                resolve(true);
+            }
+        });
+    });
 }
 
 /**
