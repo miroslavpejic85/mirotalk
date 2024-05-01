@@ -18,6 +18,7 @@ dependencies: {
     crypto-js               : https://www.npmjs.com/package/crypto-js
     dotenv                  : https://www.npmjs.com/package/dotenv
     express                 : https://www.npmjs.com/package/express
+    express-openid-connect  : https://www.npmjs.com/package/express-openid-connect
     jsonwebtoken            : https://www.npmjs.com/package/jsonwebtoken
     ngrok                   : https://www.npmjs.com/package/ngrok
     qs                      : https://www.npmjs.com/package/qs
@@ -39,7 +40,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.23
+ * @version 1.3.24
  *
  */
 
@@ -47,6 +48,7 @@ dependencies: {
 
 require('dotenv').config();
 
+const { auth, requiresAuth } = require('express-openid-connect');
 const { Server } = require('socket.io');
 const http = require('http');
 const https = require('https');
@@ -280,6 +282,38 @@ const ipWhitelist = {
     allowed: process.env.IP_WHITELIST_ALLOWED ? JSON.parse(process.env.IP_WHITELIST_ALLOWED) : [],
 };
 
+// OIDC - Open ID Connect
+const OIDC = {
+    enabled: process.env.OIDC_ENABLED ? getEnvBoolean(process.env.OIDC_ENABLED) : false,
+    config: {
+        issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
+        clientID: process.env.OIDC_CLIENT_ID,
+        clientSecret: process.env.OIDC_CLIENT_SECRET,
+        baseURL: process.env.OIDC_BASE_URL,
+        secret: process.env.SESSION_SECRET,
+        authorizationParams: {
+            response_type: 'code',
+            scope: 'openid profile email',
+        },
+        authRequired: false, // Set to true if authentication is required for all routes
+        auth0Logout: true, // Set to true to enable logout with Auth0
+        routes: {
+            callback: '/auth/callback', // Indicating the endpoint where your application will handle the callback from the authentication provider after a user has been authenticated.
+            login: false, // Dedicated route in your application for user login.
+            logout: '/logout', // Indicating the endpoint where your application will handle user logout requests.
+        },
+    },
+};
+
+// Custom middleware function for OIDC authentication
+const OIDCAuth = function (req, res, next) {
+    if (OIDC.enabled) {
+        requiresAuth()(req, res, next); // Apply requiresAuth() middleware conditionally
+    } else {
+        next();
+    }
+};
+
 // stats configuration
 const statsData = {
     enabled: process.env.STATS_ENABLED ? getEnvBoolean(process.env.STATS_ENABLED) : true,
@@ -367,8 +401,37 @@ app.use((err, req, res, next) => {
     }
 });
 
+// OpenID Connect
+if (OIDC.enabled) {
+    try {
+        app.use(auth(OIDC.config));
+    } catch (err) {
+        log.error(err);
+        process.exit(1);
+    }
+}
+
+// Route to display user information
+app.get('/profile', OIDCAuth, (req, res) => {
+    if (OIDC.enabled) {
+        return res.json(req.oidc.user); // Send user information as JSON
+    }
+    res.sendFile(views.notFound);
+});
+
+// Authentication Callback Route
+app.get('/auth/callback', (req, res, next) => {
+    next(); // Let express-openid-connect handle this route
+});
+
+// Logout Route
+app.get('/logout', (req, res) => {
+    if (OIDC.enabled) req.logout();
+    res.redirect('/'); // Redirect to the home page after logout
+});
+
 // main page
-app.get(['/'], (req, res) => {
+app.get(['/'], OIDCAuth, (req, res) => {
     if (hostCfg.protected && !hostCfg.authenticated) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
@@ -383,7 +446,7 @@ app.get(['/'], (req, res) => {
 });
 
 // set new room name and join
-app.get(['/newcall'], (req, res) => {
+app.get(['/newcall'], OIDCAuth, (req, res) => {
     if (hostCfg.protected && !hostCfg.authenticated) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
@@ -422,7 +485,7 @@ app.get(['/test'], (req, res) => {
 });
 
 // Handle Direct join room with params
-app.get('/join/', async (req, res) => {
+app.get('/join/', OIDCAuth, async (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
         /* 
@@ -485,7 +548,7 @@ app.get('/join/', async (req, res) => {
 });
 
 // Join Room by id
-app.get('/join/:roomId', function (req, res) {
+app.get('/join/:roomId', OIDCAuth, function (req, res) {
     // log.debug('Join to room', { roomId: req.params.roomId });
     if (hostCfg.authenticated) {
         res.sendFile(views.client);
@@ -735,6 +798,7 @@ function getServerConfig(tunnel = false) {
     return {
         iceServers: iceServers,
         stats: statsData,
+        oidc: OIDC,
         host: hostCfg,
         jwtCfg: jwtCfg,
         presenters: roomPresenters,
