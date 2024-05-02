@@ -798,7 +798,7 @@ function getServerConfig(tunnel = false) {
     return {
         iceServers: iceServers,
         stats: statsData,
-        oidc: OIDC,
+        oidc: OIDC.enabled ? OIDC : false,
         host: hostCfg,
         jwtCfg: jwtCfg,
         presenters: roomPresenters,
