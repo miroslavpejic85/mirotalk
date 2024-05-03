@@ -44,9 +44,13 @@
 
         <!-- StyleSheet -->
 
-        <!-- <link rel="stylesheet" href="../css/snow.css" /> -->
         <link rel="stylesheet" href="../css/landing.css" />
         <link rel="stylesheet" href="../css/newcall.css" />
+
+        <!-- Snow effects -->
+
+        <!-- <link rel="stylesheet" href="../css/snow.css" />
+        <script defer src="../js/snow.js"></script> -->
 
         <!-- JavaScripts -->
 
@@ -116,7 +120,7 @@
                             </div>
                             <div class="cta-action">
                                 <div class="mb-0">
-                                    <label class="form-label screen-reader" for="roomName">mirotalk</label>
+                                    <label class="form-label screen-reader" for="roomName">MiroTalk-P2P</label>
                                     <div class="form-group-desktop">
                                         <input
                                             id="roomName"
@@ -129,61 +133,19 @@
                                         <button
                                             id="genRoomButton"
                                             class="button button-primary br-6 mr-8 mb-8 fas fa-arrows-rotate"
-                                            onclick="genRoom()"
                                         ></button>
                                         <button
                                             id="joinRoomButton"
                                             class="button button-primary br-6 pulse"
-                                            onclick="joinRoom()"
                                         >
                                             Join Room
                                         </button>
-                                        <script>
-                                            document.getElementById('roomName').onkeyup = (e) => {
-                                                if (e.keyCode === 13) {
-                                                    e.preventDefault();
-                                                    joinRoom();
-                                                }
-                                            };
-                                            function genRoom() {
-                                                document.getElementById('roomName').value = getUUID4();
-                                            }
-                                            function getUUID4() {
-                                                return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-                                                    (
-                                                        c ^
-                                                        (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
-                                                    ).toString(16),
-                                                );
-                                            }
-                                            function joinRoom() {
-                                                const roomName = filterXSS(document.getElementById('roomName').value);
-                                                if (roomName) {
-                                                    window.location.href = '/join/' + roomName;
-                                                    window.localStorage.lastRoom = roomName;
-                                                } else {
-                                                    alert('Room name empty!\nPlease pick a room name.');
-                                                }
-                                            }
-                                        </script>
                                     </div>
                                 </div>
                                 <div id="lastRoomContainer" class="last-room">
                                     <span>Your recent room:</span>
                                     <a id="lastRoom"></a>
                                 </div>
-                                <script>
-                                    const lastRoomContainer = document.getElementById('lastRoomContainer');
-                                    const lastRoom = document.getElementById('lastRoom');
-                                    const lastRoomName = window.localStorage.lastRoom
-                                        ? window.localStorage.lastRoom
-                                        : '';
-                                    if (lastRoomName) {
-                                        lastRoomContainer.style.display = 'inline-flex';
-                                        lastRoom.setAttribute('href', '/join/' + lastRoomName);
-                                        lastRoom.innerText = lastRoomName;
-                                    }
-                                </script>
                             </div>
                         </div>
                     </div>
@@ -522,7 +484,7 @@
                                 </li>
                                 <li class="reveal-from-top" data-reveal-delay="450">
                                     <div class="clients-logo">
-                                        <a style="cursor: pointer" onclick="adultContent()"
+                                        <a id="adultCnt" style="cursor: pointer"
                                             ><img
                                                 class="clients-size-logo"
                                                 src="../sponsors/LuvLounge.png"
@@ -530,17 +492,6 @@
                                         /></a>
                                     </div>
                                 </li>
-                                <script>
-                                    function adultContent() {
-                                        if (
-                                            confirm(
-                                                '18+ WARNING! ADULTS ONLY!\n\nExplicit material for viewing by adults 18 years of age or older. You must be at least 18 years old to access to this site!\n\nProceeding you are agree and confirm to have 18+ year.',
-                                            )
-                                        ) {
-                                            window.open('https://luvlounge.ca', '_blank');
-                                        }
-                                    }
-                                </script>
                                 <li class="reveal-from-top" data-reveal-delay="600">
                                     <div class="clients-logo">
                                         <a href="https://www.questionpro.com" target="_blank"
@@ -734,10 +685,9 @@
             </footer>
         </div>
 
-        <!-- <script defer src="../js/snow.js"></script> -->
-        <script defer src="../js/common.js"></script>
+        <script defer src="../js/brand.js"></script>
         <script defer src="../js/landing.js"></script>
-        <script defer src="../js/newRoom.js"></script>
+        <script defer src="../js/common.js"></script>
         <script async defer src="https://buttons.github.io/buttons.js"></script>
     </body>
 </html>
