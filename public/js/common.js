@@ -130,14 +130,6 @@ noun = noun.charAt(0).toUpperCase() + noun.substring(1);
 adjective = adjective.charAt(0).toUpperCase() + adjective.substring(1);
 document.getElementById('roomName').value = '';
 
-// Typing Effect
-
-let i = 0;
-let txt = num + adjective + noun;
-let speed = 100;
-
-typeWriter();
-
 /**
  * Get random number
  * @param {integer} length of string
@@ -153,6 +145,12 @@ function getRandomNumber(length) {
     return result;
 }
 
+// Typing Effect
+
+let i = 0;
+let txt = num + adjective + noun;
+let speed = 100;
+
 /**
  * Set room name with typewriter effect
  */
@@ -164,9 +162,10 @@ function typeWriter() {
     }
 }
 
+typeWriter();
 
 // ####################################################################
-// LANDING | NEW CALL 
+// LANDING | NEW CALL
 // ####################################################################
 
 const lastRoomContainer = document.getElementById('lastRoomContainer');
@@ -183,15 +182,15 @@ const joinRoomButton = document.getElementById('joinRoomButton');
 const adultCnt = document.getElementById('adultCnt');
 
 genRoomButton.onclick = (e) => {
-	genRoom();
+    genRoom();
 };
 
 joinRoomButton.onclick = (e) => {
-	joinRoom();
+    joinRoom();
 };
 
 adultCnt.onclick = (e) => {
-	adultContent();
+    adultContent();
 };
 
 document.getElementById('roomName').onkeyup = (e) => {
@@ -240,7 +239,7 @@ const room_id = filterXSS(qs.get('room_id'));
 const message = filterXSS(qs.get('message'));
 const showMessage = document.getElementById('message');
 console.log('Allow Camera or Audio', {
-		room_id: room_id,
-		message: message,
+    room_id: room_id,
+    message: message,
 });
 if (showMessage) showMessage.innerHTML = message;

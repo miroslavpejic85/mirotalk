@@ -66,7 +66,7 @@
         <script async src="../js/umami.js"></script>
     </head>
 
-    <body onload="initClientPeer()">
+    <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
 
         <!-- just 4SEO Optimization -->
@@ -101,14 +101,10 @@ access to use this app.
                 ></video>
             </div>
             <div class="initComands">
-                <button id="initVideoBtn" class="fas fa-video" onclick="handleVideo(event, true)"></button>
-                <button id="initAudioBtn" class="fas fa-microphone" onclick="handleAudio(event, true)"></button>
+                <button id="initVideoBtn" class="fas fa-video"></button>
+                <button id="initAudioBtn" class="fas fa-microphone"></button>
                 <button id="initScreenShareBtn" class="fas fa-desktop"></button>
-                <button
-                    id="initVideoMirrorBtn"
-                    class="fas fa-arrow-right-arrow-left"
-                    onclick="toggleInitVideoMirror()"
-                ></button>
+                <button id="initVideoMirrorBtn" class="fas fa-arrow-right-arrow-left"></button>
                 <select id="initVideoSelect" class="form-select text-light bg-dark"></select>
                 <select id="initMicrophoneSelect" class="form-select text-light bg-dark"></select>
                 <select id="initSpeakerSelect" class="form-select text-light bg-dark"></select>
@@ -233,7 +229,6 @@ access to use this app.
                                 placeholder=" 🔍 Search peer by name..."
                                 maxlength="32"
                                 name="search"
-                                onkeyup="searchPeer()"
                             />
                         </div>
                         <br />
