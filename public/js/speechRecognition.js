@@ -78,6 +78,8 @@ const recognitionDialect = getId('recognitionDialect');
 
 let isWebkitSpeechRecognitionSupported = false;
 let recognitionRunning = false;
+let isPersistentMode = false;
+let isPersistent = false;
 let recognition;
 
 if (speechRecognition) {
@@ -93,7 +95,7 @@ if (speechRecognition) {
         elemDisplay(speechRecognitionStart, false);
         elemDisplay(speechRecognitionStop, true, 'block');
         setColor(speechRecognitionIcon, 'lime');
-        userLog('toast', 'Speech recognition started');
+        !isPersistentMode ? userLog('toast', 'TSpeech recognition started') : (isPersistent = true);
     };
 
     // Detect the said words
@@ -125,6 +127,7 @@ if (speechRecognition) {
 
     recognition.onerror = function (event) {
         console.error('Speech recognition error', event.error);
+        if (!isPersistent || !isPersistentMode) userLog('toast', `Transcription error ${event.error}`, 6000);
     };
 
     recognition.onend = function () {
@@ -133,7 +136,15 @@ if (speechRecognition) {
         elemDisplay(speechRecognitionStop, false);
         elemDisplay(speechRecognitionStart, true, 'block');
         setColor(speechRecognitionIcon, 'white');
-        userLog('toast', 'Speech recognition stopped');
+        // Prevent stopping in the absence of speech...
+        if (isPersistentMode && isPersistent && recognitionRunning) {
+            setTimeout(() => {
+                startSpeech();
+            }, 2000);
+        } else {
+            isPersistent = false;
+            userLog('toast', 'Speech recognition stopped');
+        }
     };
 
     isWebkitSpeechRecognitionSupported = true;
@@ -178,6 +189,8 @@ function handleRecognitionLanguages() {
  */
 function startSpeech() {
     try {
+        isPersistent = true;
+        isPersistentMode = true;
         recognitionRunning = true;
         recognition.lang = recognitionDialect.value;
         recognitionSelectDisabled(true);
@@ -191,6 +204,8 @@ function startSpeech() {
  * Stop speech recognition
  */
 function stopSpeech() {
+    isPersistent = false;
+    isPersistentMode = false;
     recognitionRunning = false;
     recognitionSelectDisabled(false);
     recognition.stop();
