@@ -931,6 +931,21 @@ strong {
     border-color: #f9faff;
 }
 
+.button-custom {
+    border: 0;
+    color: #f9faff !important;
+    background-color: #000000;
+    background: linear-gradient(100deg, #376df9 0, #ff5fa0 75%, #ffc55a 100%);
+}
+
+.button-custom:hover {
+    background-color: #4678f9;
+}
+
+.button-custom.is-loading::after {
+    border-color: #f9faff;
+}
+
 .button-secondary {
     color: #f9faff;
     background-color: #ff5fa0;
@@ -1081,7 +1096,7 @@ fieldset {
     letter-spacing: -0.1px;
     padding: 11px 15px;
     height: 48px;
-    border-radius: 0;
+    border-radius: 6px !important;
     color: #16171b;
     box-shadow: none;
     max-width: 100%;
@@ -3659,4 +3674,60 @@ img.has-shadow {
 .wh-200-150 {
     width: 200px;
     height: 150px;
+}
+
+/*--------------------------------------------------------------
+# About
+--------------------------------------------------------------*/
+
+#aboutDiv {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 56.25%;
+    padding-bottom: 48px;
+    box-shadow: 0 2px 8px 0 rgba(63, 69, 81, 0.16);
+    margin-top: 1.6em;
+    margin-bottom: 0.9em;
+    overflow: hidden;
+    border-radius: 8px;
+    will-change: transform;
+}
+
+#aboutIframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/*--------------------------------------------------------------
+# Common
+--------------------------------------------------------------*/
+
+.tac {
+    text-align: center;
+}
+
+.cp {
+    cursor: pointer;
+}
+
+.powered-by {
+    text-align: center;
+    color: grey;
+}
+
+.loading-img {
+    width: 400px;
+}
+
+.ice {
+    background: #000000;
+    color: lime;
+    overflow: auto;
 }

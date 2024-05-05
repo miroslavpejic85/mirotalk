@@ -1810,6 +1810,32 @@ button {
     background: #1a1b1f;
 }
 
+/*--------------------------------------------------------------
+# Common
+--------------------------------------------------------------*/
+
+.ml-10 {
+    margin: 10px;
+}
+
+.cp {
+    cursor: pointer;
+}
+
+.trow {
+    display: table-row;
+}
+
+#initVideo {
+    object-fit: contain;
+}
+
+#audioMediaContainer,
+#pauseRecBtn,
+#resumeRecBtn {
+    display: none;
+}
+
 /*
 z-index
 6 theme custom picker
