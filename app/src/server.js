@@ -40,7 +40,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.28
+ * @version 1.3.29
  *
  */
 
@@ -295,7 +295,7 @@ const OIDC = {
             response_type: 'code',
             scope: 'openid profile email',
         },
-        authRequired: false, // Set to true if authentication is required for all routes
+        authRequired: process.env.OIDC_AUTH_REQUIRED ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED) : false, // Set to true if authentication is required for all routes
         auth0Logout: true, // Set to true to enable logout with Auth0
         routes: {
             callback: '/auth/callback', // Indicating the endpoint where your application will handle the callback from the authentication provider after a user has been authenticated.
@@ -306,13 +306,36 @@ const OIDC = {
 };
 
 // Custom middleware function for OIDC authentication
-const OIDCAuth = function (req, res, next) {
+function OIDCAuth(req, res, next) {
     if (OIDC.enabled) {
-        requiresAuth()(req, res, next); // Apply requiresAuth() middleware conditionally
+        // Apply requiresAuth() middleware conditionally
+        requiresAuth()(req, res, function () {
+            log.debug('[OIDC] ------> requiresAuth');
+            // Check if user is authenticated
+            if (req.oidc.isAuthenticated()) {
+                log.debug('[OIDC] ------> User isAuthenticated');
+                // User is authenticated
+                if (hostCfg.protected) {
+                    const ip = authHost.getIP(req);
+                    hostCfg.authenticated = true;
+                    authHost.setAuthorizedIP(ip, true);
+                    // Check...
+                    log.debug('[OIDC] ------> Host protected', {
+                        authenticated: hostCfg.authenticated,
+                        authorizedIPs: authHost.getAuthorizedIPs(),
+                        activeRoom: authHost.isRoomActive(),
+                    });
+                }
+                next();
+            } else {
+                // User is not authenticated
+                res.status(401).send('Unauthorized');
+            }
+        });
     } else {
         next();
     }
-};
+}
 
 // stats configuration
 const statsData = {
@@ -426,16 +449,33 @@ app.get('/auth/callback', (req, res, next) => {
 
 // Logout Route
 app.get('/logout', (req, res) => {
-    if (OIDC.enabled) req.logout();
+    if (OIDC.enabled) {
+        //
+        if (hostCfg.protected) {
+            const ip = authHost.getIP(req);
+            if (authHost.isAuthorizedIP(ip)) {
+                authHost.deleteIP(ip);
+            }
+            hostCfg.authenticated = false;
+            //
+            log.debug('[OIDC] ------> Logout', {
+                authenticated: hostCfg.authenticated,
+                authorizedIPs: authHost.getAuthorizedIPs(),
+                activeRoom: authHost.isRoomActive(),
+            });
+        }
+        req.logout(); // Logout user
+    }
     res.redirect('/'); // Redirect to the home page after logout
 });
 
 // main page
 app.get(['/'], OIDCAuth, (req, res) => {
-    if (hostCfg.protected && !hostCfg.authenticated) {
+    if ((!OIDC.enabled && hostCfg.protected && !hostCfg.authenticated) || authHost.isRoomActive()) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
             res.sendFile(views.landing);
+            hostCfg.authenticated = true;
         } else {
             hostCfg.authenticated = false;
             res.sendFile(views.login);
@@ -447,10 +487,11 @@ app.get(['/'], OIDCAuth, (req, res) => {
 
 // set new room name and join
 app.get(['/newcall'], OIDCAuth, (req, res) => {
-    if (hostCfg.protected && !hostCfg.authenticated) {
+    if ((!OIDC.enabled && hostCfg.protected && !hostCfg.authenticated) || authHost.isRoomActive()) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
             res.sendFile(views.newCall);
+            hostCfg.authenticated = true;
         } else {
             hostCfg.authenticated = false;
             res.sendFile(views.login);
@@ -485,7 +526,7 @@ app.get(['/test'], (req, res) => {
 });
 
 // Handle Direct join room with params
-app.get('/join/', OIDCAuth, async (req, res) => {
+app.get('/join/', async (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
         /* 
@@ -494,6 +535,14 @@ app.get('/join/', OIDCAuth, async (req, res) => {
             https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=1&video=1&screen=0&notify=0&hide=0
         */
         const { room, name, audio, video, screen, notify, hide, token } = checkXSS(req.query);
+
+        const OIDCUserAuthenticated = OIDC.enabled && req.oidc.isAuthenticated();
+
+        log.debug('Direct Join', {
+            OIDCUserAuthenticated: OIDCUserAuthenticated,
+            authenticated: hostCfg.authenticated,
+            host_protected: hostCfg.protected,
+        });
 
         let peerUsername,
             peerPassword = '';
@@ -526,7 +575,7 @@ app.get('/join/', OIDCAuth, async (req, res) => {
         }
 
         // Peer valid going to auth as host
-        if (hostCfg.protected && isPeerValid && isPeerPresenter && !hostCfg.authenticated) {
+        if ((hostCfg.protected && isPeerValid && isPeerPresenter && !hostCfg.authenticated) || OIDCUserAuthenticated) {
             const ip = getIP(req);
             hostCfg.authenticated = true;
             authHost.setAuthorizedIP(ip, true);
@@ -548,12 +597,23 @@ app.get('/join/', OIDCAuth, async (req, res) => {
 });
 
 // Join Room by id
-app.get('/join/:roomId', OIDCAuth, function (req, res) {
+app.get('/join/:roomId', function (req, res) {
     // log.debug('Join to room', { roomId: req.params.roomId });
-    if (hostCfg.authenticated) {
+    const OIDCUserAuthenticated = OIDC.enabled && req.oidc.isAuthenticated();
+
+    if (OIDCUserAuthenticated || hostCfg.authenticated || authHost.isRoomActive()) {
+        log.debug('/join/room', {
+            OIDCUserAuthenticated: OIDCUserAuthenticated,
+            authenticated: hostCfg.authenticated,
+            host_protected: hostCfg.protected,
+            activeRoom: authHost.isRoomActive(),
+        });
+
+        if (hostCfg.protected) authHost.setRoomActive();
+
         res.sendFile(views.client);
     } else {
-        if (hostCfg.protected) {
+        if (!OIDC.enabled && hostCfg.protected) {
             return res.sendFile(views.login);
         }
         res.redirect('/');
@@ -908,8 +968,8 @@ io.sockets.on('connect', async (socket) => {
      */
     socket.on('disconnect', async (reason) => {
         for (let channel in socket.channels) {
-            await removePeerFrom(channel);
             removeIP(socket);
+            await removePeerFrom(channel);
         }
         log.debug('[' + socket.id + '] disconnected', { reason: reason });
         delete sockets[socket.id];
