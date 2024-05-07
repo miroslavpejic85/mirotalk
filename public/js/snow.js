@@ -2,6 +2,8 @@
 
 // https://codepen.io/tutsplus/pen/BaVqjvg
 
+const snowEnabled = false;
+
 const snowContainer = document.getElementById('snow-container');
 
 const snowContent = ['&#10052', '&#10053', '&#10054'];
@@ -41,10 +43,12 @@ const removeSnow = () => {
 };
 
 window.addEventListener('load', () => {
+    if (!snowEnabled) return;
     createSnow(30);
     setTimeout(removeSnow, 1000 * 60);
 });
 
 window.addEventListener('click', () => {
+    if (!snowEnabled) return;
     removeSnow();
 });
