@@ -1,23 +1,24 @@
-FROM node:18-alpine 
-# https://hub.docker.com/_/node
+# Use a lightweight Node.js image 
+FROM node:20-alpine
 
+# Set working directory
 WORKDIR /src
 
-RUN apk add --no-cache \
-	bash \
-	vim
-
+# Copy package.json and .env dependencies
 COPY package.json .
 COPY .env.template ./.env
 
-RUN \
-    npm install && \
-    npm cache clean --force && \
-    rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* /usr/share/doc/*
+# Install necessary system packages and dependencies
+RUN apk add --no-cache \
+    bash \
+    vim \
+    && npm install \
+    && npm cache clean --force \
+    && rm -rf /tmp/* /var/tmp/* /usr/share/doc/*
 
+# Copy the application code
 COPY app app
 COPY public public
 
-EXPOSE 3000/tcp
-
-CMD npm start
+# Set default command to start the application
+CMD ["npm", "start"]
