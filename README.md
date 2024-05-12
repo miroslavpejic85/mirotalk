@@ -33,6 +33,7 @@
 -   No downloads, plugins, or logins required – completely browser-based.
 -   Unlimited conference rooms with no time limitations.
 -   Translated into 133 languages.
+-   Support for the OpenID Connect (OIDC) authentication layer.
 -   Host protection to prevent unauthorized access.
 -   User auth to prevent unauthorized access.
 -   Room password protection.
