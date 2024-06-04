@@ -9852,7 +9852,7 @@ function showAbout() {
                 onclick="window.open('https://codecanyon.net/user/miroslavpejic85')">
                 <i class="${className.heart}" ></i>&nbsp;Support
             </button>
-            <br /><br />
+            <br /><br /><br />
             Author:<a 
                 id="linkedin-button" 
                 data-umami-event="Linkedin button" 
