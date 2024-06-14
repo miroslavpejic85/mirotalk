@@ -849,7 +849,7 @@ function refreshMainButtonsToolTipPlacement() {
     if (isMobileDevice) return;
     // main buttons
     placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top';
-    setTippy(shareRoomBtn, 'Invite others to join', placement);
+    setTippy(shareRoomBtn, 'Share the Room', placement);
     setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
     setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', placement);
     setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', placement);
@@ -4600,7 +4600,7 @@ function setRoomEmojiButton() {
             setColor(roomEmojiPickerBtn, 'black');
         } else {
             emojiPickerContainer.style.display = 'block';
-            setColor(roomEmojiPickerBtn, 'green');
+            setColor(roomEmojiPickerBtn, 'yellow');
         }
     }
 }
