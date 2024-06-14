@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.34
+ * @version 1.3.35
  *
  */
 
@@ -9341,7 +9341,7 @@ function hideFileTransfer() {
 }
 
 /**
- * Select the File to Share
+ * Select or Drag and Drop the File to Share
  * @param {string} peer_id
  * @param {boolean} broadcast send to all (default false)
  */
@@ -9356,9 +9356,21 @@ function selectFileToShare(peer_id, broadcast = false) {
         position: 'center',
         title: 'Share file',
         input: 'file',
+        html: `
+        <div id="dropArea">
+            <p>Drag and drop your file here</p>
+        </div>
+        `,
         inputAttributes: {
             accept: fileSharingInput,
             'aria-label': 'Select file',
+        },
+        didOpen: () => {
+            const dropArea = getId('dropArea');
+            dropArea.addEventListener('dragenter', handleDragEnter);
+            dropArea.addEventListener('dragover', handleDragOver);
+            dropArea.addEventListener('dragleave', handleDragLeave);
+            dropArea.addEventListener('drop', handleDrop);
         },
         showDenyButton: true,
         confirmButtonText: `Send`,
@@ -9370,6 +9382,42 @@ function selectFileToShare(peer_id, broadcast = false) {
             sendFileInformations(result.value, peer_id, broadcast);
         }
     });
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.target.style.background = '#f0f0f0';
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.target.style.background = '';
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+        e.target.style.background = '';
+    }
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            console.log('Selected file:', file);
+            Swal.close();
+            sendFileInformations(file, peer_id, broadcast);
+        }
+    }
 }
 
 /**
