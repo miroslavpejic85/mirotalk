@@ -1465,9 +1465,17 @@ progress {
 }
 
 #dropArea {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
     border: 2px dashed #ccc;
     padding: 20px;
     text-align: center;
+}
+
+#dropArea p {
+    margin: 0;
 }
 
 /*--------------------------------------------------------------
