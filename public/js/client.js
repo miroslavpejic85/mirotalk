@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.37
+ * @version 1.3.38
  *
  */
 
@@ -473,6 +473,7 @@ const receiveFilePercentage = getId('receiveFilePercentage');
 const receiveFileInfo = getId('receiveFileInfo');
 const receiveProgress = getId('receiveProgress');
 const receiveHideBtn = getId('receiveHideBtn');
+const receiveAbortBtn = getId('receiveAbortBtn');
 
 // Video/audio url player
 const videoUrlCont = getId('videoUrlCont');
@@ -833,6 +834,7 @@ function setButtonsToolTip() {
     setTippy(whiteboardCloseBtn, 'Close', 'right');
     // Suspend/Hide File transfer buttons
     setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
+    setTippy(receiveAbortBtn, 'Abort file transfer', 'right-start');
     setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
     // Video/audio URL player
     setTippy(videoUrlCloseBtn, 'Close the video player', 'bottom');
@@ -1149,6 +1151,7 @@ function initClientPeer() {
     signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('fileAbort', handleFileAbort);
+    signalingSocket.on('fileReceiveAbort', handleAbortFileTransfer);
     signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
@@ -4734,6 +4737,9 @@ function setMyFileShareBtn() {
     });
     sendAbortBtn.addEventListener('click', (e) => {
         abortFileTransfer();
+    });
+    receiveAbortBtn.addEventListener('click', (e) => {
+        abortReceiveFileTransfer();
     });
     receiveHideBtn.addEventListener('click', (e) => {
         hideFileTransfer();
@@ -9321,6 +9327,26 @@ function abortFileTransfer() {
 }
 
 /**
+ * Abort file transfer
+ */
+function abortReceiveFileTransfer() {
+    sendToServer('fileReceiveAbort', {
+        room_id: roomId,
+        peer_name: myPeerName,
+    });
+}
+
+/**
+ * Handle abort file transfer
+ * @param object config - peer info that abort the file transfer
+ */
+function handleAbortFileTransfer(config) {
+    console.log(`File transfer aborted by ${config.peer_name}`);
+    userLog('toast', `⚠️ File transfer aborted by ${config.peer_name}`);
+    abortFileTransfer();
+}
+
+/**
  * File Transfer aborted by peer
  */
 function handleFileAbort() {
@@ -9386,7 +9412,7 @@ function selectFileToShare(peer_id, broadcast = false) {
     function handleDragEnter(e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target.style.background = '#f0f0f0';
+        e.target.style.background = 'var(--body-bg)';
     }
 
     function handleDragOver(e) {
@@ -9886,7 +9912,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.37</strong>',
+        title: '<strong>WebRTC P2P v1.3.38</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },

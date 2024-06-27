@@ -40,7 +40,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.37
+ * @version 1.3.38
  *
  */
 
@@ -1508,6 +1508,13 @@ io.sockets.on('connect', async (socket) => {
 
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
         await sendToRoom(room_id, socket.id, 'fileAbort');
+    });
+
+    socket.on('fileReceiveAbort', async (cfg) => {
+        const config = checkXSS(cfg);
+        const { room_id, peer_name } = config;
+        log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileReceiveAbort to room_id [' + room_id + ']');
+        await sendToRoom(room_id, socket.id, 'fileReceiveAbort', config);
     });
 
     /**
