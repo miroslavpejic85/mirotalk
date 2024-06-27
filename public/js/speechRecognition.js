@@ -16,6 +16,9 @@ const langs = [
         ['en-ZA', 'South Africa'],
         ['en-GB', 'United Kingdom'],
         ['en-US', 'United States'],
+        ['en-NG', 'Nigeria'],
+        ['en-GH', 'Ghana'],
+        ['en-KE', 'Kenya'],
     ],
     [
         'Español',
