@@ -999,7 +999,7 @@ button:hover {
     padding: 10px;
     font-size: 0.8rem;
     color: #fff;
-    background: var(--select-bg);
+    /* background: var(--select-bg); */
     border-radius: 10px;
 }
 
