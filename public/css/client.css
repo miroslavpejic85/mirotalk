@@ -997,8 +997,9 @@ button:hover {
 
 #extraInfo {
     padding: 10px;
-    background: var(--select-bg);
+    font-size: 0.8rem;
     color: #fff;
+    background: var(--select-bg);
     border-radius: 10px;
 }
 
