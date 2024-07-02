@@ -995,6 +995,13 @@ button:hover {
     transition: all 0.3s ease-in-out;
 }
 
+#extraInfo {
+    padding: 10px;
+    background: var(--select-bg);
+    color: #fff;
+    border-radius: 10px;
+}
+
 /*--------------------------------------------------------------
 # Settings buttons
 --------------------------------------------------------------*/

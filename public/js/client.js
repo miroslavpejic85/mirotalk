@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.38
+ * @version 1.3.39
  *
  */
 
@@ -110,6 +110,7 @@ const wbWidth = 1200;
 const wbHeight = 600;
 
 // Peer infos
+const extraInfo = getId('extraInfo');
 const userAgent = navigator.userAgent.toLowerCase();
 const detectRtcVersion = DetectRTC.version;
 const isWebRTCSupported = DetectRTC.isWebRTCSupported;
@@ -122,6 +123,7 @@ const osVersion = DetectRTC.osVersion;
 const browserName = DetectRTC.browser.name;
 const browserVersion = DetectRTC.browser.version;
 const peerInfo = getPeerInfo();
+const thisInfo = getInfo();
 
 // Local Storage class
 const lS = new LocalStorage();
@@ -913,6 +915,48 @@ function getPeerInfo() {
         browserName: browserName,
         browserVersion: browserVersion,
     };
+}
+
+/**
+ * Get Extra info
+ * @returns object info
+ */
+function getInfo() {
+    const parser = new UAParser(userAgent);
+
+    try {
+        const parserResult = parser.getResult();
+        console.log('Info', parserResult);
+
+        // Filter out properties with 'Unknown' values
+        const filterUnknown = (obj) => {
+            const filtered = {};
+            for (const [key, value] of Object.entries(obj)) {
+                if (value && value !== 'Unknown') {
+                    filtered[key] = value;
+                }
+            }
+            return filtered;
+        };
+
+        const filteredResult = {
+            //ua: parserResult.ua,
+            browser: filterUnknown(parserResult.browser),
+            cpu: filterUnknown(parserResult.cpu),
+            device: filterUnknown(parserResult.device),
+            engine: filterUnknown(parserResult.engine),
+            os: filterUnknown(parserResult.os),
+        };
+
+        // Convert the filtered result to a readable JSON string
+        const resultString = JSON.stringify(filteredResult, null, 2);
+
+        extraInfo.innerText = resultString;
+
+        return parserResult;
+    } catch (error) {
+        console.error('Error parsing user agent:', error);
+    }
 }
 
 /**
@@ -9912,7 +9956,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.38</strong>',
+        title: '<strong>WebRTC P2P v1.3.39</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
