@@ -7,8 +7,8 @@
     position: fixed;
     margin: auto;
     padding: 10px;
-    width: var(--wb-width);
-    height: var(--wb-height);
+    width: calc(var(--wb-width) * 1px);
+    height: calc(var(--wb-height) * 1px);
     background: var(--wb-bg);
     border: var(--border);
     box-shadow: var(--box-shadow);
