@@ -1575,15 +1575,18 @@ progress {
     width: 170px;
     height: 40px;
     font-size: 1.2rem;
-    background: linear-gradient(100deg, #376df9 0, #ff5fa0 var(--msger-bubble-width), #ffc55a 100%);
-    box-shadow: 0 0 6px 0 rgb(251 255 0 / 82%);
+    border-radius: 6px;
     color: #ffffff;
+    background: linear-gradient(65deg, #376df9 0, #ff5fa0 100%);
     transition: background 0.23s;
     cursor: pointer;
 }
 
 #about button:hover {
     font-weight: bold;
+    filter: brightness(1.1) saturate(1.2);
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 0, 166, 0.4);
 }
 
 /*--------------------------------------------------------------
