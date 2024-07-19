@@ -49,6 +49,9 @@
     --btns-margin-left: 0px;
     --btns-width: 40px;
     --btns-flex-direction: column;
+    --btns-flex-direction-reverse: row;
+    --bottom-btns-translate-X: -50%;
+    --bottom-btns-bottom: 0%;
 
     /* left buttons bar horizontal
     --btns-top: 95%;
@@ -234,7 +237,7 @@ body {
     flex-direction: var(--btns-flex-direction);
 
     justify-content: center;
-    grid-gap: 0.4rem;
+    grid-gap: 1rem;
 
     -webkit-transform: translate(0%, -50%);
     -ms-transform: translate(0%, -50%);
@@ -250,8 +253,8 @@ body {
 #buttonsBar button {
     padding: 4px;
     border: none;
-    background: var(--btn-bar-bg-color);
-    color: var(--btn-bar-color);
+    color: var(--btn-bar-bg-color);
+    background-color: var(--btn-bar-color);
     font-size: 1.5rem;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
@@ -274,6 +277,50 @@ body {
 .fa-video-slash {
     color: #e74c3c !important;
 }
+
+/*--------------------------------------------------------------
+# Bottom buttons
+--------------------------------------------------------------*/
+#bottomButtons {
+    position: fixed;
+    z-index: 10;
+    left: calc(50% - var(--btns-left));
+    bottom: 0;
+    transform: translate(var(--bottom-btns-translate-X), -100%);
+    display: flex;
+    flex-direction: var(--btns-flex-direction-reverse);
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+#bottomButtons button {
+    font-size: 1.35rem;
+    color: #e3e3e3;
+    background-color:#2e2e2e;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    width: 55px;
+}
+
+/*--------------------------------------------------------------
+# Other buttons
+--------------------------------------------------------------*/
+#aboutBtn {
+    position: absolute;
+    z-index: 8;
+    bottom: 10px;
+    left: 20px;
+    padding: 14px;
+    border: none;
+    color: var(--btn-bar-bg-color);
+    background-color: var(--btn-bar-color);
+    font-size: 1.5rem;
+    transition: all 0.3s ease-in-out;
+}
+
 
 /*--------------------------------------------------------------
 # Caption
@@ -638,8 +685,12 @@ a:hover {
     color: #fff;
 }
 
-button:hover {
+button:hover:not(#bottomButtons button) {
     transform: var(--btns-hover-scale);
+}
+
+#bottomButtons button:hover {
+    background-color: #444;
 }
 
 /*--------------------------------------------------------------

@@ -2636,14 +2636,18 @@ function setButtonsBarPosition(position) {
             setSP('--btns-margin-left', '0px');
             setSP('--btns-width', '40px');
             setSP('--btns-flex-direction', 'column');
+            setSP('--btns-flex-direction-reverse', 'row');
+            setSP('--bottom-btns-translate-X', '-50%');
             break;
         case 'horizontal':
             setSP('--btns-top', '95%');
             setSP('--btns-right', '25%');
             setSP('--btns-left', '50%');
-            setSP('--btns-margin-left', '-330px');
-            setSP('--btns-width', '660px');
+            setSP('--btns-margin-left', '-280px');
+            setSP('--btns-width', '560px');
             setSP('--btns-flex-direction', 'row');
+            setSP('--btns-flex-direction-reverse', 'column');
+            setSP('--bottom-btns-translate-X', '50%');
             break;
         default:
             console.log('No position found');
@@ -4704,7 +4708,7 @@ function setRoomEmojiButton() {
     function toggleEmojiPicker() {
         if (emojiPickerContainer.style.display === 'block') {
             elemDisplay(emojiPickerContainer, false);
-            setColor(roomEmojiPickerBtn, 'black');
+            setColor(roomEmojiPickerBtn, 'white');
         } else {
             emojiPickerContainer.style.display = 'block';
             setColor(roomEmojiPickerBtn, 'yellow');
@@ -5867,7 +5871,7 @@ function handleAudio(e, init, force = null) {
 
     if (init) {
         initAudioBtn.className = audioClassName;
-        setTippy(initAudioBtn, audioStatus ? 'Stop the audio' : 'Start the audio', 'top');
+        setTippy(initAudioBtn, audioStatus ? 'Stop the audio' : 'Start the audio', 'right');
         initMicrophoneSelect.disabled = !audioStatus;
         initSpeakerSelect.disabled = !audioStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.audio, audioStatus);
@@ -7892,7 +7896,7 @@ function handleHideMe(isHideMeActive) {
     } else {
         elemDisplay(myVideoWrap, true, 'inline-block');
         hideMeBtn.className = className.hideMeOff;
-        setColor(hideMeBtn, 'black');
+        setColor(hideMeBtn, 'white');
         playSound('on');
     }
     resizeVideoMedia();
@@ -7911,7 +7915,7 @@ function setMyHandStatus() {
         playSound('raiseHand');
     } else {
         // Lower hand
-        setColor(myHandBtn, 'black');
+        setColor(myHandBtn, 'white');
         elemDisplay(myHandStatusIcon, false);
         setTippy(myHandBtn, 'Lower your hand', placement);
     }
