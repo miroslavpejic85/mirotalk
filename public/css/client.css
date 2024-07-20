@@ -50,13 +50,14 @@
     --btns-width: 40px;
     --btns-flex-direction: column;
 
-    --bottom-btns-flex-direction: row;
+    /* bottom buttons bar horizontal default */
     --bottom-btns-top: auto;
     --bottom-btns-left: 50%;
+    --bottom-btns-bottom: 0;
     --bottom-btns-translate-X: -50%;
     --bottom-btns-translate-Y: 0%;
-    --bottom-btns-bottom: 0;
-    --bottom-btns-margin-bottom: 32px;
+    --bottom-btns-margin-bottom: 18px;
+    --bottom-btns-flex-direction: row;
 
     /* left buttons bar horizontal
     --btns-top: 95%;
