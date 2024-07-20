@@ -232,6 +232,7 @@ const initSpeakerSelect = getId('initSpeakerSelect');
 
 // Buttons bar
 const buttonsBar = getId('buttonsBar');
+const bottomButtons = getId('bottomButtons');
 const shareRoomBtn = getId('shareRoomBtn');
 const hideMeBtn = getId('hideMeBtn');
 const videoBtn = getId('videoBtn');
@@ -610,9 +611,10 @@ let localAudioMediaStream; // my microphone
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
 let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
 
-// main buttons
+// main and bottom buttons
 let mainButtonsBarPosition = 'vertical'; // vertical - horizontal
 let placement = 'right'; // https://atomiks.github.io/tippyjs/#placements
+let bottomButtonsPlacement = 'right';
 let isButtonsVisible = false;
 let isButtonsBarOver = false;
 
@@ -851,13 +853,14 @@ function setButtonsToolTip() {
 function refreshMainButtonsToolTipPlacement() {
     // not need for mobile
     if (isMobileDevice) return;
-    // main buttons
+
+    // ButtonsBar
     placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top';
+
+    // BottomButtons
+    bottomButtonsPlacement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'top' : 'right';
+
     setTippy(shareRoomBtn, 'Share the Room', placement);
-    setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
-    setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', placement);
-    setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', placement);
-    setTippy(screenShareBtn, 'Start screen sharing', placement);
     setTippy(recordStreamBtn, 'Start recording', placement);
     setTippy(fullScreenBtn, 'View full screen', placement);
     setTippy(chatRoomBtn, 'Open the chat', placement);
@@ -870,6 +873,11 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(mySettingsBtn, 'Open the settings', placement);
     setTippy(aboutBtn, 'About this project', placement);
     setTippy(leaveRoomBtn, 'Leave this room', placement);
+
+    setTippy(hideMeBtn, 'Toggle hide myself from the room view', bottomButtonsPlacement);
+    setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', bottomButtonsPlacement);
+    setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', bottomButtonsPlacement);
+    setTippy(screenShareBtn, 'Start screen sharing', bottomButtonsPlacement);
 }
 
 /**
@@ -1937,7 +1945,7 @@ async function joinToChannel() {
         peer_privacy_status: isVideoPrivacyActive,
         userAgent: userAgent,
     });
-    handleBodyOnMouseMove(); // show/hide buttonsBar...
+    handleBodyOnMouseMove(); // show/hide buttonsBar, bottomButtons ...
 }
 
 /**
@@ -2630,24 +2638,38 @@ function setButtonsBarPosition(position) {
     mainButtonsBarPosition = position;
     switch (mainButtonsBarPosition) {
         case 'vertical':
+            // buttonsBar
             setSP('--btns-top', '50%');
             setSP('--btns-right', '0px');
             setSP('--btns-left', '15px');
             setSP('--btns-margin-left', '0px');
             setSP('--btns-width', '40px');
             setSP('--btns-flex-direction', 'column');
-            setSP('--btns-flex-direction-reverse', 'row');
+            // bottomButtons horizontally
+            setSP('--bottom-btns-top', 'auto');
+            setSP('--bottom-btns-left', '50%');
+            setSP('--bottom-btns-bottom', '0');
             setSP('--bottom-btns-translate-X', '-50%');
+            setSP('--bottom-btns-translate-Y', '0%');
+            setSP('--bottom-btns-margin-bottom', '18px');
+            setSP('--bottom-btns-flex-direction', 'row');
             break;
         case 'horizontal':
+            // buttonsBar
             setSP('--btns-top', '95%');
             setSP('--btns-right', '25%');
             setSP('--btns-left', '50%');
             setSP('--btns-margin-left', '-280px');
             setSP('--btns-width', '560px');
             setSP('--btns-flex-direction', 'row');
-            setSP('--btns-flex-direction-reverse', 'column');
-            setSP('--bottom-btns-translate-X', '50%');
+            // bottomButtons vertically
+            setSP('--bottom-btns-top', '50%');
+            setSP('--bottom-btns-left', '15px');
+            setSP('--bottom-btns-bottom', 'auto');
+            setSP('--bottom-btns-translate-X', '0%');
+            setSP('--bottom-btns-translate-Y', '-50%');
+            setSP('--bottom-btns-margin-bottom', '0');
+            setSP('--bottom-btns-flex-direction', 'column');
             break;
         default:
             console.log('No position found');
@@ -5007,6 +5029,7 @@ function setMySettingsBtn() {
     mySettingsBtn.addEventListener('click', (e) => {
         if (isMobileDevice) {
             elemDisplay(buttonsBar, false);
+            elemDisplay(bottomButtons, false);
             isButtonsVisible = false;
         }
         hideShowMySettings();
@@ -5112,6 +5135,7 @@ function handleBodyOnMouseMove() {
     document.body.addEventListener('mousemove', (e) => {
         showButtonsBarAndMenu();
     });
+
     // detect buttons bar over
     buttonsBar.addEventListener('mouseover', () => {
         isButtonsBarOver = true;
@@ -5119,6 +5143,14 @@ function handleBodyOnMouseMove() {
     buttonsBar.addEventListener('mouseout', () => {
         isButtonsBarOver = false;
     });
+
+    bottomButtons.addEventListener('mouseover', () => {
+        isButtonsBarOver = true;
+    });
+    bottomButtons.addEventListener('mouseout', () => {
+        isButtonsBarOver = false;
+    });
+
     checkButtonsBarAndMenu();
 }
 
@@ -5688,6 +5720,7 @@ function showButtonsBarAndMenu() {
         return;
     toggleClassElements('navbar', 'block');
     elemDisplay(buttonsBar, true, 'flex');
+    elemDisplay(bottomButtons, true, 'flex');
     isButtonsVisible = true;
 }
 
@@ -5698,6 +5731,7 @@ function checkButtonsBarAndMenu() {
     if (!isButtonsBarOver) {
         toggleClassElements('navbar', 'none');
         elemDisplay(buttonsBar, false);
+        elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
     setTimeout(() => {
@@ -6868,6 +6902,7 @@ function showChatRoomDraggable() {
     playSound('newMessage');
     if (isMobileDevice) {
         elemDisplay(buttonsBar, false);
+        elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
     chatRoomBtn.className = className.chatOff;
@@ -6885,6 +6920,7 @@ function showCaptionDraggable() {
     playSound('newMessage');
     if (isMobileDevice) {
         elemDisplay(buttonsBar, false);
+        elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
     captionBtn.className = 'far fa-closed-captioning';
@@ -7911,13 +7947,13 @@ function setMyHandStatus() {
         // Raise hand
         setColor(myHandBtn, 'green');
         elemDisplay(myHandStatusIcon, true);
-        setTippy(myHandBtn, 'Raise your hand', placement);
+        setTippy(myHandBtn, 'Raise your hand', bottomButtonsPlacement);
         playSound('raiseHand');
     } else {
         // Lower hand
         setColor(myHandBtn, 'white');
         elemDisplay(myHandStatusIcon, false);
-        setTippy(myHandBtn, 'Lower your hand', placement);
+        setTippy(myHandBtn, 'Lower your hand', bottomButtonsPlacement);
     }
     emitPeerStatus('hand', myHandStatus);
 }
@@ -7934,7 +7970,7 @@ function setMyAudioStatus(status) {
     // send my audio status to all peers in the room
     emitPeerStatus('audio', status);
     setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
-    setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', placement);
+    setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', bottomButtonsPlacement);
     status ? playSound('on') : playSound('off');
 }
 
@@ -7958,7 +7994,7 @@ function setMyVideoStatus(status) {
 
     if (!isMobileDevice) {
         if (myVideoStatusIcon) setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
-        setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', placement);
+        setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', bottomButtonsPlacement);
     }
 
     if (status) {

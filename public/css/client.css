@@ -49,9 +49,14 @@
     --btns-margin-left: 0px;
     --btns-width: 40px;
     --btns-flex-direction: column;
-    --btns-flex-direction-reverse: row;
+
+    --bottom-btns-flex-direction: row;
+    --bottom-btns-top: auto;
+    --bottom-btns-left: 50%;
     --bottom-btns-translate-X: -50%;
-    --bottom-btns-bottom: 0%;
+    --bottom-btns-translate-Y: 0%;
+    --bottom-btns-bottom: 0;
+    --bottom-btns-margin-bottom: 32px;
 
     /* left buttons bar horizontal
     --btns-top: 95%;
@@ -227,8 +232,7 @@ body {
     z-index: 10;
     display: none;
     position: fixed;
-    padding: 10px;
-
+    padding: 5px;
     top: var(--btns-top);
     right: var(--btns-right);
     left: var(--btns-left);
@@ -237,31 +241,32 @@ body {
     flex-direction: var(--btns-flex-direction);
 
     justify-content: center;
-    grid-gap: 1rem;
+    grid-gap: 0.5rem;
 
     -webkit-transform: translate(0%, -50%);
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
 
     /* background: var(--body-bg); */
-    box-shadow: 0px 8px 16px 0px rgb(33 33 33);
-    border: var(--border);
+    /* box-shadow: 0px 8px 16px 0px rgb(33 33 33);
+    border: var(--border); */
+    border: none;
     border-radius: 10px;
     overflow: hidden;
 }
 
 #buttonsBar button {
-    padding: 4px;
-    border: none;
+    padding: 5px !important;
+    border: var(--border);
     color: var(--btn-bar-bg-color);
-    background-color: var(--btn-bar-color);
+    background: var(--body-bg);
     font-size: 1.5rem;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
 }
 
 #buttonsBar button:hover {
-    color: var(--hover-color);
+    background: var(--select-bg) !important;
     transform: var(--btns-hover-scale);
 }
 
@@ -282,45 +287,35 @@ body {
 # Bottom buttons
 --------------------------------------------------------------*/
 #bottomButtons {
-    position: fixed;
     z-index: 10;
-    left: calc(50% - var(--btns-left));
-    bottom: 0;
-    transform: translate(var(--bottom-btns-translate-X), -100%);
-    display: flex;
-    flex-direction: var(--btns-flex-direction-reverse);
+    display: none;
+    position: fixed;
+    top: var(--bottom-btns-top);
+    left: var(--bottom-btns-left);
+    bottom: var(--bottom-btns-bottom);
+    transform: translate(var(--bottom-btns-translate-X), var(--bottom-btns-translate-Y));
+    flex-direction: var(--bottom-btns-flex-direction);
     align-items: center;
     justify-content: center;
-    gap: 0.8rem;
+    gap: 0.5rem;
+    margin-bottom: var(--bottom-btns-margin-bottom);
 }
 
 #bottomButtons button {
     font-size: 1.35rem;
     color: #e3e3e3;
-    background-color:#2e2e2e;
+    background: var(--body-bg) !important;
     padding: 14px;
-    border: none;
-    border-radius: 8px;
+    border: var(--border);
+    border-radius: 5px;
     transition: all 0.3s ease-in-out;
     width: 55px;
 }
 
-/*--------------------------------------------------------------
-# Other buttons
---------------------------------------------------------------*/
-#aboutBtn {
-    position: absolute;
-    z-index: 8;
-    bottom: 10px;
-    left: 20px;
-    padding: 14px;
-    border: none;
-    color: var(--btn-bar-bg-color);
-    background-color: var(--btn-bar-color);
-    font-size: 1.5rem;
-    transition: all 0.3s ease-in-out;
+#bottomButtons button:hover {
+    background: var(--select-bg) !important;
+    transform: var(--btns-hover-scale);
 }
-
 
 /*--------------------------------------------------------------
 # Caption
