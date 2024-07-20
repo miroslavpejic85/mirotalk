@@ -233,7 +233,7 @@ body {
     z-index: 10;
     display: none;
     position: fixed;
-    padding: 5px;
+    padding: 10px;
     top: var(--btns-top);
     right: var(--btns-right);
     left: var(--btns-left);
@@ -253,6 +253,7 @@ body {
     border: var(--border); */
     border: none;
     border-radius: 10px;
+    box-shadow: var(--box-shadow);
     overflow: hidden;
 }
 
@@ -291,6 +292,7 @@ body {
     z-index: 10;
     display: none;
     position: fixed;
+    padding: 10px;
     top: var(--bottom-btns-top);
     left: var(--bottom-btns-left);
     bottom: var(--bottom-btns-bottom);
@@ -300,6 +302,8 @@ body {
     justify-content: center;
     gap: 0.5rem;
     margin-bottom: var(--bottom-btns-margin-bottom);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
 }
 
 #bottomButtons button {

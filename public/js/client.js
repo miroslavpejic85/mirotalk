@@ -2659,8 +2659,8 @@ function setButtonsBarPosition(position) {
             setSP('--btns-top', '95%');
             setSP('--btns-right', '25%');
             setSP('--btns-left', '50%');
-            setSP('--btns-margin-left', '-280px');
-            setSP('--btns-width', '560px');
+            setSP('--btns-margin-left', '-260px');
+            setSP('--btns-width', '520px');
             setSP('--btns-flex-direction', 'row');
             // bottomButtons vertically
             setSP('--bottom-btns-top', '50%');
