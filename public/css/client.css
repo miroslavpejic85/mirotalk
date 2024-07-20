@@ -684,12 +684,8 @@ a:hover {
     color: #fff;
 }
 
-button:hover:not(#bottomButtons button) {
+button:hover {
     transform: var(--btns-hover-scale);
-}
-
-#bottomButtons button:hover {
-    background-color: #444;
 }
 
 /*--------------------------------------------------------------
