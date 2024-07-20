@@ -267,7 +267,6 @@ body {
 }
 
 #buttonsBar button:hover {
-    background: var(--select-bg) !important;
     transform: var(--btns-hover-scale);
 }
 
@@ -287,6 +286,7 @@ body {
 /*--------------------------------------------------------------
 # Bottom buttons
 --------------------------------------------------------------*/
+
 #bottomButtons {
     z-index: 10;
     display: none;
@@ -314,7 +314,6 @@ body {
 }
 
 #bottomButtons button:hover {
-    background: var(--select-bg) !important;
     transform: var(--btns-hover-scale);
 }
 
