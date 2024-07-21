@@ -39,8 +39,8 @@
 
     --tab-btn-active: rgb(30 29 29);
 
-    --btn-bar-bg-color: #fff;
-    --btn-bar-color: #000;
+    --btn-bar-bg-color: #ffffff;
+    --btn-bar-color: #000000;
 
     /* left buttons bar vertical default */
     --btns-top: 50%;
@@ -49,6 +49,16 @@
     --btns-margin-left: 0px;
     --btns-width: 40px;
     --btns-flex-direction: column;
+    --btns-bg-color: rgba(0, 0, 0, 0.7);
+
+    /* bottom buttons bar horizontal default */
+    --bottom-btns-top: auto;
+    --bottom-btns-left: 50%;
+    --bottom-btns-bottom: 0;
+    --bottom-btns-translate-X: -50%;
+    --bottom-btns-translate-Y: 0%;
+    --bottom-btns-margin-bottom: 18px;
+    --bottom-btns-flex-direction: row;
 
     /* left buttons bar horizontal
     --btns-top: 95%;
@@ -225,7 +235,6 @@ body {
     display: none;
     position: fixed;
     padding: 10px;
-
     top: var(--btns-top);
     right: var(--btns-right);
     left: var(--btns-left);
@@ -234,31 +243,40 @@ body {
     flex-direction: var(--btns-flex-direction);
 
     justify-content: center;
-    grid-gap: 0.4rem;
+    grid-gap: 0.5rem;
 
     -webkit-transform: translate(0%, -50%);
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
 
     /* background: var(--body-bg); */
-    box-shadow: 0px 8px 16px 0px rgb(33 33 33);
-    border: var(--border);
+    /* box-shadow: 0px 8px 16px 0px rgb(33 33 33);*/
+
     border-radius: 10px;
+    border: var(--border) !important;
+    box-shadow: var(--box-shadow);
     overflow: hidden;
 }
 
 #buttonsBar button {
-    padding: 4px;
-    border: none;
-    background: var(--btn-bar-bg-color);
+    padding: 5px !important;
+    border: none !important;
+
+    /* 
+    Use this to maintain the theme colors of buttons while making them less visible during video playback.
+    color: var(--btn-bar-bg-color);
+    background: var(--btns-bg-color); 
+    */
+
     color: var(--btn-bar-color);
+    background: var(--btn-bar-bg-color);
+
     font-size: 1.5rem;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
 }
 
 #buttonsBar button:hover {
-    color: var(--hover-color);
     transform: var(--btns-hover-scale);
 }
 
@@ -267,12 +285,58 @@ body {
 }
 
 #buttonsBar #leaveRoomBtn {
-    color: #ff2d00;
+    color: #e74c3c;
 }
 
 .fa-microphone-slash,
 .fa-video-slash {
     color: #e74c3c !important;
+}
+
+/*--------------------------------------------------------------
+# Bottom buttons
+--------------------------------------------------------------*/
+
+#bottomButtons {
+    z-index: 10;
+    display: none;
+    position: fixed;
+    padding: 10px;
+    top: var(--bottom-btns-top);
+    left: var(--bottom-btns-left);
+    bottom: var(--bottom-btns-bottom);
+    transform: translate(var(--bottom-btns-translate-X), var(--bottom-btns-translate-Y));
+    flex-direction: var(--bottom-btns-flex-direction);
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: var(--bottom-btns-margin-bottom);
+    border-radius: 10px;
+    border: none !important;
+    box-shadow: var(--box-shadow);
+}
+
+#bottomButtons button {
+    width: 48px;
+    padding: 10px;
+    font-size: 1.5rem;
+
+    /* 
+    Use this to maintain the theme colors of buttons while making them less visible during video playback.
+    color: var(--btn-bar-bg-color);
+    background: var(--btns-bg-color); 
+    */
+
+    color: var(--btn-bar-color);
+    background: var(--btn-bar-bg-color);
+
+    border: none !important;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+#bottomButtons button:hover {
+    transform: var(--btns-hover-scale);
 }
 
 /*--------------------------------------------------------------
@@ -1069,7 +1133,7 @@ button:hover {
 #muteEveryoneBtn:hover,
 #hideEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {
-    color: #ff2d00;
+    color: #e74c3c;
     transform: scale(0.95);
     transition: all 0.3s ease-in-out;
 }
