@@ -26,6 +26,10 @@
 // Signaling server URL
 const signalingServer = getSignalingServer();
 
+// Get the computed styles of the root element
+const root = document.documentElement;
+const computedStyles = getComputedStyle(root);
+
 // This room
 const myRoomId = getId('myRoomId');
 const roomId = getRoomId();
@@ -4739,10 +4743,10 @@ function setRoomEmojiButton() {
     function toggleEmojiPicker() {
         if (emojiPickerContainer.style.display === 'block') {
             elemDisplay(emojiPickerContainer, false);
-            setColor(roomEmojiPickerBtn, 'white');
+            setColor(roomEmojiPickerBtn, computedStyles.getPropertyValue('--btn-bar-color').trim());
         } else {
             emojiPickerContainer.style.display = 'block';
-            setColor(roomEmojiPickerBtn, 'yellow');
+            setColor(roomEmojiPickerBtn, 'green');
         }
     }
 }
@@ -7941,7 +7945,7 @@ function handleHideMe(isHideMeActive) {
     } else {
         elemDisplay(myVideoWrap, true, 'inline-block');
         hideMeBtn.className = className.hideMeOff;
-        setColor(hideMeBtn, 'white');
+        setColor(hideMeBtn, computedStyles.getPropertyValue('--btn-bar-color').trim());
         playSound('on');
     }
     resizeVideoMedia();
@@ -7960,7 +7964,7 @@ function setMyHandStatus() {
         playSound('raiseHand');
     } else {
         // Lower hand
-        setColor(myHandBtn, 'white');
+        setColor(myHandBtn, computedStyles.getPropertyValue('--btn-bar-color').trim());
         elemDisplay(myHandStatusIcon, false);
         setTippy(myHandBtn, 'Lower your hand', bottomButtonsPlacement);
     }
