@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.47
+ * @version 1.3.48
  *
  */
 
@@ -25,10 +25,6 @@
 
 // Signaling server URL
 const signalingServer = getSignalingServer();
-
-// Get the computed styles of the root element
-const root = document.documentElement;
-const computedStyles = getComputedStyle(root);
 
 // This room
 const myRoomId = getId('myRoomId');
@@ -4743,7 +4739,7 @@ function setRoomEmojiButton() {
     function toggleEmojiPicker() {
         if (emojiPickerContainer.style.display === 'block') {
             elemDisplay(emojiPickerContainer, false);
-            setColor(roomEmojiPickerBtn, computedStyles.getPropertyValue('--btn-bar-color').trim());
+            setColor(roomEmojiPickerBtn, 'black');
         } else {
             emojiPickerContainer.style.display = 'block';
             setColor(roomEmojiPickerBtn, 'green');
@@ -7945,7 +7941,7 @@ function handleHideMe(isHideMeActive) {
     } else {
         elemDisplay(myVideoWrap, true, 'inline-block');
         hideMeBtn.className = className.hideMeOff;
-        setColor(hideMeBtn, computedStyles.getPropertyValue('--btn-bar-color').trim());
+        setColor(hideMeBtn, 'black');
         playSound('on');
     }
     resizeVideoMedia();
@@ -7964,7 +7960,7 @@ function setMyHandStatus() {
         playSound('raiseHand');
     } else {
         // Lower hand
-        setColor(myHandBtn, computedStyles.getPropertyValue('--btn-bar-color').trim());
+        setColor(myHandBtn, 'black');
         elemDisplay(myHandStatusIcon, false);
         setTippy(myHandBtn, 'Lower your hand', bottomButtonsPlacement);
     }
@@ -10118,7 +10114,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.46</strong>',
+        title: '<strong>WebRTC P2P v1.3.48</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
