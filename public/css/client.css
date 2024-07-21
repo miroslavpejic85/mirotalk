@@ -43,6 +43,7 @@
     --btn-bar-color: #000;
 
     /* left buttons bar vertical default */
+    --btns-bg-color: rgba(0, 0, 0, 0.7);
     --btns-top: 50%;
     --btns-right: 0%;
     --btns-left: 15px;
@@ -249,19 +250,19 @@ body {
     transform: translate(0%, -50%);
 
     /* background: var(--body-bg); */
-    /* box-shadow: 0px 8px 16px 0px rgb(33 33 33);
-    border: var(--border); */
-    border: none;
+    /* box-shadow: 0px 8px 16px 0px rgb(33 33 33);*/
+
     border-radius: 10px;
+    border: var(--border) !important;
     box-shadow: var(--box-shadow);
     overflow: hidden;
 }
 
 #buttonsBar button {
     padding: 5px !important;
-    border: var(--border);
+    border: none !important;
     color: var(--btn-bar-bg-color);
-    background: var(--body-bg);
+    background: var(--btns-bg-color);
     font-size: 1.5rem;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
@@ -276,7 +277,7 @@ body {
 }
 
 #buttonsBar #leaveRoomBtn {
-    color: #ff2d00;
+    color: #e74c3c;
 }
 
 .fa-microphone-slash,
@@ -303,6 +304,7 @@ body {
     gap: 0.5rem;
     margin-bottom: var(--bottom-btns-margin-bottom);
     border-radius: 10px;
+    border: none !important;
     box-shadow: var(--box-shadow);
 }
 
@@ -310,10 +312,10 @@ body {
     width: 48px;
     padding: 10px;
     font-size: 1.5rem;
-    color: #e3e3e3;
-    border: var(--border);
+    color: var(--btn-bar-bg-color);
+    border: none !important;
     border-radius: 5px;
-    background: var(--body-bg) !important;
+    background: var(--btns-bg-color) !important;
     transition: all 0.3s ease-in-out;
 }
 
@@ -1115,7 +1117,7 @@ button:hover {
 #muteEveryoneBtn:hover,
 #hideEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {
-    color: #ff2d00;
+    color: #e74c3c;
     transform: scale(0.95);
     transition: all 0.3s ease-in-out;
 }

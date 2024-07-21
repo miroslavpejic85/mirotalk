@@ -2449,6 +2449,7 @@ function setCustomTheme() {
     setSP('--private-msg-bg', '#6b1226');
     setSP('--btn-bar-bg-color', '#FFFFFF');
     setSP('--btn-bar-color', '#000000');
+    setSP('--btns-bg-color', `${color}`);
     document.body.style.background = `radial-gradient(${color}, ${color})`;
 }
 
@@ -2478,6 +2479,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#2a2a2a');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(0, 0, 0, 0.7)');
             document.body.style.background = 'radial-gradient(#393939, #000000)';
             mirotalkTheme.selectedIndex = 0;
             break;
@@ -2498,6 +2500,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#616161');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(0, 0, 0, 0.7)');
             document.body.style.background = 'radial-gradient(#4f4f4f, #1c1c1c)';
             mirotalkTheme.selectedIndex = 1;
             break;
@@ -2518,6 +2521,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#004a47');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(0, 42, 34, 0.7)');
             document.body.style.background = 'radial-gradient(#004d40, #001f1c)';
             mirotalkTheme.selectedIndex = 2;
             break;
@@ -2538,6 +2542,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#1a237e');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(0, 39, 77, 0.7)');
             document.body.style.background = 'radial-gradient(#1a237e, #0d1b34)';
             mirotalkTheme.selectedIndex = 3;
             break;
@@ -2557,6 +2562,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#8B0000');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(42, 13, 13, 0.7)');
             document.body.style.background = 'radial-gradient(#8B0000, #320000)';
             mirotalkTheme.selectedIndex = 4;
             break;
@@ -2577,6 +2583,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#4B0082');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(42, 0, 29, 0.7)');
             document.body.style.background = 'radial-gradient(#4B0082, #2C003E)';
             mirotalkTheme.selectedIndex = 5;
             break;
@@ -2597,6 +2604,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#FF8C00');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(61, 26, 0, 0.7)');
             document.body.style.background = 'radial-gradient(#FF8C00, #4B1C00)';
             mirotalkTheme.selectedIndex = 6;
             break;
@@ -2617,6 +2625,7 @@ function setTheme() {
             setSP('--private-msg-bg', '#FFD700');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
+            setSP('--btns-bg-color', 'rgba(77, 59, 0, 0.7)');
             document.body.style.background = 'radial-gradient(#FFD700, #3B3B00)';
             mirotalkTheme.selectedIndex = 7;
             break;
@@ -2651,7 +2660,7 @@ function setButtonsBarPosition(position) {
             setSP('--bottom-btns-bottom', '0');
             setSP('--bottom-btns-translate-X', '-50%');
             setSP('--bottom-btns-translate-Y', '0%');
-            setSP('--bottom-btns-margin-bottom', '18px');
+            setSP('--bottom-btns-margin-bottom', '16px');
             setSP('--bottom-btns-flex-direction', 'row');
             break;
         case 'horizontal':
@@ -5787,7 +5796,7 @@ function shareRoomMeetingURL(checkScreen = false) {
         <p style="color:rgb(8, 189, 89);">${roomURL}</p>`,
         showDenyButton: true,
         showCancelButton: true,
-        cancelButtonColor: 'red',
+        cancelButtonColor: '#e74c3c',
         denyButtonColor: 'green',
         confirmButtonText: `Copy URL`,
         denyButtonText: `Email invite`,
@@ -5850,7 +5859,7 @@ function shareRoomByEmail() {
         html: '<input type="text" id="datetimePicker" class="flatpickr" />',
         showCancelButton: true,
         confirmButtonText: 'OK',
-        cancelButtonColor: 'red',
+        cancelButtonColor: '#e74c3c',
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         preConfirm: () => {
@@ -6548,7 +6557,7 @@ function recordingOptions(options, audioMixerTracks) {
         title: 'Recording options',
         showDenyButton: true,
         showCancelButton: true,
-        cancelButtonColor: 'red',
+        cancelButtonColor: '#e74c3c',
         denyButtonColor: 'green',
         confirmButtonText: `Camera`,
         denyButtonText: `Screen/Window`,
@@ -7926,7 +7935,7 @@ function handleHideMe(isHideMeActive) {
     if (isHideMeActive) {
         if (isVideoPinned) myVideoPinBtn.click();
         elemDisplay(myVideoWrap, false);
-        setColor(hideMeBtn, 'red');
+        setColor(hideMeBtn, '#e74c3c');
         hideMeBtn.className = className.hideMeOn;
         playSound('off');
     } else {
