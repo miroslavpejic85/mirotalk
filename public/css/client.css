@@ -260,7 +260,7 @@ body {
 
 #buttonsBar button {
     padding: 5px !important;
-    border: none !important;
+    font-size: 1.4rem;
 
     /* 
     Use this to maintain the theme colors of buttons while making them less visible during video playback.
@@ -271,7 +271,7 @@ body {
     color: var(--btn-bar-color);
     background: var(--btn-bar-bg-color);
 
-    font-size: 1.5rem;
+    border: none !important;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
 }
@@ -284,10 +284,7 @@ body {
     outline: none;
 }
 
-#buttonsBar #leaveRoomBtn {
-    color: #e74c3c;
-}
-
+.fa-phone-slash,
 .fa-microphone-slash,
 .fa-video-slash {
     color: #e74c3c !important;
