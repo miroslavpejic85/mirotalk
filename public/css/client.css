@@ -307,14 +307,14 @@ body {
 }
 
 #bottomButtons button {
-    font-size: 1.35rem;
+    width: 48px;
+    padding: 10px;
+    font-size: 1.5rem;
     color: #e3e3e3;
-    background: var(--body-bg) !important;
-    padding: 14px;
     border: var(--border);
     border-radius: 5px;
+    background: var(--body-bg) !important;
     transition: all 0.3s ease-in-out;
-    width: 55px;
 }
 
 #bottomButtons button:hover {
