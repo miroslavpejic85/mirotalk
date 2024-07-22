@@ -277,7 +277,7 @@ body {
 }
 
 #buttonsBar button:hover {
-    transform: var(--btns-hover-scale);
+    transform: translateY(-3px);
 }
 
 #buttonsBar button:focus {
@@ -1229,7 +1229,7 @@ th {
 /* Change background color of buttons on hover */
 .tab button:hover {
     background-color: transparent;
-    transform: scale(0.95);
+    transform: translateY(-3px);
 }
 
 /* Create an active/current tablink class */
