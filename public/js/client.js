@@ -5796,7 +5796,7 @@ function shareRoomMeetingURL(checkScreen = false) {
         <p style="color:rgb(8, 189, 89);">${roomURL}</p>`,
         showDenyButton: true,
         showCancelButton: true,
-        cancelButtonColor: '#e74c3c',
+        cancelButtonColor: 'red',
         denyButtonColor: 'green',
         confirmButtonText: `Copy URL`,
         denyButtonText: `Email invite`,
@@ -5859,7 +5859,7 @@ function shareRoomByEmail() {
         html: '<input type="text" id="datetimePicker" class="flatpickr" />',
         showCancelButton: true,
         confirmButtonText: 'OK',
-        cancelButtonColor: '#e74c3c',
+        cancelButtonColor: 'red',
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         preConfirm: () => {
@@ -6557,7 +6557,7 @@ function recordingOptions(options, audioMixerTracks) {
         title: 'Recording options',
         showDenyButton: true,
         showCancelButton: true,
-        cancelButtonColor: '#e74c3c',
+        cancelButtonColor: 'red',
         denyButtonColor: 'green',
         confirmButtonText: `Camera`,
         denyButtonText: `Screen/Window`,
@@ -7935,7 +7935,7 @@ function handleHideMe(isHideMeActive) {
     if (isHideMeActive) {
         if (isVideoPinned) myVideoPinBtn.click();
         elemDisplay(myVideoWrap, false);
-        setColor(hideMeBtn, '#e74c3c');
+        setColor(hideMeBtn, 'red');
         hideMeBtn.className = className.hideMeOn;
         playSound('off');
     } else {
