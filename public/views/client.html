@@ -475,7 +475,7 @@ access to use this app.
                                 <i class="fas fa-caret-down"></i>
                             </button>
                             <br /><br /><br /><br />
-                            <div class="dropdown-menu" aria-labelledby="micOptionsBtn">
+                            <div id="micDropDownMenu" class="dropdown-menu" aria-labelledby="micOptionsBtn">
                                 <table class="mySettingsTable">
                                     <tr id="autoGainControlButton">
                                         <td class="microphone-table-width">
@@ -854,27 +854,45 @@ access to use this app.
                     <button id="whiteboardObjectBtn" class="fas fa-mouse-pointer"></button>
                     <button id="whiteboardUndoBtn" class="fas fa-undo"></button>
                     <button id="whiteboardRedoBtn" class="fas fa-redo"></button>
-                    <button id="whiteboardPdfFileBtn" class="far fa-file-pdf"></button>
-                    <button id="whiteboardImgFileBtn" class="far fa-image"></button>
-                    <button id="whiteboardImgUrlBtn" class="fas fa-link"></button>
-                    <button id="whiteboardTextBtn" class="fas fa-spell-check"></button>
-                    <button id="whiteboardLineBtn" class="fas fa-slash"></button>
-                    <button id="whiteboardRectBtn" class="far fa-square"></button>
-                    <button id="whiteboardTriangleBtn" class="fas">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16px"
-                            height="16px"
-                            viewBox="0 0 24 24"
-                            fill="#FFFFFF"
+                    <div class="whiteboard-dropdown">
+                        <button
+                            class="whiteboard-dropdown-toggle"
+                            type="button"
+                            id="whiteboardDropDownMenuBtn"
+                            data-bs-toggle="whiteboard-dropdown"
+                            aria-expanded="false"
                         >
-                            <path d="M12 5.887l8.468 14.113h-16.936l8.468-14.113zm0-3.887l-12 20h24l-12-20z" />
-                        </svg>
-                    </button>
-                    <button id="whiteboardCircleBtn" class="far fa-circle"></button>
-                    <button id="whiteboardSaveBtn" class="fas fa-save"></button>
-                    <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
-                    <button id="whiteboardCleanBtn" class="fas fa-trash"></button>
+                            <i class="fas fa-ellipsis-vertical"></i>
+                        </button>
+                        <div
+                            id="whiteboardDropdownMenu"
+                            class="whiteboard-dropdown-menu"
+                            aria-labelledby="whiteboardDropDownMenu"
+                        >
+                            <button id="whiteboardImgFileBtn"><i class="far fa-image"></i> Add image file</button>
+                            <button id="whiteboardImgUrlBtn"><i class="fas fa-link"></i> Add image URL</button>
+                            <button id="whiteboardPdfFileBtn"><i class="far fa-file-pdf"></i> Add pdf file</button>
+                            <button id="whiteboardTextBtn"><i class="fas fa-spell-check"></i> Add text</button>
+                            <button id="whiteboardLineBtn"><i class="fas fa-slash"></i> Add line</button>
+                            <button id="whiteboardRectBtn"><i class="far fa-square"></i> Add rectangle</button>
+                            <button id="whiteboardTriangleBtn">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="1em"
+                                    height="1em"
+                                    viewBox="0 0 24 24"
+                                    fill="#FFFFFF"
+                                >
+                                    <path d="M12 5.887l8.468 14.113h-16.936l8.468-14.113zm0-3.887l-12 20h24l-12-20z" />
+                                </svg>
+                                Add triangle
+                            </button>
+                            <button id="whiteboardCircleBtn"><i class="far fa-circle"></i> Add circle</button>
+                            <button id="whiteboardSaveBtn"><i class="fas fa-save"></i> Save</button>
+                            <button id="whiteboardEraserBtn"><i class="fas fa-eraser"></i> Eraser</button>
+                            <button id="whiteboardCleanBtn"><i class="fas fa-trash"></i> Clean</button>
+                        </div>
+                    </div>
                 </div>
             </header>
             <main>

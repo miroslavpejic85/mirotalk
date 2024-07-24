@@ -421,7 +421,7 @@ const micLatencyRange = getId('micLatencyRange');
 const micVolumeRange = getId('micVolumeRange');
 const applyAudioOptionsBtn = getId('applyAudioOptionsBtn');
 const micOptionsBtn = getId('micOptionsBtn');
-const micDropDownMenu = getSl('.dropdown-menu');
+const micDropDownMenu = getId('micDropDownMenu');
 const micLatencyValue = getId('micLatencyValue');
 const micVolumeValue = getId('micVolumeValue');
 
@@ -440,6 +440,8 @@ const whiteboardPencilBtn = getId('whiteboardPencilBtn');
 const whiteboardObjectBtn = getId('whiteboardObjectBtn');
 const whiteboardUndoBtn = getId('whiteboardUndoBtn');
 const whiteboardRedoBtn = getId('whiteboardRedoBtn');
+const whiteboardDropDownMenuBtn = getId('whiteboardDropDownMenuBtn');
+const whiteboardDropdownMenu = getId('whiteboardDropdownMenu');
 const whiteboardImgFileBtn = getId('whiteboardImgFileBtn');
 const whiteboardPdfFileBtn = getId('whiteboardPdfFileBtn');
 const whiteboardImgUrlBtn = getId('whiteboardImgUrlBtn');
@@ -816,6 +818,8 @@ function setButtonsToolTip() {
         'right',
     );
     // Whiteboard buttons
+    setTippy(whiteboardLockBtn, 'If enabled, participants cannot interact', 'right');
+    setTippy(whiteboardCloseBtn, 'Close', 'right');
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(wbBackgroundColorEl, 'Background color', 'bottom');
@@ -823,19 +827,6 @@ function setButtonsToolTip() {
     setTippy(whiteboardObjectBtn, 'Object mode', 'bottom');
     setTippy(whiteboardUndoBtn, 'Undo', 'bottom');
     setTippy(whiteboardRedoBtn, 'Redo', 'bottom');
-    setTippy(whiteboardImgFileBtn, 'Add image from file', 'bottom');
-    setTippy(whiteboardPdfFileBtn, 'Add pdf from file', 'bottom');
-    setTippy(whiteboardImgUrlBtn, 'Add image from URL', 'bottom');
-    setTippy(whiteboardTextBtn, 'Add the text', 'bottom');
-    setTippy(whiteboardLineBtn, 'Add the line', 'bottom');
-    setTippy(whiteboardRectBtn, 'Add the rectangle', 'bottom');
-    setTippy(whiteboardTriangleBtn, 'Add triangle', 'bottom');
-    setTippy(whiteboardCircleBtn, 'Add the circle', 'bottom');
-    setTippy(whiteboardSaveBtn, 'Save the board', 'bottom');
-    setTippy(whiteboardEraserBtn, 'Erase the object', 'bottom');
-    setTippy(whiteboardCleanBtn, 'Clean the board', 'bottom');
-    setTippy(whiteboardLockBtn, 'If enabled, participants cannot interact', 'right');
-    setTippy(whiteboardCloseBtn, 'Close', 'right');
     // Suspend/Hide File transfer buttons
     setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
     setTippy(receiveAbortBtn, 'Abort file transfer', 'right-start');
@@ -4806,6 +4797,11 @@ function setMyWhiteboardBtn() {
     whiteboardRedoBtn.addEventListener('click', (e) => {
         whiteboardAction(getWhiteboardAction('redo'));
     });
+    whiteboardDropDownMenuBtn.addEventListener('click', function () {
+        whiteboardDropdownMenu.style.display === 'block'
+            ? elemDisplay(whiteboardDropdownMenu, false)
+            : elemDisplay(whiteboardDropdownMenu, true, 'block');
+    });
     whiteboardSaveBtn.addEventListener('click', (e) => {
         wbCanvasSaveImg();
     });
@@ -4857,6 +4853,12 @@ function setMyWhiteboardBtn() {
         wbIsBgTransparent = !wbIsBgTransparent;
         //setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
         wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)') : setTheme();
+    });
+    // Hide the whiteboard dropdown menu if clicked outside
+    document.addEventListener('click', (event) => {
+        if (!whiteboardDropDownMenuBtn.contains(event.target) && !whiteboardDropDownMenuBtn.contains(event.target)) {
+            elemDisplay(whiteboardDropdownMenu, false);
+        }
     });
 }
 

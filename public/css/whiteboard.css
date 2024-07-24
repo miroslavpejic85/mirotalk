@@ -7,8 +7,8 @@
     position: fixed;
     margin: auto;
     padding: 10px;
-    width: calc(var(--wb-width) * 1px);
-    height: calc(var(--wb-height) * 1px);
+    width: var(--wb-width);
+    height: var(--wb-height);
     background: var(--wb-bg);
     border: var(--border);
     box-shadow: var(--box-shadow);
@@ -57,7 +57,7 @@
     margin: 1px;
     background: rgba(0, 0, 0, 0.2);
     color: #fff;
-    border: var(--border);
+    border: none !important;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
     transition: background 0.23s;
@@ -123,4 +123,70 @@
 
 .show {
     display: block;
+}
+
+/* Styles for the dropdown button */
+.whiteboard-dropdown {
+    margin-left: 5px;
+    float: right;
+    position: relative;
+}
+
+/* Styles for the dropdown menu container */
+.whiteboard-dropdown-menu {
+    z-index: 12;
+    position: absolute;
+    margin-top: 5px;
+    top: 100%;
+    right: 0;
+    display: none;
+    border-radius: 5px;
+    background: var(--body-bg);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(var(--wb-height) * 1px) !important; 
+}
+
+/* Styles for dropdown menu items */
+.whiteboard-dropdown-menu button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 220px;
+    font-size: 0.8em;
+    text-align: left;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+
+.whiteboard-dropdown-menu button:hover {
+    background: var(--select-bg);
+    color: #ffffff;
+    transform: scale(1);
+}
+
+/* Styles for icons and SVGs inside buttons */
+.whiteboard-dropdown-menu button i,
+.whiteboard-dropdown-menu button svg {
+    margin-right: 8px;
+}
+
+/* Styles for list items */
+.whiteboard-dropdown-menu li {
+    padding: 8px 16px;
+}
+
+.whiteboard-dropdown-menu li:hover {
+    background: var(--body-bg);
+}
+
+/* Ensuring dropdown buttons within list items have transparent background */
+.whiteboard-dropdown-menu li button {
+    background: transparent;
+    padding: 0;
 }
