@@ -1126,7 +1126,7 @@ button:hover {
 #lockRoomBtn:hover,
 #unlockRoomBtn:hover {
     color: var(--hover-color);
-    transform: scale(0.95);
+    transform: translateY(-3px);
     transition: all 0.3s ease-in-out;
 }
 
@@ -1134,7 +1134,7 @@ button:hover {
 #hideEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {
     color: red;
-    transform: scale(0.95);
+    transform: translateY(-3px);
     transition: all 0.3s ease-in-out;
 }
 

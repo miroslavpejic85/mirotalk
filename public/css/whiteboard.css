@@ -146,7 +146,7 @@
     border: none;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(var(--wb-height) * 1px) !important; 
+    max-height: calc(var(--wb-height) * 1px) !important;
 }
 
 /* Styles for dropdown menu items */
@@ -161,7 +161,9 @@
     border: none;
     background: none;
     cursor: pointer;
-    transition: background 0.3s, color 0.3s;
+    transition:
+        background 0.3s,
+        color 0.3s;
 }
 
 .whiteboard-dropdown-menu button:hover {
