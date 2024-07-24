@@ -699,8 +699,20 @@ a:hover {
     color: #fff;
 }
 
+button {
+    padding: 10px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    transition:
+        color 0.3s ease,
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        transform 0.3s ease;
+    outline: none;
+}
+
 button:hover {
-    transform: var(--btns-hover-scale);
+    color: grey;
 }
 
 /*--------------------------------------------------------------
@@ -1061,7 +1073,7 @@ button:hover {
 
 #extraInfo {
     padding: 10px;
-    font-size: 0.8rem;
+    font-size: 14px;
     color: #fff;
     /* background: var(--select-bg); */
     border-radius: 10px;
@@ -1177,7 +1189,7 @@ th {
     padding: 10px;
     overflow: hidden;
     border-radius: 5px;
-    width: 35%;
+    width: 40%;
     background-color: var(--body-bg);
     min-height: 480px;
     display: flex;
@@ -1187,16 +1199,17 @@ th {
 
 .tabActions {
     position: relative;
-    width: 65%;
+    width: 60%;
     background-color: var(--body-bg);
     min-height: 500px;
-    max-height: 500px;
+    max-height: 550px;
     overflow-x: none;
     overflow-y: auto;
 }
 
 @media screen and (max-width: 830px) {
     .tab {
+        display: inline;
         width: 100%;
         min-height: auto;
         flex-direction: row;
@@ -1729,10 +1742,6 @@ hr {
     background: #dbdbdb;
     margin-top: 15px;
     margin-bottom: 15px;
-}
-
-button {
-    cursor: pointer;
 }
 
 .hidden {
