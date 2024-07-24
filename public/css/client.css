@@ -701,7 +701,6 @@ a:hover {
 
 button {
     padding: 10px 20px;
-    font-size: 15px;
     cursor: pointer;
     transition:
         color 0.3s ease,
@@ -1073,7 +1072,7 @@ button:hover {
 
 #extraInfo {
     padding: 10px;
-    font-size: 14px;
+    font-size: 12px;
     color: #fff;
     /* background: var(--select-bg); */
     border-radius: 10px;
