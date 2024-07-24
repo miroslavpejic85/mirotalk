@@ -1189,7 +1189,7 @@ th {
     padding: 10px;
     overflow: hidden;
     border-radius: 5px;
-    width: 40%;
+    width: 35%;
     background-color: var(--body-bg);
     min-height: 480px;
     display: flex;
@@ -1199,7 +1199,7 @@ th {
 
 .tabActions {
     position: relative;
-    width: 60%;
+    width: 65%;
     background-color: var(--body-bg);
     min-height: 500px;
     max-height: 550px;
