@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.53
+ * @version 1.3.54
  *
  */
 
@@ -828,9 +828,9 @@ function setButtonsToolTip() {
     setTippy(whiteboardUndoBtn, 'Undo', 'bottom');
     setTippy(whiteboardRedoBtn, 'Redo', 'bottom');
     // Suspend/Hide File transfer buttons
-    setTippy(sendAbortBtn, 'Abort file transfer', 'right-start');
-    setTippy(receiveAbortBtn, 'Abort file transfer', 'right-start');
-    setTippy(receiveHideBtn, 'Hide file transfer', 'right-start');
+    setTippy(sendAbortBtn, 'Abort file transfer', 'bottom');
+    setTippy(receiveAbortBtn, 'Abort file transfer', 'bottom');
+    setTippy(receiveHideBtn, 'Hide file transfer', 'bottom');
     // Video/audio URL player
     setTippy(videoUrlCloseBtn, 'Close the video player', 'bottom');
     setTippy(videoAudioCloseBtn, 'Close the video player', 'bottom');
@@ -10116,7 +10116,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.53</strong>',
+        title: '<strong>WebRTC P2P v1.3.54</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },

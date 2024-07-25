@@ -53,9 +53,8 @@
 .whiteboard-header-title button,
 .whiteboard-header-options button {
     padding: 10px;
-    font-size: 1.2rem;
-    margin: 1px;
-    background: rgba(0, 0, 0, 0.2);
+    font-size: 1.1rem;
+    background: transparent;
     color: #fff;
     border: none !important;
     border-radius: 5px;
@@ -65,9 +64,7 @@
 
 .whiteboard-header-title button:hover,
 .whiteboard-header-options button:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    background: var(--body-bg);
 }
 
 .whiteboardColorPicker {
@@ -77,7 +74,6 @@
     padding: 0;
     width: 20px;
     height: 20px;
-    margin: 1px;
     border-radius: 50px;
     border: solid 0.5px #afadad38;
     cursor: pointer;
@@ -167,9 +163,8 @@
 }
 
 .whiteboard-dropdown-menu button:hover {
-    background: var(--select-bg);
+    background: var(--select-bg) !important;
     color: #ffffff;
-    transform: scale(1);
 }
 
 /* Styles for icons and SVGs inside buttons */

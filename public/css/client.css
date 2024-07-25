@@ -200,7 +200,7 @@ body {
     width: 100%;
     margin-top: 15px;
     padding: 10px;
-    background: var(--select-bg);
+    background: var(--select-bg) !important;
     color: white;
     border: var(--border);
     border-radius: 5px;
@@ -221,9 +221,7 @@ body {
 }
 
 .init-user button:hover {
-    background-color: rgb(35, 35, 35);
-    color: white;
-    transform: scale(1);
+    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------
@@ -386,7 +384,7 @@ body {
     /* border: var(--border); */
     border: none;
     font-size: 1.1rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     color: #fff;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
@@ -395,9 +393,7 @@ body {
 
 .caption-header-title button:hover,
 .caption-header-options button:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    background: var(--body-bg);
 }
 
 .caption-chat {
@@ -430,6 +426,7 @@ body {
 
 .caption-inputarea select {
     margin: 0 5px;
+    background: var(--select-bg) !important;
     cursor: pointer;
 }
 
@@ -456,9 +453,7 @@ body {
 
 #speechRecognitionStart:hover,
 #speechRecognitionStop:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------
@@ -523,7 +518,7 @@ body {
     /* border: var(--border); */
     border: none;
     font-size: 1.1rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     color: #fff;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
@@ -532,9 +527,7 @@ body {
 
 .msger-header-title button:hover,
 .msger-header-options button:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    background: var(--body-bg);
 }
 
 #msgerMaxBtn,
@@ -711,7 +704,7 @@ button {
 }
 
 button:hover {
-    color: grey;
+    /* color: grey; */
 }
 
 /*--------------------------------------------------------------
@@ -769,14 +762,12 @@ button:hover {
     border-radius: 5px;
     font-size: 1rem;
     color: #fff;
-    background: var(--msger-bg);
+    background: transparent;
     transition: background 0.23s;
 }
 
 .msger-input-buttons button:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    background: var(--body-bg);
 }
 
 .msger-input-buttons input {
@@ -998,7 +989,7 @@ button:hover {
 }
 
 #mySettingsCloseBtn {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -1008,9 +999,7 @@ button:hover {
 }
 
 #mySettingsCloseBtn:hover {
-    color: var(--hover-color);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    background: var(--body-bg);
 }
 
 .form-check-input {
@@ -1117,6 +1106,15 @@ button:hover {
     background-color: transparent;
 }
 
+#myPeerNameSetBtn:hover,
+#roomSendEmailBtn:hover,
+#lockRoomBtn:hover,
+#unlockRoomBtn:hover {
+    background: var(--body-bg);
+    transform: translateY(-3px);
+    transition: all 0.3s ease-in-out;
+}
+
 #recImage {
     width: 128px;
     height: auto;
@@ -1129,15 +1127,6 @@ button:hover {
 #recImage:hover {
     box-shadow: 0px 4px 8px 0px rgba(255, 255, 255, 0.2);
     transform: scale(0.95);
-    transition: all 0.3s ease-in-out;
-}
-
-#myPeerNameSetBtn:hover,
-#roomSendEmailBtn:hover,
-#lockRoomBtn:hover,
-#unlockRoomBtn:hover {
-    color: var(--hover-color);
-    transform: translateY(-3px);
     transition: all 0.3s ease-in-out;
 }
 
@@ -1240,7 +1229,7 @@ th {
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-    background-color: transparent;
+    background: var(--body-bg);
     transform: translateY(-3px);
 }
 
@@ -1263,7 +1252,7 @@ th {
 }
 
 .tabcontent button:hover {
-    background-color: rgba(0, 0, 0, 0.2);
+    background: var(--body-bg);
     transform: scale(1);
 }
 
@@ -1524,7 +1513,9 @@ input:checked + .slider:before {
 #sendAbortBtn,
 #receiveAbortBtn,
 #receiveHideBtn {
+    margin-top: 10px;
     padding: 5px;
+    border: var(--border);
     border-radius: 5px;
     font-size: 1rem;
     color: #fff;
@@ -1536,8 +1527,8 @@ input:checked + .slider:before {
 #receiveAbortBtn:hover,
 #receiveHideBtn:hover {
     color: rgb(255, 0, 0);
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    background: var(--body-bg);
+    transform: translateY(-3px);
 }
 
 progress {
@@ -1702,7 +1693,7 @@ progress {
 
 #recognitionDialect,
 #recognitionLanguage {
-    background-color: rgba(0, 0, 0, 0.7);
+    background: var(--select-bg);
     color: #ffffff;
     font-size: small;
     max-width: 135px;
