@@ -53,7 +53,7 @@
 .whiteboard-header-title button,
 .whiteboard-header-options button {
     padding: 10px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     background: transparent;
     color: #fff;
     border: none !important;
@@ -73,8 +73,9 @@
     appearance: none;
     padding: 0;
     width: 20px;
-    height: 20px;
-    border-radius: 50px;
+    height: 15px;
+    margin: 2px;
+    border-radius: 20px;
     border: solid 0.5px #afadad38;
     cursor: pointer;
 }
