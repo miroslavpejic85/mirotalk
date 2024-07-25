@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.54
+ * @version 1.3.55
  *
  */
 
@@ -454,6 +454,7 @@ const whiteboardSaveBtn = getId('whiteboardSaveBtn');
 const whiteboardEraserBtn = getId('whiteboardEraserBtn');
 const whiteboardCleanBtn = getId('whiteboardCleanBtn');
 const whiteboardLockBtn = getId('whiteboardLockBtn');
+const whiteboardUnlockBtn = getId('whiteboardUnlockBtn');
 const whiteboardCloseBtn = getId('whiteboardCloseBtn');
 
 // Room actions buttons
@@ -818,7 +819,8 @@ function setButtonsToolTip() {
         'right',
     );
     // Whiteboard buttons
-    setTippy(whiteboardLockBtn, 'If enabled, participants cannot interact', 'right');
+    setTippy(whiteboardLockBtn, 'If Locked, participants cannot interact', 'right');
+    setTippy(whiteboardUnlockBtn, 'If Locked, participants cannot interact', 'right');
     setTippy(whiteboardCloseBtn, 'Close', 'right');
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
@@ -1419,8 +1421,8 @@ function handleButtonsRule() {
     elemDisplay(tabEmailInvitation, buttons.settings.showTabEmailInvitation);
     // Whiteboard
     buttons.whiteboard.whiteboardLockBtn
-        ? elemDisplay(whiteboardLockBtn, true)
-        : elemDisplay(whiteboardLockBtn, false, 'flex');
+        ? elemDisplay(whiteboardLockBtn, true, 'flex')
+        : elemDisplay(whiteboardLockBtn, false);
 }
 
 /**
@@ -4835,9 +4837,11 @@ function setMyWhiteboardBtn() {
     whiteboardCleanBtn.addEventListener('click', (e) => {
         confirmCleanBoard();
     });
-    whiteboardLockBtn.addEventListener('change', (e) => {
-        wbIsLock = !wbIsLock;
-        whiteboardAction(getWhiteboardAction(wbIsLock ? 'lock' : 'unlock'));
+    whiteboardLockBtn.addEventListener('click', (e) => {
+        toggleLockUnlockWhiteboard();
+    });
+    whiteboardUnlockBtn.addEventListener('click', (e) => {
+        toggleLockUnlockWhiteboard();
     });
     whiteboardCloseBtn.addEventListener('click', (e) => {
         handleWhiteboardToggle();
@@ -8695,6 +8699,26 @@ function handleWhiteboardToggle() {
 }
 
 /**
+ * Toggle Lock/Unlock whiteboard
+ */
+function toggleLockUnlockWhiteboard() {
+    wbIsLock = !wbIsLock;
+
+    const btnToShow = wbIsLock ? whiteboardUnlockBtn : whiteboardLockBtn;
+    const btnToHide = wbIsLock ? whiteboardLockBtn : whiteboardUnlockBtn;
+    const btnColor = wbIsLock ? 'red' : 'white';
+    const action = wbIsLock ? 'lock' : 'unlock';
+
+    elemDisplay(btnToShow, true, 'flex');
+    elemDisplay(btnToHide, false);
+    setColor(whiteboardUnlockBtn, btnColor);
+
+    whiteboardAction(getWhiteboardAction(action));
+
+    if (wbIsLock) playSound('locked');
+}
+
+/**
  * Whiteboard: Show-Hide
  */
 function toggleWhiteboard() {
@@ -10116,7 +10140,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.54</strong>',
+        title: '<strong>WebRTC P2P v1.3.55</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },

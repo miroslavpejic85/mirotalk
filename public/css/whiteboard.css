@@ -45,9 +45,11 @@
     align-items: center;
 }
 
+#whiteboardUnlockBtn,
 #whiteboardLockBtn {
-    margin-left: 5px;
-    margin-right: 5px;
+    display: none;
+    margin-left: 3px;
+    margin-right: 3px;
 }
 
 .whiteboard-header-title button,
