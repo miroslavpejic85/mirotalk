@@ -669,6 +669,10 @@ body {
     hyphens: auto;
 }
 
+.msg-text button {
+    padding: 5px;
+}
+
 .msg-text iframe {
     width: 100%;
 }
