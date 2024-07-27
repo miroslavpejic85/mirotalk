@@ -1052,15 +1052,15 @@ button:hover {
     width: auto !important;
     border: var(--border);
     border-radius: 5px;
-    background-color: rgba(0, 0, 0, 0.2);
+    background: var(--selctt-bg);
     outline: none;
     cursor: pointer;
     transition: 0.3s;
 }
+
 .buttons:hover {
-    background-color: var(--select-bg) !important;
-    transform: scale(0.95);
-    transition: all 0.3s ease-in-out;
+    background-color: var(--body-bg) !important;
+    transform: translateY(-3px) !important;
 }
 
 #extraInfo {
