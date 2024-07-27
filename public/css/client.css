@@ -1853,8 +1853,10 @@ hr {
 /* Styles for the dropdown menu container */
 .dropdown-menu {
     display: none;
+    margin-top: 5px;
+    right: 0;
     background-color: var(--body-bg); /* Change this to your desired menu background color */
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: var(--box-shadow);
     border: none;
     margin-bottom: 20px;
 }
