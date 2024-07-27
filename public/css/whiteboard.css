@@ -157,13 +157,10 @@
     width: 160px;
     font-size: 0.8em;
     text-align: left;
-    padding: 8px 16px;
+    padding: 10px;
     border: none;
     background: none;
     cursor: pointer;
-    transition:
-        background 0.3s,
-        color 0.3s;
 }
 
 .whiteboard-dropdown-menu button:hover {
