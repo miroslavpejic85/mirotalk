@@ -819,8 +819,8 @@ function setButtonsToolTip() {
         'right',
     );
     // Whiteboard buttons
-    setTippy(whiteboardLockBtn, 'If Locked, participants cannot interact', 'right');
-    setTippy(whiteboardUnlockBtn, 'If Locked, participants cannot interact', 'right');
+    setTippy(whiteboardLockBtn, 'Toggle Lock whiteboard', 'right');
+    setTippy(whiteboardUnlockBtn, 'Toggle Lock whiteboard', 'right');
     setTippy(whiteboardCloseBtn, 'Close', 'right');
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
