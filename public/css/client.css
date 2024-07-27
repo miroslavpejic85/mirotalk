@@ -1378,7 +1378,7 @@ input:checked + .slider:before {
 }
 
 .swal2-html-container {
-    color: rgb(165, 165, 165) !important;
+    color: rgb(234 234 234) !important;
     background-color: transparent !important;
 }
 

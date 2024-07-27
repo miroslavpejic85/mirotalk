@@ -10393,7 +10393,7 @@ function userLog(type, message, timer = 3000) {
             });
             Toast.fire({
                 icon: 'info',
-                title: message,
+                text: message,
                 showClass: { popup: 'animate__animated animate__fadeInDown' },
                 hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
