@@ -893,20 +893,25 @@ button:hover {
 .emojiPickerHeader {
     display: flex;
     justify-content: flex-start;
+    padding: 5px;
+    color: #fff;
     background: var(--body-bg);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    padding: 10px;
-    color: #fff;
     cursor: move;
 }
 
 #closeEmojiPickerContainer {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: #ffffff;
     background: transparent;
     border-radius: 10px;
     border: none;
+    transition: background 0.23s;
+}
+
+#closeEmojiPickerContainer:hover {
+    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------
@@ -917,8 +922,8 @@ button:hover {
     padding: 10px;
     text-align: center;
     color: white;
-    background: black;
-    border: none;
+    background: var(--body-bg);
+    border: var(--border);
     border-radius: 5px;
 }
 
