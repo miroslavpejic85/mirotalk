@@ -1374,6 +1374,15 @@ input:checked + .slider:before {
 # Swal2
 --------------------------------------------------------------*/
 
+.swal2-popup {
+    border: 0.5px solid rgb(255 255 255 / 32%) !important;
+    box-shadow: var(--box-shadow) !important;
+}
+
+.swal2-popup .swal2-styled:focus {
+    box-shadow: none !important;
+}
+
 .swal2-validation-message,
 .swal2-title,
 .swal2-content,
@@ -1396,14 +1405,6 @@ input:checked + .slider:before {
 .swal2-html-container {
     color: rgb(195, 195, 195) !important;
     background-color: transparent !important;
-}
-
-.swal2-popup {
-    border: var(--border) !important;
-}
-
-.swal2-popup .swal2-styled:focus {
-    box-shadow: none !important;
 }
 
 .swal2-select {
