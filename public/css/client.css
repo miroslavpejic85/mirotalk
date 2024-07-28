@@ -856,17 +856,26 @@ button:hover {
     position: absolute;
     bottom: 105px;
     left: 10px;
+    border: var(--border);
+    border-radius: 5px;
+    --rgb-background: var(--body-bg);
+    --color-border-over: var(--body-bg);
+    --font-family: 'Comfortaa';
 }
 
 .roomEmoji {
     z-index: 18;
     position: absolute;
     display: none;
-    background: #151616;
+    background: var(--body-bg);
+    border: var(--border);
     border-radius: 10px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    --rgb-background: var(--body-bg);
+    --color-border-over: var(--body-bg);
+    --font-family: 'Comfortaa';
 }
 
 .userEmoji {
@@ -874,12 +883,17 @@ button:hover {
     position: absolute;
     left: 80px;
     bottom: 60px;
+    border: var(--border);
+    border-radius: 10px;
+    --rgb-background: var(--body-bg);
+    --color-border-over: var(--body-bg);
+    --font-family: 'Comfortaa';
 }
 
 .emojiPickerHeader {
     display: flex;
     justify-content: flex-start;
-    background: #151616;
+    background: var(--body-bg);
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     padding: 10px;
