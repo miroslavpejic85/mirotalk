@@ -883,11 +883,7 @@ button:hover {
     position: absolute;
     left: 80px;
     bottom: 60px;
-    border: var(--border);
     border-radius: 10px;
-    --rgb-background: var(--body-bg);
-    --color-border-over: var(--body-bg);
-    --font-family: 'Comfortaa';
 }
 
 .emojiPickerHeader {
