@@ -870,6 +870,7 @@ button:hover {
     background: var(--body-bg);
     border: var(--border);
     border-radius: 10px;
+    box-shadow: var(--box-shadow);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
