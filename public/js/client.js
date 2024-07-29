@@ -507,7 +507,7 @@ const userLimits = {
 };
 
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
-const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution as default, up to 4k and 60fps (very high bandwidth are required) if false, you can set it from settings
+const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution as default, up to 8k and 60fps (very high bandwidth are required) if false, you can set it from settings
 const useAvatarSvg = true; // if false the cam-Off avatar = images.avatar
 
 /**
@@ -5509,10 +5509,10 @@ async function getVideoConstraints(videoQuality) {
     switch (videoQuality) {
         case 'default':
             if (forceCamMaxResolutionAndFps) {
-                // This will make the browser use the maximum resolution available as default, `up to 4K and 60fps`.
+                // This will make the browser use the maximum resolution available as default, `up to 8K and 60fps`.
                 constraints = {
-                    width: { ideal: 3840 },
-                    height: { ideal: 2160 },
+                    width: { ideal: 7680 },
+                    height: { ideal: 4320 },
                     frameRate: { ideal: 60 },
                 }; // video cam constraints default
             } else {
