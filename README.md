@@ -131,12 +131,12 @@ When [host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) 
 
 </details>
 
-<details>
+<details open>
 <summary>Embed a meeting</summary>
 
 <br/>
 
-To embed a meeting in `your service or app` using an iframe, use the following code:
+To embed a meeting within `your service or app` using an iframe, you can use the following code:
 
 ```html
 <iframe
