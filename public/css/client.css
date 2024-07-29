@@ -1079,6 +1079,13 @@ button:hover {
     transform: translateY(-3px) !important;
 }
 
+.extra-info-container {
+    min-height: 220px;
+    max-height: 220px;
+    overflow-x: none;
+    overflow-y: auto;
+}
+
 #extraInfo {
     padding: 10px;
     font-size: 12px;
@@ -1209,10 +1216,6 @@ th {
     position: relative;
     width: 65%;
     background-color: var(--body-bg);
-    min-height: 500px;
-    max-height: 550px;
-    overflow-x: none;
-    overflow-y: auto;
 }
 
 @media screen and (max-width: 830px) {
@@ -1414,7 +1417,7 @@ input:checked + .slider:before {
 }
 
 .swal2-timer-progress-bar-container {
-    background: #376df9;
+    background: var(--body-bg)
 }
 
 .img-about {
