@@ -945,7 +945,7 @@ button:hover {
     margin: auto;
     padding: 10px;
     width: 50%;
-    min-height: 480px;
+    min-height: 560px !important;
     background: var(--body-bg);
     box-shadow: var(--box-shadow);
     border: var(--border);
@@ -1080,8 +1080,11 @@ button:hover {
 }
 
 .extra-info-container {
-    min-height: 220px;
-    max-height: 220px;
+    min-height: 190px;
+    max-height: 190px;
+    margin-top: 15px;
+    border-radius: 5px;
+    background: var(--body-bg);
     overflow-x: none;
     overflow-y: auto;
 }
@@ -1215,7 +1218,6 @@ th {
 .tabActions {
     position: relative;
     width: 65%;
-    background-color: var(--body-bg);
 }
 
 @media screen and (max-width: 830px) {
@@ -1265,7 +1267,13 @@ th {
 .tabcontent {
     display: none;
     padding: 6px 12px;
+    width: 100%;
+    max-height: 530px;
+    min-height: 480px;
     border-top: none;
+    background-color: var(--body-bg);
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .tabcontent button {
