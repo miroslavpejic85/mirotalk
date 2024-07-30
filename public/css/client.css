@@ -1080,8 +1080,8 @@ button:hover {
 }
 
 .extra-info-container {
-    min-height: 190px;
-    max-height: 190px;
+    min-height: 175px;
+    max-height: 175px;
     margin-top: 15px;
     border-radius: 5px;
     background: var(--body-bg);
@@ -1266,6 +1266,7 @@ th {
 /* Style the tab content */
 .tabcontent {
     display: none;
+    margin-top: 15px;
     padding: 6px 12px;
     width: 100%;
     max-height: 530px;
