@@ -1,6 +1,7 @@
 'use strict';
 
 let customRatio = true;
+let isHideALLVideosActive = false;
 
 // aspect       0      1      2      3       4
 let ratios = ['0:0', '4:3', '16:9', '1:1', '1:2'];
@@ -58,6 +59,8 @@ function Area(Increment, Count, Width, Height, Margin = 10) {
  * Resize video elements
  */
 function resizeVideoMedia() {
+    if (isHideALLVideosActive) return;
+
     const videoMediaContainer = getId('videoMediaContainer');
     const Cameras = getEcN('Camera');
 

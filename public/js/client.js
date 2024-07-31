@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.60
+ * @version 1.3.61
  *
  */
 
@@ -85,6 +85,7 @@ const className = {
     speech: 'fas fa-volume-high',
     heart: 'fas fa-heart',
     pip: 'fas fa-images',
+    hideAll: 'fas fa-eye',
 };
 // https://fontawesome.com/search?o=r&m=free
 
@@ -197,6 +198,7 @@ const buttons = {
         showShareVideoAudioBtn: true,
         showPrivateMessageBtn: true,
         showZoomInOutBtn: false,
+        showVideoFocusBtn: true,
         showVideoPipBtn: showVideoPipBtn,
     },
     local: {
@@ -3255,6 +3257,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteVideoToImgBtn = document.createElement('button');
             const remoteVideoFullScreenBtn = document.createElement('button');
             const remoteVideoPinBtn = document.createElement('button');
+            const remoteVideoFocusBtn = document.createElement('button');
             const remoteVideoMirrorBtn = document.createElement('button');
             const remoteVideoZoomInBtn = document.createElement('button');
             const remoteVideoZoomOutBtn = document.createElement('button');
@@ -3336,6 +3339,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteVideoPinBtn.setAttribute('id', peer_id + '_pinUnpin');
             remoteVideoPinBtn.className = className.pinUnpin;
 
+            // remote video hide all button
+            remoteVideoFocusBtn.setAttribute('id', peer_id + '_focusMode');
+            remoteVideoFocusBtn.className = className.hideAll;
+
             // remote video toggle mirror
             remoteVideoMirrorBtn.setAttribute('id', peer_id + '_toggleMirror');
             remoteVideoMirrorBtn.className = className.mirror;
@@ -3357,6 +3364,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 setTippy(remoteVideoZoomOutBtn, 'Zoom out video', 'bottom');
                 setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
                 setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
+                setTippy(remoteVideoFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(remoteVideoMirrorBtn, 'Toggle video mirror', 'bottom');
             }
 
@@ -3384,6 +3392,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // attach to remote video nav bar
             !isMobileDevice && remoteVideoNavBar.appendChild(remoteVideoPinBtn);
+
+            buttons.remote.showVideoFocusBtn && remoteVideoNavBar.appendChild(remoteVideoFocusBtn);
 
             remoteVideoNavBar.appendChild(remoteVideoMirrorBtn);
 
@@ -3427,6 +3437,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             remoteVideoWrap.className = 'Camera';
             remoteVideoWrap.setAttribute('id', peer_id + '_videoWrap');
+            remoteVideoWrap.style.display = isHideALLVideosActive ? 'none' : 'block';
 
             // add elements to videoWrap div
             remoteVideoWrap.appendChild(remoteVideoNavBar);
@@ -3450,6 +3461,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // handle video pin/unpin
             handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
+
+            // handle video focus mode
+            handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap);
 
             // handle video toggle mirror
             handleVideoToggleMirror(remoteMedia.id, remoteVideoMirrorBtn.id);
@@ -4036,6 +4050,35 @@ function toggleVideoPin(position) {
 }
 
 /**
+ * Handle video focus mode (hide all except selected one)
+ * @param {object} remoteVideoFocusBtn button
+ * @param {object} remoteVideoWrap videoWrapper
+ */
+function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap) {
+    if (remoteVideoFocusBtn) {
+        remoteVideoFocusBtn.addEventListener('click', (e) => {
+            if (isHideMeActive) {
+                return userLog('toast', 'To use this feature, please toggle Hide self view before', 'top-end', 6000);
+            }
+            isHideALLVideosActive = !isHideALLVideosActive;
+            e.target.style.color = isHideALLVideosActive ? 'lime' : 'white';
+            if (isHideALLVideosActive) {
+                remoteVideoWrap.style.width = '100%';
+                remoteVideoWrap.style.height = '100%';
+            } else {
+                resizeVideoMedia();
+            }
+            const children = videoMediaContainer.children;
+            for (let child of children) {
+                if (child.id != remoteVideoWrap.id) {
+                    child.style.display = isHideALLVideosActive ? 'none' : 'block';
+                }
+            }
+        });
+    }
+}
+
+/**
  * Zoom in/out video element center or by cursor position
  * @param {string} zoomInBtnId
  * @param {string} zoomOutBtnId
@@ -4326,6 +4369,9 @@ function setShareRoomBtn() {
  */
 function setHideMeButton() {
     hideMeBtn.addEventListener('click', (e) => {
+        if (isHideALLVideosActive) {
+            return userLog('toast', 'To use this feature, please toggle video focus mode', 'top-end', 6000);
+        }
         isHideMeActive = !isHideMeActive;
         handleHideMe(isHideMeActive);
     });
