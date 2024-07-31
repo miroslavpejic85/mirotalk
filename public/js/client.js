@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.61
+ * @version 1.3.62
  *
  */
 
@@ -10204,7 +10204,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.59</strong>',
+        title: '<strong>WebRTC P2P v1.3.62</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
@@ -10360,16 +10360,28 @@ function bytesToSize(bytes) {
  * @param {object} data peer audio
  */
 function handlePeerVolume(data) {
-    if (!isAudioPitchBar) return;
-    const peer_id = data.peer_id;
+    const { peer_id, volume } = data;
+
+    let audioColorTmp = '#19bb5c';
+    if ([50, 60, 70].includes(volume)) audioColorTmp = '#FFA500'; // Orange
+    if ([80, 90, 100].includes(volume)) audioColorTmp = '#FF0000'; // Red
+
+    if (!isAudioPitchBar) {
+        const remotePeerAvatarImg = getId(peer_id + '_avatar');
+        if (remotePeerAvatarImg) {
+            applyBoxShadowEffect(remotePeerAvatarImg, audioColorTmp, 100);
+        }
+        const remotePeerVideo = getId(peer_id + '___video');
+        if (remotePeerVideo && remotePeerVideo.classList.contains('videoCircle')) {
+            applyBoxShadowEffect(remotePeerVideo, audioColorTmp, 100);
+        }
+        return;
+    }
+
     const remotePitchBar = getId(peer_id + '_pitch_bar');
     //let remoteVideoWrap = getId(peer_id + '_videoWrap');
     if (!remotePitchBar) return;
-
-    const volume = data.volume;
-    if (volume > 50) {
-        remotePitchBar.style.backgroundColor = 'orange';
-    }
+    remotePitchBar.style.backgroundColor = audioColorTmp;
     remotePitchBar.style.height = volume + '%';
     //remoteVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
@@ -10384,12 +10396,23 @@ function handlePeerVolume(data) {
  * @param {object} data my audio
  */
 function handleMyVolume(data) {
-    if (!isAudioPitchBar || !myPitchBar) return;
+    const { volume } = data;
 
-    const volume = data.volume;
-    if (volume > 50) {
-        myPitchBar.style.backgroundColor = 'orange';
+    let audioColorTmp = '#19bb5c';
+    if ([50, 60, 70].includes(volume)) audioColorTmp = '#FFA500'; // Orange
+    if ([80, 90, 100].includes(volume)) audioColorTmp = '#FF0000'; // Red
+
+    if (!isAudioPitchBar || !myPitchBar) {
+        const localPeerAvatarImg = getId('myVideoAvatarImage');
+        if (localPeerAvatarImg) {
+            applyBoxShadowEffect(localPeerAvatarImg, audioColorTmp, 100);
+        }
+        if (myVideo && myVideo.classList.contains('videoCircle')) {
+            applyBoxShadowEffect(myVideo, audioColorTmp, 100);
+        }
+        return;
     }
+    myPitchBar.style.backgroundColor = audioColorTmp;
     myPitchBar.style.height = volume + '%';
     //myVideoWrap.classList.toggle('speaking');
     setTimeout(function () {
@@ -10397,6 +10420,21 @@ function handleMyVolume(data) {
         myPitchBar.style.height = '0%';
         //myVideoWrap.classList.toggle('speaking');
     }, 100);
+}
+
+/**
+ * Apply Box Shadow effect to element
+ * @param {object} element
+ * @param {string} color
+ * @param {integer} delay ms
+ */
+function applyBoxShadowEffect(element, color, delay = 200) {
+    if (element) {
+        element.style.boxShadow = `0 0 20px ${color}`;
+        setTimeout(() => {
+            element.style.boxShadow = 'none';
+        }, delay);
+    }
 }
 
 /**
