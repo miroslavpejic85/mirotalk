@@ -1497,7 +1497,7 @@ async function whoAreYou() {
         title: 'MiroTalk P2P',
         position: 'center',
         input: 'text',
-        inputPlaceholder: 'Enter your name',
+        inputPlaceholder: 'Enter your email or name',
         inputAttributes: { maxlength: 32 },
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: initUser, // inject html
@@ -1506,7 +1506,7 @@ async function whoAreYou() {
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
         inputValidator: async (value) => {
-            if (!value) return 'Please enter your name';
+            if (!value) return 'Please enter your email or name';
             // Long name
             if (value.length > 30) return 'Name must be max 30 char';
 
