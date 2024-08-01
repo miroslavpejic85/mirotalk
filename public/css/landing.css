@@ -2693,6 +2693,12 @@ ul.pricing-item-features-list li {
 .clients-size-logo {
     width: 240px;
     height: auto;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.clients-size-logo:hover {
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 1);
 }
 
 .clients-logo {
