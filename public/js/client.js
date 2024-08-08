@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.64
+ * @version 1.3.65
  *
  */
 
@@ -2365,6 +2365,16 @@ function handleDisconnect(reason) {
     for (const peer_id in peerConnections) {
         const peerVideoId = peer_id + '___video';
         const peerAudioId = peer_id + '___audio';
+
+        const peerVideo = getId(peerVideoId);
+        if (peerVideo) { // Peer video in focus mode
+            if (peerVideo.hasAttribute('focus-mode')) {
+                const remoteVideoFocusBtn = getId(peer_id + '_focusMode');
+                if (remoteVideoFocusBtn) { 
+                    remoteVideoFocusBtn.click();
+                }
+            }
+        }
         peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
         peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
         peerConnections[peer_id].close();
@@ -2399,6 +2409,15 @@ function handleRemovePeer(config) {
     const peerAudioId = peer_id + '___audio';
 
     if (peerVideoId in peerVideoMediaElements) {
+        const peerVideo = getId(peerVideoId);
+        if (peerVideo) { // Peer video in focus mode
+            if (peerVideo.hasAttribute('focus-mode')) {
+                const remoteVideoFocusBtn = getId(peer_id + '_focusMode');
+                if (remoteVideoFocusBtn) { 
+                    remoteVideoFocusBtn.click();
+                }
+            }
+        }
         peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
         adaptAspectRatio();
     }
@@ -3463,7 +3482,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
 
             // handle video focus mode
-            handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap);
+            handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap, remoteMedia);
 
             // handle video toggle mirror
             handleVideoToggleMirror(remoteMedia.id, remoteVideoMirrorBtn.id);
@@ -4053,8 +4072,9 @@ function toggleVideoPin(position) {
  * Handle video focus mode (hide all except selected one)
  * @param {object} remoteVideoFocusBtn button
  * @param {object} remoteVideoWrap videoWrapper
+ * @param {object} remoteMedia videoMedia
  */
-function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap) {
+function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap, remoteMedia) {
     if (remoteVideoFocusBtn) {
         remoteVideoFocusBtn.addEventListener('click', (e) => {
             if (isHideMeActive) {
@@ -4065,8 +4085,10 @@ function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap) {
             if (isHideALLVideosActive) {
                 remoteVideoWrap.style.width = '100%';
                 remoteVideoWrap.style.height = '100%';
+                remoteMedia.setAttribute('focus-mode', 'true');
             } else {
                 resizeVideoMedia();
+                remoteMedia.removeAttribute('focus-mode');
             }
             const children = videoMediaContainer.children;
             for (let child of children) {
@@ -10204,7 +10226,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.64</strong>',
+        title: '<strong>WebRTC P2P v1.3.65</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
