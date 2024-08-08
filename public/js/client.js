@@ -2367,10 +2367,11 @@ function handleDisconnect(reason) {
         const peerAudioId = peer_id + '___audio';
 
         const peerVideo = getId(peerVideoId);
-        if (peerVideo) { // Peer video in focus mode
+        if (peerVideo) {
+            // Peer video in focus mode
             if (peerVideo.hasAttribute('focus-mode')) {
                 const remoteVideoFocusBtn = getId(peer_id + '_focusMode');
-                if (remoteVideoFocusBtn) { 
+                if (remoteVideoFocusBtn) {
                     remoteVideoFocusBtn.click();
                 }
             }
@@ -2410,10 +2411,11 @@ function handleRemovePeer(config) {
 
     if (peerVideoId in peerVideoMediaElements) {
         const peerVideo = getId(peerVideoId);
-        if (peerVideo) { // Peer video in focus mode
+        if (peerVideo) {
+            // Peer video in focus mode
             if (peerVideo.hasAttribute('focus-mode')) {
                 const remoteVideoFocusBtn = getId(peer_id + '_focusMode');
-                if (remoteVideoFocusBtn) { 
+                if (remoteVideoFocusBtn) {
                     remoteVideoFocusBtn.click();
                 }
             }

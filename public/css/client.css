@@ -1871,8 +1871,8 @@ hr {
 
 /* Styles for the dropdown button */
 .dropdown-toggle {
-    background-color: var(--body-bg); /* Change this to your desired button background color */
-    color: #fff; /* Change this to your desired text color */
+    background-color: var(--body-bg);
+    color: #fff;
     border: none;
     border-radius: 5px;
     /* padding: 10px 20px; */
@@ -1883,11 +1883,11 @@ hr {
 .dropdown-menu {
     display: none;
     margin-top: 5px;
-    right: 0;
-    background-color: var(--body-bg); /* Change this to your desired menu background color */
-    box-shadow: var(--box-shadow);
-    border: none;
     margin-bottom: 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--body-bg);
+    box-shadow: var(--box-shadow);
 }
 
 /* Styles for table cell with title (td) */
