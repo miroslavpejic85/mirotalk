@@ -1398,8 +1398,8 @@ function handleButtonsRule() {
     elemDisplay(captionBtn, buttons.main.showCaptionRoomBtn && speechRecognition); // auto-detected
     elemDisplay(roomEmojiPickerBtn, buttons.main.showRoomEmojiPickerBtn);
     elemDisplay(myHandBtn, buttons.main.showMyHandBtn);
-    elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn && !isMobileDevice);
-    elemDisplay(snapshotRoomBtn, buttons.main.showSnapshotRoomBtn);
+    elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
+    elemDisplay(snapshotRoomBtn, buttons.main.showSnapshotRoomBtn && !isMobileDevice);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
     elemDisplay(documentPiPBtn, buttons.main.showDocumentPipBtn);
     elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
