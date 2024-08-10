@@ -10578,8 +10578,7 @@ function userLog(type, message, timer = 3000) {
                 timerProgressBar: true,
             });
             Toast.fire({
-                icon: 'info',
-                text: message,
+                html: message,
                 showClass: { popup: 'animate__animated animate__fadeInDown' },
                 hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
