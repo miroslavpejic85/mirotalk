@@ -275,6 +275,7 @@ body {
 }
 
 #buttonsBar button:hover {
+    background: var(--body-bg);
     transform: translateY(-3px);
 }
 
@@ -331,6 +332,7 @@ body {
 }
 
 #bottomButtons button:hover {
+    background: var(--body-bg);
     transform: var(--btns-hover-scale);
 }
 
@@ -709,6 +711,7 @@ button {
 
 button:hover {
     /* color: grey; */
+    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------
