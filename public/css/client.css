@@ -274,8 +274,8 @@ body {
 }
 
 #buttonsBar button:hover {
-    color: white;
-    background: var(--body-bg);
+    /* color: white;
+    background: var(--body-bg); */
     transform: translateY(-3px);
 }
 
@@ -332,8 +332,8 @@ body {
 }
 
 #bottomButtons button:hover {
-    color: white;
-    background: var(--body-bg);
+    /* color: white;
+    background: var(--body-bg); */
     transform: var(--btns-hover-scale);
 }
 
@@ -711,8 +711,8 @@ button {
 }
 
 button:hover {
-    color: white !important;
-    background: var(--body-bg);
+    /* color: white !important;
+    background: var(--body-bg); */
 }
 
 /*--------------------------------------------------------------
