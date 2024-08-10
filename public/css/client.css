@@ -271,10 +271,10 @@ body {
 
     border: none !important;
     border-radius: 5px;
-    transition: all 0.3s ease-in-out;
 }
 
 #buttonsBar button:hover {
+    color: white;
     background: var(--body-bg);
     transform: translateY(-3px);
 }
@@ -332,6 +332,7 @@ body {
 }
 
 #bottomButtons button:hover {
+    color: white;
     background: var(--body-bg);
     transform: var(--btns-hover-scale);
 }
@@ -710,7 +711,7 @@ button {
 }
 
 button:hover {
-    /* color: grey; */
+    color: white !important;
     background: var(--body-bg);
 }
 
