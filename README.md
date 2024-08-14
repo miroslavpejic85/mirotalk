@@ -45,7 +45,7 @@
 -   Screen sharing for presentations.
 -   File sharing with drag-and-drop support.
 -   Choose your audio input, output, and video source.
--   Supports video quality up to 4K and 60 FPS.
+-   Supports video quality up to 8K and 60 FPS.
 -   Supports advance Picture-in-Picture (PiP) offering a more streamlined and flexible viewing experience.
 -   Record your screen, audio, and video.
 -   Snapshot video frames and save them as PNG images.
