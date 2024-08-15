@@ -42,7 +42,7 @@ To embed a meeting in your service or app, use an iframe with the source attribu
 
 ```html
 <iframe
-    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; autoplay"
+    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay"
     src="https://p2p.mirotalk.com/join/test"
     style="height: 100vh; width: 100vw; border: 0px;"
 ></iframe>
@@ -56,7 +56,7 @@ Integrate video meetings into your website or application quickly by incorporati
 
 ```html
 <iframe
-    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; autoplay"
+    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay"
     src="https://p2p.mirotalk.com/newcall"
     style="height: 100vh; width: 100vw; border: 0px;"
 ></iframe>
