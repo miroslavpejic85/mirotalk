@@ -1,0 +1,88 @@
+name: "\U0001F41B Bug report"
+description: File a bug report and help us improve
+#labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue tracker is only for reporting bugs and tracking issues related to the source code.
+
+        **Before posting, please make sure to check if the same or similar bugs have already been reported.**
+
+        ⚠️ General questions regarding usage, installation, etc. should be posted in our [community forum](https://discord.gg/rgGYfeYW3N).
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "**Please select at least one device where the problem occurs.**"
+
+  - type: checkboxes
+    attributes:
+      label: Device
+      description: Please provide the device where the problem manifests.
+      options:
+        - label: Android
+        - label: iPhone
+        - label: Linux
+        - label: Mac
+        - label: Windows
+  - type: markdown
+    attributes:
+      value: "**Please select at least one browser where the problem occurs.**"
+
+  - type: checkboxes
+    attributes:
+      label: Browser
+      description: Please provide the browser where the problem manifests.
+      options:
+        - label: Chrome (or Chromium based)
+        - label: Firefox
+        - label: Safari
+        - label: Android browser
+        - label: iOS browser
+        - label: Other desktop browser
+  - type: textarea
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. The browser console logs (if applicable) are a good start. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+  - type: markdown
+    attributes:
+      value: "**Please indicate whether the problem is reproducible on p2p.mirotalk.com.**"
+
+  - type: dropdown
+    attributes:
+      label: Reproducibility
+      description: Is the bug reproducible on p2p.mirotalk.com?
+      options:
+        - '--'
+        - 'Yes'
+        - 'No'
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Please provide more details in case they apply (such as the MiroTalk P2P version you are running, if you are hosting your own server).
+  - type: markdown
+    attributes:
+      value: |
+        **Attach images or screenshots**
+
+        If applicable, you can drag and drop images directly into this issue. Screenshots or videos can help illustrate the problem clearly.

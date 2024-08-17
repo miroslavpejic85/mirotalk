@@ -1,0 +1,26 @@
+name: "\U0001F680 Feature request"
+description: Suggest an idea for MiroTalk P2P
+labels: ["feature-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an idea to make MiroTalk P2P better.
+
+        **Note**: the ultimate decision for implementing features lies on the MiroTalk team, not all feature requests shall be accepted.
+  - type: textarea
+    attributes:
+      label: Feature request
+      description: A clear and concise description of the feature request.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Pros
+      description: A clear and concise description of the feature request pros.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: Add any other context about the feature request here.
