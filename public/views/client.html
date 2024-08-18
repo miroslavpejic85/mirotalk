@@ -160,28 +160,53 @@ access to use this app.
         <section id="msgerDraggable" class="msger-draggable fadein">
             <section id="msger" class="msger">
                 <header id="msgerHeader" class="msger-header">
-                    <div class="msger-header-title">
-                        <div id="msgerShowChatOnMsgDiv" class="title ml-10">
-                            <i class="fa-solid fa-eye"></i>
-                            <label class="switch ml-10">
-                                <input id="msgerShowChatOnMsg" type="checkbox" checked />
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <div id="msgerSpeechMsgDiv" class="title">
-                            <i class="fas fa-volume-high ml-10"></i>
-                            <label class="switch ml-10">
-                                <input id="msgerSpeechMsg" type="checkbox" />
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
+                    <div class="msger-header-title"></div>
                     <div class="msger-header-options">
+                        <button id="msgerTogglePin" class="fas fa-map-pin"></button>
                         <button id="msgerTheme" class="fas fa-ghost"></button>
-                        <button id="msgerSaveBtn" class="fas fa-save"></button>
-                        <button id="msgerClean" class="fas fa-trash"></button>
                         <button id="msgerMaxBtn" class="fas fa-expand"></button>
                         <button id="msgerMinBtn" class="fas fa-compress"></button>
+                        <div class="dropdown-custom">
+                            <button
+                                class="dropdown-toggle-custom"
+                                type="button"
+                                id="msgerDropDownMenuBtn"
+                                data-bs-toggle="dropdown-custom"
+                                aria-expanded="false"
+                            >
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <ul
+                                id="msgerDropDownContent"
+                                class="dropdown-menu-custom"
+                                aria-labelledby="msgerDropDownMenuBtn"
+                            >
+                                <li>
+                                    <hr />
+                                    <div id="msgerShowChatOnMsgDiv" class="title ml-10">
+                                        <i class="fa-solid fa-eye"></i>
+                                        <label class="switch ml-10">
+                                            <input id="msgerShowChatOnMsg" type="checkbox" checked />
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div id="msgerSpeechMsgDiv" class="title">
+                                        <i class="fas fa-volume-high ml-10"></i>
+                                        <label class="switch ml-10">
+                                            <input id="msgerSpeechMsg" type="checkbox" />
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <hr />
+                                </li>
+                                <li>
+                                    <button id="msgerSaveBtn"><i class="fas fa-save"></i> Save messages</button>
+                                </li>
+                                <li>
+                                    <button id="msgerClean"><i class="fas fa-trash"></i> Clean messages</button>
+                                </li>
+                            </ul>
+                        </div>
                         <button id="msgerClose" class="fas fa-times"></button>
                     </div>
                 </header>
@@ -257,6 +282,7 @@ access to use this app.
                         <button id="speechRecognitionIcon" class="fas fa-microphone-alt"></button>
                     </div>
                     <div class="caption-header-options">
+                        <button id="captionTogglePin" class="fas fa-map-pin"></button>
                         <button id="captionTheme" class="fas fa-ghost"></button>
                         <button id="captionSaveBtn" class="fas fa-save"></button>
                         <button id="captionClean" class="fas fa-trash"></button>

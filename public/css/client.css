@@ -16,6 +16,8 @@
     --msger-width: 420px;
     --msger-bubble-width: 85%;
 
+    --caption-top: 50%;
+    --caption-left: 50%;
     --caption-height: 680px;
     --caption-width: 420px;
 
@@ -345,10 +347,6 @@ body {
     z-index: 14;
     display: none;
     position: fixed;
-    /* center screen */
-    top: var(--caption-top);
-    left: var(--caption-left);
-    transform: translate(-50%, -50%);
     /* end center screen  */
     height: var(--caption-height);
     width: var(--caption-width);
@@ -361,6 +359,7 @@ body {
     overflow: hidden;
     border-radius: 10px;
     box-shadow: var(--box-shadow);
+    transition: width 0.5s ease-in-out;
 }
 
 .caption {
@@ -386,7 +385,7 @@ body {
     padding: 5px;
     /* border: var(--border); */
     border: none;
-    font-size: 1.1rem;
+    font-size: 1rem;
     background: transparent;
     color: #fff;
     border-radius: 5px;
@@ -467,10 +466,6 @@ body {
     z-index: 14;
     display: none;
     position: fixed;
-    /* center screen */
-    top: var(--msger-top);
-    left: var(--msger-left);
-    transform: translate(-50%, -50%);
     /* end center screen  */
     height: var(--msger-height);
     width: var(--msger-width);
@@ -483,6 +478,7 @@ body {
     overflow: hidden;
     border-radius: 10px;
     box-shadow: var(--box-shadow);
+    transition: width 0.5s ease-in-out;
 }
 
 .msger {
@@ -520,7 +516,7 @@ body {
     padding: 5px;
     /* border: var(--border); */
     border: none;
-    font-size: 1.1rem;
+    font-size: 1rem;
     background: transparent;
     color: #fff;
     border-radius: 5px;
@@ -860,10 +856,11 @@ button:hover {
     position: absolute;
     bottom: 105px;
     left: 10px;
+    background: var(--body-bg);
     border: var(--border);
     border-radius: 5px;
-    --rgb-background: var(--body-bg);
-    --color-border-over: var(--body-bg);
+    --rgb-background: var(--body-bg) !important;
+    --color-border-over: var(--body-bg) !important;
     --font-family: 'Comfortaa';
 }
 
@@ -1875,11 +1872,11 @@ hr {
 
 /* Styles for the dropdown button */
 .dropdown-toggle {
-    background-color: var(--body-bg);
+    /* padding: 10px 20px; */
     color: #fff;
     border: none;
     border-radius: 5px;
-    /* padding: 10px 20px; */
+    background-color: var(--body-bg);
     cursor: pointer;
 }
 
@@ -1892,6 +1889,59 @@ hr {
     border-radius: 10px;
     background-color: var(--body-bg);
     box-shadow: var(--box-shadow);
+}
+
+/*--------------------------------------------------------------
+# Dropdown menu custom
+--------------------------------------------------------------*/
+
+/* General container for the dropdown */
+.dropdown-custom {
+    position: relative;
+    display: inline-block;
+}
+
+/* Style the button that triggers the dropdown */
+.dropdown-toggle-custom {
+    color: #fff;
+    border: var(--border);
+    background: var(--body-bg);
+    cursor: pointer;
+}
+
+/* Dropdown menu */
+.dropdown-menu-custom {
+    z-index: 1;
+    display: none;
+    position: absolute;
+    right: 0;
+    padding: 10px 0;
+    min-width: 240px;
+    border-radius: 5px;
+    border: var(--border);
+    background: var(--body-bg);
+    box-shadow: var(--box-shadow);
+}
+
+/* Style for dropdown items */
+.dropdown-menu-custom li {
+    padding: 8px 16px;
+    list-style-type: none;
+}
+
+.dropdown-menu-custom li button {
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    font-size: 0.8em;
+    cursor: pointer;
+    color: #fff;
+}
+
+.dropdown-menu-custom li button:hover {
+    background-color: var(--hover-bg); /* Use a default hover color if --hover-bg is not defined */
 }
 
 /* Styles for table cell with title (td) */
