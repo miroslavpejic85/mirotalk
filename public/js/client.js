@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.70
+ * @version 1.3.71
  *
  */
 
@@ -7168,8 +7168,13 @@ function chatMinimize() {
     elemDisplay(msgerMaxBtn, true);
     chatCenter();
     if (!isChatPinned) {
-        setSP('--msger-width', '420px');
-        setSP('--msger-height', '680px');
+        if (isMobileDevice) {
+            setSP('--msger-width', '99%');
+            setSP('--msger-height', '99%');
+        } else {
+            setSP('--msger-width', '420px');
+            setSP('--msger-height', '680px');
+        }
     } else {
         setSP('--msger-width', '25%');
         setSP('--msger-height', '100%');
@@ -7223,6 +7228,7 @@ function chatUnpin() {
     isChatPinned = false;
     setColor(msgerTogglePin, 'white');
     resizeVideoMedia();
+    msgerDraggable.style.resize = 'both';
     if (!isMobileDevice) dragElement(msgerDraggable, msgerHeader);
 }
 
@@ -7269,8 +7275,13 @@ function captionMinimize() {
     elemDisplay(captionMaxBtn, true);
     captionCenter();
     if (!isCaptionPinned) {
-        setSP('--caption-width', '420px');
-        setSP('--caption-height', '680px');
+        if (isMobileDevice) {
+            setSP('--caption-width', '99%');
+            setSP('--caption-height', '99%');
+        } else {
+            setSP('--caption-width', '420px');
+            setSP('--caption-height', '680px');
+        }
     } else {
         setSP('--caption-width', '25%');
         setSP('--caption-height', '100%');
@@ -7324,6 +7335,7 @@ function captionUnpin() {
     isCaptionPinned = false;
     setColor(captionTogglePin, 'white');
     resizeVideoMedia();
+    captionDraggable.style.resize = 'both';
     if (!isMobileDevice) dragElement(captionDraggable, captionHeader);
 }
 
@@ -10495,7 +10507,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.70</strong>',
+        title: '<strong>WebRTC P2P v1.3.71</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
