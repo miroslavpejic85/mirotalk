@@ -3754,6 +3754,7 @@ function genAvatarSvg(peerName, avatarImgSize) {
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName) {
     const videoAvatarImageElement = getId(videoAvatarImageId);
+    videoAvatarImageElement.style.pointerEvents = "none";
     if (useAvatarSvg) {
         const avatarImgSize = isMobileDevice ? 128 : 256;
         const avatarImgSvg = isValidEmail(peerName) ? genGravatar(peerName) : genAvatarSvg(peerName, avatarImgSize);
@@ -3929,10 +3930,21 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
 
     videoPeer.addEventListener('dragover', function (e) {
         e.preventDefault();
+        e.stopPropagation();
+        e.target.parentElement.style.border = '3px dashed red';
+        document.querySelector('.Camera').style.border = 'none';
+    });
+    
+    videoPeer.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.target.parentElement.style.border = 'none';
     });
 
     videoPeer.addEventListener('drop', function (e) {
         e.preventDefault();
+        e.stopPropagation();
+        e.target.parentElement.style.border = 'none';
         if (itsMe) {
             return userLog('warning', 'You cannot send files to yourself.');
         }
