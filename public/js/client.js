@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.71
+ * @version 1.3.72
  *
  */
 
@@ -2510,6 +2510,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 0, 0, 0.7)');
+            setSP('--dd-color', '#FFFFFF');
             document.body.style.background = 'radial-gradient(#393939, #000000)';
             mirotalkTheme.selectedIndex = 0;
             break;
@@ -2531,6 +2532,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 0, 0, 0.7)');
+            setSP('--dd-color', '#FFFFFF');
             document.body.style.background = 'radial-gradient(#4f4f4f, #1c1c1c)';
             mirotalkTheme.selectedIndex = 1;
             break;
@@ -2552,6 +2554,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 42, 34, 0.7)');
+            setSP('--dd-color', '#00FF00');
             document.body.style.background = 'radial-gradient(#004d40, #001f1c)';
             mirotalkTheme.selectedIndex = 2;
             break;
@@ -2573,6 +2576,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 39, 77, 0.7)');
+            setSP('--dd-color', '#1E90FF');
             document.body.style.background = 'radial-gradient(#1a237e, #0d1b34)';
             mirotalkTheme.selectedIndex = 3;
             break;
@@ -2593,6 +2597,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(42, 13, 13, 0.7)');
+            setSP('--dd-color', '#FF4500');
             document.body.style.background = 'radial-gradient(#8B0000, #320000)';
             mirotalkTheme.selectedIndex = 4;
             break;
@@ -2614,6 +2619,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(42, 0, 29, 0.7)');
+            setSP('--dd-color', '#BF00FF');
             document.body.style.background = 'radial-gradient(#4B0082, #2C003E)';
             mirotalkTheme.selectedIndex = 5;
             break;
@@ -2635,6 +2641,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(61, 26, 0, 0.7)');
+            setSP('--dd-color', '#FFA500');
             document.body.style.background = 'radial-gradient(#FF8C00, #4B1C00)';
             mirotalkTheme.selectedIndex = 6;
             break;
@@ -2656,6 +2663,7 @@ function setTheme() {
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(77, 59, 0, 0.7)');
+            setSP('--dd-color', '#FFD700');
             document.body.style.background = 'radial-gradient(#FFD700, #3B3B00)';
             mirotalkTheme.selectedIndex = 7;
             break;
@@ -3754,7 +3762,7 @@ function genAvatarSvg(peerName, avatarImgSize) {
  */
 function setPeerAvatarImgName(videoAvatarImageId, peerName) {
     const videoAvatarImageElement = getId(videoAvatarImageId);
-    videoAvatarImageElement.style.pointerEvents = "none";
+    videoAvatarImageElement.style.pointerEvents = 'none';
     if (useAvatarSvg) {
         const avatarImgSize = isMobileDevice ? 128 : 256;
         const avatarImgSvg = isValidEmail(peerName) ? genGravatar(peerName) : genAvatarSvg(peerName, avatarImgSize);
@@ -3931,20 +3939,20 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
     videoPeer.addEventListener('dragover', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target.parentElement.style.border = '3px dashed red';
+        e.target.parentElement.style.outline = '3px dashed var(--dd-color)';
         document.querySelector('.Camera').style.border = 'none';
     });
-    
+
     videoPeer.addEventListener('dragleave', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target.parentElement.style.border = 'none';
+        e.target.parentElement.style.outline = 'none';
     });
 
     videoPeer.addEventListener('drop', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target.parentElement.style.border = 'none';
+        e.target.parentElement.style.outline = 'none';
         if (itsMe) {
             return userLog('warning', 'You cannot send files to yourself.');
         }
@@ -10519,7 +10527,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.71</strong>',
+        title: '<strong>WebRTC P2P v1.3.72</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
