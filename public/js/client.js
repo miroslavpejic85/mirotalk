@@ -3940,7 +3940,7 @@ function handleFileDragAndDrop(elemId, peer_id, itsMe = false) {
         e.preventDefault();
         e.stopPropagation();
         e.target.parentElement.style.outline = '3px dashed var(--dd-color)';
-        document.querySelector('.Camera').style.border = 'none';
+        document.querySelector('.Camera').style.outline = 'none';
     });
 
     videoPeer.addEventListener('dragleave', function (e) {
