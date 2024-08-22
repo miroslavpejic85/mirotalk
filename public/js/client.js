@@ -9334,14 +9334,14 @@ function setupFileSelection(title, accept, renderToCanvas) {
         position: 'center',
         title: title,
         html: `
-        <input type="file" class="file-upload-input" style="display:none"/>
+        <input type="file" id="file-upload-input" style="display:none"/>
         <div class="dropzone unselectable">Drag and drop file here<br/>or<br/>attach file</div>
         `,
         inputAttributes: {
             accept: fileSharingInput,
         },
         didOpen: () => {
-            const fileInput = document.querySelector('.file-upload-input');
+            const fileInput = document.querySelector('#file-upload-input');
             const dropArea = document.querySelector('.dropzone');
             // Attach event listeners to file input element
             fileInput.addEventListener('change', (e) => {
