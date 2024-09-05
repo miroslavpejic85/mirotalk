@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Comfortaa:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
 
 /*--------------------------------------------------------------
 # Root settings
@@ -98,7 +98,7 @@
 
 * {
     outline: none;
-    font-family: 'Comfortaa';
+    font-family: 'Montserrat';
 }
 
 /*--------------------------------------------------------------
@@ -143,7 +143,7 @@ body {
 }
 #loadingDiv h1 {
     font-size: 60px;
-    font-family: 'Comfortaa';
+    font-family: 'Montserrat';
 }
 #loadingDiv img {
     margin-top: 5px;
@@ -151,7 +151,7 @@ body {
 }
 #loadingDiv pre {
     padding: 5px;
-    font-family: 'Comfortaa';
+    font-family: 'Montserrat';
 }
 
 /*--------------------------------------------------------------
@@ -862,7 +862,7 @@ button:hover {
     border-radius: 5px;
     --rgb-background: var(--body-bg) !important;
     --color-border-over: var(--body-bg) !important;
-    --font-family: 'Comfortaa';
+    --font-family: 'Montserrat';
 }
 
 .roomEmoji {
@@ -878,7 +878,7 @@ button:hover {
     transform: translate(-50%, -50%);
     --rgb-background: var(--body-bg);
     --color-border-over: var(--body-bg);
-    --font-family: 'Comfortaa';
+    --font-family: 'Montserrat';
 }
 
 .userEmoji {
