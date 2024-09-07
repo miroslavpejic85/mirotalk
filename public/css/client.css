@@ -1032,7 +1032,7 @@ button:hover {
     display: inline-table;
     width: auto;
     color: white;
-    font-size: 14px;
+    font-size: 0.9rem;
     /* font-weight: bold; */
 }
 
@@ -1132,6 +1132,7 @@ button:hover {
 #lockRoomBtn,
 #unlockRoomBtn {
     padding: 10px;
+    font-size: 0.9rem;
     border: var(--border);
     border-radius: 5px;
     color: #fff;
@@ -1246,6 +1247,7 @@ th {
     float: left;
     text-align: left;
     color: #fff;
+    font-size: 1rem;
     border: var(--border);
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.2);
@@ -1756,6 +1758,7 @@ progress {
 
 select {
     height: 40px;
+    font-size: 0.9rem;
     line-height: 40px;
     box-shadow: none;
 }
