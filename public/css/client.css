@@ -852,6 +852,17 @@ button:hover {
 # Chat/room/user emoji picker
 --------------------------------------------------------------*/
 
+#usernameEmoji {
+    position: absolute;
+    z-index: 9999;
+    background: var(--body-bg);
+    border: var(--border);
+    border-radius: 5px;
+    --rgb-background: var(--body-bg) !important;
+    --color-border-over: var(--body-bg) !important;
+    --font-family: 'Montserrat';
+}
+
 .chatEmojiPicker {
     z-index: 12;
     position: absolute;

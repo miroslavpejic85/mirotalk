@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.77
+ * @version 1.3.78
  *
  */
 
@@ -231,9 +231,11 @@ const initVideoBtn = getId('initVideoBtn');
 const initAudioBtn = getId('initAudioBtn');
 const initScreenShareBtn = getId('initScreenShareBtn');
 const initVideoMirrorBtn = getId('initVideoMirrorBtn');
+const initUsernameEmojiButton = getId('initUsernameEmojiButton');
 const initVideoSelect = getId('initVideoSelect');
 const initMicrophoneSelect = getId('initMicrophoneSelect');
 const initSpeakerSelect = getId('initSpeakerSelect');
+const usernameEmoji = getId('usernameEmoji');
 
 // Buttons bar
 const buttonsBar = getId('buttonsBar');
@@ -766,6 +768,7 @@ function setButtonsToolTip() {
     // Init buttons
     setTippy(initScreenShareBtn, 'Toggle screen sharing', 'top');
     setTippy(initVideoMirrorBtn, 'Toggle video mirror', 'top');
+    setTippy(initUsernameEmojiButton, 'Toggle username emoji', 'top');
     // Main buttons
     refreshMainButtonsToolTipPlacement();
     // Chat room buttons
@@ -1258,6 +1261,7 @@ async function handleConnect() {
         }
         getHtmlElementsById();
         setButtonsToolTip();
+        handleUsernameEmojiPicker();
         manageLeftButtons();
         handleButtonsRule();
         setupMySettings();
@@ -1478,6 +1482,9 @@ async function whoAreYou() {
     initVideoMirrorBtn.onclick = (e) => {
         toggleInitVideoMirror();
     };
+    initUsernameEmojiButton.onclick = (e) => {
+        toggleUsernameEmoji();
+    };
 
     await loadLocalStorage();
 
@@ -1512,7 +1519,7 @@ async function whoAreYou() {
         position: 'center',
         input: 'text',
         inputPlaceholder: 'Enter your email or name',
-        inputAttributes: { maxlength: 32 },
+        inputAttributes: { maxlength: 32, id: 'usernameInput' },
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: initUser, // inject html
         confirmButtonText: `Join meeting`,
@@ -1537,6 +1544,10 @@ async function whoAreYou() {
             if (await checkUserName()) {
                 return 'Username is already in use!';
             } else {
+                // Hide username emoji
+                if (!usernameEmoji.classList.contains('hidden')) {
+                    usernameEmoji.classList.add('hidden');
+                }
                 window.localStorage.peer_name = myPeerName;
                 whoAreYouJoin();
             }
@@ -5672,6 +5683,30 @@ async function handleLocalCameraMirror() {
         if (myVideo.classList.contains('mirror')) {
             myVideo.classList.remove('mirror');
         }
+    }
+}
+
+/**
+ * Toggle username emoji
+ */
+function toggleUsernameEmoji() {
+    usernameEmoji.classList.toggle('hidden');
+}
+
+/**
+ * Handle username emoji picker
+ */
+function handleUsernameEmojiPicker() {
+    const pickerOptions = {
+        theme: 'dark',
+        onEmojiSelect: addEmojiToUsername,
+    };
+    const emojiUsernamePicker = new EmojiMart.Picker(pickerOptions);
+    usernameEmoji.appendChild(emojiUsernamePicker);
+
+    function addEmojiToUsername(data) {
+        getId('usernameInput').value += data.native;
+        toggleUsernameEmoji();
     }
 }
 
@@ -10533,7 +10568,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.77</strong>',
+        title: '<strong>WebRTC P2P v1.3.78</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
