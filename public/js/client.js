@@ -1483,6 +1483,7 @@ async function whoAreYou() {
         toggleInitVideoMirror();
     };
     initUsernameEmojiButton.onclick = (e) => {
+        getId('usernameInput').value = '';
         toggleUsernameEmoji();
     };
 
