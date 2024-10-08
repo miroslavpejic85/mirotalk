@@ -191,6 +191,10 @@ $ npm start
 -   Install [docker engine](https://docs.docker.com/engine/install/) and [docker compose](https://docs.docker.com/compose/install/)
 
 ```bash
+# clone this repo
+$ git clone https://github.com/miroslavpejic85/mirotalk.git
+# go to mirotalk dir
+$ cd mirotalk
 # copy .env.template to .env (edit it according to your needs)
 $ cp .env.template .env
 # Copy docker-compose.template.yml in docker-compose.yml (edit it according to your needs)
