@@ -53,7 +53,7 @@ function login() {
                     return (window.location.href = '/join/' + window.location.search);
                     // return (window.location.href = '/join/?room=' + room + '&token=' + token);
                 }
-                if (roomPath) {
+                if (roomPath && roomPath !== 'login') {
                     return (window.location.href = '/join/' + roomPath);
                     // return (window.location.href = '/join/?room=' + roomPath + '&token=' + token);
                 }

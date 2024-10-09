@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.79
+ * @version 1.3.80
  *
  */
 
@@ -319,7 +319,6 @@ function OIDCAuth(req, res, next) {
                     log.debug('[OIDC] ------> Host protected', {
                         authenticated: hostCfg.authenticated,
                         authorizedIPs: authHost.getAuthorizedIPs(),
-                        activeRoom: authHost.isRoomActive(),
                     });
                 }
                 next();
@@ -457,7 +456,6 @@ app.get('/logout', (req, res) => {
             log.debug('[OIDC] ------> Logout', {
                 authenticated: hostCfg.authenticated,
                 authorizedIPs: authHost.getAuthorizedIPs(),
-                activeRoom: authHost.isRoomActive(),
             });
         }
         req.logout(); // Logout user
@@ -467,7 +465,7 @@ app.get('/logout', (req, res) => {
 
 // main page
 app.get(['/'], OIDCAuth, (req, res) => {
-    if ((!OIDC.enabled && hostCfg.protected) || authHost.isRoomActive()) {
+    if (!OIDC.enabled && hostCfg.protected) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
             res.sendFile(views.landing);
@@ -483,10 +481,10 @@ app.get(['/'], OIDCAuth, (req, res) => {
 
 // set new room name and join
 app.get(['/newcall'], OIDCAuth, (req, res) => {
-    if ((!OIDC.enabled && hostCfg.protected) || authHost.isRoomActive()) {
+    if (!OIDC.enabled && hostCfg.protected) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
-            res.sendFile(views.newCall);
+            res.redirect('/');
             hostCfg.authenticated = true;
         } else {
             hostCfg.authenticated = false;
@@ -532,7 +530,7 @@ app.get('/join/', async (req, res) => {
         */
         const { room, name, audio, video, screen, notify, hide, token } = checkXSS(req.query);
 
-        const allowRoomAccess = isAllowedRoomAccess('/join/params', req, hostCfg, authHost, peers, room);
+        const allowRoomAccess = isAllowedRoomAccess('/join/params', req, hostCfg, peers, room);
 
         if (!allowRoomAccess && !token) {
             return res.status(401).json({ message: 'Direct Room Join Unauthorized' });
@@ -595,17 +593,19 @@ app.get('/join/', async (req, res) => {
 // Join Room by id
 app.get('/join/:roomId', function (req, res) {
     //
-    const allowRoomAccess = isAllowedRoomAccess('/join/:roomId', req, hostCfg, authHost, peers, req.params.roomId);
+    const { roomId } = req.params;
+
+    if (!roomId) {
+        log.warn('/join/:roomId empty', roomId);
+        return res.redirect('/');
+    }
+
+    const allowRoomAccess = isAllowedRoomAccess('/join/:roomId', req, hostCfg, peers, roomId);
 
     if (allowRoomAccess) {
-        if (hostCfg.protected) authHost.setRoomActive();
-
         res.sendFile(views.client);
     } else {
-        if (!OIDC.enabled && hostCfg.protected) {
-            return res.sendFile(views.login);
-        }
-        res.redirect('/');
+        !OIDC.enabled && hostCfg.protected ? res.redirect('/login') : res.redirect('/');
     }
 });
 
@@ -623,10 +623,10 @@ app.get(['/login'], (req, res) => {
 app.get(['/logged'], (req, res) => {
     const ip = getIP(req);
     if (allowedIP(ip)) {
-        res.sendFile(views.landing);
+        res.redirect('/');
     } else {
         hostCfg.authenticated = false;
-        res.sendFile(views.login);
+        res.redirect('/login');
     }
 });
 
@@ -953,11 +953,11 @@ io.sockets.on('connect', async (socket) => {
     });
 
     /**
-     * On peer diconnected
+     * On peer disconnected
      */
     socket.on('disconnect', async (reason) => {
+        removeIP(socket);
         for (let channel in socket.channels) {
-            removeIP(socket);
             await removePeerFrom(channel);
         }
         log.debug('[' + socket.id + '] disconnected', { reason: reason });
@@ -1875,36 +1875,36 @@ function getActiveRooms() {
  * @param {string} logMessage
  * @param {object} req
  * @param {object} hostCfg
- * @param {class} authHost
- * @param {object} roomList
+ * @param {object} peers
  * @param {string} roomId
  * @returns boolean true/false
  */
-function isAllowedRoomAccess(logMessage, req, hostCfg, authHost, peers, roomId) {
+function isAllowedRoomAccess(logMessage, req, hostCfg, peers, roomId) {
     const OIDCUserAuthenticated = OIDC.enabled && req.oidc.isAuthenticated();
     const hostUserAuthenticated = hostCfg.protected && hostCfg.authenticated;
-    const roomActive = authHost.isRoomActive();
     const roomExist = roomId in peers;
     const roomCount = Object.keys(peers).length;
 
-    log.debug(logMessage, {
-        OIDCUserEnabled: OIDC.enabled,
-        OIDCUserAuthenticated: OIDCUserAuthenticated,
-        hostUserAuthenticated: hostUserAuthenticated,
-        hostProtected: hostCfg.protected,
-        hostAuthenticated: hostCfg.authenticated,
-        roomActive: roomActive,
-        roomExist: roomExist,
-        roomCount: roomCount,
-        roomId: roomId,
-    });
-
     const allowRoomAccess =
         (!hostCfg.protected && !OIDC.enabled) || // No host protection and OIDC mode enabled (default)
-        OIDCUserAuthenticated || // User authenticated via OIDC
-        hostUserAuthenticated || // User authenticated via Login
+        (OIDCUserAuthenticated && roomExist) || // User authenticated via OIDC and room Exist
+        (hostUserAuthenticated && roomExist) || // User authenticated via Login and room Exist
         ((OIDCUserAuthenticated || hostUserAuthenticated) && roomCount === 0) || // User authenticated joins the first room
         roomExist; // User Or Guest join an existing Room
+
+    log.debug(logMessage, {
+        OIDCUserAuthenticated: OIDCUserAuthenticated,
+        hostUserAuthenticated: hostUserAuthenticated,
+        roomExist: roomExist,
+        roomCount: roomCount,
+        extraInfo: {
+            roomId: roomId,
+            OIDCUserEnabled: OIDC.enabled,
+            hostProtected: hostCfg.protected,
+            hostAuthenticated: hostCfg.authenticated,
+        },
+        allowRoomAccess: allowRoomAccess,
+    });
 
     return allowRoomAccess;
 }
