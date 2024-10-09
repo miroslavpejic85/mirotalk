@@ -9375,25 +9375,31 @@ function setupFileSelection(title, accept, renderToCanvas) {
         background: swBg,
         position: 'center',
         title: title,
-        input: 'file',
         html: `
-        <div id="dropArea">
-            <p>Drag and drop your file here</p>
-        </div>
+        <input type="file" id="file-upload-input" style="display:none"/>
+        <div class="dropzone unselectable">Drag and drop file here<br/>or<br/>attach file</div>
         `,
         inputAttributes: {
-            accept: accept,
-            'aria-label': title,
+            accept: fileSharingInput,
         },
         didOpen: () => {
-            const dropArea = document.getElementById('dropArea');
-            dropArea.addEventListener('dragenter', handleDragEnter);
+            const fileInput = document.querySelector('#file-upload-input');
+            const dropArea = document.querySelector('.dropzone');
+            // Attach event listeners to file input element
+            fileInput.addEventListener('change', (e) => {
+                const selectedFile = e.target.files;
+                handleFiles(selectedFile);
+            });
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            // Attach event listeners to dropzone element
             dropArea.addEventListener('dragover', handleDragOver);
             dropArea.addEventListener('dragleave', handleDragLeave);
             dropArea.addEventListener('drop', handleDrop);
         },
         showDenyButton: true,
-        confirmButtonText: `OK`,
+        showConfirmButton: false,
         denyButtonText: `Cancel`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
@@ -9402,38 +9408,31 @@ function setupFileSelection(title, accept, renderToCanvas) {
             renderToCanvas(result.value);
         }
     });
-
-    function handleDragEnter(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.target.style.background = 'var(--body-bg)';
-    }
-
+	
     function handleDragOver(e) {
         e.preventDefault();
         e.stopPropagation();
-        e.dataTransfer.dropEffect = 'copy';
+        e.target.classList.add('dragover');
     }
 
     function handleDragLeave(e) {
         e.preventDefault();
         e.stopPropagation();
-        e.target.style.background = '';
+        e.target.classList.remove('dragover');
     }
 
     function handleDrop(e) {
         e.preventDefault();
         e.stopPropagation();
+        e.target.classList.remove('dragover');
         const dt = e.dataTransfer;
         const files = dt.files;
         handleFiles(files);
-        e.target.style.background = '';
     }
 
     function handleFiles(files) {
         if (files.length > 0) {
             const file = files[0];
-            console.log('Selected file:', file);
             Swal.close();
             renderToCanvas(file);
         }

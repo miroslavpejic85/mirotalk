@@ -1590,18 +1590,40 @@ progress {
     cursor: move;
 }
 
-#dropArea {
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.dropzone {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 200px;
-    border: 2px dashed #ccc;
-    padding: 20px;
     text-align: center;
+    margin: 5px;
+    height: 200px;
+    color: #ccc; 
+    outline: 3px dashed #ccc; 
+    border-radius: 15px;
+    font-size: 19px;
 }
 
-#dropArea p {
-    margin: 0;
+.dropzone:hover {
+    color: var(--dd-color);  
+    outline-color: var(--dd-color);
+    background: var(--body-bg);
+    cursor: pointer;
+}
+
+.dragover {
+    color: var(--dd-color);  
+    outline-color: var(--dd-color);
+    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------
