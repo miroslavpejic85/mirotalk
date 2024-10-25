@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.81
+ * @version 1.3.82
  *
  */
 
@@ -232,6 +232,30 @@ const slackEnabled = getEnvBoolean(process.env.SLACK_ENABLED);
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 const bodyParser = require('body-parser');
 
+// Mattermost
+const { Client4 } = require('@mattermost/client');
+const mattermostEnabled = getEnvBoolean(process.env.MATTERMOST_ENABLED);
+const mattermostToken = process.env.MATTERMOST_TOKEN;
+const mattermostServerUrl = process.env.MATTERMOST_SERVER_URL;
+const mattermostUsername = process.env.MATTERMOST_USERNAME;
+const mattermostPassword = process.env.MATTERMOST_PASSWORD;
+
+if (mattermostEnabled) {
+    const client = new Client4();
+
+    client.setUrl(mattermostServerUrl);
+
+    async function authenticate() {
+        try {
+            const user = await client.login(mattermostUsername, mattermostPassword);
+            log.debug('-----------> Mattermost Logged in as:', user.username);
+        } catch (error) {
+            log.error('Mattermost client Failed to log in', error.message);
+        }
+    }
+    authenticate();
+}
+
 // Setup sentry client
 if (sentryEnabled) {
     Sentry.init({
@@ -365,6 +389,7 @@ app.use(compression()); // Compress all HTTP responses using GZip
 app.use(express.json()); // Api parse body data as json
 app.use(express.static(dir.public)); // Use all static files from the public folder
 app.use(bodyParser.urlencoded({ extended: true })); // Need for Slack API body parser
+app.use(bodyParser.json());
 app.use(apiBasePath + '/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // api docs
 
 // Restrict access to specified IP
@@ -787,7 +812,7 @@ app.post([`${apiBasePath}/join`], (req, res) => {
     https://api.slack.com/authentication/verifying-requests-from-slack
 */
 
-//Slack request meeting room endpoint
+// Slack request meeting room endpoint
 app.post('/slack', (req, res) => {
     if (!slackEnabled) return res.end('`Under maintenance` - Please check back soon.');
 
@@ -821,6 +846,49 @@ app.post('/slack', (req, res) => {
     }
     // Something wrong
     return res.end('`Wrong signature` - Verification failed!');
+});
+
+/*
+    MiroTalk Mattermost app v1
+    https://api.slack.com/authentication/verifying-requests-from-slack
+*/
+
+// Mattermost request meeting room endpoint
+app.post('/mattermost', (req, res) => {
+    //
+    if (!mattermostEnabled) {
+        return res.end('`Under maintenance` - Please check back soon.');
+    }
+
+    // Check if endpoint allowed
+    if (api_disabled.includes('mattermost')) {
+        return res.end('`This endpoint has been disabled`. Please contact the administrator for further information.');
+    }
+
+    log.debug('Mattermost', req.body);
+
+    const { token, text, command, channel_id } = req.body;
+
+    // Validate the token
+    if (token !== mattermostToken) {
+        return res.status(403).send('Invalid token');
+    }
+
+    // Check if the command (slash-commands) or text (outgoing-webhook) matches "/p2p"
+    if (command.trim() === '/p2p' || text.trim() === '/p2p') {
+        // Generate or retrieve your meeting URL
+        const host = req.headers.host;
+        const meetingUrl = getMeetingURL(host);
+
+        // Send the response back to Mattermost
+        return res.json({
+            text: `Here is your meeting room: ${meetingUrl}`,
+            channel_id: channel_id,
+        });
+    }
+
+    // If the command is not recognized
+    return res.status(200).send('Command not recognized');
 });
 
 /**
