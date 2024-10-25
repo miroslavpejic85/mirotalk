@@ -68,6 +68,7 @@
 -   Right-click options on video elements for additional controls.
 -   Direct peer-to-peer connections for low-latency communication through WebRTC.
 -   Supports [REST API](app/api/README.md) (Application Programming Interface).
+-   Integration with [Mattermost](https://mattermost.com/) for enhanced communication.
 -   Integration with [Slack](https://api.slack.com/apps/) for enhanced communication.
 -   Utilizes [Sentry](https://sentry.io/) for error reporting.
 -   And much more...
