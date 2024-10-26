@@ -16,7 +16,7 @@ class mattermost {
             MATTERMOST_SERVER_URL,
             MATTERMOST_USERNAME,
             MATTERMOST_PASSWORD,
-            API_DISABLED
+            API_DISABLED,
         } = process.env;
 
         log.debug('Mattermost config', {
@@ -55,12 +55,15 @@ class mattermost {
         this.app.post('/mattermost', (req, res) => {
             // Check if endpoint allowed
             if (this.disabled.includes('mattermost')) {
-                return res.end('`This endpoint has been disabled`. Please contact the administrator for further information.');
+                return res.end(
+                    '`This endpoint has been disabled`. Please contact the administrator for further information.',
+                );
             }
 
             // Validate the token
             const { token, text, command, channel_id } = req.body;
             if (token !== this.token) {
+                log.error('Invalid token attempt', { token });
                 return res.status(403).send('Invalid token');
             }
 
@@ -74,7 +77,7 @@ class mattermost {
             }
 
             // If the command is not recognized
-            return res.status(200).send('Command not recognized');
+            return res.status(404).send('Command not recognized');
         });
     }
 
