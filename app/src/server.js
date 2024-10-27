@@ -11,7 +11,6 @@ dependencies: {
     @mattermost/client      : https://www.npmjs.com/package/@mattermost/client
     @sentry/node            : https://www.npmjs.com/package/@sentry/node
     axios                   : https://www.npmjs.com/package/axios
-    body-parser             : https://www.npmjs.com/package/body-parser
     compression             : https://www.npmjs.com/package/compression
     colors                  : https://www.npmjs.com/package/colors
     cors                    : https://www.npmjs.com/package/cors
@@ -40,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.83
+ * @version 1.3.84
  *
  */
 
@@ -273,6 +272,16 @@ if (configChatGPT.enabled) {
     }
 }
 
+// Mattermost config
+const mattermostCfg = {
+    enabled: process.env.MATTERMOST_ENABLED === 'true' || false,
+    server_url: process.env.MATTERMOST_SERVER_URL,
+    username: process.env.MATTERMOST_USERNAME,
+    password: process.env.MATTERMOST_PASSWORD,
+    token: process.env.MATTERMOST_TOKEN,
+    api_disabled: api_disabled,
+};
+
 // IP Whitelist
 const ipWhitelist = {
     enabled: getEnvBoolean(process.env.IP_WHITELIST_ENABLED),
@@ -393,7 +402,7 @@ app.use((req, res, next) => {
 });
 
 // Mattermost
-const mattermost = new mattermostCli(app);
+const mattermost = new mattermostCli(app, mattermostCfg);
 
 // POST start from here...
 app.post('*', function (next) {
@@ -849,35 +858,54 @@ app.get('*', function (req, res) {
  */
 function getServerConfig(tunnel = false) {
     return {
-        iceServers: iceServers,
-        stats: statsData,
-        oidc: OIDC.enabled ? OIDC : false,
-        host: hostCfg,
-        jwtCfg: jwtCfg,
-        presenters: roomPresenters,
-        ip_whitelist: ipWhitelist,
-        ngrok: {
-            ngrok_enabled: ngrokEnabled,
-            ngrok_token: ngrokEnabled ? ngrokAuthToken : '',
-        },
-        cors: corsOptions,
-        server_tunnel: tunnel,
+        // General Server Information
         server: host,
-        test_ice_servers: testStunTurn,
+        server_tunnel: tunnel,
         api_docs: api_docs,
+
+        // Core Configurations
+        jwtCfg: jwtCfg,
+        cors: corsOptions,
+        iceServers: iceServers,
+        test_ice_servers: testStunTurn,
+        email: nodemailer.emailCfg.alert ? nodemailer.emailCfg : false,
+
+        // Security, Authorization, and User Management
+        oidc: OIDC.enabled ? OIDC : false,
+        host_protected: hostCfg.protected || hostCfg.user_auth ? hostCfg : false,
+        presenters: roomPresenters,
+        ip_whitelist: ipWhitelist.enabled ? ipWhitelist : false,
+        self_signed_certificate: isHttps,
         api_key_secret: api_key_secret,
-        use_self_signed_certificate: isHttps,
+
+        // Media and Connection Settings
         turn_enabled: turnServerEnabled,
         ip_lookup_enabled: IPLookupEnabled,
-        chatGPT_enabled: configChatGPT.enabled,
+
+        // Integrations
+        chatGPT_enabled: configChatGPT.enabled ? configChatGPT : false,
         slack_enabled: slackEnabled,
+        mattermost_enabled: mattermostCfg.enabled ? mattermostCfg : false,
+
+        // Monitoring and Logging
         sentry_enabled: sentryEnabled,
-        survey_enabled: surveyEnabled,
-        redirect_enabled: redirectEnabled,
-        survey_url: surveyURL,
-        redirect_url: redirectURL,
-        node_version: process.versions.node,
+        stats: statsData.enabled ? statsData : false,
+
+        // Ngrok Configuration
+        ngrok: ngrokEnabled
+            ? {
+                  enabled: ngrokEnabled,
+                  token: ngrokAuthToken,
+              }
+            : false,
+
+        // URLs for Redirection and Survey
+        survey: surveyEnabled ? surveyURL : false,
+        redirect: redirectEnabled ? redirectURL : false,
+
+        // Versions information
         app_version: packageJson.version,
+        node_version: process.versions.node,
     };
 }
 

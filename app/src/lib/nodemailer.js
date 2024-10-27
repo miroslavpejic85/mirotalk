@@ -4,34 +4,36 @@ const nodemailer = require('nodemailer');
 const Logs = require('../logs');
 const log = new Logs('NodeMailer');
 
-const HTTPS = process.env.HTTPS === 'true' || false;
-const LOCAL_PORT = process.env.PORT || 3000;
-
-const EMAIL_HOST = process.env.EMAIL_HOST;
-const EMAIL_PORT = process.env.EMAIL_PORT;
-const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
-const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
-const EMAIL_SEND_TO = process.env.EMAIL_SEND_TO;
-const EMAIL_ALERT = process.env.EMAIL_ALERT === 'true' || false;
-
-if (EMAIL_ALERT && EMAIL_HOST && EMAIL_PORT && EMAIL_USERNAME && EMAIL_PASSWORD && EMAIL_SEND_TO) {
-    log.info('Email', {
-        alert: EMAIL_ALERT,
-        host: EMAIL_HOST,
-        port: EMAIL_PORT,
-        username: EMAIL_USERNAME,
-        password: EMAIL_PASSWORD,
-    });
-}
+// Email config
+const emailCfg = {
+    alert: process.env.EMAIL_ALERT === 'true' || false,
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    username: process.env.EMAIL_USERNAME,
+    password: process.env.EMAIL_PASSWORD,
+    send_to: process.env.EMAIL_SEND_TO,
+    // Room join params
+    https: process.env.HTTPS === 'true' || false,
+    server_port: process.env.PORT || 3000,
+};
 
 const transport = nodemailer.createTransport({
-    host: EMAIL_HOST,
-    port: EMAIL_PORT,
+    host: emailCfg.host,
+    port: emailCfg.port,
     auth: {
-        user: EMAIL_USERNAME,
-        pass: EMAIL_PASSWORD,
+        user: emailCfg.username,
+        pass: emailCfg.password,
     },
 });
+
+/**
+ * Check if passed config is valid
+ * @param {object} config
+ * @returns bool
+ */
+function isConfigValid(config) {
+    return config.alert && config.host && config.port && config.username && config.password && config.send_to;
+}
 
 /**
  * Send Email alert or notification from event
@@ -40,7 +42,7 @@ const transport = nodemailer.createTransport({
  * @returns void
  */
 function sendEmailAlert(event, data) {
-    if (!EMAIL_ALERT || !EMAIL_HOST || !EMAIL_PORT || !EMAIL_USERNAME || !EMAIL_PASSWORD || !EMAIL_SEND_TO) return;
+    if (!isConfigValid(emailCfg)) return;
 
     log.info('sendEMailAlert', {
         event: event,
@@ -71,8 +73,8 @@ function sendEmailAlert(event, data) {
 function sendEmail(subject, body) {
     transport
         .sendMail({
-            from: EMAIL_USERNAME,
-            to: EMAIL_SEND_TO,
+            from: emailCfg.username,
+            to: emailCfg.send_to,
             subject: subject,
             html: body,
         })
@@ -102,7 +104,7 @@ function getJoinRoomBody(data) {
     const localDomains = ['localhost', '127.0.0.1'];
 
     const currentDomain = localDomains.some((localDomain) => domain.includes(localDomain))
-        ? `${HTTPS ? 'https' : 'http'}://${domain}:${LOCAL_PORT}`
+        ? `${emailCfg.https ? 'https' : 'http'}://${domain}:${emailCfg.server_port}`
         : domain;
 
     const room_join = `${currentDomain}/join/`;
@@ -161,4 +163,5 @@ function getCurrentDataTime() {
 
 module.exports = {
     sendEmailAlert,
+    emailCfg,
 };

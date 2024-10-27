@@ -9,37 +9,24 @@ const Logger = require('./logs');
 const log = new Logger('Mattermost');
 
 class mattermost {
-    constructor(app) {
-        const {
-            MATTERMOST_ENABLED,
-            MATTERMOST_TOKEN,
-            MATTERMOST_SERVER_URL,
-            MATTERMOST_USERNAME,
-            MATTERMOST_PASSWORD,
-            API_DISABLED,
-        } = process.env;
-
-        log.debug('Mattermost config', {
-            enabled: MATTERMOST_ENABLED,
-            token: MATTERMOST_TOKEN,
-            server: MATTERMOST_SERVER_URL,
-            username: MATTERMOST_USERNAME,
-            password: MATTERMOST_PASSWORD,
-        });
-
-        if (MATTERMOST_ENABLED !== 'true') return;
+    constructor(app, mattermostCfg) {
+        if (!this.isConfigValid(mattermostCfg)) return;
 
         this.app = app;
-        this.disabled = JSON.parse(API_DISABLED);
-        this.token = MATTERMOST_TOKEN;
-        this.serverUrl = MATTERMOST_SERVER_URL;
-        this.username = MATTERMOST_USERNAME;
-        this.password = MATTERMOST_PASSWORD;
+        this.disabled = mattermostCfg.api_disabled;
+        this.token = mattermostCfg.token;
+        this.serverUrl = mattermostCfg.server_url;
+        this.username = mattermostCfg.username;
+        this.password = mattermostCfg.password;
 
         this.client = new Client4();
         this.client.setUrl(this.serverUrl);
         this.authenticate();
         this.setupEventHandlers();
+    }
+
+    isConfigValid(config) {
+        return config.enabled && config.server_url && config.token && config.username && config.password;
     }
 
     async authenticate() {
