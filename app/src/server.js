@@ -274,7 +274,7 @@ if (configChatGPT.enabled) {
 
 // Mattermost config
 const mattermostCfg = {
-    enabled: process.env.MATTERMOST_ENABLED === 'true' || false,
+    enabled: getEnvBoolean(process.env.MATTERMOST_ENABLED),
     server_url: process.env.MATTERMOST_SERVER_URL,
     username: process.env.MATTERMOST_USERNAME,
     password: process.env.MATTERMOST_PASSWORD,
