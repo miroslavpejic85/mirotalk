@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.84
+ * @version 1.3.85
  *
  */
 
@@ -244,6 +244,7 @@ const shareRoomBtn = getId('shareRoomBtn');
 const hideMeBtn = getId('hideMeBtn');
 const videoBtn = getId('videoBtn');
 const swapCameraBtn = getId('swapCameraBtn');
+const toggleExtraBtn = getId('toggleExtraBtn');
 const audioBtn = getId('audioBtn');
 const screenShareBtn = getId('screenShareBtn');
 const recordStreamBtn = getId('recordStreamBtn');
@@ -882,6 +883,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(aboutBtn, 'About this project', placement);
 
     setTippy(hideMeBtn, 'Toggle hide myself from the room view', bottomButtonsPlacement);
+    setTippy(toggleExtraBtn, 'Toggle extra buttons', bottomButtonsPlacement);
     setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', bottomButtonsPlacement);
     setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', bottomButtonsPlacement);
     setTippy(screenShareBtn, 'Start screen sharing', bottomButtonsPlacement);
@@ -1262,7 +1264,7 @@ async function handleConnect() {
         getHtmlElementsById();
         setButtonsToolTip();
         handleUsernameEmojiPicker();
-        manageLeftButtons();
+        manageButtons();
         handleButtonsRule();
         setupMySettings();
         loadSettingsFromLocalStorage();
@@ -4429,9 +4431,10 @@ function refreshMyAudioStatus(localAudioMediaStream) {
 /**
  * Handle WebRTC left buttons
  */
-function manageLeftButtons() {
+function manageButtons() {
     setShareRoomBtn();
     setHideMeButton();
+    setToggleExtraButtons();
     setAudioBtn();
     setVideoBtn();
     setSwapCameraBtn();
@@ -4471,6 +4474,17 @@ function setHideMeButton() {
         }
         isHideMeActive = !isHideMeActive;
         handleHideMe(isHideMeActive);
+    });
+}
+
+/**
+ * Toggle extra buttons
+ */
+function setToggleExtraButtons() {
+    toggleExtraBtn.addEventListener('click', (e) => {
+        buttonsBar.style.display == 'none' || buttonsBar.style.display == ''
+            ? elemDisplay(buttonsBar, true, 'flex')
+            : elemDisplay(buttonsBar, false);
     });
 }
 
@@ -5994,7 +6008,7 @@ function showButtonsBarAndMenu() {
     )
         return;
     toggleClassElements('navbar', 'block');
-    elemDisplay(buttonsBar, true, 'flex');
+    //elemDisplay(buttonsBar, true, 'flex');
     elemDisplay(bottomButtons, true, 'flex');
     isButtonsVisible = true;
 }
@@ -10569,7 +10583,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.84</strong>',
+        title: '<strong>WebRTC P2P v1.3.85</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },

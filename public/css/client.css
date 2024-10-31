@@ -316,7 +316,7 @@ body {
 }
 
 #bottomButtons button {
-    width: 48px;
+    width: 50px;
     padding: 10px;
     font-size: 1.5rem;
 
@@ -989,6 +989,12 @@ button:hover {
 @media screen and (max-width: 500px) {
     #mySettings {
         width: 90%;
+    }
+
+    #bottomButtons button {
+        width: 42px;
+        padding: 10px;
+        font-size: 1rem;
     }
 }
 

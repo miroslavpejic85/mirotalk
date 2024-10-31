@@ -109,17 +109,16 @@
 .videoPeerName {
     z-index: 8;
     position: absolute;
-    right: 0;
+    padding: 10px;
+    margin: 10px;
     bottom: 0;
+    right: 0;
     color: #fff;
     font-size: 12px;
     display: flex;
     align-items: center;
-    margin: 5px;
-    width: auto;
-    height: 25px;
     border-radius: 5px;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------
