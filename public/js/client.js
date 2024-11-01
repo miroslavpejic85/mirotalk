@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.85
+ * @version 1.3.86
  *
  */
 
@@ -239,26 +239,28 @@ const usernameEmoji = getId('usernameEmoji');
 
 // Buttons bar
 const buttonsBar = getId('buttonsBar');
-const bottomButtons = getId('bottomButtons');
 const shareRoomBtn = getId('shareRoomBtn');
-const hideMeBtn = getId('hideMeBtn');
-const videoBtn = getId('videoBtn');
-const swapCameraBtn = getId('swapCameraBtn');
-const toggleExtraBtn = getId('toggleExtraBtn');
-const audioBtn = getId('audioBtn');
-const screenShareBtn = getId('screenShareBtn');
 const recordStreamBtn = getId('recordStreamBtn');
 const fullScreenBtn = getId('fullScreenBtn');
 const chatRoomBtn = getId('chatRoomBtn');
 const captionBtn = getId('captionBtn');
 const roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
-const myHandBtn = getId('myHandBtn');
 const whiteboardBtn = getId('whiteboardBtn');
 const snapshotRoomBtn = getId('snapshotRoomBtn');
 const fileShareBtn = getId('fileShareBtn');
 const documentPiPBtn = getId('documentPiPBtn');
 const mySettingsBtn = getId('mySettingsBtn');
 const aboutBtn = getId('aboutBtn');
+
+// Buttons bottom
+const bottomButtons = getId('bottomButtons');
+const toggleExtraBtn = getId('toggleExtraBtn');
+const audioBtn = getId('audioBtn');
+const videoBtn = getId('videoBtn');
+const swapCameraBtn = getId('swapCameraBtn');
+const hideMeBtn = getId('hideMeBtn');
+const screenShareBtn = getId('screenShareBtn');
+const myHandBtn = getId('myHandBtn');
 const leaveRoomBtn = getId('leaveRoomBtn');
 
 // Room Emoji Picker
@@ -882,10 +884,10 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(mySettingsBtn, 'Open the settings', placement);
     setTippy(aboutBtn, 'About this project', placement);
 
-    setTippy(hideMeBtn, 'Toggle hide myself from the room view', bottomButtonsPlacement);
     setTippy(toggleExtraBtn, 'Toggle extra buttons', bottomButtonsPlacement);
     setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', bottomButtonsPlacement);
     setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', bottomButtonsPlacement);
+    setTippy(hideMeBtn, 'Toggle hide myself from the room view', bottomButtonsPlacement);
     setTippy(screenShareBtn, 'Start screen sharing', bottomButtonsPlacement);
     setTippy(myHandBtn, 'Raise your hand', bottomButtonsPlacement);
     setTippy(leaveRoomBtn, 'Leave this room', bottomButtonsPlacement);
@@ -4432,26 +4434,29 @@ function refreshMyAudioStatus(localAudioMediaStream) {
  * Handle WebRTC left buttons
  */
 function manageButtons() {
+    // Buttons bar
     setShareRoomBtn();
-    setHideMeButton();
-    setToggleExtraButtons();
-    setAudioBtn();
-    setVideoBtn();
-    setSwapCameraBtn();
-    setScreenShareBtn();
     setRecordStreamBtn();
+    setScreenShareBtn();
     setFullScreenBtn();
     setChatRoomBtn();
     setCaptionRoomBtn();
     setRoomEmojiButton();
     setChatEmojiBtn();
-    setMyHandBtn();
     setMyWhiteboardBtn();
     setSnapshotRoomBtn();
     setMyFileShareBtn();
     setDocumentPiPBtn();
     setMySettingsBtn();
     setAboutBtn();
+
+    // Buttons bottom
+    setToggleExtraButtons();
+    setAudioBtn();
+    setVideoBtn();
+    setSwapCameraBtn();
+    setHideMeButton();
+    setMyHandBtn();
     setLeaveRoomBtn();
 }
 
@@ -10586,7 +10591,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.85</strong>',
+        title: '<strong>WebRTC P2P v1.3.86</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
