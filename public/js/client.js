@@ -4492,6 +4492,7 @@ function setToggleExtraButtons() {
             : elemDisplay(buttonsBar, false);
     });
     toggleExtraBtn.addEventListener('mouseover', () => {
+        if (isMobileDevice) return;
         if (buttonsBar.style.display === 'none') {
             elemDisplay(buttonsBar, true, 'flex');
         }
