@@ -4486,13 +4486,15 @@ function setHideMeButton() {
  * Toggle extra buttons
  */
 function setToggleExtraButtons() {
-    toggleExtraBtn.addEventListener('click', (e) => {
+    toggleExtraBtn.addEventListener('click', () => {
         buttonsBar.style.display == 'none' || buttonsBar.style.display == ''
             ? elemDisplay(buttonsBar, true, 'flex')
             : elemDisplay(buttonsBar, false);
     });
-    toggleExtraBtn.addEventListener('mouseover', (e) => {
-        elemDisplay(buttonsBar, true, 'flex');
+    toggleExtraBtn.addEventListener('mouseover', () => {
+        if (buttonsBar.style.display === 'none') {
+            elemDisplay(buttonsBar, true, 'flex');
+        }
     });
 }
 
