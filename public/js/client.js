@@ -4486,6 +4486,9 @@ function setToggleExtraButtons() {
             ? elemDisplay(buttonsBar, true, 'flex')
             : elemDisplay(buttonsBar, false);
     });
+    toggleExtraBtn.addEventListener('mouseover', (e) => {
+        elemDisplay(buttonsBar, true, 'flex');
+    });
 }
 
 /**
