@@ -313,7 +313,7 @@ body {
 #bottomButtons button {
     width: 50px;
     padding: 10px;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
 
     /* 
     Use this to maintain the theme colors of buttons while making them less visible during video playback.
@@ -989,7 +989,7 @@ button:hover {
     #bottomButtons button {
         width: 42px;
         padding: 10px;
-        font-size: 1rem;
+        font-size: 1.2rem;
     }
 }
 
