@@ -235,7 +235,7 @@ body {
     z-index: 10;
     display: none;
     position: fixed;
-    padding: 10px;
+    /* padding: 10px; */
     top: var(--btns-top);
     right: var(--btns-right);
     left: var(--btns-left);
@@ -250,12 +250,7 @@ body {
     -ms-transform: translate(0%, -50%);
     transform: translate(0%, -50%);
 
-    /* background: var(--body-bg); */
-    /* box-shadow: 0px 8px 16px 0px rgb(33 33 33);*/
-
     border-radius: 10px;
-    border: var(--border) !important;
-    box-shadow: var(--box-shadow);
     overflow: hidden;
 }
 
