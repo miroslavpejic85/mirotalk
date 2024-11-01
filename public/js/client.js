@@ -587,6 +587,7 @@ let swBg = 'rgba(0, 0, 0, 0.7)'; // swAlert background color
 let callElapsedTime; // count time
 let mySessionTime; // conference session time
 let isDocumentOnFullScreen = false;
+let isToggleExtraBtnClicked = false;
 
 // peer
 let myPeerId; // This socket.id
@@ -4490,9 +4491,16 @@ function setToggleExtraButtons() {
         buttonsBar.style.display == 'none' || buttonsBar.style.display == ''
             ? elemDisplay(buttonsBar, true, 'flex')
             : elemDisplay(buttonsBar, false);
+
+        if (!isMobileDevice) {
+            isToggleExtraBtnClicked = true;
+            setTimeout(() => {
+                isToggleExtraBtnClicked = false;
+            }, 2000);
+        }
     });
     toggleExtraBtn.addEventListener('mouseover', () => {
-        if (isMobileDevice) return;
+        if (isToggleExtraBtnClicked || isMobileDevice) return;
         if (buttonsBar.style.display === 'none') {
             elemDisplay(buttonsBar, true, 'flex');
         }
