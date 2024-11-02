@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.87
+ * @version 1.3.88
  *
  */
 
@@ -86,6 +86,8 @@ const className = {
     heart: 'fas fa-heart',
     pip: 'fas fa-images',
     hideAll: 'fas fa-eye',
+    up: 'fas fa-chevron-up',
+    down: 'fas fa-chevron-down',
 };
 // https://fontawesome.com/search?o=r&m=free
 
@@ -4488,10 +4490,7 @@ function setHideMeButton() {
  */
 function setToggleExtraButtons() {
     toggleExtraBtn.addEventListener('click', () => {
-        buttonsBar.style.display == 'none' || buttonsBar.style.display == ''
-            ? elemDisplay(buttonsBar, true, 'flex')
-            : elemDisplay(buttonsBar, false);
-
+        toggleExtraButtons();
         if (!isMobileDevice) {
             isToggleExtraBtnClicked = true;
             setTimeout(() => {
@@ -4502,9 +4501,21 @@ function setToggleExtraButtons() {
     toggleExtraBtn.addEventListener('mouseover', () => {
         if (isToggleExtraBtnClicked || isMobileDevice) return;
         if (buttonsBar.style.display === 'none') {
-            elemDisplay(buttonsBar, true, 'flex');
+            toggleExtraButtons();
         }
     });
+}
+
+/**
+ * Toggle extra buttons
+ */
+function toggleExtraButtons() {
+    const isButtonsBarHidden = buttonsBar.style.display === 'none' || buttonsBar.style.display === '';
+    const displayValue = isButtonsBarHidden ? 'flex' : 'none';
+    const cName = isButtonsBarHidden ? className.up : className.down;
+
+    elemDisplay(buttonsBar, isButtonsBarHidden, displayValue);
+    toggleExtraBtn.className = cName;
 }
 
 /**
@@ -6028,6 +6039,7 @@ function showButtonsBarAndMenu() {
         return;
     toggleClassElements('navbar', 'block');
     //elemDisplay(buttonsBar, true, 'flex');
+    toggleExtraBtn.className = className.down;
     elemDisplay(bottomButtons, true, 'flex');
     isButtonsVisible = true;
 }
@@ -6038,6 +6050,7 @@ function showButtonsBarAndMenu() {
 function checkButtonsBarAndMenu() {
     if (!isButtonsBarOver) {
         toggleClassElements('navbar', 'none');
+        toggleExtraBtn.className = className.up;
         elemDisplay(buttonsBar, false);
         elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
@@ -10620,7 +10633,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.87</strong>',
+        title: '<strong>WebRTC P2P v1.3.88</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
