@@ -281,6 +281,10 @@ body {
     outline: none;
 }
 
+/* #toggleExtraBtn {
+    color: #66beff !important;
+} */
+
 .fa-phone-slash,
 .fa-microphone-slash,
 .fa-video-slash {
