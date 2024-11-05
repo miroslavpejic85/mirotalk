@@ -875,9 +875,9 @@ function refreshMainButtonsToolTipPlacement() {
     bottomButtonsPlacement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'top' : 'right';
 
     setTippy(shareRoomBtn, 'Share the Room', placement);
+    setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
     setTippy(recordStreamBtn, 'Start recording', placement);
     setTippy(fullScreenBtn, 'View full screen', placement);
-    setTippy(chatRoomBtn, 'Open the chat', placement);
     setTippy(captionBtn, 'Open the caption', placement);
     setTippy(roomEmojiPickerBtn, 'Send reaction', placement);
     setTippy(whiteboardBtn, 'Open the whiteboard', placement);
@@ -890,9 +890,9 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(toggleExtraBtn, 'Toggle extra buttons', bottomButtonsPlacement);
     setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', bottomButtonsPlacement);
     setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', bottomButtonsPlacement);
-    setTippy(hideMeBtn, 'Toggle hide myself from the room view', bottomButtonsPlacement);
     setTippy(screenShareBtn, 'Start screen sharing', bottomButtonsPlacement);
     setTippy(myHandBtn, 'Raise your hand', bottomButtonsPlacement);
+    setTippy(chatRoomBtn, 'Open the chat', bottomButtonsPlacement);
     setTippy(leaveRoomBtn, 'Leave this room', bottomButtonsPlacement);
 }
 
@@ -7229,7 +7229,7 @@ function showChatRoomDraggable() {
     chatRoomBtn.className = className.chatOff;
     chatLeftCenter();
     isChatRoomVisible = true;
-    setTippy(chatRoomBtn, 'Close the chat', placement);
+    setTippy(chatRoomBtn, 'Close the chat', bottomButtonsPlacement);
 }
 
 /**
@@ -7546,7 +7546,7 @@ function hideChatRoomAndEmojiPicker() {
     chatRoomBtn.className = className.chatOn;
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
-    setTippy(chatRoomBtn, 'Open the chat', placement);
+    setTippy(chatRoomBtn, 'Open the chat', bottomButtonsPlacement);
 }
 
 /**
