@@ -1198,12 +1198,14 @@ button:hover {
     color: #fff;
     border-collapse: collapse;
     border-style: hidden;
+    border-radius: 10px;
+    background: var(--body-bg);
     /* border-radius: 5px; */
     /* box-shadow: 0 0 0 1px #666; */
 }
 #mySettingsTable td,
 th {
-    padding: 5px;
+    padding: 10px;
 }
 #mySettingsTable tr td {
     text-align: left;

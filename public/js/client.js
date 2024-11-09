@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.89
+ * @version 1.3.90
  *
  */
 
@@ -142,80 +142,6 @@ const showVideoPipBtn = document.pictureInPictureEnabled;
 
 // Check if Document PIP is supported by this browser
 const showDocumentPipBtn = !isEmbedded && 'documentPictureInPicture' in window;
-
-/**
- * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
- * Set properties to true to show the corresponding buttons, or false to hide them.
- * captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn, showVideoPipBtn, showDocumentPipBtn -> (auto-detected).
- */
-const buttons = {
-    main: {
-        showShareRoomBtn: true,
-        showHideMeBtn: true,
-        showAudioBtn: true,
-        showVideoBtn: true,
-        showScreenBtn: true,
-        showRecordStreamBtn: true,
-        showChatRoomBtn: true,
-        showCaptionRoomBtn: true,
-        showRoomEmojiPickerBtn: true,
-        showMyHandBtn: true,
-        showWhiteboardBtn: true,
-        showSnapshotRoomBtn: true,
-        showFileShareBtn: true,
-        showDocumentPipBtn: showDocumentPipBtn,
-        showMySettingsBtn: true,
-        showAboutBtn: true, // Please keep me always true, Thank you!
-    },
-    chat: {
-        showTogglePinBtn: true,
-        showMaxBtn: true,
-        showSaveMessageBtn: true,
-        showMarkDownBtn: true,
-        showChatGPTBtn: true,
-        showFileShareBtn: true,
-        showShareVideoAudioBtn: true,
-        showParticipantsBtn: true,
-    },
-    caption: {
-        showTogglePinBtn: true,
-        showMaxBtn: true,
-    },
-    settings: {
-        showMicOptionsBtn: true,
-        showTabRoomPeerName: true,
-        showTabRoomParticipants: true,
-        showTabRoomSecurity: true,
-        showTabEmailInvitation: true,
-        showMuteEveryoneBtn: true,
-        showHideEveryoneBtn: true,
-        showEjectEveryoneBtn: true,
-        showLockRoomBtn: true,
-        showUnlockRoomBtn: true,
-    },
-    remote: {
-        showAudioVolume: true,
-        audioBtnClickAllowed: true,
-        videoBtnClickAllowed: true,
-        showKickOutBtn: true,
-        showSnapShotBtn: true,
-        showFileShareBtn: true,
-        showShareVideoAudioBtn: true,
-        showPrivateMessageBtn: true,
-        showZoomInOutBtn: false,
-        showVideoFocusBtn: true,
-        showVideoPipBtn: showVideoPipBtn,
-    },
-    local: {
-        showSnapShotBtn: true,
-        showVideoCircleBtn: true,
-        showZoomInOutBtn: false,
-        showVideoPipBtn: showVideoPipBtn,
-    },
-    whiteboard: {
-        whiteboardLockBtn: false,
-    },
-};
 
 // Loading div
 const loadingDiv = getId('loadingDiv');
@@ -10633,7 +10559,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.89</strong>',
+        title: '<strong>WebRTC P2P v1.3.90</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
