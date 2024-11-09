@@ -1384,10 +1384,11 @@ function handleButtonsRule() {
 async function whoAreYou() {
     console.log('11. Who are you?');
 
-    elemDisplay(loadingDiv, false);
     document.body.style.background = 'var(--body-bg)';
 
     if (myPeerName) {
+        elemDisplay(loadingDiv, false);
+
         myPeerName = filterXSS(myPeerName);
 
         console.log(`11.1 Check if ${myPeerName} exist in the room`, roomId);
@@ -1460,6 +1461,9 @@ async function whoAreYou() {
         customClass: { popup: 'init-modal-size' },
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+        willOpen: () => {
+            elemDisplay(loadingDiv, false);
+        },
         inputValidator: async (value) => {
             if (!value) return 'Please enter your email or name';
             // Long name
@@ -7152,8 +7156,10 @@ function showChatRoomDraggable() {
         elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
-    chatRoomBtn.className = className.chatOff;
     chatLeftCenter();
+    //chatCenter();
+    //if(isDesktopDevice) toggleChatPin();
+    chatRoomBtn.className = className.chatOff;
     isChatRoomVisible = true;
     setTippy(chatRoomBtn, 'Close the chat', bottomButtonsPlacement);
 }
@@ -7168,8 +7174,9 @@ function showCaptionDraggable() {
         elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
-    captionBtn.className = 'far fa-closed-captioning';
     captionRightCenter();
+    //captionCenter();
+    captionBtn.className = 'far fa-closed-captioning';
     isCaptionBoxVisible = true;
     setTippy(captionBtn, 'Close the caption', placement);
 }
@@ -7220,8 +7227,13 @@ function chatMinimize() {
  */
 function chatCenter() {
     if (!isChatPinned) {
+        msgerDraggable.style.position = 'fixed';
+        msgerDraggable.style.display = 'flex';
         msgerDraggable.style.top = '50%';
         msgerDraggable.style.left = '50%';
+        msgerDraggable.style.transform = 'translate(-50%, -50%)';
+        msgerDraggable.style.webkitTransform = 'translate(-50%, -50%)';
+        msgerDraggable.style.mozTransform = 'translate(-50%, -50%)';
     }
 }
 
@@ -7258,8 +7270,9 @@ function chatUnpin() {
     setSP('--msger-height', '680px');
     elemDisplay(msgerMinBtn, false);
     buttons.chat.showMaxBtn && elemDisplay(msgerMaxBtn, true);
-    chatLeftCenter();
     isChatPinned = false;
+    chatLeftCenter();
+    //chatCenter();
     setColor(msgerTogglePin, 'white');
     resizeVideoMedia();
     msgerDraggable.style.resize = 'both';
@@ -7327,8 +7340,13 @@ function captionMinimize() {
  */
 function captionCenter() {
     if (!isCaptionPinned) {
+        captionDraggable.style.position = 'fixed';
+        captionDraggable.style.display = 'flex';
         captionDraggable.style.top = '50%';
         captionDraggable.style.left = '50%';
+        captionDraggable.style.transform = 'translate(-50%, -50%)';
+        captionDraggable.style.webkitTransform = 'translate(-50%, -50%)';
+        captionDraggable.style.mozTransform = 'translate(-50%, -50%)';
     }
 }
 
@@ -7365,8 +7383,9 @@ function captionUnpin() {
     setSP('--caption-height', '680px');
     elemDisplay(captionMinBtn, false);
     buttons.caption.showMaxBtn && elemDisplay(captionMaxBtn, true);
-    captionRightCenter();
     isCaptionPinned = false;
+    captionRightCenter();
+    //captionCenter();
     setColor(captionTogglePin, 'white');
     resizeVideoMedia();
     captionDraggable.style.resize = 'both';
