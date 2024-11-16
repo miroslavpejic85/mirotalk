@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.91
+ * @version 1.3.92
  *
  */
 
@@ -7156,11 +7156,16 @@ function showChatRoomDraggable() {
         elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
-    chatLeftCenter();
-    //chatCenter();
-    //if(isDesktopDevice) toggleChatPin();
+    //chatLeftCenter();
+    chatCenter();
+
     chatRoomBtn.className = className.chatOff;
     isChatRoomVisible = true;
+
+    if (isDesktopDevice && canBePinned()) {
+        toggleChatPin();
+    }
+
     setTippy(chatRoomBtn, 'Close the chat', bottomButtonsPlacement);
 }
 
@@ -7174,10 +7179,15 @@ function showCaptionDraggable() {
         elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
-    captionRightCenter();
-    //captionCenter();
+    //captionRightCenter();
+    captionCenter();
     captionBtn.className = 'far fa-closed-captioning';
     isCaptionBoxVisible = true;
+
+    if (isDesktopDevice && canBePinned()) {
+        toggleCaptionPin();
+    }
+
     setTippy(captionBtn, 'Close the caption', placement);
 }
 
@@ -7238,6 +7248,16 @@ function chatCenter() {
 }
 
 /**
+ * Check if the element can be pinned based of viewport size
+ * @returns boolean
+ */
+function canBePinned() {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    return viewportWidth >= 1024 && viewportHeight >= 768;
+}
+
+/**
  * Toggle Chat Pin
  */
 function toggleChatPin() {
@@ -7271,8 +7291,8 @@ function chatUnpin() {
     elemDisplay(msgerMinBtn, false);
     buttons.chat.showMaxBtn && elemDisplay(msgerMaxBtn, true);
     isChatPinned = false;
-    chatLeftCenter();
-    //chatCenter();
+    //chatLeftCenter();
+    chatCenter();
     setColor(msgerTogglePin, 'white');
     resizeVideoMedia();
     msgerDraggable.style.resize = 'both';
@@ -7384,8 +7404,8 @@ function captionUnpin() {
     elemDisplay(captionMinBtn, false);
     buttons.caption.showMaxBtn && elemDisplay(captionMaxBtn, true);
     isCaptionPinned = false;
-    captionRightCenter();
-    //captionCenter();
+    //captionRightCenter();
+    captionCenter();
     setColor(captionTogglePin, 'white');
     resizeVideoMedia();
     captionDraggable.style.resize = 'both';
@@ -10578,7 +10598,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.3.91</strong>',
+        title: '<strong>WebRTC P2P v1.3.92</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
