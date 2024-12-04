@@ -37,41 +37,41 @@
 
 <br/>
 
--   Is `100% Free` - `Open Source under (AGPLv3)` - `Self Hosted` and [PWA](https://en.wikipedia.org/wiki/Progressive_web_application)!
--   No downloads, plugins, or logins required – completely browser-based.
--   Unlimited conference rooms with no time limitations.
--   Translated into 133 languages.
--   Support for the OpenID Connect (OIDC) authentication layer.
--   Host protection to prevent unauthorized access.
--   User auth to prevent unauthorized access.
--   Room password protection.
--   JWT.io securely manages credentials for host configurations and user authentication, enhancing security and streamlining processes.
--   Compatible with desktop and mobile devices.
--   Optimized mobile room URL sharing.
--   Webcam streaming with front and rear camera support for mobile devices.
--   Crystal-clear audio streaming with speaking detection and volume indicators.
--   Screen sharing for presentations.
--   File sharing with drag-and-drop support.
--   Choose your audio input, output, and video source.
--   Supports video quality up to 8K and 60 FPS.
--   Supports advance Picture-in-Picture (PiP) offering a more streamlined and flexible viewing experience.
--   Record your screen, audio, and video.
--   Snapshot video frames and save them as PNG images.
--   Chat with an Emoji Picker for expressing feelings, private messages, Markdown support, and conversation saving.
--   ChatGPT (powered by OpenAI) for answering questions, providing information, and connecting users to relevant resources.
--   Speech recognition for sending spoken messages.
--   Push-to-talk functionality, similar to a walkie-talkie.
--   Advanced collaborative whiteboard for teachers.
--   Real-time sharing of YouTube embed videos, video files (MP4, WebM, OGG), and audio files (MP3).
--   Full-screen mode with one-click video element zooming and pin/unpin.
--   Customizable UI themes.
--   Right-click options on video elements for additional controls.
--   Direct peer-to-peer connections for low-latency communication through WebRTC.
--   Supports [REST API](app/api/README.md) (Application Programming Interface).
--   Integration with [Mattermost](https://mattermost.com/) for enhanced communication.
--   Integration with [Slack](https://api.slack.com/apps/) for enhanced communication.
--   Utilizes [Sentry](https://sentry.io/) for error reporting.
--   And much more...
+- Is `100% Free` - `Open Source under (AGPLv3)` - `Self Hosted` and [PWA](https://en.wikipedia.org/wiki/Progressive_web_application)!
+- No downloads, plugins, or logins required – completely browser-based.
+- Unlimited conference rooms with no time limitations.
+- Translated into 133 languages.
+- Support for the OpenID Connect (OIDC) authentication layer.
+- Host protection to prevent unauthorized access.
+- User auth to prevent unauthorized access.
+- Room password protection.
+- JWT.io securely manages credentials for host configurations and user authentication, enhancing security and streamlining processes.
+- Compatible with desktop and mobile devices.
+- Optimized mobile room URL sharing.
+- Webcam streaming with front and rear camera support for mobile devices.
+- Crystal-clear audio streaming with speaking detection and volume indicators.
+- Screen sharing for presentations.
+- File sharing with drag-and-drop support.
+- Choose your audio input, output, and video source.
+- Supports video quality up to 8K and 60 FPS.
+- Supports advance Picture-in-Picture (PiP) offering a more streamlined and flexible viewing experience.
+- Record your screen, audio, and video.
+- Snapshot video frames and save them as PNG images.
+- Chat with an Emoji Picker for expressing feelings, private messages, Markdown support, and conversation saving.
+- ChatGPT (powered by OpenAI) for answering questions, providing information, and connecting users to relevant resources.
+- Speech recognition for sending spoken messages.
+- Push-to-talk functionality, similar to a walkie-talkie.
+- Advanced collaborative whiteboard for teachers.
+- Real-time sharing of YouTube embed videos, video files (MP4, WebM, OGG), and audio files (MP3).
+- Full-screen mode with one-click video element zooming and pin/unpin.
+- Customizable UI themes.
+- Right-click options on video elements for additional controls.
+- Direct peer-to-peer connections for low-latency communication through WebRTC.
+- Supports [REST API](app/api/README.md) (Application Programming Interface).
+- Integration with [Mattermost](https://mattermost.com/) for enhanced communication.
+- Integration with [Slack](https://api.slack.com/apps/) for enhanced communication.
+- Utilizes [Sentry](https://sentry.io/) for error reporting.
+- And much more...
 
 </details>
 
@@ -80,8 +80,8 @@
 
 <br>
 
--   [Presentation](https://www.canva.com/design/DAE693uLOIU/view)
--   [Video Overview](https://www.youtube.com/watch?v=_IVn2aINYww)
+- [Presentation](https://www.canva.com/design/DAE693uLOIU/view)
+- [Video Overview](https://www.youtube.com/watch?v=_IVn2aINYww)
 
 </details>
 
@@ -102,9 +102,9 @@
 
 <br/>
 
--   You can `directly join a room` by using links like:
--   https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
--   https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
+- You can `directly join a room` by using links like:
+- https://p2p.mirotalk.com/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
+- https://mirotalk.up.railway.app/join?room=test&name=mirotalk&audio=0&video=0&screen=0&hide=0&notify=0
 
     | Params | Type    | Description     |
     | ------ | ------- | --------------- |
@@ -162,7 +162,7 @@ To embed a meeting within `your service or app` using an iframe, you can use the
 
 ![nodejs](public/images/nodejs.png)
 
--   Before running MiroTalk P2P, ensure you have `Node.js` installed. This project has been tested with Node versions [12.X](https://nodejs.org/en/blog/release/v12.22.1/), [14.X](https://nodejs.org/en/blog/release/v14.17.5/), [16.X](https://nodejs.org/en/blog/release/v16.15.1/) and [18.x](https://nodejs.org/en/download).
+- Before running MiroTalk P2P, ensure you have `Node.js` installed. This project has been tested with Node versions [12.X](https://nodejs.org/en/blog/release/v12.22.1/), [14.X](https://nodejs.org/en/blog/release/v14.17.5/), [16.X](https://nodejs.org/en/blog/release/v16.15.1/) and [18.x](https://nodejs.org/en/download).
 
 ```bash
 # clone this repo
@@ -177,7 +177,7 @@ $ npm install
 $ npm start
 ```
 
--   Open [http://localhost:3000](http://localhost:3000) in your browser.
+- Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 </details>
 
@@ -188,8 +188,8 @@ $ npm start
 
 ![docker](public/images/docker.png)
 
--   Repository [docker hub](https://hub.docker.com/r/mirotalk/p2p)
--   Install [docker engine](https://docs.docker.com/engine/install/) and [docker compose](https://docs.docker.com/compose/install/)
+- Repository [docker hub](https://hub.docker.com/r/mirotalk/p2p)
+- Install [docker engine](https://docs.docker.com/engine/install/) and [docker compose](https://docs.docker.com/compose/install/)
 
 ```bash
 # clone this repo
@@ -208,7 +208,7 @@ $ docker-compose up # -d
 $ docker-compose down
 ```
 
--   Open [http://localhost:3000](http://localhost:3000) in your browser.
+- Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 </details>
 
@@ -217,13 +217,13 @@ $ docker-compose down
 
 <br>
 
--   `Ngrok/HTTPS:` You can start a video conference directly from your local PC and make it accessible from any device outside your network by following [these instructions](docs/ngrok.md), or expose it directly on [HTTPS](app/ssl/README.md).
+- `Ngrok/HTTPS:` You can start a video conference directly from your local PC and make it accessible from any device outside your network by following [these instructions](docs/ngrok.md), or expose it directly on [HTTPS](app/ssl/README.md).
 
--   `Stun/Turn:` Install your own [Stun & Turn](https://docs.mirotalk.com/coturn/stun-turn/) by following [this instructions](./docs/coturn.md).
+- `Stun/Turn:` Install your own [Stun & Turn](https://docs.mirotalk.com/coturn/stun-turn/) by following [this instructions](./docs/coturn.md).
 
--   `Self-hosting:` For `self-hosting MiroTalk P2P` on your own dedicated server, please refer to [this comprehensive guide](docs/self-hosting.md). It will provide you with all the necessary instructions to get your MiroTalk P2P instance up and running smoothly.
+- `Self-hosting:` For `self-hosting MiroTalk P2P` on your own dedicated server, please refer to [this comprehensive guide](docs/self-hosting.md). It will provide you with all the necessary instructions to get your MiroTalk P2P instance up and running smoothly.
 
--   `Rest API:` The [API documentation](https://docs.mirotalk.com/mirotalk-p2p/api/) uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.com/api/v1/docs).
+- `Rest API:` The [API documentation](https://docs.mirotalk.com/mirotalk-p2p/api/) uses [swagger](https://swagger.io/) at http://localhost:3000/api/v1/docs. Or check it out on [live](https://p2p.mirotalk.com/api/v1/docs).
 
 ```bash
 # The response will give you the active meetings (default disabled).
@@ -310,9 +310,9 @@ For `Security` concerning, please follow [this documentation](./SECURITY.md).
 
 <br/>
 
--   ianramzy (html [template](https://cruip.com/demos/neon/))
--   vasanthv (webrtc-logic)
--   fabric.js (whiteboard)
+- ianramzy (html [template](https://cruip.com/demos/neon/))
+- vasanthv (webrtc-logic)
+- fabric.js (whiteboard)
 
 </details>
 
@@ -321,8 +321,8 @@ For `Security` concerning, please follow [this documentation](./SECURITY.md).
 
 <br/>
 
--   Contributions are welcome and greatly appreciated!
--   Just run before `npm run lint`
+- Contributions are welcome and greatly appreciated!
+- Just run before `npm run lint`
 
 </details>
 
@@ -346,12 +346,14 @@ To obtain a [MiroTalk P2P license](https://docs.mirotalk.com/license/licensing-o
 
 Do you find MiroTalk P2P indispensable for your needs? Join us in supporting this transformative project by [becoming a backer or sponsor](https://github.com/sponsors/miroslavpejic85). By doing so, not only will your logo prominently feature here, but you'll also drive the growth and sustainability of MiroTalk P2P. Your support is vital in ensuring that this valuable platform continues to thrive and remain accessible for all. Make an impact – back MiroTalk P2P today and be part of this exciting journey!
 
-|                                                                                   |                                                                                        |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)           | [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) |
-| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)               | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com)         |
-| [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com) | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)           |
-| [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io)                  | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                        |
+|                                                                                                                           |                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)                                                   | [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) |
+| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)                                                       | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com)         |
+| [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com)                                         | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)           |
+| [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io)                                                          | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                        |
+| [![LambdaTest](public/sponsors/LambdaTest.png)](https://lambdatest.com/pricing?coupon=QURFODlQUk9NT1RFUg==&refid=1149848) |
+|  |
 
 </details>
 

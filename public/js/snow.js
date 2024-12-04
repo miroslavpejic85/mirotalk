@@ -2,7 +2,7 @@
 
 // https://codepen.io/tutsplus/pen/BaVqjvg
 
-const snowEnabled = false;
+const snowEnabled = true;
 
 const snowContainer = document.getElementById('snow-container');
 
