@@ -2,15 +2,17 @@ version: '3'
 
 services:
     mirotalk:
+        # Use the pre-built image from Docker Hub (uncomment to use this option)
         image: mirotalk/p2p:latest
-        build:
-            context: .
-            dockerfile: Dockerfile
+        # Uncomment the following lines to build the image locally instead
+        # build:
+        #     context: .
+        #     dockerfile: Dockerfile
         container_name: mirotalk
         hostname: mirotalk
         volumes:
             - .env:/src/.env:ro
-            # These volumes are not mandatory, uncomment if you want to use it
+            # Optional volumes for real-time updates:
             # - ./app/:/src/app/:ro
             # - ./public/:/src/public/:ro
         restart: unless-stopped
