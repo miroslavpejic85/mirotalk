@@ -353,7 +353,7 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 | [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com)                                         | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)           |
 | [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io)                                                          | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                        |
 | [![LambdaTest](public/sponsors/LambdaTest.png)](https://lambdatest.com/pricing?coupon=QURFODlQUk9NT1RFUg==&refid=1149848) |
-|  |
+|                                                                                                                           |
 
 </details>
 

@@ -1,13 +1,6 @@
-version: '3'
-
 services:
     mirotalk:
-        # Use the pre-built image from Docker Hub (uncomment to use this option)
         image: mirotalk/p2p:latest
-        # Uncomment the following lines to build the image locally instead
-        # build:
-        #     context: .
-        #     dockerfile: Dockerfile
         container_name: mirotalk
         hostname: mirotalk
         volumes:
