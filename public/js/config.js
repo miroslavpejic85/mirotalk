@@ -44,6 +44,7 @@ const buttons = {
         showTabRoomParticipants: true,
         showTabRoomSecurity: true,
         showTabEmailInvitation: true,
+        showCaptionEveryoneBtn: true,
         showMuteEveryoneBtn: true,
         showHideEveryoneBtn: true,
         showEjectEveryoneBtn: true,

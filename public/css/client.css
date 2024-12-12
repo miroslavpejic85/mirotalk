@@ -1142,6 +1142,7 @@ button:hover {
 }
 
 #myPeerNameSetBtn,
+#captionEveryoneBtn,
 #muteEveryoneBtn,
 #hideEveryoneBtn,
 #ejectEveryoneBtn,
@@ -1184,6 +1185,12 @@ button:hover {
 #hideEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {
     color: red;
+    transform: translateY(-3px);
+    transition: all 0.3s ease-in-out;
+}
+
+#captionEveryoneBtn:hover {
+    color: green;
     transform: translateY(-3px);
     transition: all 0.3s ease-in-out;
 }
