@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.3.99
+ * @version 1.4.00
  *
  */
 
@@ -390,13 +390,14 @@ app.use((req, res, next) => {
     }
 });
 
-// Logs requests
 app.use((req, res, next) => {
+    const ipAddress = getIP(req);
     log.debug('New request:', {
-        // headers: req.headers,
-        body: req.body,
+        ip: ipAddress,
         method: req.method,
         path: req.originalUrl,
+        body: req.body,
+        headers: req.headers,
     });
     next();
 });

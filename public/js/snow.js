@@ -2,7 +2,13 @@
 
 // https://codepen.io/tutsplus/pen/BaVqjvg
 
-const snowEnabled = true;
+const now = new Date();
+const month = now.getMonth(); // 0 = January, 11 = December
+
+// Enable snow effect for December (11) and January (0)
+const snowEnabled = month === 11 || month === 0;
+
+console.log(`Snow enabled: ${snowEnabled}`);
 
 const snowContainer = document.getElementById('snow-container');
 
