@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.00
+ * @version 1.4.10
  *
  */
 
@@ -65,6 +65,9 @@ const mattermostCli = require('./mattermost.js');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
+
+// Custom Brand and buttons
+const config = safeRequire('./config');
 
 // Email alerts and notifications
 const nodemailer = require('./lib/nodemailer');
@@ -397,7 +400,7 @@ app.use((req, res, next) => {
         method: req.method,
         path: req.originalUrl,
         body: req.body,
-        headers: req.headers,
+        //headers: req.headers,
     });
     next();
 });
@@ -679,6 +682,16 @@ app.post(['/login'], (req, res) => {
     } else {
         return res.status(401).json({ message: 'unauthorized' });
     }
+});
+
+// UI buttons configuration
+app.get('/buttons', (req, res) => {
+    res.status(200).json({ message: config && config.buttons ? config.buttons : false });
+});
+
+// UI brand configuration
+app.get('/brand', (req, res) => {
+    res.status(200).json({ message: config && config.brand ? config.brand : false });
 });
 
 /**
@@ -2002,4 +2015,23 @@ function removeIP(socket) {
             });
         }
     }
+}
+
+/**
+ * Load modules if exists
+ * @param {string} filePath
+ * @returns
+ */
+function safeRequire(filePath) {
+    try {
+        // Resolve the absolute path of the module
+        const resolvedPath = require.resolve(filePath);
+        // Check if the file exists
+        if (fs.existsSync(resolvedPath)) {
+            return require(resolvedPath);
+        }
+    } catch (error) {
+        log.error('Module not found', filePath);
+    }
+    return null;
 }

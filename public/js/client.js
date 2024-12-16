@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.00
+ * @version 1.4.10
  *
  */
 
@@ -1198,6 +1198,7 @@ async function handleConnect() {
         getHtmlElementsById();
         setButtonsToolTip();
         handleUsernameEmojiPicker();
+        await getButtons();
         manageButtons();
         handleButtonsRule();
         setupMySettings();
@@ -1380,6 +1381,31 @@ function handleButtonsRule() {
     buttons.whiteboard.whiteboardLockBtn
         ? elemDisplay(whiteboardLockBtn, true, 'flex')
         : elemDisplay(whiteboardLockBtn, false);
+}
+
+/**
+ * Get Buttons config from server side and apply to current client
+ */
+async function getButtons() {
+    try {
+        const response = await axios.get('/buttons', {
+            timeout: 5000,
+        });
+        const serverButtons = response.data.message;
+        if (serverButtons) {
+            // Merge serverButtons into BUTTONS, keeping the existing keys in BUTTONS if they are not present in serverButtons
+            buttons = {
+                ...buttons, // Spread current BUTTONS first to keep existing keys
+                ...serverButtons, // Overwrite or add new keys from serverButtons
+            };
+            console.log('AXIOS ROOM BUTTONS SETTINGS', {
+                serverButtons: serverButtons,
+                clientButtons: buttons,
+            });
+        }
+    } catch (error) {
+        console.error('AXIOS GET CONFIG ERROR', error.message);
+    }
 }
 
 /**
@@ -10664,7 +10690,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.00</strong>',
+        title: '<strong>WebRTC P2P v1.4.10</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },

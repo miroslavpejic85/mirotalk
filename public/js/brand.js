@@ -1,7 +1,10 @@
 'use strict';
 
-// Html pages
+// Brand
+const brandDataKey = 'brandDataP2P';
+const brandData = window.sessionStorage.getItem(brandDataKey);
 
+// Html pages
 const landingTitle = document.getElementById('landingTitle');
 const newCallTitle = document.getElementById('newCallTitle');
 const loginTitle = document.getElementById('loginTitle');
@@ -28,7 +31,7 @@ const footer = document.getElementById('footer');
 
 // Brand customizations...
 
-const brand = {
+let brand = {
     app: {
         name: 'MiroTalk',
         title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
@@ -59,31 +62,79 @@ const brand = {
     //...
 };
 
-// Handle brand...
+/**
+ * Get started
+ */
+async function initBrand() {
+    await getBrand();
 
-if (landingTitle) landingTitle.textContent = brand.site.landingTitle;
-if (newCallTitle) newCallTitle.textContent = brand.site.newCallTitle;
-if (loginTitle) loginTitle.textContent = brand.site.loginTitle;
-if (privacyPolicyTitle) privacyPolicyTitle.textContent = brand.site.privacyPolicyTitle;
-if (stunTurnTitle) stunTurnTitle.textContent = brand.site.stunTurnTitle;
-if (clientTitle) clientTitle.textContent = brand.site.clientTitle;
-if (notFoundTitle) notFoundTitle.textContent = brand.site.notFoundTitle;
+    handleBrand();
+}
 
-if (shortcutIcon) shortcutIcon.href = brand.site.shortcutIcon;
-if (appleTouchIcon) appleTouchIcon.href = brand.site.appleTouchIcon;
+/**
+ * Get brand from server
+ */
+async function getBrand() {
+    if (brandData) {
+        setBrand(JSON.parse(brandData));
+    } else {
+        try {
+            const response = await fetch('/brand', { timeout: 5000 });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            const serverBrand = data.message;
+            if (serverBrand) {
+                setBrand(serverBrand);
+                console.log('FETCH BRAND SETTINGS', {
+                    serverBrand: serverBrand,
+                    clientBrand: brand,
+                });
+                window.sessionStorage.setItem(brandDataKey, JSON.stringify(serverBrand));
+            }
+        } catch (error) {
+            console.error('FETCH GET BRAND ERROR', error.message);
+        }
+    }
+}
 
-if (appTitle) appTitle.innerHTML = brand.app.title;
-if (appDescription) appDescription.textContent = brand.app.description;
+/**
+ * Set brand
+ * @param {object} data
+ */
+function setBrand(data) {
+    brand = data;
+    console.log('Set Brand done');
+}
 
-!brand.html.features && elementDisplay(features, false);
-!brand.html.browsers && elementDisplay(browsers, false);
-!brand.html.teams && elementDisplay(teams, false);
-!brand.html.tryEasier && elementDisplay(tryEasier, false);
-!brand.html.poweredBy && elementDisplay(poweredBy, false);
-!brand.html.sponsors && elementDisplay(sponsors, false);
-!brand.html.advertisers && elementDisplay(advertisers, false);
-!brand.html.footer && elementDisplay(footer, false);
-//...
+/**
+ * Handle Brand
+ */
+function handleBrand() {
+    if (landingTitle) landingTitle.textContent = brand.site.landingTitle;
+    if (newCallTitle) newCallTitle.textContent = brand.site.newCallTitle;
+    if (loginTitle) loginTitle.textContent = brand.site.loginTitle;
+    if (privacyPolicyTitle) privacyPolicyTitle.textContent = brand.site.privacyPolicyTitle;
+    if (stunTurnTitle) stunTurnTitle.textContent = brand.site.stunTurnTitle;
+    if (clientTitle) clientTitle.textContent = brand.site.clientTitle;
+    if (notFoundTitle) notFoundTitle.textContent = brand.site.notFoundTitle;
+
+    if (shortcutIcon) shortcutIcon.href = brand.site.shortcutIcon;
+    if (appleTouchIcon) appleTouchIcon.href = brand.site.appleTouchIcon;
+
+    if (appTitle) appTitle.innerHTML = brand.app.title;
+    if (appDescription) appDescription.textContent = brand.app.description;
+
+    !brand.html.features && elementDisplay(features, false);
+    !brand.html.browsers && elementDisplay(browsers, false);
+    !brand.html.teams && elementDisplay(teams, false);
+    !brand.html.tryEasier && elementDisplay(tryEasier, false);
+    !brand.html.poweredBy && elementDisplay(poweredBy, false);
+    !brand.html.sponsors && elementDisplay(sponsors, false);
+    !brand.html.advertisers && elementDisplay(advertisers, false);
+    !brand.html.footer && elementDisplay(footer, false);
+}
 
 /**
  * Handle Element display
@@ -95,3 +146,5 @@ function elementDisplay(element, display, mode = 'block') {
     if (!element) return;
     element.style.display = display ? mode : 'none';
 }
+
+initBrand();
