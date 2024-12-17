@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.10
+ * @version 1.4.11
  *
  */
 
@@ -296,6 +296,7 @@ const captionClean = getId('captionClean');
 const captionSaveBtn = getId('captionSaveBtn');
 const captionClose = getId('captionClose');
 const captionChat = getId('captionChat');
+const captionFooter = getId('captionFooter');
 
 // My settings
 const mySettings = getId('mySettings');
@@ -4783,7 +4784,7 @@ function setChatRoomBtn() {
  * Caption room buttons click event
  */
 function setCaptionRoomBtn() {
-    if (speechRecognition && buttons.main.showCaptionRoomBtn) {
+    if (buttons.main.showCaptionRoomBtn) {
         // open hide caption
         captionBtn.addEventListener('click', (e) => {
             if (!isCaptionBoxVisible) {
@@ -4844,14 +4845,18 @@ function setCaptionRoomBtn() {
         // hide it
         elemDisplay(speechRecognitionStop, false);
 
-        // start recognition speech
-        speechRecognitionStart.addEventListener('click', (e) => {
-            startSpeech();
-        });
-        // stop recognition speech
-        speechRecognitionStop.addEventListener('click', (e) => {
-            stopSpeech();
-        });
+        if (speechRecognition) {
+            // start recognition speech
+            speechRecognitionStart.addEventListener('click', (e) => {
+                startSpeech();
+            });
+            // stop recognition speech
+            speechRecognitionStop.addEventListener('click', (e) => {
+                stopSpeech();
+            });
+        } else {
+            elemDisplay(captionFooter, false);
+        }
     } else {
         elemDisplay(captionBtn, false);
         // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility
@@ -10592,7 +10597,7 @@ function handleCaptionActions(config) {
 
     switch (action) {
         case 'start':
-            if (!speechRecognition || !buttons.main.showCaptionRoomBtn) {
+            if (!speechRecognition) {
                 userLog(
                     'info',
                     `${peer_name} wants to start captions for this session, but your browser does not support it. Please use a Chromium-based browser like Google Chrome, Microsoft Edge, or Brave.`,
@@ -10600,7 +10605,7 @@ function handleCaptionActions(config) {
                 return;
             }
 
-            if (recognitionRunning) return;
+            if (recognitionRunning || !buttons.main.showCaptionRoomBtn) return;
 
             Swal.fire({
                 allowOutsideClick: false,
@@ -10690,7 +10695,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.10</strong>',
+        title: '<strong>WebRTC P2P v1.4.11</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
