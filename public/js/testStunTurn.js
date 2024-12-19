@@ -13,7 +13,7 @@ let iceServers = filterXSS(qs.get('iceServers'));
 if (iceServers) {
     iceServers = JSON.parse(iceServers);
 } else {
-    // http://localhost:3000/test
+    // http://localhost:3000/icetest
     iceServers = [
         // Test some STUN server
         {

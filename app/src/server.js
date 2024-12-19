@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.11
+ * @version 1.4.12
  *
  */
 
@@ -209,8 +209,8 @@ if (turnServerEnabled && turnServerUrl && turnServerUsername && turnServerCreden
 }
 
 // Test Stun and Turn connection with query params
-// const testStunTurn = host + '/test?iceServers=' + JSON.stringify(iceServers);
-const testStunTurn = host + '/test';
+// const testStunTurn = host + '/icetest?iceServers=' + JSON.stringify(iceServers);
+const testStunTurn = host + '/icetest';
 
 // IP Lookup
 const IPLookupEnabled = getEnvBoolean(process.env.IP_LOOKUP_ENABLED);
@@ -529,7 +529,7 @@ app.get(['/privacy'], (req, res) => {
 });
 
 // test Stun and Turn connections
-app.get(['/test'], (req, res) => {
+app.get(['/icetest'], (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
     }
@@ -692,6 +692,19 @@ app.get('/buttons', (req, res) => {
 // UI brand configuration
 app.get('/brand', (req, res) => {
     res.status(200).json({ message: config && config.brand ? config.brand : false });
+});
+
+// Join roomId redirect to /join?room=roomId
+app.get('/:roomId', (req, res) => {
+    const { roomId } = checkXSS(req.params);
+
+    if (!roomId) {
+        log.warn('/:roomId empty', roomId);
+        return res.redirect('/');
+    }
+
+    log.debug('Detected roomId --> redirect to /join?room=roomId');
+    res.redirect(`/join?room=${roomId}`); // `/join/${roomId}`
 });
 
 /**
