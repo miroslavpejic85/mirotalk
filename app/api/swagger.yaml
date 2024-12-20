@@ -12,6 +12,23 @@ schemes:
     - http
 
 paths:
+    /stats:
+        get:
+            tags:
+                - 'stats'
+            summary: 'Get stats'
+            description: 'Get stats'
+            produces:
+                - 'application/json'
+            security:
+                - secretApiKey: []
+            responses:
+                '200':
+                    description: 'Get Stats done'
+                    schema:
+                        $ref: '#/definitions/StatsResponse'
+                '403':
+                    description: 'Unauthorized!'
     /meetings:
         get:
             tags:
@@ -149,6 +166,13 @@ securityDefinitions:
         description: 'Format like this: authorization: {API_KEY_SECRET}'
 
 definitions:
+    StatsResponse:
+        type: object
+        properties:
+            meetings:
+                type: array
+                items:
+                    $ref: '#/definitions/Stats'
     MeetingsResponse:
         type: object
         properties:
@@ -211,6 +235,15 @@ definitions:
                 type: string
             browser:
                 type: string
+    Stats:
+        type: object
+        properties:
+            success:
+                type: boolean
+            totalRooms:
+                type: integer
+            totalUser:
+                type: integer
 
     Meeting:
         type: object

@@ -19,6 +19,21 @@ module.exports = class ServerApi {
         return true;
     }
 
+    getStats(peers) {
+        let totalRooms = 0;
+        let totalPeers = 0;
+
+        for (const room_id in peers) {
+            totalRooms++; // Increment room count
+            totalPeers += Object.keys(peers[room_id]).length; // Count the number of peers in the room
+        }
+
+        return {
+            totalRooms,
+            totalPeers,
+        };
+    }
+
     getMeetings(peers) {
         const meetings = {};
         for (const room_id in peers) {
