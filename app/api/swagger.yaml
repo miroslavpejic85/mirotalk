@@ -242,7 +242,7 @@ definitions:
                 type: boolean
             totalRooms:
                 type: integer
-            totalUser:
+            totalPeers:
                 type: integer
 
     Meeting:
