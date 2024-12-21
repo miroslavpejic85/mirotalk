@@ -145,6 +145,8 @@ When [host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) 
 
 <br/>
 
+![iframe](public/images/iframe.png)
+
 To embed a meeting within `your service or app` using an iframe, you can use the following code:
 
 ```html
