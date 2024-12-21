@@ -174,7 +174,7 @@ definitions:
             timestamp:
                 type: string
                 format: date-time
-                example: "2024-12-21T12:00:00Z"
+                example: '2024-12-21T12:00:00Z'
             totalRooms:
                 type: integer
             totalPeers:
