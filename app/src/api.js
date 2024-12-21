@@ -20,6 +20,8 @@ module.exports = class ServerApi {
     }
 
     getStats(peers) {
+        const timestamp = new Date().toISOString();
+
         let totalRooms = 0;
         let totalPeers = 0;
 
@@ -29,6 +31,7 @@ module.exports = class ServerApi {
         }
 
         return {
+            timestamp,
             totalRooms,
             totalPeers,
         };

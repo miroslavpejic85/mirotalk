@@ -169,10 +169,17 @@ definitions:
     StatsResponse:
         type: object
         properties:
-            meetings:
-                type: array
-                items:
-                    $ref: '#/definitions/Stats'
+            success:
+                type: boolean
+            timestamp:
+                type: string
+                format: date-time
+                example: "2024-12-21T12:00:00Z"
+            totalRooms:
+                type: integer
+            totalPeers:
+                type: integer
+
     MeetingsResponse:
         type: object
         properties:
@@ -235,15 +242,6 @@ definitions:
                 type: string
             browser:
                 type: string
-    Stats:
-        type: object
-        properties:
-            success:
-                type: boolean
-            totalRooms:
-                type: integer
-            totalPeers:
-                type: integer
 
     Meeting:
         type: object

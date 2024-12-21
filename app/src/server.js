@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.14
+ * @version 1.4.15
  *
  */
 
@@ -731,9 +731,10 @@ app.get([`${apiBasePath}/stats`], (req, res) => {
         return res.status(403).json({ error: 'Unauthorized!' });
     }
     // Get stats
-    const { totalRooms, totalPeers } = api.getStats(peers);
+    const { timestamp, totalRooms, totalPeers } = api.getStats(peers);
     res.json({
         success: true,
+        timestamp,
         totalRooms,
         totalPeers,
     });
@@ -741,6 +742,7 @@ app.get([`${apiBasePath}/stats`], (req, res) => {
     log.debug('MiroTalk get stats - Authorized', {
         header: req.headers,
         body: req.body,
+        timestamp,
         totalRooms,
         totalPeers,
     });
