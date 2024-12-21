@@ -1,6 +1,36 @@
 'use strict';
 
 module.exports = {
+    brand: {
+        app: {
+            name: 'MiroTalk',
+            title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
+            description:
+                'Start your next video call with a single click. No download, plug-in, or login is required. Just get straight to talking, messaging, and sharing your screen.',
+        },
+        site: {
+            landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
+            newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
+            loginTitle: 'MiroTalk - Host Protected login required.',
+            clientTitle: 'MiroTalk WebRTC Video call, Chat Room & Screen Sharing.',
+            privacyPolicyTitle: 'MiroTalk - privacy and policy.',
+            stunTurnTitle: 'Test Stun/Turn Servers.',
+            notFoundTitle: 'MiroTalk - 404 Page not found.',
+            shortcutIcon: '../images/logo.svg',
+            appleTouchIcon: '../images/logo.svg',
+        },
+        html: {
+            features: true,
+            browsers: true,
+            teams: true, // please keep me always true ;)
+            tryEasier: true,
+            poweredBy: true,
+            sponsors: true,
+            advertisers: true,
+            footer: true,
+        },
+        //...
+    },
     /**
      * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
      * Set properties to true to show the corresponding buttons, or false to hide them.
@@ -71,35 +101,5 @@ module.exports = {
         whiteboard: {
             whiteboardLockBtn: false,
         },
-    },
-    brand: {
-        app: {
-            name: 'MiroTalk',
-            title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
-            description:
-                'Start your next video call with a single click. No download, plug-in, or login is required. Just get straight to talking, messaging, and sharing your screen.',
-        },
-        site: {
-            landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
-            newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
-            loginTitle: 'MiroTalk - Host Protected login required.',
-            clientTitle: 'MiroTalk WebRTC Video call, Chat Room & Screen Sharing.',
-            privacyPolicyTitle: 'MiroTalk - privacy and policy.',
-            stunTurnTitle: 'Test Stun/Turn Servers.',
-            notFoundTitle: 'MiroTalk - 404 Page not found.',
-            shortcutIcon: '../images/logo.svg',
-            appleTouchIcon: '../images/logo.svg',
-        },
-        html: {
-            features: true,
-            browsers: true,
-            teams: true, // please keep me always true ;)
-            tryEasier: true,
-            poweredBy: true,
-            sponsors: true,
-            advertisers: true,
-            footer: true,
-        },
-        //...
     },
 };
