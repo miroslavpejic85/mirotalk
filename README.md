@@ -138,27 +138,6 @@ When [host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) 
 
 </details>
 
-</details>
-
-<details open>
-<summary>Embed a meeting</summary>
-
-<br/>
-
-![iframe](public/images/iframe.png)
-
-To embed a meeting within `your service or app` using an iframe, you can use the following code:
-
-```html
-<iframe
-    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay"
-    src="https://p2p.mirotalk.com/newcall"
-    style="height: 100vh; width: 100vw; border: 0px;"
-></iframe>
-```
-
-</details>
-
 <details open>
 <summary>Quick start</summary>
 
@@ -215,6 +194,25 @@ $ docker-compose down
 ```
 
 - Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+</details>
+
+<details open>
+<summary>Embed a meeting</summary>
+
+<br/>
+
+![iframe](public/images/iframe.png)
+
+To embed a meeting within `your service or app` using an iframe, you can use the following code:
+
+```html
+<iframe
+    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay"
+    src="https://p2p.mirotalk.com/newcall"
+    style="height: 100vh; width: 100vw; border: 0px;"
+></iframe>
+```
 
 </details>
 
