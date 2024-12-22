@@ -2027,8 +2027,20 @@ hr {
     display: none;
 }
 
+/*--------------------------------------------------------------
+# Colors
+--------------------------------------------------------------*/
+
+.red {
+    color: red !important;
+}
+
 .orange {
     color: orange !important;
+}
+
+.green {
+    color: rgb(0, 255, 71) !important;
 }
 
 /*
