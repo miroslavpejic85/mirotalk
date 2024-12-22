@@ -2027,6 +2027,10 @@ hr {
     display: none;
 }
 
+.orange {
+    color: orange !important;
+}
+
 /*
 z-index
 6 theme custom picker
