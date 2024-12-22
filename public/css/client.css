@@ -258,7 +258,7 @@ body {
     padding: 5px !important;
     font-size: 1.4rem;
     color: var(--btn-bar-bg-color);
-    background: var(--btns-bg-color); 
+    background: var(--btns-bg-color);
     border: none !important;
     border-radius: 5px;
 }
@@ -272,9 +272,9 @@ body {
     outline: none;
 }
 
-/* #toggleExtraBtn {
+#toggleExtraBtn {
     color: #66beff !important;
-} */
+}
 
 .fa-phone-slash,
 .fa-microphone-slash,
