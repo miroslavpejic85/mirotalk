@@ -257,23 +257,14 @@ body {
 #buttonsBar button {
     padding: 5px !important;
     font-size: 1.4rem;
-
-    /* 
-    Use this to maintain the theme colors of buttons while making them less visible during video playback.
     color: var(--btn-bar-bg-color);
     background: var(--btns-bg-color); 
-    */
-
-    color: var(--btn-bar-color);
-    background: var(--btn-bar-bg-color);
-
     border: none !important;
     border-radius: 5px;
 }
 
 #buttonsBar button:hover {
-    /* color: white;
-    background: var(--body-bg); */
+    background: var(--body-bg);
     transform: translateY(-3px);
 }
 
@@ -318,24 +309,15 @@ body {
     width: 50px;
     padding: 10px;
     font-size: 1.6rem;
-
-    /* 
-    Use this to maintain the theme colors of buttons while making them less visible during video playback.
     color: var(--btn-bar-bg-color);
-    background: var(--btns-bg-color); 
-    */
-
-    color: var(--btn-bar-color);
-    background: var(--btn-bar-bg-color);
-
+    background: var(--btns-bg-color);
     border: none !important;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
 }
 
 #bottomButtons button:hover {
-    /* color: white;
-    background: var(--body-bg); */
+    background: var(--body-bg);
     transform: var(--btns-hover-scale);
 }
 
