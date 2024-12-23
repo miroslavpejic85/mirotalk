@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = {
+    // Branding and customizations require a license: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
     brand: {
         app: {
             name: 'MiroTalk',
