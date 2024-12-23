@@ -4905,7 +4905,7 @@ function setRoomEmojiButton() {
     function toggleEmojiPicker() {
         if (emojiPickerContainer.style.display === 'block') {
             elemDisplay(emojiPickerContainer, false);
-            setColor(roomEmojiPickerBtn, 'black');
+            setColor(roomEmojiPickerBtn, 'var(--btn-bar-bg-color)');
         } else {
             emojiPickerContainer.style.display = 'block';
             setColor(roomEmojiPickerBtn, 'green');
