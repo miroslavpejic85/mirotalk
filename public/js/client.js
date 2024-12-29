@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.20
+ * @version 1.4.21
  *
  */
 
@@ -49,6 +49,7 @@ const images = {
     forbidden: '../images/forbidden.png',
     avatar: '../images/mirotalk-logo.png',
     recording: '../images/recording.png',
+    poster: '../images/loader.gif',
 }; // nice free icon: https://www.iconfinder.com
 
 const className = {
@@ -3135,6 +3136,7 @@ async function loadLocalMedia(stream, kind) {
             myLocalMedia.muted = true;
             myLocalMedia.volume = 0;
             myLocalMedia.controls = false;
+            myLocalMedia.poster = images.poster;
 
             myVideoWrap.className = 'Camera';
             myVideoWrap.setAttribute('id', 'myVideoWrap');
@@ -3457,6 +3459,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteMedia.style.objectFit = peer_screen_status ? 'contain' : 'var(--video-object-fit)';
             remoteMedia.style.name = peer_id + (peer_screen_status ? '_typeScreen' : '_typeCam');
             remoteMedia.controls = remoteMediaControls;
+            remoteMedia.poster = images.poster;
 
             remoteVideoWrap.className = 'Camera';
             remoteVideoWrap.setAttribute('id', peer_id + '_videoWrap');
@@ -10695,7 +10698,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.20</strong>',
+        title: '<strong>WebRTC P2P v1.4.21</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
