@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.21
+ * @version 1.4.22
  *
  */
 
@@ -7741,7 +7741,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     const getPrivateMsg = filterXSS(privateMsg);
     const getMsgId = filterXSS(msgId);
 
-    // collect chat msges to save it later
+    // collect chat messages to save it later
     chatMessages.push({
         time: time,
         from: getFrom,
@@ -7754,8 +7754,6 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
 
     const isValidPrivateMessage = getPrivateMsg && getMsgId != null && getMsgId != myPeerId;
 
-    const message = getFrom === 'ChatGPT' ? `<pre>${getMsg}</pre>` : getMsg;
-
     let msgHTML = `
 	<div id="msg-${chatMessagesId}" class="msg ${getSide}-msg">
         <img class="msg-img" src="${getImg}" />
@@ -7764,7 +7762,8 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                 <div class="msg-info-name">${getFrom}</div>
                 <div class="msg-info-time">${time}</div>
             </div>
-            <div id="${chatMessagesId}" class="msg-text">${message}
+            <div id="message-${chatMessagesId}" class="msg-text"></div>
+            <div class="msg-text">
                 <hr/>
     `;
     // add btn direct reply to private message
@@ -7788,7 +7787,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                     id="msg-copy-${chatMessagesId}"
                     class="${className.copy}" 
                     style="color:#fff; border:none; background:transparent;"
-                    onclick="copyToClipboard('${chatMessagesId}')"
+                    onclick="copyToClipboard('message-${chatMessagesId}')"
                 ></button>`;
     if (isSpeechSynthesisSupported) {
         msgHTML += `
@@ -7796,7 +7795,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                     id="msg-speech-${chatMessagesId}"
                     class="${className.speech}" 
                     style="color:#fff; border:none; background:transparent;"
-                    onclick="speechMessage(false, '${getFrom}', '${checkMsg(message)}')"
+                    onclick="speechElementText(false, '${getFrom}', 'message-${chatMessagesId}')"
                 ></button>`;
     }
     msgHTML += ` 
@@ -7804,7 +7803,21 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
         </div>
     </div>
     `;
+
     msgerChat.insertAdjacentHTML('beforeend', msgHTML);
+
+    const message = getId(`message-${chatMessagesId}`);
+    if (message) {
+        if (getFrom === 'ChatGPT') {
+            // Stream the message for ChatGPT
+            streamMessage(message, getMsg, 100);
+        } else {
+            // Process the message for other senders
+            message.innerHTML = processMessage(getMsg);
+            hljs.highlightAll();
+        }
+    }
+
     msgerChat.scrollTop += 500;
     if (!isMobileDevice) {
         setTippy(getId('msg-delete-' + chatMessagesId), 'Delete', 'top');
@@ -7815,6 +7828,104 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
         }
     }
     chatMessagesId++;
+}
+
+/**
+ * Process Messages
+ * @param {string} message
+ * @returns
+ */
+function processMessage(message) {
+    const codeBlockRegex = /```([a-zA-Z0-9]+)?\n([\s\S]*?)```/g;
+    let parts = [];
+    let lastIndex = 0;
+
+    message.replace(codeBlockRegex, (match, lang, code, offset) => {
+        if (offset > lastIndex) {
+            parts.push({ type: 'text', value: message.slice(lastIndex, offset) });
+        }
+        parts.push({ type: 'code', lang, value: code });
+        lastIndex = offset + match.length;
+    });
+
+    if (lastIndex < message.length) {
+        parts.push({ type: 'text', value: message.slice(lastIndex) });
+    }
+
+    return parts
+        .map((part) => {
+            if (part.type === 'text') {
+                return part.value;
+            } else if (part.type === 'code') {
+                return `<pre><code class="language-${part.lang || ''}">${part.value}</code></pre>`;
+            }
+        })
+        .join('');
+}
+
+/**
+ * Stream message
+ * @param {string} element
+ * @param {string} message
+ * @param {integer} speed
+ */
+function streamMessage(element, message, speed = 100) {
+    const codeBlockRegex = /```([a-zA-Z0-9]+)?\n([\s\S]*?)```/g;
+    const parts = [];
+
+    let lastIndex = 0;
+
+    message.replace(codeBlockRegex, (match, lang, code, offset) => {
+        if (offset > lastIndex) {
+            parts.push({ type: 'text', value: message.slice(lastIndex, offset) });
+        }
+        parts.push({ type: 'code', lang, value: code });
+        lastIndex = offset + match.length;
+    });
+
+    if (lastIndex < message.length) {
+        parts.push({ type: 'text', value: message.slice(lastIndex) });
+    }
+
+    let index = 0;
+    let textBuffer = '';
+    let wordIndex = 0;
+
+    const interval = setInterval(() => {
+        if (index < parts.length) {
+            const part = parts[index];
+
+            if (part.type === 'text') {
+                const words = part.value.split(' ');
+                if (wordIndex < words.length) {
+                    textBuffer += words[wordIndex] + ' ';
+                    wordIndex++;
+                    element.innerHTML = textBuffer;
+                } else {
+                    wordIndex = 0;
+                    index++;
+                }
+            } else if (part.type === 'code') {
+                textBuffer += `<pre><code class="language-${part.lang || ''}">${part.value}</code></pre>`;
+                element.innerHTML = textBuffer;
+                index++;
+            }
+
+            if (index % 5 === 0 || index === parts.length) {
+                highlightCodeBlocks(element);
+            }
+        } else {
+            clearInterval(interval);
+            highlightCodeBlocks(element);
+        }
+    }, speed);
+
+    function highlightCodeBlocks(element) {
+        const codeBlocks = element.querySelectorAll('pre code');
+        codeBlocks.forEach((block) => {
+            hljs.highlightElement(block);
+        });
+    }
 }
 
 /**
@@ -7830,6 +7941,17 @@ function speechMessage(newMsg = true, from, msg) {
     speech.text = (newMsg ? 'New' : '') + ' message from:' + from + '. The message is:' + msg;
     speech.rate = 0.9;
     window.speechSynthesis.speak(speech);
+}
+
+/**
+ * Speech element text
+ * @param {boolean} newMsg true/false
+ * @param {string} from peer_name
+ * @param {string} elemId
+ */
+function speechElementText(newMsg = true, from, elemId) {
+    const element = getId(elemId);
+    speechMessage(newMsg, from, element.innerText);
 }
 
 /**
@@ -10698,7 +10820,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.21</strong>',
+        title: '<strong>WebRTC P2P v1.4.22</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
