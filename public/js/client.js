@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.22
+ * @version 1.4.23
  *
  */
 
@@ -7492,8 +7492,9 @@ function cleanMessages() {
     playSound('newMessage');
     Swal.fire({
         background: swBg,
-        position: 'center',
-        title: 'Clean up chat messages?',
+        position: 'top',
+        title: 'Chat',
+        text: 'Clean up chat messages?',
         imageUrl: images.delete,
         showDenyButton: true,
         confirmButtonText: `Yes`,
@@ -7762,8 +7763,8 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
                 <div class="msg-info-name">${getFrom}</div>
                 <div class="msg-info-time">${time}</div>
             </div>
-            <div id="message-${chatMessagesId}" class="msg-text"></div>
             <div class="msg-text">
+            <span id="message-${chatMessagesId}"></span>
                 <hr/>
     `;
     // add btn direct reply to private message
@@ -7929,8 +7930,9 @@ function deleteMessage(id) {
     playSound('newMessage');
     Swal.fire({
         background: swBg,
-        position: 'center',
-        title: 'Delete this messages?',
+        position: 'top',
+        title: 'Chat',
+        text: 'Delete this messages?',
         imageUrl: images.delete,
         showDenyButton: true,
         confirmButtonText: `Yes`,
@@ -10787,7 +10789,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.22</strong>',
+        title: '<strong>WebRTC P2P v1.4.23</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
