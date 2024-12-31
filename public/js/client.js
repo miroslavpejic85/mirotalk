@@ -7833,7 +7833,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
 /**
  * Process Messages
  * @param {string} message
- * @returns
+ * @returns string message processed
  */
 function processMessage(message) {
     const codeBlockRegex = /```([a-zA-Z0-9]+)?\n([\s\S]*?)```/g;
@@ -7870,50 +7870,17 @@ function processMessage(message) {
  * @param {integer} speed
  */
 function streamMessage(element, message, speed = 100) {
-    const codeBlockRegex = /```([a-zA-Z0-9]+)?\n([\s\S]*?)```/g;
-    const parts = [];
+    const parts = processMessage(message);
+    const words = parts.split(' ');
 
-    let lastIndex = 0;
-
-    message.replace(codeBlockRegex, (match, lang, code, offset) => {
-        if (offset > lastIndex) {
-            parts.push({ type: 'text', value: message.slice(lastIndex, offset) });
-        }
-        parts.push({ type: 'code', lang, value: code });
-        lastIndex = offset + match.length;
-    });
-
-    if (lastIndex < message.length) {
-        parts.push({ type: 'text', value: message.slice(lastIndex) });
-    }
-
-    let index = 0;
     let textBuffer = '';
     let wordIndex = 0;
 
     const interval = setInterval(() => {
-        if (index < parts.length) {
-            const part = parts[index];
-
-            if (part.type === 'text') {
-                const words = part.value.split(' ');
-                if (wordIndex < words.length) {
-                    textBuffer += words[wordIndex] + ' ';
-                    wordIndex++;
-                    element.innerHTML = textBuffer;
-                } else {
-                    wordIndex = 0;
-                    index++;
-                }
-            } else if (part.type === 'code') {
-                textBuffer += `<pre><code class="language-${part.lang || ''}">${part.value}</code></pre>`;
-                element.innerHTML = textBuffer;
-                index++;
-            }
-
-            if (index % 5 === 0 || index === parts.length) {
-                highlightCodeBlocks(element);
-            }
+        if (wordIndex < words.length) {
+            textBuffer += words[wordIndex] + ' ';
+            element.innerHTML = textBuffer;
+            wordIndex++;
         } else {
             clearInterval(interval);
             highlightCodeBlocks(element);
