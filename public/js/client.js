@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.25
+ * @version 1.4.26
  *
  */
 
@@ -5525,6 +5525,12 @@ function setupMySettings() {
     videoQualitySelect.addEventListener('change', async (e) => {
         await setLocalVideoQuality();
     });
+
+    // Firefox may not handle well...
+    if (browserName === 'Firefox') {
+        elemDisplay(videoFpsDiv, false);
+    }
+
     // select video fps
     videoFpsSelect.addEventListener('change', (e) => {
         videoMaxFrameRate = parseInt(videoFpsSelect.value, 10);
@@ -5773,86 +5779,60 @@ async function getAudioVideoConstraints() {
  */
 async function getVideoConstraints(videoQuality) {
     const frameRate = videoMaxFrameRate;
+
+    // Detect if the browser is Firefox
+    const isFirefox = browserName === 'Firefox';
+
+    // Function to construct constraints with ideal or exact width/height
+    function createConstraints(width, height, frameRate, isIdeal = false) {
+        const constraints = {
+            width: isIdeal ? { ideal: width } : { exact: width },
+            height: isIdeal ? { ideal: height } : { exact: height },
+        };
+        // Only add frameRate for non-Firefox browsers
+        if (!isFirefox) {
+            constraints.frameRate = frameRate;
+        }
+        return constraints;
+    }
+
     let constraints = {};
 
     switch (videoQuality) {
         case 'default':
-            if (forceCamMaxResolutionAndFps) {
-                // This will make the browser use the maximum resolution available as default, `up to 8K and 60fps`.
-                constraints = {
-                    width: { ideal: 7680 },
-                    height: { ideal: 4320 },
-                    frameRate: { ideal: 60 },
-                }; // video cam constraints default
-            } else {
-                // This will make the browser use as ideal hdVideo and 30fps.
-                constraints = {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    frameRate: { ideal: 30 },
-                }; // on default as hdVideo
-            }
+            forceCamMaxResolutionAndFps
+                ? (constraints = createConstraints(7680, 4320, 60, true)) // 8K resolution, 60fps (ideal)
+                : (constraints = createConstraints(1280, 720, 30, true)); // HD resolution, 30fps (ideal)
             break;
         case 'qvgaVideo':
-            constraints = {
-                width: { exact: 320 },
-                height: { exact: 240 },
-                frameRate: frameRate,
-            }; // video cam constraints low bandwidth
+            constraints = createConstraints(320, 240, frameRate, false); // Low bandwidth (exact)
             break;
         case 'vgaVideo':
-            constraints = {
-                width: { exact: 640 },
-                height: { exact: 480 },
-                frameRate: frameRate,
-            }; // video cam constraints medium bandwidth
+            constraints = createConstraints(640, 480, frameRate, false); // Medium bandwidth (exact)
             break;
         case 'hdVideo':
-            constraints = {
-                width: { exact: 1280 },
-                height: { exact: 720 },
-                frameRate: frameRate,
-            }; // video cam constraints high bandwidth
+            constraints = createConstraints(1280, 720, frameRate, false); // High bandwidth (exact)
             break;
         case 'fhdVideo':
-            constraints = {
-                width: { exact: 1920 },
-                height: { exact: 1080 },
-                frameRate: frameRate,
-            }; // video cam constraints very high bandwidth
+            constraints = createConstraints(1920, 1080, frameRate, false); // Very high bandwidth (exact)
             break;
         case '2kVideo':
-            constraints = {
-                width: { exact: 2560 },
-                height: { exact: 1440 },
-                frameRate: frameRate,
-            }; // video cam constraints ultra high bandwidth
+            constraints = createConstraints(2560, 1440, frameRate, false); // Ultra high bandwidth (exact)
             break;
         case '4kVideo':
-            constraints = {
-                width: { exact: 3840 },
-                height: { exact: 2160 },
-                frameRate: frameRate,
-            }; // video cam constraints ultra high bandwidth
+            constraints = createConstraints(3840, 2160, frameRate, false); // Ultra high bandwidth (exact)
             break;
         case '6kVideo':
-            constraints = {
-                width: { exact: 6144 },
-                height: { exact: 3456 },
-                frameRate: frameRate,
-            }; // video cam constraints Very ultra high bandwidth
+            constraints = createConstraints(6144, 3456, frameRate, false); // Very ultra high bandwidth (exact)
             break;
         case '8kVideo':
-            constraints = {
-                width: { exact: 7680 },
-                height: { exact: 4320 },
-                frameRate: frameRate,
-            }; // video cam constraints Very ultra high bandwidth
+            constraints = createConstraints(7680, 4320, frameRate, false); // Very ultra high bandwidth (exact)
             break;
         default:
             break;
     }
-    console.log('Video constraints', constraints);
+
+    console.log('Get Video constraints', constraints);
     return constraints;
 }
 
@@ -5899,7 +5879,7 @@ async function getAudioConstraints() {
  * @param {string} type camera/screen default camera
  */
 async function setLocalMaxFps(maxFrameRate, type = 'camera') {
-    if (!useVideo || !localVideoMediaStream) return;
+    if (!useVideo || !localVideoMediaStream || browserName === 'Firefox') return;
     localVideoMediaStream
         .getVideoTracks()[0]
         .applyConstraints({ frameRate: maxFrameRate })
@@ -10792,7 +10772,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.25</strong>',
+        title: '<strong>WebRTC P2P v1.4.26</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
