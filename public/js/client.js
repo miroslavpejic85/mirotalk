@@ -5860,13 +5860,16 @@ async function getVideoConstraints(videoQuality) {
  * Get audio constraints
  */
 async function getAudioConstraints() {
+    // For all guests
     let constraints = {
         audio: {
+            autoGainControl: true,
             echoCancellation: true,
             noiseSuppression: true,
         },
         video: false,
     };
+    // For presenter
     if (isRulesActive && isPresenter) {
         constraints = {
             audio: {
