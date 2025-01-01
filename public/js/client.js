@@ -5791,7 +5791,7 @@ async function getVideoConstraints(videoQuality) {
         };
         // Only add frameRate for non-Firefox browsers
         if (!isFirefox) {
-            constraints.frameRate = frameRate;
+            constraints.frameRate = isIdeal ? { ideal: frameRate } : frameRate;
         }
         return constraints;
     }
