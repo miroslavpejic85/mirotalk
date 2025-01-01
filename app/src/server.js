@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.23
+ * @version 1.4.24
  *
  */
 
@@ -547,6 +547,11 @@ app.get('/join/', async (req, res) => {
         */
         const { room, name, audio, video, screen, notify, hide, token } = checkXSS(req.query);
 
+        if (!room) {
+            log.warn('/join/params room empty', room);
+            return res.status(401).json({ message: 'Direct Room Join: Missing mandatory room parameter!' });
+        }
+
         const allowRoomAccess = isAllowedRoomAccess('/join/params', req, hostCfg, peers, room);
 
         if (!allowRoomAccess && !token) {
@@ -707,7 +712,7 @@ app.get('/:roomId', (req, res) => {
     }
 
     log.debug('Detected roomId --> redirect to /join?room=roomId');
-    res.redirect(`/join?room=${roomId}`); // `/join/${roomId}`
+    res.redirect(`/join/${roomId}`);
 });
 
 /**
