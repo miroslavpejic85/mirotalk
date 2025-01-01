@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.24
+ * @version 1.4.25
  *
  */
 
@@ -4316,9 +4316,9 @@ function videoMediaContainerUnpin() {
  * @param {string} peer_id socket.id
  */
 function handleVideoToImg(videoStream, videoToImgBtn, peer_id = null) {
-    const videoBtn = getId(videoToImgBtn);
+    const videoTIBtn = getId(videoToImgBtn);
     const video = getId(videoStream);
-    videoBtn.addEventListener('click', () => {
+    videoTIBtn.addEventListener('click', () => {
         if (video.classList.contains('videoCircle')) {
             return userLog('toast', 'Snapshot not allowed if video on privacy mode');
         }
@@ -10789,7 +10789,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.24</strong>',
+        title: '<strong>WebRTC P2P v1.4.25</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
