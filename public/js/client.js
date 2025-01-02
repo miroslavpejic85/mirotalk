@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.29
+ * @version 1.4.30
  *
  */
 
@@ -127,6 +127,7 @@ const osName = DetectRTC.osName;
 const osVersion = DetectRTC.osVersion;
 const browserName = DetectRTC.browser.name;
 const browserVersion = DetectRTC.browser.version;
+const isFirefox = browserName === 'Firefox';
 const peerInfo = getPeerInfo();
 const thisInfo = getInfo();
 
@@ -5528,7 +5529,7 @@ function setupMySettings() {
     });
 
     // Firefox may not handle well...
-    if (browserName === 'Firefox') {
+    if (isFirefox) {
         elemDisplay(videoFpsDiv, false);
     }
 
@@ -5781,9 +5782,6 @@ async function getAudioVideoConstraints() {
 async function getVideoConstraints(videoQuality) {
     const frameRate = videoMaxFrameRate;
 
-    // Detect if the browser is Firefox
-    const isFirefox = browserName === 'Firefox';
-
     // Function to construct constraints with ideal or exact width/height
     function createConstraints(width, height, frameRate, isIdeal = false) {
         const constraints = {
@@ -5806,28 +5804,28 @@ async function getVideoConstraints(videoQuality) {
                 : (constraints = createConstraints(1280, 720, 30, true)); // HD resolution, 30fps (ideal)
             break;
         case 'qvgaVideo':
-            constraints = createConstraints(320, 240, frameRate, false); // Low bandwidth (exact)
+            constraints = createConstraints(320, 240, frameRate, isFirefox); // Low bandwidth (exact)
             break;
         case 'vgaVideo':
-            constraints = createConstraints(640, 480, frameRate, false); // Medium bandwidth (exact)
+            constraints = createConstraints(640, 480, frameRate, isFirefox); // Medium bandwidth (exact)
             break;
         case 'hdVideo':
-            constraints = createConstraints(1280, 720, frameRate, false); // High bandwidth (exact)
+            constraints = createConstraints(1280, 720, frameRate, isFirefox); // High bandwidth (exact)
             break;
         case 'fhdVideo':
-            constraints = createConstraints(1920, 1080, frameRate, false); // Very high bandwidth (exact)
+            constraints = createConstraints(1920, 1080, frameRate, isFirefox); // Very high bandwidth (exact)
             break;
         case '2kVideo':
-            constraints = createConstraints(2560, 1440, frameRate, false); // Ultra high bandwidth (exact)
+            constraints = createConstraints(2560, 1440, frameRate, isFirefox); // Ultra high bandwidth (exact)
             break;
         case '4kVideo':
-            constraints = createConstraints(3840, 2160, frameRate, false); // Ultra high bandwidth (exact)
+            constraints = createConstraints(3840, 2160, frameRate, isFirefox); // Ultra high bandwidth (exact)
             break;
         case '6kVideo':
-            constraints = createConstraints(6144, 3456, frameRate, false); // Very ultra high bandwidth (exact)
+            constraints = createConstraints(6144, 3456, frameRate, isFirefox); // Very ultra high bandwidth (exact)
             break;
         case '8kVideo':
-            constraints = createConstraints(7680, 4320, frameRate, false); // Very ultra high bandwidth (exact)
+            constraints = createConstraints(7680, 4320, frameRate, isFirefox); // Very ultra high bandwidth (exact)
             break;
         default:
             break;
@@ -5880,7 +5878,8 @@ async function getAudioConstraints() {
  * @param {string} type camera/screen default camera
  */
 async function setLocalMaxFps(maxFrameRate, type = 'camera') {
-    if (!useVideo || !localVideoMediaStream || browserName === 'Firefox') return;
+    if (!useVideo || !localVideoMediaStream || isFirefox) return;
+
     localVideoMediaStream
         .getVideoTracks()[0]
         .applyConstraints({ frameRate: maxFrameRate })
@@ -10820,7 +10819,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.29</strong>',
+        title: '<strong>WebRTC P2P v1.4.30</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
