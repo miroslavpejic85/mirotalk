@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.26
+ * @version 1.4.27
  *
  */
 
@@ -4892,12 +4892,13 @@ function setRoomEmojiButton() {
     });
 
     function sendEmojiToRoom(data) {
-        console.log('Selected Emoji:', data.native);
+        console.log('Selected Emoji', data);
         const message = {
             type: 'roomEmoji',
             room_id: roomId,
             peer_name: myPeerName,
             emoji: data.native,
+            shortcodes: data.shortcodes,
         };
         if (thereArePeerConnections()) {
             sendToServer('message', message);
@@ -8901,9 +8902,36 @@ function handleEmoji(message, duration = 5000) {
         emojiDisplay.style.marginBottom = '5px';
         emojiDisplay.innerText = `${message.emoji} ${message.peer_name}`;
         userEmoji.appendChild(emojiDisplay);
+
         setTimeout(() => {
             emojiDisplay.remove();
         }, duration);
+
+        handleEmojiSound(message);
+    }
+}
+
+/**
+ * Play emoji sound
+ * https://freesound.org/
+ * https://cloudconvert.com
+ * @param {object} message
+ */
+function handleEmojiSound(message) {
+    const path = '../sounds/emoji/';
+    switch (message.shortcodes) {
+        case ':clap:':
+            playSound('applause', true, path);
+            break;
+        case ':joy:':
+            playSound('laughs', true, path);
+            break;
+        case ':trumpet:':
+            playSound('trombone', true, path);
+            break;
+        // ...
+        default:
+            break;
     }
 }
 
@@ -10772,7 +10800,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.26</strong>',
+        title: '<strong>WebRTC P2P v1.4.27</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
@@ -11169,10 +11197,11 @@ function msgPopup(icon, message, position, timer = 1000) {
  * https://notificationsounds.com/notification-sounds
  * @param {string} name audio to play
  * @param {boolean} force audio
+ * @param {string} path of sound files
  */
-async function playSound(name, force = false) {
+async function playSound(name, force = false, path = '../sounds/') {
     if (!notifyBySound && !force) return;
-    const sound = '../sounds/' + name + '.mp3';
+    const sound = path + name + '.mp3';
     const audioToPlay = new Audio(sound);
     try {
         audioToPlay.volume = 0.5;
