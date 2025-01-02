@@ -4912,7 +4912,7 @@ function setRoomEmojiButton() {
             setColor(roomEmojiPickerBtn, 'var(--btn-bar-bg-color)');
         } else {
             emojiPickerContainer.style.display = 'block';
-            setColor(roomEmojiPickerBtn, 'green');
+            setColor(roomEmojiPickerBtn, 'yellow');
         }
     }
 }
