@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.33
+ * @version 1.4.34
  *
  */
 
@@ -8921,6 +8921,7 @@ function handleEmojiSound(message) {
     const path = '../sounds/emoji/';
     switch (message.shortcodes) {
         case ':+1:':
+        case ':ok_hand:':
             playSound('ok', true, path);
             break;
         case ':clap:':
@@ -8951,6 +8952,12 @@ function handleEmojiSound(message) {
             break;
         case ':rocket:':
             playSound('rocket', true, path);
+            break;
+        case ':sparkles:':
+        case ':star:':
+        case ':star2:':
+        case ':dizzy:':
+            playSound('tinkerbell', true, path);
             break;
         // ...
         default:
@@ -10823,7 +10830,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.33</strong>',
+        title: '<strong>WebRTC P2P v1.4.34</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
