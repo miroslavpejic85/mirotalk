@@ -5867,10 +5867,6 @@ async function getAudioConstraints() {
     }
     console.log('Audio constraints', constraints);
     return constraints;
-    // return {
-    //     echoCancellation: true,
-    //     noiseSuppression: true,
-    // };
 }
 
 /**
