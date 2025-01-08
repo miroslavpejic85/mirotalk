@@ -1081,8 +1081,6 @@ button:hover {
 }
 
 .extra-info-container {
-    min-height: 175px;
-    max-height: 175px;
     margin-top: 15px;
     border-radius: 5px;
     background: var(--body-bg);
@@ -1211,6 +1209,36 @@ th {
 }
 
 /*--------------------------------------------------------------
+# Shortcut Table
+--------------------------------------------------------------*/
+
+#shortcutsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    color: #fff;
+    border-radius: 10px;
+    background: var(--body-bg);
+}
+#shortcutsTable th,
+#shortcutsTable td {
+    border: var(--border);
+    padding: 5px;
+}
+#shortcutsTable th {
+    background: var(--body-bg);
+    font-weight: bold;
+}
+#shortcutsTable td i {
+    color: #007bff;
+}
+#shortcutsTable tr:nth-child(even) {
+    background: var(--body-bg);
+}
+
+/*--------------------------------------------------------------
 # Style the tab
 --------------------------------------------------------------*/
 
@@ -1281,7 +1309,7 @@ th {
     margin-top: 15px;
     padding: 6px 12px;
     width: 100%;
-    max-height: 530px;
+    max-height: 585px;
     min-height: 480px;
     border-top: none;
     background-color: var(--body-bg);
@@ -2008,6 +2036,10 @@ hr {
 /*--------------------------------------------------------------
 # Common
 --------------------------------------------------------------*/
+
+/* strong {
+    color: #007bff;
+} */
 
 .ml-10 {
     margin: 10px;

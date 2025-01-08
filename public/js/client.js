@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.37
+ * @version 1.4.38
  *
  */
 
@@ -311,6 +311,7 @@ const tabVideoShareBtn = getId('tabVideoShareBtn');
 const tabRecordingBtn = getId('tabRecordingBtn');
 const tabParticipantsBtn = getId('tabParticipantsBtn');
 const tabProfileBtn = getId('tabProfileBtn');
+const tabShortcutsBtn = getId('tabShortcutsBtn');
 const tabNetworkBtn = getId('tabNetworkBtn');
 const networkIP = getId('networkIP');
 const networkHost = getId('networkHost');
@@ -358,6 +359,7 @@ const tabEmailInvitation = getId('tabEmailInvitation');
 const isPeerPresenter = getId('isPeerPresenter');
 const peersCount = getId('peersCount');
 const screenFpsDiv = getId('screenFpsDiv');
+const switchShortcuts = getId('switchShortcuts');
 
 // Audio options
 const dropDownMicOptions = getId('dropDownMicOptions');
@@ -627,6 +629,7 @@ let isKeepButtonsVisible = false;
 let isAudioPitchBar = true;
 let isPushToTalkActive = false;
 let isSpaceDown = false;
+let isShortcutsEnabled = false;
 
 // recording
 let mediaRecorder;
@@ -5439,6 +5442,9 @@ function setupMySettings() {
     tabProfileBtn.addEventListener('click', (e) => {
         openTab(e, 'tabProfile');
     });
+    tabShortcutsBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabShortcuts');
+    });
     tabNetworkBtn.addEventListener('click', (e) => {
         openTab(e, 'tabNetwork');
     });
@@ -5622,6 +5628,73 @@ function setupMySettings() {
     unlockRoomBtn.addEventListener('click', (e) => {
         handleRoomAction({ action: 'unlock' }, true);
     });
+
+    // handle Shortcuts
+    if (!isDesktopDevice) {
+        elemDisplay(tabShortcutsBtn, false);
+    } else {
+        switchShortcuts.addEventListener('change', (e) => {
+            isShortcutsEnabled = e.currentTarget.checked;
+            lsSettings.keyboard_shortcuts = isShortcutsEnabled;
+            lS.setSettings(lsSettings);
+            const status = isShortcutsEnabled ? 'enabled' : 'disabled';
+            userLog('toast', `Keyboard shortcuts ${status}`);
+            playSound('switch');
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (!isShortcutsEnabled || isChatRoomVisible || wbIsOpen) return;
+
+            const key = event.key.toLowerCase(); // Convert to lowercase for simplicity
+
+            console.log(`Detected shortcut: ${key}`);
+
+            switch (key) {
+                case 'a':
+                    audioBtn.click();
+                    break;
+                case 'v':
+                    videoBtn.click();
+                    break;
+                case 's':
+                    screenShareBtn.click();
+                    break;
+                case 'r':
+                    recordStreamBtn.click();
+                    break;
+                case 'h':
+                    myHandBtn.click();
+                    break;
+                case 'c':
+                    chatRoomBtn.click();
+                    break;
+                case 'o':
+                    mySettingsBtn.click();
+                    break;
+                case 'k':
+                    captionBtn.click();
+                    break;
+                case 'w':
+                    whiteboardBtn.click();
+                    break;
+                case 'e':
+                    roomEmojiPickerBtn.click();
+                    break;
+                case 'x':
+                    hideMeBtn.click();
+                    break;
+                case 't':
+                    snapshotRoomBtn.click();
+                    break;
+                case 'f':
+                    fileShareBtn.click();
+                    break;
+                //...
+                default:
+                    console.log(`Unhandled shortcut key: ${key}`);
+            }
+        });
+    }
 }
 
 /**
@@ -5642,11 +5715,13 @@ function loadSettingsFromLocalStorage() {
     isKeepButtonsVisible = lsSettings.keep_buttons_visible;
     isAudioPitchBar = lsSettings.pitch_bar;
     recPrioritizeH264 = lsSettings.rec_prioritize_h264;
+    isShortcutsEnabled = lsSettings.keyboard_shortcuts;
     switchSounds.checked = notifyBySound;
     switchShare.checked = notify;
     switchKeepButtonsVisible.checked = isKeepButtonsVisible;
     switchAudioPitchBar.checked = isAudioPitchBar;
     switchH264Recording.checked = recPrioritizeH264;
+    switchShortcuts.checked = isShortcutsEnabled;
 
     themeCustom.check.checked = themeCustom.keep;
     themeSelect.disabled = themeCustom.keep;
@@ -10843,7 +10918,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.37</strong>',
+        title: '<strong>WebRTC P2P v1.4.38</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
