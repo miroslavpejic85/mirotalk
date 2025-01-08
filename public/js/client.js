@@ -129,7 +129,7 @@ const osName = parserResult.os.name;
 const osVersion = parserResult.os.version;
 const browserName = parserResult.browser.name;
 const browserVersion = parserResult.browser.version;
-const isFirefox = parserResult.browser.name.toLowerCase().includes('firefox');
+const isFirefox = browserName.toLowerCase().includes('firefox');
 const peerInfo = getPeerInfo();
 const thisInfo = getInfo();
 
