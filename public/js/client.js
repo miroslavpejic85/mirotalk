@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.36
+ * @version 1.4.37
  *
  */
 
@@ -325,6 +325,7 @@ const myPeerNameSet = getId('myPeerNameSet');
 const myPeerNameSetBtn = getId('myPeerNameSetBtn');
 const switchSounds = getId('switchSounds');
 const switchShare = getId('switchShare');
+const switchKeepButtonsVisible = getId('switchKeepButtonsVisible');
 const switchPushToTalk = getId('switchPushToTalk');
 const switchAudioPitchBar = getId('switchAudioPitchBar');
 const audioInputSelect = getId('audioSource');
@@ -622,6 +623,7 @@ let screenFpsSelectedIndex = 1; // 30 fps
 let isMySettingsVisible = false;
 let thisRoomPassword = null;
 let isRoomLocked = false;
+let isKeepButtonsVisible = false;
 let isAudioPitchBar = true;
 let isPushToTalkActive = false;
 let isSpaceDown = false;
@@ -750,6 +752,7 @@ function setButtonsToolTip() {
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
+    setTippy(switchKeepButtonsVisible, 'Keep buttons always visible', 'right');
     setTippy(recImage, 'Toggle recording', 'right');
     setTippy(
         switchH264Recording,
@@ -5306,6 +5309,14 @@ function setMySettingsBtn() {
         userLog('toast', `${icons.share} Share room on join ` + (notify ? 'ON' : 'OFF'));
         playSound('switch');
     });
+    switchKeepButtonsVisible.addEventListener('change', (e) => {
+        isButtonsBarOver = isKeepButtonsVisible = e.currentTarget.checked;
+        lsSettings.keep_buttons_visible = isButtonsBarOver;
+        lS.setSettings(lsSettings);
+        const status = isButtonsBarOver ? 'enabled' : 'disabled';
+        userLog('toast', `Buttons always visible ${status}`);
+        playSound('switch');
+    });
 
     if (isMobileDevice) {
         elemDisplay(pushToTalkDiv, false);
@@ -5628,10 +5639,12 @@ function loadSettingsFromLocalStorage() {
     screenMaxFrameRate = parseInt(getSelectedIndexValue(screenFpsSelect), 10);
     videoMaxFrameRate = parseInt(getSelectedIndexValue(videoFpsSelect), 10);
     notifyBySound = lsSettings.sounds;
+    isKeepButtonsVisible = lsSettings.keep_buttons_visible;
     isAudioPitchBar = lsSettings.pitch_bar;
     recPrioritizeH264 = lsSettings.rec_prioritize_h264;
     switchSounds.checked = notifyBySound;
     switchShare.checked = notify;
+    switchKeepButtonsVisible.checked = isKeepButtonsVisible;
     switchAudioPitchBar.checked = isAudioPitchBar;
     switchH264Recording.checked = recPrioritizeH264;
 
@@ -6003,12 +6016,20 @@ function showButtonsBarAndMenu() {
  * Check every 10 sec if need to hide buttons bar and status menu
  */
 function checkButtonsBarAndMenu() {
-    if (!isButtonsBarOver) {
-        toggleClassElements('navbar', 'none');
+    if (lsSettings.keep_buttons_visible) {
+        toggleClassElements('navbar', 'block');
         toggleExtraBtn.className = className.up;
-        elemDisplay(buttonsBar, false);
-        elemDisplay(bottomButtons, false);
-        isButtonsVisible = false;
+        elemDisplay(buttonsBar, true, 'flex');
+        elemDisplay(bottomButtons, true, 'flex');
+        isButtonsVisible = true;
+    } else {
+        if (!isButtonsBarOver) {
+            toggleClassElements('navbar', 'none');
+            toggleExtraBtn.className = className.up;
+            elemDisplay(buttonsBar, false);
+            elemDisplay(bottomButtons, false);
+            isButtonsVisible = false;
+        }
     }
     setTimeout(() => {
         checkButtonsBarAndMenu();
@@ -10822,7 +10843,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.36</strong>',
+        title: '<strong>WebRTC P2P v1.4.37</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
