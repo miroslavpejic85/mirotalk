@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.35
+ * @version 1.4.36
  *
  */
 
@@ -116,18 +116,20 @@ const wbHeight = 768;
 
 // Peer infos
 const extraInfo = getId('extraInfo');
-const userAgent = navigator.userAgent.toLowerCase();
-const detectRtcVersion = DetectRTC.version;
-const isWebRTCSupported = DetectRTC.isWebRTCSupported;
-const isMobileDevice = DetectRTC.isMobileDevice;
-const isTabletDevice = isTablet(userAgent);
-const isIPadDevice = isIpad(userAgent);
-const isDesktopDevice = !isMobileDevice && !isTabletDevice && !isIPadDevice;
-const osName = DetectRTC.osName;
-const osVersion = DetectRTC.osVersion;
-const browserName = DetectRTC.browser.name;
-const browserVersion = DetectRTC.browser.version;
-const isFirefox = browserName === 'Firefox';
+const isWebRTCSupported = checkWebRTCSupported();
+const userAgent = navigator.userAgent;
+const parser = new UAParser(userAgent);
+const parserResult = parser.getResult();
+const deviceType = parserResult.device.type || 'desktop';
+const isMobileDevice = deviceType === 'mobile';
+const isTabletDevice = deviceType === 'tablet';
+const isIPadDevice = parserResult.device.model?.toLowerCase() === 'ipad';
+const isDesktopDevice = deviceType === 'desktop';
+const osName = parserResult.os.name;
+const osVersion = parserResult.os.version;
+const browserName = parserResult.browser.name;
+const browserVersion = parserResult.browser.version;
+const isFirefox = parserResult.browser.name.toLowerCase().includes('firefox');
 const peerInfo = getPeerInfo();
 const thisInfo = getInfo();
 
@@ -853,14 +855,11 @@ function setTippy(element, content, placement) {
 }
 
 /**
- * Get peer info using DetectRTC
- * https://github.com/muaz-khan/DetectRTC
+ * Get peer info using D
  * @returns {object} peer info
  */
 function getPeerInfo() {
     return {
-        detectRTCversion: detectRtcVersion,
-        isWebRTCSupported: isWebRTCSupported,
         isDesktopDevice: isDesktopDevice,
         isMobileDevice: isMobileDevice,
         isTabletDevice: isTabletDevice,
@@ -877,10 +876,7 @@ function getPeerInfo() {
  * @returns object info
  */
 function getInfo() {
-    const parser = new UAParser(userAgent);
-
     try {
-        const parserResult = parser.getResult();
         console.log('Info', parserResult);
 
         // Filter out properties with 'Unknown' values
@@ -10826,7 +10822,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.35</strong>',
+        title: '<strong>WebRTC P2P v1.4.36</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
@@ -11271,23 +11267,11 @@ function isValidFileName(fileName) {
 }
 
 /**
- * Check if Tablet device
- * @param {object} userAgent info
+ * Check if WebRTC supported
  * @return {boolean} true/false
  */
-function isTablet(userAgent) {
-    return /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/.test(
-        userAgent,
-    );
-}
-
-/**
- * Check if IPad device
- * @param {object} userAgent
- * @return {boolean} true/false
- */
-function isIpad(userAgent) {
-    return /macintosh/.test(userAgent) && 'ontouchend' in document;
+function checkWebRTCSupported() {
+    return !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function');
 }
 
 /**
