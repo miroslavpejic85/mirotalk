@@ -81,6 +81,7 @@ module.exports = {
             showEjectEveryoneBtn: true,
             showLockRoomBtn: true,
             showUnlockRoomBtn: true,
+            showShortcutsBtn: true,
         },
         remote: {
             showAudioVolume: true,

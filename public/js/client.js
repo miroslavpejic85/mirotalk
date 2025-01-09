@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.38
+ * @version 1.4.39
  *
  */
 
@@ -5630,14 +5630,12 @@ function setupMySettings() {
     });
 
     // handle Shortcuts
-    if (!isDesktopDevice) {
+    if (!isDesktopDevice || !buttons.settings.showShortcutsBtn) {
         elemDisplay(tabShortcutsBtn, false);
+        setKeyboardShortcuts(false);
     } else {
         switchShortcuts.addEventListener('change', (e) => {
-            isShortcutsEnabled = e.currentTarget.checked;
-            lsSettings.keyboard_shortcuts = isShortcutsEnabled;
-            lS.setSettings(lsSettings);
-            const status = isShortcutsEnabled ? 'enabled' : 'disabled';
+            const status = setKeyboardShortcuts(e.currentTarget.checked);
             userLog('toast', `Keyboard shortcuts ${status}`);
             playSound('switch');
         });
@@ -5695,6 +5693,18 @@ function setupMySettings() {
             }
         });
     }
+}
+
+/**
+ * Set Keyboard Shortcuts enabled
+ * @param {boolean} enabled
+ * @return {String} enabled/disabled
+ */
+function setKeyboardShortcuts(enabled){
+    isShortcutsEnabled = enabled;
+    lsSettings.keyboard_shortcuts = isShortcutsEnabled;
+    lS.setSettings(lsSettings);
+    return isShortcutsEnabled ? 'enabled' : 'disabled';
 }
 
 /**
@@ -10918,7 +10928,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.38</strong>',
+        title: '<strong>WebRTC P2P v1.4.39</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },

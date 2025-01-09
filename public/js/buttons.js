@@ -7,7 +7,7 @@
  */
 let buttons = {
     main: {
-        showShareRoomBtn: true,
+        showShareRoomBtn: true, // For guests
         showHideMeBtn: true,
         showAudioBtn: true,
         showVideoBtn: true,
@@ -20,7 +20,6 @@ let buttons = {
         showWhiteboardBtn: true,
         showSnapshotRoomBtn: true,
         showFileShareBtn: true,
-        showDocumentPipBtn: showDocumentPipBtn,
         showMySettingsBtn: true,
         showAboutBtn: true, // Please keep me always true, Thank you!
     },
@@ -50,6 +49,7 @@ let buttons = {
         showEjectEveryoneBtn: true,
         showLockRoomBtn: true,
         showUnlockRoomBtn: true,
+        showShortcutsBtn: true,
     },
     remote: {
         showAudioVolume: true,
@@ -62,13 +62,11 @@ let buttons = {
         showPrivateMessageBtn: true,
         showZoomInOutBtn: false,
         showVideoFocusBtn: true,
-        showVideoPipBtn: showVideoPipBtn,
     },
     local: {
         showSnapShotBtn: true,
         showVideoCircleBtn: true,
         showZoomInOutBtn: false,
-        showVideoPipBtn: showVideoPipBtn,
     },
     whiteboard: {
         whiteboardLockBtn: false,
