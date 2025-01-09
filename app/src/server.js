@@ -1257,7 +1257,7 @@ io.sockets.on('connect', async (socket) => {
         }
 
         // Check if peer is presenter, if token check the presenter key
-        const isPresenter = peer_token ? is_presenter : await isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
+        const isPresenter = peer_token ? is_presenter : isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
         // Some peer info data
         const { osName, osVersion, browserName, browserVersion } = peer_info;
@@ -1364,7 +1364,7 @@ io.sockets.on('connect', async (socket) => {
         const { room_id, peer_id, peer_name, peer_uuid, password, action } = config;
 
         // Check if peer is presenter
-        const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
+        const isPresenter = isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
 
         let room_is_locked = false;
         //
@@ -1517,7 +1517,7 @@ io.sockets.on('connect', async (socket) => {
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
         if (presenterActions.some((v) => peer_action === v)) {
             // Check if peer is presenter
-            const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
+            const isPresenter = isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
             // if not presenter do nothing
             if (!isPresenter) return;
         }
@@ -1852,7 +1852,7 @@ async function getPeerGeoLocation(ip) {
  * @param {string} peer_uuid
  * @returns boolean
  */
-async function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
+function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
     try {
         if (!presenters[room_id] || !presenters[room_id][peer_id]) {
             // Presenter not in the presenters config list, disconnected, or peer_id changed...

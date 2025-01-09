@@ -5700,7 +5700,7 @@ function setupMySettings() {
  * @param {boolean} enabled
  * @return {String} enabled/disabled
  */
-function setKeyboardShortcuts(enabled){
+function setKeyboardShortcuts(enabled) {
     isShortcutsEnabled = enabled;
     lsSettings.keyboard_shortcuts = isShortcutsEnabled;
     lS.setSettings(lsSettings);
