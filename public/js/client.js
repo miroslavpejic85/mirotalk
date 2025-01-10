@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.41
+ * @version 1.4.42
  *
  */
 
@@ -1242,6 +1242,9 @@ function handleServerInfo(config) {
     // Let start with some basic rules
     isPresenter = isPeerReconnected ? isPresenter : is_presenter;
     isPeerPresenter.innerText = isPresenter;
+
+    // Peer identified if presenter or not then....
+    handleShortcuts();
 
     if (isRulesActive) {
         handleRules(isPresenter);
@@ -5628,8 +5631,12 @@ function setupMySettings() {
     unlockRoomBtn.addEventListener('click', (e) => {
         handleRoomAction({ action: 'unlock' }, true);
     });
+}
 
-    // handle Shortcuts
+/**
+ * Handle keyboard shortcuts
+ */
+function handleShortcuts() {
     if (!isDesktopDevice || !buttons.settings.showShortcutsBtn) {
         elemDisplay(tabShortcutsBtn, false);
         setKeyboardShortcuts(false);
@@ -5643,48 +5650,102 @@ function setupMySettings() {
         document.addEventListener('keydown', (event) => {
             if (!isShortcutsEnabled || isChatRoomVisible || wbIsOpen) return;
 
+            const notPresenter = isRulesActive && !isPresenter;
+
             const key = event.key.toLowerCase(); // Convert to lowercase for simplicity
 
             console.log(`Detected shortcut: ${key}`);
 
             switch (key) {
                 case 'a':
+                    if (notPresenter && !buttons.main.showAudioBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to enable audio');
+                        break;
+                    }
                     audioBtn.click();
                     break;
                 case 'v':
+                    if (notPresenter && !buttons.main.showVideoBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to enable video');
+                        break;
+                    }
                     videoBtn.click();
                     break;
                 case 's':
+                    if (notPresenter && !buttons.main.showScreenBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to share the screen');
+                        break;
+                    }
                     screenShareBtn.click();
                     break;
                 case 'r':
+                    if (notPresenter && !buttons.main.showRecordStreamBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to start recording');
+                        break;
+                    }
                     recordStreamBtn.click();
                     break;
                 case 'h':
+                    if (notPresenter && !buttons.main.showMyHandBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to raise your hand');
+                        break;
+                    }
                     myHandBtn.click();
                     break;
                 case 'c':
+                    if (notPresenter && !buttons.main.showChatRoomBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to open the chat');
+                        break;
+                    }
                     chatRoomBtn.click();
                     break;
                 case 'o':
+                    if (notPresenter && !buttons.main.showMySettingsBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to open the settings');
+                        break;
+                    }
                     mySettingsBtn.click();
                     break;
+                case 'x':
+                    if (notPresenter && !button.main.showHideMeBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to hide yourself');
+                        break;
+                    }
+                    hideMeBtn.click();
+                    break;
                 case 'k':
+                    if (notPresenter && !buttons.main.showCaptionRoomBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to start transcription');
+                        break;
+                    }
                     captionBtn.click();
                     break;
                 case 'w':
+                    if (notPresenter && !buttons.main.showWhiteboardBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to open the whiteboard');
+                        break;
+                    }
                     whiteboardBtn.click();
                     break;
                 case 'e':
+                    if (notPresenter && !buttons.main.showRoomEmojiPickerBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to open the room emoji');
+                        break;
+                    }
                     roomEmojiPickerBtn.click();
                     break;
-                case 'x':
-                    hideMeBtn.click();
-                    break;
                 case 't':
+                    if (notPresenter && !buttons.main.showSnapshotRoomBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to take a snapshot');
+                        break;
+                    }
                     snapshotRoomBtn.click();
                     break;
                 case 'f':
+                    if (notPresenter && !buttons.settings.showFileShareBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to share files');
+                        break;
+                    }
                     fileShareBtn.click();
                     break;
                 //...
@@ -10931,7 +10992,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.41</strong>',
+        title: '<strong>WebRTC P2P v1.4.42</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
@@ -11255,6 +11316,8 @@ function userLog(type, message, timer = 3000) {
  * @param {integer} duration time popup in ms
  */
 function toastMessage(icon, title, html, position = 'top-end', duration = 3000) {
+    if (['warning', 'error'].includes(icon)) playSound('alert');
+
     const Toast = Swal.mixin({
         background: swBg,
         position: position,
@@ -11282,6 +11345,8 @@ function toastMessage(icon, title, html, position = 'top-end', duration = 3000) 
  * @param {string} redirectURL if set on press ok will be redirected to the URL
  */
 function msgHTML(icon, imageUrl, title, html, position = 'center', redirectURL = false) {
+    if (['warning', 'error'].includes(icon)) playSound('alert');
+
     Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
@@ -11308,6 +11373,8 @@ function msgHTML(icon, imageUrl, title, html, position = 'center', redirectURL =
  * @param {integer} timer ms before to hide
  */
 function msgPopup(icon, message, position, timer = 1000) {
+    if (['warning', 'error'].includes(icon)) playSound('alert');
+
     const Toast = Swal.mixin({
         background: swBg,
         toast: true,
