@@ -19,6 +19,7 @@ package-lock.json
 config.js
 docker-push.sh
 docker-compose.yml
+turnserver.conf
 output
 env.txt
 
