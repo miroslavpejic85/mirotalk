@@ -28,7 +28,7 @@ Set up `CoTURN` with Docker for NAT traversal and media relay in WebRTC applicat
     Example:
 
     ```text
-     server-name=example.com
+    server-name=example.com
     realm=example.com
     user=username:password
     ```
