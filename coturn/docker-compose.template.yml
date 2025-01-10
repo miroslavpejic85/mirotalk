@@ -1,0 +1,11 @@
+services:
+    coturn:
+        image: coturn/coturn
+        container_name: coturn
+        network_mode: 'host'
+        user: 'root'
+        restart: unless-stopped
+        volumes:
+            - ./turnserver.conf:/etc/coturn/turnserver.conf
+            - /etc/letsencrypt/live/YOUR.DOMAIN.NAME/fullchain.pem:/etc/letsencrypt/live/YOUR.DOMAIN.NAME/fullchain.pem
+            - /etc/letsencrypt/live/YOUR.DOMAIN.NAME/privkey.pem:/etc/letsencrypt/live/YOUR.DOMAIN.NAME/privkey.pem
