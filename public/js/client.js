@@ -5742,7 +5742,11 @@ function handleShortcuts() {
                     whiteboardBtn.click();
                     break;
                 case 'd':
-                    if (notPresenter && (!showDocumentPipBtn || !buttons.main.showDocumentPipBtn)) {
+                    if (!showDocumentPipBtn) {
+                        toastMessage('warning', 'The document PIP is not supported in this browser');
+                        break;
+                    }
+                    if (notPresenter && !buttons.main.showDocumentPipBtn) {
                         toastMessage('warning', 'The presenter has disabled your ability to open the document PIP');
                         break;
                     }
