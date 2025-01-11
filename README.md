@@ -56,7 +56,7 @@
 - File sharing with drag-and-drop support.
 - Choose your audio input, output, and video source.
 - Supports video quality up to 8K and 60 FPS.
-- Supports advance Picture-in-Picture (PiP) offering a more streamlined and flexible viewing experience.
+- Supports advance Video/Document Picture-in-Picture (PiP) offering a more streamlined and flexible viewing experience.
 - Record your screen, audio, and video.
 - Snapshot video frames and save them as PNG images.
 - Chat with an Emoji Picker for expressing feelings, private messages, Markdown support, and conversation saving.

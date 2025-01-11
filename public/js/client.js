@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.45
+ * @version 1.4.46
  *
  */
 
@@ -5163,6 +5163,18 @@ function setDocumentPiPBtn() {
 }
 
 /**
+ * Restart documentPictureInPicture
+ * @returns void
+ */
+async function documentPictureInPictureRestart() {
+    if (!showDocumentPipBtn || !documentPictureInPicture.window) return;
+    documentPictureInPictureClose();
+    setTimeout(async () => {
+        await documentPictureInPictureOpen();
+    }, 300);
+}
+
+/**
  *  Close documentPictureInPicture
  */
 async function documentPictureInPictureClose() {
@@ -5217,35 +5229,19 @@ async function documentPictureInPictureOpen() {
                 // No video stream detected or is video share from URL...
                 if (!video.srcObject || video.id === 'videoAudioUrlElement') return;
 
-                let videoPIPAllowed = false;
-
                 // get video element
                 const videoPlayer = getId(video.id);
 
+                const isPIPAllowed = !videoPlayer.classList.contains('videoCircle'); // not in privacy mode
+
                 // Check if video can be add on pipVideo
-                if (video.id === 'myVideo') {
-                    const localVideoStatus = getId('myVideoStatusIcon');
+                video.id === 'myVideo'
+                    ? console.log('DOCUMENT PIP LOCAL: PiP allowed? -----> ' + isPIPAllowed)
+                    : console.log('DOCUMENT PIP REMOTE: PiP allowed? -----> ' + isPIPAllowed);
 
-                    videoPIPAllowed =
-                        localVideoStatus.className === className.videoOn && // video is ON
-                        !videoPlayer.classList.contains('videoCircle'); // not in privacy mode
+                if (!isPIPAllowed) return;
 
-                    console.log('DOCUMENT PIP LOCAL videoPIPAllowed -----> ' + videoPIPAllowed);
-                } else {
-                    const parts = video.id.split('___'); // peerId___video
-                    const peer_id = parts[0];
-                    const remoteVideoStatus = getId(peer_id + '_videoStatus');
-
-                    videoPIPAllowed =
-                        remoteVideoStatus.className === className.videoOn && // video is ON
-                        !videoPlayer.classList.contains('videoCircle'); // not in privacy mode
-
-                    console.log('DOCUMENT PIP REMOTE videoPIPAllowed -----> ' + videoPIPAllowed);
-                }
-
-                if (!videoPIPAllowed) return;
-
-                // Video is ON not in privacy mode continue....
+                // Video is ON and not in privacy mode continue....
 
                 foundVideo = true;
 
@@ -5258,6 +5254,19 @@ async function documentPictureInPictureOpen() {
                 pipVideo.muted = true;
 
                 pipVideoContainer.append(pipVideo);
+
+                const videoElementObserver = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            // Handle class changes in video elements
+                            console.log(`Video ${mutation.target.id} class changed:`, mutation.target.className);
+                            cloneVideoElements();
+                        }
+                    });
+                });
+
+                // Start observing for new videos and class changes
+                videoElementObserver.observe(video, { attributes: true, attributeFilter: ['class'] });
             });
 
             return foundVideo;
@@ -5551,7 +5560,7 @@ function setupMySettings() {
     videoSelect.addEventListener('change', async () => {
         await changeLocalCamera(videoSelect.value);
         await handleLocalCameraMirror();
-        await documentPictureInPictureClose();
+        await documentPictureInPictureRestart();
         refreshLsDevices();
     });
     // select video quality
@@ -6427,12 +6436,9 @@ async function handleVideo(e, init, force = null) {
     if (!videoStatus) {
         if (!isScreenStreaming) {
             // Stop the video track based on the condition
-            if (init) {
-                await stopVideoTracks(initStream); // Stop init video track (camera LED off)
-            } else {
-                await stopVideoTracks(localVideoMediaStream); // Stop local video track (camera LED off)
-                await documentPictureInPictureClose(); // Close doc PIP if open
-            }
+            init
+                ? await stopVideoTracks(initStream) // Stop init video track (camera LED off)
+                : await stopVideoTracks(localVideoMediaStream); // Stop local video track (camera LED off)
         }
     } else {
         if (init) {
@@ -6441,6 +6447,7 @@ async function handleVideo(e, init, force = null) {
         } else if (!isScreenStreaming) {
             // Resume the video track for the local camera (camera LED on)
             await changeLocalCamera(videoSelect.value);
+            await documentPictureInPictureRestart(); // Restart doc PIP if open
         }
     }
 
@@ -11017,7 +11024,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.45</strong>',
+        title: '<strong>WebRTC P2P v1.4.46</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
