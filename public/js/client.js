@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.44
+ * @version 1.4.45
  *
  */
 
@@ -822,7 +822,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(whiteboardBtn, 'Open the whiteboard', placement);
     setTippy(snapshotRoomBtn, 'Snapshot screen, windows or tab', placement);
     setTippy(fileShareBtn, 'Share file', placement);
-    setTippy(documentPiPBtn, 'Toggle picture in picture', placement);
+    setTippy(documentPiPBtn, 'Toggle Document picture in picture', placement);
     setTippy(mySettingsBtn, 'Open the settings', placement);
     setTippy(aboutBtn, 'About this project', placement);
 
@@ -5740,6 +5740,13 @@ function handleShortcuts() {
                         break;
                     }
                     whiteboardBtn.click();
+                    break;
+                case 'd':
+                    if (notPresenter && (!showDocumentPipBtn || !buttons.main.showDocumentPipBtn)) {
+                        toastMessage('warning', 'The presenter has disabled your ability to open the document PIP');
+                        break;
+                    }
+                    documentPiPBtn.click();
                     break;
                 case 'e':
                     if (notPresenter && !buttons.main.showRoomEmojiPickerBtn) {
@@ -11006,7 +11013,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.44</strong>',
+        title: '<strong>WebRTC P2P v1.4.45</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
