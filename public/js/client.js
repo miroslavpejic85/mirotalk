@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.46
+ * @version 1.4.47
  *
  */
 
@@ -5232,10 +5232,12 @@ async function documentPictureInPictureOpen() {
                 // get video element
                 const videoPlayer = getId(video.id);
 
+                const isLocalVideo = video.id === 'myVideo';
+
                 const isPIPAllowed = !videoPlayer.classList.contains('videoCircle'); // not in privacy mode
 
                 // Check if video can be add on pipVideo
-                video.id === 'myVideo'
+                isLocalVideo
                     ? console.log('DOCUMENT PIP LOCAL: PiP allowed? -----> ' + isPIPAllowed)
                     : console.log('DOCUMENT PIP REMOTE: PiP allowed? -----> ' + isPIPAllowed);
 
@@ -5255,18 +5257,33 @@ async function documentPictureInPictureOpen() {
 
                 pipVideoContainer.append(pipVideo);
 
-                const videoElementObserver = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                            // Handle class changes in video elements
-                            console.log(`Video ${mutation.target.id} class changed:`, mutation.target.className);
-                            cloneVideoElements();
-                        }
+                function observeElementClassChanges(element, observerName) {
+                    const observer = new MutationObserver((mutations) => {
+                        mutations.forEach((mutation) => {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                                console.log(
+                                    `${observerName}: Element ${mutation.target.id} class changed:`,
+                                    mutation.target.className,
+                                );
+                                cloneVideoElements(); // Or other desired function
+                            }
+                        });
                     });
-                });
 
-                // Start observing for new videos and class changes
-                videoElementObserver.observe(video, { attributes: true, attributeFilter: ['class'] });
+                    observer.observe(element, { attributes: true, attributeFilter: ['class'] });
+                    return observer;
+                }
+
+                // Start observing for new videos and class changes (Video Privacy ON/OFF)
+                if (video) observeElementClassChanges(video, 'Video');
+
+                // Get videoStatus...
+                const parts = video.id.split('___');
+                const peer_id = parts[0];
+                const videoStatus = getId(isLocalVideo ? 'myVideoStatusIcon' : peer_id + '_videoStatus');
+
+                // Start observing for new videosStatus and class changes (video ON/OFF)
+                if (videoStatus) observeElementClassChanges(videoStatus, 'VideoStatus');
             });
 
             return foundVideo;
@@ -6441,14 +6458,9 @@ async function handleVideo(e, init, force = null) {
                 : await stopVideoTracks(localVideoMediaStream); // Stop local video track (camera LED off)
         }
     } else {
-        if (init) {
-            // Resume the video track for the init camera (camera LED on)
-            await changeInitCamera(initVideoSelect.value);
-        } else if (!isScreenStreaming) {
-            // Resume the video track for the local camera (camera LED on)
-            await changeLocalCamera(videoSelect.value);
-            await documentPictureInPictureRestart(); // Restart doc PIP if open
-        }
+        init
+            ? await changeInitCamera(initVideoSelect.value) // Resume the video track for the init camera (camera LED on)
+            : await changeLocalCamera(videoSelect.value); // Resume the video track for the local camera (camera LED on)
     }
 
     setMyVideoStatus(videoStatus);
@@ -11024,7 +11036,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.46</strong>',
+        title: '<strong>WebRTC P2P v1.4.47</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
