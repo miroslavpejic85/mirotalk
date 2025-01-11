@@ -1359,7 +1359,7 @@ function handleButtonsRule() {
     elemDisplay(whiteboardBtn, buttons.main.showWhiteboardBtn);
     elemDisplay(snapshotRoomBtn, buttons.main.showSnapshotRoomBtn && !isMobileDevice);
     elemDisplay(fileShareBtn, buttons.main.showFileShareBtn);
-    elemDisplay(documentPiPBtn, buttons.main.showDocumentPipBtn);
+    elemDisplay(documentPiPBtn, showDocumentPipBtn && buttons.main.showDocumentPipBtn);
     elemDisplay(mySettingsBtn, buttons.main.showMySettingsBtn);
     elemDisplay(aboutBtn, buttons.main.showAboutBtn);
     // chat
