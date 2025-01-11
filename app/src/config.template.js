@@ -52,6 +52,7 @@ module.exports = {
             showWhiteboardBtn: true,
             showSnapshotRoomBtn: true,
             showFileShareBtn: true,
+            showDocumentPipBtn: true,
             showMySettingsBtn: true,
             showAboutBtn: true, // Please keep me always true, Thank you!
         },
@@ -87,6 +88,7 @@ module.exports = {
             showAudioVolume: true,
             audioBtnClickAllowed: true,
             videoBtnClickAllowed: true,
+            showVideoPipBtn: true,
             showKickOutBtn: true,
             showSnapShotBtn: true,
             showFileShareBtn: true,
@@ -96,6 +98,7 @@ module.exports = {
             showVideoFocusBtn: true,
         },
         local: {
+            showVideoPipBtn: true,
             showSnapShotBtn: true,
             showVideoCircleBtn: true,
             showZoomInOutBtn: false,
