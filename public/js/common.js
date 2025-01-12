@@ -225,7 +225,7 @@ function joinRoom() {
         window.location.href = '/join/' + roomName;
         window.localStorage.lastRoom = roomName;
     } else {
-        alert('Room name empty!\nPlease pick a room name.');
+        popup('warning', 'Room name empty!\nPlease pick a room name.');
     }
 }
 

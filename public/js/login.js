@@ -24,8 +24,8 @@ loginBtn.onclick = (e) => {
 };
 
 function login() {
-    let username = filterXSS(document.getElementById('username').value);
-    let password = filterXSS(document.getElementById('password').value);
+    const username = filterXSS(document.getElementById('username').value);
+    const password = filterXSS(document.getElementById('password').value);
 
     // http://localhost:3000/join/?room=test
     // http://localhost:3000/join/?room=test&name=mirotalk&audio=0&video=0&screen=0&notify=0
@@ -62,20 +62,20 @@ function login() {
             })
             .catch(function (error) {
                 console.error(error);
-                alert('Unauthorized');
+                popup('warning', 'Invalid credentials. Please try again.');
             });
         return;
     }
     if (!username && !password) {
-        alert('Username and Password required');
+        popup('warning', 'Username and Password required');
         return;
     }
     if (!username) {
-        alert('Username required');
+        popup('warning', 'Username required');
         return;
     }
     if (!password) {
-        alert('Password required');
+        popup('warning', 'Password required');
         return;
     }
 }
