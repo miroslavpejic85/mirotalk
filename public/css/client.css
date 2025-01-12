@@ -973,9 +973,15 @@ button:hover {
     }
 
     #bottomButtons button {
-        width: 42px;
-        padding: 10px;
-        font-size: 1.2rem;
+        width: 36px;
+        font-size: 1rem;
+    }
+}
+
+@media screen and (max-width: 350px) {
+    #bottomButtons button {
+        width: 30px;
+        font-size: 0.6rem;
     }
 }
 
