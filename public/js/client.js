@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.48
+ * @version 1.4.49
  *
  */
 
@@ -5718,13 +5718,6 @@ function handleShortcuts() {
                     }
                     screenShareBtn.click();
                     break;
-                case 'r':
-                    if (notPresenter && !buttons.main.showRecordStreamBtn) {
-                        toastMessage('warning', 'The presenter has disabled your ability to start recording');
-                        break;
-                    }
-                    recordStreamBtn.click();
-                    break;
                 case 'h':
                     if (notPresenter && !buttons.main.showMyHandBtn) {
                         toastMessage('warning', 'The presenter has disabled your ability to raise your hand');
@@ -5753,6 +5746,20 @@ function handleShortcuts() {
                     }
                     hideMeBtn.click();
                     break;
+                case 'r':
+                    if (notPresenter && !buttons.main.showRecordStreamBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to start recording');
+                        break;
+                    }
+                    recordStreamBtn.click();
+                    break;
+                case 'e':
+                    if (notPresenter && !buttons.main.showRoomEmojiPickerBtn) {
+                        toastMessage('warning', 'The presenter has disabled your ability to open the room emoji');
+                        break;
+                    }
+                    roomEmojiPickerBtn.click();
+                    break;
                 case 'k':
                     if (notPresenter && !buttons.main.showCaptionRoomBtn) {
                         toastMessage('warning', 'The presenter has disabled your ability to start transcription');
@@ -5777,13 +5784,6 @@ function handleShortcuts() {
                         break;
                     }
                     documentPiPBtn.click();
-                    break;
-                case 'e':
-                    if (notPresenter && !buttons.main.showRoomEmojiPickerBtn) {
-                        toastMessage('warning', 'The presenter has disabled your ability to open the room emoji');
-                        break;
-                    }
-                    roomEmojiPickerBtn.click();
                     break;
                 case 't':
                     if (notPresenter && !buttons.main.showSnapshotRoomBtn) {
@@ -8587,12 +8587,12 @@ function hideShowMySettings() {
         mySettings.style.top = '50%';
         mySettings.style.left = '50%';
         elemDisplay(mySettings, true, 'block');
-        setTippy(mySettingsBtn, 'Close the settings', placement);
+        setTippy(mySettingsBtn, 'Close the settings', bottomButtonsPlacement);
         isMySettingsVisible = true;
         return;
     }
     elemDisplay(mySettings, false);
-    setTippy(mySettingsBtn, 'Open the settings', placement);
+    setTippy(mySettingsBtn, 'Open the settings', bottomButtonsPlacement);
     isMySettingsVisible = false;
 }
 
@@ -11036,7 +11036,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.48</strong>',
+        title: '<strong>WebRTC P2P v1.4.49</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },
