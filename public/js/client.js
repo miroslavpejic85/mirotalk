@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.51
+ * @version 1.4.55
  *
  */
 
@@ -34,6 +34,7 @@ const myRoomUrl = window.location.origin + '/join/' + roomId; // share room url
 // Images
 const images = {
     caption: '../images/caption.png',
+    chatgpt: '../images/chatgpt.png',
     confirmation: '../images/image-placeholder.png',
     share: '../images/share.png',
     locked: '../images/locked.png',
@@ -7923,8 +7924,8 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
 
     // sanitize all params
     const getFrom = filterXSS(from);
-    const getImg = filterXSS(img);
     const getSide = filterXSS(side);
+    const getImg = isChatGPTOn && getSide === 'left' ? images.chatgpt : filterXSS(img);
     const getMsg = filterXSS(msg);
     const getPrivateMsg = filterXSS(privateMsg);
     const getMsgId = filterXSS(msgId);
@@ -11036,7 +11037,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.51</strong>',
+        title: '<strong>WebRTC P2P v1.4.55</strong>',
         imageAlt: 'mirotalk-about',
         imageUrl: images.about,
         customClass: { image: 'img-about' },

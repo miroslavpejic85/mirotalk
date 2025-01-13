@@ -1,72 +1,101 @@
 'use strict';
 
-const xss = require('xss');
-const Logs = require('./logs');
-const log = new Logs('xss');
+const { JSDOM } = require('jsdom');
+const DOMPurify = require('dompurify');
+const he = require('he');
 
-/**
- * Prevent XSS injection by client side
- *
- * @param {object} dataObject
- * @returns sanitized object
- */
-const checkXSS = (dataObject) => {
-    try {
-        if (Array.isArray(dataObject)) {
-            if (Object.keys(dataObject).length > 0 && typeof dataObject[0] === 'object') {
-                dataObject.forEach((obj) => {
-                    for (const key in obj) {
-                        if (obj.hasOwnProperty(key)) {
-                            let objectJson = objectToJSONString(obj[key]);
-                            if (objectJson) {
-                                let jsonString = xss(objectJson);
-                                let jsonObject = JSONStringToObject(jsonString);
-                                if (jsonObject) {
-                                    obj[key] = jsonObject;
-                                }
-                            }
-                        }
-                    }
-                });
-                log.debug('XSS Array of Object sanitization done');
-                return dataObject;
+// Initialize DOMPurify with jsdom
+const window = new JSDOM('').window;
+const purify = DOMPurify(window);
+
+const Logger = require('./logs');
+const log = new Logger('Xss');
+
+// Configure DOMPurify
+purify.setConfig({
+    ALLOWED_TAGS: ['a', 'img', 'div', 'span', 'svg', 'g', 'p'], // Allow specific tags
+    ALLOWED_ATTR: ['href', 'src', 'title', 'id', 'class', 'target'], // Allow specific attributes
+    ALLOWED_URI_REGEXP: /^(?!data:|javascript:|vbscript:|file:|view-source:).*/, // Disallow dangerous URIs
+});
+
+// Clean problematic attributes
+function cleanAttributes(node) {
+    if (node.nodeType === window.Node.ELEMENT_NODE) {
+        // Remove dangerous attributes
+        const dangerousAttributes = ['onerror', 'onclick', 'onload', 'onmouseover', 'onfocus', 'onchange', 'oninput'];
+        dangerousAttributes.forEach((attr) => {
+            if (node.hasAttribute(attr)) {
+                node.removeAttribute(attr);
             }
-        } else if (typeof dataObject === 'object') {
-            let objectJson = objectToJSONString(dataObject);
-            if (objectJson) {
-                let jsonString = xss(objectJson);
-                let jsonObject = JSONStringToObject(jsonString);
-                if (jsonObject) {
-                    log.debug('XSS Object sanitization done');
-                    return jsonObject;
-                }
-            }
-        } else if (typeof dataObject === 'string' || dataObject instanceof String) {
-            log.debug('XSS String sanitization done');
-            return xss(dataObject);
+        });
+
+        // Handle special cases for 'data:' URIs
+        const src = node.getAttribute('src');
+        if (src && src.startsWith('data:')) {
+            node.removeAttribute('src');
         }
-        log.warn('XSS not sanitized', dataObject);
-        return dataObject;
-    } catch (error) {
-        log.error('XSS error', { data: dataObject, error: error });
-        return dataObject;
-    }
-};
 
-function objectToJSONString(dataObject) {
-    try {
-        return JSON.stringify(dataObject);
-    } catch (error) {
-        return false;
+        // Remove unsafe 'style' attributes
+        if (node.hasAttribute('style')) {
+            const style = node.getAttribute('style');
+            if (style.includes('javascript:') || style.includes('data:')) {
+                node.removeAttribute('style');
+            }
+        }
+
+        // Remove 'title' attribute if it contains dangerous content
+        if (node.hasAttribute('title')) {
+            const title = node.getAttribute('title');
+            if (title.includes('javascript:') || title.includes('data:') || title.includes('onerror')) {
+                node.removeAttribute('title');
+            }
+        }
     }
 }
 
-function JSONStringToObject(jsonString) {
+// Hook to clean specific attributes that can cause XSS
+purify.addHook('beforeSanitizeAttributes', cleanAttributes);
+
+// Main function to check and sanitize data
+const checkXSS = (dataObject) => {
     try {
-        return JSON.parse(jsonString);
+        return sanitizeData(dataObject);
     } catch (error) {
-        return false;
+        log.error('Sanitization error:', error);
+        return dataObject; // Return original data in case of error
     }
+};
+
+function needsDecoding(str) {
+    const urlEncodedPattern = /%[0-9A-Fa-f]{2}/g;
+    return urlEncodedPattern.test(str);
+}
+
+// Recursively sanitize data based on its type
+function sanitizeData(data) {
+    if (typeof data === 'string') {
+        // Decode HTML entities and URL encoded content
+        const decodedData = needsDecoding(data) ? he.decode(decodeURIComponent(data)) : he.decode(data);
+        return purify.sanitize(decodedData);
+    }
+
+    if (Array.isArray(data)) {
+        return data.map(sanitizeData);
+    }
+
+    if (data && typeof data === 'object') {
+        return sanitizeObject(data);
+    }
+
+    return data; // For numbers, booleans, null, undefined
+}
+
+// Sanitize object properties
+function sanitizeObject(obj) {
+    return Object.keys(obj).reduce((acc, key) => {
+        acc[key] = sanitizeData(obj[key]);
+        return acc;
+    }, {});
 }
 
 module.exports = checkXSS;

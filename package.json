@@ -1,12 +1,12 @@
 {
     "name": "mirotalk",
-    "version": "1.4.51",
+    "version": "1.4.55",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
         "start": "node app/src/server.js",
         "start-dev": "nodemon app/src/server.js",
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "mocha tests/*.js",
         "lint": "npx prettier --write .",
         "docker-build": "docker build --tag mirotalk/p2p:latest .",
         "docker-rmi": "docker images |grep '<none>' |awk '{print $3}' |xargs docker rmi",
@@ -48,9 +48,12 @@
         "compression": "^1.7.5",
         "cors": "^2.8.5",
         "crypto-js": "^4.2.0",
+        "dompurify": "^3.2.3",
         "dotenv": "^16.4.7",
         "express": "^4.21.2",
         "express-openid-connect": "^2.17.1",
+        "he": "^1.2.0",
+        "jsdom": "^26.0.0",
         "jsonwebtoken": "^9.0.2",
         "js-yaml": "^4.1.0",
         "ngrok": "^5.0.0-beta.2",
@@ -59,12 +62,15 @@
         "qs": "^6.13.1",
         "socket.io": "^4.8.1",
         "swagger-ui-express": "^5.0.1",
-        "uuid": "11.0.5",
-        "xss": "^1.0.15"
+        "uuid": "11.0.5"
     },
     "devDependencies": {
+        "mocha": "^11.0.1",
         "node-fetch": "^3.3.2",
         "nodemon": "^3.1.9",
-        "prettier": "3.4.2"
+        "prettier": "3.4.2",
+        "proxyquire": "^2.1.3",
+        "should": "^13.2.3",
+        "sinon": "^19.0.2"
     }
 }

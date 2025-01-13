@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.51
+ * @version 1.4.55
  *
  */
 
@@ -62,6 +62,7 @@ const fs = require('fs');
 const checkXSS = require('./xss.js');
 const ServerApi = require('./api');
 const mattermostCli = require('./mattermost.js');
+const Validate = require('./validate');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
@@ -552,6 +553,12 @@ app.get('/join/', async (req, res) => {
             return res.status(401).json({ message: 'Direct Room Join: Missing mandatory room parameter!' });
         }
 
+        if (!Validate.isValidRoomName(room)) {
+            return res.status(400).json({
+                message: 'Invalid Room name!\nPath traversal pattern detected!',
+            });
+        }
+
         const allowRoomAccess = isAllowedRoomAccess('/join/params', req, hostCfg, peers, room);
 
         if (!allowRoomAccess && !token) {
@@ -619,6 +626,11 @@ app.get('/join/:roomId', function (req, res) {
 
     if (!roomId) {
         log.warn('/join/:roomId empty', roomId);
+        return res.redirect('/');
+    }
+
+    if (!Validate.isValidRoomName(roomId)) {
+        log.warn('/join/:roomId invalid', roomId);
         return res.redirect('/');
     }
 
@@ -1175,6 +1187,11 @@ io.sockets.on('connect', async (socket) => {
             peer_privacy_status,
             peer_info,
         } = config;
+
+        if (!Validate.isValidRoomName(channel)) {
+            log.warn('[' + socket.id + '] - Invalid room name', channel);
+            return socket.emit('unauthorized');
+        }
 
         if (channel in socket.channels) {
             return log.debug('[' + socket.id + '] [Warning] already joined', channel);
