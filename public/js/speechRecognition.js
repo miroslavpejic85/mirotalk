@@ -73,6 +73,7 @@ const langs = [
     ],
     ['日本語', ['ja-JP']],
     ['Lingua latīna', ['la']],
+    ['Tiếng Việt', ['vi-VN']],
 ];
 
 const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
