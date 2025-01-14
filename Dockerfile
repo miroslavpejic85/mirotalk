@@ -1,5 +1,5 @@
-# Use a lightweight Node.js image 
-FROM node:20-alpine
+# Use a lightweight Node.js image https://hub.docker.com/_/node 
+FROM node:lts-alpine
 
 # Set working directory
 WORKDIR /src
