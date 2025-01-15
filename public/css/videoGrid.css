@@ -10,12 +10,14 @@
     width: 100%;
     height: 100%;
     border-radius: 5px;
+    opacity: 1;
     align-content: center;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     vertical-align: middle;
     overflow: hidden;
+    transition: opacity 500ms;
 }
 
 #videoPinMediaContainer {
