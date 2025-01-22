@@ -237,9 +237,9 @@ $ curl -X GET "http://localhost:3000/api/v1/stats" -H "authorization: mirotalkp2
 $ curl -X GET "https://p2p.mirotalk.com/api/v1/stats" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json"
 $ curl -X GET "https://mirotalk.up.railway.app/api/v1/stats" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json"
 # The response will give you the active meetings (default disabled).
-$ curl -X GET "http://localhost:3000/api/v1/meetings" -H "authorization: mirotalksfu_default_secret" -H "Content-Type: application/json"
-$ curl -X GET "https://p2p.mirotalk.com/api/v1/meetings" -H "authorization: mirotalksfu_default_secret" -H "Content-Type: application/json"
-$ curl -X GET "mirotalk.up.railway.app/api/v1/meetings" -H "authorization: mirotalksfu_default_secret" -H "Content-Type: application/json"
+$ curl -X GET "http://localhost:3000/api/v1/meetings" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json"
+$ curl -X GET "https://p2p.mirotalk.com/api/v1/meetings" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json"
+$ curl -X GET "mirotalk.up.railway.app/api/v1/meetings" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json"
 # The response will give you a entrypoint / Room URL for your meeting.
 $ curl -X POST "http://localhost:3000/api/v1/meeting" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json"
 $ curl -X POST "https://p2p.mirotalk.com/api/v1/meeting" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json"
