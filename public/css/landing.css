@@ -588,7 +588,6 @@ h6,
 p {
     margin-top: 0;
     margin-bottom: 24px;
-    color: gainsboro;
 }
 
 dfn,
@@ -2423,6 +2422,10 @@ textarea.form-input {
     .section-header {
         padding-bottom: 80px;
     }
+}
+
+.hero-content p {
+    color: gainsboro;
 }
 
 .hero-inner > .hero-content + .hero-figure,
