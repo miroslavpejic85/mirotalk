@@ -47,6 +47,8 @@ let brand = {
         joinLastLabel: 'Your recent room:',
     },
     site: {
+        shortcutIcon: '../images/logo.svg',
+        appleTouchIcon: '../images/logo.svg',
         landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
         newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
         newCallRoomTitle: 'Pick name. <br />Share URL. <br />Start conference.',
@@ -57,8 +59,6 @@ let brand = {
         privacyPolicyTitle: 'MiroTalk - privacy and policy.',
         stunTurnTitle: 'Test Stun/Turn Servers.',
         notFoundTitle: 'MiroTalk - 404 Page not found.',
-        shortcutIcon: '../images/logo.svg',
-        appleTouchIcon: '../images/logo.svg',
     },
     html: {
         features: true,

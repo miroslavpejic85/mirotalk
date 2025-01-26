@@ -4,7 +4,7 @@ module.exports = {
     // Branding and customizations require a license: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
     brand: {
         app: {
-            language: 'en',
+            language: 'en', // https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
             name: 'MiroTalk',
             title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
             description:
@@ -14,6 +14,8 @@ module.exports = {
             joinLastLabel: 'Your recent room:',
         },
         site: {
+            shortcutIcon: '../images/logo.svg',
+            appleTouchIcon: '../images/logo.svg',
             landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
             newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
             newCallRoomTitle: 'Pick name. <br />Share URL. <br />Start conference.',
@@ -24,8 +26,6 @@ module.exports = {
             privacyPolicyTitle: 'MiroTalk - privacy and policy.',
             stunTurnTitle: 'Test Stun/Turn Servers.',
             notFoundTitle: 'MiroTalk - 404 Page not found.',
-            shortcutIcon: '../images/logo.svg',
-            appleTouchIcon: '../images/logo.svg',
         },
         html: {
             features: true,
