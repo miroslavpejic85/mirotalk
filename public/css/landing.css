@@ -588,6 +588,7 @@ h6,
 p {
     margin-top: 0;
     margin-bottom: 24px;
+    color: gainsboro;
 }
 
 dfn,
@@ -2433,6 +2434,10 @@ textarea.form-input {
     display: inline-flex;
     align-items: center;
     vertical-align: top;
+}
+
+.hero-inner a {
+    color: #527144; /*lime*/
 }
 
 @media (max-width: 640px) {
