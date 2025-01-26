@@ -37,6 +37,7 @@ const footer = document.getElementById('footer');
 
 let brand = {
     app: {
+        language: 'en',
         name: 'MiroTalk',
         title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
         description:

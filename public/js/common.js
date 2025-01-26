@@ -165,6 +165,13 @@ const roomName = document.getElementById('roomName');
 if (roomName) {
     roomName.value = '';
     typeWriter();
+
+    roomName.onkeyup = (e) => {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            joinRoom();
+        }
+    };
 }
 
 // ####################################################################
@@ -202,15 +209,8 @@ if (adultCnt) {
     };
 }
 
-document.getElementById('roomName').onkeyup = (e) => {
-    if (e.keyCode === 13) {
-        e.preventDefault();
-        joinRoom();
-    }
-};
-
 function genRoom() {
-    document.getElementById('roomName').value = getUUID4();
+    roomName.value = getUUID4();
 }
 
 function getUUID4() {
@@ -220,7 +220,7 @@ function getUUID4() {
 }
 
 function joinRoom() {
-    const roomName = filterXSS(document.getElementById('roomName').value).trim().replace(/\s+/g, '-');
+    const roomName = filterXSS(roomName.value).trim().replace(/\s+/g, '-');
     const roomValid = isValidRoomName(roomName);
 
     if (!roomName) {
