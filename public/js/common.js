@@ -210,7 +210,7 @@ if (adultCnt) {
 }
 
 function genRoom() {
-    roomName.value = getUUID4();
+    document.getElementById('roomName').value = getUUID4();
 }
 
 function getUUID4() {
@@ -220,7 +220,7 @@ function getUUID4() {
 }
 
 function joinRoom() {
-    const roomName = filterXSS(roomName.value).trim().replace(/\s+/g, '-');
+    const roomName = filterXSS(document.getElementById('roomName').value).trim().replace(/\s+/g, '-');
     const roomValid = isValidRoomName(roomName);
 
     if (!roomName) {
