@@ -2440,7 +2440,7 @@ textarea.form-input {
 }
 
 .hero-inner a {
-    color: #527144; /*lime*/
+    color: lime;
 }
 
 @media (max-width: 640px) {
