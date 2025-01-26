@@ -21,6 +21,7 @@ const appleTouchIcon = document.getElementById('appleTouchIcon');
 const appTitle = document.getElementById('appTitle');
 const appDescription = document.getElementById('appDescription');
 const appJoinDescription = document.getElementById('appJoinDescription');
+const appJoinLastRoom = document.getElementById('appJoinLastRoom');
 
 const features = document.getElementById('features');
 const browsers = document.getElementById('browsers');
@@ -42,6 +43,7 @@ let brand = {
             'Start your next video call with a single click. No download, plug-in, or login is required. Just get straight to talking, messaging, and sharing your screen.',
         joinDescription: 'Pick a room name.<br />How about this one?',
         joinButtonLabel: 'JOIN ROOM',
+        joinLastLabel: 'Your recent room:',
     },
     site: {
         landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
@@ -139,6 +141,7 @@ function handleBrand() {
     if (appDescription) appDescription.textContent = brand.app.description;
     if (appJoinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
     if (joinRoomButton) joinRoomButton.innerText = brand.app.joinButtonLabel; // common.js
+    if (appJoinLastRoom) appJoinLastRoom.innerText = brand.app.joinLastLabel;
 
     !brand.html.features && elementDisplay(features, false);
     !brand.html.browsers && elementDisplay(browsers, false);
