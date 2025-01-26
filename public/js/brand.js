@@ -20,6 +20,7 @@ const appleTouchIcon = document.getElementById('appleTouchIcon');
 
 const appTitle = document.getElementById('appTitle');
 const appDescription = document.getElementById('appDescription');
+const appJoinDescription = document.getElementById('appJoinDescription');
 
 const features = document.getElementById('features');
 const browsers = document.getElementById('browsers');
@@ -39,6 +40,7 @@ let brand = {
         title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
         description:
             'Start your next video call with a single click. No download, plug-in, or login is required. Just get straight to talking, messaging, and sharing your screen.',
+        roomDescription: 'Pick a room name.<br />How about this one?',
     },
     site: {
         landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
@@ -134,6 +136,7 @@ function handleBrand() {
 
     if (appTitle) appTitle.innerHTML = brand.app.title;
     if (appDescription) appDescription.textContent = brand.app.description;
+    if (appJoinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
 
     !brand.html.features && elementDisplay(features, false);
     !brand.html.browsers && elementDisplay(browsers, false);
