@@ -40,7 +40,8 @@ let brand = {
         title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
         description:
             'Start your next video call with a single click. No download, plug-in, or login is required. Just get straight to talking, messaging, and sharing your screen.',
-        roomDescription: 'Pick a room name.<br />How about this one?',
+        joinDescription: 'Pick a room name.<br />How about this one?',
+        joinButtonLabel: 'JOIN ROOM',
     },
     site: {
         landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
@@ -137,6 +138,7 @@ function handleBrand() {
     if (appTitle) appTitle.innerHTML = brand.app.title;
     if (appDescription) appDescription.textContent = brand.app.description;
     if (appJoinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
+    if (joinRoomButton) joinRoomButton.innerText = brand.app.joinButtonLabel; // common.js
 
     !brand.html.features && elementDisplay(features, false);
     !brand.html.browsers && elementDisplay(browsers, false);
