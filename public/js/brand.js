@@ -7,6 +7,8 @@ const brandData = window.sessionStorage.getItem(brandDataKey);
 // Html pages
 const landingTitle = document.getElementById('landingTitle');
 const newCallTitle = document.getElementById('newCallTitle');
+const newCallRoomTitle = document.getElementById('newCallRoomTitle');
+const newCallRoomDescription = document.getElementById('newCallRoomDescription');
 const loginTitle = document.getElementById('loginTitle');
 const privacyPolicyTitle = document.getElementById('privacyPolicyTitle');
 const stunTurnTitle = document.getElementById('stunTurnTitle');
@@ -41,6 +43,9 @@ let brand = {
     site: {
         landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
         newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
+        newCallRoomTitle: 'Pick name. <br />Share URL. <br />Start conference.',
+        newCallRoomDescription:
+            "Each room has its disposable URL. Just pick a room name and share your custom URL. It's that easy.",
         loginTitle: 'MiroTalk - Host Protected login required.',
         clientTitle: 'MiroTalk WebRTC Video call, Chat Room & Screen Sharing.',
         privacyPolicyTitle: 'MiroTalk - privacy and policy.',
@@ -113,7 +118,11 @@ function setBrand(data) {
  */
 function handleBrand() {
     if (landingTitle) landingTitle.textContent = brand.site.landingTitle;
+
     if (newCallTitle) newCallTitle.textContent = brand.site.newCallTitle;
+    if (newCallRoomTitle) newCallRoomTitle.innerHTML = brand.site.newCallRoomTitle;
+    if (newCallRoomDescription) newCallRoomDescription.textContent = brand.site.newCallRoomDescription;
+
     if (loginTitle) loginTitle.textContent = brand.site.loginTitle;
     if (privacyPolicyTitle) privacyPolicyTitle.textContent = brand.site.privacyPolicyTitle;
     if (stunTurnTitle) stunTurnTitle.textContent = brand.site.stunTurnTitle;

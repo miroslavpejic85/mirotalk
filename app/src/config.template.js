@@ -12,6 +12,9 @@ module.exports = {
         site: {
             landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
             newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
+            newCallRoomTitle: 'Pick name. <br />Share URL. <br />Start conference.',
+            newCallRoomDescription:
+                "Each room has its disposable URL. Just pick a room name and share your custom URL. It's that easy.",
             loginTitle: 'MiroTalk - Host Protected login required.',
             clientTitle: 'MiroTalk WebRTC Video call, Chat Room & Screen Sharing.',
             privacyPolicyTitle: 'MiroTalk - privacy and policy.',
