@@ -21,6 +21,7 @@ const appleTouchIcon = document.getElementById('appleTouchIcon');
 const appTitle = document.getElementById('appTitle');
 const appDescription = document.getElementById('appDescription');
 const appJoinDescription = document.getElementById('appJoinDescription');
+const joinRoomBtn = document.getElementById('joinRoomButton');
 const appJoinLastRoom = document.getElementById('appJoinLastRoom');
 
 const features = document.getElementById('features');
@@ -143,7 +144,7 @@ function handleBrand() {
     if (appTitle && brand.app?.title) appTitle.innerHTML = brand.app.title;
     if (appDescription && brand.app?.description) appDescription.textContent = brand.app.description;
     if (appJoinDescription && brand.app?.joinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
-    if (joinRoomButton && brand.app?.joinButtonLabel) joinRoomButton.innerText = brand.app.joinButtonLabel; // common.js
+    if (joinRoomBtn && brand.app?.joinButtonLabel) joinRoomBtn.innerText = brand.app.joinButtonLabel;
     if (appJoinLastRoom && brand.app?.joinLastLabel) appJoinLastRoom.innerText = brand.app.joinLastLabel;
 
     !brand.html.features && elementDisplay(features, false);
