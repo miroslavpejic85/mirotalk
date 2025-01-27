@@ -121,7 +121,9 @@ body {
 --------------------------------------------------------------*/
 
 .skiptranslate iframe,
-.goog-te-banner-frame.skiptranslate {
+.goog-te-banner-frame.skiptranslate,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-aZ2wEe-OiiCO {
     display: none !important;
 }
 
