@@ -123,26 +123,28 @@ function setBrand(data) {
  * Handle Brand
  */
 function handleBrand() {
-    if (landingTitle) landingTitle.textContent = brand.site.landingTitle;
+    if (landingTitle && brand.site?.landingTitle) landingTitle.textContent = brand.site.landingTitle;
 
-    if (newCallTitle) newCallTitle.textContent = brand.site.newCallTitle;
-    if (newCallRoomTitle) newCallRoomTitle.innerHTML = brand.site.newCallRoomTitle;
-    if (newCallRoomDescription) newCallRoomDescription.textContent = brand.site.newCallRoomDescription;
+    if (newCallTitle && brand.site?.newCallTitle) newCallTitle.textContent = brand.site.newCallTitle;
+    if (newCallRoomTitle && brand.site?.newCallRoomTitle) newCallRoomTitle.innerHTML = brand.site.newCallRoomTitle;
+    if (newCallRoomDescription && brand.site?.newCallRoomDescription)
+        newCallRoomDescription.textContent = brand.site.newCallRoomDescription;
 
-    if (loginTitle) loginTitle.textContent = brand.site.loginTitle;
-    if (privacyPolicyTitle) privacyPolicyTitle.textContent = brand.site.privacyPolicyTitle;
-    if (stunTurnTitle) stunTurnTitle.textContent = brand.site.stunTurnTitle;
-    if (clientTitle) clientTitle.textContent = brand.site.clientTitle;
-    if (notFoundTitle) notFoundTitle.textContent = brand.site.notFoundTitle;
+    if (loginTitle && brand.site?.loginTitle) loginTitle.textContent = brand.site.loginTitle;
+    if (privacyPolicyTitle && brand.site?.privacyPolicyTitle)
+        privacyPolicyTitle.textContent = brand.site.privacyPolicyTitle;
+    if (stunTurnTitle && brand.site?.stunTurnTitle) stunTurnTitle.textContent = brand.site.stunTurnTitle;
+    if (clientTitle && brand.site?.clientTitle) clientTitle.textContent = brand.site.clientTitle;
+    if (notFoundTitle && brand.site?.notFoundTitle) notFoundTitle.textContent = brand.site.notFoundTitle;
 
-    if (shortcutIcon) shortcutIcon.href = brand.site.shortcutIcon;
-    if (appleTouchIcon) appleTouchIcon.href = brand.site.appleTouchIcon;
+    if (shortcutIcon && brand.site?.shortcutIcon) shortcutIcon.href = brand.site.shortcutIcon;
+    if (appleTouchIcon && brand.site?.appleTouchIcon) appleTouchIcon.href = brand.site.appleTouchIcon;
 
-    if (appTitle) appTitle.innerHTML = brand.app.title;
-    if (appDescription) appDescription.textContent = brand.app.description;
-    if (appJoinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
-    if (joinRoomButton) joinRoomButton.innerText = brand.app.joinButtonLabel; // common.js
-    if (appJoinLastRoom) appJoinLastRoom.innerText = brand.app.joinLastLabel;
+    if (appTitle && brand.app?.title) appTitle.innerHTML = brand.app.title;
+    if (appDescription && brand.app?.description) appDescription.textContent = brand.app.description;
+    if (appJoinDescription && brand.app?.joinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
+    if (joinRoomButton && brand.app?.joinButtonLabel) joinRoomButton.innerText = brand.app.joinButtonLabel; // common.js
+    if (appJoinLastRoom && brand.app?.joinLastLabel) appJoinLastRoom.innerText = brand.app.joinLastLabel;
 
     !brand.html.features && elementDisplay(features, false);
     !brand.html.browsers && elementDisplay(browsers, false);
