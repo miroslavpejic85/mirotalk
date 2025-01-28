@@ -1244,8 +1244,8 @@ button:hover {
 }
 #shortcutsTable th,
 #shortcutsTable td {
-    border: var(--border);
     padding: 5px;
+    /* border: var(--border); */
 }
 #shortcutsTable th {
     background: var(--body-bg);
