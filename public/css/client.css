@@ -1045,8 +1045,6 @@ button:hover {
 .inline-check-box {
     margin-bottom: 20px;
     display: inline-flex;
-    justify-content: center; /* Vertical centering */
-    align-items: center; /* Horizontal centering */
     text-align: left;
     color: white;
 }
@@ -1188,29 +1186,42 @@ button:hover {
 --------------------------------------------------------------*/
 
 #mySettingsTable {
-    /* margin-top: 5px; */
     width: 100%;
     color: #fff;
+    table-layout: auto;
     border-collapse: collapse;
-    border-style: hidden;
     border-radius: 10px;
     background: var(--body-bg);
-    /* border-radius: 5px; */
-    /* box-shadow: 0 0 0 1px #666; */
-}
-#mySettingsTable td,
-th {
-    padding: 10px;
-}
-#mySettingsTable tr td {
-    text-align: left;
-}
-#mySettingsTable tr:nth-child(even) {
-    /* background-color: #2b2b2b; */
 }
 
-.width-auto {
+#mySettingsTable td,
+#mySettingsTable th {
+    padding: 10px;
+    text-align: left;
+}
+
+#mySettingsTable td:first-child {
     width: auto;
+}
+
+#mySettingsTable td:last-child {
+    width: 140px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Optional alternating row background */
+/* #mySettingsTable tr:nth-child(even) {
+    background: var(--select-bg);
+} */
+
+#mySettingsTable i {
+    border: none;
+    border-radius: 5px;
+}
+
+#mySettingsTable select {
+    width: 100px !important;
 }
 
 /*--------------------------------------------------------------
