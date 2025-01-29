@@ -20,5 +20,8 @@ RUN apk add --no-cache \
 COPY app app
 COPY public public
 
+# Rename config.template.js to config.js
+RUN cp app/src/config.template.js app/src/config.js
+
 # Set default command to start the application
 CMD ["npm", "start"]
