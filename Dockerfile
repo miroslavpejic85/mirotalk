@@ -8,6 +8,9 @@ WORKDIR /src
 COPY package.json .
 COPY .env.template ./.env
 
+# Rename config.template.js to config.js
+COPY ./app/src/config.template.js ./app/src/config.js
+
 # Install necessary system packages and dependencies
 RUN apk add --no-cache \
     bash \
@@ -19,9 +22,6 @@ RUN apk add --no-cache \
 # Copy the application code
 COPY app app
 COPY public public
-
-# Rename config.template.js to config.js
-RUN cp /src/app/src/config.template.js /src/app/src/config.js
 
 # Set default command to start the application
 CMD ["npm", "start"]
