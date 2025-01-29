@@ -13,6 +13,15 @@ module.exports = {
             joinButtonLabel: 'JOIN ROOM',
             joinLastLabel: 'Your recent room:',
         },
+        og: {
+            type: 'app-webrtc',
+            siteName: 'MiroTalk',
+            title: 'Click the link to make a call.',
+            description:
+                'MiroTalk calling provides real-time HD quality and latency simply not available with traditional technology.',
+            image: 'https://p2p.mirotalk.com/images/preview.png',
+            url: 'https://p2p.mirotalk.com',
+        },
         site: {
             shortcutIcon: '../images/logo.svg',
             appleTouchIcon: '../images/logo.svg',

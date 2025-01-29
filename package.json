@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "1.4.69",
+    "version": "1.4.70",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
@@ -42,7 +42,7 @@
     "homepage": "https://github.com/miroslavpejic85/mirotalk",
     "dependencies": {
         "@mattermost/client": "10.2.0",
-        "@sentry/node": "^8.51.0",
+        "@sentry/node": "^8.52.0",
         "axios": "^1.7.9",
         "colors": "^1.4.0",
         "compression": "^1.7.5",

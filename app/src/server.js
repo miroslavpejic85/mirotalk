@@ -39,7 +39,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.69
+ * @version 1.4.70
  *
  */
 
@@ -61,8 +61,9 @@ const app = express();
 const fs = require('fs');
 const checkXSS = require('./xss.js');
 const ServerApi = require('./api');
-const mattermostCli = require('./mattermost.js');
+const mattermostCli = require('./mattermost');
 const Validate = require('./validate');
+const HtmlInjector = require('./HtmlInjector.js');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
@@ -369,6 +370,10 @@ const views = {
     stunTurn: path.join(__dirname, '../../', 'public/views/testStunTurn.html'),
 };
 
+// File to cache and inject custom HTML data like OG tags and any other elements.
+const filesPath = [views.landing, views.newCall, views.client, views.login];
+const htmlInjector = new HtmlInjector(filesPath, config.brand);
+
 const channels = {}; // collect channels
 const sockets = {}; // collect sockets
 const peers = {}; // collect peers info grp by channels
@@ -482,23 +487,23 @@ app.get('/logout', (req, res) => {
 });
 
 // main page
-app.get(['/'], OIDCAuth, (req, res) => {
+app.get('/', OIDCAuth, (req, res) => {
     if (!OIDC.enabled && hostCfg.protected) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
-            res.sendFile(views.landing);
+            htmlInjector.injectHtml(views.landing, res);
             hostCfg.authenticated = true;
         } else {
             hostCfg.authenticated = false;
             res.redirect('/login');
         }
     } else {
-        res.sendFile(views.landing);
+        return htmlInjector.injectHtml(views.landing, res);
     }
 });
 
 // set new room name and join
-app.get(['/newcall'], OIDCAuth, (req, res) => {
+app.get('/newcall', OIDCAuth, (req, res) => {
     if (!OIDC.enabled && hostCfg.protected) {
         const ip = getIP(req);
         if (allowedIP(ip)) {
@@ -509,12 +514,12 @@ app.get(['/newcall'], OIDCAuth, (req, res) => {
             res.redirect('/login');
         }
     } else {
-        res.sendFile(views.newCall);
+        htmlInjector.injectHtml(views.newCall, res);
     }
 });
 
 // Get stats endpoint
-app.get(['/stats'], (req, res) => {
+app.get('/stats', (req, res) => {
     //log.debug('Send stats', statsData);
     res.send(statsData);
 });
@@ -591,7 +596,9 @@ app.get('/join/', async (req, res) => {
             } catch (err) {
                 // Invalid token
                 log.error('Direct Join JWT error', err.message);
-                return hostCfg.protected || hostCfg.user_auth ? res.sendFile(views.login) : res.sendFile(views.landing);
+                return hostCfg.protected || hostCfg.user_auth
+                    ? htmlInjector.injectHtml(views.login, res)
+                    : htmlInjector.injectHtml(views.landing, res);
             }
         }
 
@@ -612,9 +619,9 @@ app.get('/join/', async (req, res) => {
         // Check if peer authenticated or valid
         if (room && (hostCfg.authenticated || isPeerValid)) {
             // only room mandatory
-            return res.sendFile(views.client);
+            return htmlInjector.injectHtml(views.client, res);
         } else {
-            return res.sendFile(views.login);
+            return htmlInjector.injectHtml(views.login, res);
         }
     }
 });
@@ -637,7 +644,7 @@ app.get('/join/:roomId', function (req, res) {
     const allowRoomAccess = isAllowedRoomAccess('/join/:roomId', req, hostCfg, peers, roomId);
 
     if (allowRoomAccess) {
-        res.sendFile(views.client);
+        htmlInjector.injectHtml(views.client, res);
     } else {
         !OIDC.enabled && hostCfg.protected ? res.redirect('/login') : res.redirect('/');
     }
@@ -651,13 +658,13 @@ app.get('/join/*', function (req, res) {
 // Login
 app.get(['/login'], (req, res) => {
     if (hostCfg.protected || hostCfg.user_auth) {
-        return res.sendFile(views.login);
+        return htmlInjector.injectHtml(views.login, res);
     }
     res.redirect('/');
 });
 
 // Logged
-app.get(['/logged'], (req, res) => {
+app.get('/logged', (req, res) => {
     const ip = getIP(req);
     if (allowedIP(ip)) {
         res.redirect('/');
@@ -670,7 +677,7 @@ app.get(['/logged'], (req, res) => {
 /* AXIOS */
 
 // handle login on host protected
-app.post(['/login'], (req, res) => {
+app.post('/login', (req, res) => {
     //
     const ip = getIP(req);
     log.debug(`Request login to host from: ${ip}`, req.body);
@@ -733,7 +740,7 @@ app.get('/:roomId', (req, res) => {
 */
 
 // request stats list
-app.get([`${apiBasePath}/stats`], (req, res) => {
+app.get(`${apiBasePath}/stats`, (req, res) => {
     // Check if endpoint allowed
     if (api_disabled.includes('stats')) {
         return res.status(403).json({
@@ -769,7 +776,7 @@ app.get([`${apiBasePath}/stats`], (req, res) => {
 });
 
 // request token endpoint
-app.post([`${apiBasePath}/token`], (req, res) => {
+app.post(`${apiBasePath}/token`, (req, res) => {
     // Check if endpoint allowed
     if (api_disabled.includes('token')) {
         return res.status(403).json({
@@ -798,7 +805,7 @@ app.post([`${apiBasePath}/token`], (req, res) => {
 });
 
 // request meetings list
-app.get([`${apiBasePath}/meetings`], (req, res) => {
+app.get(`${apiBasePath}/meetings`, (req, res) => {
     // Check if endpoint allowed
     if (api_disabled.includes('meetings')) {
         return res.status(403).json({
@@ -827,7 +834,7 @@ app.get([`${apiBasePath}/meetings`], (req, res) => {
 });
 
 // API request meeting room endpoint
-app.post([`${apiBasePath}/meeting`], (req, res) => {
+app.post(`${apiBasePath}/meeting`, (req, res) => {
     // Check if endpoint allowed
     if (api_disabled.includes('meeting')) {
         return res.status(403).json({
@@ -853,7 +860,7 @@ app.post([`${apiBasePath}/meeting`], (req, res) => {
 });
 
 // API request join room endpoint
-app.post([`${apiBasePath}/join`], (req, res) => {
+app.post(`${apiBasePath}/join`, (req, res) => {
     // Check if endpoint allowed
     if (api_disabled.includes('join')) {
         return res.status(403).json({
