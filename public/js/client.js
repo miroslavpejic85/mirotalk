@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.71
+ * @version 1.4.72
  *
  */
 
@@ -1490,7 +1490,7 @@ async function whoAreYou() {
         allowOutsideClick: false,
         allowEscapeKey: false,
         background: swBg,
-        title: brand.app.name,
+        title: brand.app?.name || 'MiroTalk P2P',
         position: 'center',
         input: 'text',
         inputPlaceholder: 'Enter your email or name',
@@ -11039,38 +11039,46 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: '<strong>WebRTC P2P v1.4.71</strong>',
-        imageAlt: 'mirotalk-about',
-        imageUrl: images.about,
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.72',
+        imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
-        <br/>
-        <div id="about">
-            <button 
-                id="support-button" 
-                data-umami-event="Support button" 
-                onclick="window.open('https://codecanyon.net/user/miroslavpejic85')">
-                <i class="${className.heart}" ></i>&nbsp;Support
-            </button>
-            <br /><br /><br />
-            Author:<a 
-                id="linkedin-button" 
-                data-umami-event="Linkedin button" 
-                href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> 
-                Miroslav Pejic
-            </a>
-            <br /><br />
-            Email:<a 
-                id="email-button" 
-                data-umami-event="Email button" 
-                href="mailto:miroslav.pejic.85@gmail.com?subject=MiroTalk P2P info"> 
-                miroslav.pejic.85@gmail.com
-            </a>
-            <br /><br />
-            <hr />
-            <span>&copy; 2025 MiroTalk P2P, all rights reserved</span>
-            <hr />
-        </div>
+            <br/>
+            <div id="about">
+                ${
+                    brand.about?.html && brand.about.html.trim() !== ''
+                        ? brand.about.html
+                        : `
+                        <button 
+                            id="support-button" 
+                            data-umami-event="Support button" 
+                            onclick="window.open('https://codecanyon.net/user/miroslavpejic85', '_blank')">
+                            <i class="${className.heart}"></i>&nbsp;Support
+                        </button>
+                        <br /><br /><br />
+                        Author: 
+                        <a 
+                            id="linkedin-button" 
+                            data-umami-event="Linkedin button" 
+                            href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" 
+                            target="_blank"> 
+                            Miroslav Pejic
+                        </a>
+                        <br /><br />
+                        Email: 
+                        <a 
+                            id="email-button" 
+                            data-umami-event="Email button" 
+                            href="mailto:miroslav.pejic.85@gmail.com?subject=MiroTalk P2P info"> 
+                            miroslav.pejic.85@gmail.com
+                        </a>
+                        <br /><br />
+                        <hr />
+                        <span>&copy; 2025 MiroTalk P2P, all rights reserved</span>
+                        <hr />
+                        `
+                }
+            </div>
         `,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },

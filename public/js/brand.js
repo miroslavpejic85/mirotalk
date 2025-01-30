@@ -71,6 +71,36 @@ let brand = {
         advertisers: true,
         footer: true,
     },
+    about: {
+        imageUrl: '../images/mirotalk-logo.gif',
+        title: 'WebRTC P2P v1.4.72',
+        html: `
+            <button 
+                id="support-button" 
+                data-umami-event="Support button" 
+                onclick="window.open('https://codecanyon.net/user/miroslavpejic85')">
+                <i class="fas fa-heart" ></i>&nbsp;Support
+            </button>
+            <br /><br /><br />
+            Author:<a 
+                id="linkedin-button" 
+                data-umami-event="Linkedin button" 
+                href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> 
+                Miroslav Pejic
+            </a>
+            <br /><br />
+            Email:<a 
+                id="email-button" 
+                data-umami-event="Email button" 
+                href="mailto:miroslav.pejic.85@gmail.com?subject=MiroTalk P2P info"> 
+                miroslav.pejic.85@gmail.com
+            </a>
+            <br /><br />
+            <hr />
+            <span>&copy; 2025 MiroTalk P2P, all rights reserved</span>
+            <hr />
+        `,
+    },
     //...
 };
 
