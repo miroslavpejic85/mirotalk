@@ -2104,15 +2104,11 @@ function removeIP(socket) {
  * @returns
  */
 function safeRequire(filePath) {
+    let data = null;
     try {
-        // Resolve the absolute path of the module
-        const resolvedPath = require.resolve(filePath);
-        // Check if the file exists
-        if (fs.existsSync(resolvedPath)) {
-            return require(resolvedPath);
-        }
+	data = require(filePath);
     } catch (error) {
-        log.error('Module not found', filePath);
+        log.error(error);
     }
-    return null;
+    return data;
 }
