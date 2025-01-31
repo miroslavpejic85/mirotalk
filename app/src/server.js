@@ -11,22 +11,26 @@ dependencies: {
     @mattermost/client      : https://www.npmjs.com/package/@mattermost/client
     @sentry/node            : https://www.npmjs.com/package/@sentry/node
     axios                   : https://www.npmjs.com/package/axios
-    compression             : https://www.npmjs.com/package/compression
     colors                  : https://www.npmjs.com/package/colors
+    compression             : https://www.npmjs.com/package/compression
     cors                    : https://www.npmjs.com/package/cors
     crypto-js               : https://www.npmjs.com/package/crypto-js
+    dompurify               : https://www.npmjs.com/package/dompurify
     dotenv                  : https://www.npmjs.com/package/dotenv
     express                 : https://www.npmjs.com/package/express
     express-openid-connect  : https://www.npmjs.com/package/express-openid-connect
+    he                      : https://www.npmjs.com/package/he
+    helmet                  : https://www.npmjs.com/package/helmet
+    jsdom                   : https://www.npmjs.com/package/jsdom
     jsonwebtoken            : https://www.npmjs.com/package/jsonwebtoken
     js-yaml                 : https://www.npmjs.com/package/js-yaml
     ngrok                   : https://www.npmjs.com/package/ngrok
-    qs                      : https://www.npmjs.com/package/qs
+    nodemailer              : https://www.npmjs.com/package/nodemailer
     openai                  : https://www.npmjs.com/package/openai
+    qs                      : https://www.npmjs.com/package/qs
     socket.io               : https://www.npmjs.com/package/socket.io
-    swagger                 : https://www.npmjs.com/package/swagger-ui-express
+    swagger-ui-express      : https://www.npmjs.com/package/swagger-ui-express
     uuid                    : https://www.npmjs.com/package/uuid
-    xss                     : https://www.npmjs.com/package/xss
 }
 */
 
@@ -39,7 +43,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.73
+ * @version 1.4.74
  *
  */
 
@@ -54,6 +58,7 @@ const https = require('https');
 const compression = require('compression');
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const path = require('path');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
@@ -63,7 +68,7 @@ const checkXSS = require('./xss.js');
 const ServerApi = require('./api');
 const mattermostCli = require('./mattermost');
 const Validate = require('./validate');
-const HtmlInjector = require('./HtmlInjector.js');
+const HtmlInjector = require('./HtmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
@@ -379,6 +384,8 @@ const sockets = {}; // collect sockets
 const peers = {}; // collect peers info grp by channels
 const presenters = {}; // collect presenters grp by channels
 
+app.use(helmet.xssFilter()); // Enable XSS protection
+app.use(helmet.noSniff()); // Enable content type sniffing prevention
 app.use(express.static(dir.public)); // Use all static files from the public folder
 app.use(cors(corsOptions)); // Enable CORS with options
 app.use(compression()); // Compress all HTTP responses using GZip
