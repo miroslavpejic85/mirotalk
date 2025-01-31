@@ -43,7 +43,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.74
+ * @version 1.4.75
  *
  */
 
@@ -449,14 +449,29 @@ app.use((err, req, res, next) => {
     }
 });
 
-// OpenID Connect
+// OpenID Connect - Dynamically set baseURL based on incoming host and protocol
 if (OIDC.enabled) {
-    try {
-        app.use(auth(OIDC.config));
-    } catch (err) {
-        log.error(err);
-        process.exit(1);
-    }
+    const getDynamicConfig = (host, protocol) => {
+        const baseURL = `${protocol}://${host}`;
+        log.debug('OIDC baseURL', baseURL);
+        return {
+            ...OIDC.config,
+            baseURL,
+        };
+    };
+
+    // Apply the authentication middleware using dynamic baseURL configuration
+    app.use((req, res, next) => {
+        const host = req.headers.host;
+        const protocol = req.protocol === 'https' ? 'https' : 'http';
+        const dynamicOIDCConfig = getDynamicConfig(host, protocol);
+        try {
+            auth(dynamicOIDCConfig)(req, res, next);
+        } catch (err) {
+            log.error('OIDC Auth Middleware Error', err);
+            process.exit(1);
+        }
+    });
 }
 
 // Route to display user information
