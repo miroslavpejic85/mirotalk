@@ -43,7 +43,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.76
+ * @version 1.4.77
  *
  */
 
@@ -68,7 +68,7 @@ const checkXSS = require('./xss.js');
 const ServerApi = require('./api');
 const mattermostCli = require('./mattermost');
 const Validate = require('./validate');
-const HtmlInjector = require('./htmlInject');
+const HtmlInjector = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
