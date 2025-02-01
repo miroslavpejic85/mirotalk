@@ -1,9 +1,11 @@
 'use strict';
 
-const checkXSS = require('./xss.js');
+const path = require('path');
+
+const checkXSS = require('./XSS.js');
 
 function isValidRoomName(input) {
-    if (typeof input !== 'string') {
+    if (!input || typeof input !== 'string') {
         return false;
     }
     const room = checkXSS(input);
@@ -11,8 +13,31 @@ function isValidRoomName(input) {
 }
 
 function hasPathTraversal(input) {
+    if (!input || typeof input !== 'string') {
+        return false;
+    }
+
+    let decodedInput = input;
+    try {
+        decodedInput = decodeURIComponent(input);
+        decodedInput = decodeURIComponent(decodedInput);
+    } catch (err) {}
+
     const pathTraversalPattern = /(\.\.(\/|\\))+/;
-    return pathTraversalPattern.test(input);
+    const excessiveDotsPattern = /(\.{4,}\/+|\.{4,}\\+)/;
+    const complexTraversalPattern = /(\.{2,}(\/+|\\+))/;
+
+    if (complexTraversalPattern.test(decodedInput)) {
+        return true;
+    }
+
+    const normalizedPath = path.normalize(decodedInput);
+
+    if (pathTraversalPattern.test(normalizedPath) || excessiveDotsPattern.test(normalizedPath)) {
+        return true;
+    }
+
+    return false;
 }
 
 module.exports = {
