@@ -68,7 +68,7 @@ const checkXSS = require('./xss.js');
 const ServerApi = require('./api');
 const mattermostCli = require('./mattermost');
 const Validate = require('./validate');
-const HtmlInjector = require('./htmlInjector');
+const htmlInject = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
@@ -377,7 +377,7 @@ const views = {
 
 // File to cache and inject custom HTML data like OG tags and any other elements.
 const filesPath = [views.landing, views.newCall, views.client, views.login];
-const htmlInjector = new HtmlInjector(filesPath, config?.brand || null);
+const htmlInjector = new htmlInject(filesPath, config?.brand || null);
 
 const channels = {}; // collect channels
 const sockets = {}; // collect sockets

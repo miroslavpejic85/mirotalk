@@ -4,7 +4,7 @@ const Logger = require('./logs');
 
 const log = new Logger('HtmlInjector');
 
-class HtmlInjector {
+class htmlInjector {
     constructor(filesPath, config) {
         this.filesPath = filesPath; // Array of file paths to cache
         this.cache = {}; // Object to store cached files
@@ -92,4 +92,4 @@ class HtmlInjector {
     }
 }
 
-module.exports = HtmlInjector;
+module.exports = htmlInjector;
