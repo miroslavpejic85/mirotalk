@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-const checkXSS = require('./XSS.js');
+const checkXSS = require('./xss.js');
 
 function isValidRoomName(input) {
     if (!input || typeof input !== 'string') {
