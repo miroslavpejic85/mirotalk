@@ -43,7 +43,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.78
+ * @version 1.4.79
  *
  */
 
@@ -327,23 +327,32 @@ const OIDC = {
 // Custom middleware function for OIDC authentication
 function OIDCAuth(req, res, next) {
     if (OIDC.enabled) {
+        function handleHostProtected(req) {
+            if (!hostCfg.protected) return;
+
+            const ip = authHost.getIP(req);
+            hostCfg.authenticated = true;
+            authHost.setAuthorizedIP(ip, true);
+            // Check...
+            log.debug('OIDC ------> Host protected', {
+                authenticated: hostCfg.authenticated,
+                authorizedIPs: authHost.getAuthorizedIPs(),
+            });
+        }
+
+        if (req.oidc.isAuthenticated()) {
+            log.debug('OIDC ------> User already Authenticated');
+            handleHostProtected(req);
+            return next();
+        }
+
         // Apply requiresAuth() middleware conditionally
         requiresAuth()(req, res, function () {
-            log.debug('[OIDC] ------> requiresAuth');
+            log.debug('OIDC ------> requiresAuth');
             // Check if user is authenticated
             if (req.oidc.isAuthenticated()) {
                 log.debug('[OIDC] ------> User isAuthenticated');
-                // User is authenticated
-                if (hostCfg.protected) {
-                    const ip = authHost.getIP(req);
-                    hostCfg.authenticated = true;
-                    authHost.setAuthorizedIP(ip, true);
-                    // Check...
-                    log.debug('[OIDC] ------> Host protected', {
-                        authenticated: hostCfg.authenticated,
-                        authorizedIPs: authHost.getAuthorizedIPs(),
-                    });
-                }
+                handleHostProtected(req);
                 next();
             } else {
                 // User is not authenticated
