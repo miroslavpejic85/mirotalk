@@ -43,7 +43,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.77
+ * @version 1.4.78
  *
  */
 
@@ -118,6 +118,9 @@ if (isHttps) {
 } else {
     server = http.createServer(app);
 }
+
+// Trust Proxy
+const trustProxy = !!getEnvBoolean(process.env.TRUST_PROXY);
 
 // Cors
 
@@ -312,7 +315,7 @@ const OIDC = {
             scope: 'openid profile email',
         },
         authRequired: process.env.OIDC_AUTH_REQUIRED ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED) : false, // Set to true if authentication is required for all routes
-        auth0Logout: true, // Set to true to enable logout with Auth0
+        auth0Logout: process.env.OIDC_AUTH_LOGOUT ? getEnvBoolean(process.env.OIDC_AUTH_LOGOUT) : true, // Set to true to enable logout with Auth0
         routes: {
             callback: '/auth/callback', // Indicating the endpoint where your application will handle the callback from the authentication provider after a user has been authenticated.
             login: false, // Dedicated route in your application for user login.
@@ -384,6 +387,7 @@ const sockets = {}; // collect sockets
 const peers = {}; // collect peers info grp by channels
 const presenters = {}; // collect presenters grp by channels
 
+app.set('trust proxy', trustProxy); // Enables trust for proxy headers (e.g., X-Forwarded-For) based on the trustProxy setting
 app.use(helmet.xssFilter()); // Enable XSS protection
 app.use(helmet.noSniff()); // Enable content type sniffing prevention
 app.use(express.static(dir.public)); // Use all static files from the public folder
@@ -973,6 +977,7 @@ function getServerConfig(tunnel = false) {
         // General Server Information
         server: host,
         server_tunnel: tunnel,
+        trust_proxy: trustProxy,
         api_docs: api_docs,
 
         // Core Configurations
