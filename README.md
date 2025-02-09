@@ -28,9 +28,11 @@
 
 <hr />
 
-<p align="center">
-    Join our community for questions, discussions, and support on <a href="https://discord.gg/rgGYfeYW3N">Discord</a>
-</p>
+<strong>
+    <p align="center">
+        Join our Community for questions, help, support, ideas, and discussions on <a href='https://discord.gg/rgGYfeYW3N'>Discord</a>
+    </p>
+</strong>
 
 <hr />
 
