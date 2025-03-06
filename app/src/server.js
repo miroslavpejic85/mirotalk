@@ -43,7 +43,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.81
+ * @version 1.4.82
  *
  */
 
@@ -304,6 +304,7 @@ const ipWhitelist = {
 // OIDC - Open ID Connect
 const OIDC = {
     enabled: process.env.OIDC_ENABLED ? getEnvBoolean(process.env.OIDC_ENABLED) : false,
+    baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
     config: {
         issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
         clientID: process.env.OIDC_CLIENT_ID,
@@ -465,11 +466,17 @@ app.use((err, req, res, next) => {
 if (OIDC.enabled) {
     const getDynamicConfig = (host, protocol) => {
         const baseURL = `${protocol}://${host}`;
-        log.debug('OIDC baseURL', baseURL);
-        return {
-            ...OIDC.config,
-            baseURL,
-        };
+
+        const config = OIDC.baseUrlDynamic
+            ? {
+                  ...OIDC.config,
+                  baseURL,
+              }
+            : OIDC.config;
+
+        log.debug('OIDC baseURL', config.baseURL);
+
+        return config;
     };
 
     // Apply the authentication middleware using dynamic baseURL configuration
@@ -1877,7 +1884,7 @@ function isValidFileName(fileName) {
 function isValidHttpURL(input) {
     try {
         const url = new URL(input);
-        return url.protocol === "http:" || url.protocol === "https:";
+        return url.protocol === 'http:' || url.protocol === 'https:';
     } catch (_) {
         return false;
     }
