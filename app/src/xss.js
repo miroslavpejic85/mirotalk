@@ -71,11 +71,19 @@ function needsDecoding(str) {
     return urlEncodedPattern.test(str);
 }
 
-// Recursively sanitize data based on its type
+function safeDecodeURIComponent(str) {
+    try {
+        return decodeURIComponent(str);
+    } catch (e) {
+        log.error('Malformed URI component detected:', str);
+        return str; // Return original string if decoding fails
+    }
+}
+
 function sanitizeData(data) {
     if (typeof data === 'string') {
         // Decode HTML entities and URL encoded content
-        const decodedData = needsDecoding(data) ? he.decode(decodeURIComponent(data)) : he.decode(data);
+        const decodedData = needsDecoding(data) ? he.decode(safeDecodeURIComponent(data)) : he.decode(data);
         return purify.sanitize(decodedData);
     }
 
