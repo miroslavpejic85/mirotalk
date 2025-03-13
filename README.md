@@ -147,7 +147,7 @@ When [host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) 
 
 ![nodejs](public/images/nodejs.png)
 
-- Before running MiroTalk P2P, ensure you have `Node.js` installed. This project has been tested with Node versions [12.X](https://nodejs.org/en/blog/release/v12.22.1/), [14.X](https://nodejs.org/en/blog/release/v14.17.5/), [16.X](https://nodejs.org/en/blog/release/v16.15.1/) and [18.x](https://nodejs.org/en/download).
+- Before running MiroTalk P2P, ensure you have `Node.js` [installed](https://nodejs.org/en/download).
 
 ```bash
 # clone this repo
