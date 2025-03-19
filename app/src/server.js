@@ -43,7 +43,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.85
+ * @version 1.4.86
  *
  */
 
@@ -399,7 +399,18 @@ const presenters = {}; // collect presenters grp by channels
 
 app.set('trust proxy', trustProxy); // Enables trust for proxy headers (e.g., X-Forwarded-For) based on the trustProxy setting
 app.use(helmet.noSniff()); // Enable content type sniffing prevention
-app.use(express.static(dir.public)); // Use all static files from the public folder
+
+// Use all static files from the public folder
+app.use(
+    express.static(dir.public, {
+        setHeaders: (res, filePath) => {
+            if (filePath.endsWith('.js')) {
+                res.setHeader('Content-Type', 'application/javascript');
+            } //...
+        },
+    }),
+);
+
 app.use(cors(corsOptions)); // Enable CORS with options
 app.use(compression()); // Compress all HTTP responses using GZip
 app.use(express.json()); // Parse JSON bodies

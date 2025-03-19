@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MiroTalk Iframe demo</title>
+
+        <!-- Replace p2p.mirotalk.com with YOUR-DOMAIN-NAME -->
+        <script src="https://p2p.mirotalk.com/js/iframe.js" defer></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const domain = 'p2p.mirotalk.com'; // YOUR-DOMAIN-NAME
+                const options = {
+                    room: 'test',
+                    name: 'mirotalk',
+                    audio: 0,
+                    video: 0,
+                    screen: 0,
+                    hide: 0,
+                    notify: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    parentNode: document.querySelector('#meet'),
+                }; // https://docs.mirotalk.com/mirotalk-p2p/join-room/
+                const api = new IframeApi(domain, options);
+            });
+        </script>
+    </head>
+    <body>
+        <div id="meet"></div>
+    </body>
+</html>
