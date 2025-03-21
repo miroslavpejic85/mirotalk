@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.87
+ * @version 1.4.88
  *
  */
 
@@ -3512,7 +3512,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
 
             // pin video on screen share detected
-            if (peer_video_status && peer_screen_status) remoteVideoPinBtn.click();
+            if (peer_video_status && peer_screen_status) {
+                remoteVideoPinBtn.click();
+            }
 
             // handle video full screen mode
             isVideoFullScreenSupported && handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
@@ -6627,7 +6629,9 @@ async function toggleScreenSharing(init = false) {
                 isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
             }
 
-            if (isScreenStreaming || isVideoPinned) myVideoPinBtn.click();
+            if ((isScreenStreaming && thereArePeerConnections()) || isVideoPinned) {
+                myVideoPinBtn.click();
+            }
         }
     } catch (err) {
         err.name === 'NotAllowedError'
@@ -11035,7 +11039,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.87',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.88',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
