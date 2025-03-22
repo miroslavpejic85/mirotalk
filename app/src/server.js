@@ -9,6 +9,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Server
 
 dependencies: {
     @mattermost/client      : https://www.npmjs.com/package/@mattermost/client
+    @ngrok/ngrok            : https://www.npmjs.com/package/@ngrok/ngrok
     @sentry/node            : https://www.npmjs.com/package/@sentry/node
     axios                   : https://www.npmjs.com/package/axios
     chokidar                : https://www.npmjs.com/package/chokidar
@@ -26,7 +27,6 @@ dependencies: {
     jsdom                   : https://www.npmjs.com/package/jsdom
     jsonwebtoken            : https://www.npmjs.com/package/jsonwebtoken
     js-yaml                 : https://www.npmjs.com/package/js-yaml
-    ngrok                   : https://www.npmjs.com/package/ngrok
     nodemailer              : https://www.npmjs.com/package/nodemailer
     openai                  : https://www.npmjs.com/package/openai
     qs                      : https://www.npmjs.com/package/qs
@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.90
+ * @version 1.4.91
  *
  */
 
@@ -178,7 +178,7 @@ const apiDisabledString = process.env.API_DISABLED || '["token", "meetings"]';
 const api_disabled = JSON.parse(apiDisabledString);
 
 // Ngrok config
-const ngrok = require('ngrok');
+const ngrok = require('@ngrok/ngrok');
 const ngrokEnabled = getEnvBoolean(process.env.NGROK_ENABLED);
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 
@@ -1038,11 +1038,9 @@ function getServerConfig(tunnel = false) {
 async function ngrokStart() {
     try {
         await ngrok.authtoken(ngrokAuthToken);
-        await ngrok.connect(port);
-        const api = ngrok.getApi();
-        const list = await api.listTunnels();
-        const tunnel = list.tunnels[0].public_url;
-        log.info('Server config', getServerConfig(tunnel));
+        const listener = await ngrok.forward({ addr: port });
+        const tunnelUrl = listener.url();
+        log.info('Server config', getServerConfig(tunnelUrl));
     } catch (err) {
         log.warn('[Error] ngrokStart', err);
         process.exit(1);
