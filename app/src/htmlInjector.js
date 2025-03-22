@@ -1,7 +1,7 @@
 const fs = require('fs');
+const chokidar = require('chokidar');
 
 const Logger = require('./logs');
-
 const log = new Logger('HtmlInjector');
 
 class HtmlInjector {
@@ -10,6 +10,8 @@ class HtmlInjector {
         this.cache = {}; // Object to store cached files
         this.config = config; // Configuration containing metadata (OG, title, etc.)
         this.injectData = this.getInjectData(); // Initialize dynamic injection data
+        this.watcher = null; // File watcher instance
+
         this.preloadPages(filesPath); // Preload pages at startup
         this.watchFiles(filesPath); // Watch files for changes
         log.info('filesPath cached', this.filesPath);
@@ -45,20 +47,26 @@ class HtmlInjector {
         filePaths.forEach((filePath) => this.loadFileToCache(filePath));
     }
 
-    // Function to watch a file for changes and reload the cache
-    watchFileForChanges(filePath) {
-        fs.watch(filePath, (eventType) => {
-            if (eventType === 'change') {
+    // Function to watch files for changes using chokidar
+    watchFiles(filePaths) {
+        if (this.watcher) {
+            this.watcher.close(); // Close existing watcher if any
+        }
+
+        this.watcher = chokidar.watch(filePaths, {
+            persistent: true,
+            ignoreInitial: true, // Ignore initial 'add' events
+        });
+
+        this.watcher
+            .on('change', (filePath) => {
                 log.debug(`File changed: ${filePath}`);
                 this.loadFileToCache(filePath);
-                log.debug(`Reload the file ${filePath} into cache`);
-            }
-        });
-    }
-
-    // Function to watch all files for changes
-    watchFiles(filePaths) {
-        filePaths.forEach((filePath) => this.watchFileForChanges(filePath));
+                log.debug(`Reloaded file ${filePath} into cache`);
+            })
+            .on('error', (error) => {
+                log.error(`Watcher error: ${error.message}`);
+            });
     }
 
     // Function to inject dynamic data (e.g., OG, TITLE, etc.) into a given file
@@ -88,6 +96,13 @@ class HtmlInjector {
             if (!res.headersSent) {
                 res.status(500).send('Server Error');
             }
+        }
+    }
+
+    // Cleanup watcher when the instance is no longer needed
+    cleanup() {
+        if (this.watcher) {
+            this.watcher.close();
         }
     }
 }

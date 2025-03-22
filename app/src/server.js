@@ -11,6 +11,7 @@ dependencies: {
     @mattermost/client      : https://www.npmjs.com/package/@mattermost/client
     @sentry/node            : https://www.npmjs.com/package/@sentry/node
     axios                   : https://www.npmjs.com/package/axios
+    chokidar                : https://www.npmjs.com/package/chokidar
     colors                  : https://www.npmjs.com/package/colors
     compression             : https://www.npmjs.com/package/compression
     cors                    : https://www.npmjs.com/package/cors
@@ -44,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.89
+ * @version 1.4.90
  *
  */
 
@@ -1043,7 +1044,7 @@ async function ngrokStart() {
         const tunnel = list.tunnels[0].public_url;
         log.info('Server config', getServerConfig(tunnel));
     } catch (err) {
-        log.warn('[Error] ngrokStart', err.body);
+        log.warn('[Error] ngrokStart', err);
         process.exit(1);
     }
 }
@@ -2139,3 +2140,16 @@ function safeRequire(filePath) {
     }
     return data;
 }
+
+/**
+ * Cleanup HTML injector when the application is shutting down
+ */
+process.on('SIGINT', () => {
+    htmlInjector.cleanup();
+    process.exit();
+});
+
+process.on('SIGTERM', () => {
+    htmlInjector.cleanup();
+    process.exit();
+});
