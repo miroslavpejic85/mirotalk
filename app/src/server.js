@@ -21,6 +21,7 @@ dependencies: {
     express-openid-connect  : https://www.npmjs.com/package/express-openid-connect
     he                      : https://www.npmjs.com/package/he
     helmet                  : https://www.npmjs.com/package/helmet
+    httpolyglot             : https://www.npmjs.com/package/httpolyglot
     jsdom                   : https://www.npmjs.com/package/jsdom
     jsonwebtoken            : https://www.npmjs.com/package/jsonwebtoken
     js-yaml                 : https://www.npmjs.com/package/js-yaml
@@ -43,7 +44,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.88
+ * @version 1.4.89
  *
  */
 
@@ -53,8 +54,7 @@ require('dotenv').config();
 
 const { auth, requiresAuth } = require('express-openid-connect');
 const { Server } = require('socket.io');
-const http = require('http');
-const https = require('https');
+const httpolyglot = require('httpolyglot');
 const compression = require('compression');
 const express = require('express');
 const cors = require('cors');
@@ -81,49 +81,28 @@ const nodemailer = require('./lib/nodemailer');
 
 const packageJson = require('../../package.json');
 
-const domain = process.env.HOST || 'localhost';
-const isHttps = process.env.HTTPS == 'true'; // Use self-signed certificates instead of Certbot and Let's Encrypt
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
-const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
+const host = process.env.HOST || `http://localhost:${port}`;
 
 const authHost = new Host(); // Authenticated IP by Login
 
-let server;
+// Define paths to the SSL key and certificate files
+const keyPath = path.join(__dirname, '../ssl/key.pem');
+const certPath = path.join(__dirname, '../ssl/cert.pem');
 
-if (isHttps) {
-    // Define paths to the SSL key and certificate files
-    const keyPath = path.join(__dirname, '../ssl/key.pem');
-    const certPath = path.join(__dirname, '../ssl/cert.pem');
+// Read SSL key and certificate files securely
+const options = {
+    key: fs.readFileSync(keyPath, 'utf-8'),
+    cert: fs.readFileSync(certPath, 'utf-8'),
+};
 
-    // Check if SSL key file exists
-    if (!fs.existsSync(keyPath)) {
-        log.error('SSL key file not found.');
-        process.exit(1); // Exit the application if the key file is missing
-    }
-
-    // Check if SSL certificate file exists
-    if (!fs.existsSync(certPath)) {
-        log.error('SSL certificate file not found.');
-        process.exit(1); // Exit the application if the certificate file is missing
-    }
-
-    // Read SSL key and certificate files securely
-    const options = {
-        key: fs.readFileSync(keyPath, 'utf-8'),
-        cert: fs.readFileSync(certPath, 'utf-8'),
-    };
-
-    // Create HTTPS server using self-signed certificates
-    server = https.createServer(options, app);
-} else {
-    server = http.createServer(app);
-}
+// Server both http and https
+const server = httpolyglot.createServer(options, app);
 
 // Trust Proxy
 const trustProxy = !!getEnvBoolean(process.env.TRUST_PROXY);
 
 // Cors
-
 const cors_origin = process.env.CORS_ORIGIN;
 const cors_methods = process.env.CORS_METHODS;
 
@@ -1018,7 +997,6 @@ function getServerConfig(tunnel = false) {
         host_protected: hostCfg.protected || hostCfg.user_auth ? hostCfg : false,
         presenters: roomPresenters,
         ip_whitelist: ipWhitelist.enabled ? ipWhitelist : false,
-        self_signed_certificate: isHttps,
         api_key_secret: api_key_secret,
 
         // Media and Connection Settings
@@ -1089,7 +1067,7 @@ server.listen(port, null, () => {
     );
 
     // https tunnel
-    if (ngrokEnabled && isHttps === false) {
+    if (ngrokEnabled) {
         ngrokStart();
     } else {
         log.info('Server config', getServerConfig());
