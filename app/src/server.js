@@ -1043,6 +1043,7 @@ async function ngrokStart() {
         log.info('Server config', getServerConfig(tunnelUrl));
     } catch (err) {
         log.warn('[Error] ngrokStart', err);
+        await ngrok.kill();
         process.exit(1);
     }
 }
