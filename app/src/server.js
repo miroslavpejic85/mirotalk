@@ -2144,11 +2144,13 @@ function safeRequire(filePath) {
  * Cleanup HTML injector when the application is shutting down
  */
 process.on('SIGINT', () => {
+    log.debug('PROCESS', 'SIGINT');
     htmlInjector.cleanup();
     process.exit();
 });
 
 process.on('SIGTERM', () => {
+    log.debug('PROCESS', 'SIGTERM');
     htmlInjector.cleanup();
     process.exit();
 });
