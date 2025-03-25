@@ -334,51 +334,56 @@ body {
 .caption-draggable {
     z-index: 14;
     display: none;
+    flex-direction: column;
     position: fixed;
-    /* end center screen  */
     height: var(--caption-height);
     width: var(--caption-width);
     min-height: var(--caption-height);
     min-width: var(--caption-width);
     background: var(--msger-bg);
     border: var(--border);
-    /* text-align: justify; */
     resize: both;
     overflow: hidden;
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: var(--box-shadow);
-    transition: width 0.5s ease-in-out;
+    transition:
+        width 0.4s ease-in-out,
+        height 0.4s ease-in-out;
 }
 
 .caption {
+    display: flex;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-flow: column wrap;
+    flex-direction: column;
     justify-content: space-between;
     background: var(--msger-bg);
+    border-radius: 12px;
 }
 
+/* Draggable Header */
 .caption-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    color: #666;
-    cursor: move;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    cursor: grab;
+    font-weight: bold;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 .caption-header-title button,
 .caption-header-options button {
-    padding: 5px;
-    /* border: var(--border); */
+    padding: 6px 10px;
     border: none;
     font-size: 1rem;
     background: transparent;
     color: #fff;
-    border-radius: 5px;
+    border-radius: 6px;
     transition: all 0.3s ease-in-out;
-    transition: background 0.23s;
 }
 
 .caption-header-title button:hover,
@@ -386,16 +391,20 @@ body {
     background: var(--body-bg);
 }
 
+/* Chat Box */
 .caption-chat {
     flex: 1;
     overflow-y: auto;
-    padding: 10px;
+    padding: 12px;
     background: transparent;
-    max-width: 95%;
+    max-width: 100%;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
+/* Scrollbar Styling */
 .caption-chat::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
 }
 
 .caption-chat::-webkit-scrollbar-track {
@@ -404,27 +413,36 @@ body {
 
 .caption-chat::-webkit-scrollbar-thumb {
     background: black;
-    /*aqua;*/
+    border-radius: 5px;
 }
 
+/* Input Area */
 .caption-inputarea {
-    display: inline-flex;
+    display: flex;
+    align-items: center;
     padding: 10px;
-    border: none;
-    border: var(--border);
+    border-top: var(--border);
+    background: var(--msger-bg);
 }
 
 .caption-inputarea select {
+    min-width: 50px;
     margin: 0 5px;
+    padding: 5px;
     background: var(--select-bg) !important;
+    border-radius: 6px;
     cursor: pointer;
+    border: none;
 }
 
+/* Message Bubble */
 .left-msg .msg-caption-bubble {
     background: var(--left-msg-bg);
     border-bottom-left-radius: 0;
     color: #fff;
     width: var(--msger-bubble-width);
+    padding: 8px 12px;
+    border-radius: 8px;
 }
 
 #captionMaxBtn,
@@ -432,13 +450,16 @@ body {
     display: none;
 }
 
+/* Speech Recognition Buttons */
 #speechRecognitionStart,
 #speechRecognitionStop {
     margin: 0 5px;
+    padding: 6px 12px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     color: #fff;
     background-color: transparent;
+    transition: background 0.3s;
 }
 
 #speechRecognitionStart:hover,
@@ -470,46 +491,42 @@ body {
 }
 
 .msger {
+    display: flex;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-flow: column wrap;
+    flex-direction: column;
     justify-content: space-between;
     background: var(--msger-bg);
+    border-radius: 12px;
 }
 
 /*--------------------------------------------------------------
 # Chat room header
 --------------------------------------------------------------*/
 
-.msger-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    color: #666;
-    cursor: move;
-}
-
+.msger-header,
 .msger-private-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    color: #666;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    cursor: grab;
+    font-weight: bold;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 .msger-header-title button,
 .msger-header-options button {
-    padding: 5px;
-    /* border: var(--border); */
+    padding: 6px 10px;
     border: none;
     font-size: 1rem;
     background: transparent;
     color: #fff;
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
-    transition: background 0.23s;
 }
 
 .msger-header-title button:hover,
@@ -529,13 +546,15 @@ body {
 .msger-chat {
     flex: 1;
     overflow-y: auto;
-    padding: 10px;
+    padding: 12px;
     background: transparent;
-    max-width: 95%;
+    max-width: 100%;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .msger-chat::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
 }
 
 .msger-chat::-webkit-scrollbar-track {
@@ -743,13 +762,12 @@ button:hover {
 --------------------------------------------------------------*/
 
 .msger-input-buttons {
-    padding: 10px;
+    padding: 15px;
     background: var(--msger-bg);
 }
 
 .msger-input-buttons button {
-    padding: 5px;
-    /* border: var(--border); */
+    padding: 5px 6px;
     border: none;
     border-radius: 5px;
     font-size: 1rem;
