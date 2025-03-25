@@ -7256,7 +7256,7 @@ function handleMediaRecorderStop(event) {
         });
         isRecScreenStream = false;
     }
-    recordStreamBtn.style.setProperty('color', '#000');
+    recordStreamBtn.style.setProperty('color', '#ffffff');
     downloadRecordedStream();
     setTippy(recordStreamBtn, 'Start recording', placement);
     if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
