@@ -422,7 +422,7 @@ body {
     align-items: center;
     padding: 10px;
     border-top: var(--border);
-    background: var(--msger-bg);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .caption-inputarea select {
@@ -725,7 +725,7 @@ button:hover {
 .msger-inputarea {
     display: flex;
     padding: 10px;
-    background: var(--msger-bg);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .msger-input {
@@ -763,7 +763,7 @@ button:hover {
 
 .msger-input-buttons {
     padding: 15px;
-    background: var(--msger-bg);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 .msger-input-buttons button {
