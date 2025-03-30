@@ -4,7 +4,7 @@ services:
         container_name: mirotalk
         hostname: mirotalk
         volumes:
-            - .env:/src/.env:ro
+            - ./.env:/src/.env:ro
             # Rebranding:
             # - ./app/src/config.js:/src/app/src/config.js:ro
             # Optional volumes for real-time updates:

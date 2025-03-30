@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.93
+ * @version 1.4.94
  *
  */
 
@@ -1740,6 +1740,7 @@ async function changeInitCamera(deviceId) {
     await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
+            camera = detectCameraFacingMode(camStream);
             updateInitLocalVideoMediaStream(camStream);
         })
         .catch(async (err) => {
@@ -1753,6 +1754,7 @@ async function changeInitCamera(deviceId) {
                         },
                     },
                 }); // Fallback to default constraints
+                camera = detectCameraFacingMode(camStream);
                 updateInitLocalVideoMediaStream(camStream);
             } catch (fallbackErr) {
                 console.error('Error accessing init video device with default constraints', fallbackErr);
@@ -1775,6 +1777,28 @@ async function changeInitCamera(deviceId) {
             localVideoMediaStream = camStream;
             console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
         }
+    }
+
+    /**
+     * Detects whether the camera stream is front-facing ('user') or rear-facing ('environment').
+     * Defaults to 'user' (front-facing) if detection fails (e.g., desktop cameras).
+     * @param {MediaStream} stream - The video stream from `getUserMedia`.
+     * @returns {string} 'user' (front) or 'environment' (rear).
+     */
+    function detectCameraFacingMode(stream) {
+        if (!stream || !stream.getVideoTracks().length) {
+            console.warn("No video track found in the stream. Defaulting to 'user'.");
+            return 'user';
+        }
+
+        const videoTrack = stream.getVideoTracks()[0];
+        const settings = videoTrack.getSettings();
+        const capabilities = videoTrack.getCapabilities?.() || {};
+
+        // Priority: settings.facingMode (actual) → capabilities.facingMode (possible) → default 'user'
+        const facingMode = settings.facingMode || capabilities.facingMode?.[0] || 'user';
+
+        return facingMode === 'environment' ? 'environment' : 'user'; // Force valid output
     }
 
     /**
@@ -5919,9 +5943,10 @@ async function handleLocalCameraMirror() {
         }
     } else {
         // Mobile, Tablet, IPad devices...
-        if (initVideo.classList.contains('mirror')) {
-            initVideo.classList.remove('mirror');
-        }
+        camera === 'environment'
+            ? initVideo.classList.remove('mirror') // Back camera → No mirror
+            : initVideo.classList.add('mirror'); // Disable mirror for rear camera
+
         if (myVideo.classList.contains('mirror')) {
             myVideo.classList.remove('mirror');
         }
@@ -11039,7 +11064,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.93',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.94',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
