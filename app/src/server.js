@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.94
+ * @version 1.4.95
  *
  */
 
@@ -425,16 +425,6 @@ app.use((req, res, next) => {
 // Mattermost
 const mattermost = new mattermostCli(app, mattermostCfg);
 
-// POST start from here...
-app.post('*', function (next) {
-    next();
-});
-
-// GET start from here...
-app.get('*', function (next) {
-    next();
-});
-
 // Remove trailing slashes in url handle bad requests
 app.use((err, req, res, next) => {
     if (err instanceof SyntaxError || err.status === 400 || 'body' in err) {
@@ -683,7 +673,7 @@ app.get('/join/:roomId', function (req, res) {
 });
 
 // Not specified correctly the room id
-app.get('/join/*', function (req, res) {
+app.get('/join/\\*', function (req, res) {
     res.redirect('/');
 });
 
@@ -969,7 +959,7 @@ function getMeetingURL(host) {
 // end of MiroTalk API v1
 
 // not match any of page before, so 404 not found
-app.get('*', function (req, res) {
+app.get('\\*', function (req, res) {
     res.sendFile(views.notFound);
 });
 
