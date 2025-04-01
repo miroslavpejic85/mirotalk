@@ -1759,7 +1759,6 @@ async function changeInitCamera(deviceId) {
     await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
-            camera = detectCameraFacingMode(camStream);
             updateInitLocalVideoMediaStream(camStream);
         })
         .catch(async (err) => {
@@ -1773,7 +1772,6 @@ async function changeInitCamera(deviceId) {
                         },
                     },
                 }); // Fallback to default constraints
-                camera = detectCameraFacingMode(camStream);
                 updateInitLocalVideoMediaStream(camStream);
             } catch (fallbackErr) {
                 console.error('Error accessing init video device with default constraints', fallbackErr);
@@ -1787,6 +1785,9 @@ async function changeInitCamera(deviceId) {
      */
     function updateInitLocalVideoMediaStream(camStream) {
         if (camStream) {
+            // Detect camera
+            camera = detectCameraFacingMode(camStream);
+            console.log('Detect Camera facing mode', camera);
             // We going to update init video stream
             initVideo.srcObject = camStream;
             initStream = camStream;
@@ -1832,7 +1833,6 @@ async function changeLocalCamera(deviceId) {
     await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
-            camera = detectCameraFacingMode(camStream);
             updateLocalVideoMediaStream(camStream);
         })
         .catch(async (err) => {
@@ -1846,7 +1846,6 @@ async function changeLocalCamera(deviceId) {
                         },
                     },
                 });
-                camera = detectCameraFacingMode(camStream);
                 updateLocalVideoMediaStream(camStream);
             } catch (fallbackErr) {
                 console.error('Error accessing init video device with default constraints', fallbackErr);
@@ -1860,6 +1859,8 @@ async function changeLocalCamera(deviceId) {
      */
     function updateLocalVideoMediaStream(camStream) {
         if (camStream) {
+            camera = detectCameraFacingMode(camStream);
+            console.log('Detect Camera facing mode', camera);
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
             logStreamSettingsInfo('Success attached local video stream', camStream);
