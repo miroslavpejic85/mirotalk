@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.95
+ * @version 1.4.96
  *
  */
 
@@ -1721,6 +1721,25 @@ async function checkInitConfig() {
 }
 
 /**
+ * Detects whether the camera stream is front-facing ('user') or rear-facing ('environment').
+ * Defaults to 'user' (front-facing) if detection fails (e.g., desktop cameras).
+ * @param {MediaStream} stream - The video stream from `getUserMedia`.
+ * @returns {string} 'user' (front) or 'environment' (rear).
+ */
+function detectCameraFacingMode(stream) {
+    if (!stream || !stream.getVideoTracks().length) {
+        console.warn("No video track found in the stream. Defaulting to 'user'.");
+        return 'user';
+    }
+    const videoTrack = stream.getVideoTracks()[0];
+    const settings = videoTrack.getSettings();
+    const capabilities = videoTrack.getCapabilities?.() || {};
+    // Priority: settings.facingMode (actual) → capabilities.facingMode (possible) → default 'user'
+    const facingMode = settings.facingMode || capabilities.facingMode?.[0] || 'user';
+    return facingMode === 'environment' ? 'environment' : 'user'; // Force valid output
+}
+
+/**
  * Change init camera by device id
  * @param {string} deviceId
  */
@@ -1780,28 +1799,6 @@ async function changeInitCamera(deviceId) {
     }
 
     /**
-     * Detects whether the camera stream is front-facing ('user') or rear-facing ('environment').
-     * Defaults to 'user' (front-facing) if detection fails (e.g., desktop cameras).
-     * @param {MediaStream} stream - The video stream from `getUserMedia`.
-     * @returns {string} 'user' (front) or 'environment' (rear).
-     */
-    function detectCameraFacingMode(stream) {
-        if (!stream || !stream.getVideoTracks().length) {
-            console.warn("No video track found in the stream. Defaulting to 'user'.");
-            return 'user';
-        }
-
-        const videoTrack = stream.getVideoTracks()[0];
-        const settings = videoTrack.getSettings();
-        const capabilities = videoTrack.getCapabilities?.() || {};
-
-        // Priority: settings.facingMode (actual) → capabilities.facingMode (possible) → default 'user'
-        const facingMode = settings.facingMode || capabilities.facingMode?.[0] || 'user';
-
-        return facingMode === 'environment' ? 'environment' : 'user'; // Force valid output
-    }
-
-    /**
      * Something going wrong
      * @param {object} err
      */
@@ -1835,6 +1832,7 @@ async function changeLocalCamera(deviceId) {
     await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
         .then((camStream) => {
+            camera = detectCameraFacingMode(camStream);
             updateLocalVideoMediaStream(camStream);
         })
         .catch(async (err) => {
@@ -1848,6 +1846,7 @@ async function changeLocalCamera(deviceId) {
                         },
                     },
                 });
+                camera = detectCameraFacingMode(camStream);
                 updateLocalVideoMediaStream(camStream);
             } catch (fallbackErr) {
                 console.error('Error accessing init video device with default constraints', fallbackErr);
@@ -5933,23 +5932,14 @@ function setupVideoUrlPlayer() {
  * Handle Camera mirror logic
  */
 async function handleLocalCameraMirror() {
-    if (isDesktopDevice) {
-        // Desktop devices...
-        if (!initVideo.classList.contains('mirror')) {
-            initVideo.classList.toggle('mirror');
-        }
-        if (!myVideo.classList.contains('mirror')) {
-            myVideo.classList.toggle('mirror');
-        }
+    if (camera === 'environment') {
+        // Back camera → No mirror
+        initVideo.classList.remove('mirror');
+        myVideo.classList.remove('mirror');
     } else {
-        // Mobile, Tablet, IPad devices...
-        camera === 'environment'
-            ? initVideo.classList.remove('mirror') // Back camera → No mirror
-            : initVideo.classList.add('mirror'); // Disable mirror for rear camera
-
-        if (myVideo.classList.contains('mirror')) {
-            myVideo.classList.remove('mirror');
-        }
+        // Disable mirror for rear camera
+        initVideo.classList.add('mirror');
+        myVideo.classList.add('mirror');
     }
 }
 
@@ -11064,7 +11054,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.95',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.96',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
