@@ -192,9 +192,9 @@ $ cp docker-compose.template.yml docker-compose.yml
 # Get official image from Docker Hub
 $ docker pull mirotalk/p2p:latest
 # create and start containers
-$ docker compose up # -d
+$ docker-compose up # -d
 # to stop and remove resources
-$ docker compose down
+$ docker-compose down
 ```
 
 - Open [http://localhost:3000](http://localhost:3000) in your browser.
