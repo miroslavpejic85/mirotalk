@@ -45,7 +45,7 @@ Ensure `turnserver.conf` and `docker-compose.yml` are in the same directory.
 Run:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### 5. Check Logs (Optional)
@@ -53,7 +53,7 @@ docker-compose up -d
 Check logs to verify the server:
 
 ```bash
-docker-compose logs -f
+docker compose logs -f <service_name>
 ```
 
 ---
