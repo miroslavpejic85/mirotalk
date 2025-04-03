@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.97
+ * @version 1.4.98
  *
  */
 
@@ -1968,6 +1968,7 @@ async function joinToChannel() {
         userAgent: userAgent,
     });
     handleBodyOnMouseMove(); // show/hide buttonsBar, bottomButtons ...
+    makeRoomPopupQR();
 }
 
 /**
@@ -4482,6 +4483,14 @@ function setShareRoomBtn() {
     shareRoomBtn.addEventListener('click', async (e) => {
         shareRoomUrl();
     });
+    shareRoomBtn.addEventListener('mouseenter', () => {
+        if (isMobileDevice) return;
+        elemDisplay(qrRoomPopupContainer, true);
+    });
+    shareRoomBtn.addEventListener('mouseleave', () => {
+        if (isMobileDevice) return;
+        elemDisplay(qrRoomPopupContainer, false);
+    });
 }
 
 /**
@@ -6324,8 +6333,21 @@ function shareRoomMeetingURL(checkScreen = false) {
  * https://github.com/neocotic/qrious
  */
 function makeRoomQR() {
-    let qr = new QRious({
+    const qr = new QRious({
         element: getId('qrRoom'),
+        value: window.location.href,
+    });
+    qr.set({
+        size: 256,
+    });
+}
+
+/**
+ * Make Room Popup QR
+ */
+function makeRoomPopupQR() {
+    const qr = new QRious({
+        element: document.getElementById('qrRoomPopup'),
         value: window.location.href,
     });
     qr.set({
@@ -11055,7 +11077,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.97',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.98',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
