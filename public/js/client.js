@@ -157,6 +157,9 @@ const videoMediaContainer = getId('videoMediaContainer');
 const videoPinMediaContainer = getId('videoPinMediaContainer');
 const audioMediaContainer = getId('audioMediaContainer');
 
+// Share Room QR popup
+const qrRoomPopupContainer = getId('qrRoomPopupContainer');
+
 // Init audio-video
 const initUser = getId('initUser');
 const initVideoContainer = getQs('.init-video-container');
