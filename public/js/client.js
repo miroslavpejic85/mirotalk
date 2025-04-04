@@ -4487,11 +4487,11 @@ function setShareRoomBtn() {
         shareRoomUrl();
     });
     shareRoomBtn.addEventListener('mouseenter', () => {
-        if (isMobileDevice) return;
+        if (isMobileDevice || !buttons.main.showShareQr) return;
         elemDisplay(qrRoomPopupContainer, true);
     });
     shareRoomBtn.addEventListener('mouseleave', () => {
-        if (isMobileDevice) return;
+        if (isMobileDevice || !buttons.main.showShareQr) return;
         elemDisplay(qrRoomPopupContainer, false);
     });
 }
