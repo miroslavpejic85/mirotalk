@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.98
+ * @version 1.4.99
  *
  */
 
@@ -7872,7 +7872,7 @@ function handleDataChannelChat(dataMessage) {
     }
 
     setPeerChatAvatarImgName('left', msgFrom);
-    appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId);
+    appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId, msgFrom);
     speechInMessages ? speechMessage(true, msgFrom, msg) : playSound('chatMessage');
 }
 
@@ -7963,17 +7963,21 @@ function escapeSpecialChars(regex) {
  * @param {string} msg message to append
  * @param {boolean} privateMsg if is private message
  * @param {string} msgId peer id
+ * @param {string} to peer name
  */
-function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
+function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') {
     let time = getFormatDate(new Date());
 
     // sanitize all params
     const getFrom = filterXSS(from);
+    const getTo = filterXSS(to);
     const getSide = filterXSS(side);
     const getImg = isChatGPTOn && getSide === 'left' ? images.chatgpt : filterXSS(img);
     const getMsg = filterXSS(msg);
     const getPrivateMsg = filterXSS(privateMsg);
     const getMsgId = filterXSS(msgId);
+
+    const isChatGPT = getFrom === 'ChatGPT';
 
     // collect chat messages to save it later
     chatMessages.push({
@@ -8002,13 +8006,20 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
     `;
     // add btn direct reply to private message
     if (isValidPrivateMessage) {
-        msgHTML += `
+        const privateMessageTag =
+            getSide === 'left' ? `Private message from ${getFrom}` : `Private message to ${getTo}`;
+
+        msgHTML += `<p class="b-yellow">${privateMessageTag}</p>`;
+
+        if (!isChatGPT && getSide === 'left') {
+            msgHTML += `
                 <button 
-                    class="${className.msgPrivate}"
+                    class="${className.msgPrivate} b-yellow"
                     id="msg-private-reply-${chatMessagesId}"
                     style="color:#fff; border:none; background:transparent;"
                     onclick="sendPrivateMsgToPeer('${myPeerId}','${getFrom}')"
                 ></button>`;
+        }
     }
     msgHTML += `
                 <button
@@ -8058,7 +8069,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null) {
         setTippy(getId('msg-copy-' + chatMessagesId), 'Copy', 'top');
         setTippy(getId('msg-speech-' + chatMessagesId), 'Speech', 'top');
         if (isValidPrivateMessage) {
-            setTippy(getId('msg-private-reply-' + chatMessagesId), 'Reply', 'top');
+            setTippy(getId('msg-private-reply-' + chatMessagesId), 'Reply to ' + getTo, 'top');
         }
     }
     chatMessagesId++;
@@ -8313,7 +8324,7 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
 
         const toPeerName = msgerPrivateBtn.value;
         emitMsg(myPeerName, toPeerName, pMsg, true, peerId);
-        appendMessage(myPeerName, rightChatAvatar, 'right', pMsg + '<hr>Private message to ' + toPeerName, true);
+        appendMessage(myPeerName, rightChatAvatar, 'right', pMsg, true, null, toPeerName);
         msgerPrivateMsgInput.value = '';
         elemDisplay(msgerCP, false);
     }
@@ -8982,13 +8993,7 @@ function sendPrivateMsgToPeer(toPeerId, toPeerName) {
                 return;
             }
             emitMsg(myPeerName, toPeerName, pMsg, true, toPeerId);
-            appendMessage(
-                myPeerName,
-                rightChatAvatar,
-                'right',
-                pMsg + '<br/><hr>Private message to ' + toPeerName,
-                true,
-            );
+            appendMessage(myPeerName, rightChatAvatar, 'right', pMsg, true, null, toPeerName);
             userLog('toast', 'Message sent to ' + toPeerName + ' 👍');
         }
     });
@@ -11080,7 +11085,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.98',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.99',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
