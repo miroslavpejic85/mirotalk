@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.98
+ * @version 1.4.99
  *
  */
 
@@ -2493,7 +2493,7 @@ function setCustomTheme() {
     setSP('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.2)');
     setSP('--left-msg-bg', '#252d31');
     setSP('--right-msg-bg', `${color}`);
-    setSP('--private-msg-bg', '#6b1226');
+    setSP('--private-msg-bg', '#d4a017');
     setSP('--btn-bar-bg-color', '#FFFFFF');
     setSP('--btn-bar-color', '#000000');
     setSP('--btns-bg-color', `${color}`);
@@ -2523,7 +2523,7 @@ function setTheme() {
             setSP('--box-shadow', '0px 8px 16px 0px rgba(0, 0, 0, 0.4)');
             setSP('--left-msg-bg', '#353535');
             setSP('--right-msg-bg', '#4a4a4a');
-            setSP('--private-msg-bg', '#2a2a2a');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 0, 0, 0.7)');
@@ -2545,7 +2545,7 @@ function setTheme() {
             setSP('--msger-private-bg', 'radial-gradient(#4f4f4f, #1c1c1c)');
             setSP('--left-msg-bg', '#353535');
             setSP('--right-msg-bg', '#4a4a4a');
-            setSP('--private-msg-bg', '#616161');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 0, 0, 0.7)');
@@ -2567,7 +2567,7 @@ function setTheme() {
             setSP('--msger-private-bg', 'radial-gradient(#4f4f4f, #1c1c1c)');
             setSP('--left-msg-bg', '#004d40');
             setSP('--right-msg-bg', '#00312c');
-            setSP('--private-msg-bg', '#004a47');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 42, 34, 0.7)');
@@ -2589,7 +2589,7 @@ function setTheme() {
             setSP('--msger-private-bg', 'radial-gradient(#4f4f4f, #1c1c1c)');
             setSP('--left-msg-bg', '#1a237e');
             setSP('--right-msg-bg', '#0d1b34');
-            setSP('--private-msg-bg', '#1a237e');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(0, 39, 77, 0.7)');
@@ -2610,7 +2610,7 @@ function setTheme() {
             setSP('--msger-private-bg', 'radial-gradient(#4f4f4f, #1c1c1c)');
             setSP('--left-msg-bg', '#8B0000');
             setSP('--right-msg-bg', '#4B0000');
-            setSP('--private-msg-bg', '#8B0000');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(42, 13, 13, 0.7)');
@@ -2632,7 +2632,7 @@ function setTheme() {
             setSP('--msger-private-bg', 'radial-gradient(#4f4f4f, #1c1c1c)');
             setSP('--left-msg-bg', '#4B0082');
             setSP('--right-msg-bg', '#2C003E');
-            setSP('--private-msg-bg', '#4B0082');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(42, 0, 29, 0.7)');
@@ -2654,7 +2654,7 @@ function setTheme() {
             setSP('--msger-private-bg', 'radial-gradient(#4f4f4f, #1c1c1c)');
             setSP('--left-msg-bg', '#FF8C00');
             setSP('--right-msg-bg', '#4B1C00');
-            setSP('--private-msg-bg', '#FF8C00');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(61, 26, 0, 0.7)');
@@ -2676,7 +2676,7 @@ function setTheme() {
             setSP('--msger-private-bg', 'radial-gradient(#4f4f4f, #1c1c1c)');
             setSP('--left-msg-bg', '#FFD700');
             setSP('--right-msg-bg', '#B8860B');
-            setSP('--private-msg-bg', '#FFD700');
+            setSP('--private-msg-bg', '#d4a017');
             setSP('--btn-bar-bg-color', '#FFFFFF');
             setSP('--btn-bar-color', '#000000');
             setSP('--btns-bg-color', 'rgba(77, 59, 0, 0.7)');
@@ -8574,7 +8574,7 @@ async function getChatGPTmessage(msg) {
 function hideShowEmojiPicker() {
     if (!isChatEmojiVisible) {
         elemDisplay(msgerEmojiPicker, true, 'block');
-        setColor(msgerEmojiBtn, '#FFFF00');
+        setColor(msgerEmojiBtn, '#d4a017');
         isChatEmojiVisible = true;
         return;
     }
@@ -11080,7 +11080,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.98',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.4.99',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
