@@ -15,8 +15,9 @@ headers = {
 data = {
     "room": "test",
     "name": "mirotalk",
-    "audio": "true",
-    "video": "true",
+    "avatar": "false",
+    "audio": "false",
+    "video": "false",
     "screen": "false",
     "hide": "false",
     "notify": "true",

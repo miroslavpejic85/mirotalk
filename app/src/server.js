@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.4.99
+ * @version 1.5.00
  *
  */
 
@@ -1204,6 +1204,7 @@ io.sockets.on('connect', async (socket) => {
             channel_password,
             peer_uuid,
             peer_name,
+            peer_avatar,
             peer_token,
             peer_video,
             peer_audio,
@@ -1310,6 +1311,7 @@ io.sockets.on('connect', async (socket) => {
         // collect peers info grp by channels
         peers[channel][socket.id] = {
             peer_name: peer_name,
+            peer_avatar: peer_avatar,
             peer_presenter: isPresenter,
             peer_video: peer_video,
             peer_audio: peer_audio,
@@ -1458,7 +1460,7 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer name', config);
-        const { room_id, peer_name_old, peer_name_new } = config;
+        const { room_id, peer_name_old, peer_name_new, peer_avatar } = config;
 
         let peer_id_to_update = null;
 
@@ -1481,6 +1483,7 @@ io.sockets.on('connect', async (socket) => {
             const data = {
                 peer_id: peer_id_to_update,
                 peer_name: peer_name_new,
+                peer_avatar: peer_avatar,
             };
             log.debug('[' + socket.id + '] emit peerName to [room_id: ' + room_id + ']', data);
 
@@ -1556,7 +1559,8 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer action', config);
-        const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, send_to_all } = config;
+        const { room_id, peer_id, peer_uuid, peer_name, peer_avatar, peer_use_video, peer_action, send_to_all } =
+            config;
 
         // Only the presenter can do this actions
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
@@ -1570,6 +1574,7 @@ io.sockets.on('connect', async (socket) => {
         const data = {
             peer_id: peer_id,
             peer_name: peer_name,
+            peer_avatar: peer_avatar,
             peer_action: peer_action,
             peer_use_video: peer_use_video,
         };
@@ -1622,7 +1627,7 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('File info', config);
-        const { room_id, peer_id, peer_name, broadcast, file } = config;
+        const { room_id, peer_id, peer_name, peer_avatar, broadcast, file } = config;
 
         // check if valid fileName
         if (!isValidFileName(file.fileName)) {
@@ -1639,6 +1644,7 @@ io.sockets.on('connect', async (socket) => {
 
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send file to room_id [' + room_id + ']', {
             peerName: peer_name,
+            peerAvatar: peer_avatar,
             fileName: file.fileName,
             fileSize: bytesToSize(file.fileSize),
             fileType: file.fileType,

@@ -112,6 +112,7 @@ if (speechRecognition) {
                 type: 'speech',
                 room_id: roomId,
                 peer_name: myPeerName,
+                peer_avatar: myPeerAvatar,
                 text_data: transcript,
                 time_stamp: new Date(),
             };

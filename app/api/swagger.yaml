@@ -84,6 +84,9 @@ paths:
                           name:
                               type: string
                               default: 'mirotalk'
+                          avatar:
+                              type: string
+                              default: ''
                           audio:
                               type: boolean
                               default: false
@@ -221,6 +224,8 @@ definitions:
         type: object
         properties:
             peer_name:
+                type: string
+            peer_avatar:
                 type: string
             peer_presenter:
                 type: boolean

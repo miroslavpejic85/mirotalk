@@ -2,6 +2,7 @@ class IframeApi {
     static DEFAULT_OPTIONS = {
         room: 'default-room',
         name: 'guest',
+        avatar: false,
         audio: false,
         video: false,
         screen: false,
@@ -44,6 +45,7 @@ class IframeApi {
         const params = new URLSearchParams({
             room: this.options.room,
             name: this.options.name,
+            avatar: this.options.avatar ? this.options.avatar : 0,
             audio: this.options.audio ? 1 : 0,
             video: this.options.video ? 1 : 0,
             screen: this.options.screen ? 1 : 0,
