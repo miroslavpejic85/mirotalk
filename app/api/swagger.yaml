@@ -85,8 +85,8 @@ paths:
                               type: string
                               default: 'mirotalk'
                           avatar:
-                              type: string
-                              default: ''
+                              type: ['boolean', 'string'] # Allow boolean or string type
+                              default: false
                           audio:
                               type: boolean
                               default: false
