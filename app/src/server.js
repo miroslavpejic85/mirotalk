@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.00
+ * @version 1.5.01
  *
  */
 
@@ -284,6 +284,9 @@ const ipWhitelist = {
 // OIDC - Open ID Connect
 const OIDC = {
     enabled: process.env.OIDC_ENABLED ? getEnvBoolean(process.env.OIDC_ENABLED) : false,
+    allowRoomCreationForAuthUsers: process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS
+        ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
+        : false,
     baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
     config: {
         issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
@@ -2040,6 +2043,7 @@ function getActiveRooms() {
  */
 function isAllowedRoomAccess(logMessage, req, hostCfg, peers, roomId) {
     const OIDCUserAuthenticated = OIDC.enabled && req.oidc.isAuthenticated();
+    const OIDCAllowRoomCreationForAuthUsers = OIDC.allowRoomCreationForAuthUsers;
     const hostUserAuthenticated = hostCfg.protected && hostCfg.authenticated;
     const roomExist = roomId in peers;
     const roomCount = Object.keys(peers).length;
@@ -2049,6 +2053,7 @@ function isAllowedRoomAccess(logMessage, req, hostCfg, peers, roomId) {
         (OIDCUserAuthenticated && roomExist) || // User authenticated via OIDC and room Exist
         (hostUserAuthenticated && roomExist) || // User authenticated via Login and room Exist
         ((OIDCUserAuthenticated || hostUserAuthenticated) && roomCount === 0) || // User authenticated joins the first room
+        (OIDCUserAuthenticated && OIDCAllowRoomCreationForAuthUsers) || // Allow room creation if authenticated via OIDC
         roomExist; // User Or Guest join an existing Room
 
     log.debug(logMessage, {
@@ -2061,6 +2066,7 @@ function isAllowedRoomAccess(logMessage, req, hostCfg, peers, roomId) {
             OIDCUserEnabled: OIDC.enabled,
             hostProtected: hostCfg.protected,
             hostAuthenticated: hostCfg.authenticated,
+            OIDCAllowRoomCreationForAuthUsers,
         },
         allowRoomAccess: allowRoomAccess,
     });
