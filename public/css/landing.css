@@ -3780,6 +3780,18 @@ img.has-shadow {
     overflow: auto;
 }
 
+#lastRoomContainer {
+    display: inline-flex;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+#lastRoom {
+    word-break: break-word;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
 /* #roomName {
     text-align: center;
     justify-content: center;
