@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.04
+ * @version 1.5.05
  *
  */
 
@@ -265,18 +265,6 @@ if (configChatGPT.enabled) {
     }
 }
 
-// Mattermost config
-const mattermostCfg = {
-    enabled: getEnvBoolean(process.env.MATTERMOST_ENABLED),
-    server_url: process.env.MATTERMOST_SERVER_URL,
-    username: process.env.MATTERMOST_USERNAME,
-    password: process.env.MATTERMOST_PASSWORD,
-    token: process.env.MATTERMOST_TOKEN,
-    roomTokenExpire: process.env.MATTERMOST_ROOM_TOKEN_EXPIRE,
-    encryptionKey: process.env.JWT_KEY,
-    api_disabled: api_disabled,
-};
-
 // IP Whitelist
 const ipWhitelist = {
     enabled: getEnvBoolean(process.env.IP_WHITELIST_ENABLED),
@@ -349,6 +337,19 @@ function OIDCAuth(req, res, next) {
         next();
     }
 }
+
+// Mattermost config
+const mattermostCfg = {
+    enabled: getEnvBoolean(process.env.MATTERMOST_ENABLED),
+    server_url: process.env.MATTERMOST_SERVER_URL,
+    username: process.env.MATTERMOST_USERNAME,
+    password: process.env.MATTERMOST_PASSWORD,
+    token: process.env.MATTERMOST_TOKEN,
+    roomTokenExpire: process.env.MATTERMOST_ROOM_TOKEN_EXPIRE,
+    encryptionKey: process.env.JWT_KEY,
+    security: (hostCfg.protected || OIDC.enabled),
+    api_disabled: api_disabled,
+};
 
 // stats configuration
 const statsData = {
