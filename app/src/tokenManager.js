@@ -19,7 +19,7 @@ class JWTService {
 
     /**
      * Signs a payload into a JWT token.
-     * @param {Object} payload 
+     * @param {Object} payload
      * @param {string|number} expiresIn - Expiration time (e.g., '1h', 3600).
      * @returns {string}
      */
@@ -32,8 +32,8 @@ class JWTService {
 
     /**
      * Verifies a JWT token.
-     * @param {string} token 
-     * @param {boolean} [ignoreExpiration=false] 
+     * @param {string} token
+     * @param {boolean} [ignoreExpiration=false]
      * @returns {Object}
      */
     verify(token, ignoreExpiration = false) {
@@ -46,7 +46,7 @@ class JWTService {
 
     /**
      * Decodes a JWT token without verification.
-     * @param {string} token 
+     * @param {string} token
      * @returns {Object|null}
      */
     decode(token) {
@@ -67,8 +67,8 @@ class EncryptionService {
 
     /**
      * Encrypts a payload using AES.
-     * @param {any} payload 
-     * @param {string} [type=typeof payload] 
+     * @param {any} payload
+     * @param {string} [type=typeof payload]
      * @returns {{ encrypted: string, type: string }}
      */
     encrypt(payload, type = typeof payload) {
@@ -81,7 +81,7 @@ class EncryptionService {
 
     /**
      * Decrypts AES-encrypted data.
-     * @param {{ encrypted: string, type: string }} encryptedPayload 
+     * @param {{ encrypted: string, type: string }} encryptedPayload
      * @returns {any}
      */
     decrypt(encryptedPayload) {
@@ -92,9 +92,12 @@ class EncryptionService {
         if (!decrypted) throw new Error('Decryption failed');
 
         switch (type) {
-            case 'object': return JSON.parse(decrypted);
-            case 'number': return Number(decrypted);
-            default: return decrypted;
+            case 'object':
+                return JSON.parse(decrypted);
+            case 'number':
+                return Number(decrypted);
+            default:
+                return decrypted;
         }
     }
 }
@@ -105,15 +108,13 @@ class EncryptionService {
 class PayloadComparator {
     /**
      * Checks if actual matches expected payload.
-     * @param {Object} expected 
-     * @param {Object} actual 
+     * @param {Object} expected
+     * @param {Object} actual
      * @returns {boolean}
      */
     static match(expected, actual) {
         if (typeof expected === 'object') {
-            return Object.keys(expected).every(key =>
-                JSON.stringify(expected[key]) === JSON.stringify(actual[key])
-            );
+            return Object.keys(expected).every((key) => JSON.stringify(expected[key]) === JSON.stringify(actual[key]));
         }
 
         const value = actual?.value ?? actual;
@@ -122,13 +123,13 @@ class PayloadComparator {
 
     /**
      * Returns the difference between expected and actual payloads.
-     * @param {Object} expected 
-     * @param {Object} actual 
+     * @param {Object} expected
+     * @param {Object} actual
      * @returns {Object}
      */
     static diff(expected, actual) {
         const diff = {};
-        Object.keys(expected).forEach(key => {
+        Object.keys(expected).forEach((key) => {
             if (JSON.stringify(expected[key]) !== JSON.stringify(actual[key])) {
                 diff[key] = { expected: expected[key], actual: actual[key] };
             }
@@ -141,9 +142,9 @@ class PayloadComparator {
  * TokenManager class that handles logs
  */
 class TokenLogger {
-	constructor(LoggerClass) {
-		return new LoggerClass('TokenManager');
-	}
+    constructor(LoggerClass) {
+        return new LoggerClass('TokenManager');
+    }
 }
 
 /**
@@ -164,9 +165,9 @@ class TokenManager {
 
     /**
      * Creates a JWT token, optionally encrypting the payload.
-     * @param {any} payload 
+     * @param {any} payload
      * @param {boolean} [encode=false] - Whether to encrypt the payload.
-     * @param {string|number} [expiresIn=defaultExpiry] 
+     * @param {string|number} [expiresIn=defaultExpiry]
      * @returns {string}
      */
     create(payload, encode = false, expiresIn = this.defaultExpiry) {
@@ -176,7 +177,9 @@ class TokenManager {
             const expiry = this._normalizeExpiry(expiresIn);
             const data = encode
                 ? this.encryptionService.encrypt(payload)
-                : typeof payload === 'object' ? payload : { value: payload };
+                : typeof payload === 'object'
+                  ? payload
+                  : { value: payload };
 
             return this.jwtService.sign(data, expiry);
         } catch (error) {
@@ -187,19 +190,17 @@ class TokenManager {
 
     /**
      * Validates a token and checks if payload matches.
-     * @param {any} expectedPayload 
-     * @param {string} token 
+     * @param {any} expectedPayload
+     * @param {string} token
      * @param {boolean} [decode=false] - Whether to decrypt the token.
-     * @param {boolean} [ignoreExpiry=false] 
+     * @param {boolean} [ignoreExpiry=false]
      * @returns {boolean}
      */
     validate(expectedPayload, token, decode = false, ignoreExpiry = false) {
         try {
             const decoded = this.jwtService.verify(token, ignoreExpiry);
 
-            const payload = decode
-                ? this.encryptionService.decrypt(decoded)
-                : decoded;
+            const payload = decode ? this.encryptionService.decrypt(decoded) : decoded;
 
             const isMatch = PayloadComparator.match(expectedPayload, payload);
 
@@ -220,15 +221,13 @@ class TokenManager {
 
     /**
      * Decodes and decrypts token payload if necessary.
-     * @param {string} token 
+     * @param {string} token
      * @returns {any|null}
      */
     decodePayload(token) {
         try {
             const decoded = this.jwtService.verify(token);
-            return decoded?.encrypted
-                ? this.encryptionService.decrypt(decoded)
-                : decoded;
+            return decoded?.encrypted ? this.encryptionService.decrypt(decoded) : decoded;
         } catch (error) {
             this.logger.error('Decode failed', { error: error.message });
             return null;
@@ -237,7 +236,7 @@ class TokenManager {
 
     /**
      * Extracts raw payload from a token without verification.
-     * @param {string} token 
+     * @param {string} token
      * @returns {any|null}
      */
     extractPayload(token) {
@@ -255,7 +254,7 @@ class TokenManager {
     /**
      * Normalizes expiration format.
      * @private
-     * @param {string|number} exp 
+     * @param {string|number} exp
      * @returns {string|number}
      */
     _normalizeExpiry(exp) {

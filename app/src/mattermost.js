@@ -94,7 +94,7 @@ class MattermostController {
             const tokenService = new TokenService(
                 config.token || 'fallback-secret-at-least-32-chars',
                 config.roomTokenExpire || '15m',
-                config.encryptionKey || 'fallback-encryption-key-32chars'
+                config.encryptionKey || 'fallback-encryption-key-32chars',
             );
 
             this.authService = new MattermostAuthService({
@@ -107,7 +107,7 @@ class MattermostController {
                 tokenService,
                 config.server_url,
                 config.api_disabled,
-                config.security
+                config.security,
             );
 
             this.token = config.token;
@@ -117,7 +117,6 @@ class MattermostController {
 
             this.authService.login();
             this.setupRoutes();
-
         } catch (error) {
             log.error('MattermostController disabled due to config error:', error.message);
         }
