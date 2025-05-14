@@ -14,7 +14,7 @@ const log = new Logger('Xss');
 // Configure DOMPurify
 purify.setConfig({
     ALLOWED_TAGS: ['a', 'img', 'div', 'span', 'svg', 'g', 'p'], // Allow specific tags
-    ALLOWED_ATTR: ['href', 'src', 'title', 'id', 'class', 'target'], // Allow specific attributes
+    ALLOWED_ATTR: ['href', 'src', 'title', 'id', 'class', 'target', 'width', 'height'], // Allow specific attributes
     ALLOWED_URI_REGEXP: /^(?!data:|javascript:|vbscript:|file:|view-source:).*/, // Disallow dangerous URIs
 });
 
