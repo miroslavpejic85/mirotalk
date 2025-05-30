@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.12
+ * @version 1.5.13
  *
  */
 
@@ -1335,13 +1335,9 @@ function roomIsBusy() {
 function handleRules(isPresenter) {
     console.log('14. Peer isPresenter: ' + isPresenter + ' Reconnected to signaling server: ' + isPeerReconnected);
     if (!isPresenter) {
-        //buttons.main.showShareRoomBtn = false;
-        buttons.settings.showMicOptionsBtn = false;
         buttons.settings.showTabRoomParticipants = false;
         buttons.settings.showTabRoomSecurity = false;
         buttons.settings.showTabEmailInvitation = false;
-        // buttons.remote.audioBtnClickAllowed = false;
-        // buttons.remote.videoBtnClickAllowed = false;
         buttons.remote.showKickOutBtn = false;
         buttons.whiteboard.whiteboardLockBtn = false;
         //...
@@ -1397,7 +1393,7 @@ function handleButtonsRule() {
     elemDisplay(captionTogglePin, !isMobileDevice && buttons.caption.showTogglePinBtn);
     elemDisplay(captionMaxBtn, !isMobileDevice && buttons.caption.showMaxBtn);
     // Settings
-    elemDisplay(dropDownMicOptions, buttons.settings.showMicOptionsBtn && isPresenter); // auto-detected
+    elemDisplay(dropDownMicOptions, buttons.settings.showMicOptionsBtn || isPresenter); // auto-detected
     elemDisplay(captionEveryoneBtn, buttons.settings.showCaptionEveryoneBtn);
     elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
     elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
@@ -6112,31 +6108,20 @@ async function getVideoConstraints(videoQuality) {
  * Get audio constraints
  */
 async function getAudioConstraints() {
-    // For all guests
-    let constraints = {
+    // For presenter
+    const constraints = {
         audio: {
-            autoGainControl: true,
-            echoCancellation: true,
-            noiseSuppression: true,
+            autoGainControl: switchAutoGainControl.checked,
+            echoCancellation: switchEchoCancellation.checked,
+            noiseSuppression: switchNoiseSuppression.checked,
+            sampleRate: parseInt(sampleRateSelect.value),
+            sampleSize: parseInt(sampleSizeSelect.value),
+            channelCount: parseInt(channelCountSelect.value),
+            latency: parseInt(micLatencyRange.value),
+            volume: parseInt(micVolumeRange.value / 100),
         },
         video: false,
     };
-    // For presenter
-    if (isRulesActive && isPresenter) {
-        constraints = {
-            audio: {
-                autoGainControl: switchAutoGainControl.checked,
-                echoCancellation: switchEchoCancellation.checked,
-                noiseSuppression: switchNoiseSuppression.checked,
-                sampleRate: parseInt(sampleRateSelect.value),
-                sampleSize: parseInt(sampleSizeSelect.value),
-                channelCount: parseInt(channelCountSelect.value),
-                latency: parseInt(micLatencyRange.value),
-                volume: parseInt(micVolumeRange.value / 100),
-            },
-            video: false,
-        };
-    }
     console.log('Audio constraints', constraints);
     return constraints;
 }
@@ -11160,7 +11145,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.12',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.13',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

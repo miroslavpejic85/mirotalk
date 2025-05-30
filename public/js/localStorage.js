@@ -17,7 +17,7 @@ class LocalStorage {
             share_on_join: true,
             show_chat_on_msg: true,
             speech_in_msg: false,
-            mic_auto_gain_control: true,
+            mic_auto_gain_control: false,
             mic_echo_cancellations: true,
             mic_noise_suppression: true,
             mic_sample_rate: 0, // 0: 48000 Hz 1: 44100 Hz
