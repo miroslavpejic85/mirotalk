@@ -36,14 +36,14 @@
                         function (t) {
                             e.touchStartX = t.changedTouches[0].screenX;
                         },
-                        !1,
+                        !1
                     ),
                     t.addEventListener(
                         'touchend',
                         function (t) {
                             (e.touchEndX = t.changedTouches[0].screenX), e.handleSwipeGesture();
                         },
-                        !1,
+                        !1
                     );
             },
             handleSwipeGesture: function () {

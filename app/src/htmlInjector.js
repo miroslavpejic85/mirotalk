@@ -85,7 +85,7 @@ class HtmlInjector {
             // Replace placeholders with dynamic data (OG, TITLE, etc.)
             const modifiedHTML = this.cache[filePath].replace(
                 /{{(OG_[A-Z_]+)}}/g,
-                (_, key) => this.injectData[key] || '',
+                (_, key) => this.injectData[key] || ''
             );
 
             if (!res.headersSent) {

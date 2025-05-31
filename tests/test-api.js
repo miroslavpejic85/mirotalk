@@ -149,7 +149,7 @@ describe('test-api', () => {
 
             const result = serverApi.getJoinURL(data);
             result.should.equal(
-                'https://example.com/join?room=room1&name=John%20Doe&avatar=avatar.jpg&audio=true&video=false&screen=false&hide=false&notify=false&token=testToken',
+                'https://example.com/join?room=room1&name=John%20Doe&avatar=avatar.jpg&audio=true&video=false&screen=false&hide=false&notify=false&token=testToken'
             );
 
             tokenStub.restore();
@@ -167,7 +167,7 @@ describe('test-api', () => {
 
             const result = serverApi.getJoinURL({});
             result.should.equal(
-                'https://example.com/join?room=room1&name=User-123456&avatar=false&audio=false&video=false&screen=false&hide=false&notify=false',
+                'https://example.com/join?room=room1&name=User-123456&avatar=false&audio=false&video=false&screen=false&hide=false&notify=false'
             );
         });
     });
@@ -187,7 +187,7 @@ describe('test-api', () => {
             encryptStub
                 .calledWith(
                     JSON.stringify({ username: 'user', password: 'pass', presenter: 'true' }),
-                    'mirotalk_jwt_secret',
+                    'mirotalk_jwt_secret'
                 )
                 .should.be.true();
 

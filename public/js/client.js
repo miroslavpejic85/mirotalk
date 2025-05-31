@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.13
+ * @version 1.5.14
  *
  */
 
@@ -756,7 +756,7 @@ function setButtonsToolTip() {
     setTippy(
         switchPushToTalk,
         'If Active, When SpaceBar keydown the microphone will be activated, on keyup will be deactivated, like a walkie-talkie',
-        'right',
+        'right'
     );
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
@@ -765,23 +765,23 @@ function setButtonsToolTip() {
     setTippy(
         switchH264Recording,
         'Prioritize h.264 with AAC or h.264 with Opus codecs over VP8 with Opus or VP9 with Opus codecs',
-        'right',
+        'right'
     );
     setTippy(networkIP, 'IP address associated with the ICE candidate', 'right');
     setTippy(
         networkHost,
         'This type of ICE candidate represents a candidate that corresponds to an interface on the local device. Host candidates are typically generated based on the local IP addresses of the device and can be used for direct peer-to-peer communication within the same network',
-        'right',
+        'right'
     );
     setTippy(
         networkStun,
         'Server reflexive candidates are obtained by the ICE agent when it sends a request to a STUN (Session Traversal Utilities for NAT) server. These candidates reflect the public IP address and port of the client as observed by the STUN server. They are useful for traversing NATs (Network Address Translators) and establishing connectivity between peers across different networks',
-        'right',
+        'right'
     );
     setTippy(
         networkTurn,
         'Relay candidates are obtained when communication between peers cannot be established directly due to symmetric NATs or firewall restrictions. In such cases, communication is relayed through a TURN (Traversal Using Relays around NAT) server. TURN servers act as intermediaries, relaying data between peers, allowing them to communicate even when direct connections are not possible. This is typically the fallback mechanism for establishing connectivity when direct peer-to-peer communication fails',
-        'right',
+        'right'
     );
     // Whiteboard buttons
     setTippy(whiteboardLockBtn, 'Toggle Lock whiteboard', 'right');
@@ -979,7 +979,7 @@ function makeId(length) {
  */
 function getUUID() {
     const uuid4 = ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
+        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
     );
     if (window.localStorage.uuid) {
         return window.localStorage.uuid;
@@ -2825,7 +2825,7 @@ async function enumerateAudioDevices(stream) {
                 }
                 if (!el) return;
                 await addChild(device, [el, eli]);
-            }),
+            })
         )
         .then(async () => {
             await stopTracks(stream);
@@ -2859,7 +2859,7 @@ async function enumerateVideoDevices(stream) {
                 }
                 if (!el) return;
                 await addChild(device, [el, eli]);
-            }),
+            })
         )
         .then(async () => {
             await stopTracks(stream);
@@ -3028,7 +3028,7 @@ function handleMediaError(mediaType, err) {
         if none exists, it interrupts the script execution and displays an error message in the console.
     */
     throw new Error(
-        `Access denied for ${mediaType} device [${err.name}]: ${errMessage} check the common getUserMedia errors: https://blog.addpipe.com/common-getusermedia-errors/`,
+        `Access denied for ${mediaType} device [${err.name}]: ${errMessage} check the common getUserMedia errors: https://blog.addpipe.com/common-getusermedia-errors/`
     );
 }
 
@@ -5333,7 +5333,7 @@ async function documentPictureInPictureOpen() {
                             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                                 console.log(
                                     `${observerName}: Element ${mutation.target.id} class changed:`,
-                                    mutation.target.className,
+                                    mutation.target.className
                                 );
                                 cloneVideoElements(); // Or other desired function
                             }
@@ -7076,7 +7076,7 @@ function startStreamRecording() {
             audioStreams
                 .getTracks()
                 .filter((track) => track.kind === 'audio')
-                .map((track) => new MediaStream([track])),
+                .map((track) => new MediaStream([track]))
         );
 
         const audioMixerTracks = audioMixerStreams.getTracks();
@@ -7260,7 +7260,7 @@ function notifyRecording(fromId, from, fromAvatar, action) {
             <br /><br />
             ${recAgree}`,
             'top-end',
-            6000,
+            6000
         );
     }
 }
@@ -7411,7 +7411,7 @@ function downloadRecordedStream() {
                 🔴 &nbsp; Recording Info: <br/>
                 ${recordingInfo}
                 Please wait to be processed, then will be downloaded to your ${currentDevice} device.
-            </div>`,
+            </div>`
         );
 
         saveBlobToFile(blob, recFileName);
@@ -8447,7 +8447,7 @@ function isImageURL(input) {
     try {
         const url = new URL(input);
         return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'].some((ext) =>
-            url.pathname.toLowerCase().endsWith(ext),
+            url.pathname.toLowerCase().endsWith(ext)
         );
     } catch (e) {
         return false;
@@ -8521,7 +8521,7 @@ function getIframe(text) {
     iframe.setAttribute('frameborder', '0');
     iframe.setAttribute(
         'allow',
-        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
     );
     iframe.setAttribute('allowfullscreen', 'allowfullscreen');
     div.appendChild(iframe);
@@ -8621,7 +8621,7 @@ async function getChatGPTmessage(msg) {
                 appendMessage('ChatGPT', leftChatAvatar, 'left', message, true);
                 cleanMessageInput();
                 speechInMessages ? speechMessage(true, 'ChatGPT', message) : playSound('message');
-            }.bind(this),
+            }.bind(this)
         )
         .catch((err) => {
             console.log('ChatGPT error:', err);
@@ -10027,7 +10027,7 @@ async function loadPDF(pdfData, pages) {
                     await page.render(renderContext).promise;
                     return canvas;
                 });
-            }),
+            })
         );
         return canvases.filter((canvas) => canvas !== null);
     } catch (error) {
@@ -10050,7 +10050,7 @@ async function pdfToImage(pdfData, canvas) {
                 new fabric.Image(await c, {
                     scaleX: scale,
                     scaleY: scale,
-                }),
+                })
             );
         });
     } catch (error) {
@@ -10653,7 +10653,7 @@ function sendFileInformations(file, peer_id, broadcast = false) {
                 <li>Name: ${fileToSend.name}</li>
                 <li>Size: ${bytesToSize(fileToSend.size)}</li>
             </ul>`,
-            false,
+            false
         );
 
         // send some metadata about our file to peers in the room
@@ -10714,7 +10714,7 @@ function handleFileInfo(config) {
             <li>Size: ${bytesToSize(incomingFileInfo.file.fileSize)}</li>
         </ul>`,
         !incomingFileInfo.broadcast,
-        incomingFileInfo.peer_id,
+        incomingFileInfo.peer_id
     );
     receiveFileInfo.innerText = fileToReceiveInfo;
     elemDisplay(receiveFileDiv, true);
@@ -11050,7 +11050,7 @@ function handleCaptionActions(config) {
             if (!speechRecognition) {
                 userLog(
                     'info',
-                    `${peer_name} wants to start captions for this session, but your browser does not support it. Please use a Chromium-based browser like Google Chrome, Microsoft Edge, or Brave.`,
+                    `${peer_name} wants to start captions for this session, but your browser does not support it. Please use a Chromium-based browser like Google Chrome, Microsoft Edge, or Brave.`
                 );
                 return;
             }
@@ -11145,7 +11145,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.13',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.14',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

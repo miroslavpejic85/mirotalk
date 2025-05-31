@@ -212,5 +212,5 @@ window.addEventListener(
             resizeMainButtons();
         };
     },
-    false,
+    false
 );
