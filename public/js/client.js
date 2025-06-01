@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.14
+ * @version 1.5.15
  *
  */
 
@@ -1511,7 +1511,7 @@ async function whoAreYou() {
         position: 'center',
         input: 'text',
         inputPlaceholder: 'Enter your email or name',
-        inputAttributes: { maxlength: 32, id: 'usernameInput' },
+        inputAttributes: { maxlength: 254, id: 'usernameInput' },
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: initUser, // inject html
         confirmButtonText: `Join meeting`,
@@ -1523,8 +1523,12 @@ async function whoAreYou() {
         },
         inputValidator: async (value) => {
             if (!value) return 'Please enter your email or name';
-            // Long name
-            if (value.length > 30) return 'Name must be max 30 char';
+
+            // Long email or name
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            if ((isEmail && value.length > 254) || (!isEmail && value.length > 32)) {
+                return isEmail ? 'Email must be max 254 char' : 'Name must be max 32 char';
+            }
 
             // prevent xss execution itself
             myPeerName = filterXSS(value);
@@ -11145,7 +11149,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.14',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.15',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
