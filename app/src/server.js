@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.16
+ * @version 1.5.17
  *
  */
 
@@ -488,9 +488,10 @@ if (OIDC.enabled) {
 // Route to display user information
 app.get('/profile', OIDCAuth, (req, res) => {
     if (OIDC.enabled) {
+        log.debug('OIDC User profile requested', req.oidc.user);
         return res.json(req.oidc.user); // Send user information as JSON
     }
-    res.sendFile(views.notFound);
+    return res.json({ profile: false });
 });
 
 // Authentication Callback Route
