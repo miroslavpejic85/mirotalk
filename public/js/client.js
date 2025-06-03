@@ -1435,6 +1435,10 @@ async function getButtons() {
     }
 }
 
+/**
+ * Get user name from OIDC profile
+ * @returns {string} Peer Name
+ */
 async function getUserName() {
     try {
         const { data: profile } = await axios.get('/profile', { timeout: 5000 });
