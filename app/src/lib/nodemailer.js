@@ -8,18 +8,21 @@ const log = new Logs('NodeMailer');
 const emailCfg = {
     alert: process.env.EMAIL_ALERT === 'true' || false,
     host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
+    port: Number(process.env.EMAIL_PORT),
     username: process.env.EMAIL_USERNAME,
     password: process.env.EMAIL_PASSWORD,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USERNAME,
     send_to: process.env.EMAIL_SEND_TO,
     // Room join params
     https: process.env.HTTPS === 'true' || false,
     server_port: process.env.PORT || 3000,
 };
 
+const isTLSPort = emailCfg.port === 465; // 465 is the default TLS/SSL port
 const transport = nodemailer.createTransport({
     host: emailCfg.host,
     port: emailCfg.port,
+    secure: isTLSPort, // true for 465, false for other ports
     auth: {
         user: emailCfg.username,
         pass: emailCfg.password,
@@ -73,7 +76,7 @@ function sendEmailAlert(event, data) {
 function sendEmail(subject, body) {
     transport
         .sendMail({
-            from: emailCfg.username,
+            from: emailCfg.from,
             to: emailCfg.send_to,
             subject: subject,
             html: body,
