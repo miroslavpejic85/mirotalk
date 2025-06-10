@@ -1498,7 +1498,6 @@ async function whoAreYou() {
             if (!myToken) return userNameAlreadyInRoom(); // #209 Hack...
         }
 
-        loadGeo();
         checkPeerAudioVideo();
         whoAreYouJoin();
         playSound('addPeer');
@@ -1595,7 +1594,6 @@ async function whoAreYou() {
                     usernameEmoji.classList.add('hidden');
                 }
                 window.localStorage.peer_name = myPeerName;
-                loadGeo();
                 whoAreYouJoin();
             }
         },
@@ -2011,6 +2009,7 @@ async function whoAreYouJoin() {
     setPeerChatAvatarImgName('right', myPeerName, myPeerAvatar);
     joinToChannel();
     handleHideMe(isHideMeActive);
+    loadGeo();
 }
 
 /**
