@@ -62,6 +62,7 @@ let buttons = {
         showSnapShotBtn: true,
         showFileShareBtn: true,
         showShareVideoAudioBtn: true,
+        showGeoLocationBtn: true,
         showPrivateMessageBtn: true,
         showZoomInOutBtn: false,
         showVideoFocusBtn: true,

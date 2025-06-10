@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.18
+ * @version 1.5.19
  *
  */
 
@@ -51,6 +51,7 @@ const images = {
     avatar: '../images/mirotalk-logo.png',
     recording: '../images/recording.png',
     poster: '../images/loader.gif',
+    geoLocation: '../images/geolocation.png',
 }; // nice free icon: https://www.iconfinder.com
 
 const className = {
@@ -75,6 +76,7 @@ const className = {
     fsOn: 'fas fa-compress-alt',
     fsOff: 'fas fa-expand-alt',
     msgPrivate: 'fas fa-paper-plane',
+    geoLocation: 'fas fa-location-dot',
     shareFile: 'fas fa-upload',
     shareVideoAudio: 'fab fa-youtube',
     kickOut: 'fas fa-sign-out-alt',
@@ -687,6 +689,29 @@ let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 let redirectActive = false;
 let redirectURL = '/newcall';
 
+// GeoLocation
+const notificationService = new NotificationService({ Swal, swBg, images, playSound });
+const geoService = GeoService;
+let geo;
+
+/**
+ * Load GeoLocation service
+ * @returns {void}
+ */
+function loadGeo() {
+    geo = new PeerGeoLocation({
+        room_id: roomId,
+        peer_name: myPeerName,
+        peer_id: myPeerId,
+        peer_uuid: myPeerUUID,
+        sendToServer,
+        msgPopup,
+        notificationService,
+        geoService,
+        openURL,
+    });
+}
+
 /**
  * Load all Html elements by Id
  */
@@ -1168,6 +1193,7 @@ function initClientPeer() {
     signalingSocket.on('peerName', handlePeerName);
     signalingSocket.on('peerStatus', handlePeerStatus);
     signalingSocket.on('peerAction', handlePeerAction);
+    signalingSocket.on('cmd', handleCmd);
     signalingSocket.on('message', handleMessage);
     signalingSocket.on('wbCanvasToJson', handleJsonToWbCanvas);
     signalingSocket.on('whiteboardAction', handleWhiteboardAction);
@@ -1339,6 +1365,7 @@ function handleRules(isPresenter) {
         buttons.settings.showTabRoomSecurity = false;
         buttons.settings.showTabEmailInvitation = false;
         buttons.remote.showKickOutBtn = false;
+        buttons.remote.showGeoLocationBtn = false;
         buttons.whiteboard.whiteboardLockBtn = false;
         //...
     } else {
@@ -1471,6 +1498,7 @@ async function whoAreYou() {
             if (!myToken) return userNameAlreadyInRoom(); // #209 Hack...
         }
 
+        loadGeo();
         checkPeerAudioVideo();
         whoAreYouJoin();
         playSound('addPeer');
@@ -1567,6 +1595,7 @@ async function whoAreYou() {
                     usernameEmoji.classList.add('hidden');
                 }
                 window.localStorage.peer_name = myPeerName;
+                loadGeo();
                 whoAreYouJoin();
             }
         },
@@ -3354,6 +3383,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteVideoAudioUrlBtn = document.createElement('button');
             const remoteFileShareBtn = document.createElement('button');
             const remotePrivateMsgBtn = document.createElement('button');
+            const remoteGeoLocationBtn = document.createElement('button');
             const remotePeerKickOut = document.createElement('button');
             const remoteVideoToImgBtn = document.createElement('button');
             const remoteVideoFullScreenBtn = document.createElement('button');
@@ -3406,6 +3436,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remotePrivateMsgBtn.setAttribute('id', peer_id + '_privateMsg');
             remotePrivateMsgBtn.className = className.msgPrivate;
 
+            // remote geo location
+            remoteGeoLocationBtn.setAttribute('id', peer_id + '_geoLocation');
+            remoteGeoLocationBtn.className = className.geoLocation;
+
             // remote share file
             remoteFileShareBtn.setAttribute('id', peer_id + '_shareFile');
             remoteFileShareBtn.className = className.shareFile;
@@ -3457,6 +3491,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 setTippy(remoteAudioVolume, '🔊 Volume', 'top');
                 setTippy(remoteVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
                 setTippy(remotePrivateMsgBtn, 'Send private message', 'bottom');
+                setTippy(remoteGeoLocationBtn, 'Get Geo Location', 'bottom');
                 setTippy(remoteFileShareBtn, 'Send file', 'bottom');
                 setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
                 setTippy(remotePeerKickOut, 'Kick out', 'bottom');
@@ -3506,6 +3541,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 remoteExpandContainerDiv.appendChild(remoteVideoZoomOutBtn);
             }
             buttons.remote.showPrivateMessageBtn && remoteExpandContainerDiv.appendChild(remotePrivateMsgBtn);
+            buttons.remote.showGeoLocationBtn && remoteExpandContainerDiv.appendChild(remoteGeoLocationBtn);
             buttons.remote.showFileShareBtn && remoteExpandContainerDiv.appendChild(remoteFileShareBtn);
             buttons.remote.showShareVideoAudioBtn && remoteExpandContainerDiv.appendChild(remoteVideoAudioUrlBtn);
             buttons.remote.showKickOutBtn && remoteExpandContainerDiv.appendChild(remotePeerKickOut);
@@ -3608,6 +3644,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // handle remote peers video on-off
             handlePeerVideoBtn(peer_id);
 
+            // handle remote geo location
+            buttons.remote.showGeoLocationBtn && handlePeerGeoLocation(peer_id, peer_name);
             // handle remote private messages
             buttons.remote.showPrivateMessageBtn && handlePeerPrivateMsg(peer_id, peer_name);
             // handle remote send file
@@ -9035,6 +9073,15 @@ function handlePeerVideoBtn(peer_id) {
     };
 }
 
+function handlePeerGeoLocation(peer_id) {
+    const remoteGeoLocationBtn = getId(peer_id + '_geoLocation');
+    remoteGeoLocationBtn.onclick = () => {
+        isPresenter
+            ? geo.askPeerGeoLocation(peer_id)
+            : msgPopup('warning', 'Only the presenter can ask geolocation to the participants', 'top-end', 4000);
+    };
+}
+
 /**
  * Send Private Message to specific peer
  * @param {string} peer_id socket.id
@@ -9197,6 +9244,31 @@ function handlePeerAction(config) {
         case 'ejectAll':
             handleKickedOut(config);
             break;
+        default:
+            break;
+    }
+}
+
+/**
+ * Handle commands from the server
+ * @param {object} config data
+ */
+function handleCmd(config) {
+    console.log('Handle cmd: ', config);
+
+    const { action, data } = config;
+
+    switch (action) {
+        case 'geoLocation':
+            // Peer is requesting your location
+            geo.confirmPeerGeoLocation(data);
+            break;
+        case 'geoLocationOK':
+        case 'geoLocationKO':
+            // Peer responded with their location or an error/denial
+            geo.handleGeoPeerLocation(config);
+            break;
+        //....
         default:
             break;
     }
@@ -11168,7 +11240,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.18',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.19',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
