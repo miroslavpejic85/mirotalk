@@ -24,7 +24,6 @@ Set up `CoTURN` with Docker for NAT traversal and media relay in WebRTC applicat
     cp turnserver.template.conf turnserver.conf
     ```
 2. Edit `turnserver.conf`:
-
     - Replace `YOUR.DOMAIN.NAME` with your domain.
     - Replace `YOUR.USERNAME` and `YOUR.PASSWORD` with your credentials.
 
