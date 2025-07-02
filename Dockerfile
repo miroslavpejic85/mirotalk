@@ -7,7 +7,11 @@ WORKDIR /src
 ENV NODE_ENV="production"
 
 # Install necessary system packages
-RUN apk add --no-cache bash vim
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        bash \
+        vim \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
