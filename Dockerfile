@@ -4,9 +4,11 @@ FROM node:22-alpine
 # Set working directory
 WORKDIR /src
 
+ENV NODE_ENV="production"
+
 # Copy package.json and .env dependencies
-COPY package.json .
-COPY .env.template ./.env
+COPY package*.json ./
+RUN npm ci --only=production --silent
 
 # Rename config.template.js to config.js
 COPY ./app/src/config.template.js ./app/src/config.js
