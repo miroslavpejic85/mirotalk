@@ -5,7 +5,7 @@ FROM node:22-alpine
 WORKDIR /src
 
 # Copy package.json and .env dependencies
-COPY package*.json .
+COPY package.json .
 COPY .env.template ./.env
 
 # Rename config.template.js to config.js
@@ -15,7 +15,7 @@ COPY ./app/src/config.template.js ./app/src/config.js
 RUN apk add --no-cache \
     bash \
     vim \
-    && npm ci \
+    && npm install \
     && npm cache clean --force \
     && rm -rf /tmp/* /var/tmp/* /usr/share/doc/*
 
