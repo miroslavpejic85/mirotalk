@@ -4,8 +4,10 @@ FROM node:22-alpine
 # Set working directory
 WORKDIR /src
 
-# Copy package.json and .env dependencies
-COPY package.json .
+ENV NODE_ENV="production"
+
+# Copy package.json and package-lock.json for npm ci
+COPY package*.json ./
 COPY .env.template ./.env
 
 # Rename config.template.js to config.js
@@ -15,7 +17,7 @@ COPY ./app/src/config.template.js ./app/src/config.js
 RUN apk add --no-cache \
     bash \
     vim \
-    && npm install \
+    && npm ci --only=production --silent \
     && npm cache clean --force \
     && rm -rf /tmp/* /var/tmp/* /usr/share/doc/*
 
