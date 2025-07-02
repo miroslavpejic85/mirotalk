@@ -1,5 +1,5 @@
 # Use a stable Node.js LTS image
-FROM node:20-alpine
+FROM node:22-slim
 
 # Set working directory
 WORKDIR /src
@@ -13,7 +13,7 @@ RUN apk add --no-cache bash vim
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --omit=dev --silent && \
+RUN npm ci --only=production --silent && \
     npm cache clean --force
 
 # Copy .env template
