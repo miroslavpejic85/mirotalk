@@ -1,37 +1,27 @@
-# Use a stable Node.js LTS image
-FROM node:22-slim
+# Use a lightweight Node.js image https://hub.docker.com/_/node 
+FROM node:22-alpine
 
 # Set working directory
 WORKDIR /src
 
-ENV NODE_ENV="production"
-
-# Install necessary system packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        bash \
-        vim \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci --only=production --silent && \
-    npm cache clean --force
-
-# Copy .env template
+# Copy package.json and .env dependencies
+COPY package*.json .
 COPY .env.template ./.env
 
 # Rename config.template.js to config.js
 COPY ./app/src/config.template.js ./app/src/config.js
 
+# Install necessary system packages and dependencies
+RUN apk add --no-cache \
+    bash \
+    vim \
+    && npm ci \
+    && npm cache clean --force \
+    && rm -rf /tmp/* /var/tmp/* /usr/share/doc/*
+
 # Copy the application code
 COPY app app
 COPY public public
-
-# Clean up
-RUN rm -rf /tmp/* /var/tmp/* /usr/share/doc/*
 
 # Set default command to start the application
 CMD ["npm", "start"]
