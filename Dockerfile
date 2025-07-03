@@ -4,9 +4,10 @@ FROM node:22-alpine
 # Set working directory
 WORKDIR /src
 
+# Set environment variables
 ENV NODE_ENV="production"
 
-# Copy package.json and package-lock.json for npm ci
+# Copy package*.json and .env dependencies
 COPY package*.json ./
 COPY .env.template ./.env
 
