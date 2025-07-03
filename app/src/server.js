@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.23
+ * @version 1.5.24
  *
  */
 
@@ -234,20 +234,27 @@ if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
         tracesSampleRate: sentryTracesSampleRate,
     });
 
-    const originalWarn = console.warn;
-    const originalError = console.error;
+    const logLevels = process.env.SENTRY_LOG_LEVELS
+        ? process.env.SENTRY_LOG_LEVELS.split(',').map((level) => level.trim())
+        : ['error'];
 
-    console.warn = function (...args) {
-        Sentry.captureMessage(args.join(' '), 'warning');
-        originalWarn.apply(console, args);
-    };
-
-    console.error = function (...args) {
-        args[0] instanceof Error
-            ? Sentry.captureException(args[0])
-            : Sentry.captureException(new Error(args.join(' ')));
-        originalError.apply(console, args);
-    };
+    const originalConsole = {};
+    logLevels.forEach((level) => {
+        originalConsole[level] = console[level];
+        console[level] = function (...args) {
+            switch (level) {
+                case 'warn':
+                    Sentry.captureMessage(args.join(' '), 'warning');
+                    break;
+                case 'error':
+                    args[0] instanceof Error
+                        ? Sentry.captureException(args[0])
+                        : Sentry.captureException(new Error(args.join(' ')));
+                    break;
+            }
+            originalConsole[level].apply(console, args);
+        };
+    });
 
     // log.error('Sentry error', { foo: 'bar' });
     // log.warn('Sentry warning');
