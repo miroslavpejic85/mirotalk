@@ -80,7 +80,7 @@ module.exports = class Logs {
      * @returns
      */
     warn(msg, op = '') {
-        console.info(
+        console.warn(
             '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.yellow(msg),
             util.inspect(op, options)
         );
@@ -93,7 +93,7 @@ module.exports = class Logs {
      * @returns
      */
     error(msg, op = '') {
-        console.info(
+        console.error(
             '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.red(msg),
             util.inspect(op, options)
         );

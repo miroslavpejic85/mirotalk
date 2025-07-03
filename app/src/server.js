@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.22
+ * @version 1.5.23
  *
  */
 
@@ -217,7 +217,7 @@ const redirectURL = process.env.REDIRECT_URL || '/newcall';
 const Sentry = require('@sentry/node');
 const sentryEnabled = getEnvBoolean(process.env.SENTRY_ENABLED);
 const sentryDSN = process.env.SENTRY_DSN;
-const sentryTracesSampleRate = process.env.SENTRY_TRACES_SAMPLE_RATE;
+const sentryTracesSampleRate = parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.0');
 
 // Slack API
 const CryptoJS = require('crypto-js');
@@ -226,20 +226,31 @@ const slackEnabled = getEnvBoolean(process.env.SLACK_ENABLED);
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 
 // Setup sentry client
-if (sentryEnabled) {
+if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
+    log.info('Sentry monitoring started...');
+
     Sentry.init({
         dsn: sentryDSN,
-        integrations: [
-            Sentry.captureConsoleIntegration({
-                // ['log', 'info', 'warn', 'error', 'debug', 'assert']
-                levels: ['warn', 'error'],
-            }),
-        ],
-        // Set tracesSampleRate to 1.0 to capture 100%
-        // of transactions for performance monitoring.
-        // We recommend adjusting this value in production
         tracesSampleRate: sentryTracesSampleRate,
     });
+
+    const originalWarn = console.warn;
+    const originalError = console.error;
+
+    console.warn = function (...args) {
+        Sentry.captureMessage(args.join(' '), 'warning');
+        originalWarn.apply(console, args);
+    };
+
+    console.error = function (...args) {
+        args[0] instanceof Error
+            ? Sentry.captureException(args[0])
+            : Sentry.captureException(new Error(args.join(' ')));
+        originalError.apply(console, args);
+    };
+
+    // log.error('Sentry error', { foo: 'bar' });
+    // log.warn('Sentry warning');
 }
 
 // OpenAI/ChatGPT
