@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.25
+ * @version 1.5.26
  *
  */
 
@@ -476,16 +476,12 @@ app.use((err, req, res, next) => {
 if (OIDC.enabled) {
     const getDynamicConfig = (host, protocol) => {
         const baseURL = `${protocol}://${host}`;
-
         const config = OIDC.baseUrlDynamic
             ? {
                   ...OIDC.config,
                   baseURL,
               }
             : OIDC.config;
-
-        log.debug('OIDC baseURL', config.baseURL);
-
         return config;
     };
 
@@ -744,7 +740,6 @@ app.post('/login', (req, res) => {
 
     // Peer valid going to auth as host
     if (hostCfg.protected && isPeerValid && !hostCfg.authenticated) {
-        const ip = getIP(req);
         hostCfg.authenticated = true;
         authHost.setAuthorizedIP(ip, true);
         log.debug('HOST LOGIN OK', {
