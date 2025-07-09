@@ -1,4 +1,4 @@
-// volume-processor.js
+'use strict';
 class VolumeProcessor extends AudioWorkletProcessor {
     constructor(options) {
         super();
@@ -26,6 +26,7 @@ class VolumeProcessor extends AudioWorkletProcessor {
         for (let i = 0; i < inputData.length; i++) {
             sum += inputData[i] * inputData[i];
         }
+
         const rms = Math.sqrt(sum / inputData.length);
         const volume = Math.max(0, Math.min(1, rms * 10));
         const finalVolume = Math.round(volume * 100);
