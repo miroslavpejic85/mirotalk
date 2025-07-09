@@ -8,16 +8,29 @@ class VolumeProcessor extends AudioWorkletProcessor {
     }
 
     process(inputs, outputs, parameters) {
-        const input = inputs[0][0]; // 获取输入音频数据
-        let sum = 0;
-        for (let i = 0; i < input.length; i++) {
-            sum += input[i] * input[i];
+        const input = inputs[0];
+
+        // Check if we have valid input
+        if (!input || input.length === 0) {
+            return true;
         }
-        const rms = Math.sqrt(sum / input.length);
+
+        const inputData = input[0]; // Get input audio data
+
+        // Check if inputData exists and has length
+        if (!inputData || inputData.length === 0) {
+            return true;
+        }
+
+        let sum = 0;
+        for (let i = 0; i < inputData.length; i++) {
+            sum += inputData[i] * inputData[i];
+        }
+        const rms = Math.sqrt(sum / inputData.length);
         const volume = Math.max(0, Math.min(1, rms * 10));
         const finalVolume = Math.round(volume * 100);
 
-        // 只有当音量超过阈值且状态为 true 时才发送数据
+        // Only send data when volume exceeds threshold and status is true
         if (this.myAudioStatus && finalVolume > this.threshold) {
             this.port.postMessage({
                 type: 'micVolume',
@@ -26,7 +39,7 @@ class VolumeProcessor extends AudioWorkletProcessor {
             });
         }
 
-        // 发送音量数据用于 UI 更新
+        // Send volume data for UI updates
         this.port.postMessage({
             type: 'volumeIndicator',
             volume: volume,

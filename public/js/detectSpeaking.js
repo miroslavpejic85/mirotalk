@@ -1,8 +1,9 @@
 'use strict';
 
-const bars = getSlALL('.volume-bar');
+const bars = document.querySelectorAll('.volume-bar');
 
-let scriptProcessor = null;
+let audioContext = null;
+let workletNode = null;
 
 /**
  * Check if audio context is supported
@@ -18,37 +19,45 @@ function isAudioContextSupported() {
  */
 async function getMicrophoneVolumeIndicator(stream) {
     if (isAudioContextSupported() && hasAudioTrack(stream)) {
-        stopMicrophoneProcessing();
-        console.log('Start microphone volume indicator for audio track', stream.getAudioTracks()[0]);
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const microphone = audioContext.createMediaStreamSource(stream);
+        try {
+            // Clean up any existing resources first
+            stopMicrophoneProcessing();
 
-        // 创建并配置 AudioWorkletNode
-        await audioContext.audioWorklet.addModule('volume-processor.js');
-        const workletNode = new AudioWorkletNode(audioContext, 'volume-processor', {
-            processorOptions: {
-                threshold: 10,     // 音量阈值
-                peerId: myPeerId,  // 你的 peer ID
-                myAudioStatus: myAudioStatus, // 你的音频状态
-            },
-        });
+            console.log('Start microphone volume indicator for audio track', stream.getAudioTracks()[0]);
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const microphone = audioContext.createMediaStreamSource(stream);
 
-        // 监听处理器发送的消息
-        workletNode.port.onmessage = (event) => {
-            const data = event.data;
+            // Create and configure AudioWorkletNode
+            await audioContext.audioWorklet.addModule('/js/volume-processor.js');
+            workletNode = new AudioWorkletNode(audioContext, 'volume-processor', {
+                processorOptions: {
+                    threshold: 10, // Volume threshold
+                    peerId: myPeerId, // Your peer ID
+                    myAudioStatus: myAudioStatus, // Your audio status
+                },
+            });
 
-            if (data.type === 'micVolume') {
-                // 发送数据到 DataChannel
-                sendToDataChannel(data);
-                handleMyVolume(data); // 自定义处理函数
-            } else if (data.type === 'volumeIndicator') {
-                updateVolumeIndicator(data.volume); // 更新音量指示器
-            }
-        };
+            // Listen for messages from the processor
+            workletNode.port.onmessage = (event) => {
+                const data = event.data;
 
-        // 连接音频图
-        microphone.connect(workletNode);
-        workletNode.connect(audioContext.destination);
+                if (data.type === 'micVolume') {
+                    // Send data to DataChannel
+                    sendToDataChannel(data);
+                    handleMyVolume(data); // Custom handling function
+                } else if (data.type === 'volumeIndicator') {
+                    updateVolumeIndicator(data.volume); // Update volume indicator
+                }
+            };
+
+            // Connect audio graph
+            microphone.connect(workletNode);
+            workletNode.connect(audioContext.destination);
+        } catch (error) {
+            console.error('Error initializing microphone volume indicator:', error);
+            // Clean up on error
+            stopMicrophoneProcessing();
+        }
     } else {
         console.warn('Microphone volume indicator not supported for this browser');
     }
@@ -59,9 +68,27 @@ async function getMicrophoneVolumeIndicator(stream) {
  */
 function stopMicrophoneProcessing() {
     console.log('Stop microphone volume indicator');
-    if (scriptProcessor) {
-        scriptProcessor.disconnect();
-        scriptProcessor = null;
+
+    // Clean up workletNode
+    if (workletNode) {
+        try {
+            workletNode.disconnect();
+        } catch (error) {
+            console.warn('Error disconnecting workletNode:', error);
+        }
+        workletNode = null;
+    }
+
+    // Clean up audioContext
+    if (audioContext) {
+        try {
+            if (audioContext.state !== 'closed') {
+                audioContext.close();
+            }
+        } catch (error) {
+            console.warn('Error closing audioContext:', error);
+        }
+        audioContext = null;
     }
 }
 
