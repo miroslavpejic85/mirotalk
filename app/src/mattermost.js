@@ -89,6 +89,11 @@ class MeetingService {
 class MattermostController {
     constructor(app, config, htmlInjector, clientHtml) {
         try {
+            if (!config || !config.enabled) {
+                log.info('MattermostController is disabled due to configuration');
+                return;
+            }
+
             this.validateConfig(config);
 
             const tokenService = new TokenService(
