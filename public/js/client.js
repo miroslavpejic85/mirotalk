@@ -7159,6 +7159,7 @@ function recordingOptions(options, audioMixerTracks) {
         position: 'top',
         imageUrl: images.recording,
         title: 'Recording options',
+        text: 'Select the recording type you want to start. Audio will be recorded from all participants.',
         showDenyButton: true,
         showCancelButton: true,
         cancelButtonColor: 'red',
