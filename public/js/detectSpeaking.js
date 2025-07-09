@@ -28,7 +28,7 @@ async function getMicrophoneVolumeIndicator(stream) {
             const microphone = audioContext.createMediaStreamSource(stream);
 
             // Create and configure AudioWorkletNode
-            await audioContext.audioWorklet.addModule('/js/volume-processor.js');
+            await audioContext.audioWorklet.addModule('/js/volumeProcessor.js');
             workletNode = new AudioWorkletNode(audioContext, 'volume-processor', {
                 processorOptions: {
                     threshold: 10, // Volume threshold
