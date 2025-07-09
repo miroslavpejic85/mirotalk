@@ -5,6 +5,9 @@
 node_modules
 npm-debug.log
 
+# bun
+bun.lock
+
 # mac
 .DS_Store
 
@@ -20,3 +23,4 @@ turnserver.conf
 output
 env.txt
 
+.idea

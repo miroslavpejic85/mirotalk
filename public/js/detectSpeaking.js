@@ -22,29 +22,33 @@ async function getMicrophoneVolumeIndicator(stream) {
         console.log('Start microphone volume indicator for audio track', stream.getAudioTracks()[0]);
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const microphone = audioContext.createMediaStreamSource(stream);
-        scriptProcessor = audioContext.createScriptProcessor(1024, 1, 1);
-        scriptProcessor.onaudioprocess = function (event) {
-            const inputBuffer = event.inputBuffer.getChannelData(0);
-            let sum = 0;
-            for (let i = 0; i < inputBuffer.length; i++) {
-                sum += inputBuffer[i] * inputBuffer[i];
+
+        // 创建并配置 AudioWorkletNode
+        await audioContext.audioWorklet.addModule('volume-processor.js');
+        const workletNode = new AudioWorkletNode(audioContext, 'volume-processor', {
+            processorOptions: {
+                threshold: 10,     // 音量阈值
+                peerId: myPeerId,  // 你的 peer ID
+                myAudioStatus: myAudioStatus, // 你的音频状态
+            },
+        });
+
+        // 监听处理器发送的消息
+        workletNode.port.onmessage = (event) => {
+            const data = event.data;
+
+            if (data.type === 'micVolume') {
+                // 发送数据到 DataChannel
+                sendToDataChannel(data);
+                handleMyVolume(data); // 自定义处理函数
+            } else if (data.type === 'volumeIndicator') {
+                updateVolumeIndicator(data.volume); // 更新音量指示器
             }
-            const rms = Math.sqrt(sum / inputBuffer.length);
-            const volume = Math.max(0, Math.min(1, rms * 10));
-            const finalVolume = Math.round(volume * 100);
-            if (myAudioStatus && finalVolume > 10) {
-                const config = {
-                    type: 'micVolume',
-                    peer_id: myPeerId,
-                    volume: finalVolume,
-                };
-                handleMyVolume(config);
-                sendToDataChannel(config);
-            }
-            updateVolumeIndicator(volume);
         };
-        microphone.connect(scriptProcessor);
-        scriptProcessor.connect(audioContext.destination);
+
+        // 连接音频图
+        microphone.connect(workletNode);
+        workletNode.connect(audioContext.destination);
     } else {
         console.warn('Microphone volume indicator not supported for this browser');
     }
