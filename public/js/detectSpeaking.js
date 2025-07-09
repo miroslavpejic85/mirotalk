@@ -1,8 +1,9 @@
 'use strict';
 
-const bars = getSlALL('.volume-bar');
+const bars = document.querySelectorAll('.volume-bar');
 
-let scriptProcessor = null;
+let audioContext = null;
+let workletNode = null;
 
 /**
  * Check if audio context is supported
@@ -18,33 +19,45 @@ function isAudioContextSupported() {
  */
 async function getMicrophoneVolumeIndicator(stream) {
     if (isAudioContextSupported() && hasAudioTrack(stream)) {
-        stopMicrophoneProcessing();
-        console.log('Start microphone volume indicator for audio track', stream.getAudioTracks()[0]);
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const microphone = audioContext.createMediaStreamSource(stream);
-        scriptProcessor = audioContext.createScriptProcessor(1024, 1, 1);
-        scriptProcessor.onaudioprocess = function (event) {
-            const inputBuffer = event.inputBuffer.getChannelData(0);
-            let sum = 0;
-            for (let i = 0; i < inputBuffer.length; i++) {
-                sum += inputBuffer[i] * inputBuffer[i];
-            }
-            const rms = Math.sqrt(sum / inputBuffer.length);
-            const volume = Math.max(0, Math.min(1, rms * 10));
-            const finalVolume = Math.round(volume * 100);
-            if (myAudioStatus && finalVolume > 10) {
-                const config = {
-                    type: 'micVolume',
-                    peer_id: myPeerId,
-                    volume: finalVolume,
-                };
-                handleMyVolume(config);
-                sendToDataChannel(config);
-            }
-            updateVolumeIndicator(volume);
-        };
-        microphone.connect(scriptProcessor);
-        scriptProcessor.connect(audioContext.destination);
+        try {
+            // Clean up any existing resources first
+            stopMicrophoneProcessing();
+
+            console.log('Start microphone volume indicator for audio track', stream.getAudioTracks()[0]);
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const microphone = audioContext.createMediaStreamSource(stream);
+
+            // Create and configure AudioWorkletNode
+            await audioContext.audioWorklet.addModule('/js/volume-processor.js');
+            workletNode = new AudioWorkletNode(audioContext, 'volume-processor', {
+                processorOptions: {
+                    threshold: 10, // Volume threshold
+                    peerId: myPeerId, // Your peer ID
+                    myAudioStatus: myAudioStatus, // Your audio status
+                },
+            });
+
+            // Listen for messages from the processor
+            workletNode.port.onmessage = (event) => {
+                const data = event.data;
+
+                if (data.type === 'micVolume') {
+                    // Send data to DataChannel
+                    sendToDataChannel(data);
+                    handleMyVolume(data); // Custom handling function
+                } else if (data.type === 'volumeIndicator') {
+                    updateVolumeIndicator(data.volume); // Update volume indicator
+                }
+            };
+
+            // Connect audio graph
+            microphone.connect(workletNode);
+            workletNode.connect(audioContext.destination);
+        } catch (error) {
+            console.error('Error initializing microphone volume indicator:', error);
+            // Clean up on error
+            stopMicrophoneProcessing();
+        }
     } else {
         console.warn('Microphone volume indicator not supported for this browser');
     }
@@ -55,9 +68,27 @@ async function getMicrophoneVolumeIndicator(stream) {
  */
 function stopMicrophoneProcessing() {
     console.log('Stop microphone volume indicator');
-    if (scriptProcessor) {
-        scriptProcessor.disconnect();
-        scriptProcessor = null;
+
+    // Clean up workletNode
+    if (workletNode) {
+        try {
+            workletNode.disconnect();
+        } catch (error) {
+            console.warn('Error disconnecting workletNode:', error);
+        }
+        workletNode = null;
+    }
+
+    // Clean up audioContext
+    if (audioContext) {
+        try {
+            if (audioContext.state !== 'closed') {
+                audioContext.close();
+            }
+        } catch (error) {
+            console.warn('Error closing audioContext:', error);
+        }
+        audioContext = null;
     }
 }
 
