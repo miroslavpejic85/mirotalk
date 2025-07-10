@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.29
+ * @version 1.5.30
  *
  */
 
@@ -11240,7 +11240,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.29',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.30',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -11306,6 +11306,10 @@ function leaveFeedback() {
         allowOutsideClick: false,
         allowEscapeKey: false,
         showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonColor: 'green',
+        denyButtonColor: 'red',
+        cancelButtonColor: 'gray',
         background: swBg,
         imageUrl: images.feedback,
         position: 'top',
@@ -11313,12 +11317,13 @@ function leaveFeedback() {
         text: 'Do you want to rate your MiroTalk experience?',
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
+        cancelButtonText: `Cancel`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
             openURL(surveyURL);
-        } else {
+        } else if (result.isDenied) {
             redirectOnLeave();
         }
     });
