@@ -11291,11 +11291,7 @@ function showAbout() {
  */
 function leaveRoom() {
     checkRecording();
-    if (surveyActive) {
-        leaveFeedback();
-    } else {
-        redirectOnLeave();
-    }
+    surveyActive ? leaveFeedback() : redirectOnLeave();
 }
 
 /**
