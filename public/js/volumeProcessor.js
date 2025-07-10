@@ -5,6 +5,7 @@ class VolumeProcessor extends AudioWorkletProcessor {
         this.threshold = options.processorOptions.threshold || 10;
         this.peerId = options.processorOptions.peerId || '';
         this.myAudioStatus = options.processorOptions.myAudioStatus || false;
+        this.silenceThreshold = options.processorOptions.silenceThreshold || 0.01;
     }
 
     process(inputs, outputs, parameters) {
@@ -41,10 +42,12 @@ class VolumeProcessor extends AudioWorkletProcessor {
         }
 
         // Send volume data for UI updates
-        this.port.postMessage({
-            type: 'volumeIndicator',
-            volume: volume,
-        });
+        if (volume > this.silenceThreshold) {
+            this.port.postMessage({
+                type: 'volumeIndicator',
+                volume: volume,
+            });
+        }
 
         return true;
     }
