@@ -1,18 +1,15 @@
 'use strict';
 
 const util = require('util');
-
 const colors = require('colors');
 
 const LOGS_DEBUG = process.env.LOGS_DEBUG ? process.env.LOGS_DEBUG === 'true' : true;
 const LOGS_COLORS = process.env.LOGS_COLORS ? process.env.LOGS_COLORS === 'true' : true;
+const LOGS_JSON = process.env.LOGS_JSON ? process.env.LOGS_JSON === 'true' : false;
+const LOGS_JSON_PRETTY = process.env.LOGS_JSON_PRETTY ? process.env.LOGS_JSON_PRETTY === 'true' : false;
 
-console.log('Logs', {
-    colors: LOGS_COLORS,
-    debug: LOGS_DEBUG,
-});
-
-LOGS_COLORS ? colors.enable() : colors.disable();
+if (LOGS_COLORS) colors.enable();
+else colors.disable();
 
 const options = {
     depth: null,
@@ -20,104 +17,102 @@ const options = {
 };
 module.exports = class Logs {
     constructor(appName = 'miroTalkP2P') {
-        this.appName = colors.yellow(appName);
+        this.appName = appName;
         this.debugOn = LOGS_DEBUG;
         this.timeStart = Date.now();
         this.timeEnd = null;
         this.timeElapsedMs = null;
         this.tzOptions = {
-            timeZone: process.env.TZ || 'UTC', // Fallback to UTC if TZ environment variable is not set
-            hour12: false, // Set hour12 to false for 24-hour format
+            timeZone: process.env.TZ || 'UTC',
+            hour12: false,
         };
     }
 
-    /**
-     * Console debug logs
-     * @param {string} msg message
-     * @param {object} op optional params
-     * @returns
-     */
+    jsonLog(level, appName, msg, op, extra = {}) {
+        const logObj = {
+            timestamp: new Date().toISOString(),
+            level,
+            app: appName,
+            message: msg,
+            ...extra,
+        };
+        if (op && typeof op === 'object' && Object.keys(op).length > 0) {
+            logObj.data = op;
+        }
+
+        // Output pretty JSON if LOGS_JSON_PRETTY is set, else compact one line JSON
+        LOGS_JSON_PRETTY ? console.log(JSON.stringify(logObj, null, 2)) : console.log(JSON.stringify(logObj));
+    }
+
     debug(msg, op = '') {
-        if (this.debugOn) {
-            this.timeEnd = Date.now();
-            this.timeElapsedMs = this.getFormatTime(Math.floor(this.timeEnd - this.timeStart));
+        if (!this.debugOn) return;
+        this.timeEnd = Date.now();
+        this.timeElapsedMs = this.getFormatTime(Math.floor(this.timeEnd - this.timeStart));
+        if (LOGS_JSON) {
+            this.jsonLog('debug', this.appName, msg, op, { elapsed: this.timeElapsedMs });
+        } else {
             console.debug(
-                '[' + this.getDateTime() + '] [' + this.appName + '] ' + msg,
+                '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + msg,
                 util.inspect(op, options),
-                this.timeElapsedMs
+                colors.magenta(this.timeElapsedMs)
             );
-            this.timeStart = Date.now();
+        }
+        this.timeStart = Date.now();
+    }
+
+    log(msg, op = '') {
+        if (LOGS_JSON) {
+            jsonLog('log', this.appName, msg, op);
+        } else {
+            console.log(
+                '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + msg,
+                util.inspect(op, options)
+            );
         }
     }
 
-    /**
-     * Console logs
-     * @param {string} msg message
-     * @param {object} op optional params
-     * @returns
-     */
-    log(msg, op = '') {
-        console.log('[' + this.getDateTime() + '] [' + this.appName + '] ' + msg, util.inspect(op, options));
-    }
-
-    /**
-     * Console info logs
-     * @param {string} msg message
-     * @param {object} op optional params
-     * @returns
-     */
     info(msg, op = '') {
-        console.info(
-            '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.green(msg),
-            util.inspect(op, options)
-        );
+        if (LOGS_JSON) {
+            this.jsonLog('info', this.appName, msg, op);
+        } else {
+            console.info(
+                '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + colors.green(msg),
+                util.inspect(op, options)
+            );
+        }
     }
 
-    /**
-     * Console warning logs
-     * @param {string} msg message
-     * @param {object} op optional params
-     * @returns
-     */
     warn(msg, op = '') {
-        console.warn(
-            '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.yellow(msg),
-            util.inspect(op, options)
-        );
+        if (LOGS_JSON) {
+            this.jsonLog('warn', this.appName, msg, op);
+        } else {
+            console.warn(
+                '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + colors.yellow(msg),
+                util.inspect(op, options)
+            );
+        }
     }
 
-    /**
-     * Console error logs
-     * @param {string} msg message
-     * @param {object} op optional params
-     * @returns
-     */
     error(msg, op = '') {
-        console.error(
-            '[' + this.getDateTime() + '] [' + this.appName + '] ' + colors.red(msg),
-            util.inspect(op, options)
-        );
+        if (LOGS_JSON) {
+            this.jsonLog('error', this.appName, msg, op);
+        } else {
+            console.error(
+                '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + colors.red(msg),
+                util.inspect(op, options)
+            );
+        }
     }
 
-    /**
-     * Get date time
-     * @returns {string} date to Local String
-     */
     getDateTime() {
         const currentTime = new Date().toLocaleString('en-US', this.tzOptions);
         const milliseconds = String(new Date().getMilliseconds()).padStart(3, '0');
         return colors.cyan(`${currentTime}:${milliseconds}`);
     }
 
-    /**
-     * Get format time
-     * @param {integer} ms
-     * @returns formatted time
-     */
     getFormatTime(ms) {
         let time = Math.floor(ms);
         let type = 'ms';
-
         if (ms >= 1000) {
             time = Math.floor((ms / 1000) % 60);
             type = 's';
@@ -126,10 +121,10 @@ module.exports = class Logs {
             time = Math.floor((ms / 1000 / 60) % 60);
             type = 'm';
         }
-        if (ms >= (3, 6e6)) {
+        if (ms >= 3.6e6) {
             time = Math.floor((ms / 1000 / 60 / 60) % 24);
             type = 'h';
         }
-        return colors.magenta('+' + time + type);
+        return '+' + time + type;
     }
 };
