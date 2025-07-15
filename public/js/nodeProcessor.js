@@ -51,7 +51,7 @@ class MessageHandler {
             this.uiManager.updateStatus('❌ RNNoise WASM error: ' + event.data.error, 'error');
         } else if (event.data.type === 'vad') {
             if (event.data.isSpeech) {
-                this.uiManager.updateStatus(`🗣️ Speech detected (VAD: ${event.data.probability.toFixed(2)})`, 'info');
+                //this.uiManager.updateStatus(`🗣️ Speech detected (VAD: ${event.data.probability.toFixed(2)})`, 'info');
             }
         }
     }
