@@ -529,143 +529,19 @@ access to use this app.
                             <div class="volume-bar"></div>
                         </div>
                         <br />
-                        <div class="dropdown" id="dropDownMicOptions">
-                            <button class="buttons" id="micOptionsBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-screwdriver-wrench"></i>
-                                <p>Advanced options</p>
-                                <i class="fas fa-caret-down"></i>
-                            </button>
-                            <br /><br /><br /><br />
-                            <div id="micDropDownMenu" class="dropdown-menu" aria-labelledby="micOptionsBtn">
-                                <table class="mySettingsTable">
-                                    <tr id="autoGainControlButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fas fa-ear-listen"></i> -->
-                                                <p>Auto gain control</p>
-                                            </div>
-                                        </td>
-                                        <td><input class="toggle" id="switchAutoGainControl" type="checkbox" /></td>
-                                    </tr>
-                                    <tr id="echoCancellationButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fas fa-ear-listen"></i> -->
-                                                <p>Echo cancellation</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <input class="toggle" id="switchEchoCancellation" type="checkbox" checked />
-                                        </td>
-                                    </tr>
-                                    <tr id="noiseSuppressionButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fas fa-ear-listen"></i> -->
-                                                <p>Noise suppression</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <input class="toggle" id="switchNoiseSuppression" type="checkbox" checked />
-                                        </td>
-                                    </tr>
-                                    <tr id="micLatencyButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fab fa-audible"></i> -->
-                                                <p>Latency</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="title">
-                                                <input
-                                                    type="range"
-                                                    class="mic-input-range"
-                                                    id="micLatencyRange"
-                                                    name="latency"
-                                                    min="10"
-                                                    max="1000"
-                                                    value="50"
-                                                    step="10"
-                                                />
-                                                <p><span id="micLatencyValue">50</span>&nbsp;ms</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr id="micVolumeButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fas fa-volume-high"></i> -->
-                                                <p>Volume</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <input
-                                                    type="range"
-                                                    class="mic-input-range"
-                                                    id="micVolumeRange"
-                                                    name="volume"
-                                                    min="0"
-                                                    max="100"
-                                                    value="100"
-                                                    step="10"
-                                                />
-                                                <p><span id="micVolumeValue">100</span>&nbsp;%</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr id="sampleRateButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fas fa-microphone-lines"></i> -->
-                                                <p>Sample rate</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <select id="sampleRateSelect">
-                                                <option value="48000">48000 Hz</option>
-                                                <option value="44100">44100 Hz</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr id="sampleSizeButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fas fa-microphone-lines"></i> -->
-                                                <p>Sample size</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <select id="sampleSizeSelect">
-                                                <option value="16">16 bits</option>
-                                                <option value="32">32 bits</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr id="channelCountButton">
-                                        <td class="microphone-table-width">
-                                            <div class="title">
-                                                <!-- <i class="fas fa-microphone-lines"></i> -->
-                                                <p>Channel count</p>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <select id="channelCountSelect">
-                                                <option value="1">1 (mono)</option>
-                                                <option value="2">2 (stereo)</option>
-                                            </select>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <button id="applyAudioOptionsBtn" class="fas fa-check">
-                                                <p>Apply options</p>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
+                        <div id="micOptionsDiv">
+                            <table id="mySettingsTable">
+                                <tr id="noiseSuppressionBtn">
+                                    <td>
+                                        <div class="title">
+                                            <i class="fas fa-ear-listen"></i>
+                                            <p id="labelNoiseSuppression">Noise Suppression</p>
+                                        </div>
+                                    </td>
+                                    <td><input id="switchNoiseSuppression" class="toggle" type="checkbox" /></td>
+                                </tr>
+                            </table>
+                            <br /><br />
                         </div>
                         <div id="audioOutputDiv">
                             <div class="title">
@@ -1179,6 +1055,7 @@ access to use this app.
         <script defer src="../js/translate.js"></script>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/speechRecognition.js"></script>
+        <script defer src="../js/nodeProcessor.js"></script>
 
         <!-- end of Js scripts -->
 

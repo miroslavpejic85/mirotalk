@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.31
+ * @version 1.5.40
  *
  */
 
@@ -368,20 +368,9 @@ const screenFpsDiv = getId('screenFpsDiv');
 const switchShortcuts = getId('switchShortcuts');
 
 // Audio options
-const dropDownMicOptions = getId('dropDownMicOptions');
-const switchAutoGainControl = getId('switchAutoGainControl');
+const micOptionsDiv = getId('micOptionsDiv');
 const switchNoiseSuppression = getId('switchNoiseSuppression');
-const switchEchoCancellation = getId('switchEchoCancellation');
-const sampleRateSelect = getId('sampleRateSelect');
-const sampleSizeSelect = getId('sampleSizeSelect');
-const channelCountSelect = getId('channelCountSelect');
-const micLatencyRange = getId('micLatencyRange');
-const micVolumeRange = getId('micVolumeRange');
-const applyAudioOptionsBtn = getId('applyAudioOptionsBtn');
-const micOptionsBtn = getId('micOptionsBtn');
-const micDropDownMenu = getId('micDropDownMenu');
-const micLatencyValue = getId('micLatencyValue');
-const micVolumeValue = getId('micVolumeValue');
+const labelNoiseSuppression = getId('labelNoiseSuppression');
 
 // Tab Media
 const shareMediaAudioVideoBtn = getId('shareMediaAudioVideoBtn');
@@ -572,6 +561,7 @@ let allPeers = {}; // keep track of all peers in the room, indexed by peer_id ==
 let initStream; // initial webcam stream
 let localVideoMediaStream; // my webcam
 let localAudioMediaStream; // my microphone
+let noiseProcessor = null; // RNNoise audio processing
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
 let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
 
@@ -778,6 +768,11 @@ function setButtonsToolTip() {
     setTippy(mySettingsCloseBtn, 'Close', 'bottom');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
     setTippy(myRoomId, 'Room name (click to copy/share)', 'right');
+    setTippy(
+        switchNoiseSuppression,
+        'If Active, the audio will be processed to reduce background noise, making the voice clearer',
+        'right'
+    );
     setTippy(
         switchPushToTalk,
         'If Active, When SpaceBar keydown the microphone will be activated, on keyup will be deactivated, like a walkie-talkie',
@@ -1420,7 +1415,7 @@ function handleButtonsRule() {
     elemDisplay(captionTogglePin, !isMobileDevice && buttons.caption.showTogglePinBtn);
     elemDisplay(captionMaxBtn, !isMobileDevice && buttons.caption.showMaxBtn);
     // Settings
-    elemDisplay(dropDownMicOptions, buttons.settings.showMicOptionsBtn || isPresenter); // auto-detected
+    elemDisplay(micOptionsDiv, buttons.settings.showMicOptionsBtn || isPresenter);
     elemDisplay(captionEveryoneBtn, buttons.settings.showCaptionEveryoneBtn);
     elemDisplay(muteEveryoneBtn, buttons.settings.showMuteEveryoneBtn);
     elemDisplay(hideEveryoneBtn, buttons.settings.showHideEveryoneBtn);
@@ -1899,8 +1894,8 @@ async function changeLocalCamera(deviceId) {
 
     await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
-        .then((camStream) => {
-            updateLocalVideoMediaStream(camStream);
+        .then(async (camStream) => {
+            await updateLocalVideoMediaStream(camStream);
         })
         .catch(async (err) => {
             console.error('Error accessing local video device:', err);
@@ -1913,7 +1908,7 @@ async function changeLocalCamera(deviceId) {
                         },
                     },
                 });
-                updateLocalVideoMediaStream(camStream);
+                await updateLocalVideoMediaStream(camStream);
             } catch (fallbackErr) {
                 console.error('Error accessing init video device with default constraints', fallbackErr);
                 printError(err);
@@ -1924,14 +1919,14 @@ async function changeLocalCamera(deviceId) {
      * Update Local Video Media Stream
      * @param {MediaStream} camStream
      */
-    function updateLocalVideoMediaStream(camStream) {
+    async function updateLocalVideoMediaStream(camStream) {
         if (camStream) {
             camera = detectCameraFacingMode(camStream);
             console.log('Detect Camera facing mode', camera);
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
             logStreamSettingsInfo('Success attached local video stream', camStream);
-            refreshMyStreamToPeers(camStream);
+            await refreshMyStreamToPeers(camStream);
             setLocalMaxFps(videoMaxFrameRate);
         }
     }
@@ -1956,18 +1951,19 @@ async function changeLocalMicrophone(deviceId) {
     }
 
     // Get audio constraints
-    const audioConstraints = await getAudioConstraints();
-    audioConstraints['deviceId'] = { exact: deviceId };
+    const audioConstraints = getAudioConstraints(deviceId);
     console.log('audioConstraints', audioConstraints);
 
     await navigator.mediaDevices
-        .getUserMedia({ audio: audioConstraints })
-        .then((micStream) => {
+        .getUserMedia(audioConstraints)
+        .then(async (micStream) => {
             myAudio.srcObject = micStream;
             localAudioMediaStream = micStream;
             logStreamSettingsInfo('Success attached local microphone stream', micStream);
             getMicrophoneVolumeIndicator(micStream);
-            refreshMyStreamToPeers(micStream, true);
+            lsSettings.mic_noise_suppression
+                ? await restartNoiseSuppression()
+                : await refreshMyStreamToPeers(micStream, true);
         })
         .catch((err) => {
             console.error('[Error] changeLocalMicrophone', err);
@@ -1997,6 +1993,45 @@ function checkPeerAudioVideo() {
         //elemDisplay(tabVideoBtn, queryPeerVideo);
         console.log('Direct join', { video: queryPeerVideo });
     }
+}
+
+/**
+ * Enable RNNoise audio processing for noise suppression
+ */
+async function enableNoiseSuppression() {
+    if (!localAudioMediaStream) {
+        userLog('error', 'No local audio stream available for noise suppression.');
+        return;
+    }
+    if (!noiseProcessor) noiseProcessor = new RNNoiseProcessor();
+    const processedStream = await noiseProcessor.startProcessing(localAudioMediaStream);
+    noiseProcessor.toggleNoiseSuppression();
+    localAudioMediaStream = processedStream;
+    await refreshMyStreamToPeers(localAudioMediaStream, true);
+}
+
+/**
+ * Disable RNNoise audio processing for noise suppression
+ */
+async function disableNoiseSuppression() {
+    if (noiseProcessor) {
+        localAudioMediaStream = noiseProcessor.mediaStream || localAudioMediaStream;
+        await refreshMyStreamToPeers(localAudioMediaStream, true);
+        noiseProcessor.toggleNoiseSuppression();
+        await noiseProcessor.stopProcessing();
+        noiseProcessor = null;
+    } else {
+        await refreshMyStreamToPeers(localAudioMediaStream, true);
+    }
+}
+
+/**
+ * Restart noise suppression (e.g. after changing mic)
+ */
+async function restartNoiseSuppression() {
+    if (!lsSettings.mic_noise_suppression) return;
+    await disableNoiseSuppression();
+    await enableNoiseSuppression();
 }
 
 /**
@@ -3009,16 +3044,19 @@ async function setupLocalAudioMedia() {
 
     console.log('Requesting access to audio inputs');
 
-    const audioConstraints = useAudio ? await getAudioConstraints() : false;
+    const audioConstraints = useAudio ? getAudioConstraints() : { audio: false };
 
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+        const stream = await navigator.mediaDevices.getUserMedia(audioConstraints);
         if (stream) {
             await loadLocalMedia(stream, 'audio');
             if (useAudio) {
                 localAudioMediaStream = stream;
                 await getMicrophoneVolumeIndicator(stream);
                 console.log('10. Access granted to audio device');
+                if (lsSettings.mic_noise_suppression) {
+                    await enableNoiseSuppression();
+                }
             }
         }
     } catch (err) {
@@ -5644,60 +5682,18 @@ function setupMySettings() {
         await changeLocalMicrophone(audioInputSelect.value);
         refreshLsDevices();
     });
-    // advance audio options
-    micOptionsBtn.addEventListener('click', function () {
-        micDropDownMenu.style.display === 'block'
-            ? elemDisplay(micDropDownMenu, false)
-            : elemDisplay(micDropDownMenu, true, 'block');
-    });
     // audio options
-    switchAutoGainControl.onchange = (e) => {
-        lsSettings.mic_auto_gain_control = e.currentTarget.checked;
+    switchNoiseSuppression.onchange = async (e) => {
+        const noiseSuppressionEnabled = e.currentTarget.checked;
+        lsSettings.mic_noise_suppression = noiseSuppressionEnabled;
         lS.setSettings(lsSettings);
+        noiseSuppressionEnabled ? await enableNoiseSuppression() : await disableNoiseSuppression();
+        toastMessage(
+            noiseSuppressionEnabled ? 'success' : 'info',
+            `Noise suppression ${noiseSuppressionEnabled ? 'enabled' : 'disabled'}`
+        );
         e.target.blur();
     };
-    switchEchoCancellation.onchange = (e) => {
-        lsSettings.mic_echo_cancellations = e.currentTarget.checked;
-        lS.setSettings(lsSettings);
-        e.target.blur();
-    };
-    switchNoiseSuppression.onchange = (e) => {
-        lsSettings.mic_noise_suppression = e.currentTarget.checked;
-        lS.setSettings(lsSettings);
-        e.target.blur();
-    };
-    sampleRateSelect.onchange = (e) => {
-        lsSettings.mic_sample_rate = e.currentTarget.selectedIndex;
-        lS.setSettings(lsSettings);
-        e.target.blur();
-    };
-    sampleSizeSelect.onchange = (e) => {
-        lsSettings.mic_sample_size = e.currentTarget.selectedIndex;
-        lS.setSettings(lsSettings);
-        e.target.blur();
-    };
-    channelCountSelect.onchange = (e) => {
-        lsSettings.mic_channel_count = e.currentTarget.selectedIndex;
-        lS.setSettings(lsSettings);
-        e.target.blur();
-    };
-    micLatencyRange.oninput = (e) => {
-        lsSettings.mic_latency = e.currentTarget.value;
-        lS.setSettings(lsSettings);
-        micLatencyValue.innerText = e.currentTarget.value;
-        e.target.blur();
-    };
-    micVolumeRange.oninput = (e) => {
-        lsSettings.mic_volume = e.currentTarget.value;
-        lS.setSettings(lsSettings);
-        micVolumeValue.innerText = e.currentTarget.value;
-        e.target.blur();
-    };
-    // apply audio options constraints
-    applyAudioOptionsBtn.addEventListener('click', async () => {
-        await changeLocalMicrophone(audioInputSelect.value);
-        micOptionsBtn.click();
-    });
     // select audio output
     audioOutputSelect.addEventListener('change', async () => {
         await changeAudioDestination();
@@ -5979,16 +5975,7 @@ function loadSettingsFromLocalStorage() {
     themeSelect.disabled = themeCustom.keep;
     themeCustom.input.value = themeCustom.color;
 
-    switchAutoGainControl.checked = lsSettings.mic_auto_gain_control;
-    switchEchoCancellation.checked = lsSettings.mic_echo_cancellations;
     switchNoiseSuppression.checked = lsSettings.mic_noise_suppression;
-    sampleRateSelect.selectedIndex = lsSettings.mic_sample_rate;
-    sampleSizeSelect.selectedIndex = lsSettings.mic_sample_size;
-    channelCountSelect.selectedIndex = lsSettings.mic_channel_count;
-    micLatencyRange.value = lsSettings.mic_latency || '50';
-    micLatencyValue.innerText = lsSettings.mic_latency || '50';
-    micVolumeRange.value = lsSettings.mic_volume || '100';
-    micVolumeValue.innerText = lsSettings.mic_volume || '100';
 
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
@@ -6091,13 +6078,12 @@ async function getAudioVideoConstraints() {
         videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
         videoConstraints['deviceId'] = videoSource ? { exact: videoSource } : undefined;
     }
-    let audioConstraints = useAudio;
-    if (audioConstraints) {
-        audioConstraints = await getAudioConstraints();
-        audioConstraints['deviceId'] = audioSource ? { exact: audioSource } : undefined;
+    let audioConstraints = { audio: false };
+    if (useAudio) {
+        audioConstraints = getAudioConstraints(audioSource);
     }
     return {
-        audio: audioConstraints,
+        audioConstraints,
         video: videoConstraints,
     };
 }
@@ -6166,24 +6152,15 @@ async function getVideoConstraints(videoQuality) {
 
 /**
  * Get audio constraints
+ * @param {string} deviceId audio input device ID
+ * @returns {object} audio constraints
  */
-async function getAudioConstraints() {
-    // For presenter
-    const constraints = {
-        audio: {
-            autoGainControl: switchAutoGainControl.checked,
-            echoCancellation: switchEchoCancellation.checked,
-            noiseSuppression: switchNoiseSuppression.checked,
-            sampleRate: parseInt(sampleRateSelect.value),
-            sampleSize: parseInt(sampleSizeSelect.value),
-            channelCount: parseInt(channelCountSelect.value),
-            latency: parseInt(micLatencyRange.value),
-            volume: parseInt(micVolumeRange.value / 100),
-        },
-        video: false,
+function getAudioConstraints(deviceId = null) {
+    let audioConstraints = {};
+    deviceId ? (audioConstraints.deviceId = deviceId) : (audioConstraints = true);
+    return {
+        audio: audioConstraints,
     };
-    console.log('Audio constraints', constraints);
-    return constraints;
 }
 
 /**
@@ -11240,7 +11217,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.31',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.40',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
