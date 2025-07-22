@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.42
+ * @version 1.5.43
  *
  */
 
@@ -152,6 +152,7 @@ const hostCfg = {
     user_auth: userAuth,
     users: hostUsers,
     authenticated: !hostProtected,
+    maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 8,
 };
 
 // JWT config
@@ -1383,6 +1384,7 @@ io.sockets.on('connect', async (socket) => {
                 active: redirectEnabled,
                 url: redirectURL,
             },
+            maxRoomParticipants: hostCfg.maxRoomParticipants,
             //...
         });
 

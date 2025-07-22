@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.42
+ * @version 1.5.43
  *
  */
 
@@ -449,11 +449,6 @@ const sinkId = 'sinkId' in HTMLMediaElement.prototype;
 
 //....
 
-const userLimits = {
-    active: false, // Limit users per room
-    count: 2, // Limit 2 users per room if userLimits.active true
-};
-
 const isRulesActive = true; // Presenter can do anything, guest is slightly moderate, if false no Rules for the room.
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution as default, up to 8k and 60fps (very high bandwidth are required) if false, you can set it from settings
 const useAvatarSvg = true; // if false the cam-Off avatar = images.avatar
@@ -514,6 +509,9 @@ const pickr = Pickr.create({
         lsSettings.theme_color = themeCustom.color;
         lS.setSettings(lsSettings);
     });
+
+// Room
+let thisMaxRoomParticipants = 8;
 
 // misc
 let swBg = 'rgba(0, 0, 0, 0.7)'; // swAlert background color
@@ -1265,7 +1263,7 @@ async function handleConnect() {
 function handleServerInfo(config) {
     console.log('13. Server info', config);
 
-    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect, rec_prioritize_h264 } = config;
+    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect, maxRoomParticipants } = config;
 
     isHostProtected = host_protected;
     isPeerAuthEnabled = user_auth;
@@ -1275,10 +1273,12 @@ function handleServerInfo(config) {
     surveyURL = survey.url;
 
     // Get redirect settings from server
-    ((redirectActive = redirect.active), (redirectURL = redirect.url));
+    redirectActive = redirect.active;
+    redirectURL = redirect.url;
 
     // Limit room to n peers
-    if (userLimits.active && peers_count > userLimits.count) {
+    if (maxRoomParticipants) thisMaxRoomParticipants = maxRoomParticipants;
+    if (peers_count > thisMaxRoomParticipants) {
         return roomIsBusy();
     }
 
@@ -1335,7 +1335,7 @@ function roomIsBusy() {
         imageUrl: images.forbidden,
         position: 'center',
         title: 'Room is busy',
-        html: `The room is limited to ${userLimits.count} users. <br/> Please try again later`,
+        html: `The room is limited to ${thisMaxRoomParticipants} users. <br/> Please try again later`,
         showDenyButton: false,
         confirmButtonText: `OK`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
@@ -2508,8 +2508,14 @@ function handleDisconnect(reason) {
                 }
             }
         }
-        peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
-        peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
+
+        if (peerVideoMediaElements[peerVideoId] && peerVideoMediaElements[peerVideoId].parentNode) {
+            peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
+        }
+        if (peerAudioMediaElements[peerAudioId] && peerAudioMediaElements[peerAudioId].parentNode) {
+            peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
+        }
+
         peerConnections[peer_id].close();
         msgerRemovePeer(peer_id);
         removeVideoPinMediaContainer(peer_id);
@@ -7308,7 +7314,7 @@ function notifyRecording(fromId, from, fromAvatar, action) {
  * Toggle Video and Audio tabs
  * @param {boolean} disabled - If true, disable the tabs; otherwise, enable them
  */
-function toggleVideoAudioTabs(disabled = false){
+function toggleVideoAudioTabs(disabled = false) {
     if (disabled) tabRoomBtn.click();
     tabVideoBtn.disabled = disabled;
     tabAudioBtn.disabled = disabled;
@@ -11230,7 +11236,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.42',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.43',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
