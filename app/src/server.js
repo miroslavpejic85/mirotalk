@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.45
+ * @version 1.5.46
  *
  */
 
@@ -392,6 +392,9 @@ const views = {
     privacy: path.join(__dirname, '../../', 'public/views/privacy.html'),
     stunTurn: path.join(__dirname, '../../', 'public/views/testStunTurn.html'),
 };
+
+// Branding configuration
+const brandHtmlInjection = config?.brand?.htmlInjection ?? true;
 
 // File to cache and inject custom HTML data like OG tags and any other elements.
 const filesPath = [views.landing, views.newCall, views.client, views.login];
@@ -770,7 +773,7 @@ app.get('/buttons', (req, res) => {
 
 // UI brand configuration
 app.get('/brand', (req, res) => {
-    res.status(200).json({ message: config && config.brand ? config.brand : false });
+    res.status(200).json({ message: config && config.brand && brandHtmlInjection ? config.brand : false });
 });
 
 // Join roomId redirect to /join?room=roomId

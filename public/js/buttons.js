@@ -10,6 +10,7 @@ let buttons = {
         showShareQr: true,
         showShareRoomBtn: true, // For guests
         showHideMeBtn: true,
+        showFullScreenBtn: true,
         showAudioBtn: true,
         showVideoBtn: true,
         showScreenBtn: true, // autodetected
@@ -24,6 +25,7 @@ let buttons = {
         showDocumentPipBtn: true,
         showMySettingsBtn: true,
         showAboutBtn: true, // Please keep me always true, Thank you!
+        showExtraBtn: true,
     },
     chat: {
         showTogglePinBtn: true,

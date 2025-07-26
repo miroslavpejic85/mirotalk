@@ -73,7 +73,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.5.45',
+        title: 'WebRTC P2P v1.5.46',
         html: `
             <button 
                 id="support-button" 
@@ -134,6 +134,8 @@ async function getBrand() {
                     clientBrand: brand,
                 });
                 window.sessionStorage.setItem(brandDataKey, JSON.stringify(serverBrand));
+            } else {
+                console.warn('FETCH BRAND SETTINGS - DISABLED');
             }
         } catch (error) {
             console.error('FETCH GET BRAND ERROR', error.message);

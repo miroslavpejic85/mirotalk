@@ -71,7 +71,10 @@ class HtmlInjector {
 
     // Function to inject dynamic data (e.g., OG, TITLE, etc.) into a given file
     injectHtml(filePath, res) {
-        // return res.send(this.cache[filePath]);
+        // Check if HTML injection is enabled in the config
+        if (!this.config?.htmlInjection) {
+            return res.send(this.cache[filePath]);
+        }
 
         if (!this.cache[filePath]) {
             log.error(`File not cached: ${filePath}`);
