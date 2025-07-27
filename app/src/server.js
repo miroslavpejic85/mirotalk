@@ -152,7 +152,7 @@ const hostCfg = {
     user_auth: userAuth,
     users: hostUsers,
     authenticated: !hostProtected,
-    maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 8,
+    maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 1000,
 };
 
 // JWT config
