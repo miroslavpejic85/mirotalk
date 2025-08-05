@@ -407,6 +407,7 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 |                                                                                                |                                                                                                |
 | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | [![Hostinger](public/advertisers/Hostinger.png)](https://hostinger.com/?REFERRALCODE=MIROTALK) | [![Contabo](public/advertisers/Contabo.png)](https://www.dpbolvw.net/click-101027391-14462707) |
+| [![Rambox](public/advertisers/RamboxLogo.png)](https://rambox.app?via=mirotalk)                |                                                                                                |
 
 ---
 
