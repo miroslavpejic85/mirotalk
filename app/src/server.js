@@ -594,6 +594,19 @@ app.get(['/icetest'], (req, res) => {
     res.sendFile(views.stunTurn);
 });
 
+// Check if room active (exists)
+app.post('/isRoomActive', (req, res) => {
+    const { roomId } = checkXSS(req.body);
+
+    if (roomId && (hostCfg.protected || hostCfg.user_auth || OIDC.enabled)) {
+        const roomActive = Object.prototype.hasOwnProperty.call(peers, roomId);
+        if (roomActive) log.debug('isRoomActive', { roomId, roomActive });
+        res.status(200).json({ message: roomActive });
+    } else {
+        res.status(400).json({ message: 'Unauthorized' });
+    }
+});
+
 // Handle Direct join room with params
 app.get('/join/', async (req, res) => {
     if (Object.keys(req.query).length > 0) {
