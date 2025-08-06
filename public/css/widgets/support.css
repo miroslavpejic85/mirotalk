@@ -1,0 +1,849 @@
+/* Keyframes */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Main Widget Styles */
+.mirotalk-support-widget {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1f1f2e 0%, #2a2a3e 100%);
+    color: #fff;
+    padding: 24px;
+    border-radius: 20px;
+    width: 320px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    position: fixed;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 9999;
+}
+
+/* Light Theme Overrides */
+.mirotalk-support-widget.light-theme {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #333;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Position Classes */
+.mirotalk-support-widget.bottom-right,
+.mirotalk-minimized-btn.bottom-right,
+.mirotalk-reopener-btn.bottom-right {
+    bottom: 20px;
+    right: 20px;
+}
+
+.mirotalk-support-widget.bottom-left,
+.mirotalk-minimized-btn.bottom-left,
+.mirotalk-reopener-btn.bottom-left {
+    bottom: 20px;
+    left: 20px;
+}
+
+.mirotalk-support-widget.top-right,
+.mirotalk-minimized-btn.top-right,
+.mirotalk-reopener-btn.top-right {
+    top: 20px;
+    right: 20px;
+}
+
+.mirotalk-support-widget.top-left,
+.mirotalk-minimized-btn.top-left,
+.mirotalk-reopener-btn.top-left {
+    top: 20px;
+    left: 20px;
+}
+
+/* Widget Hover Effects */
+.mirotalk-support-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.mirotalk-support-widget.light-theme:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Online Indicator */
+.mirotalk-support-widget .online-indicator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    animation: fadeInDown 0.6s ease;
+}
+
+.mirotalk-minimized-btn .status-dot,
+.mirotalk-support-widget .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.mirotalk-minimized-btn .status-dot.online,
+.mirotalk-support-widget .status-dot.online {
+    background: #00e676;
+    box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
+    animation: pulse 2s infinite;
+}
+
+.mirotalk-minimized-btn .status-dot.offline,
+.mirotalk-support-widget .status-dot.offline {
+    background: #ff5252;
+    box-shadow: 0 0 8px rgba(255, 82, 82, 0.4);
+}
+
+.mirotalk-support-widget .online-text {
+    color: #00e676;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.mirotalk-support-widget .offline-text {
+    color: #ff5252;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Widget Controls */
+.mirotalk-support-widget .widget-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.mirotalk-support-widget .minimize-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mirotalk-support-widget.light-theme .minimize-btn {
+    background: rgba(0, 0, 0, 0.05);
+    color: #666;
+}
+
+.mirotalk-support-widget .minimize-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.mirotalk-support-widget.light-theme .minimize-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.mirotalk-support-widget .close-btn {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: #aaa;
+}
+
+.mirotalk-support-widget.light-theme .close-btn {
+    color: #666;
+}
+
+.mirotalk-support-widget .close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.mirotalk-support-widget.light-theme .close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+/* Content Elements */
+.mirotalk-support-widget .main-heading {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInUp 0.6s ease 0.1s both;
+}
+
+.mirotalk-support-widget.light-theme .main-heading {
+    background: linear-gradient(135deg, #333 0%, #555 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mirotalk-support-widget .subheading {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    color: #e0e0e0;
+    animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.mirotalk-support-widget.light-theme .subheading {
+    color: #666;
+}
+
+.mirotalk-support-widget .expert-images {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+    animation: fadeInUp 0.6s ease 0.3s both;
+}
+
+.mirotalk-support-widget .expert-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid #333;
+    margin: 0 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mirotalk-support-widget.light-theme .expert-img {
+    border: 3px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mirotalk-support-widget .connect-text {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 24px;
+    color: #bbb;
+    animation: fadeInUp 0.6s ease 0.4s both;
+}
+
+.mirotalk-support-widget.light-theme .connect-text {
+    color: #777;
+}
+
+/* Buttons */
+.mirotalk-support-widget .btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: linear-gradient(135deg, #333 0%, #444 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mirotalk-support-widget.light-theme .btn {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #333;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mirotalk-support-widget .btn:hover {
+    background: linear-gradient(135deg, #444 0%, #555 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.mirotalk-support-widget.light-theme .btn:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.mirotalk-support-widget .btn:active {
+    transform: translateY(0);
+}
+
+.mirotalk-support-widget .btn-icon {
+    background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.mirotalk-support-widget .btn-text {
+    flex: 1;
+    text-align: center;
+    margin-left: -32px;
+}
+
+.mirotalk-support-widget .btn:hover .btn-icon {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 230, 118, 0.4);
+}
+
+/* Footer */
+.mirotalk-support-widget .footer-text {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-top: 24px;
+    animation: fadeInUp 0.6s ease 0.5s both;
+}
+
+.mirotalk-support-widget.light-theme .footer-text {
+    color: #999;
+}
+
+.mirotalk-support-widget .footer-link {
+    color: #00e676;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.mirotalk-support-widget .footer-link:hover {
+    color: #00c853;
+}
+
+.mirotalk-support-widget .mirotalk-powered-by {
+    color: #00e676;
+    font-weight: bold;
+}
+
+.mirotalk-support-widget.light-theme .mirotalk-powered-by {
+    color: #00c853;
+}
+
+/* Widget States */
+.mirotalk-support-widget.minimized {
+    display: none;
+}
+
+/* Minimized Button */
+.mirotalk-minimized-btn {
+    position: fixed;
+    background: linear-gradient(135deg, #1f1f2e 0%, #2a2a3e 100%);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 9998;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mirotalk-minimized-btn.light-theme {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #333;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.mirotalk-minimized-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.mirotalk-minimized-btn.light-theme:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.mirotalk-minimized-btn .minimized-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Reopener Button - Fully Rounded */
+.mirotalk-reopener-btn {
+    position: fixed;
+    background: linear-gradient(135deg, #23233a 0%, #2a2a3e 100%);
+    color: #fff;
+    padding: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+
+.mirotalk-reopener-btn.light-theme {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #222;
+    border: 2px solid rgba(0, 0, 0, 0.13);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.mirotalk-reopener-btn:hover {
+    transform: translateY(-4px) scale(1.07);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(135deg, #2a2a3e 0%, #23233a 100%);
+    color: #00e676;
+    border-color: #00e676;
+}
+
+.mirotalk-reopener-btn.light-theme:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+    color: #00c853;
+    border-color: #00c853;
+}
+
+.mirotalk-reopener-btn .reopener-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.mirotalk-reopener-btn .reopener-content span {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.1;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .mirotalk-support-widget {
+        width: 300px;
+        padding: 22px;
+    }
+}
+
+@media (max-width: 992px) {
+    .mirotalk-support-widget {
+        width: 280px;
+        padding: 20px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .mirotalk-support-widget .main-heading {
+        font-size: 22px;
+    }
+
+    .mirotalk-support-widget .subheading {
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+
+    .mirotalk-support-widget .expert-img {
+        width: 40px;
+        height: 40px;
+        margin: 0 4px;
+    }
+
+    .mirotalk-support-widget .btn {
+        padding: 12px 14px;
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
+
+    .mirotalk-support-widget .btn-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .mirotalk-support-widget .btn-text {
+        margin-left: -28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .mirotalk-support-widget {
+        width: 260px;
+        padding: 18px;
+        bottom: 12px;
+        right: 12px;
+        border-radius: 16px;
+    }
+
+    .mirotalk-support-widget.bottom-left,
+    .mirotalk-support-widget.top-left {
+        left: 12px;
+    }
+
+    .mirotalk-support-widget.top-right,
+    .mirotalk-support-widget.top-left {
+        top: 12px;
+    }
+
+    .mirotalk-support-widget .main-heading {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .mirotalk-support-widget .subheading {
+        font-size: 14px;
+        margin-bottom: 18px;
+        line-height: 1.4;
+    }
+
+    .mirotalk-support-widget .expert-images {
+        margin-bottom: 10px;
+    }
+
+    .mirotalk-support-widget .expert-img {
+        width: 36px;
+        height: 36px;
+        margin: 0 3px;
+        border-width: 2px;
+    }
+
+    .mirotalk-support-widget .connect-text {
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .mirotalk-support-widget .btn {
+        padding: 11px 12px;
+        font-size: 14px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+    }
+
+    .mirotalk-support-widget .btn-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .mirotalk-support-widget .btn-text {
+        margin-left: -26px;
+        font-size: 14px;
+    }
+
+    .mirotalk-reopener-btn.bottom-right {
+        bottom: 12px;
+        right: 12px;
+    }
+
+    .mirotalk-reopener-btn.bottom-left {
+        bottom: 12px;
+        left: 12px;
+    }
+
+    .mirotalk-reopener-btn.top-right {
+        top: 12px;
+        right: 12px;
+    }
+
+    .mirotalk-reopener-btn.top-left {
+        top: 12px;
+        left: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mirotalk-support-widget {
+        width: 240px;
+        padding: 16px;
+        bottom: 10px;
+        right: 10px;
+        border-radius: 14px;
+    }
+
+    .mirotalk-support-widget.bottom-left,
+    .mirotalk-support-widget.top-left {
+        left: 10px;
+    }
+
+    .mirotalk-support-widget.top-right,
+    .mirotalk-support-widget.top-left {
+        top: 10px;
+    }
+
+    .mirotalk-support-widget .online-indicator {
+        margin-bottom: 12px;
+    }
+
+    .mirotalk-minimized-btn .status-dot .mirotalk-support-widget .status-dot {
+        width: 10px;
+        height: 10px;
+    }
+
+    .mirotalk-support-widget .online-text,
+    .mirotalk-support-widget .offline-text {
+        font-size: 13px;
+    }
+
+    .mirotalk-support-widget .close-btn {
+        font-size: 16px;
+        padding: 2px;
+    }
+
+    .mirotalk-support-widget .main-heading {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .mirotalk-support-widget .subheading {
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+
+    .mirotalk-support-widget .expert-images {
+        margin-bottom: 8px;
+    }
+
+    .mirotalk-support-widget .expert-img {
+        width: 32px;
+        height: 32px;
+        margin: 0 2px;
+    }
+
+    .mirotalk-support-widget .connect-text {
+        font-size: 12px;
+        margin-bottom: 16px;
+    }
+
+    .mirotalk-support-widget .btn {
+        padding: 10px;
+        font-size: 13px;
+        margin-bottom: 6px;
+        border-radius: 8px;
+    }
+
+    .mirotalk-support-widget .btn-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .mirotalk-support-widget .btn-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .mirotalk-support-widget .btn-text {
+        margin-left: -24px;
+        font-size: 13px;
+    }
+
+    .mirotalk-support-widget .footer-text {
+        margin-top: 16px;
+        font-size: 10px;
+    }
+
+    .mirotalk-reopener-btn.bottom-right {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .mirotalk-reopener-btn.bottom-left {
+        bottom: 10px;
+        left: 10px;
+    }
+
+    .mirotalk-reopener-btn.top-right {
+        top: 10px;
+        right: 10px;
+    }
+
+    .mirotalk-reopener-btn.top-left {
+        top: 10px;
+        left: 10px;
+    }
+}
+
+@media (max-width: 360px) {
+    .mirotalk-support-widget {
+        width: 220px;
+        padding: 14px;
+        bottom: 8px;
+        right: 8px;
+    }
+
+    .mirotalk-support-widget.bottom-left,
+    .mirotalk-support-widget.top-left {
+        left: 8px;
+    }
+
+    .mirotalk-support-widget.top-right,
+    .mirotalk-support-widget.top-left {
+        top: 8px;
+    }
+
+    .mirotalk-support-widget .main-heading {
+        font-size: 16px;
+    }
+
+    .mirotalk-support-widget .subheading {
+        font-size: 12px;
+    }
+
+    .mirotalk-support-widget .expert-img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .mirotalk-support-widget .btn {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .mirotalk-support-widget .btn-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .mirotalk-support-widget .btn-icon svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    .mirotalk-support-widget .btn-text {
+        margin-left: -22px;
+        font-size: 12px;
+    }
+}
+
+/* Landscape Orientation */
+@media (max-height: 600px) and (orientation: landscape) {
+    .mirotalk-support-widget {
+        padding: 12px;
+        width: 280px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .mirotalk-support-widget .main-heading {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+
+    .mirotalk-support-widget .subheading {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .mirotalk-support-widget .expert-images {
+        margin-bottom: 6px;
+    }
+
+    .mirotalk-support-widget .connect-text {
+        margin-bottom: 12px;
+    }
+
+    .mirotalk-support-widget .btn {
+        padding: 8px 10px;
+        margin-bottom: 4px;
+    }
+
+    .mirotalk-support-widget .footer-text {
+        margin-top: 12px;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .mirotalk-support-widget {
+        border-width: 0.5px;
+    }
+
+    .mirotalk-support-widget .btn {
+        border-width: 0.5px;
+    }
+
+    .mirotalk-support-widget .expert-img {
+        border-width: 1.5px;
+    }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .mirotalk-support-widget,
+    .mirotalk-support-widget *,
+    .mirotalk-minimized-btn,
+    .mirotalk-reopener-btn {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .mirotalk-minimized-btn .status-dot.online,
+    .mirotalk-support-widget .status-dot.online {
+        animation: none;
+    }
+}
+
+/* Focus States for Accessibility */
+.mirotalk-support-widget .btn:focus,
+.mirotalk-support-widget .minimize-btn:focus,
+.mirotalk-support-widget .close-btn:focus,
+.mirotalk-minimized-btn:focus,
+.mirotalk-reopener-btn:focus {
+    outline: 2px solid #00e676;
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .mirotalk-support-widget,
+    .mirotalk-minimized-btn,
+    .mirotalk-reopener-btn {
+        display: none !important;
+    }
+}

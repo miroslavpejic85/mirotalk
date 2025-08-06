@@ -3,32 +3,819 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>MiroTalk P2P Iframe Demo</title>
+        <title>MiroTalk P2P - Custom Support Widget</title>
+        <style>
+            /* Keyframes */
+            @keyframes pulse {
+                0% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+                50% {
+                    transform: scale(1.1);
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
 
-        <script src="https://p2p.mirotalk.com/js/iframe.js" defer></script>
+            @keyframes fadeInDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const domain = 'p2p.mirotalk.com';
-                const options = {
-                    room: 'test',
-                    name: 'guest-' + Math.floor(Math.random() * 10000),
-                    avatar: 0,
-                    audio: 0,
-                    video: 0,
-                    screen: 0,
-                    hide: 0,
-                    notify: 0,
-                    token: null,
-                    width: '100vw',
-                    height: '100vh',
-                    parentNode: document.querySelector('#meet'),
-                };
-                const api = new IframeApi(domain, options);
-            });
-        </script>
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            /* Main Widget Container */
+            .support-widget {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #1f1f2e 0%, #2a2a3e 100%);
+                color: #fff;
+                padding: 24px;
+                border-radius: 20px;
+                width: 320px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 9999;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            .support-widget:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Widget States */
+            .support-widget.hidden {
+                display: none !important;
+            }
+
+            .support-widget.minimized {
+                display: none !important;
+            }
+
+            /* Online Indicator */
+            .online-indicator {
+                display: flex;
+                align-items: center;
+                margin-bottom: 16px;
+                animation: fadeInDown 0.6s ease;
+            }
+
+            .widget-controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-left: auto;
+            }
+
+            .minimize-btn,
+            .close-btn {
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
+                color: #aaa;
+                cursor: pointer;
+                padding: 4px 6px;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 24px;
+                min-height: 24px;
+            }
+
+            .minimize-btn:hover,
+            .close-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: #fff;
+                transform: scale(1.1);
+            }
+
+            .close-btn {
+                font-weight: bold;
+                font-size: 18px;
+                line-height: 1;
+            }
+
+            /* Status Dot */
+            .status-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .status-dot.online {
+                background: #00e676;
+                box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
+                animation: pulse 2s infinite;
+            }
+
+            .status-dot.offline {
+                background: #ff5252;
+                box-shadow: 0 0 8px rgba(255, 82, 82, 0.4);
+                animation: none;
+            }
+
+            .online-text {
+                color: #00e676;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .offline-text {
+                color: #ff5252;
+                font-weight: 600;
+                font-size: 14px;
+                display: none;
+            }
+
+            /* Content Elements */
+            .main-heading {
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 12px;
+                background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: fadeInUp 0.6s ease 0.1s both;
+            }
+
+            .subheading {
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 24px;
+                color: #e0e0e0;
+                animation: fadeInUp 0.6s ease 0.2s both;
+            }
+
+            .expert-images {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 12px;
+                animation: fadeInUp 0.6s ease 0.3s both;
+            }
+
+            .expert-img {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                border: 3px solid #333;
+                margin: 0 6px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+
+            .connect-text {
+                text-align: center;
+                font-size: 14px;
+                margin-bottom: 24px;
+                color: #bbb;
+                animation: fadeInUp 0.6s ease 0.4s both;
+            }
+
+            /* Buttons */
+            .btn {
+                display: flex;
+                align-items: center;
+                width: 100%;
+                background: linear-gradient(135deg, #333 0%, #444 100%);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                padding: 14px 16px;
+                margin-bottom: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 16px;
+                font-weight: 500;
+                position: relative;
+                overflow: hidden;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .btn:hover {
+                background: linear-gradient(135deg, #444 0%, #555 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            .btn:active {
+                transform: translateY(0);
+            }
+
+            .btn-icon {
+                background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+                transition: all 0.3s ease;
+                flex-shrink: 0;
+            }
+
+            .btn-text {
+                flex: 1;
+                text-align: center;
+                margin-left: -32px;
+            }
+
+            .btn:hover .btn-icon {
+                transform: scale(1.1);
+                box-shadow: 0 6px 16px rgba(0, 230, 118, 0.4);
+            }
+
+            .footer-text {
+                text-align: center;
+                font-size: 12px;
+                color: #888;
+                margin-top: 24px;
+                animation: fadeInUp 0.6s ease 0.5s both;
+            }
+
+            .footer-link {
+                color: #00e676;
+                text-decoration: none;
+                transition: color 0.2s ease;
+            }
+
+            .footer-link:hover {
+                color: #00c853;
+            }
+
+            /* Minimized Button */
+            .minimized-btn {
+                position: fixed;
+                background: linear-gradient(135deg, #1f1f2e 0%, #2a2a3e 100%);
+                color: #fff;
+                padding: 12px 16px;
+                border-radius: 25px;
+                cursor: pointer;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s ease;
+                z-index: 9998;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                bottom: 20px;
+                right: 20px;
+                display: none;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            .minimized-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            }
+
+            .minimized-btn.show {
+                display: flex !important;
+            }
+
+            .minimized-content {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            /* Reopener Button */
+            .reopener-btn {
+                position: fixed;
+                background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+                color: #fff;
+                padding: 16px;
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 4px 16px rgba(0, 230, 118, 0.3);
+                transition: all 0.3s ease;
+                z-index: 9998;
+                width: 60px;
+                height: 60px;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .reopener-btn:hover {
+                transform: translateY(-2px) scale(1.05);
+                box-shadow: 0 6px 20px rgba(0, 230, 118, 0.4);
+            }
+
+            .reopener-btn.show {
+                display: flex !important;
+            }
+
+            .reopener-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .reopener-content span {
+                font-size: 10px;
+                font-weight: 600;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .support-widget {
+                    width: 260px;
+                    padding: 18px;
+                    bottom: 12px;
+                    right: 12px;
+                    border-radius: 16px;
+                }
+
+                .main-heading {
+                    font-size: 20px;
+                    margin-bottom: 10px;
+                }
+
+                .subheading {
+                    font-size: 14px;
+                    margin-bottom: 18px;
+                    line-height: 1.4;
+                }
+
+                .expert-img {
+                    width: 36px;
+                    height: 36px;
+                    margin: 0 3px;
+                    border-width: 2px;
+                }
+
+                .btn {
+                    padding: 11px 12px;
+                    font-size: 14px;
+                    margin-bottom: 8px;
+                    border-radius: 10px;
+                }
+
+                .btn-icon {
+                    width: 26px;
+                    height: 26px;
+                }
+
+                .btn-text {
+                    margin-left: -26px;
+                    font-size: 14px;
+                }
+
+                .minimized-btn,
+                .reopener-btn {
+                    bottom: 12px;
+                    right: 12px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .support-widget {
+                    width: 240px;
+                    padding: 16px;
+                    bottom: 10px;
+                    right: 10px;
+                }
+
+                .main-heading {
+                    font-size: 18px;
+                }
+
+                .subheading {
+                    font-size: 13px;
+                }
+
+                .expert-img {
+                    width: 32px;
+                    height: 32px;
+                }
+
+                .btn {
+                    padding: 10px;
+                    font-size: 13px;
+                }
+
+                .btn-icon {
+                    width: 24px;
+                    height: 24px;
+                }
+
+                .btn-text {
+                    margin-left: -24px;
+                    font-size: 13px;
+                }
+
+                .minimized-btn,
+                .reopener-btn {
+                    bottom: 10px;
+                    right: 10px;
+                }
+            }
+
+            /* Accessibility */
+            @media (prefers-reduced-motion: reduce) {
+                .support-widget,
+                .support-widget *,
+                .minimized-btn,
+                .reopener-btn {
+                    animation-duration: 0.01ms !important;
+                    animation-iteration-count: 1 !important;
+                    transition-duration: 0.01ms !important;
+                }
+
+                .status-dot.online {
+                    animation: none;
+                }
+            }
+
+            .btn:focus,
+            .minimize-btn:focus,
+            .close-btn:focus,
+            .minimized-btn:focus,
+            .reopener-btn:focus {
+                outline: 2px solid #00e676;
+                outline-offset: 2px;
+            }
+        </style>
     </head>
     <body>
-        <div id="meet"></div>
+        <!-- Main Support Widget -->
+        <div class="support-widget" id="supportWidget">
+            <!-- Online indicator -->
+            <div class="online-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <div class="online-text" id="onlineText">We are online</div>
+                <div class="offline-text" id="offlineText">We are offline</div>
+                <div class="widget-controls">
+                    <button
+                        class="minimize-btn"
+                        onclick="WidgetManager.minimize()"
+                        aria-label="Minimize widget"
+                        title="Minimize"
+                    >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 13H5v-2h14v2z" />
+                        </svg>
+                    </button>
+                    <button class="close-btn" onclick="WidgetManager.close()" aria-label="Close widget" title="Close">
+                        &times;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main heading -->
+            <h2 class="main-heading">Need a hand?</h2>
+
+            <!-- Subheading -->
+            <p class="subheading">
+                Hop on a <span style="font-weight: bold">Free 1:1 or Group Consultation</span> with a MiroTalk Expert
+                right now!
+            </p>
+
+            <!-- Expert images -->
+            <div class="expert-images">
+                <img src="https://i.pravatar.cc/40?img=1" class="expert-img" alt="Expert consultant 1" loading="lazy" />
+                <img src="https://i.pravatar.cc/40?img=2" class="expert-img" alt="Expert consultant 2" loading="lazy" />
+                <img src="https://i.pravatar.cc/40?img=3" class="expert-img" alt="Expert consultant 3" loading="lazy" />
+            </div>
+
+            <div class="connect-text">connect in &lt; 10 seconds</div>
+
+            <!-- Action Buttons -->
+            <button class="btn" onclick="CallManager.startAudioCall()" aria-label="Start audio call with expert">
+                <div class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="16" height="16" viewBox="0 0 24 24">
+                        <path
+                            d="M6.6,10.8c1.3,2.6,3.5,4.8,6.1,6.1l2-2c0.4-0.4,1-0.5,1.5-0.3c1.6,0.5,3.3,0.8,5,0.8c0.6,0,1,0.4,1,1V21c0,0.6-0.4,1-1,1C10.1,22,2,13.9,2,4c0-0.6,0.4-1,1-1h4c0.6,0,1,0.4,1,1c0,1.7,0.3,3.4,0.8,5C7.1,9.8,7,10.4,6.6,10.8z"
+                        ></path>
+                    </svg>
+                </div>
+                <span class="btn-text">Start Audio Call</span>
+            </button>
+
+            <button class="btn" onclick="CallManager.startVideoCall()" aria-label="Start video call with expert">
+                <div class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="16" height="16" viewBox="0 0 24 24">
+                        <path
+                            d="M17 10.5V7c0-1.1-.9-2-2-2H5C3.9 5 3 5.9 3 7v10c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-3.5l4 4v-11l-4 4z"
+                        ></path>
+                    </svg>
+                </div>
+                <span class="btn-text">Start Video Call</span>
+            </button>
+
+            <button class="btn" onclick="CallManager.startScreenShare()" aria-label="Start screen sharing with expert">
+                <div class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="16" height="16" viewBox="0 0 24 24">
+                        <path
+                            d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"
+                        />
+                        <circle cx="12" cy="11" r="2" />
+                    </svg>
+                </div>
+                <span class="btn-text">Start Screen Share</span>
+            </button>
+
+            <button class="btn" onclick="CallManager.joinRoom()" aria-label="Join support room">
+                <div class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="white" width="16" height="16" viewBox="0 0 24 24">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                        />
+                    </svg>
+                </div>
+                <span class="btn-text">Join Room</span>
+            </button>
+
+            <div class="footer-text">
+                Powered by <a href="#" class="footer-link" onclick="CallManager.openMiroTalk()">MiroTalk</a>
+            </div>
+        </div>
+
+        <!-- Minimized Button -->
+        <div class="minimized-btn" id="minimizedBtn" onclick="WidgetManager.restore()">
+            <div class="minimized-content">
+                <div class="status-dot" id="minimizedStatusDot"></div>
+                <span>Support</span>
+            </div>
+        </div>
+
+        <!-- Reopener Button -->
+        <div class="reopener-btn" id="reopenerBtn" onclick="WidgetManager.reopen()">
+            <div class="reopener-content">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <path
+                        d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                    />
+                </svg>
+                <span>Support</span>
+            </div>
+        </div>
+
+        <script>
+            // Configuration
+            const CONFIG = {
+                domain: 'p2p.mirotalk.com', // Replace with your MiroTalk server domain
+                roomId: 'test', // Replace with desired room ID
+                userName: 'guest-' + Math.floor(Math.random() * 10000),
+                checkOnlineStatus: false, // Set to true to enable real status checking
+            };
+
+            // Widget State Manager
+            const WidgetManager = {
+                state: 'normal', // 'normal', 'minimized', 'closed'
+                elements: {
+                    widget: document.getElementById('supportWidget'),
+                    minimizedBtn: document.getElementById('minimizedBtn'),
+                    reopenerBtn: document.getElementById('reopenerBtn'),
+                    statusDot: document.getElementById('statusDot'),
+                    minimizedStatusDot: document.getElementById('minimizedStatusDot'),
+                    onlineText: document.getElementById('onlineText'),
+                    offlineText: document.getElementById('offlineText'),
+                },
+
+                setState(newState) {
+                    console.log(`Widget state changing from ${this.state} to ${newState}`);
+                    this.state = newState;
+                    this.updateUI();
+                },
+
+                updateUI() {
+                    const { widget, minimizedBtn, reopenerBtn } = this.elements;
+
+                    // Reset all states
+                    widget.classList.remove('minimized', 'hidden');
+                    minimizedBtn.classList.remove('show');
+                    reopenerBtn.classList.remove('show');
+
+                    switch (this.state) {
+                        case 'normal':
+                            // Widget is fully visible
+                            break;
+                        case 'minimized':
+                            widget.classList.add('minimized');
+                            minimizedBtn.classList.add('show');
+                            break;
+                        case 'closed':
+                            widget.classList.add('hidden');
+                            reopenerBtn.classList.add('show');
+                            break;
+                    }
+                },
+
+                minimize() {
+                    this.setState('minimized');
+                },
+
+                restore() {
+                    this.setState('normal');
+                },
+
+                close() {
+                    this.setState('closed');
+                },
+
+                reopen() {
+                    this.setState('normal');
+                },
+            };
+
+            // Status Manager
+            const StatusManager = {
+                isOnline: true,
+
+                updateStatus(online) {
+                    this.isOnline = online;
+                    this.updateUI(online);
+                    console.log('Online status updated:', online);
+                },
+
+                updateUI(online) {
+                    const statusDots = [WidgetManager.elements.statusDot, WidgetManager.elements.minimizedStatusDot];
+
+                    statusDots.forEach((dot) => {
+                        if (dot) {
+                            dot.classList.toggle('online', online);
+                            dot.classList.toggle('offline', !online);
+                        }
+                    });
+
+                    const { onlineText, offlineText } = WidgetManager.elements;
+                    if (onlineText && offlineText) {
+                        onlineText.style.display = online ? 'inline' : 'none';
+                        offlineText.style.display = online ? 'none' : 'inline';
+                    }
+                },
+
+                async checkOnlineStatus() {
+                    if (!CONFIG.checkOnlineStatus) {
+                        this.updateStatus(true); // Default to online for demo
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`https://${CONFIG.domain}/isRoomActive`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ roomId: CONFIG.roomId }),
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+
+                        const data = await response.json();
+                        const online = data.message && data.message !== 'Unauthorized';
+                        this.updateStatus(online);
+                    } catch (error) {
+                        console.warn('Failed to check room status:', error.message);
+                        this.updateStatus(false);
+                    }
+                },
+            };
+
+            // Call Manager
+            const CallManager = {
+                alertOffline() {
+                    alert('Sorry, support is currently offline.');
+                },
+
+                startAudioCall() {
+                    if (StatusManager.isOnline) {
+                        console.log('Starting audio call...');
+                        window.open(
+                            `https://${CONFIG.domain}/join?room=${CONFIG.roomId}&name=${CONFIG.userName}&audio=1&video=0&screen=0`,
+                            '_blank'
+                        );
+                    } else {
+                        this.alertOffline();
+                    }
+                },
+
+                startVideoCall() {
+                    if (StatusManager.isOnline) {
+                        console.log('Starting video call...');
+                        window.open(
+                            `https://${CONFIG.domain}/join?room=${CONFIG.roomId}&name=${CONFIG.userName}&audio=0&video=1&screen=0`,
+                            '_blank'
+                        );
+                    } else {
+                        this.alertOffline();
+                    }
+                },
+
+                startScreenShare() {
+                    if (StatusManager.isOnline) {
+                        console.log('Starting screen share...');
+                        window.open(
+                            `https://${CONFIG.domain}/join?room=${CONFIG.roomId}&name=${CONFIG.userName}&audio=0&video=0&screen=1`,
+                            '_blank'
+                        );
+                    } else {
+                        this.alertOffline();
+                    }
+                },
+
+                joinRoom() {
+                    if (StatusManager.isOnline) {
+                        console.log('Joining room...');
+                        window.open(`https://${CONFIG.domain}/join?room=${CONFIG.roomId}`, '_blank');
+                    } else {
+                        this.alertOffline();
+                    }
+                },
+
+                openMiroTalk() {
+                    window.open(`https://${CONFIG.domain}`, '_blank');
+                },
+            };
+
+            // Event Listeners
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    WidgetManager.close();
+                }
+            });
+
+            // Initialize
+            document.addEventListener('DOMContentLoaded', function () {
+                console.log('Support Widget initialized');
+
+                // Set initial state
+                WidgetManager.setState('normal');
+
+                // Check online status
+                StatusManager.checkOnlineStatus();
+
+                // Periodically check status (every 30 seconds)
+                if (CONFIG.checkOnlineStatus) {
+                    setInterval(() => {
+                        StatusManager.checkOnlineStatus();
+                    }, 30000);
+                }
+            });
+
+            // Global access for debugging
+            window.SupportWidget = {
+                WidgetManager,
+                StatusManager,
+                CallManager,
+                CONFIG,
+            };
+        </script>
     </body>
 </html>

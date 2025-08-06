@@ -1,17 +1,44 @@
 <!doctype html>
 <html>
     <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>MiroTalk - Simple Iframe Example</title>
+        <script src="https://p2p.mirotalk.com/js/Widget.js"></script>
     </head>
     <body>
-        <iframe
-            id="mirotalkIframe"
-            allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay"
-            src="https://p2p.mirotalk.com/newcall"
-            style="height: 100vh; width: 100vw; border: 0px"
-        ></iframe>
+        <script>
+            // Advanced configuration
+            window.addEventListener('DOMContentLoaded', function () {
+                if (typeof MiroTalkWidget !== 'undefined') {
+                    const domain = 'p2p.mirotalk.com';
+                    const roomId = 'support-room';
+                    const userName = 'guest-' + Math.floor(Math.random() * 10000);
+
+                    new MiroTalkWidget(domain, roomId, userName, {
+                        theme: 'dark', // or 'light'
+                        widgetState: 'normal', // 'normal', 'minimized', 'closed'
+                        widgetType: 'support',
+                        supportWidget: {
+                            position: 'bottom-right', // 'bottom-right', 'bottom-left', 'top-right', 'top-left'
+                            expertImages: [
+                                'https://i.pravatar.cc/40?img=1',
+                                'https://i.pravatar.cc/40?img=2',
+                                'https://i.pravatar.cc/40?img=3',
+                            ],
+                            checkOnlineStatus: false, // Check if experts are in the specified room
+                            isOnline: true,
+                            customMessages: {
+                                heading: 'Need Help?',
+                                subheading: 'Get instant support from our expert team!',
+                                connectText: 'connect in < 5 seconds',
+                                onlineText: 'We are online',
+                                offlineText: 'We are offline',
+                                poweredBy: 'Powered by MiroTalk SFU',
+                            },
+                        },
+                    });
+                } else {
+                    console.error('MiroTalkWidget is not defined. Please check Widget.js loading.');
+                }
+            });
+        </script>
     </body>
 </html>
