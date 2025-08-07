@@ -685,7 +685,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     try {
         const config = {
-            domain: autoInit.getAttribute('data-domain'),
+            domain: autoInit.getAttribute('data-domain') || window.location.host,
             roomId: autoInit.getAttribute('data-room') || 'support-room',
             userName: autoInit.getAttribute('data-user') || `guest-${Math.floor(Math.random() * 10000)}`,
             theme: autoInit.getAttribute('data-theme') || MiroTalkWidget.DEFAULT_OPTIONS.theme,
