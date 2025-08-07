@@ -692,6 +692,9 @@ document.addEventListener('DOMContentLoaded', function () {
             widgetState: autoInit.getAttribute('data-widget-state') || MiroTalkWidget.DEFAULT_OPTIONS.widgetState,
             position: autoInit.getAttribute('data-position') || MiroTalkWidget.DEFAULT_OPTIONS.supportWidget.position,
             checkOnline: autoInit.getAttribute('data-check-online') === 'true',
+            expertImages: autoInit.getAttribute('data-expert-images')
+                ? autoInit.getAttribute('data-expert-images').split(',').map(url => url.trim()).filter(Boolean)
+                : MiroTalkWidget.DEFAULT_OPTIONS.supportWidget.expertImages,
             customMessages: {
                 heading:
                     autoInit.getAttribute('data-heading') ||
@@ -721,6 +724,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 supportWidget: {
                     ...MiroTalkWidget.DEFAULT_OPTIONS.supportWidget,
                     position: config.position,
+                    expertImages: config.expertImages,
                     checkOnlineStatus: config.checkOnline,
                     customMessages: config.customMessages,
                 },
