@@ -99,10 +99,6 @@ class MiroTalkWidget {
             }
 
             parentNode.appendChild(widget);
-            this.widgetState = 'normal';
-
-            // Initialize widget based on configured state
-            setTimeout(() => this.initWidgetState(this.options.widgetState), 200);
 
             // Start status checking if enabled
             this.initStatusChecking();
@@ -113,21 +109,14 @@ class MiroTalkWidget {
         }
     }
 
-    initWidgetState(state) {
-        const stateActions = {
-            minimized: () => this.minimizeWidget(),
-            closed: () => this.closeWidget(),
-            normal: () => {}, // Already in normal state
-        };
-
-        const action = stateActions[state];
-        if (action) action();
-    }
-
     initStatusChecking() {
+        if (this.statusCheckInterval) {
+            clearInterval(this.statusCheckInterval);
+            this.statusCheckInterval = null;
+        }
         if (this.options.supportWidget.checkOnlineStatus) {
             this.checkOnlineStatus();
-            setInterval(() => this.checkOnlineStatus(), 30000); // Check every 30s
+            this.statusCheckInterval = setInterval(() => this.checkOnlineStatus(), 30000); // Check every 30s
         }
     }
 
@@ -348,11 +337,9 @@ class MiroTalkWidget {
         this.registerWidget(widgetId, reopenerBtn);
 
         reopenerBtn.innerHTML = `
-            <div class="reopener-content" style="display: flex; flex-direction: column; align-items: center;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-                </svg>
-                <span style="font-size: 13px; font-weight: 500; margin-top: 4px;">Support</span>
+            <div class="reopener-content">
+                ${this.getUserIcon()}
+                <span>Support</span>
             </div>
         `;
 
@@ -572,6 +559,12 @@ class MiroTalkWidget {
     getJoinIcon() {
         return `<svg xmlns="http://www.w3.org/2000/svg" fill="white" width="16" height="16" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>`;
+    }
+
+    getUserIcon() {
+        return `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
         </svg>`;
     }
 
