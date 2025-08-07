@@ -43,7 +43,10 @@
     color: #fff;
     padding: 24px;
     border-radius: 20px;
-    width: 320px;
+    width: 360px;
+    max-height: 90vh;
+    height: auto;
+    overflow-y: auto;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     position: fixed;
     transition: all 0.3s ease;

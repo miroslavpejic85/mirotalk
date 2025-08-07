@@ -42,6 +42,7 @@ class MiroTalkWidget {
         // Initialize widget state and status
         this.widgetState = this.options.widgetState;
         this.isOnline = this.options.supportWidget.isOnline;
+        this.isInitialized = true;
 
         // Initialize widget registry
         this.initWidgetRegistry();
@@ -102,6 +103,18 @@ class MiroTalkWidget {
 
             // Start status checking if enabled
             this.initStatusChecking();
+
+            // Automatically minimize on creation
+            if (this.options.widgetState === 'minimized' && this.isInitialized) {
+                window.miroTalkWidgetAction('minimize', widget);
+            }
+
+            // Automatically close on creation
+            if (this.options.widgetState === 'closed' && this.isInitialized) {
+                window.miroTalkWidgetAction('close', widget);
+            }
+
+            this.isInitialized = false; // Prevent re-initialization
 
             console.log(`${this.options.widgetType} widget created successfully`);
         } catch (error) {
