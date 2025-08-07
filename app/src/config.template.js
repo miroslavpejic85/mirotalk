@@ -6,6 +6,28 @@ module.exports = {
     // Branding and customizations require a license: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
     brand: {
         htmlInjection: true,
+        widget: {
+            enabled: false,
+            theme: 'dark',
+            widgetState: 'minimized',
+            widgetType: 'support',
+            supportWidget: {
+                position: 'top-right',
+                expertImages: [
+                    'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
+                ],
+                checkOnlineStatus: false,
+                isOnline: true,
+                customMessages: {
+                    heading: 'Need Help?',
+                    subheading: 'Get instant support from our expert team!',
+                    connectText: 'connect in < 5 seconds',
+                    onlineText: 'We are online',
+                    offlineText: 'We are offline',
+                    poweredBy: 'Powered by MiroTalk',
+                },
+            },
+        },
         app: {
             language: 'en', // https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
             name: 'MiroTalk',

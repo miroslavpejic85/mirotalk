@@ -37,6 +37,28 @@ const footer = document.getElementById('footer');
 // Brand customizations...
 
 let brand = {
+    widget: {
+        enabled: false,
+        theme: 'dark',
+        widgetState: 'minimized',
+        widgetType: 'support',
+        supportWidget: {
+            position: 'top-right',
+            expertImages: [
+                'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
+            ],
+            checkOnlineStatus: false,
+            isOnline: true,
+            customMessages: {
+                heading: 'Need Help?',
+                subheading: 'Get instant support from our expert team!',
+                connectText: 'connect in < 5 seconds',
+                onlineText: 'We are online',
+                offlineText: 'We are offline',
+                poweredBy: 'Powered by MiroTalk',
+            },
+        },
+    },
     app: {
         language: 'en',
         name: 'MiroTalk',
@@ -73,7 +95,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.5.52',
+        title: 'WebRTC P2P v1.5.53',
         html: `
             <button 
                 id="support-button" 
@@ -111,6 +133,8 @@ async function initBrand() {
     await getBrand();
 
     handleBrand();
+
+    handleWidget();
 }
 
 /**
@@ -187,6 +211,20 @@ function handleBrand() {
     !brand.html.sponsors && elementDisplay(sponsors, false);
     !brand.html.advertisers && elementDisplay(advertisers, false);
     !brand.html.footer && elementDisplay(footer, false);
+}
+
+// WIDGET customize
+function handleWidget() {
+    if (brand.widget?.enabled) {
+        if (typeof MiroTalkWidget !== 'undefined') {
+            const domain = window.location.host;
+            const roomId = 'support-room';
+            const userName = 'guest-' + Math.floor(Math.random() * 10000);
+            new MiroTalkWidget(domain, roomId, userName, brand.widget);
+        } else {
+            console.error('MiroTalkWidget is not defined. Please check Widget.js loading.');
+        }
+    }
 }
 
 /**
