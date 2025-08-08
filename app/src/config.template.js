@@ -8,6 +8,7 @@ module.exports = {
         htmlInjection: true,
         widget: {
             enabled: false,
+            roomId: 'support-room',
             theme: 'dark',
             widgetState: 'minimized',
             widgetType: 'support',

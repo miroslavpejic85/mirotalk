@@ -39,6 +39,7 @@ const footer = document.getElementById('footer');
 let brand = {
     widget: {
         enabled: false,
+        roomId: 'support-room',
         theme: 'dark',
         widgetState: 'minimized',
         widgetType: 'support',
@@ -218,7 +219,7 @@ function handleWidget() {
     if (brand.widget?.enabled) {
         if (typeof MiroTalkWidget !== 'undefined') {
             const domain = window.location.host;
-            const roomId = 'support-room';
+            const roomId = brand.widget?.roomId || 'support-room';
             const userName = 'guest-' + Math.floor(Math.random() * 10000);
             new MiroTalkWidget(domain, roomId, userName, brand.widget);
         } else {
