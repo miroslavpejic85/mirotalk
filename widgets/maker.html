@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>MiroTalk Widget Maker</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>"
+        />
+        <!-- Font Awesome CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+                overflow: hidden;
+            }
+
+            .header {
+                background: linear-gradient(135deg, #1f1f2e 0%, #2a2a3e 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .header h1::before {
+                content: '\f135';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                margin-right: 15px;
+                background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+            }
+
+            .content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                padding: 30px;
+            }
+
+            .form-section {
+                background: #f8f9fa;
+                padding: 25px;
+                border-radius: 12px;
+                border: 1px solid #e9ecef;
+            }
+
+            .form-section h2 {
+                color: #2a2a3e;
+                margin-bottom: 20px;
+                font-size: 1.4rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .form-section h2::before {
+                content: '\f085';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                color: #00e676;
+            }
+
+            .form-section:nth-child(2) h2::before {
+                content: '\f1de';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                color: #00e676;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 600;
+                color: #495057;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid #e9ecef;
+                border-radius: 8px;
+                font-size: 14px;
+                transition: border-color 0.3s ease;
+                background: white;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: #00e676;
+                box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.1);
+            }
+
+            .form-group textarea {
+                resize: vertical;
+                height: 80px;
+            }
+
+            .checkbox-group {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .checkbox-group input[type='checkbox'] {
+                width: auto;
+                margin: 0;
+            }
+
+            .feature-badge {
+                display: inline-block;
+                background: #00e676;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                margin-left: 8px;
+            }
+
+            .tooltip {
+                position: relative;
+                cursor: help;
+            }
+
+            .tooltip::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #2a2a3e;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                white-space: nowrap;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+                z-index: 1000;
+            }
+
+            .tooltip:hover::after {
+                opacity: 1;
+            }
+
+            .output-section {
+                background: #1f1f2e;
+                color: white;
+                padding: 25px;
+                border-radius: 12px;
+                position: relative;
+                grid-column: 1 / -1;
+                margin-top: 20px;
+            }
+
+            .output-section h2 {
+                color: #00e676;
+                margin-bottom: 20px;
+                font-size: 1.4rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .output-section h2::before {
+                content: '\f0ea';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                color: #00e676;
+            }
+
+            .code-container {
+                position: relative;
+                background: #0d1117;
+                border: 1px solid #30363d;
+                border-radius: 8px;
+                overflow: hidden;
+                height: 500px;
+            }
+
+            .code-header {
+                background: #21262d;
+                padding: 12px 16px;
+                border-bottom: 1px solid #30363d;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .code-header span {
+                font-size: 12px;
+                color: #8b949e;
+                font-weight: 600;
+            }
+
+            .copy-btn {
+                background: #238636;
+                color: white;
+                border: none;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                cursor: pointer;
+                transition: background 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .copy-btn::before {
+                content: '\f0c5';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+            }
+
+            .copy-btn:hover {
+                background: #2ea043;
+            }
+
+            .copy-btn.copied {
+                background: #00e676;
+            }
+
+            .copy-btn.copied::before {
+                content: '\f00c';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+            }
+
+            #generated-code {
+                background: #0d1117;
+                color: #e6edf3;
+                padding: 20px;
+                font-family: 'Courier New', Consolas, monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                height: calc(500px - 49px);
+                width: 100%;
+                overflow-y: auto;
+                margin: 0;
+                border: none;
+                resize: none;
+                box-sizing: border-box;
+            }
+
+            .action-buttons {
+                display: flex;
+                gap: 15px;
+                margin-top: 20px;
+                justify-content: center;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .btn::before {
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
+                color: white;
+            }
+
+            .btn-primary::before {
+                content: '\f0c7';
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 230, 118, 0.3);
+            }
+
+            .btn-secondary {
+                background: #6c757d;
+                color: white;
+            }
+
+            .btn-secondary::before {
+                content: '\f021';
+            }
+
+            .btn-secondary:hover {
+                background: #5a6268;
+            }
+
+            .section-divider {
+                display: none;
+            }
+
+            @media (max-width: 768px) {
+                .content {
+                    grid-template-columns: 1fr;
+                    gap: 20px;
+                    padding: 20px;
+                }
+
+                .output-section {
+                    margin-top: 10px;
+                    padding: 20px;
+                }
+
+                .code-container {
+                    height: 400px;
+                }
+
+                #generated-code {
+                    height: calc(400px - 49px);
+                    font-size: 12px;
+                    padding: 15px;
+                }
+
+                .action-buttons {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .btn {
+                    width: 100%;
+                    max-width: 250px;
+                    justify-content: center;
+                }
+
+                .header h1 {
+                    font-size: 2rem;
+                }
+
+                .header p {
+                    font-size: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>MiroTalk Widget Maker</h1>
+                <p>Create custom embeddable widgets for your website in seconds</p>
+            </div>
+
+            <div class="content">
+                <!-- Configuration Form -->
+                <div class="form-section">
+                    <h2>Widget Configuration</h2>
+
+                    <div class="form-group">
+                        <label for="domain" class="tooltip" data-tooltip="Your MiroTalk server domain">
+                            Domain <span style="color: #dc3545">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="domain"
+                            value="sfu.mirotalk.com"
+                            placeholder="example.com or sfu.mirotalk.com"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="room">Room ID</label>
+                        <input type="text" id="room" value="support-room" placeholder="my-support-room" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="theme">Theme</label>
+                        <select id="theme">
+                            <option value="dark">Dark Theme</option>
+                            <option value="light">Light Theme</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="position">Position</label>
+                        <select id="position">
+                            <option value="bottom-right">Bottom Right</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="top-right">Top Right</option>
+                            <option value="top-left">Top Left</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="widget-state" class="tooltip" data-tooltip="Initial state when widget loads">
+                            Widget State
+                        </label>
+                        <select id="widget-state">
+                            <option value="normal">Normal (Visible)</option>
+                            <option value="minimized">Minimized</option>
+                            <option value="closed">Closed (Button Only)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="check-online" />
+                            <label for="check-online">Check Online Status <span class="feature-badge">PRO</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customization Form -->
+                <div class="form-section">
+                    <h2>Custom Messages</h2>
+
+                    <div class="form-group">
+                        <label for="heading">Heading</label>
+                        <input type="text" id="heading" value="Need Help?" placeholder="Need Help?" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subheading">Subheading</label>
+                        <textarea id="subheading" placeholder="Get instant support from our expert team!">
+Get instant support from our expert team!</textarea
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="connect-text">Connect Text</label>
+                        <input
+                            type="text"
+                            id="connect-text"
+                            value="connect in &lt; 5 seconds"
+                            placeholder="connect in < 5 seconds"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="online-text">Online Text</label>
+                        <input type="text" id="online-text" value="We are online" placeholder="We are online" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="offline-text">Offline Text</label>
+                        <input type="text" id="offline-text" value="We are offline" placeholder="We are offline" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="powered-by">Powered By</label>
+                        <input
+                            type="text"
+                            id="powered-by"
+                            value="Powered by MiroTalk"
+                            placeholder="Powered by MiroTalk"
+                        />
+                    </div>
+
+                    <!-- New Expert Images field -->
+                    <div class="form-group">
+                        <label
+                            for="expert-images"
+                            class="tooltip"
+                            data-tooltip="Comma-separated list of expert avatar URLs"
+                        >
+                            Expert Images (comma separated)
+                        </label>
+                        <textarea
+                            id="expert-images"
+                            placeholder="https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar.cc/40?img=3"
+                            style="height: 60px"
+                        >
+https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar.cc/40?img=3</textarea
+                        >
+                    </div>
+                </div>
+
+                <!-- Generated Code -->
+                <div class="output-section">
+                    <h2>Generated Code</h2>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span>HTML</span>
+                            <button class="copy-btn" id="copy-btn">Copy</button>
+                        </div>
+                        <textarea id="generated-code" readonly></textarea>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="download-btn">Download HTML</button>
+                        <button class="btn btn-secondary" id="reset-btn">Reset Form</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Form elements
+            const form = {
+                domain: document.getElementById('domain'),
+                room: document.getElementById('room'),
+                theme: document.getElementById('theme'),
+                position: document.getElementById('position'),
+                widgetState: document.getElementById('widget-state'),
+                checkOnline: document.getElementById('check-online'),
+                heading: document.getElementById('heading'),
+                subheading: document.getElementById('subheading'),
+                connectText: document.getElementById('connect-text'),
+                onlineText: document.getElementById('online-text'),
+                offlineText: document.getElementById('offline-text'),
+                poweredBy: document.getElementById('powered-by'),
+                expertImages: document.getElementById('expert-images'),
+            };
+
+            const generatedCode = document.getElementById('generated-code');
+
+            // Generate HTML code
+            function generateCode() {
+                const config = {
+                    domain: form.domain.value || 'sfu.mirotalk.com',
+                    room: form.room.value || 'support-room',
+                    theme: form.theme.value,
+                    position: form.position.value,
+                    widgetState: form.widgetState.value,
+                    checkOnline: form.checkOnline.checked,
+                    heading: form.heading.value || 'Need Help?',
+                    subheading: form.subheading.value || 'Get instant support from our expert team!',
+                    connectText: form.connectText.value || 'connect in < 5 seconds',
+                    onlineText: form.onlineText.value || 'We are online',
+                    offlineText: form.offlineText.value || 'We are offline',
+                    poweredBy: form.poweredBy.value || 'Powered by MiroTalk',
+                    expertImages:
+                        form.expertImages.value ||
+                        'https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar.cc/40?img=3',
+                };
+
+                const html = `<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiroTalk Widget</title>
+    <script src="https://${config.domain}/js/Widget.js"><\/script>
+</head>
+<body>
+    <div
+        id="mirotalk-widget"
+        data-mirotalk-auto
+        data-domain="${config.domain}"
+        data-room="${config.room}"
+        data-theme="${config.theme}"
+        data-widget-type="support"
+        data-position="${config.position}"
+        data-widget-state="${config.widgetState}"
+        data-check-online="${config.checkOnline}"
+        data-expert-images="${escapeHtml(config.expertImages)}"
+        data-heading="${escapeHtml(config.heading)}"
+        data-subheading="${escapeHtml(config.subheading)}"
+        data-connect-text="${escapeHtml(config.connectText)}"
+        data-online-text="${escapeHtml(config.onlineText)}"
+        data-offline-text="${escapeHtml(config.offlineText)}"
+        data-powered-by="${escapeHtml(config.poweredBy)}"
+    ></div>
+</body>
+</html>`;
+
+                generatedCode.value = html;
+            }
+
+            // Escape HTML
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Copy code to clipboard
+            async function copyCode() {
+                try {
+                    await navigator.clipboard.writeText(generatedCode.value);
+                    const btn = document.getElementById('copy-btn');
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                } catch (err) {
+                    // Fallback for older browsers
+                    generatedCode.select();
+                    document.execCommand('copy');
+                    alert('Code copied to clipboard!');
+                }
+            }
+
+            // Download code as HTML file
+            function downloadCode() {
+                const blob = new Blob([generatedCode.value], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `mirotalk-widget-${Date.now()}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            // Reset form to defaults
+            function resetForm() {
+                form.domain.value = 'sfu.mirotalk.com';
+                form.room.value = 'support-room';
+                form.theme.value = 'dark';
+                form.position.value = 'bottom-right';
+                form.widgetState.value = 'normal';
+                form.checkOnline.checked = false;
+                form.heading.value = 'Need Help?';
+                form.subheading.value = 'Get instant support from our expert team!';
+                form.connectText.value = 'connect in < 5 seconds';
+                form.onlineText.value = 'We are online';
+                form.offlineText.value = 'We are offline';
+                form.poweredBy.value = 'Powered by MiroTalk';
+                form.expertImages.value =
+                    'https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar.cc/40?img=3';
+
+                generateCode();
+            }
+
+            // Auto-save form data to localStorage
+            function saveFormData() {
+                const data = {};
+                Object.keys(form).forEach((key) => {
+                    if (form[key].type === 'checkbox') {
+                        data[key] = form[key].checked;
+                    } else {
+                        data[key] = form[key].value;
+                    }
+                });
+                localStorage.setItem('mirotalk-widget-maker', JSON.stringify(data));
+            }
+
+            // Load form data from localStorage
+            function loadFormData() {
+                try {
+                    const data = JSON.parse(localStorage.getItem('mirotalk-widget-maker'));
+                    if (data) {
+                        Object.keys(data).forEach((key) => {
+                            if (form[key]) {
+                                if (form[key].type === 'checkbox') {
+                                    form[key].checked = data[key];
+                                } else {
+                                    form[key].value = data[key];
+                                }
+                            }
+                        });
+                        generateCode();
+                    }
+                } catch (err) {
+                    console.warn('Failed to load saved form data');
+                }
+            }
+
+            // Add event listeners to all form elements
+            Object.values(form).forEach((element) => {
+                element.addEventListener('input', generateCode);
+                element.addEventListener('change', generateCode);
+                element.addEventListener('input', saveFormData);
+                element.addEventListener('change', saveFormData);
+            });
+
+            // Add event listeners for buttons
+            document.getElementById('copy-btn').addEventListener('click', copyCode);
+            document.getElementById('download-btn').addEventListener('click', downloadCode);
+            document.getElementById('reset-btn').addEventListener('click', resetForm);
+
+            // Generate initial code and load saved data
+            generateCode();
+            loadFormData();
+        </script>
+    </body>
+</html>
