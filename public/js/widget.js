@@ -226,9 +226,14 @@ class MiroTalkWidget {
         const buttons = [
             { action: 'startAudioCall', icon: this.getAudioIcon(), text: 'Start Audio Call' },
             { action: 'startVideoCall', icon: this.getVideoIcon(), text: 'Start Video Call' },
-            { action: 'startScreenShare', icon: this.getScreenIcon(), text: 'Start Screen Share' },
-            { action: 'joinRoom', icon: this.getJoinIcon(), text: 'Join Room' },
         ];
+
+        // Only show "Start Screen Share" if displayMedia is supported
+        if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+            buttons.push({ action: 'startScreenShare', icon: this.getScreenIcon(), text: 'Start Screen Share' });
+        }
+
+        buttons.push({ action: 'joinRoom', icon: this.getJoinIcon(), text: 'Join Room' });
 
         return buttons
             .map(
