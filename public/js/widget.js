@@ -233,6 +233,7 @@ class MiroTalkWidget {
             buttons.push({ action: 'startScreenShare', icon: this.getScreenIcon(), text: 'Start Screen Share' });
         }
 
+        // Insert "Start Screen Share" before "Join Room" if present
         buttons.push({ action: 'joinRoom', icon: this.getJoinIcon(), text: 'Join Room' });
 
         return buttons
