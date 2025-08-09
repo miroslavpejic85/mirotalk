@@ -266,7 +266,7 @@ body {
     color: var(--btn-bar-bg-color);
     background: var(--btns-bg-color);
     border: none !important;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
 #buttonsBar button:hover {
@@ -318,7 +318,7 @@ body {
     color: var(--btn-bar-bg-color);
     background: var(--btns-bg-color);
     border: none !important;
-    border-radius: 5px;
+    border-radius: 10px;
     transition: all 0.3s ease-in-out;
 }
 
@@ -1124,7 +1124,7 @@ button:hover {
     width: auto !important;
     font-size: 0.9rem;
     border: var(--border);
-    border-radius: 5px;
+    border-radius: 10px;
     background: var(--selctt-bg);
     outline: none;
     cursor: pointer;
