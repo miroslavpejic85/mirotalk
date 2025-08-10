@@ -16,6 +16,13 @@ class MiroTalkWidget {
                 'https://i.pravatar.cc/40?img=2',
                 'https://i.pravatar.cc/40?img=3',
             ],
+            buttons: {
+                audio: true,
+                video: true,
+                screen: true,
+                chat: true,
+                join: true,
+            },
             checkOnlineStatus: false,
             isOnline: true,
             customMessages: {
@@ -223,21 +230,28 @@ class MiroTalkWidget {
     }
 
     createActionButtons() {
-        const buttons = [
-            { action: 'startAudioCall', icon: this.getAudioIcon(), text: 'Start Audio Call' },
-            { action: 'startVideoCall', icon: this.getVideoIcon(), text: 'Start Video Call' },
-        ];
+        const flags = this.options.supportWidget.buttons || {};
+        const buttons = [];
 
-        // Only show "Start Screen Share" if displayMedia is supported
-        if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+        if (flags.audio) {
+            buttons.push({ action: 'startAudioCall', icon: this.getAudioIcon(), text: 'Start Audio Call' });
+        }
+        if (flags.video) {
+            buttons.push({ action: 'startVideoCall', icon: this.getVideoIcon(), text: 'Start Video Call' });
+        }
+        if (flags.screen && navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
             buttons.push({ action: 'startScreenShare', icon: this.getScreenIcon(), text: 'Start Screen Share' });
         }
+        if (flags.chat) {
+            buttons.push({ action: 'startChat', icon: this.getChatIcon(), text: 'Start Chat' });
+        }
+        if (flags.join) {
+            buttons.push({ action: 'joinRoom', icon: this.getJoinIcon(), text: 'Join Room' });
+        }
 
-        // Add chat button
-        buttons.push({ action: 'startChat', icon: this.getChatIcon(), text: 'Start Chat' });
-
-        // Insert "Start Screen Share" before "Join Room" if present
-        buttons.push({ action: 'joinRoom', icon: this.getJoinIcon(), text: 'Join Room' });
+        if (!buttons.length) {
+            return `<div class="no-actions">No actions available</div>`;
+        }
 
         return buttons
             .map(
@@ -245,8 +259,7 @@ class MiroTalkWidget {
             <button class="btn" onclick="miroTalkWidgetAction('${btn.action}', this)">
                 <div class="btn-icon">${btn.icon}</div>
                 <span class="btn-text">${btn.text}</span>
-            </button>
-        `
+            </button>`
             )
             .join('');
     }
@@ -709,6 +722,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!autoInit) return;
 
     try {
+        const buttonsAttr = autoInit.getAttribute('data-buttons');
+        let buttonsConfig = { ...MiroTalkWidget.DEFAULT_OPTIONS.supportWidget.buttons };
+        if (buttonsAttr) {
+            // Normalize and map
+            const requested = buttonsAttr
+                .split(',')
+                .map((b) => b.trim().toLowerCase())
+                .filter(Boolean);
+            // Start all false then enable requested valid keys
+            buttonsConfig = { audio: false, video: false, screen: false, chat: false, join: false };
+            requested.forEach((key) => {
+                if (key in buttonsConfig) buttonsConfig[key] = true;
+            });
+        }
+
         const config = {
             domain: autoInit.getAttribute('data-domain') || window.location.host,
             roomId: autoInit.getAttribute('data-room') || 'support-room',
@@ -756,6 +784,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     expertImages: config.expertImages,
                     checkOnlineStatus: config.checkOnline,
                     customMessages: config.customMessages,
+                    buttons: buttonsConfig,
                 },
             });
         }

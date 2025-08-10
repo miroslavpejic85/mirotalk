@@ -17,6 +17,13 @@ module.exports = {
                 expertImages: [
                     'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
                 ],
+                buttons: {
+                    audio: true,
+                    video: true,
+                    screen: true,
+                    chat: true,
+                    join: true,
+                },
                 checkOnlineStatus: false,
                 isOnline: true,
                 customMessages: {

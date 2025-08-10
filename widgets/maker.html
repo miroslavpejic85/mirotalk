@@ -346,6 +346,63 @@
                 display: none;
             }
 
+            .button-toggle-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px 14px;
+                margin-top: 8px;
+            }
+
+            .toggle {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                background: #eef1f4;
+                border: 1px solid #d5dade;
+                padding: 8px 10px 8px 40px;
+                border-radius: 8px;
+                cursor: pointer;
+                user-select: none;
+                transition:
+                    background 0.25s,
+                    border-color 0.25s;
+            }
+
+            .toggle input {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            .toggle::before {
+                content: '';
+                position: absolute;
+                left: 10px;
+                width: 20px;
+                height: 20px;
+                border-radius: 6px;
+                background: linear-gradient(135deg, #9aa0a6, #7e858c);
+                box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+                transition: background 0.25s;
+            }
+
+            .toggle.checked {
+                background: #e5faf0;
+                border-color: #00c853;
+                color: #116d3d;
+            }
+
+            .toggle.checked::before {
+                background: linear-gradient(135deg, #00e676, #00c853);
+            }
+
+            .toggle:active {
+                transform: scale(0.97);
+            }
+
             @media (max-width: 768px) {
                 .content {
                     grid-template-columns: 1fr;
@@ -453,6 +510,30 @@
                             <label for="check-online">Check Online Status <span class="feature-badge">PRO</span></label>
                         </div>
                     </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-group">
+                        <label class="tooltip" data-tooltip="Select which action buttons to include">
+                            Action Buttons
+                        </label>
+                        <div id="action-buttons" class="button-toggle-grid">
+                            <label class="toggle" data-btn="audio"
+                                ><input type="checkbox" id="btn-audio" checked />Audio</label
+                            >
+                            <label class="toggle" data-btn="video"
+                                ><input type="checkbox" id="btn-video" checked />Video</label
+                            >
+                            <label class="toggle" data-btn="screen"
+                                ><input type="checkbox" id="btn-screen" checked />Screen</label
+                            >
+                            <label class="toggle" data-btn="chat"
+                                ><input type="checkbox" id="btn-chat" checked />Chat</label
+                            >
+                            <label class="toggle" data-btn="join"
+                                ><input type="checkbox" id="btn-join" checked />Join</label
+                            >
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Customization Form -->
@@ -555,6 +636,11 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                 offlineText: document.getElementById('offline-text'),
                 poweredBy: document.getElementById('powered-by'),
                 expertImages: document.getElementById('expert-images'),
+                btnAudio: document.getElementById('btn-audio'),
+                btnVideo: document.getElementById('btn-video'),
+                btnScreen: document.getElementById('btn-screen'),
+                btnChat: document.getElementById('btn-chat'),
+                btnJoin: document.getElementById('btn-join'),
             };
 
             const generatedCode = document.getElementById('generated-code');
@@ -579,36 +665,45 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                         'https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar.cc/40?img=3',
                 };
 
+                const buttonsSelected = [];
+                if (form.btnAudio.checked) buttonsSelected.push('audio');
+                if (form.btnVideo.checked) buttonsSelected.push('video');
+                if (form.btnScreen.checked) buttonsSelected.push('screen');
+                if (form.btnChat.checked) buttonsSelected.push('chat');
+                if (form.btnJoin.checked) buttonsSelected.push('join');
+
+                const buttonsAttr = buttonsSelected.join(',');
+
                 const html = `<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiroTalk Widget</title>
-    <script src="https://${config.domain}/js/Widget.js"><\/script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MiroTalk Widget</title>
+<script src="https://${config.domain}/js/Widget.js"><\/script>
 </head>
 <body>
-    <div
-        id="mirotalk-widget"
-        data-mirotalk-auto
-        data-domain="${config.domain}"
-        data-room="${config.room}"
-        data-theme="${config.theme}"
-        data-widget-type="support"
-        data-position="${config.position}"
-        data-widget-state="${config.widgetState}"
-        data-check-online="${config.checkOnline}"
-        data-expert-images="${escapeHtml(config.expertImages)}"
-        data-heading="${escapeHtml(config.heading)}"
-        data-subheading="${escapeHtml(config.subheading)}"
-        data-connect-text="${escapeHtml(config.connectText)}"
-        data-online-text="${escapeHtml(config.onlineText)}"
-        data-offline-text="${escapeHtml(config.offlineText)}"
-        data-powered-by="${escapeHtml(config.poweredBy)}"
-    ></div>
+<div
+  id="mirotalk-widget"
+  data-mirotalk-auto
+  data-domain="${config.domain}"
+  data-room="${config.room}"
+  data-theme="${config.theme}"
+  data-widget-type="support"
+  data-position="${config.position}"
+  data-widget-state="${config.widgetState}"
+  data-buttons="${buttonsAttr}"
+  data-check-online="${config.checkOnline}"
+  data-expert-images="${escapeHtml(config.expertImages)}"
+  data-heading="${escapeHtml(config.heading)}"
+  data-subheading="${escapeHtml(config.subheading)}"
+  data-connect-text="${escapeHtml(config.connectText)}"
+  data-online-text="${escapeHtml(config.onlineText)}"
+  data-offline-text="${escapeHtml(config.offlineText)}"
+  data-powered-by="${escapeHtml(config.poweredBy)}"
+></div>
 </body>
 </html>`;
-
                 generatedCode.value = html;
             }
 
@@ -668,19 +763,25 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                 form.poweredBy.value = 'Powered by MiroTalk';
                 form.expertImages.value =
                     'https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar.cc/40?img=3';
+                form.btnAudio.checked =
+                    form.btnVideo.checked =
+                    form.btnScreen.checked =
+                    form.btnChat.checked =
+                    form.btnJoin.checked =
+                        true;
 
+                toggleLabels.forEach(syncToggleVisual);
                 generateCode();
+                saveFormData();
             }
 
             // Auto-save form data to localStorage
             function saveFormData() {
                 const data = {};
                 Object.keys(form).forEach((key) => {
-                    if (form[key].type === 'checkbox') {
-                        data[key] = form[key].checked;
-                    } else {
-                        data[key] = form[key].value;
-                    }
+                    if (!form[key]) return;
+                    if (form[key].type === 'checkbox') data[key] = form[key].checked;
+                    else data[key] = form[key].value;
                 });
                 localStorage.setItem('mirotalk-widget-maker', JSON.stringify(data));
             }
@@ -691,27 +792,68 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                     const data = JSON.parse(localStorage.getItem('mirotalk-widget-maker'));
                     if (data) {
                         Object.keys(data).forEach((key) => {
-                            if (form[key]) {
-                                if (form[key].type === 'checkbox') {
-                                    form[key].checked = data[key];
-                                } else {
-                                    form[key].value = data[key];
-                                }
-                            }
+                            if (!form[key]) return;
+                            if (form[key].type === 'checkbox') form[key].checked = data[key];
+                            else form[key].value = data[key];
                         });
-                        generateCode();
+                    } else {
+                        // No saved data -> default all action buttons checked
+                        setAllActionButtons(true);
                     }
-                } catch (err) {
+                    // If somehow all buttons ended up unchecked, enforce default all on first load
+                    if (
+                        ![form.btnAudio, form.btnVideo, form.btnScreen, form.btnChat, form.btnJoin].some(
+                            (b) => b.checked
+                        )
+                    ) {
+                        setAllActionButtons(true);
+                    }
+                    toggleLabels.forEach(syncToggleVisual);
+                    generateCode();
+                } catch (e) {
                     console.warn('Failed to load saved form data');
+                    setAllActionButtons(true);
+                    toggleLabels.forEach(syncToggleVisual);
+                    generateCode();
                 }
             }
 
+            function setAllActionButtons(state) {
+                form.btnAudio.checked =
+                    form.btnVideo.checked =
+                    form.btnScreen.checked =
+                    form.btnChat.checked =
+                    form.btnJoin.checked =
+                        state;
+            }
+
+            // toggle handling (must be before loadFormData())
+            const toggleLabels = Array.from(document.querySelectorAll('#action-buttons .toggle'));
+
+            function syncToggleVisual(label) {
+                const cb = label.querySelector('input[type=checkbox]');
+                label.classList.toggle('checked', cb.checked);
+            }
+
+            // Attach handlers
+            toggleLabels.forEach((label) => {
+                const cb = label.querySelector('input[type=checkbox]');
+                const onChange = () => {
+                    syncToggleVisual(label);
+                    generateCode();
+                    saveFormData();
+                };
+                cb.addEventListener('change', onChange);
+                // Initial state
+                syncToggleVisual(label);
+            });
+
             // Add event listeners to all form elements
-            Object.values(form).forEach((element) => {
-                element.addEventListener('input', generateCode);
-                element.addEventListener('change', generateCode);
-                element.addEventListener('input', saveFormData);
-                element.addEventListener('change', saveFormData);
+            Object.values(form).forEach((el) => {
+                el.addEventListener('input', generateCode);
+                el.addEventListener('change', generateCode);
+                el.addEventListener('input', saveFormData);
+                el.addEventListener('change', saveFormData);
             });
 
             // Add event listeners for buttons
