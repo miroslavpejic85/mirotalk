@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.54
+ * @version 1.5.55
  *
  */
 
@@ -534,6 +534,7 @@ let myVideoStatusBefore = false;
 let myScreenStatus = false;
 let isScreenEnabled = getScreenEnabled();
 let notify = getNotify(); // popup room sharing on join
+let chat = getChat(); // popup chat on join
 let notifyBySound = true; // turn on - off sound notifications
 let isPeerReconnected = false;
 
@@ -1026,6 +1027,25 @@ function getNotify() {
 }
 
 /**
+ * Check if chat is set
+ * @returns {boolean} true/false
+ */
+function getChat() {
+    let qs = new URLSearchParams(window.location.search);
+    let chat = filterXSS(qs.get('chat'));
+    if (chat) {
+        let queryChat = chat === '1' || chat === 'true';
+        if (queryChat != null) {
+            console.log('Direct join', { chat: queryChat });
+            notify = false; // From widget disable notify on join...
+            return queryChat;
+        }
+    }
+    console.log('Direct join', { chat: chat });
+    return chat;
+}
+
+/**
  * Get Peer JWT
  * @returns {mixed} boolean false or token string
  */
@@ -1298,6 +1318,8 @@ function handleServerInfo(config) {
     } else {
         checkShareScreen();
     }
+
+    checkChatOnJoin();
 }
 
 /**
@@ -3387,6 +3409,15 @@ function checkShareScreen() {
                 screenShareBtn.click();
             }
         });
+    }
+}
+
+/**
+ * Open chat on Join 
+ */
+function checkChatOnJoin() {
+    if (chat) {
+        chatRoomBtn.click();
     }
 }
 
@@ -11242,7 +11273,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.54',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.55',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

@@ -24,6 +24,7 @@ $data = array(
     "audio"         => false,
     "video"         => false,
     "screen"        => false,
+    "chat"          => false,
     "hide"          => false,
     "notify"        => true,
     "token"         => array(

@@ -155,7 +155,7 @@ class MiroTalkWidget {
 
     async loadSupportWidgetAssets() {
         await this.injectExternalCSS(
-            `${this.protocol}://${this.domain}/css/widgets/support.css`,
+            `${this.protocol}://${this.domain}/css/widgets/Support.css`,
             'mirotalk-support-css'
         );
     }
@@ -232,6 +232,9 @@ class MiroTalkWidget {
         if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
             buttons.push({ action: 'startScreenShare', icon: this.getScreenIcon(), text: 'Start Screen Share' });
         }
+
+        // Add chat button
+        buttons.push({ action: 'startChat', icon: this.getChatIcon(), text: 'Start Chat' });
 
         // Insert "Start Screen Share" before "Join Room" if present
         buttons.push({ action: 'joinRoom', icon: this.getJoinIcon(), text: 'Join Room' });
@@ -430,7 +433,7 @@ class MiroTalkWidget {
     startAudioCall() {
         if (this.isOnline) {
             console.log('Starting audio call...');
-            this.openMeetingWindow({ audio: 1, video: 0, screen: 0 });
+            this.openMeetingWindow({ audio: 1, video: 0, screen: 0, chat: 0 });
         } else {
             this.supportOffline();
         }
@@ -439,7 +442,16 @@ class MiroTalkWidget {
     startVideoCall() {
         if (this.isOnline) {
             console.log('Starting video call...');
-            this.openMeetingWindow({ audio: 0, video: 1, screen: 0 });
+            this.openMeetingWindow({ audio: 0, video: 1, screen: 0, chat: 0 });
+        } else {
+            this.supportOffline();
+        }
+    }
+
+    startChat() {
+        if (this.isOnline) {
+            console.log('Starting chat...');
+            this.openMeetingWindow({ audio: 0, video: 0, screen: 0, chat: 1 });
         } else {
             this.supportOffline();
         }
@@ -448,7 +460,7 @@ class MiroTalkWidget {
     startScreenShare() {
         if (this.isOnline) {
             console.log('Starting screen share...');
-            this.openMeetingWindow({ audio: 0, video: 0, screen: 1 });
+            this.openMeetingWindow({ audio: 0, video: 0, screen: 1, chat: 0 });
         } else {
             this.supportOffline();
         }
@@ -575,6 +587,12 @@ class MiroTalkWidget {
         </svg>`;
     }
 
+    getChatIcon() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" fill="white" width="16" height="16" viewBox="0 0 24 24">
+            <path d="M21 6.5a2.5 2.5 0 0 0-2.5-2.5h-13A2.5 2.5 0 0 0 3 6.5v11A2.5 2.5 0 0 0 5.5 20H6v2l3-2h9.5A2.5 2.5 0 0 0 21 17.5v-11zm-2.5-.5a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5H8.17L7 19.17V18H5.5a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h13z"/>
+        </svg>`;
+    }
+
     getJoinIcon() {
         return `<svg xmlns="http://www.w3.org/2000/svg" fill="white" width="16" height="16" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -666,6 +684,7 @@ window.miroTalkWidgetAction = function (action, element) {
             reopen: () => widget.reopenWidget(),
             startAudioCall: () => widget.startAudioCall(),
             startVideoCall: () => widget.startVideoCall(),
+            startChat: () => widget.startChat(),
             startScreenShare: () => widget.startScreenShare(),
             joinRoom: () => widget.joinRoom(),
         };

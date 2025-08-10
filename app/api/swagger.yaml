@@ -96,6 +96,9 @@ paths:
                           screen:
                               type: boolean
                               default: false
+                          chat:
+                              type: boolean
+                              default: false
                           hide:
                               type: boolean
                               default: false

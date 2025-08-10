@@ -6,6 +6,7 @@ class IframeApi {
         audio: false,
         video: false,
         screen: false,
+        chat: false,
         hide: false,
         notify: false,
         width: '100vw',
@@ -49,6 +50,7 @@ class IframeApi {
             audio: this.options.audio ? 1 : 0,
             video: this.options.video ? 1 : 0,
             screen: this.options.screen ? 1 : 0,
+            chat: this.options.chat ? 1 : 0,
             hide: this.options.hide ? 1 : 0,
             notify: this.options.notify ? 1 : 0,
         });
