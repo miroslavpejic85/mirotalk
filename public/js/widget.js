@@ -155,7 +155,7 @@ class MiroTalkWidget {
 
     async loadSupportWidgetAssets() {
         await this.injectExternalCSS(
-            `${this.protocol}://${this.domain}/css/widgets/Support.css`,
+            `${this.protocol}://${this.domain}/css/widgets/support.css`,
             'mirotalk-support-css'
         );
     }
