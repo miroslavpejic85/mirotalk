@@ -3413,7 +3413,7 @@ function checkShareScreen() {
 }
 
 /**
- * Open chat on Join 
+ * Open chat on Join
  */
 function checkChatOnJoin() {
     if (chat) {
