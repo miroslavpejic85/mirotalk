@@ -1,5 +1,5 @@
 /* Keyframes */
-@keyframes pulse {
+@keyframes widgetPulse {
     0% {
         transform: scale(1);
         opacity: 1;
@@ -121,7 +121,7 @@
 .mirotalk-support-widget .status-dot.online {
     background: #00e676;
     box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
-    animation: pulse 2s infinite;
+    animation: widgetPulse 2s infinite;
 }
 
 .mirotalk-minimized-btn .status-dot.offline,
