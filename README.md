@@ -248,7 +248,7 @@ To quickly add a support widget to your site, include the script in your `<head>
             data-connect-text="connect in &lt; 5 seconds"
             data-online-text="We are online"
             data-offline-text="We are offline"
-            data-powered-by="Powered by MiroTalk SFU"
+            data-powered-by="Powered by MiroTalk"
         ></div>
     </body>
 </html>
