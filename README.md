@@ -220,6 +220,42 @@ To embed a meeting within `your service or app` using an iframe, you can use the
 ></iframe>
 ```
 
+## WIdget
+
+To quickly add a support widget to your site, include the script in your `<head>` and place the widget `<div>` at the end of your `<body>`. Your support widget will be ready instantly!
+
+```html
+<!doctype html>
+<html>
+    <head>
+        <script src="https://p2p.mirotalk.com/js/widget.js"></script>
+    </head>
+    <body>
+        <div
+            id="support-widget"
+            data-mirotalk-auto
+            data-domain="p2p.mirotalk.com"
+            data-room="support-room"
+            data-theme="dark"
+            data-widget-type="support"
+            data-widget-state="normal"
+            data-position="bottom-right"
+            data-check-online="false"
+            data-expert-images="https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar.cc/40?img=3"
+            data-buttons="audio,video,screen,chat,join"
+            data-heading="Need Help?"
+            data-subheading="Get instant support from our expert team!"
+            data-connect-text="connect in &lt; 5 seconds"
+            data-online-text="We are online"
+            data-offline-text="We are offline"
+            data-powered-by="Powered by MiroTalk SFU"
+        ></div>
+    </body>
+</html>
+```
+
+**[Explore Integrations →](https://docs.mirotalk.com/mirotalk-p2p/integration/)**
+
 </details>
 
 <details>
