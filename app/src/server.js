@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.57
+ * @version 1.5.58
  *
  */
 
@@ -751,7 +751,13 @@ app.post('/login', (req, res) => {
     const ip = getIP(req);
     log.debug(`Request login to host from: ${ip}`, req.body);
 
-    const { username, password } = checkXSS(req.body);
+    const safeBody = checkXSS(req.body) || {};
+    const { username, password } = safeBody;
+
+    if (!username || !password) {
+        log.warn('Login failed: missing username or password', req.body);
+        return res.status(400).json({ message: 'Missing username or password' });
+    }
 
     const isPeerValid = isAuthPeer(username, password);
 
