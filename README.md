@@ -222,7 +222,7 @@ To embed a meeting within `your service or app` using an iframe, you can use the
 
 ## WIdget
 
-To quickly add a support widget to your site, include the script in your `<head>` and place the widget `<div>` at the end of your `<body>`. Your support widget will be ready instantly!
+To quickly add a support [widget](https://codepen.io/Miroslav-Pejic/pen/Byowjvb) to your site, include the script in your `<head>` and place the widget `<div>` at the end of your `<body>`. Your support widget will be ready instantly!
 
 ```html
 <!doctype html>
