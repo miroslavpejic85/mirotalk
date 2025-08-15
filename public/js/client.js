@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.58
+ * @version 1.5.59
  *
  */
 
@@ -6279,31 +6279,76 @@ async function changeAudioDestination(audioElement = false) {
  * @param {string} sinkId uuid audio output device
  */
 async function attachSinkId(element, sinkId) {
-    if (typeof element.sinkId !== 'undefined') {
-        element
-            .setSinkId(sinkId)
-            .then(() => {
-                console.log(`Success, audio output device attached: ${sinkId}`);
-            })
-            .catch((err) => {
-                let errorMessage = err;
-                if (err.name === 'SecurityError') {
-                    errorMessage = 'SecurityError: You need to use HTTPS for selecting audio output device';
-                } else if (err.name === 'NotAllowedError') {
-                    errorMessage = 'NotAllowedError: Permission to use audio output device is not granted';
-                } else if (err.name === 'NotFoundError') {
-                    errorMessage = 'NotFoundError: The specified audio output device was not found';
-                } else {
-                    errorMessage = `Error: ${err}`;
-                }
-                console.error(errorMessage);
-                userLog('error', `attachSinkId: ${errorMessage}`);
-                // Jump back to first output device in the list as it's the default.
-                audioOutputSelect.selectedIndex = 0;
-            });
-    } else {
+    if (typeof element.sinkId === 'undefined') {
         console.warn('Browser does not support output device selection.');
+        return;
     }
+
+    // Helper to actually set the sinkId and handle errors uniformly
+    const doSetSinkId = async () => {
+        try {
+            await element.setSinkId(sinkId);
+            console.log(`Success, audio output device attached: ${sinkId}`);
+        } catch (err) {
+            let errorMessage = err;
+            if (err.name === 'SecurityError') {
+                errorMessage = 'SecurityError: You need to use HTTPS for selecting audio output device';
+            } else if (err.name === 'NotAllowedError') {
+                errorMessage = 'NotAllowedError: Permission to use audio output device is not granted';
+            } else if (err.name === 'NotFoundError') {
+                errorMessage = 'NotFoundError: The specified audio output device was not found';
+            } else if (err.message) {
+                errorMessage = `Error: ${err.message}`;
+            } else {
+                errorMessage = `Error: ${err}`;
+            }
+            console.error(errorMessage);
+            userLog('error', `attachSinkId: ${errorMessage}`);
+            // Jump back to first output device in the list as it's the default.
+            if (typeof audioOutputSelect !== 'undefined' && audioOutputSelect) {
+                audioOutputSelect.selectedIndex = 0;
+            }
+            throw err;
+        }
+    };
+
+    // If a user gesture is required (Chrome policy), defer until the next interaction
+    const needsUserGesture = !!(navigator.userActivation && !navigator.userActivation.isActive);
+    if (needsUserGesture) {
+        // Show a single notification prompting the user to click
+        if (!window.__sinkGestureNotified) {
+            window.__sinkGestureNotified = true;
+            userLog('toast', 'Click anywhere to apply the speaker change');
+        }
+
+        return new Promise((resolve) => {
+            const applyOnGesture = async () => {
+                try {
+                    await doSetSinkId();
+                    resolve(true);
+                } catch (e) {
+                    resolve(false);
+                } finally {
+                    window.removeEventListener('pointerdown', applyOnGesture);
+                    window.removeEventListener('keydown', applyOnGesture);
+                    window.removeEventListener('mousedown', applyOnGesture);
+                    window.removeEventListener('touchstart', applyOnGesture);
+                    window.removeEventListener('keydown', applyOnGesture);
+                    window.__sinkGestureNotified = false;
+                }
+            };
+            const opts = { once: true };
+            // Use pointerdown (covers mouse/touch/pen) and keydown as safe user gestures
+            window.addEventListener('pointerdown', applyOnGesture, opts);
+            window.addEventListener('keydown', applyOnGesture, opts);
+            window.addEventListener('mousedown', applyOnGesture, opts);
+            window.addEventListener('touchstart', applyOnGesture, opts);
+            window.addEventListener('keydown', applyOnGesture, opts);
+        });
+    }
+
+    // Otherwise, set immediately
+    return doSetSinkId();
 }
 
 /**
@@ -11273,7 +11318,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.58',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.59',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
