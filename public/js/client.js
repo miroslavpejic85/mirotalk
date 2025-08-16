@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.59
+ * @version 1.5.60
  *
  */
 
@@ -635,6 +635,7 @@ let recScreenStream; // screen media to recording
 let recTimer;
 let recCodecs;
 let recElapsedTime;
+let recStartTs = null;
 let recPrioritizeH264 = false;
 let isStreamRecording = false;
 let isStreamRecordingPaused = false;
@@ -7427,6 +7428,7 @@ function handleMediaRecorderStart(event) {
     recordStreamBtn.style.setProperty('color', '#ff4500');
     setTippy(recordStreamBtn, 'Stop recording', placement);
     if (isMobileDevice) elemDisplay(swapCameraBtn, false);
+    recStartTs = performance.now();
     playSound('recStart');
 }
 
@@ -7520,15 +7522,24 @@ function resumeRecording() {
 }
 
 /**
+ * Get WebM duration fixer function
+ * @returns {Function|null}
+ */
+function getWebmFixerFn() {
+    const fn = window.FixWebmDuration;
+    return typeof fn === 'function' ? fn : null;
+}
+
+/**
  * Download recorded stream
  */
-function downloadRecordedStream() {
+async function downloadRecordedStream() {
     try {
         const type = recordedBlobs[0].type.includes('mp4') ? 'mp4' : 'webm';
-        const blob = new Blob(recordedBlobs, { type: 'video/' + type });
+        const rawBlob = new Blob(recordedBlobs, { type: 'video/' + type });
         const recFileName = getDataTimeString() + '-REC.' + type;
         const currentDevice = isMobileDevice ? 'MOBILE' : 'PC';
-        const blobFileSize = bytesToSize(blob.size);
+        const blobFileSize = bytesToSize(rawBlob.size);
 
         const recordingInfo = `
         <br/>
@@ -7553,7 +7564,26 @@ function downloadRecordedStream() {
             </div>`
         );
 
-        saveBlobToFile(blob, recFileName);
+        // Fix WebM duration to make it seekable
+        const fixWebmDuration = async (blob) => {
+            if (type !== 'webm') return blob;
+            try {
+                const fix = getWebmFixerFn();
+                const durationMs = recStartTs ? performance.now() - recStartTs : undefined;
+                const fixed = await fix(blob, durationMs);
+                return fixed || blob;
+            } catch (e) {
+                console.warn('WEBM duration fix failed, saving original blob:', e);
+                return blob;
+            } finally {
+                recStartTs = null;
+            }
+        };
+
+        (async () => {
+            const finalBlob = await fixWebmDuration(rawBlob);
+            saveBlobToFile(finalBlob, recFileName);
+        })();
     } catch (err) {
         userLog('error', 'Recording save failed: ' + err);
     }
@@ -11318,7 +11348,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.59',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.60',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
