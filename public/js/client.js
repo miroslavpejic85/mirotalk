@@ -7555,13 +7555,16 @@ async function downloadRecordedStream() {
         lastRecordingInfo.innerHTML = `<br/>Last recording info: ${recordingInfo}`;
         recordingTime.innerText = '';
 
-        userLog(
-            'success-html',
+        msgHTML(
+            null,
+            null,
+            'Recording',
             `<div style="text-align: left;">
-                🔴 &nbsp; Recording Info: <br/>
+                🔴 &nbsp; Recording Info:
                 ${recordingInfo}
                 Please wait to be processed, then will be downloaded to your ${currentDevice} device.
-            </div>`
+            </div>`,
+            'top'
         );
 
         // Fix WebM duration to make it seekable
