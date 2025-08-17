@@ -2,7 +2,7 @@
 
 ![webhook](./webhooks.png)
 
-This example shows how to set up a server to listen for MiroTalk SFU webhook events (join, disconnect).
+This example shows how to set up a server to listen for MiroTalk P2P webhook events (join, disconnect).
 
 ### Step 1: Enable Webhooks
 
@@ -35,7 +35,7 @@ webhook: {
 
 ### Step 3: Webhook Events
 
-MiroTalk SFU sends HTTP `POST` requests to the specified URL with event data:
+MiroTalk P2P sends HTTP `POST` requests to the specified URL with event data:
 
 **Example Payload**:
 
