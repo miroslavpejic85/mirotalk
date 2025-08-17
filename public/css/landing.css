@@ -26,6 +26,20 @@ body {
     display: none;
 }
 
+/* Join Room layout: make JOIN fill the remaining width next to Random */
+#joinRoomForm .button-group {
+    display: flex;
+    align-items: stretch;
+}
+#joinRoomForm #randomRoomButton {
+    flex: 0 0 auto;
+    border-radius: 5px;
+}
+#joinRoomForm #joinSelectRoomButton {
+    flex: 1 1 auto;
+    border-radius: 5px;
+}
+
 article,
 aside,
 footer,

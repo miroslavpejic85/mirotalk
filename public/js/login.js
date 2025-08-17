@@ -8,6 +8,7 @@ const loginBtn = document.getElementById('loginButton');
 const joinRoomForm = document.getElementById('joinRoomForm');
 const roomNameInput = document.getElementById('roomName');
 const joinSelectRoomButton = document.getElementById('joinSelectRoomButton');
+const randomRoomButton = document.getElementById('randomRoomButton');
 
 usernameInput.onkeyup = (e) => {
     if (e.keyCode === 13) {
@@ -120,10 +121,22 @@ function showJoinRoomForm() {
             }
         };
     }
+    if (randomRoomButton) {
+        randomRoomButton.onclick = (e) => {
+            e.preventDefault();
+            if (roomNameInput) roomNameInput.value = getUUID4();
+        };
+    }
     if (joinSelectRoomButton) {
         joinSelectRoomButton.onclick = (e) => {
             e.preventDefault();
             doJoin();
         };
     }
+}
+
+function getUUID4() {
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+    );
 }

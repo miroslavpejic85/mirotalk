@@ -32,7 +32,7 @@
         <meta property="og:url" content="{{OG_URL}}" />
 
         <!-- StyleSheet -->
-
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,600" />
         <link rel="stylesheet" href="../css/landing.css" />
@@ -129,12 +129,14 @@
                                                 />
                                             </div>
                                             <div class="mt-24 mb-32">
-                                                <button
-                                                    id="joinSelectRoomButton"
-                                                    class="button button-primary button-block"
-                                                >
-                                                    JOIN ROOM
-                                                </button>
+                                                <div class="button-group">
+                                                    <button id="randomRoomButton" class="button button-primary" title="Random room">
+                                                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                                                    </button>
+                                                    <button id="joinSelectRoomButton" class="button button-primary">
+                                                        JOIN ROOM
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
