@@ -1,0 +1,19 @@
+{
+    "name": "mirotalk-webhook",
+    "version": "1.0.0",
+    "description": "MiroTalk WebHook endpoint example",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "keywords": [
+        "webhook",
+        "server"
+    ],
+    "author": "Miroslav Pejic",
+    "license": "AGPLv3",
+    "dependencies": {
+        "express": "5.1.0",
+        "body-parser": "2.2.0"
+    }
+}

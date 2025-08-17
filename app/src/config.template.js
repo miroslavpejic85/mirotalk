@@ -190,4 +190,8 @@ module.exports = {
             whiteboardLockBtn: false,
         },
     },
+    webhook: {
+        enabled: false, // Enable webhook functionality
+        url: 'http://localhost:8888/webhook-endpoint', // Webhook server URL
+    },
 };

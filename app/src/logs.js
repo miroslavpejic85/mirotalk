@@ -104,10 +104,12 @@ module.exports = class Logs {
         }
     }
 
-    getDateTime() {
-        const currentTime = new Date().toLocaleString('en-US', this.tzOptions);
-        const milliseconds = String(new Date().getMilliseconds()).padStart(3, '0');
-        return colors.cyan(`${currentTime}:${milliseconds}`);
+    getDateTime(color = true) {
+        const now = new Date();
+        const currentTime = now.toLocaleString('en-US', this.tzOptions);
+        const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+        const timestamp = `${currentTime}:${milliseconds}`;
+        return color ? colors.cyan(timestamp) : timestamp;
     }
 
     getFormatTime(ms) {

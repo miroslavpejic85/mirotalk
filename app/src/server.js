@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.61
+ * @version 1.5.62
  *
  */
 
@@ -182,6 +182,12 @@ const api_disabled = JSON.parse(apiDisabledString);
 const ngrok = require('@ngrok/ngrok');
 const ngrokEnabled = getEnvBoolean(process.env.NGROK_ENABLED);
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
+
+// Handle WebHook
+const webhook = {
+    enabled: config?.webhook?.enabled || false,
+    url: config?.webhook?.url || 'http://localhost:8888/webhook-endpoint',
+};
 
 // Stun (https://bloggeek.me/webrtcglossary/stun/)
 // Turn (https://bloggeek.me/webrtcglossary/turn/)
@@ -1153,7 +1159,7 @@ io.sockets.on('connect', async (socket) => {
     socket.on('disconnect', async (reason) => {
         removeIP(socket);
         for (let channel in socket.channels) {
-            await removePeerFrom(channel);
+            await removePeerFrom(channel, reason);
         }
         log.debug('[' + socket.id + '] disconnected', { reason: reason });
         delete sockets[socket.id];
@@ -1419,6 +1425,16 @@ io.sockets.on('connect', async (socket) => {
                 os: osName ? `${osName} ${osVersion}` : '',
                 browser: browserName ? `${browserName} ${browserVersion}` : '',
             }); // .env EMAIL_ALERT=true
+        }
+
+        // Handle WebHook
+        if (webhook.enabled) {
+            // Trigger a POST request when a user joins
+            config.timestamp = log.getDateTime(false);
+            axios
+                .post(webhook.url, { event: 'join', data: config })
+                .then((response) => log.debug('Join event tracked:', response.data))
+                .catch((error) => log.error('Error tracking join event:', error.message));
         }
     });
 
@@ -1846,11 +1862,26 @@ io.sockets.on('connect', async (socket) => {
      * Remove peers from channel
      * @param {string} channel room id
      */
-    async function removePeerFrom(channel) {
+    async function removePeerFrom(channel, reason = 'unknown') {
         if (!(channel in socket.channels)) {
             return log.debug('[' + socket.id + '] [Warning] not in ', channel);
         }
         try {
+            // Handle WebHook
+            if (webhook.enabled) {
+                const data = {
+                    timestamp: log.getDateTime(false),
+                    room_id: channel,
+                    peer: socket.channels[channel],
+                    reason: reason,
+                };
+                // Trigger a POST request when a user disconnects
+                axios
+                    .post(webhook.url, { event: 'disconnect', data })
+                    .then((response) => log.debug('Disconnect event tracked:', response.data))
+                    .catch((error) => log.error('Error tracking disconnect event:', error.message));
+            }
+
             delete socket.channels[channel];
             delete channels[channel][socket.id];
             delete peers[channel][socket.id]; // delete peer data from the room
