@@ -37,36 +37,6 @@ const footer = document.getElementById('footer');
 // Brand customizations...
 
 let brand = {
-    widget: {
-        enabled: false,
-        roomId: 'support-room',
-        theme: 'dark',
-        widgetState: 'minimized',
-        widgetType: 'support',
-        supportWidget: {
-            position: 'top-right',
-            expertImages: [
-                'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
-            ],
-            buttons: {
-                audio: true,
-                video: true,
-                screen: true,
-                chat: true,
-                join: true,
-            },
-            checkOnlineStatus: false,
-            isOnline: true,
-            customMessages: {
-                heading: 'Need Help?',
-                subheading: 'Get instant support from our expert team!',
-                connectText: 'connect in < 5 seconds',
-                onlineText: 'We are online',
-                offlineText: 'We are offline',
-                poweredBy: 'Powered by MiroTalk',
-            },
-        },
-    },
     app: {
         language: 'en',
         name: 'MiroTalk',
@@ -130,6 +100,36 @@ let brand = {
             <span>&copy; 2025 MiroTalk P2P, all rights reserved</span>
             <hr />
         `,
+    },
+    widget: {
+        enabled: false,
+        roomId: 'support-room',
+        theme: 'dark',
+        widgetState: 'minimized',
+        widgetType: 'support',
+        supportWidget: {
+            position: 'top-right',
+            expertImages: [
+                'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
+            ],
+            buttons: {
+                audio: true,
+                video: true,
+                screen: true,
+                chat: true,
+                join: true,
+            },
+            checkOnlineStatus: false,
+            isOnline: true,
+            customMessages: {
+                heading: 'Need Help?',
+                subheading: 'Get instant support from our expert team!',
+                connectText: 'connect in < 5 seconds',
+                onlineText: 'We are online',
+                offlineText: 'We are offline',
+                poweredBy: 'Powered by MiroTalk',
+            },
+        },
     },
     //...
 };
@@ -224,13 +224,17 @@ function handleBrand() {
 // WIDGET customize
 function handleWidget() {
     if (brand.widget?.enabled) {
+        const domain = window.location.host;
+        const roomId = brand.widget?.roomId || 'support-room';
+        const userName = 'guest-' + Math.floor(Math.random() * 10000);
         if (typeof MiroTalkWidget !== 'undefined') {
-            const domain = window.location.host;
-            const roomId = brand.widget?.roomId || 'support-room';
-            const userName = 'guest-' + Math.floor(Math.random() * 10000);
             new MiroTalkWidget(domain, roomId, userName, brand.widget);
         } else {
-            console.error('MiroTalkWidget is not defined. Please check Widget.js loading.');
+            console.warn('MiroTalkWidget is not defined. Please check widget.js loading.', {
+                domain,
+                roomId,
+                userName,
+            });
         }
     }
 }
