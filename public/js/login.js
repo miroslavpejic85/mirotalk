@@ -102,11 +102,7 @@ function showJoinRoomForm() {
             popup('warning', 'Room Name required');
             return;
         }
-        window.location.href =
-            '/join/?room=' +
-            encodeURIComponent(room) +
-            '&name=' +
-            encodeURIComponent(username);
+        window.location.href = '/join/?room=' + encodeURIComponent(room) + '&name=' + encodeURIComponent(name);
     };
 
     if (roomNameInput) {
