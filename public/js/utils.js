@@ -1,6 +1,6 @@
 'use strict';
 
-function popup(icon, text, position = 'center') {
+function popup(icon, text, position = 'top') {
     Swal.fire({
         background: 'rgba(0, 0, 0, 0.7)',
         position: position,
