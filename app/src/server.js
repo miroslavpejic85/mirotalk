@@ -1160,7 +1160,7 @@ io.sockets.on('connect', async (socket) => {
     socket.on('disconnect', async (reason) => {
         removeIP(socket);
         for (let channel in socket.channels) {
-            await removePeerFrom(channel, reason);
+            await removePeerFrom(channel, socket, reason);
         }
         log.debug('[' + socket.id + '] disconnected', { reason: reason });
         delete sockets[socket.id];
@@ -1863,7 +1863,7 @@ io.sockets.on('connect', async (socket) => {
      * Remove peers from channel
      * @param {string} channel room id
      */
-    async function removePeerFrom(channel, reason = 'unknown') {
+    async function removePeerFrom(channel, socket, reason = 'unknown') {
         if (!(channel in socket.channels)) {
             return log.debug('[' + socket.id + '] [Warning] not in ', channel);
         }
@@ -1917,6 +1917,11 @@ io.sockets.on('connect', async (socket) => {
             await channels[channel][id].emit('removePeer', { peer_id: socket.id });
             socket.emit('removePeer', { peer_id: id });
             log.debug('[' + socket.id + '] emit removePeer [' + id + ']');
+        }
+
+        if (!OIDC.enabled && hostCfg.protected) {
+            hostCfg.authenticated = false;
+            removeIP(socket);
         }
     }
 
