@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.62
+ * @version 1.5.63
  *
  */
 
@@ -547,14 +547,8 @@ app.get('/logout', (req, res) => {
 // main page
 app.get('/', OIDCAuth, (req, res) => {
     if (!OIDC.enabled && hostCfg.protected) {
-        const ip = getIP(req);
-        if (allowedIP(ip)) {
-            htmlInjector.injectHtml(views.landing, res);
-            hostCfg.authenticated = true;
-        } else {
-            hostCfg.authenticated = false;
-            res.redirect('/login');
-        }
+        hostCfg.authenticated = false;
+        res.redirect('/login');
     } else {
         return htmlInjector.injectHtml(views.landing, res);
     }
@@ -563,14 +557,8 @@ app.get('/', OIDCAuth, (req, res) => {
 // set new room name and join
 app.get('/newcall', OIDCAuth, (req, res) => {
     if (!OIDC.enabled && hostCfg.protected) {
-        const ip = getIP(req);
-        if (allowedIP(ip)) {
-            res.redirect('/');
-            hostCfg.authenticated = true;
-        } else {
-            hostCfg.authenticated = false;
-            res.redirect('/login');
-        }
+        hostCfg.authenticated = false;
+        res.redirect('/login');
     } else {
         htmlInjector.injectHtml(views.newCall, res);
     }

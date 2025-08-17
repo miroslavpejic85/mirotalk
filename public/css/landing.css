@@ -21,6 +21,11 @@ body {
     background: #000000;
 }
 
+/* Hidden by default; shown after successful login without a target room */
+#joinRoomForm {
+    display: none;
+}
+
 article,
 aside,
 footer,

@@ -5,6 +5,9 @@ console.log(window.location);
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('loginButton');
+const joinRoomForm = document.getElementById('joinRoomForm');
+const roomNameInput = document.getElementById('roomName');
+const joinSelectRoomButton = document.getElementById('joinSelectRoomButton');
 
 usernameInput.onkeyup = (e) => {
     if (e.keyCode === 13) {
@@ -50,15 +53,22 @@ function login() {
                 window.sessionStorage.peer_token = token;
 
                 if (room) {
-                    return (window.location.href = '/join/' + window.location.search);
-                    // return (window.location.href = '/join/?room=' + room + '&token=' + token);
+                    window.location.href = '/join/' + window.location.search;
+                    return;
                 }
                 if (roomPath && roomPath !== 'login') {
-                    return (window.location.href = '/join/' + roomPath);
-                    // return (window.location.href = '/join/?room=' + roomPath + '&token=' + token);
+                    window.location.href = '/join/' + roomPath;
+                    return;
+                }
+                if (token) {
+                    // Show Join Room form when logged in and no room specified
+                    showJoinRoomForm();
+                    return;
                 }
 
-                return (window.location.href = '/logged');
+                // Fallback
+                window.location.href = '/logged';
+                return;
             })
             .catch(function (error) {
                 console.error(error);
@@ -77,5 +87,41 @@ function login() {
     if (!password) {
         popup('warning', 'Password required');
         return;
+    }
+}
+
+function showJoinRoomForm() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) loginForm.style.display = 'none';
+    if (joinRoomForm) joinRoomForm.style.display = 'block';
+
+    const doJoin = () => {
+        const room = roomNameInput ? filterXSS(roomNameInput.value.trim()) : '';
+        const name = filterXSS(document.getElementById('username').value).trim();
+        if (!room) {
+            popup('warning', 'Room Name required');
+            return;
+        }
+        window.location.href =
+            '/join/?room=' +
+            encodeURIComponent(room) +
+            '&name=' +
+            encodeURIComponent(username);
+    };
+
+    if (roomNameInput) {
+        roomNameInput.focus();
+        roomNameInput.onkeyup = (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                e.preventDefault();
+                doJoin();
+            }
+        };
+    }
+    if (joinSelectRoomButton) {
+        joinSelectRoomButton.onclick = (e) => {
+            e.preventDefault();
+            doJoin();
+        };
     }
 }
