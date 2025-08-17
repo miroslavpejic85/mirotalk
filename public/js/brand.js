@@ -234,6 +234,7 @@ function handleWidget() {
                 domain,
                 roomId,
                 userName,
+                widget: brand.widget,
             });
         }
     }
