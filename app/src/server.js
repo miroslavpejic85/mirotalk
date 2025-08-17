@@ -1056,6 +1056,7 @@ function getServerConfig(tunnel = false) {
         chatGPT_enabled: configChatGPT.enabled ? configChatGPT : false,
         slack_enabled: slackEnabled,
         mattermost_enabled: mattermostCfg.enabled ? mattermostCfg : false,
+        webhook: webhook.enabled ? webhook : false,
 
         // Monitoring and Logging
         sentry_enabled: sentryEnabled,
