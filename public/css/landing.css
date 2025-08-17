@@ -18,7 +18,7 @@ body {
     padding: 40px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 10px;
-    background: #000000;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 60%, rgba(70, 120, 249, 0.25) 100%);
 }
 
 /* Hidden by default; shown after successful login without a target room */
