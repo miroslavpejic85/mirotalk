@@ -16,14 +16,32 @@ body {
 
 #loginForm {
     padding: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 0.5px solid rgb(255 255 255 / 32%);
     border-radius: 10px;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 60%, rgba(70, 120, 249, 0.25) 100%);
+}
+
+#loginForm:hover,
+#loginForm:focus-within {
+    box-shadow: 0 12px 40px 0 rgba(70, 120, 249, 0.25);
+    border-color: #376df9;
 }
 
 /* Hidden by default; shown after successful login without a target room */
 #joinRoomForm {
     display: none;
+    margin-top: 32px;
+    background: rgba(70, 120, 249, 0.08);
+    border-radius: 10px;
+    padding: 32px 24px;
+    transition:
+        box-shadow 0.3s,
+        border-color 0.3s;
+}
+
+#joinRoomForm:focus-within,
+#joinRoomForm:hover {
+    border-color: #376df9;
 }
 
 /* Join Room layout: make JOIN fill the remaining width next to Random */
