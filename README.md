@@ -490,6 +490,4 @@ This project is tested with [BrowserStack](https://www.browserstack.com).
 
 ---
 
-## Star History
-
 ![Star History Chart](https://api.star-history.com/svg?repos=miroslavpejic85/mirotalk&type=Date&theme=auto)
