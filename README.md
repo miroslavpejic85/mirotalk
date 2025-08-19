@@ -17,7 +17,7 @@
 <hr />
 
 <p align="center">
-    <a href="https://p2p.mirotalk.com">Explore MiroTalk P2P</a>
+    <strong><a href="https://p2p.mirotalk.com">Explore MiroTalk P2P</a></strong>
 </p>
 
 <hr />
