@@ -7155,7 +7155,7 @@ function startRecordingTimer() {
             recElapsedTime++;
             let recTimeElapsed = secondsToHms(recElapsedTime);
             myVideoParagraph.innerText = myPeerName + ' 🔴 REC ' + recTimeElapsed;
-            recordingTime.innerText = recTimeElapsed;
+            recordingTime.innerText = '🔴 REC ' + recTimeElapsed;
         }
     }, 1000);
 }
