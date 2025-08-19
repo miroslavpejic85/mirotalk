@@ -7397,7 +7397,6 @@ function notifyRecording(fromId, from, fromAvatar, action) {
  * @param {boolean} disabled - If true, disable the tabs; otherwise, enable them
  */
 function toggleVideoAudioTabs(disabled = false) {
-    if (disabled) tabRoomBtn.click();
     tabVideoBtn.disabled = disabled;
     tabAudioBtn.disabled = disabled;
 }
