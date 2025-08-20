@@ -17,6 +17,12 @@
 <hr />
 
 <p align="center">
+    This project is proudly supported by <a href="https://www.recall.ai">Recall.ai</a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
+</p>
+
+<hr/>
+
+<p align="center">
     <strong><a href="https://p2p.mirotalk.com">Explore MiroTalk P2P</a></strong>
 </p>
 

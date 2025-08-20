@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.65
+ * @version 1.5.66
  *
  */
 
@@ -636,7 +636,6 @@ let recTimer;
 let recCodecs;
 let recElapsedTime;
 let recStartTs = null;
-let recPrioritizeH264 = false;
 let isStreamRecording = false;
 let isStreamRecordingPaused = false;
 let isRecScreenStream = false;
@@ -5599,14 +5598,6 @@ function setMySettingsBtn() {
     // make chat room draggable for desktop
     if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
 
-    // recording codecs
-    switchH264Recording.addEventListener('change', (e) => {
-        recPrioritizeH264 = e.currentTarget.checked;
-        lsSettings.rec_prioritize_h264 = recPrioritizeH264;
-        lS.setSettings(lsSettings);
-        userLog('toast', `${icons.codecs} Recording prioritize h.264 ` + (recPrioritizeH264 ? 'ON' : 'OFF'));
-        playSound('switch');
-    });
     // Recording pause/resume
     pauseRecBtn.addEventListener('click', (e) => {
         pauseRecording();
@@ -6007,13 +5998,11 @@ function loadSettingsFromLocalStorage() {
     notifyBySound = lsSettings.sounds;
     isKeepButtonsVisible = lsSettings.keep_buttons_visible;
     isAudioPitchBar = lsSettings.pitch_bar;
-    recPrioritizeH264 = lsSettings.rec_prioritize_h264;
     isShortcutsEnabled = lsSettings.keyboard_shortcuts;
     switchSounds.checked = notifyBySound;
     switchShare.checked = notify;
     switchKeepButtonsVisible.checked = isKeepButtonsVisible;
     switchAudioPitchBar.checked = isAudioPitchBar;
-    switchH264Recording.checked = recPrioritizeH264;
     switchShortcuts.checked = isShortcutsEnabled;
 
     themeCustom.check.checked = themeCustom.keep;
@@ -7170,7 +7159,6 @@ function stopRecordingTimer() {
  */
 function getSupportedMimeTypes() {
     const possibleTypes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/mp4'];
-    possibleTypes.splice(recPrioritizeH264 ? 0 : 2, 0, 'video/mp4;codecs=h264,aac', 'video/webm;codecs=h264,opus');
     console.log('POSSIBLE CODECS', possibleTypes);
     return possibleTypes.filter((mimeType) => {
         return MediaRecorder.isTypeSupported(mimeType);
@@ -11351,7 +11339,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.65',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.66',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
