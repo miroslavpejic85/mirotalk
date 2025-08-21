@@ -23,7 +23,9 @@ This project is proudly sponsored by
 
 <br />
 
-<p align="center">MiroTalk P2P - Free WebRTC, Simple, Secure, Fast Real-Time Video Conferences with support for up to 8k resolution and 60fps. It's compatible with all major browsers and platforms.</p>
+<p align="center">
+<strong>MiroTalk P2P</strong> - Free WebRTC, Simple, Secure, Fast Real-Time Video Conferences with support for up to 8k resolution and 60fps. It's compatible with all major browsers and platforms.
+</p>
 
 <hr/>
 
