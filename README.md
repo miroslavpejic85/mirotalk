@@ -14,6 +14,14 @@
 
 <p align="center">Free WebRTC - P2P - Simple, Secure, Fast Real-Time Video Conferences with support for up to 8k resolution and 60fps. It's compatible with all major browsers and platforms.</p>
 
+<hr/>
+
+<p align="center">
+    This project is proudly supported by <a href="https://www.recall.ai">Recall.ai</a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
+</p>
+
+<hr/>
+
 <p align="center">
     <strong><a href="https://p2p.mirotalk.com">Explore MiroTalk P2P</a></strong>
 </p>
