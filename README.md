@@ -10,15 +10,20 @@
 <a href="https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661">![License: Extended](https://img.shields.io/badge/License-Extended_Commercial_Use-darkgreen.svg)</a>
 <a href="https://discord.gg/rgGYfeYW3N">![Community](https://img.shields.io/badge/Community-forum-pink.svg)</a>
 
+This project is proudly sponsored by
+
 </div>
 
-<p align="center">Free WebRTC - P2P - Simple, Secure, Fast Real-Time Video Conferences with support for up to 8k resolution and 60fps. It's compatible with all major browsers and platforms.</p>
-
-<hr/>
-
+<h1 align=center>Recall.ai - API for meeting recording</h1>
 <p align="center">
-    This project is proudly supported by <a href="https://www.recall.ai">Recall.ai</a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
+    <a href="https://www.recall.ai">Recall.ai</a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
 </p>
+
+<hr />
+
+<br />
+
+<p align="center">MiroTalk P2P - Free WebRTC, Simple, Secure, Fast Real-Time Video Conferences with support for up to 8k resolution and 60fps. It's compatible with all major browsers and platforms.</p>
 
 <hr/>
 
