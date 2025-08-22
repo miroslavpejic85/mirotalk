@@ -94,10 +94,6 @@
         https://developer.mozilla.org/it/docs/Web/CSS/object-fit 
     */
     --video-object-fit: cover;
-
-    /* toggle button colors */
-    --success-color: #4caf50;
-    --accent-color: #376df9;
 }
 
 * {
@@ -1943,90 +1939,48 @@ hr {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    width: 60px;
-    height: 28px;
+    width: 55px;
+    height: 24px;
     display: inline-block;
     position: relative;
     border-radius: 50px;
     overflow: hidden;
     outline: none;
-    border: none;
+    border: var(--border);
     cursor: pointer;
-    background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
-    box-shadow: 
-        inset 0 2px 6px rgba(0, 0, 0, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background-color: #000000;
+    transition: background-color ease 0.3s;
 }
 
-.toggle::before {
-    content: '';
+.toggle:before {
+    content: 'on off';
     display: block;
     position: absolute;
     z-index: 2;
-    width: 22px;
-    height: 22px;
-    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-    left: 3px;
-    top: 3px;
+    width: 20px;
+    height: 18px;
+    background: #fff;
+    left: 2px;
+    top: 2px;
     border-radius: 50%;
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(0, 0, 0, 0.1);
-    transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s;
+    font: 10px/20px Helvetica;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-indent: -25px;
+    word-spacing: 35px;
+    color: #fff;
+    text-shadow: -1px -1px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: all cubic-bezier(0.3, 1.5, 0.7, 1) 0.3s;
 }
 
 .toggle:checked {
-    background: linear-gradient(135deg, var(--success-color) 0%, #2e7d32 100%);
-    box-shadow: 
-        inset 0 2px 6px rgba(0, 0, 0, 0.2),
-        0 2px 8px rgba(76, 175, 80, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.15);
+    background-color: green;
 }
 
-.toggle:checked::before {
-    left: 35px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(0, 0, 0, 0.05);
-}
-
-.toggle:hover {
-    transform: scale(1.02);
-    box-shadow: 
-        inset 0 2px 6px rgba(0, 0, 0, 0.3),
-        0 4px 12px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.15);
-}
-
-.toggle:checked:hover {
-    box-shadow: 
-        inset 0 2px 6px rgba(0, 0, 0, 0.2),
-        0 4px 12px rgba(76, 175, 80, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.2);
-}
-
-.toggle:active {
-    transform: scale(0.98);
-}
-
-.toggle:focus {
-    outline: none;
-    box-shadow: 
-        inset 0 2px 6px rgba(0, 0, 0, 0.3),
-        0 2px 8px rgba(0, 0, 0, 0.2),
-        0 0 0 2px var(--accent-color),
-        0 0 0 4px rgba(55, 109, 249, 0.2);
-}
-
-.toggle:checked:focus {
-    box-shadow: 
-        inset 0 2px 6px rgba(0, 0, 0, 0.2),
-        0 2px 8px rgba(76, 175, 80, 0.3),
-        0 0 0 2px var(--success-color),
-        0 0 0 4px rgba(76, 175, 80, 0.2);
+.toggle:checked:before {
+    left: 32px;
 }
 
 /*--------------------------------------------------------------
