@@ -3795,6 +3795,11 @@ img.has-shadow {
 # Common
 --------------------------------------------------------------*/
 
+.blue {
+    font-weight: bold !important;
+    color: #00bfff !important;
+}
+
 .tac {
     text-align: center;
 }
