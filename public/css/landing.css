@@ -3799,6 +3799,11 @@ img.has-shadow {
     color: #00bfff !important;
 }
 
+.blue:hover {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
 .tac {
     text-align: center;
 }
