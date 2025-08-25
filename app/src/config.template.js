@@ -40,6 +40,7 @@ module.exports = {
             notFoundTitle: 'MiroTalk - 404 Page not found.',
         },
         html: {
+            topSponsors: true,
             features: true,
             browsers: true,
             teams: true, // please keep me always true ;)

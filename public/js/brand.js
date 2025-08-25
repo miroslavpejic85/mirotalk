@@ -24,6 +24,7 @@ const appJoinDescription = document.getElementById('appJoinDescription');
 const joinRoomBtn = document.getElementById('joinRoomButton');
 const appJoinLastRoom = document.getElementById('appJoinLastRoom');
 
+const topSponsors = document.getElementById('topSponsors');
 const features = document.getElementById('features');
 const browsers = document.getElementById('browsers');
 const teams = document.getElementById('teams');
@@ -62,6 +63,7 @@ let brand = {
         notFoundTitle: 'MiroTalk - 404 Page not found.',
     },
     html: {
+        topSponsors: true,
         features: true,
         browsers: true,
         teams: true, // please keep me always true ;)
@@ -73,7 +75,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.5.67',
+        title: 'WebRTC P2P v1.5.68',
         html: `
             <button 
                 id="support-button" 
@@ -211,6 +213,7 @@ function handleBrand() {
     if (joinRoomBtn && brand.app?.joinButtonLabel) joinRoomBtn.innerText = brand.app.joinButtonLabel;
     if (appJoinLastRoom && brand.app?.joinLastLabel) appJoinLastRoom.innerText = brand.app.joinLastLabel;
 
+    !brand.html.topSponsors && elementDisplay(topSponsors, false);
     !brand.html.features && elementDisplay(features, false);
     !brand.html.browsers && elementDisplay(browsers, false);
     !brand.html.teams && elementDisplay(teams, false);
