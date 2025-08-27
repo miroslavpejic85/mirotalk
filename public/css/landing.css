@@ -2747,6 +2747,7 @@ ul.pricing-item-features-list li {
 
 .clients-logo {
     display: flex;
+    cursor: pointer;
     justify-content: center;
     padding: 1rem;
     border-radius: 1rem;
