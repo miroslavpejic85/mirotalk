@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.68
+ * @version 1.5.69
  *
  */
 
@@ -5166,6 +5166,14 @@ function setChatEmojiBtn() {
     };
     const emojiPicker = new EmojiMart.Picker(pickerOptions);
     msgerEmojiPicker.appendChild(emojiPicker);
+
+    handleClickOutside(emojiPicker, msgerEmojiBtn, () => {
+        if (isChatEmojiVisible) {
+            elemDisplay(msgerEmojiPicker, false);
+            setColor(msgerEmojiBtn, '#FFFFFF');
+            isChatEmojiVisible = false;
+        }
+    });
 }
 
 /**
@@ -6090,6 +6098,12 @@ function handleUsernameEmojiPicker() {
         getId('usernameInput').value += data.native;
         toggleUsernameEmoji();
     }
+
+    handleClickOutside(emojiUsernamePicker, initUsernameEmojiButton, () => {
+        if (usernameEmoji && !usernameEmoji.classList.contains('hidden')) {
+            usernameEmoji.classList.add('hidden');
+        }
+    });
 }
 
 /**
@@ -11339,7 +11353,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.68',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.69',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -11905,6 +11919,29 @@ function sanitizeXSS(src) {
  */
 function disable(elem, disabled) {
     elem.disabled = disabled;
+}
+
+/**
+ * Handle click outside of an element
+ * @param {object} targetElement
+ * @param {object} triggerElement
+ * @param {function} callback
+ * @param {number} minWidth
+ */
+function handleClickOutside(targetElement, triggerElement, callback, minWidth = 0) {
+    document.addEventListener('click', (e) => {
+        if (minWidth && window.innerWidth > minWidth) return;
+        let el = e.target;
+        let shouldExclude = false;
+        while (el) {
+            if (el instanceof HTMLElement && (el === targetElement || el === triggerElement)) {
+                shouldExclude = true;
+                break;
+            }
+            el = el.parentElement;
+        }
+        if (!shouldExclude) callback();
+    });
 }
 
 /**
