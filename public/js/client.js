@@ -6305,8 +6305,7 @@ async function attachSinkId(element, sinkId) {
             } else {
                 errorMessage = `Error: ${err}`;
             }
-            console.error(errorMessage);
-            userLog('error', `attachSinkId: ${errorMessage}`);
+            console.error(`attachSinkId error: ${errorMessage}`);
             // Jump back to first output device in the list as it's the default.
             if (typeof audioOutputSelect !== 'undefined' && audioOutputSelect) {
                 audioOutputSelect.selectedIndex = 0;
