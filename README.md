@@ -438,11 +438,12 @@ To obtain a [MiroTalk P2P license](https://docs.mirotalk.com/license/licensing-o
 
 Do you find MiroTalk P2P indispensable for your needs? Join us in supporting this transformative project by [becoming a backer or sponsor](https://github.com/sponsors/miroslavpejic85). By doing so, not only will your logo prominently feature here, but you'll also drive the growth and sustainability of MiroTalk P2P. Your support is vital in ensuring that this valuable platform continues to thrive and remain accessible for all. Make an impact – back MiroTalk P2P today and be part of this exciting journey!
 
-|                                                                                |                                                                                        |                                                                                                                           |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)        | [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) | [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)                                                       |
-| [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com) | [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com)      | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)                                              |
-| [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io)               | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                        | [![LambdaTest](public/sponsors/LambdaTest.png)](https://lambdatest.com/pricing?coupon=QURFODlQUk9NT1RFUg==&refid=1149848) |
+|                                                                                                                           |                                                                                |                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| [![EffectsSDK](public/sponsors/EffectsSDK.png)](https://effectssdk.ai/)                                                   | [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)        | [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) |
+| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)                                                       | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com) | [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com)      |
+| [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)                                              | [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io)               | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                        |
+| [![LambdaTest](public/sponsors/LambdaTest.png)](https://lambdatest.com/pricing?coupon=QURFODlQUk9NT1RFUg==&refid=1149848) |                                                                                |                                                                                        |
 
 </details>
 
@@ -458,6 +459,20 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 ---
 
 </details>
+
+## EffectsSDK ✨
+
+[![EffectsSDK](public/sponsors/EffectsSDK.png)](https://effectssdk.ai/)
+
+Looking for `powerful Virtual Background and Noise Suppression SDK and Plugins`?
+
+Check out:
+
+- 🎥 [Video Effects Extension](https://chromewebstore.google.com/detail/effetti-webcam-ai-+-regis/iedbphhbpflhgpihkcceocomcdnemcbj)
+- 🔊 [Noise Cancelling Extension](https://chromewebstore.google.com/detail/noise-cancelling-app/njmhcidcdbaannpafjdljminaigdgolj)
+- 🛠️ [Integrate with EffectsSDK](https://github.com/EffectsSDK)
+
+---
 
 ## Diving into Additional MiroTalk Projects:
 
