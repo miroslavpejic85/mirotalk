@@ -464,13 +464,13 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 
 [![EffectsSDK](public/sponsors/EffectsSDK.png)](https://effectssdk.ai/)
 
-Looking for `powerful Virtual Background and Noise Suppression SDK and Plugins`?
+`Enhance your video conferencing` experience with `advanced virtual backgrounds` and `noise suppression`. EffectsSDK offers powerful SDKs and plugins for fast integration.
 
-Check out:
+**Explore:**
 
-- 🎥 [Video Effects Extension](https://chromewebstore.google.com/detail/effetti-webcam-ai-+-regis/iedbphhbpflhgpihkcceocomcdnemcbj)
-- 🔊 [Noise Cancelling Extension](https://chromewebstore.google.com/detail/noise-cancelling-app/njmhcidcdbaannpafjdljminaigdgolj)
-- 🛠️ [Integrate with EffectsSDK](https://github.com/EffectsSDK)
+- 🎥 **[AI Video Effects Extension](https://chromewebstore.google.com/detail/effetti-webcam-ai-+-regis/iedbphhbpflhgpihkcceocomcdnemcbj)** – Add virtual backgrounds and effects to your webcam.
+- 🔊 **[Noise Cancelling Extension](https://chromewebstore.google.com/detail/noise-cancelling-app/njmhcidcdbaannpafjdljminaigdgolj)** – Reduce background noise for clearer audio.
+- 🛠️ **[Integrate EffectsSDK](https://github.com/EffectsSDK)** – Access SDKs and plugins for custom solutions.
 
 ---
 
