@@ -940,6 +940,7 @@ button:hover {
 }
 
 .room-emoji-tab {
+    margin-top: 10px;
     background: none;
     color: #fff;
     border: none;
