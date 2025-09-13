@@ -881,6 +881,8 @@ button:hover {
     --font-family: 'Montserrat';
 }
 
+/* Emoji Picker (Room) */
+
 .roomEmoji {
     z-index: 18;
     position: absolute;
@@ -897,36 +899,107 @@ button:hover {
     --font-family: 'Montserrat';
 }
 
+.room-emoji-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--body-bg);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 8px 12px 4px 12px;
+    cursor: move;
+}
+
+.room-emoji-title {
+    font-weight: bold;
+    font-size: 1.05rem;
+    color: #fff;
+}
+
+.room-emoji-close-btn {
+    display: inline-block;
+    position: static;
+    margin-left: 8px;
+    font-size: 1.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+}
+
+.room-emoji-close-btn:hover {
+    background: var(--body-bg);
+    border-radius: 50%;
+}
+
+.room-emoji-tab-container {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 8px 0;
+    gap: 6px;
+}
+
+.room-emoji-tab {
+    background: none;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 3px 14px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.room-emoji-tab.active {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.room-emoji-mart {
+    display: block;
+}
+
+.room-emoji-grid {
+    display: none;
+    gap: 8px;
+    font-size: 2rem;
+    max-width: 360px;
+    margin: 0 auto;
+    justify-items: center;
+    align-items: center;
+    padding: 16px 8px;
+}
+.room-emoji-grid.visible {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 56px;
+}
+
+.room-emoji-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    transition:
+        background 0.15s,
+        transform 0.15s;
+    color: #fff;
+}
+.room-emoji-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: scale(1.15);
+}
+
 .userEmoji {
     z-index: 18;
     position: absolute;
     left: 80px;
     bottom: 60px;
     border-radius: 10px;
-}
-
-.emojiPickerHeader {
-    display: flex;
-    justify-content: flex-start;
-    padding: 5px;
-    color: #fff;
-    background: var(--body-bg);
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    cursor: move;
-}
-
-#closeEmojiPickerContainer {
-    font-size: 1.2rem;
-    color: #ffffff;
-    background: transparent;
-    border-radius: 10px;
-    border: none;
-    transition: background 0.23s;
-}
-
-#closeEmojiPickerContainer:hover {
-    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------

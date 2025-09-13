@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.72
+ * @version 1.5.73
  *
  */
 
@@ -107,6 +107,7 @@ const icons = {
     fileReceive: '<i class="fas fa-file-import"></i>',
     codecs: '<i class="fa-solid fa-film"></i>',
     theme: '<i class="fas fa-fill-drip"></i>',
+    close: '<i class="fas fa-times"></i>',
 };
 
 // Whiteboard and fileSharing
@@ -205,7 +206,6 @@ const leaveRoomBtn = getId('leaveRoomBtn');
 // Room Emoji Picker
 const closeEmojiPickerContainer = getId('closeEmojiPickerContainer');
 const emojiPickerContainer = getId('emojiPickerContainer');
-const emojiPickerHeader = getId('emojiPickerHeader');
 const userEmoji = getId(`userEmoji`);
 
 // Chat room
@@ -5103,29 +5103,122 @@ function setCaptionRoomBtn() {
  * Set room emoji reaction button
  */
 function setRoomEmojiButton() {
+    // Map sound emojis to their shortcodes for sound playback
+    const soundEmojis = [
+        { emoji: '👍', shortcodes: ':+1:' },
+        { emoji: '👎', shortcodes: ':-1:' },
+        { emoji: '👌', shortcodes: ':ok_hand:' },
+        { emoji: '😀', shortcodes: ':grinning:' },
+        { emoji: '😃', shortcodes: ':smiley:' },
+        { emoji: '😂', shortcodes: ':joy:' },
+        { emoji: '😘', shortcodes: ':kissing_heart:' },
+        { emoji: '❤️', shortcodes: ':heart:' },
+        { emoji: '🎺', shortcodes: ':trumpet:' },
+        { emoji: '🎉', shortcodes: ':tada:' },
+        { emoji: '😮', shortcodes: ':open_mouth:' },
+        { emoji: '👏', shortcodes: ':clap:' },
+        { emoji: '✨', shortcodes: ':sparkles:' },
+        { emoji: '⭐', shortcodes: ':star:' },
+        { emoji: '🌟', shortcodes: ':star2:' },
+        { emoji: '💫', shortcodes: ':dizzy:' },
+        { emoji: '🚀', shortcodes: ':rocket:' },
+    ];
+
+    // Header with close button
+    const header = document.createElement('div');
+    header.className = 'room-emoji-header';
+
+    const title = document.createElement('span');
+    title.textContent = 'Emoji Picker';
+    title.className = 'room-emoji-title';
+
+    // Create a close button for the emoji picker
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'room-emoji-close-btn';
+    closeBtn.innerHTML = icons.close;
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+
+    // Tabs (less invasive style)
+    const tabContainer = document.createElement('div');
+    tabContainer.className = 'room-emoji-tab-container';
+
+    const allTab = document.createElement('button');
+    allTab.textContent = 'All';
+    allTab.className = 'room-emoji-tab active';
+
+    const soundTab = document.createElement('button');
+    soundTab.textContent = 'Sounds';
+    soundTab.className = 'room-emoji-tab';
+
+    tabContainer.appendChild(allTab);
+    tabContainer.appendChild(soundTab);
+
+    // EmojiMart picker (default)
+    const emojiMartDiv = document.createElement('div');
+    emojiMartDiv.className = 'room-emoji-mart';
     const pickerRoomOptions = {
         theme: 'dark',
         onEmojiSelect: sendEmojiToRoom,
     };
-
     const emojiRoomPicker = new EmojiMart.Picker(pickerRoomOptions);
+    emojiMartDiv.appendChild(emojiRoomPicker);
 
-    emojiPickerContainer.appendChild(emojiRoomPicker);
+    // Custom sound emoji grid (6 per row, circular hover effect)
+    const emojiGrid = document.createElement('div');
+    emojiGrid.className = 'room-emoji-grid';
+
+    // Set grid layout only when visible
+    function showEmojiGrid() {
+        emojiGrid.classList.add('visible');
+    }
+    function hideEmojiGrid() {
+        emojiGrid.classList.remove('visible');
+    }
+
+    soundEmojis.forEach(({ emoji, shortcodes }) => {
+        const btn = document.createElement('button');
+        btn.textContent = emoji;
+        btn.className = 'room-emoji-btn';
+        btn.onclick = () => sendEmojiToRoom({ native: emoji, shortcodes });
+        emojiGrid.appendChild(btn);
+    });
+
+    // Tab switching
+    allTab.onclick = () => {
+        allTab.classList.add('active');
+        soundTab.classList.remove('active');
+        emojiMartDiv.style.display = 'block';
+        hideEmojiGrid();
+    };
+    soundTab.onclick = () => {
+        soundTab.classList.add('active');
+        allTab.classList.remove('active');
+        emojiMartDiv.style.display = 'none';
+        showEmojiGrid();
+    };
+
+    // Picker container
+    emojiPickerContainer.innerHTML = '';
+    emojiPickerContainer.appendChild(header);
+    emojiPickerContainer.appendChild(tabContainer);
+    emojiPickerContainer.appendChild(emojiMartDiv);
+    emojiPickerContainer.appendChild(emojiGrid);
     elemDisplay(emojiPickerContainer, false);
 
     if (!isMobileDevice) {
-        dragElement(emojiPickerContainer, emojiPickerHeader);
+        dragElement(emojiPickerContainer, header);
     }
 
     roomEmojiPickerBtn.addEventListener('click', (e) => {
         toggleEmojiPicker();
     });
-    closeEmojiPickerContainer.addEventListener('click', (e) => {
+    closeBtn.addEventListener('click', (e) => {
         toggleEmojiPicker();
     });
 
     function sendEmojiToRoom(data) {
-        console.log('Selected Emoji', data);
         const message = {
             type: 'roomEmoji',
             room_id: roomId,
@@ -11352,7 +11445,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.72',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.73',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
