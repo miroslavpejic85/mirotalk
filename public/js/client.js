@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.73
+ * @version 1.5.74
  *
  */
 
@@ -1547,15 +1547,19 @@ async function whoAreYou() {
     await loadLocalStorage();
 
     if (!useVideo || !buttons.main.showVideoBtn) {
-        useVideo = false;
         elemDisplay(document.getElementById('initVideo'), false);
         elemDisplay(document.getElementById('initVideoBtn'), false);
         elemDisplay(document.getElementById('initVideoMirrorBtn'), false);
         elemDisplay(document.getElementById('initVideoSelect'), false);
-        elemDisplay(document.getElementById('tabVideoBtn'), false);
+        if (!buttons.main.showVideoBtn) {
+            elemDisplay(document.getElementById('tabVideoBtn'), false);
+        }
+        // Disable camera settings, keep screen available
+        videoSelect.disabled = true;
+        videoObjFitSelect.disabled = true;
+        videoFpsSelect.disabled = true;
     }
     if (!useAudio || !buttons.main.showAudioBtn) {
-        //useAudio = false;
         elemDisplay(document.getElementById('initAudioBtn'), false);
         elemDisplay(document.getElementById('initMicrophoneSelect'), false);
         elemDisplay(document.getElementById('initSpeakerSelect'), false);
@@ -6333,7 +6337,7 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
  * Set local video quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 async function setLocalVideoQuality() {
-    if (!useVideo || !localVideoMediaStream) return;
+    if (!localVideoMediaStream) return;
     const videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     localVideoMediaStream
         .getVideoTracks()[0]
@@ -6876,6 +6880,7 @@ async function toggleScreenSharing(init = false) {
             await stopLocalVideoTrack();
             await refreshMyLocalStream(screenMediaPromise, !useAudio);
             await refreshMyStreamToPeers(screenMediaPromise, !useAudio);
+            await setLocalVideoQuality();
 
             if (init) {
                 // Handle init media stream
@@ -11445,7 +11450,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.73',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.74',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
