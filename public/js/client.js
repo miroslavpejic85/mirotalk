@@ -6896,6 +6896,9 @@ async function toggleScreenSharing(init = false) {
                 } else {
                     elemDisplay(initVideo, false);
                 }
+                if (!useVideo) {
+                    initVideoContainerShow(isScreenStreaming);
+                }
             }
 
             // Disable cam video when screen sharing stops
