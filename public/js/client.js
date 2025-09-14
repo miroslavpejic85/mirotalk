@@ -1547,26 +1547,26 @@ async function whoAreYou() {
     await loadLocalStorage();
 
     if (!useVideo || !buttons.main.showVideoBtn) {
-        elemDisplay(document.getElementById('initVideo'), false);
-        elemDisplay(document.getElementById('initVideoBtn'), false);
-        elemDisplay(document.getElementById('initVideoMirrorBtn'), false);
-        elemDisplay(document.getElementById('initVideoSelect'), false);
+        elemDisplay(getId('initVideo'), false);
+        elemDisplay(getId('initVideoBtn'), false);
+        elemDisplay(getId('initVideoMirrorBtn'), false);
+        elemDisplay(getId('initVideoSelect'), false);
         if (!buttons.main.showVideoBtn) {
-            elemDisplay(document.getElementById('tabVideoBtn'), false);
+            elemDisplay(getId('tabVideoBtn'), false);
         }
         // Disable camera settings, keep screen available
-        videoSelect.disabled = true;
-        videoObjFitSelect.disabled = true;
-        videoFpsSelect.disabled = true;
+        elemDisplay(getId('videoSourceDiv'), false);
+        elemDisplay(getId('videoFitDiv'), false);
+        elemDisplay(getId('videoFpsDiv'), false);
     }
     if (!useAudio || !buttons.main.showAudioBtn) {
-        elemDisplay(document.getElementById('initAudioBtn'), false);
-        elemDisplay(document.getElementById('initMicrophoneSelect'), false);
-        elemDisplay(document.getElementById('initSpeakerSelect'), false);
-        elemDisplay(document.getElementById('tabAudioBtn'), false);
+        elemDisplay(getId('initAudioBtn'), false);
+        elemDisplay(getId('initMicrophoneSelect'), false);
+        elemDisplay(getId('initSpeakerSelect'), false);
+        elemDisplay(getId('tabAudioBtn'), false);
     }
     if (!buttons.main.showScreenBtn) {
-        elemDisplay(document.getElementById('initScreenShareBtn'), false);
+        elemDisplay(getId('initScreenShareBtn'), false);
     }
 
     initUser.classList.toggle('hidden');
