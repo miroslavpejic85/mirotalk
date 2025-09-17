@@ -16,7 +16,7 @@ This project is proudly sponsored by
 
 <h1 align=center>Recall.ai - API for meeting recording</h1>
 <p align="center">
-    <a href="https://recall.ai/?utm_source=mirotalkp2p&utm_medium=sponsorship">Recall.ai</a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
+    <a href="https://recall.ai/?utm_source=mirotalkp2p&utm_medium=sponsorship"><strong>Recall.ai</strong></a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
 </p>
 
 <hr />
@@ -337,7 +337,7 @@ These commands should now work correctly with the MiroTalk P2P
 </details>
 
 <details open>
-<summary>Hetzner, Hostinger & Contabo</summary>
+<summary>Hetzner, Netcup, Hostinger & Contabo</summary>
 
 <br/>
 
@@ -347,19 +347,32 @@ This application is running for `demonstration purposes` on [Hetzner](https://ww
 
 ---
 
-Use [my personal link](https://hetzner.cloud/?ref=XdRifCzCK3bn) to receive `€⁠20 IN CLOUD CREDITS`.
+👉 Use [my personal link](https://hetzner.cloud/?ref=XdRifCzCK3bn) to receive `€⁠20 IN CLOUD CREDITS`.
+
+---
+
+[![Netcup](public/sponsors/Netcup.png)](https://www.netcup.com/en/?ref=309627)
+
+Unlock `enterprise-grade performance` at a price you won’t believe.
+Scalable, reliable, and built for businesses that demand more.
+
+👉 [Power Meets Value with Netcup Root Server](https://www.netcup.com/en/?ref=309627)
 
 ---
 
 [![Hostinger](public/advertisers/HostingerLogo.png)](https://hostinger.com/?REFERRALCODE=MIROTALK)
 
-Fast, reliable hosting with 24/7 support and great performance. Start today! [Check out Hostinger now](https://hostinger.com/?REFERRALCODE=MIROTALK)
+Fast, reliable hosting with 24/7 support and great performance. Start today! 
+
+👉 [Check out Hostinger now](https://hostinger.com/?REFERRALCODE=MIROTALK)
 
 ---
 
 [![Contabo](public/advertisers/ContaboLogo.png)](https://www.dpbolvw.net/click-101027391-14462707)
 
-Experience also top-tier German web hosting – dedicated servers, VPS, and web hosting at `unbeatable prices`. [Explore now here](https://www.dpbolvw.net/click-101027391-14462707)
+Experience also top-tier German web hosting – dedicated servers, VPS, and web hosting at `unbeatable prices`. 
+
+👉 [Explore now here](https://www.dpbolvw.net/click-101027391-14462707)
 
 ---
 
@@ -440,10 +453,10 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 
 |                                                                                                                           |                                                                                |                                                                                        |
 | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| [![EffectsSDK](public/sponsors/EffectsSDK.png)](https://effectssdk.ai/)                                                   | [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)        | [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) |
-| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)                                                       | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com) | [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com)      |
-| [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)                                              | [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io)               | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                        |
-| [![LambdaTest](public/sponsors/LambdaTest.png)](https://lambdatest.com/pricing?coupon=QURFODlQUk9NT1RFUg==&refid=1149848) |                                                                                |                                                                                        |
+| [![EffectsSDK](public/sponsors/EffectsSDK.png)](https://effectssdk.ai/)                                                   | [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) | [![Netcup](public/sponsors/Netcup.png)](https://www.netcup.com/en/?ref=309627) |
+| [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/)                                                  | [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)             | [![QuestionPro](public/sponsors/QuestionPro.png)](https://www.questionpro.com) |
+| [![BrowserStack](public/sponsors/BrowserStack.png)](https://www.browserstack.com)                                         | [![CrystalSound](public/sponsors/CrystalSound.png)](https://crystalsound.ai)    | [![Cloudron](public/sponsors/Cloudron.png)](https://cloudron.io) |
+| [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com)                                                           | [![LambdaTest](public/sponsors/LambdaTest.png)](https://lambdatest.com/pricing?coupon=QURFODlQUk9NT1RFUg==&refid=1149848) |                                                                                      |
 
 </details>
 
