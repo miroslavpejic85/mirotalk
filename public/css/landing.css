@@ -2737,8 +2737,8 @@ ul.pricing-item-features-list li {
 
 .clients-size-logo {
     width: 240px;
-    height: auto;
-    cursor: pointer;
+    height: 60px;
+    object-fit: contain;
 }
 
 .clients-size-logo:hover {
