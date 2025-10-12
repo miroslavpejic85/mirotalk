@@ -1,0 +1,40 @@
+<!--
+  Add this to your HTML to load face-api.js and provide a canvas for overlays.
+  This is a minimal example. Integrate into your main video UI as needed.
+-->
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+<script defer src="/js/faceEffects.js"></script>
+
+<video id="myVideo" autoplay muted playsinline></video>
+<canvas id="faceCanvas" style="position:absolute;top:0;left:0;"></canvas>
+<img id="overlayImg" src="/images/mask.png" style="display:none;" />
+
+<button id="toggleOverlay">Toggle Overlay</button>
+<button id="toggleSmooth">Toggle Skin Smoothing</button>
+
+<script>
+(async () => {
+  await loadFaceApiModels();
+  const video = document.getElementById('myVideo');
+  const canvas = document.getElementById('faceCanvas');
+  const overlayImg = document.getElementById('overlayImg');
+  let overlayOn = false;
+  let smoothOn = false;
+
+  document.getElementById('toggleOverlay').onclick = () => overlayOn = !overlayOn;
+  document.getElementById('toggleSmooth').onclick = () => smoothOn = !smoothOn;
+
+  async function renderLoop() {
+    if (overlayOn || smoothOn) {
+      await detectFaceAndOverlay(video, canvas, overlayImg, { smoothSkin: smoothOn });
+    } else {
+      // Just draw video
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+    requestAnimationFrame(renderLoop);
+  }
+  renderLoop();
+})();
+</script>
