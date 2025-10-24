@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.81
+ * @version 1.5.82
  *
  */
 
@@ -2930,37 +2930,48 @@ async function initEnumerateVideoDevices() {
  * @param {object} stream
  */
 async function enumerateAudioDevices(stream) {
-    console.log('06. Get Audio Devices');
-    await navigator.mediaDevices
-        .enumerateDevices()
-        .then((devices) =>
-            devices.forEach(async (device) => {
-                let el,
-                    eli = null;
-                if ('audioinput' === device.kind) {
-                    el = audioInputSelect;
-                    eli = initMicrophoneSelect;
-                    lS.DEVICES_COUNT.audio++;
-                } else if ('audiooutput' === device.kind) {
-                    el = audioOutputSelect;
-                    eli = initSpeakerSelect;
-                    lS.DEVICES_COUNT.speaker++;
-                }
-                if (!el) return;
-                await addChild(device, [el, eli]);
-            })
-        )
-        .then(async () => {
-            await stopTracks(stream);
-            isEnumerateAudioDevices = true;
-            //const sinkId = 'sinkId' in HTMLMediaElement.prototype;
-            audioOutputSelect.disabled = !sinkId;
-            // Check if there is speakers
-            if (!sinkId || initSpeakerSelect.options.length === 0) {
-                elemDisplay(initSpeakerSelect, false);
-                elemDisplay(audioOutputDiv, false);
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+
+        // Detect presence of potentially low-quality Bluetooth headsets
+        const hasLowQualityBT = devices.some(
+            (d) => d.kind === 'audioinput' && /(bluetooth|headset|hands[- ]?free|hsp|hfp|sco|airpods)/i.test(d.label)
+        );
+        if (hasLowQualityBT) {
+            alert(
+                '⚠️ You’re using a Bluetooth headset with limited audio quality. For best results, use your device’s built-in microphone or a wired headset.'
+            );
+        }
+
+        // Populate selects and counts
+        devices.forEach(async (device) => {
+            console.log('enumerateAudioDevices', device.label);
+            let el,
+                eli = null;
+            if ('audioinput' === device.kind) {
+                el = audioInputSelect;
+                eli = initMicrophoneSelect;
+                lS.DEVICES_COUNT.audio++;
+            } else if ('audiooutput' === device.kind) {
+                el = audioOutputSelect;
+                eli = initSpeakerSelect;
+                lS.DEVICES_COUNT.speaker++;
             }
+            if (!el) return;
+            await addChild(device, [el, eli]);
         });
+
+        await stopTracks(stream);
+        isEnumerateAudioDevices = true;
+        audioOutputSelect.disabled = !sinkId;
+        // Check if there is speakers
+        if (!sinkId || initSpeakerSelect.options.length === 0) {
+            elemDisplay(initSpeakerSelect, false);
+            elemDisplay(audioOutputDiv, false);
+        }
+    } catch (err) {
+        console.error('enumerateAudioDevices error', err);
+    }
 }
 
 /**
@@ -11453,7 +11464,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.81',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.82',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
