@@ -1546,6 +1546,9 @@ async function whoAreYou() {
 
     await loadLocalStorage();
 
+    // detect low quality bluetooth headset
+    detectBluetoothHeadset(true);
+
     if (!useVideo || !buttons.main.showVideoBtn) {
         elemDisplay(getId('initVideo'), false);
         elemDisplay(getId('initVideoBtn'), false);
@@ -1636,6 +1639,7 @@ async function whoAreYou() {
         refreshLsDevices();
     };
     initMicrophoneSelect.onchange = async () => {
+        detectBluetoothHeadset(true);
         await changeLocalMicrophone(initMicrophoneSelect.value);
         audioInputSelect.selectedIndex = initMicrophoneSelect.selectedIndex;
         refreshLsDevices();
@@ -3025,6 +3029,36 @@ async function addChild(device, els) {
         }
         el.appendChild(option);
     });
+}
+
+/**
+ * Detect low quality bluetooth devices
+ * @param {boolean} init indicates if it's during inizialization before join room
+ */
+function detectBluetoothHeadset(init = false) {
+    const selectEl = init ? initMicrophoneSelect : audioInputSelect;
+    if (!selectEl) return;
+
+    const micName = getSelectedOptionText(selectEl);
+    console.log('Selected microphone:', micName);
+
+    const lowQualityBT = /(bluetooth|headset|hands[- ]?free|hsp|hfp|sco|airpods)/i;
+    if (micName && lowQualityBT.test(micName)) {
+        alert(
+            "⚠️ You're using a Bluetooth headset with limited audio quality. For best results, use your device's built-in microphone or a wired headset."
+        );
+    }
+}
+
+/**
+ *  Get selected option text
+ * @param {object} selectEl
+ * @returns string
+ */
+function getSelectedOptionText(selectEl) {
+    if (!selectEl || !selectEl.options || selectEl.selectedIndex < 0) return '';
+    const opt = selectEl.options[selectEl.selectedIndex];
+    return opt && opt.text ? opt.text.trim() : '';
 }
 
 /**
@@ -5820,6 +5854,7 @@ function setupMySettings() {
     });
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
+        detectBluetoothHeadset();
         await changeLocalMicrophone(audioInputSelect.value);
         refreshLsDevices();
     });
