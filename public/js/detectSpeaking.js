@@ -40,6 +40,8 @@ async function getMicrophoneVolumeIndicator(stream) {
 
             // Listen for messages from the processor
             workletNode.port.onmessage = (event) => {
+                if (!myAudioStatus) return;
+
                 const data = event.data;
 
                 if (data.type === 'micVolume') {
