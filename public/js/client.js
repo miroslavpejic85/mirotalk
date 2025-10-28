@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.04
+ * @version 1.6.05
  *
  */
 
@@ -580,7 +580,8 @@ let myPrivacyBtn;
 let myVideoPinBtn;
 let myScreenPinBtn;
 let myPitchBar;
-let myVideoParagraph;
+let myVideoPeerName;
+let myScreenPeerName;
 let myHandStatusIcon;
 let myVideoStatusIcon;
 let myAudioStatusIcon;
@@ -720,7 +721,8 @@ function getHtmlElementsById() {
     myScreenPinBtn = getId('myScreenPinBtn');
     myPitchBar = getId('myPitchBar');
     // My username, hand/video/audio status
-    myVideoParagraph = getId('myVideoParagraph');
+    myVideoPeerName = getId('myVideoPeerName');
+    myScreenPeerName = getId('myScreenPeerName');
     myHandStatusIcon = getId('myHandStatusIcon');
     myVideoStatusIcon = getId('myVideoStatusIcon');
     myAudioStatusIcon = getId('myAudioStatusIcon');
@@ -2086,7 +2088,7 @@ async function restartNoiseSuppression() {
  * Room and Peer name are ok Join Channel
  */
 async function whoAreYouJoin() {
-    myVideoParagraph.innerText = myPeerName + ' (me)';
+    myVideoPeerName.innerText = myPeerName + ' (me)';
     setPeerAvatarImgName('myVideoAvatarImage', myPeerName, myPeerAvatar);
     setPeerAvatarImgName('myProfileAvatar', myPeerName, myPeerAvatar);
     setPeerChatAvatarImgName('right', myPeerName, myPeerAvatar);
@@ -3336,7 +3338,7 @@ async function loadLocalMedia(stream, kind) {
             // html elements
             const myVideoNavBar = document.createElement('div');
             const mySessionTime = document.createElement('button');
-            const myPeerName = document.createElement('p');
+            const myVideoPeerName = document.createElement('p');
             const myHandStatusIcon = document.createElement('button');
             const myVideoToImgBtn = document.createElement('button');
             const myPrivacyBtn = document.createElement('button');
@@ -3358,8 +3360,8 @@ async function loadLocalMedia(stream, kind) {
             mySessionTime.style.cursor = 'default';
 
             // my peer name
-            myPeerName.setAttribute('id', 'myVideoParagraph');
-            myPeerName.className = 'videoPeerName notranslate';
+            myVideoPeerName.setAttribute('id', 'myVideoPeerName');
+            myVideoPeerName.className = 'videoPeerName notranslate';
 
             // my hand status element
             myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
@@ -3409,7 +3411,6 @@ async function loadLocalMedia(stream, kind) {
             // no mobile devices
             if (!isMobileDevice) {
                 setTippy(mySessionTime, 'Session Time', 'bottom');
-                setTippy(myPeerName, 'My name', 'bottom');
                 setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
                 setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
                 setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
@@ -3482,7 +3483,7 @@ async function loadLocalMedia(stream, kind) {
             myVideoWrap.appendChild(myVideoAvatarImage);
             myVideoWrap.appendChild(myLocalMedia);
             myVideoWrap.appendChild(myPitchMeter);
-            myVideoWrap.appendChild(myPeerName);
+            myVideoWrap.appendChild(myVideoPeerName);
 
             videoMediaContainer.appendChild(myVideoWrap);
             elemDisplay(myVideoWrap, false);
@@ -3555,9 +3556,9 @@ async function loadLocalMedia(stream, kind) {
             const myScreenAvatarImage = document.createElement('img');
 
             // my screen peer name
-            myScreenPeerName.setAttribute('id', 'myScreenParagraph');
+            myScreenPeerName.setAttribute('id', 'myScreenPeerName');
             myScreenPeerName.className = 'videoPeerName notranslate';
-            myScreenPeerName.innerText = 'My Screen';
+            myScreenPeerName.innerText = myPeerName + ' (Screen)';
 
             // my screen to image
             myScreenToImgBtn.setAttribute('id', 'myScreenToImgBtn');
@@ -4082,7 +4083,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // IDs and classes
             remoteScreenPeerName.setAttribute('id', peer_id + '_screen_name');
             remoteScreenPeerName.className = 'videoPeerName';
-            remoteScreenPeerName.appendChild(document.createTextNode(peer_name + ' - screen'));
+            remoteScreenPeerName.appendChild(document.createTextNode(peer_name + ' (screen)'));
 
             // my screen to image
             remoteScreenToImgBtn.setAttribute('id', peer_id + '_screen_to_img');
@@ -7768,7 +7769,7 @@ function getAudioTrack(mediaStream) {
  * on disconnect, remove peer, kick out or leave room, we going to save it
  */
 function checkRecording() {
-    if (isStreamRecording || myVideoParagraph.innerText.includes('REC')) {
+    if (isStreamRecording || myVideoPeerName.innerText.includes('REC')) {
         console.log('Going to save recording');
         stopStreamRecording();
     }
@@ -7809,7 +7810,7 @@ function startRecordingTimer() {
         if (!isStreamRecordingPaused) {
             recElapsedTime++;
             let recTimeElapsed = secondsToHms(recElapsedTime);
-            myVideoParagraph.innerText = myPeerName + ' 🔴 REC ' + recTimeElapsed;
+            myVideoPeerName.innerText = myPeerName + ' 🔴 REC ' + recTimeElapsed;
             recordingTime.innerText = '🔴 REC ' + recTimeElapsed;
         }
     }, 1000);
@@ -8108,7 +8109,7 @@ function handleMediaRecorderStop(event) {
     emitPeersAction('recStop');
     emitPeerStatus('rec', false);
     isStreamRecording = false;
-    myVideoParagraph.innerText = myPeerName + ' (me)';
+    myVideoPeerName.innerText = myPeerName + ' (me)';
     if (isRecScreenStream) {
         recScreenStream.getTracks().forEach((track) => {
             if (track.kind === 'video') track.stop();
@@ -9575,7 +9576,10 @@ async function updateMyPeerName() {
     const myOldPeerName = myPeerName;
 
     myPeerName = myNewPeerName;
-    myVideoParagraph.innerText = myPeerName + ' (me)';
+    myVideoPeerName.innerText = myPeerName + ' (me)';
+
+    myScreenPeerName = getId('myScreenPeerName');
+    if (myScreenPeerName) myScreenPeerName.innerText = myPeerName + ' (screen)';
 
     sendToServer('peerName', {
         room_id: roomId,
@@ -9602,7 +9606,9 @@ async function updateMyPeerName() {
 function handlePeerName(config) {
     const { peer_id, peer_name, peer_avatar } = config;
     const videoName = getId(peer_id + '_name');
+    const screenName = getId(peer_id + '_screen_name');
     if (videoName) videoName.innerText = peer_name;
+    if (screenName) screenName.innerText = peer_name + ' (screen)';
     // change also avatar and btn value - name on chat lists....
     const msgerPeerName = getId(peer_id + '_pMsgBtn');
     const msgerPeerAvatar = getId(peer_id + '_pMsgAvatar');
@@ -12082,7 +12088,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.04',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.05',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
