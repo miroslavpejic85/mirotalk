@@ -8192,6 +8192,13 @@ function getWebmFixerFn() {
  */
 async function downloadRecordedStream() {
     try {
+        // Check if we have recorded data
+        if (!recordedBlobs || recordedBlobs.length === 0) {
+            console.error('No recorded data available');
+            userLog('error', 'Recording failed: No data was recorded', 6000);
+            return;
+        }
+
         const type = recordedBlobs[0].type.includes('mp4') ? 'mp4' : 'webm';
         const rawBlob = new Blob(recordedBlobs, { type: 'video/' + type });
         const recFileName = getDataTimeString() + '-REC.' + type;
