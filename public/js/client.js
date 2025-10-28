@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.02
+ * @version 1.6.03
  *
  */
 
@@ -6745,12 +6745,14 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
     if (!useVideo || !localVideoMediaStream || isFirefox) return;
 
     const videoTrack = getVideoTrack(localVideoMediaStream);
-    if (!videoTrack) return;
+    const screenTrack = getVideoTrack(localScreenMediaStream);
 
-    videoTrack
+    if (!videoTrack && !screenTrack) return;
+
+    (isScreenStreaming ? screenTrack : videoTrack)
         .applyConstraints({ frameRate: maxFrameRate })
         .then(() => {
-            logStreamSettingsInfo('setLocalMaxFps', localVideoMediaStream);
+            logStreamSettingsInfo('setLocalMaxFps', videoTrack ? localVideoMediaStream : localScreenMediaStream);
             type === 'camera'
                 ? (videoFpsSelectedIndex = videoFpsSelect.selectedIndex)
                 : (screenFpsSelectedIndex = screenFpsSelect.selectedIndex);
@@ -6768,14 +6770,18 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
  * Set local video quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 async function setLocalVideoQuality() {
-    if (!localVideoMediaStream) return;
     const videoTrack = getVideoTrack(localVideoMediaStream);
-    if (!videoTrack) return;
-    const videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
-    videoTrack
+    const screenTrack = getVideoTrack(localScreenMediaStream);
+
+    if (!videoTrack && !screenTrack) return;
+
+    const videoQuality = videoQualitySelect.value ? videoQualitySelect.value : 'default';
+    const videoConstraints = getVideoConstraints(videoQuality);
+
+    (isScreenStreaming ? screenTrack : videoTrack)
         .applyConstraints(videoConstraints)
         .then(() => {
-            logStreamSettingsInfo('setLocalVideoQuality', localVideoMediaStream);
+            logStreamSettingsInfo('setLocalVideoQuality', videoTrack ? localVideoMediaStream : localScreenMediaStream);
             videoQualitySelectedIndex = videoQualitySelect.selectedIndex;
         })
         .catch((err) => {
@@ -12056,7 +12062,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.02',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.03',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
