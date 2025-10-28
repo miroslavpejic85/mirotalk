@@ -48,6 +48,20 @@
     animation: show 0.4s ease;
 }
 
+.Screen {
+    position: relative;
+    vertical-align: middle;
+    align-self: center;
+    border-radius: 10px;
+    overflow: hidden;
+    display: inline-block;
+    background: var(--body-bg);
+    border: var(--elem-border-color);
+    box-shadow: var(--box-shadow);
+    border-radius: 10px;
+    animation: show 0.4s ease;
+}
+
 /*--------------------------------------------------------------
 # Video nav Bar
 --------------------------------------------------------------*/

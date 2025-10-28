@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.83
+ * @version 1.6.00
  *
  */
 
@@ -1353,7 +1353,7 @@ io.sockets.on('connect', async (socket) => {
         const isPresenter = peer_token ? is_presenter : isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
         // Some peer info data
-        const { osName, osVersion, browserName, browserVersion } = peer_info;
+        const { osName, osVersion, browserName, browserVersion, extras } = peer_info;
 
         // collect peers info grp by channels
         peers[channel][socket.id] = {
@@ -1370,6 +1370,7 @@ io.sockets.on('connect', async (socket) => {
             peer_privacy_status: peer_privacy_status,
             os: osName ? `${osName} ${osVersion}` : '',
             browser: browserName ? `${browserName} ${browserVersion}` : '',
+            extras: extras,
         };
 
         const activeRooms = getActiveRooms();
@@ -1601,13 +1602,14 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer status', config);
-        const { room_id, peer_name, peer_id, element, status } = config;
+        const { room_id, peer_name, peer_id, element, status, extras } = config;
 
         const data = {
             peer_id: peer_id,
             peer_name: peer_name,
             element: element,
             status: status,
+            extras: extras,
         };
 
         try {
@@ -1622,6 +1624,7 @@ io.sockets.on('connect', async (socket) => {
                             break;
                         case 'screen':
                             peers[room_id][peer_id]['peer_screen_status'] = status;
+                            if (extras) peers[room_id][peer_id]['extras'] = extras;
                             break;
                         case 'hand':
                             peers[room_id][peer_id]['peer_hand_status'] = status;
@@ -1653,8 +1656,17 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer action', config);
-        const { room_id, peer_id, peer_uuid, peer_name, peer_avatar, peer_use_video, peer_action, send_to_all } =
-            config;
+        const {
+            room_id,
+            peer_id,
+            peer_uuid,
+            peer_name,
+            peer_avatar,
+            peer_use_video,
+            peer_action,
+            extras,
+            send_to_all,
+        } = config;
 
         // Only the presenter can do this actions
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
@@ -1671,6 +1683,7 @@ io.sockets.on('connect', async (socket) => {
             peer_avatar: peer_avatar,
             peer_action: peer_action,
             peer_use_video: peer_use_video,
+            extras: extras,
         };
 
         if (send_to_all) {

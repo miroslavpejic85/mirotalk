@@ -62,7 +62,10 @@ function resizeVideoMedia() {
     if (isHideALLVideosActive) return;
 
     const videoMediaContainer = getId('videoMediaContainer');
+    // Include both Camera and Screen tiles in layout sizing
     const Cameras = getEcN('Camera');
+    const Screens = getEcN('Screen');
+    const Tiles = [...Cameras, ...Screens];
 
     const Margin = 5;
     let Width = videoMediaContainer.offsetWidth - Margin * 2;
@@ -87,7 +90,7 @@ function resizeVideoMedia() {
     // loop (i recommend you optimize this)
     let i = 1;
     while (i < 5000) {
-        let w = Area(i, Cameras.length, Width, Height, Margin);
+        let w = Area(i, Tiles.length, Width, Height, Margin);
         if (w === false) {
             max = i - 1;
             break;
@@ -96,7 +99,7 @@ function resizeVideoMedia() {
     }
 
     max = max - Margin * 2;
-    setWidth(Cameras, max, bigWidth, Margin, Height, isOneVideoElement);
+    setWidth(Tiles, max, bigWidth, Margin, Height, isOneVideoElement);
     setSP('--vmi-wh', max / 3 + 'px');
 }
 
@@ -120,17 +123,17 @@ function resetZoom() {
  * @param {integer} maxHeight
  * @param {boolean} isOneVideoElement
  */
-function setWidth(Cameras, width, bigWidth, margin, maxHeight, isOneVideoElement) {
+function setWidth(Tiles, width, bigWidth, margin, maxHeight, isOneVideoElement) {
     ratio = customRatio ? 0.68 : ratio;
-    for (let s = 0; s < Cameras.length; s++) {
-        Cameras[s].style.width = width + 'px';
-        Cameras[s].style.margin = margin + 'px';
-        Cameras[s].style.height = width * ratio + 'px';
+    for (let s = 0; s < Tiles.length; s++) {
+        Tiles[s].style.width = width + 'px';
+        Tiles[s].style.margin = margin + 'px';
+        Tiles[s].style.height = width * ratio + 'px';
         if (isOneVideoElement) {
-            Cameras[s].style.width = bigWidth + 'px';
-            Cameras[s].style.height = bigWidth * ratio + 'px';
-            let camHeigh = Cameras[s].style.height.substring(0, Cameras[s].style.height.length - 2);
-            if (camHeigh >= maxHeight) Cameras[s].style.height = maxHeight - 2 + 'px';
+            Tiles[s].style.width = bigWidth + 'px';
+            Tiles[s].style.height = bigWidth * ratio + 'px';
+            let camHeigh = Tiles[s].style.height.substring(0, Tiles[s].style.height.length - 2);
+            if (camHeigh >= maxHeight) Tiles[s].style.height = maxHeight - 2 + 'px';
         }
     }
 }

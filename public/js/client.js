@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.5.83
+ * @version 1.6.00
  *
  */
 
@@ -550,7 +550,6 @@ let pinnedVideoPlayerId = null;
 
 // connection
 let signalingSocket; // socket.io connection to our webserver
-let needToCreateOffer = false; // after session description answer
 let peerConnections = {}; // keep track of our peer connections, indexed by peer_id == socket.io id
 let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
@@ -559,6 +558,7 @@ let allPeers = {}; // keep track of all peers in the room, indexed by peer_id ==
 // stream
 let initStream; // initial webcam stream
 let localVideoMediaStream; // my webcam
+let localScreenMediaStream; // my screen share
 let localAudioMediaStream; // my microphone
 let noiseProcessor = null; // RNNoise audio processing
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
@@ -573,11 +573,13 @@ let isButtonsBarOver = false;
 
 // video
 let myVideo;
+let myScreen;
 let myAudio;
 let myVideoWrap;
 let myVideoAvatarImage;
 let myPrivacyBtn;
 let myVideoPinBtn;
+let myScreenPinBtn;
 let myPitchBar;
 let myVideoParagraph;
 let myHandStatusIcon;
@@ -678,6 +680,8 @@ let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 let redirectActive = false;
 let redirectURL = '/newcall';
 
+let needToCreateOffer = false;
+
 // GeoLocation
 const notificationService = new NotificationService({ Swal, swBg, images, playSound });
 const geoService = GeoService;
@@ -708,11 +712,13 @@ function getHtmlElementsById() {
     mySessionTime = getId('mySessionTime');
     // My video elements
     myVideo = getId('myVideo');
+    myScreen = getId('myScreen');
     myAudio = getId('myAudio');
     myVideoWrap = getId('myVideoWrap');
     myVideoAvatarImage = getId('myVideoAvatarImage');
     myPrivacyBtn = getId('myPrivacyBtn');
     myVideoPinBtn = getId('myVideoPinBtn');
+    myScreenPinBtn = getId('myScreenPinBtn');
     myPitchBar = getId('myPitchBar');
     // My username, hand/video/audio status
     myVideoParagraph = getId('myVideoParagraph');
@@ -898,6 +904,7 @@ function getPeerInfo() {
         osVersion: osVersion,
         browserName: browserName,
         browserVersion: browserVersion,
+        extras: {},
     };
 }
 
@@ -1260,6 +1267,7 @@ async function handleConnect() {
         await initEnumerateDevices();
         await setupLocalVideoMedia();
         await setupLocalAudioMedia();
+        // Create camera tile (even if no camera, to show avatar)
         if (!useVideo || (!useVideo && !useAudio)) {
             await loadLocalMedia(new MediaStream(), 'video');
         }
@@ -1850,7 +1858,7 @@ async function changeInitCamera(deviceId) {
     }
 
     // Get video constraints
-    const videoConstraints = await getVideoConstraints('default');
+    const videoConstraints = getVideoConstraints('default');
     videoConstraints['deviceId'] = { exact: deviceId };
 
     await navigator.mediaDevices
@@ -1923,7 +1931,7 @@ async function changeLocalCamera(deviceId) {
     }
 
     // Get video constraints
-    const videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+    const videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     videoConstraints['deviceId'] = { exact: deviceId };
     console.log('videoConstraints', videoConstraints);
 
@@ -2080,6 +2088,7 @@ async function whoAreYouJoin() {
     joinToChannel();
     handleHideMe(isHideMeActive);
     loadGeo();
+    await loadScreenMedia();
 }
 
 /**
@@ -2122,6 +2131,7 @@ async function handleAddPeer(config) {
 
     const peer_name = peers[peer_id]['peer_name'];
     const peer_video = peers[peer_id]['peer_video'];
+    const peer_screen = peers[peer_id]['peer_screen_status'];
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
@@ -2135,6 +2145,15 @@ async function handleAddPeer(config) {
     peerConnections[peer_id] = peerConnection;
 
     allPeers = peers;
+    // Ensure extras object exists for every peer to avoid undefined checks later
+    try {
+        for (const id in allPeers) {
+            if (!allPeers[id]) continue;
+            if (!allPeers[id].extras) allPeers[id].extras = {};
+        }
+    } catch (e) {
+        console.warn('[INIT EXTRAS] failed to normalize peers extras', e);
+    }
 
     console.log('[RTCPeerConnection] - PEER_ID', peer_id); // the connected peer_id
     console.log('[RTCPeerConnection] - PEER-CONNECTIONS', peerConnections); // all peers connections in the room expect myself
@@ -2153,9 +2172,8 @@ async function handleAddPeer(config) {
     await handleOnIceCandidate(peer_id);
     await handleRTCDataChannels(peer_id);
     await handleOnTrack(peer_id, peers);
-    await handleAddTracks(peer_id);
 
-    if (!peer_video && !needToCreateOffer) {
+    if ((!peer_video || !peer_screen) && !needToCreateOffer) {
         needToCreateOffer = true;
     }
     if (should_create_offer) {
@@ -2163,9 +2181,14 @@ async function handleAddPeer(config) {
         console.log('[RTCPeerConnection] - SHOULD CREATE OFFER', {
             peer_id: peer_id,
             peer_name: peer_name,
+            role: 'offerer',
         });
     }
 
+    // Add tracks (this will trigger onnegotiationneeded if needed)
+    await handleAddTracks(peer_id);
+
+    // Create camera tile for peer without camera to show their avatar
     if (!peer_video) {
         await loadRemoteMediaStream(new MediaStream(), peers, peer_id, 'video');
     }
@@ -2267,67 +2290,172 @@ async function handleOnTrack(peer_id, peers) {
 
     peerConnections[peer_id].ontrack = (event) => {
         const remoteVideoStream = getId(`${peer_id}___video`);
+        const remoteScreenStream = getId(`${peer_id}___screen`);
         const remoteAudioStream = getId(`${peer_id}___audio`);
-        const remoteAvatarImage = getId(`${peer_id}_avatar`);
 
-        const peerInfo = peers[peer_id];
-        const { peer_name } = peerInfo;
-        const { kind } = event.track;
+        // Prefer the latest global allPeers record over the captured peers param
+        const livePeerInfo =
+            typeof allPeers !== 'undefined' && allPeers && allPeers[peer_id] ? allPeers[peer_id] : null;
+        // Fallback to the captured peers param if needed
+        const peerInfo = livePeerInfo || (peers && peers[peer_id] ? peers[peer_id] : {});
+        const peer_name = peerInfo.peer_name || 'Unknown';
 
-        console.log('[ON TRACK] - info', { peer_id, peer_name, kind });
+        // Safely determine the kind of the incoming track
+        const kind =
+            event?.track?.kind || (event?.streams && event.streams[0] && event.streams[0].getTracks()[0]?.kind) || null;
+
+        // If we cannot determine the kind, log and return to avoid runtime errors
+        if (!kind) {
+            console.warn('[ON TRACK] - Unable to determine track kind', event);
+            return;
+        }
 
         if (event.streams && event.streams[0]) {
-            console.log('[ON TRACK] - peers', peers);
+            const inbound = event.streams[0];
+            const trackId = event.track.id;
+            const streamId = inbound.id;
+            const label = (event.track && event.track.label) || '';
+            const settings =
+                event.track && typeof event.track.getSettings === 'function' ? event.track.getSettings() : {};
+            const displaySurface = settings && settings.displaySurface;
+
+            console.log('[ON TRACK] - Full details ->', {
+                peer_id,
+                peer_name,
+                kind,
+                trackId,
+                streamId,
+                label,
+                displaySurface,
+                peer_video_status: peerInfo.peer_video_status,
+                peer_screen_status: peerInfo.peer_screen_status,
+                extras: peerInfo.extras,
+            });
 
             switch (kind) {
+                case 'screen':
                 case 'video':
-                    remoteVideoStream
-                        ? attachMediaStream(remoteVideoStream, event.streams[0])
-                        : loadRemoteMediaStream(event.streams[0], peers, peer_id, kind);
+                    // SCREEN CLASSIFICATION
+                    const mainHasScreen =
+                        remoteScreenStream &&
+                        remoteScreenStream.srcObject &&
+                        hasVideoTrack(remoteScreenStream.srcObject);
+
+                    const extras = peerInfo && peerInfo.extras ? peerInfo.extras : {};
+
+                    // Tier 1: ID-based matching (most reliable)
+                    const idMatch =
+                        (extras && extras.screen_track_id === trackId) ||
+                        (extras && extras.screen_stream_id === streamId);
+
+                    // Tier 2: Label-based (less reliable)
+                    const labelScreenDetection = /screen|window|monitor|display/i.test(label);
+
+                    // Tier 3: Status-based fallback (screen on, camera off)
+                    const fallbackScreen = !!peerInfo.peer_screen_status && !peerInfo.peer_video_status;
+
+                    console.log('[ON TRACK] - Classification ->', {
+                        idMatch,
+                        labelScreenDetection,
+                        fallbackScreen,
+                        extras,
+                    });
+
+                    // SCREEN
+                    if (idMatch || labelScreenDetection || fallbackScreen) {
+                        console.log(`[ON TRACK] - CLASSIFIED AS SCREEN -> ${peer_name}`, {
+                            reason: idMatch ? 'ID_MATCH' : labelScreenDetection ? 'LABEL' : 'FALLBACK',
+                        });
+                        if (!mainHasScreen) {
+                            loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'screen');
+                        } else {
+                            attachMediaStream(remoteScreenStream, inbound);
+                            elemDisplay(remoteScreenStream, true, 'block');
+                        }
+                        return;
+                    }
+
+                    // CAMERA
+                    const mainHasVideo =
+                        remoteVideoStream && remoteVideoStream.srcObject && hasVideoTrack(remoteVideoStream.srcObject);
+
+                    if (peerInfo.peer_video_status) {
+                        console.log(`[ON TRACK] - CLASSIFIED AS VIDEO -> ${peer_name}`);
+                        if (!mainHasVideo) {
+                            loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'video');
+                        } else {
+                            attachMediaStream(remoteVideoStream, inbound);
+                            elemDisplay(remoteVideoStream, true, 'block');
+                        }
+                        return;
+                    }
+
+                    // Fallback: default to camera tile (unknown state)
+                    console.log(`[ON TRACK] - CLASSIFIED AS VIDEO (fallback) -> ${peer_name}`);
+                    if (!mainHasVideo) {
+                        loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'video');
+                    } else {
+                        attachMediaStream(remoteVideoStream, inbound);
+                        elemDisplay(remoteVideoStream, true, 'block');
+                    }
                     break;
                 case 'audio':
-                    remoteAudioStream && isAudioTrack
-                        ? attachMediaStream(remoteAudioStream, event.streams[0])
-                        : loadRemoteMediaStream(event.streams[0], peers, peer_id, kind);
+                    console.log(`[ON TRACK] - CLASSIFIED AS AUDIO -> ${peer_name}`);
+                    remoteAudioStream && hasAudioTrack(inbound)
+                        ? attachMediaStream(remoteAudioStream, inbound)
+                        : loadRemoteMediaStream(inbound, allPeers || peers, peer_id, kind);
                     break;
                 default:
                     break;
             }
         } else {
-            console.log('[ON TRACK] - SCREEN SHARING', { peer_id, peer_name, kind });
-            // Create a new screen share video stream from track video (refreshMyStreamToPeers)
-            const inboundStream = new MediaStream([event.track]);
-            attachMediaStream(remoteVideoStream, inboundStream);
-            elemDisplay(remoteAvatarImage, false);
-            elemDisplay(remoteVideoStream, true, 'block');
+            console.warn('[ON TRACK] - No streams found in event', event);
+            return;
         }
     };
 }
 
 /**
- * Add my localVideoMediaStream and localAudioMediaStream Tracks to connected peer
+ * Add my localVideoMediaStream, localScreenMediaStream and localAudioMediaStream Tracks to connected peer
  * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/addTrack
  * @param {string} peer_id socket.id
  */
 async function handleAddTracks(peer_id) {
+    const pc = peerConnections[peer_id];
     const peer_name = allPeers[peer_id]['peer_name'];
 
-    const videoTrack = localVideoMediaStream && localVideoMediaStream.getVideoTracks()[0];
-    const audioTrack = localAudioMediaStream && localAudioMediaStream.getAudioTracks()[0];
+    const videoTrack =
+        localVideoMediaStream && hasVideoTrack(localVideoMediaStream)
+            ? localVideoMediaStream.getVideoTracks()[0]
+            : null;
+    const screenTrack =
+        localScreenMediaStream && hasVideoTrack(localScreenMediaStream)
+            ? localScreenMediaStream.getVideoTracks()[0]
+            : null;
+    const audioTrack =
+        localAudioMediaStream && hasAudioTrack(localAudioMediaStream)
+            ? localAudioMediaStream.getAudioTracks()[0]
+            : null;
 
     console.log('handleAddTracks', {
         videoTrack: videoTrack,
+        screenTrack: screenTrack,
         audioTrack: audioTrack,
     });
 
     if (videoTrack) {
         console.log('[ADD VIDEO TRACK] to Peer Name [' + peer_name + ']');
-        await peerConnections[peer_id].addTrack(videoTrack, localVideoMediaStream);
+        await pc.addTrack(videoTrack, localVideoMediaStream);
+    }
+
+    if (screenTrack) {
+        console.log('[ADD SCREEN TRACK] to Peer Name [' + peer_name + ']');
+        await pc.addTrack(screenTrack, localScreenMediaStream);
     }
 
     if (audioTrack) {
         console.log('[ADD AUDIO TRACK] to Peer Name [' + peer_name + ']');
-        await peerConnections[peer_id].addTrack(audioTrack, localAudioMediaStream);
+        await pc.addTrack(audioTrack, localAudioMediaStream);
     }
 }
 
@@ -3073,7 +3201,7 @@ async function setupLocalVideoMedia() {
 
     console.log('Requesting access to video inputs');
 
-    const videoConstraints = useVideo ? await getVideoConstraints('default') : false;
+    const videoConstraints = useVideo ? getVideoConstraints('default') : false;
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
@@ -3360,6 +3488,7 @@ async function loadLocalMedia(stream, kind) {
 
             logStreamSettingsInfo('localVideoMediaStream', stream);
             attachMediaStream(myLocalMedia, stream);
+
             adaptAspectRatio();
 
             handleVideoToggleMirror(myLocalMedia.id, myVideoMirrorBtn.id);
@@ -3377,7 +3506,14 @@ async function loadLocalMedia(stream, kind) {
             if (showVideoPipBtn && buttons.local.showVideoPipBtn)
                 handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id, myPeerId);
 
-            ZOOM_IN_OUT_ENABLED && handleVideoZoomInOut(myVideoZoomInBtn.id, myVideoZoomOutBtn.id, myLocalMedia.id);
+            ZOOM_IN_OUT_ENABLED &&
+                handleVideoZoomInOut(
+                    myVideoStatusIcon.id,
+                    myVideoWrap.id,
+                    myVideoZoomInBtn.id,
+                    myVideoZoomOutBtn.id,
+                    myLocalMedia.id
+                );
 
             refreshMyVideoStatus(stream);
 
@@ -3397,6 +3533,131 @@ async function loadLocalMedia(stream, kind) {
                     setTippy(myAudioStatusIcon, 'My audio is disabled', 'bottom');
                 }
             }
+            break;
+        case 'screen':
+            //alert('local screen');
+            console.log('SETUP LOCAL SCREEN STREAM');
+
+            // local screen elements
+            const myScreenWrap = document.createElement('div');
+            const myScreenMedia = document.createElement('video');
+
+            // html elements
+            const myScreenNavBar = document.createElement('div');
+            const myScreenPeerName = document.createElement('p');
+            const myScreenToImgBtn = document.createElement('button');
+            const myScreenFullScreenBtn = document.createElement('button');
+            const myScreenPinBtn = document.createElement('button');
+            const myScreenZoomInBtn = document.createElement('button');
+            const myScreenZoomOutBtn = document.createElement('button');
+            const myScreenPiPBtn = document.createElement('button');
+            const myScreenAvatarImage = document.createElement('img');
+
+            // my screen peer name
+            myScreenPeerName.setAttribute('id', 'myScreenParagraph');
+            myScreenPeerName.className = 'videoPeerName notranslate';
+            myScreenPeerName.innerText = 'My Screen';
+
+            // my screen to image
+            myScreenToImgBtn.setAttribute('id', 'myScreenToImgBtn');
+            myScreenToImgBtn.className = className.snapShot;
+
+            // my screen full screen mode
+            myScreenFullScreenBtn.setAttribute('id', 'myScreenFullScreenBtn');
+            myScreenFullScreenBtn.className = className.fullScreen;
+
+            // my screen zoomIn/Out
+            myScreenZoomInBtn.setAttribute('id', 'myScreenZoomInBtn');
+            myScreenZoomInBtn.className = className.zoomIn;
+            myScreenZoomOutBtn.setAttribute('id', 'myScreenZoomOutBtn');
+            myScreenZoomOutBtn.className = className.zoomOut;
+
+            // my screen Picture in Picture
+            myScreenPiPBtn.setAttribute('id', 'myScreenPiPBtn');
+            myScreenPiPBtn.className = className.pip;
+
+            // my screen pin/unpin button
+            myScreenPinBtn.setAttribute('id', 'myScreenPinBtn');
+            myScreenPinBtn.className = className.pinUnpin;
+
+            // no mobile devices
+            if (!isMobileDevice) {
+                setTippy(myScreenToImgBtn, 'Take a snapshot', 'bottom');
+                setTippy(myScreenFullScreenBtn, 'Full screen mode', 'bottom');
+                setTippy(myScreenZoomInBtn, 'Zoom in screen', 'bottom');
+                setTippy(myScreenZoomOutBtn, 'Zoom out screen', 'bottom');
+                setTippy(myScreenPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(myScreenPinBtn, 'Toggle Pin screen', 'bottom');
+            }
+
+            // my screen avatar image
+            myScreenAvatarImage.setAttribute('id', 'myScreenAvatarImage');
+            myScreenAvatarImage.className = 'videoAvatarImage'; // pulsate
+
+            // my screen nav bar
+            myScreenNavBar.className = 'navbar fadein';
+
+            // attach to screen nav bar
+            !isMobileDevice && myScreenNavBar.appendChild(myScreenPinBtn);
+
+            buttons.local.showSnapShotBtn && myScreenNavBar.appendChild(myScreenToImgBtn);
+
+            myScreenNavBar.appendChild(myScreenPiPBtn);
+
+            if (buttons.local.showZoomInOutBtn) {
+                myScreenNavBar.appendChild(myScreenZoomInBtn);
+                myScreenNavBar.appendChild(myScreenZoomOutBtn);
+            }
+
+            isVideoFullScreenSupported && myScreenNavBar.appendChild(myScreenFullScreenBtn);
+
+            myScreenMedia.setAttribute('id', 'myScreen');
+            myScreenMedia.setAttribute('playsinline', true);
+            myScreenMedia.style.objectFit = 'contain';
+            myScreenMedia.className = '';
+            myScreenMedia.autoplay = true;
+            myScreenMedia.muted = true;
+            myScreenMedia.volume = 0;
+            myScreenMedia.controls = false;
+            myScreenMedia.poster = images.poster;
+
+            myScreenWrap.className = 'Screen';
+            myScreenWrap.setAttribute('id', 'myScreenWrap');
+
+            // add elements to screen wrap div
+            myScreenWrap.appendChild(myScreenNavBar);
+            myScreenWrap.appendChild(myScreenAvatarImage);
+            myScreenWrap.appendChild(myScreenMedia);
+            myScreenWrap.appendChild(myScreenPeerName);
+
+            videoMediaContainer.appendChild(myScreenWrap);
+            // Show my screen tile immediately when created
+            elemDisplay(myScreenWrap, true, 'inline-block');
+
+            logStreamSettingsInfo('localScreenMediaStream', stream);
+            attachMediaStream(myScreenMedia, stream);
+
+            adaptAspectRatio();
+
+            buttons.local.showSnapShotBtn && handleVideoToImg(myScreenMedia.id, myScreenToImgBtn.id);
+
+            isVideoFullScreenSupported && handleVideoPlayerFs(myScreenMedia.id, myScreenFullScreenBtn.id);
+
+            handleVideoPinUnpin(myScreenMedia.id, myScreenPinBtn.id, myScreenWrap.id, myScreenMedia.id, true);
+
+            myScreenPinBtn.click();
+
+            if (showVideoPipBtn && buttons.local.showVideoPipBtn)
+                handlePictureInPicture(myScreenPiPBtn.id, myScreenMedia.id, myPeerId);
+
+            ZOOM_IN_OUT_ENABLED &&
+                handleVideoZoomInOut(
+                    '',
+                    myScreenWrap.id,
+                    myScreenZoomInBtn.id,
+                    myScreenZoomOutBtn.id,
+                    myScreenMedia.id
+                );
             break;
         case 'audio':
             //alert('local audio');
@@ -3681,8 +3942,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteMedia.setAttribute('playsinline', true);
             remoteMedia.autoplay = true;
             remoteMediaControls = isMobileDevice ? false : remoteMediaControls;
-            remoteMedia.style.objectFit = peer_screen_status ? 'contain' : 'var(--video-object-fit)';
-            remoteMedia.style.name = peer_id + (peer_screen_status ? '_typeScreen' : '_typeCam');
+            remoteMedia.style.objectFit = 'var(--video-object-fit)';
+            remoteMedia.style.name = peer_id + '_typeCam';
             remoteMedia.controls = remoteMediaControls;
             remoteMedia.poster = images.poster;
 
@@ -3704,6 +3965,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             videoMediaContainer.appendChild(remoteVideoWrap);
             // attachMediaStream is a part of the adapter.js library
             attachMediaStream(remoteMedia, stream);
+
             // resize video elements
             adaptAspectRatio();
 
@@ -3711,7 +3973,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             buttons.remote.showSnapShotBtn && handleVideoToImg(remoteMedia.id, remoteVideoToImgBtn.id, peer_id);
 
             // handle video pin/unpin
-            handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id, peer_screen_status);
+            handleVideoPinUnpin(remoteMedia.id, remoteVideoPinBtn.id, remoteVideoWrap.id, peer_id);
 
             // handle video focus mode
             handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap, remoteMedia);
@@ -3725,12 +3987,14 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // handle video zoomIn/Out
             ZOOM_IN_OUT_ENABLED &&
-                handleVideoZoomInOut(remoteVideoZoomInBtn.id, remoteVideoZoomOutBtn.id, remoteMedia.id, peer_id);
-
-            // pin video on screen share detected
-            if (peer_video_status && peer_screen_status) {
-                remoteVideoPinBtn.click();
-            }
+                handleVideoZoomInOut(
+                    '',
+                    remoteVideoWrap.id,
+                    remoteVideoZoomInBtn.id,
+                    remoteVideoZoomOutBtn.id,
+                    remoteMedia.id,
+                    peer_id
+                );
 
             // handle video full screen mode
             isVideoFullScreenSupported && handleVideoPlayerFs(remoteMedia.id, remoteVideoFullScreenBtn.id, peer_id);
@@ -3772,15 +4036,142 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // notify if peer started to recording own screen + audio
             if (peer_rec_status) notifyRecording(peer_id, peer_name, peer_avatar, 'Started');
 
-            // Peer without camera, screen sharing OFF
-            if (!peer_video && !peer_screen_status) {
+            // Handle different video/screen states
+            if (!peer_video_status && !peer_screen_status) {
+                // Camera OFF, Screen OFF - show avatar
+                console.log('[LOAD REMOTE] Camera OFF, Screen OFF - showing avatar');
+                videoIsOff();
+            } else if (!peer_video_status && peer_screen_status) {
+                // Camera OFF, Screen ON - show avatar on video tile, screen tile will be created when track arrives
+                console.log('[LOAD REMOTE] Camera OFF, Screen ON - showing avatar, waiting for screen track');
+                videoIsOff();
+            } else if (peer_video_status && !peer_screen_status) {
+                // Camera ON, Screen OFF - video track will show
+                console.log('[LOAD REMOTE] Camera ON, Screen OFF - video track active');
+                // Avatar hidden by default, video track will display
+            } else {
+                // Both camera and screen on
+                console.log('[LOAD REMOTE] Both Camera and Screen ON');
+            }
+
+            function videoIsOff() {
+                elemDisplay(remoteMedia, false);
                 elemDisplay(remoteVideoAvatarImage, true, 'block');
                 remoteVideoStatusIcon.className = className.videoOff;
             }
-            // Peer without camera, screen sharing ON
-            if (!peer_video && peer_screen_status) {
-                handleScreenStart(peer_id);
+            break;
+        case 'screen':
+            console.log('SETUP REMOTE SCREEN STREAM');
+
+            // Remote screen elements
+            const remoteScreenWrap = document.createElement('div');
+            const remoteScreenMedia = document.createElement('video');
+
+            // html elements
+            const remoteScreenNavBar = document.createElement('div');
+            const remoteScreenPeerName = document.createElement('p');
+            const remoteScreenToImgBtn = document.createElement('button');
+            const remoteScreenFullScreenBtn = document.createElement('button');
+            const remoteScreenPinBtn = document.createElement('button');
+            const remoteScreenZoomInBtn = document.createElement('button');
+            const remoteScreenZoomOutBtn = document.createElement('button');
+            const remoteScreenPiPBtn = document.createElement('button');
+            const remoteScreenAvatarImage = document.createElement('img');
+
+            // IDs and classes
+            remoteScreenPeerName.setAttribute('id', peer_id + '_screen_name');
+            remoteScreenPeerName.className = 'videoPeerName';
+            remoteScreenPeerName.appendChild(document.createTextNode(peer_name + ' - screen'));
+
+            // my screen to image
+            remoteScreenToImgBtn.setAttribute('id', peer_id + '_screen_to_img');
+            remoteScreenToImgBtn.className = className.snapShot;
+
+            remoteScreenFullScreenBtn.setAttribute('id', peer_id + '_screen_fullScreen');
+            remoteScreenFullScreenBtn.className = className.fullScreen;
+
+            remoteScreenZoomInBtn.setAttribute('id', peer_id + 'screenZoomIn');
+            remoteScreenZoomInBtn.className = className.zoomIn;
+            remoteScreenZoomOutBtn.setAttribute('id', peer_id + 'screenZoomOut');
+            remoteScreenZoomOutBtn.className = className.zoomOut;
+
+            remoteScreenPiPBtn.setAttribute('id', peer_id + 'screenPIP');
+            remoteScreenPiPBtn.className = className.pip;
+
+            remoteScreenPinBtn.setAttribute('id', peer_id + '_screen_pinUnpin');
+            remoteScreenPinBtn.className = className.pinUnpin;
+
+            if (!isMobileDevice) {
+                setTippy(remoteScreenPeerName, 'Participant screen', 'bottom');
+                setTippy(remoteScreenToImgBtn, 'Take a snapshot', 'bottom');
+                setTippy(remoteScreenFullScreenBtn, 'Full screen mode', 'bottom');
+                setTippy(remoteScreenZoomInBtn, 'Zoom in screen', 'bottom');
+                setTippy(remoteScreenZoomOutBtn, 'Zoom out screen', 'bottom');
+                setTippy(remoteScreenPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(remoteScreenPinBtn, 'Toggle Pin screen', 'bottom');
             }
+
+            remoteScreenAvatarImage.setAttribute('id', peer_id + '_screen_avatar');
+            remoteScreenAvatarImage.className = 'videoAvatarImage';
+
+            remoteScreenNavBar.className = 'navbar fadein';
+            !isMobileDevice && remoteScreenNavBar.appendChild(remoteScreenPinBtn);
+
+            buttons.remote.showSnapShotBtn && remoteScreenNavBar.appendChild(remoteScreenToImgBtn);
+
+            remoteScreenNavBar.appendChild(remoteScreenPiPBtn);
+            if (buttons.remote.showZoomInOutBtn) {
+                remoteScreenNavBar.appendChild(remoteScreenZoomInBtn);
+                remoteScreenNavBar.appendChild(remoteScreenZoomOutBtn);
+            }
+            isVideoFullScreenSupported && remoteScreenNavBar.appendChild(remoteScreenFullScreenBtn);
+
+            remoteScreenMedia.setAttribute('id', peer_id + '___screen');
+            remoteScreenMedia.setAttribute('playsinline', true);
+            remoteScreenMedia.autoplay = true;
+            remoteScreenMedia.controls = remoteMediaControls;
+            remoteScreenMedia.style.objectFit = 'contain';
+            remoteScreenMedia.style.name = peer_id + '_typeScreen';
+
+            remoteScreenMedia.poster = images.poster;
+
+            remoteScreenWrap.className = 'Screen';
+            remoteScreenWrap.setAttribute('id', peer_id + '_screenWrap');
+            remoteScreenWrap.style.display = isHideALLVideosActive ? 'none' : 'block';
+
+            remoteScreenWrap.appendChild(remoteScreenNavBar);
+            remoteScreenWrap.appendChild(remoteScreenAvatarImage);
+            remoteScreenWrap.appendChild(remoteScreenMedia);
+            remoteScreenWrap.appendChild(remoteScreenPeerName);
+
+            videoMediaContainer.appendChild(remoteScreenWrap);
+            attachMediaStream(remoteScreenMedia, stream);
+            adaptAspectRatio();
+
+            // screen to image
+            buttons.remote.showSnapShotBtn && handleVideoToImg(remoteScreenMedia.id, remoteScreenToImgBtn.id);
+
+            // pin/unpin video
+            handleVideoPinUnpin(remoteScreenMedia.id, remoteScreenPinBtn.id, remoteScreenWrap.id, peer_id, true);
+
+            // pin video on screen share
+            remoteScreenPinBtn.click();
+
+            if (showVideoPipBtn && buttons.remote.showVideoPipBtn)
+                handlePictureInPicture(remoteScreenPiPBtn.id, remoteScreenMedia.id, peer_id);
+
+            ZOOM_IN_OUT_ENABLED &&
+                handleVideoZoomInOut(
+                    '',
+                    remoteScreenWrap.id,
+                    remoteScreenZoomInBtn.id,
+                    remoteScreenZoomOutBtn.id,
+                    remoteScreenMedia.id,
+                    peer_id
+                );
+
+            isVideoFullScreenSupported &&
+                handleVideoPlayerFs(remoteScreenMedia.id, remoteScreenFullScreenBtn.id, peer_id);
             break;
         case 'audio':
             // alert('remote audio');
@@ -3789,6 +4180,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteAudioWrap = document.createElement('div');
             const remoteAudioMedia = document.createElement('audio');
             const remoteAudioVolumeId = peer_id + '_audioVolume';
+            const remoteAudioVolumeEl = getId(remoteAudioVolumeId);
             remoteAudioMedia.id = peer_id + '___audio';
             remoteAudioMedia.autoplay = true;
             remoteAudioMedia.audio = 1.0;
@@ -3799,7 +4191,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // handle remote peers audio volume
             handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
             // Toggle visibility of volume control based on the audio status of the peer
-            elemDisplay(getId(remoteAudioVolumeId), peer_audio_status);
+            if (remoteAudioVolumeEl) elemDisplay(remoteAudioVolumeEl, peer_audio_status);
             // Change audio output...
             if (sinkId && audioOutputSelect.value) await changeAudioDestination(remoteAudioMedia);
             break;
@@ -4285,7 +4677,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
                 if (isScreen || videoPlayer.style.name == peerId + '_typeScreen')
                     videoPlayer.style.objectFit = 'contain';
                 videoPinMediaContainer.removeChild(cam);
-                cam.className = 'Camera';
+                cam.className = isScreen ? 'Screen' : 'Camera';
                 videoMediaContainer.appendChild(cam);
                 removeVideoPinMediaContainer(peerId, true);
                 setColor(btnPn, 'white');
@@ -4371,9 +4763,9 @@ function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap, remoteMedia)
  * @param {string} mediaId
  * @param {string} peerId
  */
-function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null) {
-    const id = peerId ? peerId + '_videoStatus' : 'myVideoStatusIcon';
-    const videoWrap = getId(peerId ? peerId + '_videoWrap' : 'myVideoWrap');
+function handleVideoZoomInOut(statusId, videoWrapId, zoomInBtnId, zoomOutBtnId, mediaId, peerId = null) {
+    const id = statusId;
+    const videoWrap = getId(videoWrapId);
     const zoomIn = getId(zoomInBtnId);
     const zoomOut = getId(zoomOutBtnId);
     const video = getId(mediaId);
@@ -4468,10 +4860,10 @@ function handleVideoZoomInOut(zoomInBtnId, zoomOutBtnId, mediaId, peerId = null)
 
     function isVideoOf(id) {
         const videoStatusBtn = getId(id);
-        return videoStatusBtn.className === className.videoOff;
+        return videoStatusBtn && videoStatusBtn.className === className.videoOff;
     }
     function isVideoPrivacyMode() {
-        return video.classList.contains('videoCircle');
+        return video && video.classList.contains('videoCircle');
     }
 }
 
@@ -4526,7 +4918,10 @@ function handlePictureInPicture(btnId, videoId, peerId) {
 function removeVideoPinMediaContainer(peer_id, force_remove = false) {
     //alert(pinnedVideoPlayerId + '==' + peer_id);
     if (
-        (isVideoPinned && (pinnedVideoPlayerId == peer_id + '___video' || pinnedVideoPlayerId == peer_id)) ||
+        (isVideoPinned &&
+            (pinnedVideoPlayerId == peer_id + '___video' ||
+                pinnedVideoPlayerId == peer_id + '___screen' ||
+                pinnedVideoPlayerId == peer_id)) ||
         force_remove
     ) {
         elemDisplay(videoPinMediaContainer, false);
@@ -6239,19 +6634,22 @@ function handleUsernameEmojiPicker() {
  */
 function toggleInitVideoMirror() {
     initVideo.classList.toggle('mirror');
-    myVideo.classList.toggle('mirror');
+    // myVideo may not exist yet before joining/creating local tile
+    if (typeof myVideo !== 'undefined' && myVideo) {
+        myVideo.classList.toggle('mirror');
+    }
 }
 
 /**
  * Get audio - video constraints
  * @returns {object} audio - video constraints
  */
-async function getAudioVideoConstraints() {
+function getAudioVideoConstraints() {
     const audioSource = audioInputSelect.value;
     const videoSource = videoSelect.value;
     let videoConstraints = useVideo;
     if (videoConstraints) {
-        videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+        videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
         videoConstraints['deviceId'] = videoSource ? { exact: videoSource } : undefined;
     }
     let audioConstraints = { audio: false };
@@ -6270,7 +6668,7 @@ async function getAudioVideoConstraints() {
  * @param {string} videoQuality desired video quality
  * @returns {object} video constraints
  */
-async function getVideoConstraints(videoQuality) {
+function getVideoConstraints(videoQuality) {
     const frameRate = videoMaxFrameRate;
 
     // Function to construct constraints with ideal or exact width/height
@@ -6360,7 +6758,7 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
             type === 'camera'
                 ? (videoFpsSelect.selectedIndex = videoFpsSelectedIndex)
                 : (screenFpsSelect.selectedIndex = screenFpsSelectedIndex);
-            userLog('error', "Your device doesn't support the selected fps, please select the another one.");
+            userLog('toast', "Your device doesn't support the selected fps, please select the another one.");
         });
 }
 
@@ -6369,7 +6767,7 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
  */
 async function setLocalVideoQuality() {
     if (!localVideoMediaStream) return;
-    const videoConstraints = await getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
+    const videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
     localVideoMediaStream
         .getVideoTracks()[0]
         .applyConstraints(videoConstraints)
@@ -6380,7 +6778,7 @@ async function setLocalVideoQuality() {
         .catch((err) => {
             videoQualitySelect.selectedIndex = videoQualitySelectedIndex;
             console.error('setLocalVideoQuality', err);
-            userLog('error', "Your device doesn't support the selected video quality, please select the another one.");
+            userLog('toast', "Your device doesn't support the selected video quality, please select the another one.");
         });
 }
 
@@ -6859,6 +7257,16 @@ async function stopLocalAudioTrack() {
 }
 
 /**
+ * Load Screen media to video element
+ */
+async function loadScreenMedia() {
+    // If user started screen sharing before joining, create the screen tile now
+    if (myScreenStatus && localScreenMediaStream) {
+        await loadLocalMedia(localScreenMediaStream, 'screen');
+    }
+}
+
+/**
  * Toggle screen sharing and handle related actions
  * @param {boolean} init - Indicates if it's the initial screen share state
  */
@@ -6869,11 +7277,11 @@ async function toggleScreenSharing(init = false) {
 
         // Screen share constraints
         const constraints = {
-            audio: myAudioStatus ? false : true,
+            audio: myAudioStatus ? false : true, // If camera mic is OFF, include screen audio
             video: { frameRate: screenMaxFrameRate },
         };
 
-        // Store webcam video status before screen sharing
+        // Remember webcam status before starting screen share
         if (!isScreenStreaming) {
             myVideoStatusBefore = myVideoStatus;
             console.log('My video status before screen sharing: ' + myVideoStatusBefore);
@@ -6883,81 +7291,148 @@ async function toggleScreenSharing(init = false) {
             }
         }
 
-        // Get screen or webcam media stream based on current state
-        const screenMediaPromise = isScreenStreaming
-            ? await navigator.mediaDevices.getUserMedia(await getAudioVideoConstraints())
-            : await navigator.mediaDevices.getDisplayMedia(constraints);
+        // Reset privacy on toggle
+        isVideoPrivacyActive = false;
+        if (!init) emitPeerStatus('privacy', isVideoPrivacyActive);
 
-        if (screenMediaPromise) {
-            isVideoPrivacyActive = false;
-            emitPeerStatus('privacy', isVideoPrivacyActive);
+        if (!isScreenStreaming) {
+            // START screen sharing
+            const displayStream = await navigator.mediaDevices.getDisplayMedia(constraints);
+            if (!displayStream) return;
 
-            isScreenStreaming = !isScreenStreaming;
-            myScreenStatus = isScreenStreaming;
+            // Keep only video track for local screen UI stream
+            const screenVideoTrack = displayStream.getVideoTracks()[0];
+            localScreenMediaStream = new MediaStream([screenVideoTrack]);
 
-            if (isScreenStreaming) {
-                setMyVideoStatusTrue();
-                emitPeersAction('screenStart');
-            } else {
-                emitPeersAction('screenStop');
-                adaptAspectRatio();
-                // Reset zoom
-                myVideo.style.transform = '';
-                myVideo.style.transformOrigin = 'center';
+            // Update state
+            isScreenStreaming = true;
+            myScreenStatus = true;
+
+            // Deterministic routing identifiers
+            const extras = (() => {
+                try {
+                    const track =
+                        localScreenMediaStream && hasVideoTrack(localScreenMediaStream)
+                            ? localScreenMediaStream.getVideoTracks()[0]
+                            : null;
+                    return track
+                        ? { screen_track_id: track.id, screen_stream_id: localScreenMediaStream.id }
+                        : undefined;
+                } catch (e) {
+                    return undefined;
+                }
+            })();
+
+            // Only emit and create tile when in-room (not during init)
+            if (!init) {
+                if (extras) {
+                    try {
+                        peerInfo.extras = { ...(peerInfo.extras || {}), ...extras };
+                    } catch (_) {}
+                    await emitPeerStatus('screen', true, extras);
+                    emitPeersAction('screenStart', extras);
+                } else {
+                    await emitPeerStatus('screen', true);
+                    emitPeersAction('screenStart');
+                }
+                await loadScreenMedia();
+
+                // Push screen audio to peers if mic is OFF
+                const includeScreenAudio = hasAudioTrack(displayStream) && !myAudioStatus;
+                await refreshMyStreamToPeers(includeScreenAudio ? displayStream : undefined, includeScreenAudio);
+                await setLocalVideoQuality();
             }
 
-            await emitPeerStatus('screen', myScreenStatus);
+            // Auto-stop handler from browser picker
+            screenVideoTrack.onended = () => {
+                if (isScreenStreaming) toggleScreenSharing(init);
+            };
 
-            await stopLocalVideoTrack();
-            await refreshMyLocalStream(screenMediaPromise, !useAudio);
-            await refreshMyStreamToPeers(screenMediaPromise, !useAudio);
-            await setLocalVideoQuality();
-
+            // Update init preview only (no tiles/emits)
             if (init) {
-                // Handle init media stream
                 if (initStream) await stopTracks(initStream);
-                initStream = screenMediaPromise;
+                initStream = displayStream;
                 if (hasVideoTrack(initStream)) {
                     const newInitStream = new MediaStream([initStream.getVideoTracks()[0]]);
                     elemDisplay(initVideo, true, 'block');
                     initVideo.classList.toggle('mirror');
                     initVideo.srcObject = newInitStream;
-                    disable(initVideoSelect, isScreenStreaming);
-                    disable(initVideoBtn, isScreenStreaming);
+                    disable(initVideoSelect, true);
+                    disable(initVideoBtn, true);
                 } else {
                     elemDisplay(initVideo, false);
                 }
-                if (!useVideo) {
-                    initVideoContainerShow(isScreenStreaming);
-                }
+                if (!useVideo) initVideoContainerShow(true);
+            }
+        } else {
+            // STOP screen sharing
+            const myScreenWrap = getId('myScreenWrap');
+            const myScreenPinBtn = getId('myScreenPinBtn');
+
+            // Unpin if pinned (in-room only)
+            if (!init && myScreenWrap && isVideoPinned && pinnedVideoPlayerId === 'myScreen') {
+                console.log('[STOP SCREEN] Unpinning my screen before removal');
+                if (myScreenPinBtn) myScreenPinBtn.click();
             }
 
-            // Disable cam video when screen sharing stops
-            if (!init && !isScreenStreaming && !myVideoStatusBefore) setMyVideoOff(myPeerName);
-            // Enable cam video when screen sharing stops
-            if (!init && !isScreenStreaming && myVideoStatusBefore) setMyVideoStatusTrue();
+            // Remove tile (in-room only)
+            if (!init && myScreenWrap) myScreenWrap.remove();
 
-            myVideo.classList.toggle('mirror');
-            setScreenSharingStatus(isScreenStreaming);
+            // Stop tracks and clear stream
+            if (localScreenMediaStream) {
+                localScreenMediaStream.getTracks().forEach((t) => t.stop());
+            }
+            localScreenMediaStream = null;
+            if (!init) adaptAspectRatio();
 
-            if (myVideoAvatarImage && !useVideo) {
-                isScreenStreaming
-                    ? elemDisplay(myVideoAvatarImage, false)
-                    : elemDisplay(myVideoAvatarImage, true, 'block');
+            // Update state
+            isScreenStreaming = false;
+            myScreenStatus = false;
+
+            // Notify peers and refresh tracks (in-room only)
+            if (!init) {
+                emitPeersAction('screenStop');
+                try {
+                    peerInfo.extras = {};
+                } catch (_) {}
+                await emitPeerStatus('screen', false, {});
+                await refreshMyStreamToPeers(undefined, true);
             }
 
-            if (myPrivacyBtn) {
-                isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
-            }
+            // Restore camera status when in-room
+            if (!init && !myVideoStatusBefore) setMyVideoOff(myPeerName);
+            if (!init && myVideoStatusBefore) setMyVideoStatusTrue();
 
-            if ((isScreenStreaming && thereArePeerConnections()) || isVideoPinned) {
-                myVideoPinBtn.click();
+            // Update init preview when stopping during init
+            if (init) {
+                if (initStream) await stopTracks(initStream);
+                initStream = null;
+                elemDisplay(initVideo, false);
+                disable(initVideoSelect, false);
+                disable(initVideoBtn, false);
+                if (!useVideo) initVideoContainerShow(false);
             }
         }
+
+        // Update button states
+        setScreenSharingStatus(isScreenStreaming);
+
+        // Update avatar visibility (in-room only)
+        if (!init && myVideoAvatarImage && !useVideo) {
+            elemDisplay(myVideo, false);
+            elemDisplay(myVideoAvatarImage, true, 'block');
+        }
+
+        // Update privacy button (in-room only)
+        if (!init && myPrivacyBtn) {
+            isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
+        }
     } catch (err) {
-        err.name === 'NotAllowedError'
-            ? console.error('Screen sharing permission was denied by the user.')
-            : await handleToggleScreenException(`[Warning] Unable to share the screen: ${err}`, init);
+        if (err && err.name === 'NotAllowedError') {
+            console.error('Screen sharing permission was denied by the user.');
+        } else {
+            await handleToggleScreenException(`[Warning] Unable to share the screen: ${err}`, init);
+        }
         if (init) return;
     }
 }
@@ -6989,7 +7464,8 @@ async function handleToggleScreenException(reason, init) {
         setScreenSharingStatus(isScreenStreaming);
 
         // Emit screen status to peers
-        await emitPeerStatus('screen', myScreenStatus);
+        peerInfo.extras = {};
+        await emitPeerStatus('screen', false, {});
 
         // Stop the local video track
         await stopLocalVideoTrack();
@@ -7001,8 +7477,10 @@ async function handleToggleScreenException(reason, init) {
             setMyVideoStatusTrue();
         }
 
-        // Toggle the 'mirror' class on myVideo
-        myVideo.classList.toggle('mirror');
+        // Toggle the 'mirror' class on myVideo (guard if not yet created)
+        if (typeof myVideo !== 'undefined' && myVideo) {
+            myVideo.classList.toggle('mirror');
+        }
 
         // Handle video avatar image and privacy button visibility
         if (myVideoAvatarImage && !useVideo) {
@@ -7010,8 +7488,8 @@ async function handleToggleScreenException(reason, init) {
         }
 
         // Automatically pin the video if screen sharing or video is pinned
-        if (isScreenStreaming || isVideoPinned) {
-            myVideoPinBtn.click();
+        if ((isScreenStreaming || isVideoPinned) && typeof myScreenPinBtn !== 'undefined' && myScreenPinBtn) {
+            myScreenPinBtn.click();
         }
     } catch (error) {
         console.error('[Error] An unexpected error occurred', error);
@@ -7023,9 +7501,6 @@ async function handleToggleScreenException(reason, init) {
  * @param {boolean} status of screen sharing
  */
 function setScreenSharingStatus(status) {
-    if (!useVideo) {
-        status ? elemDisplay(myVideo, true, 'block') : elemDisplay(myVideo, false);
-    }
     initScreenShareBtn.className = status ? className.screenOff : className.screenOn;
     screenShareBtn.className = status ? className.screenOff : className.screenOn;
     setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', placement);
@@ -7080,80 +7555,94 @@ function toggleFullScreen() {
 async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereArePeerConnections()) return;
 
-    if (useAudio && localAudioTrackChange) localAudioMediaStream.getAudioTracks()[0].enabled = myAudioStatus;
+    // Enable/disable local audio as requested by caller
+    if (useAudio && localAudioTrackChange && localAudioMediaStream && hasAudioTrack(localAudioMediaStream)) {
+        localAudioMediaStream.getAudioTracks()[0].enabled = myAudioStatus;
+    }
 
-    // Log peer connections and all peers
-    console.log('PEER-CONNECTIONS', peerConnections);
-    console.log('ALL-PEERS', allPeers);
+    // Current local tracks
+    const cameraTrack =
+        localVideoMediaStream && hasVideoTrack(localVideoMediaStream)
+            ? localVideoMediaStream.getVideoTracks()[0]
+            : null;
+    const screenTrack =
+        localScreenMediaStream && hasVideoTrack(localScreenMediaStream)
+            ? localScreenMediaStream.getVideoTracks()[0]
+            : null;
 
-    // Check if the passed stream has an audio track
-    const streamHasAudioTrack = hasAudioTrack(stream);
-
-    // Check if the passed stream has an video track
-    const streamHasVideoTrack = hasVideoTrack(stream);
-
-    // Check if the local stream has an audio track
-    const localStreamHasAudioTrack = hasAudioTrack(localAudioMediaStream);
-
-    // Check if the local stream has an video track
-    const localStreamHasVideoTrack = hasVideoTrack(localVideoMediaStream);
-
-    // Determine the audio stream to add to peers
-    const audioStream = streamHasAudioTrack ? stream : localStreamHasAudioTrack && localAudioMediaStream;
-
-    // Determine the audio track to replace to peers
+    // Determine which audio track to use (caller may pass a fresh mic stream)
     const audioTrack =
-        streamHasAudioTrack && (localAudioTrackChange || isScreenStreaming)
+        stream && hasAudioTrack(stream) && localAudioTrackChange
             ? stream.getAudioTracks()[0]
-            : localStreamHasAudioTrack && localAudioMediaStream.getAudioTracks()[0];
+            : localAudioMediaStream && hasAudioTrack(localAudioMediaStream)
+              ? localAudioMediaStream.getAudioTracks()[0]
+              : null;
 
-    // Determine the video stream to add to peers
-    const videoStream = streamHasVideoTrack ? stream : localStreamHasVideoTrack && localVideoMediaStream;
-
-    // Determine the video track to replace to peers
-    const videoTracks = streamHasVideoTrack
-        ? stream.getVideoTracks()[0]
-        : localStreamHasVideoTrack && localVideoMediaStream.getVideoTracks()[0];
-
-    // Refresh my stream to connected peers except myself
+    // Push tracks to every peer
     for (const peer_id in peerConnections) {
+        const pc = peerConnections[peer_id];
         const peer_name = allPeers[peer_id]['peer_name'];
 
-        // Replace video track
-        const videoSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'video');
+        const senders = pc.getSenders();
+        const videoSenders = senders.filter((s) => s.track && s.track.kind === 'video');
+        const audioSender = senders.find((s) => s.track && s.track.kind === 'audio');
 
-        if (useVideo && videoSender) {
-            videoSender.replaceTrack(videoTracks);
-            console.log('REPLACE VIDEO TRACK TO', { peer_id, peer_name, video: videoTracks });
+        // Camera track management (sender index 0)
+        if (cameraTrack) {
+            if (videoSenders.length >= 1) {
+                await videoSenders[0].replaceTrack(cameraTrack);
+                console.log('REPLACE CAMERA TRACK TO', { peer_id, peer_name, cameraTrack });
+            } else {
+                pc.addTrack(cameraTrack, localVideoMediaStream);
+                await handleRtcOffer(peer_id);
+                console.log('ADD CAMERA TRACK TO', { peer_id, peer_name, cameraTrack });
+            }
         } else {
-            if (videoStream) {
-                // Add video track if sender does not exist
-                videoStream.getTracks().forEach(async (track) => {
-                    if (track.kind === 'video') {
-                        peerConnections[peer_id].addTrack(track);
-                        await handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
-                        console.log('ADD VIDEO TRACK TO', { peer_id, peer_name, video: track });
-                    }
-                });
+            // No camera track: if there's a camera sender (but no screen or screen is at index 0), handle cleanup
+            // Note: We keep video senders if screen exists; this branch handles pure camera removal
+            if (videoSenders.length >= 1 && !screenTrack) {
+                // Only remove the first sender if there's no screen to take its place
+                try {
+                    await videoSenders[0].replaceTrack(null);
+                    console.log('REMOVE CAMERA TRACK FROM', { peer_id, peer_name });
+                } catch (e) {
+                    console.warn('REMOVE CAMERA TRACK FAILED', e);
+                }
             }
         }
 
-        // Replace audio track
-        const audioSender = peerConnections[peer_id].getSenders().find((s) => s.track && s.track.kind === 'audio');
-
-        if (audioSender && audioTrack) {
-            audioSender.replaceTrack(audioTrack);
-            console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name, audio: audioTrack });
+        // Screen track management (sender index 1)
+        if (screenTrack) {
+            if (videoSenders.length >= 2) {
+                await videoSenders[1].replaceTrack(screenTrack);
+                console.log('REPLACE SCREEN TRACK TO', { peer_id, peer_name, screenTrack });
+            } else {
+                pc.addTrack(screenTrack, localScreenMediaStream);
+                await handleRtcOffer(peer_id);
+                console.log('ADD SCREEN TRACK TO', { peer_id, peer_name, screenTrack });
+            }
         } else {
-            if (audioStream) {
-                // Add audio track if sender does not exist
-                audioStream.getTracks().forEach(async (track) => {
-                    if (track.kind === 'audio') {
-                        peerConnections[peer_id].addTrack(track);
-                        await handleRtcOffer(peer_id); // https://groups.google.com/g/discuss-webrtc/c/Ky3wf_hg1l8?pli=1
-                        console.log('ADD AUDIO TRACK TO', { peer_id, peer_name, audio: track });
-                    }
-                });
+            // No screen track: if there are 2 video senders, remove the second one
+            if (videoSenders.length >= 2) {
+                try {
+                    pc.removeTrack(videoSenders[1]);
+                    await handleRtcOffer(peer_id);
+                    console.log('REMOVE SCREEN SENDER FROM', { peer_id, peer_name });
+                } catch (e) {
+                    console.warn('REMOVE SCREEN SENDER FAILED', e);
+                }
+            }
+        }
+
+        // Audio track management
+        if (audioTrack) {
+            if (audioSender) {
+                await audioSender.replaceTrack(audioTrack);
+                console.log('REPLACE AUDIO TRACK TO', { peer_id, peer_name, audioTrack });
+            } else {
+                pc.addTrack(audioTrack, new MediaStream([audioTrack]));
+                await handleRtcOffer(peer_id);
+                console.log('ADD AUDIO TRACK TO', { peer_id, peer_name, audioTrack });
             }
         }
     }
@@ -7166,13 +7655,16 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
  */
 async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     // enable video
-    if (useVideo || isScreenStreaming) stream.getVideoTracks()[0].enabled = true;
+    if (stream && (useVideo || isScreenStreaming) && hasVideoTrack(stream)) {
+        stream.getVideoTracks()[0].enabled = true;
+    }
 
     const tracksToInclude = [];
 
-    const videoTrack = hasVideoTrack(stream)
-        ? stream.getVideoTracks()[0]
-        : hasVideoTrack(localVideoMediaStream) && localVideoMediaStream.getVideoTracks()[0];
+    const videoTrack =
+        stream && hasVideoTrack(stream)
+            ? stream.getVideoTracks()[0]
+            : hasVideoTrack(localVideoMediaStream) && localVideoMediaStream.getVideoTracks()[0];
 
     const audioTrack =
         hasAudioTrack(stream) && localAudioTrackChange
@@ -7184,9 +7676,12 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
         console.log('Refresh my local media stream VIDEO - AUDIO', { isScreenStreaming: isScreenStreaming });
         if (videoTrack) {
             tracksToInclude.push(videoTrack);
-            localVideoMediaStream = new MediaStream([videoTrack]);
-            attachMediaStream(myVideo, localVideoMediaStream);
-            logStreamSettingsInfo('refreshMyLocalStream-localVideoMediaStream', localVideoMediaStream);
+            // Avoid overwriting camera when screen sharing uses a separate tile
+            if (!isScreenStreaming) {
+                localVideoMediaStream = new MediaStream([videoTrack]);
+                attachMediaStream(myVideo, localVideoMediaStream);
+                logStreamSettingsInfo('refreshMyLocalStream-localVideoMediaStream', localVideoMediaStream);
+            }
         }
         if (audioTrack) {
             tracksToInclude.push(audioTrack);
@@ -7205,19 +7700,8 @@ async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
         }
     }
 
-    if (isScreenStreaming) {
-        // refresh video privacy mode on screen sharing
-        isVideoPrivacyActive = false;
-        setVideoPrivacyStatus('myVideo', isVideoPrivacyActive);
-
-        // on toggleScreenSharing video stop from popup bar
-        stream.getVideoTracks()[0].onended = () => {
-            toggleScreenSharing();
-        };
-    }
-
-    // adapt video object fit on screen streaming
-    myVideo.style.objectFit = isScreenStreaming ? 'contain' : 'var(--video-object-fit)';
+    // Keep camera tile object-fit consistent with the selected theme setting
+    myVideo.style.objectFit = 'var(--video-object-fit)';
 }
 
 /**
@@ -9103,13 +9587,14 @@ function handlePeerName(config) {
  * @param {string} element typo
  * @param {boolean} status true/false
  */
-async function emitPeerStatus(element, status) {
+async function emitPeerStatus(element, status, extras = {}) {
     sendToServer('peerStatus', {
         room_id: roomId,
         peer_name: myPeerName,
         peer_id: myPeerId,
         element: element,
         status: status,
+        extras: extras,
     });
 }
 
@@ -9209,11 +9694,14 @@ function setMyVideoStatus(status) {
  */
 function handlePeerStatus(config) {
     //
-    const { peer_id, peer_name, element, status } = config;
+    const { peer_id, peer_name, element, status, extras } = config;
 
     switch (element) {
         case 'video':
             setPeerVideoStatus(peer_id, status);
+            break;
+        case 'screen':
+            setPeerScreenStatus(peer_id, status, extras);
             break;
         case 'audio':
             setPeerAudioStatus(peer_id, status);
@@ -9420,11 +9908,28 @@ function setPeerVideoStatus(peer_id, status) {
     }
 }
 
+function setPeerScreenStatus(peer_id, status, extras) {
+    // Track screen status on the peer model
+    if (!allPeers[peer_id]) allPeers[peer_id] = {};
+    allPeers[peer_id]['peer_screen_status'] = !!status;
+
+    // Initialize extras object if not already present
+    if (!allPeers[peer_id]['extras']) {
+        allPeers[peer_id]['extras'] = {};
+    }
+    // Merge provided extras if any
+    if (extras && (extras.screen_track_id || extras.screen_stream_id)) {
+        allPeers[peer_id]['extras'].screen_track_id = extras.screen_track_id;
+        allPeers[peer_id]['extras'].screen_stream_id = extras.screen_stream_id;
+    }
+}
+
 /**
  * Emit actions to all peers in the same room except yourself
  * @param {object} peerAction to all peers
+ * @param {object} extras additional data
  */
-async function emitPeersAction(peerAction) {
+async function emitPeersAction(peerAction, extras = {}) {
     if (!thereArePeerConnections()) return;
 
     sendToServer('peerAction', {
@@ -9435,6 +9940,7 @@ async function emitPeersAction(peerAction) {
         peer_uuid: myPeerUUID,
         peer_use_video: useVideo,
         peer_action: peerAction,
+        extras: extras,
         send_to_all: true,
     });
 }
@@ -9443,8 +9949,9 @@ async function emitPeersAction(peerAction) {
  * Emit actions to specified peer in the same room
  * @param {string} peer_id socket.id
  * @param {object} peerAction to specified peer
+ * @param {object} extras additional data
  */
-async function emitPeerAction(peer_id, peerAction) {
+async function emitPeerAction(peer_id, peerAction, extras = {}) {
     if (!thereArePeerConnections()) return;
 
     sendToServer('peerAction', {
@@ -9454,6 +9961,7 @@ async function emitPeerAction(peer_id, peerAction) {
         peer_use_video: useVideo,
         peer_name: myPeerName,
         peer_action: peerAction,
+        extras: extras,
         send_to_all: false,
     });
 }
@@ -9464,7 +9972,7 @@ async function emitPeerAction(peer_id, peerAction) {
  */
 function handlePeerAction(config) {
     console.log('Handle peer action: ', config);
-    const { peer_id, peer_name, peer_avatar, peer_use_video, peer_action } = config;
+    const { peer_id, peer_name, peer_avatar, peer_use_video, peer_action, extras } = config;
 
     switch (peer_action) {
         case 'muteAudio':
@@ -9480,7 +9988,7 @@ function handlePeerAction(config) {
             notifyRecording(peer_id, peer_name, peer_avatar, 'Stop');
             break;
         case 'screenStart':
-            handleScreenStart(peer_id);
+            handleScreenStart(peer_id, extras);
             break;
         case 'screenStop':
             handleScreenStop(peer_id, peer_use_video);
@@ -9621,21 +10129,33 @@ function handleEmojiSound(message) {
 /**
  * Handle Screen Start
  * @param {string} peer_id
+ * @param {object} extras
  */
-function handleScreenStart(peer_id) {
-    const remoteVideoAvatarImage = getId(peer_id + '_avatar');
-    const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
-    const remoteVideoStream = getId(peer_id + '___video');
-    if (remoteVideoStatusBtn) {
-        remoteVideoStatusBtn.className = className.videoOn;
-        setTippy(remoteVideoStatusBtn, 'Participant screen share is on', 'bottom');
+function handleScreenStart(peer_id, extras) {
+    const remoteScreenAvatarImage = getId(peer_id + '_screen_avatar');
+    const remoteScreenStatusBtn = getId(peer_id + '_screenStatus');
+
+    if (extras) {
+        // Initialize extras object if not already present
+        if (!allPeers[peer_id]) allPeers[peer_id] = {};
+        if (!allPeers[peer_id]['extras']) {
+            allPeers[peer_id]['extras'] = {};
+        }
+
+        allPeers[peer_id]['extras']['screen_track_id'] = extras.screen_track_id;
+        allPeers[peer_id]['extras']['screen_stream_id'] = extras.screen_stream_id;
+
+        // Also update peer screen status flag for fallback classification
+        allPeers[peer_id]['peer_screen_status'] = true;
+
+        console.log('[HANDLE SCREEN START] Stored screen IDs for', peer_id, extras);
     }
-    if (remoteVideoStream) {
-        getId(peer_id + '_pinUnpin').click();
-        remoteVideoStream.style.objectFit = 'contain';
-        remoteVideoStream.style.name = peer_id + '_typeScreen';
+
+    if (remoteScreenStatusBtn) {
+        remoteScreenStatusBtn.className = className.videoOn;
+        setTippy(remoteScreenStatusBtn, 'Participant screen share is on', 'bottom');
     }
-    if (remoteVideoAvatarImage) elemDisplay(remoteVideoAvatarImage, false);
+    if (remoteScreenAvatarImage) elemDisplay(remoteScreenAvatarImage, false);
 }
 
 /**
@@ -9644,28 +10164,52 @@ function handleScreenStart(peer_id) {
  * @param {boolean} peer_use_video
  */
 function handleScreenStop(peer_id, peer_use_video) {
-    const remoteVideoStream = getId(peer_id + '___video');
-    const remoteVideoAvatarImage = getId(peer_id + '_avatar');
-    const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
-    if (remoteVideoStatusBtn) {
-        remoteVideoStatusBtn.className = className.videoOff;
-        setTippy(remoteVideoStatusBtn, 'Participant screen share is off', 'bottom');
+    const remoteScreenStream = getId(peer_id + '___screen');
+    const remoteScreenWrap = getId(peer_id + '_screenWrap');
+    const remoteScreenAvatarImage = getId(peer_id + '_screen_avatar');
+    const remoteScreenStatusBtn = getId(peer_id + '_screenStatus');
+    const remoteScreenPinUnpin = getId(peer_id + '_screen_pinUnpin');
+
+    if (remoteScreenStatusBtn) {
+        remoteScreenStatusBtn.className = className.videoOff;
+        setTippy(remoteScreenStatusBtn, 'Participant screen share is off', 'bottom');
     }
-    if (remoteVideoStream) {
-        if (isVideoPinned) getId(peer_id + '_pinUnpin').click();
-        remoteVideoStream.style.objectFit = 'var(--video-object-fit)';
-        remoteVideoStream.style.name = peer_id + '_typeCam';
+
+    // If the screen is pinned, unpin it first to restore grid layout
+    if (
+        remoteScreenWrap &&
+        isVideoPinned &&
+        pinnedVideoPlayerId === (remoteScreenStream ? remoteScreenStream.id : null)
+    ) {
+        console.log('[STOP SCREEN] Unpinning remote screen before removal', peer_id);
+        if (remoteScreenPinUnpin) remoteScreenPinUnpin.click();
+    }
+
+    // Remove dedicated remote screen tile if present
+    if (remoteScreenWrap) {
+        remoteScreenWrap.remove();
         adaptAspectRatio();
     }
-    if (remoteVideoAvatarImage && remoteVideoStream && !peer_use_video) {
-        elemDisplay(remoteVideoAvatarImage, true, 'block');
-        remoteVideoStream.srcObject.getVideoTracks().forEach((track) => {
+    if (remoteScreenAvatarImage && remoteScreenStream && !peer_use_video) {
+        elemDisplay(remoteScreenAvatarImage, true, 'block');
+        remoteScreenStream.srcObject.getVideoTracks().forEach((track) => {
             track.stop();
             // track.enabled = false;
         });
-        elemDisplay(remoteVideoStream, false);
+        elemDisplay(remoteScreenStream, false);
     } else {
-        if (remoteVideoAvatarImage) elemDisplay(remoteVideoAvatarImage, false);
+        if (remoteScreenAvatarImage) elemDisplay(remoteScreenAvatarImage, false);
+    }
+    // Clean up screen extras from allPeers
+    if (allPeers[peer_id]) {
+        if (allPeers[peer_id]['extras']) {
+            delete allPeers[peer_id]['extras']['screen_track_id'];
+            delete allPeers[peer_id]['extras']['screen_stream_id'];
+        }
+        // Update screen status flag
+        allPeers[peer_id]['peer_screen_status'] = false;
+
+        console.log('[HANDLE SCREEN STOP] Cleared screen IDs for', peer_id);
     }
 }
 
@@ -11484,7 +12028,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.5.83',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.00',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
