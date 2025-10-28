@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.00
+ * @version 1.6.01
  *
  */
 
@@ -2547,17 +2547,16 @@ function blobToArrayBuffer(blob) {
  * @param {string} peer_id socket.id
  */
 async function handleRtcOffer(peer_id) {
+    const pc = peerConnections[peer_id];
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/onnegotiationneeded
-    peerConnections[peer_id].onnegotiationneeded = () => {
+    pc.onnegotiationneeded = () => {
         console.log('Creating RTC offer to ' + allPeers[peer_id]['peer_name']);
         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createOffer
-        peerConnections[peer_id]
-            .createOffer()
+        pc.createOffer()
             .then((local_description) => {
                 console.log('Local offer description is', local_description);
                 // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
-                peerConnections[peer_id]
-                    .setLocalDescription(local_description)
+                pc.setLocalDescription(local_description)
                     .then(() => {
                         sendToServer('relaySDP', {
                             peer_id: peer_id,
@@ -2588,21 +2587,20 @@ function handleSessionDescription(config) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCSessionDescription
     const remote_description = new RTCSessionDescription(session_description);
 
+    const pc = peerConnections[peer_id];
+
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setRemoteDescription
-    peerConnections[peer_id]
-        .setRemoteDescription(remote_description)
+    pc.setRemoteDescription(remote_description)
         .then(() => {
             console.log('setRemoteDescription done!');
             if (session_description.type == 'offer') {
                 console.log('Creating answer');
                 // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/createAnswer
-                peerConnections[peer_id]
-                    .createAnswer()
+                pc.createAnswer()
                     .then((local_description) => {
                         console.log('Answer description is: ', local_description);
                         // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
-                        peerConnections[peer_id]
-                            .setLocalDescription(local_description)
+                        pc.setLocalDescription(local_description)
                             .then(() => {
                                 sendToServer('relaySDP', {
                                     peer_id: peer_id,
@@ -12028,7 +12026,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.00',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.01',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
