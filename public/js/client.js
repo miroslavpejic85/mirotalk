@@ -2096,10 +2096,10 @@ async function whoAreYouJoin() {
     handleHideMe(isHideMeActive);
     loadGeo();
 
-    // Load screen media if present
+    // Load screen media if needed
     await loadScreenMedia();
 
-    // Load vide media if present
+    // Refresh camera if screen streaming
     if (isScreenStreaming && useVideo) {
         await changeLocalCamera(videoSelect.value);
     }
