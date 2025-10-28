@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.03
+ * @version 1.6.04
  *
  */
 
@@ -2093,7 +2093,14 @@ async function whoAreYouJoin() {
     joinToChannel();
     handleHideMe(isHideMeActive);
     loadGeo();
+
+    // Load screen media if present
     await loadScreenMedia();
+
+    // Load vide media if present
+    if (isScreenStreaming && useVideo) {
+        await changeLocalCamera(videoSelect.value);
+    }
 }
 
 /**
@@ -6855,7 +6862,7 @@ async function attachSinkId(element, sinkId) {
         // Show a single notification prompting the user to click
         if (!window.__sinkGestureNotified) {
             window.__sinkGestureNotified = true;
-            userLog('toast', 'Click anywhere to apply the speaker change');
+            console.warn('Click anywhere to apply the speaker change');
         }
 
         return new Promise((resolve) => {
@@ -7321,29 +7328,18 @@ async function toggleScreenSharing(init = false) {
             myScreenStatus = true;
 
             // Deterministic routing identifiers
-            const extras = (() => {
+            const extras = getLocalScreenExtras();
+            if (extras) {
                 try {
-                    const track = getVideoTrack(localScreenMediaStream);
-                    return track
-                        ? { screen_track_id: track.id, screen_stream_id: localScreenMediaStream.id }
-                        : undefined;
-                } catch (e) {
-                    return undefined;
-                }
-            })();
+                    peerInfo.extras = { ...(peerInfo.extras || {}), ...extras };
+                } catch (_) {}
+                await emitPeerStatus('screen', true, extras);
+            }
 
             // Only emit and create tile when in-room (not during init)
             if (!init) {
-                if (extras) {
-                    try {
-                        peerInfo.extras = { ...(peerInfo.extras || {}), ...extras };
-                    } catch (_) {}
-                    await emitPeerStatus('screen', true, extras);
-                    emitPeersAction('screenStart', extras);
-                } else {
-                    await emitPeerStatus('screen', true);
-                    emitPeersAction('screenStart');
-                }
+                emitPeersAction('screenStart', extras);
+
                 await loadScreenMedia();
 
                 // Push screen audio to peers if mic is OFF
@@ -7412,11 +7408,23 @@ async function toggleScreenSharing(init = false) {
             // Update init preview when stopping during init
             if (init) {
                 if (initStream) await stopTracks(initStream);
-                initStream = null;
-                elemDisplay(initVideo, false);
+                // Restart camera to restore previous view
+                if (useVideo) {
+                    try {
+                        await changeInitCamera(initVideoSelect.value);
+                        initVideo.classList.toggle('mirror');
+                    } catch (err) {
+                        console.error('Error restarting camera after screen share stop:', err);
+                        initStream = null;
+                        elemDisplay(initVideo, false);
+                    }
+                } else {
+                    initStream = null;
+                    elemDisplay(initVideo, false);
+                    initVideoContainerShow(false);
+                }
                 disable(initVideoSelect, false);
                 disable(initVideoBtn, false);
-                if (!useVideo) initVideoContainerShow(false);
             }
         }
 
@@ -7440,6 +7448,18 @@ async function toggleScreenSharing(init = false) {
             await handleToggleScreenException(`[Warning] Unable to share the screen: ${err}`, init);
         }
         if (init) return;
+    }
+}
+
+/**
+ *  Get local screen extras for deterministic routing
+ */
+function getLocalScreenExtras() {
+    try {
+        const track = getVideoTrack(localScreenMediaStream);
+        return track ? { screen_track_id: track.id, screen_stream_id: localScreenMediaStream.id } : undefined;
+    } catch (e) {
+        return undefined;
     }
 }
 
@@ -12062,7 +12082,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.03',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.04',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
