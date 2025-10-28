@@ -23,7 +23,10 @@ async function getMicrophoneVolumeIndicator(stream) {
             // Clean up any existing resources first
             stopMicrophoneProcessing();
 
-            console.log('Start microphone volume indicator for audio track', stream.getAudioTracks()[0]);
+            const audioTrack = getAudioTrack(stream);
+            if (audioTrack) {
+                console.log('Start microphone volume indicator for audio track', audioTrack);
+            }
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const microphone = audioContext.createMediaStreamSource(stream);
 

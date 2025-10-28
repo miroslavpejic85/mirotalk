@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.01
+ * @version 1.6.02
  *
  */
 
@@ -530,7 +530,6 @@ let isPresenter = false; // True Who init the room (aka first peer joined)
 let myHandStatus = false;
 let myVideoStatus = false;
 let myAudioStatus = false;
-let myVideoStatusBefore = false;
 let myScreenStatus = false;
 let isScreenEnabled = getScreenEnabled();
 let notify = getNotify(); // popup room sharing on join
@@ -1896,11 +1895,17 @@ async function changeInitCamera(deviceId) {
             // We going to update init video stream
             initVideo.srcObject = camStream;
             initStream = camStream;
-            console.log('Success attached init video stream', initStream.getVideoTracks()[0].getSettings());
+            const initVideoTrack = getVideoTrack(initStream);
+            if (initVideoTrack) {
+                console.log('Success attached init video stream', initVideoTrack.getSettings());
+            }
             // We going to update also the local video stream
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
-            console.log('Success attached local video stream', localVideoMediaStream.getVideoTracks()[0].getSettings());
+            const localVideoTrack = getVideoTrack(localVideoMediaStream);
+            if (localVideoTrack) {
+                console.log('Success attached local video stream', localVideoTrack.getSettings());
+            }
         }
     }
 
@@ -2424,18 +2429,9 @@ async function handleAddTracks(peer_id) {
     const pc = peerConnections[peer_id];
     const peer_name = allPeers[peer_id]['peer_name'];
 
-    const videoTrack =
-        localVideoMediaStream && hasVideoTrack(localVideoMediaStream)
-            ? localVideoMediaStream.getVideoTracks()[0]
-            : null;
-    const screenTrack =
-        localScreenMediaStream && hasVideoTrack(localScreenMediaStream)
-            ? localScreenMediaStream.getVideoTracks()[0]
-            : null;
-    const audioTrack =
-        localAudioMediaStream && hasAudioTrack(localAudioMediaStream)
-            ? localAudioMediaStream.getAudioTracks()[0]
-            : null;
+    const videoTrack = getVideoTrack(localVideoMediaStream);
+    const screenTrack = getVideoTrack(localScreenMediaStream);
+    const audioTrack = getAudioTrack(localAudioMediaStream);
 
     console.log('handleAddTracks', {
         videoTrack: videoTrack,
@@ -4205,20 +4201,26 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
  */
 function logStreamSettingsInfo(name, stream) {
     if ((useVideo || isScreenStreaming) && hasVideoTrack(stream)) {
-        console.log(name, {
-            video: {
-                label: stream.getVideoTracks()[0].label,
-                settings: stream.getVideoTracks()[0].getSettings(),
-            },
-        });
+        const videoTrack = getVideoTrack(stream);
+        if (videoTrack) {
+            console.log(name, {
+                video: {
+                    label: videoTrack.label,
+                    settings: videoTrack.getSettings(),
+                },
+            });
+        }
     }
     if (useAudio && hasAudioTrack(stream)) {
-        console.log(name, {
-            audio: {
-                label: stream.getAudioTracks()[0].label,
-                settings: stream.getAudioTracks()[0].getSettings(),
-            },
-        });
+        const audioTrack = getAudioTrack(stream);
+        if (audioTrack) {
+            console.log(name, {
+                audio: {
+                    label: audioTrack.label,
+                    settings: audioTrack.getSettings(),
+                },
+            });
+        }
     }
 }
 
@@ -6742,8 +6744,10 @@ function getAudioConstraints(deviceId = null) {
 async function setLocalMaxFps(maxFrameRate, type = 'camera') {
     if (!useVideo || !localVideoMediaStream || isFirefox) return;
 
-    localVideoMediaStream
-        .getVideoTracks()[0]
+    const videoTrack = getVideoTrack(localVideoMediaStream);
+    if (!videoTrack) return;
+
+    videoTrack
         .applyConstraints({ frameRate: maxFrameRate })
         .then(() => {
             logStreamSettingsInfo('setLocalMaxFps', localVideoMediaStream);
@@ -6765,9 +6769,10 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
  */
 async function setLocalVideoQuality() {
     if (!localVideoMediaStream) return;
+    const videoTrack = getVideoTrack(localVideoMediaStream);
+    if (!videoTrack) return;
     const videoConstraints = getVideoConstraints(videoQualitySelect.value ? videoQualitySelect.value : 'default');
-    localVideoMediaStream
-        .getVideoTracks()[0]
+    videoTrack
         .applyConstraints(videoConstraints)
         .then(() => {
             logStreamSettingsInfo('setLocalVideoQuality', localVideoMediaStream);
@@ -7107,7 +7112,13 @@ function handleAudio(e, init, force = null) {
 
     myAudioStatus = audioStatus;
 
-    localAudioMediaStream.getAudioTracks()[0].enabled = audioStatus;
+    // Safely enable/disable audio track
+    const audioTrack = getAudioTrack(localAudioMediaStream);
+    if (audioTrack) {
+        audioTrack.enabled = audioStatus;
+    } else {
+        console.warn('[handleAudio] No audio track found');
+    }
 
     force != null ? (e.className = audioClassName) : (e.target.className = audioClassName);
 
@@ -7150,7 +7161,10 @@ async function handleVideo(e, init, force = null) {
 
     myVideoStatus = videoStatus;
 
-    localVideoMediaStream.getVideoTracks()[0].enabled = videoStatus;
+    const videoTrack = getVideoTrack(localVideoMediaStream);
+    if (videoTrack) {
+        videoTrack.enabled = videoStatus;
+    }
 
     force != null ? (e.className = videoClassName) : (e.target.className = videoClassName);
 
@@ -7235,7 +7249,7 @@ async function swapCamera() {
  */
 async function stopLocalVideoTrack() {
     if (useVideo || !isScreenStreaming) {
-        const localVideoTrack = localVideoMediaStream.getVideoTracks()[0];
+        const localVideoTrack = getVideoTrack(localVideoMediaStream);
         if (localVideoTrack) {
             console.log('stopLocalVideoTrack', localVideoTrack);
             localVideoTrack.stop();
@@ -7247,7 +7261,7 @@ async function stopLocalVideoTrack() {
  * Stop Local Audio Track
  */
 async function stopLocalAudioTrack() {
-    const localAudioTrack = localAudioMediaStream.getAudioTracks()[0];
+    const localAudioTrack = getAudioTrack(localAudioMediaStream);
     if (localAudioTrack) {
         console.log('stopLocalAudioTrack', localAudioTrack);
         localAudioTrack.stop();
@@ -7279,16 +7293,6 @@ async function toggleScreenSharing(init = false) {
             video: { frameRate: screenMaxFrameRate },
         };
 
-        // Remember webcam status before starting screen share
-        if (!isScreenStreaming) {
-            myVideoStatusBefore = myVideoStatus;
-            console.log('My video status before screen sharing: ' + myVideoStatusBefore);
-        } else {
-            if (!useVideo && !useAudio) {
-                return handleToggleScreenException('Audio and Video are disabled', init);
-            }
-        }
-
         // Reset privacy on toggle
         isVideoPrivacyActive = false;
         if (!init) emitPeerStatus('privacy', isVideoPrivacyActive);
@@ -7299,7 +7303,11 @@ async function toggleScreenSharing(init = false) {
             if (!displayStream) return;
 
             // Keep only video track for local screen UI stream
-            const screenVideoTrack = displayStream.getVideoTracks()[0];
+            const screenVideoTrack = getVideoTrack(displayStream);
+            if (!screenVideoTrack) {
+                console.error('No video track in display stream');
+                return;
+            }
             localScreenMediaStream = new MediaStream([screenVideoTrack]);
 
             // Update state
@@ -7309,10 +7317,7 @@ async function toggleScreenSharing(init = false) {
             // Deterministic routing identifiers
             const extras = (() => {
                 try {
-                    const track =
-                        localScreenMediaStream && hasVideoTrack(localScreenMediaStream)
-                            ? localScreenMediaStream.getVideoTracks()[0]
-                            : null;
+                    const track = getVideoTrack(localScreenMediaStream);
                     return track
                         ? { screen_track_id: track.id, screen_stream_id: localScreenMediaStream.id }
                         : undefined;
@@ -7350,8 +7355,9 @@ async function toggleScreenSharing(init = false) {
             if (init) {
                 if (initStream) await stopTracks(initStream);
                 initStream = displayStream;
-                if (hasVideoTrack(initStream)) {
-                    const newInitStream = new MediaStream([initStream.getVideoTracks()[0]]);
+                const initVideoTrack = getVideoTrack(initStream);
+                if (initVideoTrack) {
+                    const newInitStream = new MediaStream([initVideoTrack]);
                     elemDisplay(initVideo, true, 'block');
                     initVideo.classList.toggle('mirror');
                     initVideo.srcObject = newInitStream;
@@ -7396,10 +7402,6 @@ async function toggleScreenSharing(init = false) {
                 await emitPeerStatus('screen', false, {});
                 await refreshMyStreamToPeers(undefined, true);
             }
-
-            // Restore camera status when in-room
-            if (!init && !myVideoStatusBefore) setMyVideoOff(myPeerName);
-            if (!init && myVideoStatusBefore) setMyVideoStatusTrue();
 
             // Update init preview when stopping during init
             if (init) {
@@ -7468,13 +7470,6 @@ async function handleToggleScreenException(reason, init) {
         // Stop the local video track
         await stopLocalVideoTrack();
 
-        // Handle video status based on conditions
-        if (!init && !isScreenStreaming && !myVideoStatusBefore) {
-            setMyVideoOff(myPeerName);
-        } else if (!init && !isScreenStreaming && myVideoStatusBefore) {
-            setMyVideoStatusTrue();
-        }
-
         // Toggle the 'mirror' class on myVideo (guard if not yet created)
         if (typeof myVideo !== 'undefined' && myVideo) {
             myVideo.classList.toggle('mirror');
@@ -7510,7 +7505,10 @@ function setScreenSharingStatus(status) {
 async function setMyVideoStatusTrue() {
     if (myVideoStatus || !useVideo) return;
     // Put video status already ON
-    localVideoMediaStream.getVideoTracks()[0].enabled = true;
+    const videoTrack = getVideoTrack(localVideoMediaStream);
+    if (videoTrack) {
+        videoTrack.enabled = true;
+    }
     myVideoStatus = true;
     initVideoBtn.className = className.videoOn;
     videoBtn.className = className.videoOn;
@@ -7554,27 +7552,22 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
     if (!thereArePeerConnections()) return;
 
     // Enable/disable local audio as requested by caller
-    if (useAudio && localAudioTrackChange && localAudioMediaStream && hasAudioTrack(localAudioMediaStream)) {
-        localAudioMediaStream.getAudioTracks()[0].enabled = myAudioStatus;
+    if (useAudio && localAudioTrackChange && localAudioMediaStream) {
+        const audioTrack = getAudioTrack(localAudioMediaStream);
+        if (audioTrack) {
+            audioTrack.enabled = myAudioStatus;
+        }
     }
 
     // Current local tracks
-    const cameraTrack =
-        localVideoMediaStream && hasVideoTrack(localVideoMediaStream)
-            ? localVideoMediaStream.getVideoTracks()[0]
-            : null;
-    const screenTrack =
-        localScreenMediaStream && hasVideoTrack(localScreenMediaStream)
-            ? localScreenMediaStream.getVideoTracks()[0]
-            : null;
+    const cameraTrack = getVideoTrack(localVideoMediaStream);
+    const screenTrack = getVideoTrack(localScreenMediaStream);
 
     // Determine which audio track to use (caller may pass a fresh mic stream)
     const audioTrack =
         stream && hasAudioTrack(stream) && localAudioTrackChange
-            ? stream.getAudioTracks()[0]
-            : localAudioMediaStream && hasAudioTrack(localAudioMediaStream)
-              ? localAudioMediaStream.getAudioTracks()[0]
-              : null;
+            ? getAudioTrack(stream)
+            : getAudioTrack(localAudioMediaStream);
 
     // Push tracks to every peer
     for (const peer_id in peerConnections) {
@@ -7653,21 +7646,19 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
  */
 async function refreshMyLocalStream(stream, localAudioTrackChange = false) {
     // enable video
-    if (stream && (useVideo || isScreenStreaming) && hasVideoTrack(stream)) {
-        stream.getVideoTracks()[0].enabled = true;
+    if (stream && (useVideo || isScreenStreaming)) {
+        const videoTrack = getVideoTrack(stream);
+        if (videoTrack) {
+            videoTrack.enabled = true;
+        }
     }
 
     const tracksToInclude = [];
 
-    const videoTrack =
-        stream && hasVideoTrack(stream)
-            ? stream.getVideoTracks()[0]
-            : hasVideoTrack(localVideoMediaStream) && localVideoMediaStream.getVideoTracks()[0];
+    const videoTrack = stream && hasVideoTrack(stream) ? getVideoTrack(stream) : getVideoTrack(localVideoMediaStream);
 
     const audioTrack =
-        hasAudioTrack(stream) && localAudioTrackChange
-            ? stream.getAudioTracks()[0]
-            : hasAudioTrack(localAudioMediaStream) && localAudioMediaStream.getAudioTracks()[0];
+        hasAudioTrack(stream) && localAudioTrackChange ? getAudioTrack(stream) : getAudioTrack(localAudioMediaStream);
 
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
     if (useVideo || isScreenStreaming) {
@@ -7722,6 +7713,28 @@ function hasVideoTrack(mediaStream) {
     if (!mediaStream) return false;
     const videoTracks = mediaStream.getVideoTracks();
     return videoTracks.length > 0;
+}
+
+/**
+ * Safely get first video track from MediaStream
+ * @param {MediaStream} mediaStream
+ * @returns {MediaStreamTrack|null}
+ */
+function getVideoTrack(mediaStream) {
+    if (!mediaStream) return null;
+    const tracks = mediaStream.getVideoTracks();
+    return tracks.length > 0 ? tracks[0] : null;
+}
+
+/**
+ * Safely get first audio track from MediaStream
+ * @param {MediaStream} mediaStream
+ * @returns {MediaStreamTrack|null}
+ */
+function getAudioTrack(mediaStream) {
+    if (!mediaStream) return null;
+    const tracks = mediaStream.getAudioTracks();
+    return tracks.length > 0 ? tracks[0] : null;
 }
 
 /**
@@ -7965,9 +7978,11 @@ function getAudioStreamFromAudioElements() {
     const audioElements = getSlALL('audio');
     const audioStream = new MediaStream();
     audioElements.forEach((audio) => {
-        const audioTrack = audio.srcObject.getAudioTracks()[0];
-        if (audioTrack) {
-            audioStream.addTrack(audioTrack);
+        if (audio.srcObject) {
+            const audioTrack = getAudioTrack(audio.srcObject);
+            if (audioTrack) {
+                audioStream.addTrack(audioTrack);
+            }
         }
     });
     return audioStream;
@@ -10217,8 +10232,13 @@ function handleScreenStop(peer_id, peer_use_video) {
  */
 function setMyAudioOff(peer_name) {
     if (myAudioStatus === false || !useAudio) return;
-    localAudioMediaStream.getAudioTracks()[0].enabled = false;
-    myAudioStatus = localAudioMediaStream.getAudioTracks()[0].enabled;
+    const audioTrack = getAudioTrack(localAudioMediaStream);
+    if (audioTrack) {
+        audioTrack.enabled = false;
+        myAudioStatus = audioTrack.enabled;
+    } else {
+        myAudioStatus = false;
+    }
     audioBtn.className = className.audioOff;
     setMyAudioStatus(myAudioStatus);
     userLog('toast', `${icons.user} ${peer_name} \n has disabled your audio`);
@@ -10231,8 +10251,13 @@ function setMyAudioOff(peer_name) {
  */
 function setMyAudioOn(peer_name) {
     if (myAudioStatus === true || !useAudio) return;
-    localAudioMediaStream.getAudioTracks()[0].enabled = true;
-    myAudioStatus = localAudioMediaStream.getAudioTracks()[0].enabled;
+    const audioTrack = getAudioTrack(localAudioMediaStream);
+    if (audioTrack) {
+        audioTrack.enabled = true;
+        myAudioStatus = audioTrack.enabled;
+    } else {
+        myAudioStatus = false;
+    }
     audioBtn.className = className.audioOn;
     setMyAudioStatus(myAudioStatus);
     userLog('toast', `${icons.user} ${peer_name} \n has enabled your audio`);
@@ -10246,8 +10271,13 @@ function setMyAudioOn(peer_name) {
 function setMyVideoOff(peer_name) {
     if (!useVideo) return;
     //if (myVideoStatus === false || !useVideo) return;
-    localVideoMediaStream.getVideoTracks()[0].enabled = false;
-    myVideoStatus = localVideoMediaStream.getVideoTracks()[0].enabled;
+    const videoTrack = getVideoTrack(localVideoMediaStream);
+    if (videoTrack) {
+        videoTrack.enabled = false;
+        myVideoStatus = videoTrack.enabled;
+    } else {
+        myVideoStatus = false;
+    }
     videoBtn.className = className.videoOff;
     setMyVideoStatus(myVideoStatus);
     userLog('toast', `${icons.user} ${peer_name} \n has disabled your video`);
@@ -12026,7 +12056,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.01',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.02',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
