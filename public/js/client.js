@@ -6742,7 +6742,7 @@ function getAudioConstraints(deviceId = null) {
  * @param {string} type camera/screen default camera
  */
 async function setLocalMaxFps(maxFrameRate, type = 'camera') {
-    if (!useVideo || !localVideoMediaStream || isFirefox) return;
+    if (!useVideo || isFirefox) return;
 
     const videoTrack = getVideoTrack(localVideoMediaStream);
     const screenTrack = getVideoTrack(localScreenMediaStream);
