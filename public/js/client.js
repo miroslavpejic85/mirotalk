@@ -3558,7 +3558,7 @@ async function loadLocalMedia(stream, kind) {
             // my screen peer name
             myScreenPeerName.setAttribute('id', 'myScreenPeerName');
             myScreenPeerName.className = 'videoPeerName notranslate';
-            myScreenPeerName.innerText = myPeerName + ' (Screen)';
+            myScreenPeerName.innerText = myPeerName + ' (me)';
 
             // my screen to image
             myScreenToImgBtn.setAttribute('id', 'myScreenToImgBtn');
@@ -9579,7 +9579,7 @@ async function updateMyPeerName() {
     myVideoPeerName.innerText = myPeerName + ' (me)';
 
     myScreenPeerName = getId('myScreenPeerName');
-    if (myScreenPeerName) myScreenPeerName.innerText = myPeerName + ' (screen)';
+    if (myScreenPeerName) myScreenPeerName.innerText = myPeerName + ' (me)';
 
     sendToServer('peerName', {
         room_id: roomId,
