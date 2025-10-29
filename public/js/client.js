@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.06
+ * @version 1.6.07
  *
  */
 
@@ -346,7 +346,6 @@ const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
 const pushToTalkDiv = getId('pushToTalkDiv');
 const recImage = getId('recImage');
-const switchH264Recording = getId('switchH264Recording');
 const pauseRecBtn = getId('pauseRecBtn');
 const resumeRecBtn = getId('resumeRecBtn');
 const recordingTime = getId('recordingTime');
@@ -788,11 +787,6 @@ function setButtonsToolTip() {
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
     setTippy(switchKeepButtonsVisible, 'Keep buttons always visible', 'right');
     setTippy(recImage, 'Toggle recording', 'right');
-    setTippy(
-        switchH264Recording,
-        'Prioritize h.264 with AAC or h.264 with Opus codecs over VP8 with Opus or VP9 with Opus codecs',
-        'right'
-    );
     setTippy(networkIP, 'IP address associated with the ICE candidate', 'right');
     setTippy(
         networkHost,
@@ -2417,7 +2411,7 @@ async function handleOnTrack(peer_id, peers) {
                     console.log(`[ON TRACK] - CLASSIFIED AS AUDIO -> ${peer_name}`);
                     remoteAudioStream && hasAudioTrack(inbound)
                         ? attachMediaStream(remoteAudioStream, inbound)
-                        : loadRemoteMediaStream(inbound, allPeers || peers, peer_id, kind);
+                        : loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'audio');
                     break;
                 default:
                     break;
@@ -4184,12 +4178,20 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteAudioVolumeId = peer_id + '_audioVolume';
             const remoteAudioVolumeEl = getId(remoteAudioVolumeId);
             remoteAudioMedia.id = peer_id + '___audio';
+            remoteAudioMedia.volume = 1.0;
             remoteAudioMedia.autoplay = true;
-            remoteAudioMedia.audio = 1.0;
+            remoteAudioMedia.controls = false;
+            remoteAudioMedia.muted = false;
             remoteAudioWrap.appendChild(remoteAudioMedia);
             audioMediaContainer.appendChild(remoteAudioWrap);
             attachMediaStream(remoteAudioMedia, stream);
             peerAudioMediaElements[remoteAudioMedia.id] = remoteAudioWrap;
+
+            // Explicitly play audio to ensure it starts (handles autoplay policies)
+            remoteAudioMedia.play().catch((err) => {
+                console.warn('[AUDIO] Autoplay prevented for ' + peer_name + ', waiting for user interaction:', err);
+                handleAudioFallback(remoteAudioMedia, peer_name);
+            });
             // handle remote peers audio volume
             handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
             // Toggle visibility of volume control based on the audio status of the peer
@@ -4200,6 +4202,30 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
         default:
             break;
     }
+}
+
+/**
+ * Handle remote audio fallback
+ * @param {object} audioMedia
+ * @param {string} peer_name
+ */
+function handleAudioFallback(audioMedia, peer_name) {
+    if (!audioMedia) return;
+    // Fallback: play audio on first user interaction
+    const playOnInteraction = () => {
+        audioMedia
+            .play()
+            .then(() => {
+                console.log('[AUDIO] Audio started after user interaction for ' + peer_name);
+                document.removeEventListener('click', playOnInteraction);
+                document.removeEventListener('touchstart', playOnInteraction);
+                document.removeEventListener('keydown', playOnInteraction);
+            })
+            .catch((e) => console.error('[AUDIO] Failed to play audio:', e));
+    };
+    document.addEventListener('click', playOnInteraction, { once: true });
+    document.addEventListener('touchstart', playOnInteraction, { once: true });
+    document.addEventListener('keydown', playOnInteraction, { once: true });
 }
 
 /**
@@ -8082,7 +8108,6 @@ function handleMediaRecorderStart(event) {
     recordStreamBtn.style.setProperty('color', '#ff4500');
     setTippy(recordStreamBtn, 'Stop recording', placement);
     if (isMobileDevice) elemDisplay(swapCameraBtn, false);
-    switchH264Recording.disabled = true;
     recStartTs = performance.now();
     playSound('recStart');
 }
@@ -8119,7 +8144,7 @@ function handleMediaRecorderStop(event) {
     downloadRecordedStream();
     setTippy(recordStreamBtn, 'Start recording', placement);
     if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
-    switchH264Recording.disabled = false;
+
     playSound('recStop');
 }
 
@@ -12095,7 +12120,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.06',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.07',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
