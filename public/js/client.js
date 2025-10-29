@@ -10129,48 +10129,49 @@ function handleEmoji(message, duration = 5000) {
  */
 function handleEmojiSound(message) {
     const path = '../sounds/emoji/';
+    const force = true; // play even if sound effects are off
     switch (message.shortcodes) {
         case ':+1:':
         case ':ok_hand:':
-            playSound('ok', true, path);
+            playSound('ok', force, path);
             break;
         case ':-1:':
-            playSound('boo', true, path);
+            playSound('boo', force, path);
             break;
         case ':clap:':
-            playSound('applause', true, path);
+            playSound('applause', force, path);
             break;
         case ':smiley:':
         case ':grinning:':
-            playSound('smile', true, path);
+            playSound('smile', force, path);
             break;
         case ':joy:':
-            playSound('laughs', true, path);
+            playSound('laughs', force, path);
             break;
         case ':tada:':
-            playSound('congrats', true, path);
+            playSound('congrats', force, path);
             break;
         case ':open_mouth:':
-            playSound('woah', true, path);
+            playSound('woah', force, path);
             break;
         case ':trumpet:':
-            playSound('trombone', true, path);
+            playSound('trombone', force, path);
             break;
         case ':kissing_heart:':
-            playSound('kiss', true, path);
+            playSound('kiss', force, path);
             break;
         case ':heart:':
         case ':hearts:':
-            playSound('heart', true, path);
+            playSound('heart', force, path);
             break;
         case ':rocket:':
-            playSound('rocket', true, path);
+            playSound('rocket', force, path);
             break;
         case ':sparkles:':
         case ':star:':
         case ':star2:':
         case ':dizzy:':
-            playSound('tinkerbell', true, path);
+            playSound('tinkerbell', force, path);
             break;
         // ...
         default:
