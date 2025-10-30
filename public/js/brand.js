@@ -75,7 +75,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.6.07',
+        title: 'WebRTC P2P v1.6.08',
         html: `
             <button 
                 id="support-button" 
@@ -213,15 +213,20 @@ function handleBrand() {
     if (joinRoomBtn && brand.app?.joinButtonLabel) joinRoomBtn.innerText = brand.app.joinButtonLabel;
     if (appJoinLastRoom && brand.app?.joinLastLabel) appJoinLastRoom.innerText = brand.app.joinLastLabel;
 
-    !brand.html.topSponsors && elementDisplay(topSponsors, false);
-    !brand.html.features && elementDisplay(features, false);
-    !brand.html.browsers && elementDisplay(browsers, false);
-    !brand.html.teams && elementDisplay(teams, false);
-    !brand.html.tryEasier && elementDisplay(tryEasier, false);
-    !brand.html.poweredBy && elementDisplay(poweredBy, false);
-    !brand.html.sponsors && elementDisplay(sponsors, false);
-    !brand.html.advertisers && elementDisplay(advertisers, false);
-    !brand.html.footer && elementDisplay(footer, false);
+    // helper to toggle multiple elements
+    const displayElements = (list) => list.forEach(([el, show]) => elementDisplay(el, !!show));
+
+    displayElements([
+        [topSponsors, brand.html?.topSponsors],
+        [features, brand.html?.features],
+        [browsers, brand.html?.browsers],
+        [teams, brand.html?.teams],
+        [tryEasier, brand.html?.tryEasier],
+        [poweredBy, brand.html?.poweredBy],
+        [sponsors, brand.html?.sponsors],
+        [advertisers, brand.html?.advertisers],
+        [footer, brand.html?.footer],
+    ]);
 }
 
 // WIDGET customize
