@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.09
+ * @version 1.6.10
  *
  */
 
@@ -4114,6 +4114,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenToImgBtn = document.createElement('button');
             const remoteScreenFullScreenBtn = document.createElement('button');
             const remoteScreenPinBtn = document.createElement('button');
+            const remoteScreenFocusBtn = document.createElement('button');
             const remoteScreenZoomInBtn = document.createElement('button');
             const remoteScreenZoomOutBtn = document.createElement('button');
             const remoteScreenPiPBtn = document.createElement('button');
@@ -4139,6 +4140,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenPiPBtn.setAttribute('id', peer_id + 'screenPIP');
             remoteScreenPiPBtn.className = className.pip;
 
+            remoteScreenFocusBtn.setAttribute('id', peer_id + '_screen_focusMode');
+            remoteScreenFocusBtn.className = className.hideAll;
+
             remoteScreenPinBtn.setAttribute('id', peer_id + '_screen_pinUnpin');
             remoteScreenPinBtn.className = className.pinUnpin;
 
@@ -4149,6 +4153,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 setTippy(remoteScreenZoomInBtn, 'Zoom in screen', 'bottom');
                 setTippy(remoteScreenZoomOutBtn, 'Zoom out screen', 'bottom');
                 setTippy(remoteScreenPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(remoteScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(remoteScreenPinBtn, 'Toggle Pin screen', 'bottom');
             }
 
@@ -4157,6 +4162,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             remoteScreenNavBar.className = 'navbar fadein';
             !isMobileDevice && remoteScreenNavBar.appendChild(remoteScreenPinBtn);
+
+            buttons.remote.showVideoFocusBtn && remoteScreenNavBar.appendChild(remoteScreenFocusBtn);
 
             buttons.remote.showSnapShotBtn && remoteScreenNavBar.appendChild(remoteScreenToImgBtn);
 
@@ -4194,6 +4201,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // pin/unpin video
             handleVideoPinUnpin(remoteScreenMedia.id, remoteScreenPinBtn.id, remoteScreenWrap.id, peer_id, true);
+
+            // handle video focus mode
+            handleVideoFocusMode(remoteScreenFocusBtn, remoteScreenWrap, remoteScreenMedia);
 
             // pin video on screen share
             remoteScreenPinBtn.click();
@@ -12209,7 +12219,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.09',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.10',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
