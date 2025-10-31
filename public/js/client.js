@@ -3482,7 +3482,7 @@ async function loadLocalMedia(stream, kind) {
 
             !isMobileDevice && myVideoNavBar.appendChild(myVideoPinBtn);
 
-            myVideoNavBar.appendChild(myVideoFocusBtn);
+            buttons.local.showVideoFocusBtn && myVideoNavBar.appendChild(myVideoFocusBtn);
 
             myVideoNavBar.appendChild(myVideoMirrorBtn);
 
@@ -3701,9 +3701,9 @@ async function loadLocalMedia(stream, kind) {
 
             isVideoFullScreenSupported && handleVideoPlayerFs(myScreenMedia.id, myScreenFullScreenBtn.id);
 
-            handleVideoPinUnpin(myScreenMedia.id, myScreenPinBtn.id, myScreenWrap.id, myScreenMedia.id, true);
+            buttons.local.showVideoFocusBtn && handleVideoFocusMode(myScreenFocusBtn, myScreenWrap, myScreenMedia);
 
-            handleVideoFocusMode(myScreenFocusBtn, myScreenWrap, myScreenMedia);
+            handleVideoPinUnpin(myScreenMedia.id, myScreenPinBtn.id, myScreenWrap.id, myScreenMedia.id, true);
 
             myScreenPinBtn.click();
 
