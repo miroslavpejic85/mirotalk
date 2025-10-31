@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.11
+ * @version 1.6.12
  *
  */
 
@@ -3378,6 +3378,7 @@ async function loadLocalMedia(stream, kind) {
             const myVideoStatusIcon = document.createElement('button');
             const myAudioStatusIcon = document.createElement('button');
             const myVideoFullScreenBtn = document.createElement('button');
+            const myVideoFocusBtn = document.createElement('button');
             const myVideoPinBtn = document.createElement('button');
             const myVideoMirrorBtn = document.createElement('button');
             const myVideoZoomInBtn = document.createElement('button');
@@ -3429,6 +3430,10 @@ async function loadLocalMedia(stream, kind) {
             myVideoZoomOutBtn.setAttribute('id', 'myVideoZoomOutBtn');
             myVideoZoomOutBtn.className = className.zoomOut;
 
+            // my video hide all button
+            myVideoFocusBtn.setAttribute('id', 'myVideoFocusMode');
+            myVideoFocusBtn.className = className.hideAll;
+
             // my video Picture in Picture
             myVideoPiPBtn.setAttribute('id', 'myVideoPiPBtn');
             myVideoPiPBtn.className = className.pip;
@@ -3450,6 +3455,7 @@ async function loadLocalMedia(stream, kind) {
                 setTippy(myAudioStatusIcon, 'My audio is on', 'bottom');
                 setTippy(myVideoToImgBtn, 'Take a snapshot', 'bottom');
                 setTippy(myVideoFullScreenBtn, 'Full screen mode', 'bottom');
+                setTippy(myVideoFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(myVideoPiPBtn, 'Toggle picture in picture', 'bottom');
                 setTippy(myVideoZoomInBtn, 'Zoom in video', 'bottom');
                 setTippy(myVideoZoomOutBtn, 'Zoom out video', 'bottom');
@@ -3475,6 +3481,8 @@ async function loadLocalMedia(stream, kind) {
             myVideoNavBar.appendChild(mySessionTime);
 
             !isMobileDevice && myVideoNavBar.appendChild(myVideoPinBtn);
+
+            myVideoNavBar.appendChild(myVideoFocusBtn);
 
             myVideoNavBar.appendChild(myVideoMirrorBtn);
 
@@ -3538,6 +3546,8 @@ async function loadLocalMedia(stream, kind) {
 
             handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
+            handleVideoFocusMode(myVideoFocusBtn, myVideoWrap, myLocalMedia);
+
             if (showVideoPipBtn && buttons.local.showVideoPipBtn)
                 handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id, myPeerId);
 
@@ -3586,6 +3596,7 @@ async function loadLocalMedia(stream, kind) {
             const myScreenPeerName = document.createElement('p');
             const myScreenToImgBtn = document.createElement('button');
             const myScreenFullScreenBtn = document.createElement('button');
+            const myScreenFocusBtn = document.createElement('button');
             const myScreenPinBtn = document.createElement('button');
             const myScreenZoomInBtn = document.createElement('button');
             const myScreenZoomOutBtn = document.createElement('button');
@@ -3611,6 +3622,10 @@ async function loadLocalMedia(stream, kind) {
             myScreenZoomOutBtn.setAttribute('id', 'myScreenZoomOutBtn');
             myScreenZoomOutBtn.className = className.zoomOut;
 
+            // my screen focus mode
+            myScreenFocusBtn.setAttribute('id', 'myScreenFocusMode');
+            myScreenFocusBtn.className = className.hideAll;
+
             // my screen Picture in Picture
             myScreenPiPBtn.setAttribute('id', 'myScreenPiPBtn');
             myScreenPiPBtn.className = className.pip;
@@ -3626,6 +3641,7 @@ async function loadLocalMedia(stream, kind) {
                 setTippy(myScreenZoomInBtn, 'Zoom in screen', 'bottom');
                 setTippy(myScreenZoomOutBtn, 'Zoom out screen', 'bottom');
                 setTippy(myScreenPiPBtn, 'Toggle picture in picture', 'bottom');
+                setTippy(myScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(myScreenPinBtn, 'Toggle Pin screen', 'bottom');
             }
 
@@ -3638,6 +3654,8 @@ async function loadLocalMedia(stream, kind) {
 
             // attach to screen nav bar
             !isMobileDevice && myScreenNavBar.appendChild(myScreenPinBtn);
+
+            myScreenNavBar.appendChild(myScreenFocusBtn);
 
             buttons.local.showSnapShotBtn && myScreenNavBar.appendChild(myScreenToImgBtn);
 
@@ -3683,6 +3701,8 @@ async function loadLocalMedia(stream, kind) {
             isVideoFullScreenSupported && handleVideoPlayerFs(myScreenMedia.id, myScreenFullScreenBtn.id);
 
             handleVideoPinUnpin(myScreenMedia.id, myScreenPinBtn.id, myScreenWrap.id, myScreenMedia.id, true);
+
+            handleVideoFocusMode(myScreenFocusBtn, myScreenWrap, myScreenMedia);
 
             myScreenPinBtn.click();
 
@@ -12248,7 +12268,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.11',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.12',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
