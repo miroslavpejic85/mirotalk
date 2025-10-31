@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.08
+ * @version 1.6.09
  *
  */
 
@@ -2430,9 +2430,25 @@ async function handleOnTrack(peer_id, peers) {
                     break;
                 case 'audio':
                     console.log(`[ON TRACK] - CLASSIFIED AS AUDIO -> ${peer_name}`);
-                    remoteAudioStream && hasAudioTrack(inbound)
-                        ? attachMediaStream(remoteAudioStream, inbound)
-                        : loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'audio');
+                    // Audio track can arrive before video case creates the element
+                    if (remoteAudioStream && remoteAudioStream.srcObject) {
+                        // Element exists and already has a stream, replace it
+                        console.log(`[ON TRACK] - Replacing existing audio stream for ${peer_name}`);
+                        attachMediaStream(remoteAudioStream, inbound);
+                    } else if (remoteAudioStream && !remoteAudioStream.srcObject) {
+                        // Element exists but no stream yet, attach this one
+                        console.log(`[ON TRACK] - Attaching audio stream to existing element for ${peer_name}`);
+                        attachMediaStream(remoteAudioStream, inbound);
+                        // Ensure audio plays
+                        remoteAudioStream.play().catch((err) => {
+                            console.warn('[AUDIO] Autoplay prevented, setting up fallback:', err);
+                            handleAudioFallback(remoteAudioStream, peer_name);
+                        });
+                    } else {
+                        // Element doesn't exist, create it
+                        console.log(`[ON TRACK] - Creating new audio element for ${peer_name}`);
+                        loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'audio');
+                    }
                     break;
                 default:
                     break;
@@ -12193,7 +12209,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.08',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.09',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
