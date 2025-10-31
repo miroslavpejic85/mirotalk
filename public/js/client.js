@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.13
+ * @version 1.6.14
  *
  */
 
@@ -3545,9 +3545,9 @@ async function loadLocalMedia(stream, kind) {
 
             buttons.local.showVideoCircleBtn && handleVideoPrivacyBtn(myLocalMedia.id, myPrivacyBtn.id);
 
-            handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
+            buttons.local.showVideoFocusBtn && handleVideoFocusMode(myVideoFocusBtn, myVideoWrap, myLocalMedia);
 
-            handleVideoFocusMode(myVideoFocusBtn, myVideoWrap, myLocalMedia);
+            handleVideoPinUnpin(myLocalMedia.id, myVideoPinBtn.id, myVideoWrap.id, myLocalMedia.id);
 
             if (showVideoPipBtn && buttons.local.showVideoPipBtn)
                 handlePictureInPicture(myVideoPiPBtn.id, myLocalMedia.id, myPeerId);
@@ -3656,7 +3656,7 @@ async function loadLocalMedia(stream, kind) {
             // attach to screen nav bar
             !isMobileDevice && myScreenNavBar.appendChild(myScreenPinBtn);
 
-            myScreenNavBar.appendChild(myScreenFocusBtn);
+            buttons.local.showVideoFocusBtn && myScreenNavBar.appendChild(myScreenFocusBtn);
 
             buttons.local.showSnapShotBtn && myScreenNavBar.appendChild(myScreenToImgBtn);
 
@@ -12264,7 +12264,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.13',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.14',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

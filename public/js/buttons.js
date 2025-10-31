@@ -74,6 +74,7 @@ let buttons = {
         showSnapShotBtn: true,
         showVideoCircleBtn: true,
         showZoomInOutBtn: false,
+        showVideoFocusBtn: true,
     },
     whiteboard: {
         whiteboardLockBtn: false,
