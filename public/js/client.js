@@ -3493,9 +3493,10 @@ async function loadLocalMedia(stream, kind) {
                 myVideoNavBar.appendChild(myVideoZoomOutBtn);
             }
 
-            isVideoFullScreenSupported && myVideoNavBar.appendChild(myVideoFullScreenBtn);
             buttons.local.showSnapShotBtn && myVideoNavBar.appendChild(myVideoToImgBtn);
             buttons.local.showVideoCircleBtn && myVideoNavBar.appendChild(myPrivacyBtn);
+
+            isVideoFullScreenSupported && myVideoNavBar.appendChild(myVideoFullScreenBtn);
 
             myVideoNavBar.appendChild(myVideoStatusIcon);
             myVideoNavBar.appendChild(myAudioStatusIcon);
@@ -3982,9 +3983,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteExpandBtnDiv.appendChild(remoteExpandBtn);
             remoteExpandBtnDiv.appendChild(remoteExpandContainerDiv);
 
-            isVideoFullScreenSupported && remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
-
             buttons.remote.showSnapShotBtn && remoteVideoNavBar.appendChild(remoteVideoToImgBtn);
+
+            isVideoFullScreenSupported && remoteVideoNavBar.appendChild(remoteVideoFullScreenBtn);
 
             remoteVideoNavBar.appendChild(remoteVideoStatusIcon);
             remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
@@ -7574,11 +7575,6 @@ async function toggleScreenSharing(init = false) {
         if (!init && myVideoAvatarImage && !useVideo) {
             elemDisplay(myVideo, false);
             elemDisplay(myVideoAvatarImage, true, 'block');
-        }
-
-        // Update privacy button (in-room only)
-        if (!init && myPrivacyBtn) {
-            isScreenStreaming ? elemDisplay(myPrivacyBtn, false) : elemDisplay(myPrivacyBtn, true);
         }
     } catch (err) {
         if (err && err.name === 'NotAllowedError') {
