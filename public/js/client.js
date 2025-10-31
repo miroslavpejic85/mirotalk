@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.10
+ * @version 1.6.11
  *
  */
 
@@ -4063,11 +4063,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // handle remote geo location
             buttons.remote.showGeoLocationBtn && handlePeerGeoLocation(peer_id, peer_name);
             // handle remote private messages
-            buttons.remote.showPrivateMessageBtn && handlePeerPrivateMsg(peer_id, peer_name);
+            buttons.remote.showPrivateMessageBtn && handlePeerPrivateMsg(peer_id, peer_name, remotePrivateMsgBtn.id);
             // handle remote send file
-            buttons.remote.showFileShareBtn && handlePeerSendFile(peer_id);
+            buttons.remote.showFileShareBtn && handlePeerSendFile(peer_id, remoteFileShareBtn.id);
             // handle remote video - audio URL
-            buttons.remote.showShareVideoAudioBtn && handlePeerVideoAudioUrl(peer_id);
+            buttons.remote.showShareVideoAudioBtn && handlePeerVideoAudioUrl(peer_id, remoteVideoAudioUrlBtn.id);
 
             // show status menu
             toggleClassElements('statusMenu', 'inline');
@@ -4118,6 +4118,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenZoomInBtn = document.createElement('button');
             const remoteScreenZoomOutBtn = document.createElement('button');
             const remoteScreenPiPBtn = document.createElement('button');
+            const remoteScreenVideoAudioUrlBtn = document.createElement('button');
+            const remoteScreenFileShareBtn = document.createElement('button');
+            const remoteScreenPrivateMsgBtn = document.createElement('button');
             const remoteScreenAvatarImage = document.createElement('img');
 
             // IDs and classes
@@ -4125,7 +4128,15 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenPeerName.className = 'videoPeerName';
             remoteScreenPeerName.appendChild(document.createTextNode(peer_name + ' (screen)'));
 
-            // my screen to image
+            remoteScreenPrivateMsgBtn.setAttribute('id', peer_id + '_screen_privateMsg');
+            remoteScreenPrivateMsgBtn.className = className.msgPrivate;
+
+            remoteScreenFileShareBtn.setAttribute('id', peer_id + '_screen_shareFile');
+            remoteScreenFileShareBtn.className = className.shareFile;
+
+            remoteScreenVideoAudioUrlBtn.setAttribute('id', peer_id + '_screen_videoAudioUrl');
+            remoteScreenVideoAudioUrlBtn.className = className.shareVideoAudio;
+
             remoteScreenToImgBtn.setAttribute('id', peer_id + '_screen_to_img');
             remoteScreenToImgBtn.className = className.snapShot;
 
@@ -4148,6 +4159,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             if (!isMobileDevice) {
                 setTippy(remoteScreenPeerName, 'Participant screen', 'bottom');
+                setTippy(remoteScreenVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
+                setTippy(remoteScreenPrivateMsgBtn, 'Send private message', 'bottom');
+                setTippy(remoteScreenFileShareBtn, 'Send file', 'bottom');
                 setTippy(remoteScreenToImgBtn, 'Take a snapshot', 'bottom');
                 setTippy(remoteScreenFullScreenBtn, 'Full screen mode', 'bottom');
                 setTippy(remoteScreenZoomInBtn, 'Zoom in screen', 'bottom');
@@ -4174,6 +4188,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             }
             isVideoFullScreenSupported && remoteScreenNavBar.appendChild(remoteScreenFullScreenBtn);
 
+            buttons.remote.showPrivateMessageBtn && remoteScreenNavBar.appendChild(remoteScreenPrivateMsgBtn);
+            buttons.remote.showFileShareBtn && remoteScreenNavBar.appendChild(remoteScreenFileShareBtn);
+            buttons.remote.showShareVideoAudioBtn && remoteScreenNavBar.appendChild(remoteScreenVideoAudioUrlBtn);
+
             remoteScreenMedia.setAttribute('id', peer_id + '___screen');
             remoteScreenMedia.setAttribute('playsinline', true);
             remoteScreenMedia.autoplay = true;
@@ -4195,6 +4213,14 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             videoMediaContainer.appendChild(remoteScreenWrap);
             attachMediaStream(remoteScreenMedia, stream);
             adaptAspectRatio();
+
+            // handle remote private messages
+            buttons.remote.showPrivateMessageBtn &&
+                handlePeerPrivateMsg(peer_id, peer_name, remoteScreenPrivateMsgBtn.id);
+            // handle remote send file
+            buttons.remote.showFileShareBtn && handlePeerSendFile(peer_id, remoteScreenFileShareBtn.id);
+            // handle remote video - audio URL
+            buttons.remote.showShareVideoAudioBtn && handlePeerVideoAudioUrl(peer_id, remoteScreenVideoAudioUrlBtn.id);
 
             // screen to image
             buttons.remote.showSnapShotBtn && handleVideoToImg(remoteScreenMedia.id, remoteScreenToImgBtn.id);
@@ -9988,9 +10014,10 @@ function handlePeerGeoLocation(peer_id) {
  * Send Private Message to specific peer
  * @param {string} peer_id socket.id
  * @param {string} toPeerName peer name to send message
+ * @param {string} privateMsgBtnId private message button id
  */
-function handlePeerPrivateMsg(peer_id, toPeerName) {
-    const peerPrivateMsg = getId(peer_id + '_privateMsg');
+function handlePeerPrivateMsg(peer_id, toPeerName, privateMsgBtnId) {
+    const peerPrivateMsg = getId(privateMsgBtnId);
     peerPrivateMsg.onclick = (e) => {
         e.preventDefault();
         sendPrivateMsgToPeer(myPeerId, toPeerName);
@@ -10031,9 +10058,10 @@ function sendPrivateMsgToPeer(toPeerId, toPeerName) {
 /**
  * Handle peer send file
  * @param {string} peer_id
+ * @param {string} fileShareBtnId
  */
-function handlePeerSendFile(peer_id) {
-    const peerFileSendBtn = getId(peer_id + '_shareFile');
+function handlePeerSendFile(peer_id, fileShareBtnId) {
+    const peerFileSendBtn = getId(fileShareBtnId);
     peerFileSendBtn.onclick = () => {
         selectFileToShare(peer_id);
     };
@@ -10042,9 +10070,10 @@ function handlePeerSendFile(peer_id) {
 /**
  * Send video - audio URL to specific peer
  * @param {string} peer_id socket.id
+ * @param {string} peerYoutubeBtnId youtube button id
  */
-function handlePeerVideoAudioUrl(peer_id) {
-    const peerYoutubeBtn = getId(peer_id + '_videoAudioUrl');
+function handlePeerVideoAudioUrl(peer_id, peerYoutubeBtnId) {
+    const peerYoutubeBtn = getId(peerYoutubeBtnId);
     peerYoutubeBtn.onclick = () => {
         sendVideoUrl(peer_id);
     };
@@ -12219,7 +12248,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.10',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.11',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
