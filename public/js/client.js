@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.12
+ * @version 1.6.13
  *
  */
 
@@ -6940,12 +6940,15 @@ async function changeAudioDestination(audioElement = false) {
     } else {
         const audioElements = audioMediaContainer.querySelectorAll('audio');
         // change audio output for all participants audio
-        audioElements.forEach(async (audioElement) => {
+        const promises = [];
+        audioElements.forEach((audioElement) => {
             // discard my own audio on this device, so I won't hear myself.
             if (audioElement.id != 'myAudio') {
-                await attachSinkId(audioElement, audioDestination);
+                promises.push(attachSinkId(audioElement, audioDestination));
             }
         });
+        // Wait for all audio outputs to be changed
+        await Promise.allSettled(promises);
     }
 }
 
@@ -7004,21 +7007,18 @@ async function attachSinkId(element, sinkId) {
                 } catch (e) {
                     resolve(false);
                 } finally {
+                    // Clean up all event listeners
                     window.removeEventListener('pointerdown', applyOnGesture);
                     window.removeEventListener('keydown', applyOnGesture);
-                    window.removeEventListener('mousedown', applyOnGesture);
                     window.removeEventListener('touchstart', applyOnGesture);
-                    window.removeEventListener('keydown', applyOnGesture);
                     window.__sinkGestureNotified = false;
                 }
             };
             const opts = { once: true };
-            // Use pointerdown (covers mouse/touch/pen) and keydown as safe user gestures
+            // Use pointerdown (covers mouse/touch/pen), touchstart (fallback for older browsers), and keydown
             window.addEventListener('pointerdown', applyOnGesture, opts);
             window.addEventListener('keydown', applyOnGesture, opts);
-            window.addEventListener('mousedown', applyOnGesture, opts);
             window.addEventListener('touchstart', applyOnGesture, opts);
-            window.addEventListener('keydown', applyOnGesture, opts);
         });
     }
 
@@ -12264,7 +12264,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.12',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.13',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
