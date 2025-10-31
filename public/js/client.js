@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.15
+ * @version 1.6.16
  *
  */
 
@@ -4313,12 +4313,25 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 console.warn('[AUDIO] Autoplay prevented for ' + peer_name + ', waiting for user interaction:', err);
                 handleAudioFallback(remoteAudioMedia, peer_name);
             });
-            // handle remote peers audio volume
-            handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
-            // Toggle visibility of volume control based on the audio status of the peer
-            if (remoteAudioVolumeEl) elemDisplay(remoteAudioVolumeEl, peer_audio_status);
-            // Change audio output...
-            if (sinkId && audioOutputSelect.value) await changeAudioDestination(remoteAudioMedia);
+
+            // Only wire volume control if the element exists
+            if (remoteAudioVolumeEl) {
+                try {
+                    handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
+                    elemDisplay(remoteAudioVolumeEl, peer_audio_status);
+                } catch (e) {
+                    console.warn('[AUDIO] handleAudioVolume failed for ' + peer_name, e);
+                }
+            }
+
+            // Change audio output if supported and audioOutputSelect is present
+            if (sinkId && audioOutputSelect && audioOutputSelect.value) {
+                try {
+                    await changeAudioDestination(remoteAudioMedia);
+                } catch (e) {
+                    console.warn('[AUDIO] changeAudioDestination failed for ' + peer_name, e);
+                }
+            }
             break;
         default:
             break;
@@ -12283,7 +12296,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.15',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.16',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
