@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.14
+ * @version 1.6.15
  *
  */
 
@@ -1487,11 +1487,8 @@ async function getButtons() {
         });
         const serverButtons = response.data.message;
         if (serverButtons) {
-            // Merge serverButtons into BUTTONS, keeping the existing keys in BUTTONS if they are not present in serverButtons
-            buttons = {
-                ...buttons, // Spread current BUTTONS first to keep existing keys
-                ...serverButtons, // Overwrite or add new keys from serverButtons
-            };
+            // Merge serverButtons into BUTTONS, keeping nested keys intact by performing a deep merge
+            buttons = mergeConfig(buttons || {}, serverButtons);
             console.log('AXIOS ROOM BUTTONS SETTINGS', {
                 serverButtons: serverButtons,
                 clientButtons: buttons,
@@ -1500,6 +1497,28 @@ async function getButtons() {
     } catch (error) {
         console.error('AXIOS GET CONFIG ERROR', error.message);
     }
+}
+
+/**
+ * Deep merge two objects
+ * @param {object} target target object
+ * @param {object} source source object
+ * @returns {object} merged object
+ */
+function mergeConfig(target, source) {
+    if (typeof target !== 'object' || target === null) return source;
+    if (typeof source !== 'object' || source === null) return source;
+    const output = Array.isArray(target) ? target.slice() : { ...target };
+    for (const key of Object.keys(source)) {
+        const srcVal = source[key];
+        const tgtVal = output[key];
+        if (srcVal && typeof srcVal === 'object' && !Array.isArray(srcVal)) {
+            output[key] = mergeConfig(tgtVal || {}, srcVal);
+        } else {
+            output[key] = srcVal;
+        }
+    }
+    return output;
 }
 
 /**
@@ -12264,7 +12283,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.14',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.15',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
