@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.16
+ * @version 1.6.17
  *
  */
 
@@ -1274,6 +1274,7 @@ async function handleConnect() {
         setupMySettings();
         loadSettingsFromLocalStorage();
         setupVideoUrlPlayer();
+        handleDropdownHover();
         startSessionTime();
         await whoAreYou();
     }
@@ -12296,7 +12297,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.16',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.17',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -12862,6 +12863,61 @@ function sanitizeXSS(src) {
  */
 function disable(elem, disabled) {
     elem.disabled = disabled;
+}
+
+/**
+ * Handle dropdown menus on hover (for non-touch devices)
+ */
+function handleDropdownHover() {
+    // Detect if device supports hover (pointer: fine) - works on desktop, tablets with mouse, etc.
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if (!supportsHover) {
+        // Touch-only devices - use click behavior only (already handled elsewhere)
+        return;
+    }
+
+    // Handle Chat dropdown menu hover
+    if (msgerDropDownMenuBtn && msgerDropDownContent) {
+        let chatTimeoutId;
+
+        const showChatDropdown = () => {
+            clearTimeout(chatTimeoutId);
+            elemDisplay(msgerDropDownContent, true, 'block');
+        };
+
+        const hideChatDropdown = () => {
+            chatTimeoutId = setTimeout(() => {
+                elemDisplay(msgerDropDownContent, false);
+            }, 200);
+        };
+
+        msgerDropDownMenuBtn.addEventListener('mouseenter', showChatDropdown);
+        msgerDropDownMenuBtn.addEventListener('mouseleave', hideChatDropdown);
+        msgerDropDownContent.addEventListener('mouseenter', () => clearTimeout(chatTimeoutId));
+        msgerDropDownContent.addEventListener('mouseleave', hideChatDropdown);
+    }
+
+    // Handle Whiteboard dropdown menu hover
+    if (whiteboardDropDownMenuBtn && whiteboardDropdownMenu) {
+        let wbTimeoutId;
+
+        const showWhiteboardDropdown = () => {
+            clearTimeout(wbTimeoutId);
+            elemDisplay(whiteboardDropdownMenu, true, 'block');
+        };
+
+        const hideWhiteboardDropdown = () => {
+            wbTimeoutId = setTimeout(() => {
+                elemDisplay(whiteboardDropdownMenu, false);
+            }, 200);
+        };
+
+        whiteboardDropDownMenuBtn.addEventListener('mouseenter', showWhiteboardDropdown);
+        whiteboardDropDownMenuBtn.addEventListener('mouseleave', hideWhiteboardDropdown);
+        whiteboardDropdownMenu.addEventListener('mouseenter', () => clearTimeout(wbTimeoutId));
+        whiteboardDropdownMenu.addEventListener('mouseleave', hideWhiteboardDropdown);
+    }
 }
 
 /**

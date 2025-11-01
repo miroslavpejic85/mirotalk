@@ -2086,6 +2086,10 @@ hr {
 # Dropdown menu custom
 --------------------------------------------------------------*/
 
+/* .fas.fa-bars {
+    color: #66beff !important;
+} */
+
 /* General container for the dropdown */
 .dropdown-custom {
     position: relative;
