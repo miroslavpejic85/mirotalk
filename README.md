@@ -160,7 +160,7 @@ When [host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) 
 <details open>
 <summary>Quick start</summary>
 
-![nodejs](public/images/nodejs.png)
+![nodejs](public/svg/nodejsDark.svg)
 
 - Before running MiroTalk P2P, ensure you have `Node.js` [installed](https://nodejs.org/en/download).
 
