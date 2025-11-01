@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.17
+ * @version 1.6.18
  *
  */
 
@@ -6901,7 +6901,20 @@ function getVideoConstraints(videoQuality) {
  * @returns {object} audio constraints
  */
 function getAudioConstraints(deviceId = null) {
-    const audioConstraints = deviceId ? { deviceId: { exact: deviceId } } : true;
+    // Enhanced audio constraints for better quality and volume on all devices
+    const audioConstraints = {
+        echoCancellation: true, // Prevents echo/feedback
+        autoGainControl: true, // Automatically adjusts microphone volume
+        noiseSuppression: false, // Use RNNoise instead
+        sampleRate: 48000, // High-quality audio sample rate
+        channelCount: 1, // Mono for better compression
+    };
+
+    // Add device ID if specified
+    if (deviceId) {
+        audioConstraints.deviceId = { exact: deviceId };
+    }
+
     return {
         audio: audioConstraints,
     };
@@ -12297,7 +12310,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.17',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.18',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
