@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.19
+ * @version 1.6.20
  *
  */
 
@@ -311,6 +311,7 @@ const captionFooter = getId('captionFooter');
 // My settings
 const mySettings = getId('mySettings');
 const mySettingsHeader = getId('mySettingsHeader');
+const mySessionTime = getId('mySessionTime'); // conference session time
 const tabVideoBtn = getId('tabVideoBtn');
 const tabAudioBtn = getId('tabAudioBtn');
 const tabVideoShareBtn = getId('tabVideoShareBtn');
@@ -515,7 +516,6 @@ let thisMaxRoomParticipants = 8;
 // misc
 let swBg = 'rgba(0, 0, 0, 0.7)'; // swAlert background color
 let callElapsedTime; // count time
-let mySessionTime; // conference session time
 let isDocumentOnFullScreen = false;
 let isToggleExtraBtnClicked = false;
 
@@ -708,7 +708,6 @@ function loadGeo() {
  * Load all Html elements by Id
  */
 function getHtmlElementsById() {
-    mySessionTime = getId('mySessionTime');
     // My video elements
     myVideo = getId('myVideo');
     myScreen = getId('myScreen');
@@ -773,6 +772,7 @@ function setButtonsToolTip() {
     setTippy(mySettingsCloseBtn, 'Close', 'bottom');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
     setTippy(myRoomId, 'Room name (click to copy/share)', 'right');
+    setTippy(mySessionTime, 'Session time', 'right');
     setTippy(
         switchNoiseSuppression,
         'If Active, the audio will be processed to reduce background noise, making the voice clearer',
@@ -3390,7 +3390,6 @@ async function loadLocalMedia(stream, kind) {
 
             // html elements
             const myVideoNavBar = document.createElement('div');
-            const mySessionTime = document.createElement('button');
             const myVideoPeerName = document.createElement('p');
             const myHandStatusIcon = document.createElement('button');
             const myVideoToImgBtn = document.createElement('button');
@@ -3407,11 +3406,6 @@ async function loadLocalMedia(stream, kind) {
             const myVideoAvatarImage = document.createElement('img');
             const myPitchMeter = document.createElement('div');
             const myPitchBar = document.createElement('div');
-
-            // session time
-            mySessionTime.setAttribute('id', 'mySessionTime');
-            mySessionTime.className = 'notranslate';
-            mySessionTime.style.cursor = 'default';
 
             // my peer name
             myVideoPeerName.setAttribute('id', 'myVideoPeerName');
@@ -3468,7 +3462,6 @@ async function loadLocalMedia(stream, kind) {
 
             // no mobile devices
             if (!isMobileDevice) {
-                setTippy(mySessionTime, 'Session Time', 'bottom');
                 setTippy(myHandStatusIcon, 'My hand is raised', 'bottom');
                 setTippy(myPrivacyBtn, 'Toggle video privacy', 'bottom');
                 setTippy(myVideoStatusIcon, 'My video is on', 'bottom');
@@ -3496,9 +3489,6 @@ async function loadLocalMedia(stream, kind) {
 
             // my video nav bar
             myVideoNavBar.className = 'navbar fadein';
-
-            // attach to video nav bar
-            myVideoNavBar.appendChild(mySessionTime);
 
             !isMobileDevice && myVideoNavBar.appendChild(myVideoPinBtn);
 
@@ -12310,7 +12300,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.19',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.20',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

@@ -34,20 +34,7 @@
     /* border: 3px solid lime; */
 }
 
-.Camera {
-    position: relative;
-    vertical-align: middle;
-    align-self: center;
-    border-radius: 10px;
-    overflow: hidden;
-    display: inline-block;
-    background: var(--body-bg);
-    border: var(--elem-border-color);
-    box-shadow: var(--box-shadow);
-    border-radius: 10px;
-    animation: show 0.4s ease;
-}
-
+.Camera,
 .Screen {
     position: relative;
     vertical-align: middle;
@@ -59,6 +46,8 @@
     border: var(--elem-border-color);
     box-shadow: var(--box-shadow);
     border-radius: 10px;
+    container-type: inline-size;
+    container-name: camera;
     animation: show 0.4s ease;
 }
 
@@ -73,26 +62,136 @@
     width: 100%;
     background: var(--navbar-bg);
     text-align: right;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 6px 12px 6px 6px;
+    gap: 4px;
+    row-gap: 4px;
+    box-sizing: border-box;
 }
 
 .navbar button {
-    display: inline;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px;
-    font-size: small;
+    font-size: 1.2rem;
     text-decoration: none;
     border: none;
     border-radius: 10px;
-    background: transparent;
+    background: var(--body-bg);
     color: #fff;
+    margin: 2px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.navbar button:hover {
+    background: var(--btns-bg-color);
+    transform: scale(1.05);
+    cursor: pointer;
 }
 
 .navbar div {
     display: inline;
 }
 
-.navbar button:hover {
-    color: var(--hover-color);
-    cursor: pointer;
+/* Extra small containers (mobile portrait, small screens) */
+@container camera (max-width: 250px) {
+    .navbar {
+        padding: 4px 10px 4px 4px;
+        gap: 3px;
+        row-gap: 3px;
+    }
+    .navbar button {
+        font-size: 0.7rem;
+        padding: 6px;
+        min-width: 28px;
+        min-height: 28px;
+        margin: 1px;
+    }
+}
+
+/* Small containers (mobile portrait) */
+@container camera (min-width: 251px) and (max-width: 350px) {
+    .navbar {
+        padding: 5px 10px 5px 5px;
+        gap: 3px;
+        row-gap: 3px;
+    }
+    .navbar button {
+        font-size: 0.8rem;
+        padding: 7px;
+        min-width: 30px;
+        min-height: 30px;
+        margin: 1px;
+    }
+}
+
+/* Medium-small containers (mobile landscape, small tablets) */
+@container camera (min-width: 351px) and (max-width: 500px) {
+    .navbar {
+        padding: 6px 11px 6px 6px;
+        gap: 4px;
+        row-gap: 4px;
+    }
+    .navbar button {
+        font-size: 0.9rem;
+        padding: 8px;
+        min-width: 32px;
+        min-height: 32px;
+        margin: 1.5px;
+    }
+}
+
+/* Medium containers (tablets portrait) */
+@container camera (min-width: 501px) and (max-width: 700px) {
+    .navbar {
+        padding: 6px 12px 6px 6px;
+        gap: 4px;
+        row-gap: 4px;
+    }
+    .navbar button {
+        font-size: 1rem;
+        padding: 9px;
+        min-width: 34px;
+        min-height: 34px;
+        margin: 2px;
+    }
+}
+
+/* Large containers (tablets landscape, desktop) */
+@container camera (min-width: 701px) and (max-width: 900px) {
+    .navbar {
+        padding: 7px 13px 7px 7px;
+        gap: 5px;
+        row-gap: 5px;
+    }
+    .navbar button {
+        font-size: 1.05rem;
+        padding: 9.5px;
+        min-width: 36px;
+        min-height: 36px;
+        margin: 2px;
+    }
+}
+
+/* Extra large containers (large desktop) */
+@container camera (min-width: 901px) {
+    .navbar {
+        padding: 8px 14px 8px 8px;
+        gap: 6px;
+        row-gap: 6px;
+    }
+    .navbar button {
+        font-size: 1.1rem;
+        padding: 10px;
+        min-width: 38px;
+        min-height: 38px;
+        margin: 2px;
+    }
 }
 
 /*--------------------------------------------------------------
