@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.18
+ * @version 1.6.19
  *
  */
 
@@ -1183,6 +1183,17 @@ io.sockets.on('connect', async (socket) => {
                     const { time, prompt, context } = params;
                     // Add the prompt to the context
                     context.push({ role: 'user', content: prompt });
+
+                    // Prevent memory leak: Limit context size to last 20 messages (10 exchanges)
+                    const MAX_CONTEXT_MESSAGES = 20;
+                    if (context.length > MAX_CONTEXT_MESSAGES) {
+                        // Keep the system message (if exists) and the most recent messages
+                        const systemMessage = context[0]?.role === 'system' ? [context[0]] : [];
+                        const recentMessages = context.slice(-MAX_CONTEXT_MESSAGES);
+                        context.length = 0; // Clear array
+                        context.push(...systemMessage, ...recentMessages);
+                    }
+
                     // Call OpenAI's API to generate response
                     const completion = await chatGPT.chat.completions.create({
                         model: configChatGPT.model || 'gpt-3.5-turbo',
@@ -1199,7 +1210,7 @@ io.sockets.on('connect', async (socket) => {
                         time: time,
                         room: room_id,
                         name: peer_name,
-                        context: context,
+                        contextLength: context.length,
                     });
                     // Callback response to client
                     cb({ message: message, context: context });
@@ -1422,7 +1433,7 @@ io.sockets.on('connect', async (socket) => {
             // Trigger a POST request when a user joins
             config.timestamp = log.getDateTime(false);
             axios
-                .post(webhook.url, { event: 'join', data: config })
+                .post(webhook.url, { event: 'join', data: config }, { timeout: 5000 }) // 5 second timeout
                 .then((response) => log.debug('Join event tracked:', response.data))
                 .catch((error) => log.error('Error tracking join event:', error.message));
         }
@@ -1879,7 +1890,7 @@ io.sockets.on('connect', async (socket) => {
                 };
                 // Trigger a POST request when a user disconnects
                 axios
-                    .post(webhook.url, { event: 'disconnect', data })
+                    .post(webhook.url, { event: 'disconnect', data }, { timeout: 5000 }) // 5 second timeout
                     .then((response) => log.debug('Disconnect event tracked:', response.data))
                     .catch((error) => log.error('Error tracking disconnect event:', error.message));
             }
@@ -1892,11 +1903,13 @@ io.sockets.on('connect', async (socket) => {
                 case 0: // last peer disconnected from the room without room lock & password set
                     delete peers[channel];
                     delete presenters[channel];
+                    delete channels[channel]; // Clean up channels to prevent memory leak
                     break;
                 case 2: // last peer disconnected from the room having room lock & password set
                     if (peers[channel]['lock'] && peers[channel]['password']) {
                         delete peers[channel]; // clean lock and password value from the room
                         delete presenters[channel]; // clean the presenter from the channel
+                        delete channels[channel]; // Clean up channels to prevent memory leak
                     }
                     break;
                 default:
