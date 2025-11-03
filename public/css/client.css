@@ -911,7 +911,7 @@ button {
 }
 
 #searchPeerBarName {
-    width: calc(100% - 24px);
+    width: calc(100% - 55px);
     padding: 12px 16px;
     margin: 0 12px;
     font-size: 1rem;
@@ -2199,12 +2199,12 @@ hr {
 .dropdown-menu-custom {
     z-index: 1;
     display: none;
-    position: absolute;
+    position: fixed;
     right: 0;
     padding: 10px 0;
     min-width: 240px;
     border-radius: 5px;
-    border: var(--border);
+    border: none;
     background: var(--body-bg);
     box-shadow: var(--box-shadow);
 }
