@@ -86,11 +86,12 @@
     margin: 3px;
     flex-shrink: 0;
     box-sizing: border-box;
+    transition: transform 0.2s ease;
+    transform-origin: center;
 }
 
 .navbar button:hover {
-    background: var(--btns-bg-color);
-    transform: scale(1.05);
+    background: var(--btns-bg-color) !important;
     cursor: pointer;
 }
 
