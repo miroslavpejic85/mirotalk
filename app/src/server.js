@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.20
+ * @version 1.6.21
  *
  */
 
@@ -1386,11 +1386,11 @@ io.sockets.on('connect', async (socket) => {
 
         const activeRooms = getActiveRooms();
 
-        log.info('[Join] - active rooms and peers count', activeRooms);
+        log.debug('[Join] - active rooms and peers count', activeRooms);
 
-        log.info('[Join] - connected presenters grp by roomId', presenters);
+        log.debug('[Join] - connected presenters grp by roomId', presenters);
 
-        log.info('[Join] - connected peers grp by roomId', peers);
+        log.debug('[Join] - connected peers grp by roomId', peers);
 
         await addPeerTo(channel);
 
@@ -1584,7 +1584,7 @@ io.sockets.on('connect', async (socket) => {
 
         const { room_id, peer_id, peer_name, peer_uuid, to_peer_id } = data;
 
-        log.info('cmd', config);
+        log.debug('cmd', config);
 
         // Only the presenter can do this actions
         const presenterActions = ['geoLocation'];
@@ -1921,11 +1921,11 @@ io.sockets.on('connect', async (socket) => {
 
         const activeRooms = getActiveRooms();
 
-        log.info('[removePeerFrom] - active rooms and peers count', activeRooms);
+        log.debug('[removePeerFrom] - active rooms and peers count', activeRooms);
 
-        log.info('[removePeerFrom] - connected presenters grp by roomId', presenters);
+        log.debug('[removePeerFrom] - connected presenters grp by roomId', presenters);
 
-        log.info('[removePeerFrom] - connected peers grp by roomId', peers);
+        log.debug('[removePeerFrom] - connected peers grp by roomId', peers);
 
         for (let id in channels[channel]) {
             await channels[channel][id].emit('removePeer', { peer_id: socket.id });
