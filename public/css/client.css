@@ -370,7 +370,7 @@ body {
     padding: 16px 20px;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3));
     color: #fff;
-    cursor: grab;
+    cursor: move;
     font-weight: 600;
     font-size: 1.05rem;
     border-top-left-radius: 16px;
@@ -542,7 +542,7 @@ body {
     padding: 16px 20px;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3));
     color: #fff;
-    cursor: grab;
+    cursor: move;
     font-weight: 600;
     font-size: 1.05rem;
     border-top-left-radius: 16px;
