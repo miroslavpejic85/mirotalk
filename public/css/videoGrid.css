@@ -106,11 +106,11 @@
         row-gap: 3px;
     }
     .navbar button {
-        font-size: 0.7rem;
+        font-size: 0.5rem;
         padding: 6px;
         min-width: 28px;
         min-height: 28px;
-        margin: 1.5px;
+        margin: 1px;
     }
 }
 
@@ -122,11 +122,11 @@
         row-gap: 3px;
     }
     .navbar button {
-        font-size: 0.8rem;
+        font-size: 0.5rem;
         padding: 7px;
         min-width: 30px;
         min-height: 30px;
-        margin: 2px;
+        margin: 1.5px;
     }
 }
 
@@ -138,11 +138,11 @@
         row-gap: 4px;
     }
     .navbar button {
-        font-size: 0.9rem;
+        font-size: 0.7rem;
         padding: 8px;
         min-width: 32px;
         min-height: 32px;
-        margin: 2.5px;
+        margin: 2px;
     }
 }
 
@@ -154,11 +154,11 @@
         row-gap: 4px;
     }
     .navbar button {
-        font-size: 1rem;
+        font-size: 0.8rem;
         padding: 9px;
         min-width: 34px;
         min-height: 34px;
-        margin: 3px;
+        margin: 2px;
     }
 }
 
@@ -170,7 +170,7 @@
         row-gap: 5px;
     }
     .navbar button {
-        font-size: 1.05rem;
+        font-size: 0.9rem;
         padding: 9.5px;
         min-width: 36px;
         min-height: 36px;
@@ -186,11 +186,11 @@
         row-gap: 6px;
     }
     .navbar button {
-        font-size: 1.1rem;
+        font-size: 1rem;
         padding: 10px;
         min-width: 38px;
         min-height: 38px;
-        margin: 2px;
+        margin: 3px;
     }
 }
 
