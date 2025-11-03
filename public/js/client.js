@@ -1616,8 +1616,6 @@ async function whoAreYou() {
         elemDisplay(getId('initScreenShareBtn'), false);
     }
 
-    initUser.classList.toggle('hidden');
-
     initVideoContainerShow(myVideoStatus);
 
     window.localStorage.peer_name = await getUserName();
@@ -1673,6 +1671,9 @@ async function whoAreYou() {
     }).then(() => {
         playSound('addPeer');
     });
+
+    // Show initUser injected into Swal html
+    initUser.classList.toggle('hidden');
 
     // select video - audio
 
