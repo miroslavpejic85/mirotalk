@@ -1206,10 +1206,11 @@ io.sockets.on('connect', async (socket) => {
                     // Add response to context
                     context.push({ role: 'assistant', content: message });
                     // Log conversation details
-                    log.info('ChatGPT', {
+                    log.debug('ChatGPT', {
                         time: time,
                         room: room_id,
                         name: peer_name,
+                        context: context,
                         contextLength: context.length,
                     });
                     // Callback response to client
