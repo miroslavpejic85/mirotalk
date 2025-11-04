@@ -4307,7 +4307,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             });
 
             // Only wire volume control if the element exists
-            if (remoteAudioVolumeEl && isDesktopDevice) {
+            if (remoteAudioVolumeEl && !isMobileDevice) {
                 try {
                     handleAudioVolume(remoteAudioVolumeId, remoteAudioMedia.id);
                     elemDisplay(remoteAudioVolumeEl, peer_audio_status);
