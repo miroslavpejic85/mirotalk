@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.23
+ * @version 1.6.24
  *
  */
 
@@ -2226,11 +2226,14 @@ function getIP(req) {
  * @returns string
  */
 function getSocketIP(socket) {
-    return (
-        socket.handshake.headers['x-forwarded-for'] ||
-        socket.handshake.headers['X-Forwarded-For'] ||
-        socket.handshake.address
-    );
+    const forwarded = socket.handshake.headers['x-forwarded-for'] || socket.handshake.headers['X-Forwarded-For'];
+
+    if (forwarded) {
+        // Return only the first IP (client's real IP)
+        return forwarded.split(',')[0].trim();
+    }
+
+    return socket.handshake.address;
 }
 
 /**
