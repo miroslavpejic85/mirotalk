@@ -2225,7 +2225,7 @@ hr {
 }
 
 .dropdown-menu-custom li button:hover {
-    background-color: var(--hover-bg); /* Use a default hover color if --hover-bg is not defined */
+    background: var(--select-bg) !important;
 }
 
 /* Styles for table cell with title (td) */
