@@ -2217,7 +2217,14 @@ function isAllowedRoomAccess(logMessage, req, hostCfg, peers, roomId) {
  * @returns string ip
  */
 function getIP(req) {
-    return req.headers['x-forwarded-for'] || req.headers['X-Forwarded-For'] || req.socket.remoteAddress || req.ip;
+    const forwarded = req.headers['x-forwarded-for'] || req.headers['X-Forwarded-For'];
+
+    if (forwarded) {
+        // Return only the first IP (client's real IP)
+        return forwarded.split(',')[0].trim();
+    }
+
+    return req.socket.remoteAddress || req.ip;
 }
 
 /**
