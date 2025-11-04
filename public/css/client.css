@@ -2170,7 +2170,6 @@ hr {
     border: none;
     border-radius: 10px;
     background-color: var(--body-bg);
-    box-shadow: var(--box-shadow);
 }
 
 /*--------------------------------------------------------------
@@ -2206,7 +2205,6 @@ hr {
     border-radius: 5px;
     border: none;
     background: var(--body-bg);
-    box-shadow: var(--box-shadow);
 }
 
 /* Style for dropdown items */
