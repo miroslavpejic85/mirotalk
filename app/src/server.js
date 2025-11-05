@@ -1081,7 +1081,8 @@ function getServerConfig(tunnel = false) {
         survey: surveyEnabled ? surveyURL : false,
         redirect: redirectEnabled ? redirectURL : false,
 
-        // Versions information
+        // Versions and environment information
+        environment: process.env.NODE_ENV || 'development',
         app_version: packageJson.version,
         node_version: process.versions.node,
     };
