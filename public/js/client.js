@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.26
+ * @version 1.6.27
  *
  */
 
@@ -559,6 +559,7 @@ let localVideoMediaStream; // my webcam
 let localScreenMediaStream; // my screen share
 let localAudioMediaStream; // my microphone
 let noiseProcessor = null; // RNNoise audio processing
+let peerScreenMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_screen
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
 let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
 
@@ -2713,6 +2714,7 @@ function handleDisconnect(reason) {
     checkRecording();
 
     for (const peer_id in peerConnections) {
+        const peerScreenId = peer_id + '___screen';
         const peerVideoId = peer_id + '___video';
         const peerAudioId = peer_id + '___audio';
 
@@ -2727,6 +2729,20 @@ function handleDisconnect(reason) {
             }
         }
 
+        const screenVideo = getId(peerScreenId);
+        if (screenVideo) {
+            // Peer screen in focus mode
+            if (screenVideo.hasAttribute('focus-mode')) {
+                const remoteScreenFocusBtn = getId(peer_id + '_screen_focusMode');
+                if (remoteScreenFocusBtn) {
+                    remoteScreenFocusBtn.click();
+                }
+            }
+        }
+
+        if (peerScreenMediaElements[peerScreenId] && peerScreenMediaElements[peerScreenId].parentNode) {
+            peerScreenMediaElements[peerScreenId].parentNode.removeChild(peerScreenMediaElements[peerScreenId]);
+        }
         if (peerVideoMediaElements[peerVideoId] && peerVideoMediaElements[peerVideoId].parentNode) {
             peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
         }
@@ -2744,6 +2760,7 @@ function handleDisconnect(reason) {
     chatDataChannels = {};
     fileDataChannels = {};
     peerConnections = {};
+    peerScreenMediaElements = {};
     peerVideoMediaElements = {};
     peerAudioMediaElements = {};
 
@@ -2762,6 +2779,7 @@ function handleRemovePeer(config) {
 
     const { peer_id } = config;
 
+    const peerScreenId = peer_id + '___screen';
     const peerVideoId = peer_id + '___video';
     const peerAudioId = peer_id + '___audio';
 
@@ -2780,6 +2798,21 @@ function handleRemovePeer(config) {
         adaptAspectRatio();
     }
 
+    if (peerScreenId in peerScreenMediaElements) {
+        const peerScreen = getId(peerScreenId);
+        if (peerScreen) {
+            // Peer screen in focus mode
+            if (peerScreen.hasAttribute('focus-mode')) {
+                const remoteScreenFocusBtn = getId(peer_id + '_screen_focusMode');
+                if (remoteScreenFocusBtn) {
+                    remoteScreenFocusBtn.click();
+                }
+            }
+        }
+        peerScreenMediaElements[peerScreenId].parentNode.removeChild(peerScreenMediaElements[peerScreenId]);
+        adaptAspectRatio();
+    }
+
     if (peerAudioId in peerAudioMediaElements) {
         peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
     }
@@ -2792,6 +2825,7 @@ function handleRemovePeer(config) {
     delete chatDataChannels[peer_id];
     delete fileDataChannels[peer_id];
     delete peerConnections[peer_id];
+    delete peerScreenMediaElements[peerScreenId];
     delete peerVideoMediaElements[peerVideoId];
     delete peerAudioMediaElements[peerAudioId];
     delete allPeers[peer_id];
@@ -4241,6 +4275,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenWrap.appendChild(remoteScreenAvatarImage);
             remoteScreenWrap.appendChild(remoteScreenMedia);
             remoteScreenWrap.appendChild(remoteScreenPeerName);
+
+            // need later on disconnect or remove peers
+            peerScreenMediaElements[remoteScreenMedia.id] = remoteScreenWrap;
 
             videoMediaContainer.appendChild(remoteScreenWrap);
             attachMediaStream(remoteScreenMedia, stream);
@@ -12302,7 +12339,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.26',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.27',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
