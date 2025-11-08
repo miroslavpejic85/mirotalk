@@ -708,7 +708,7 @@
                     }
 
                     try {
-                        const response = await fetch(`https://${CONFIG.domain}/isRoomActive`, {
+                        const response = await fetch(`https://${CONFIG.domain}/isWidgetRoomActive`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ roomId: CONFIG.roomId }),
@@ -719,7 +719,7 @@
                         }
 
                         const data = await response.json();
-                        const online = data.message && data.message !== 'Unauthorized';
+                        const online = data.message;
                         this.updateStatus(online);
                     } catch (error) {
                         console.warn('Failed to check room status:', error.message);

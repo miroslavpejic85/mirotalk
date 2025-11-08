@@ -389,7 +389,7 @@ class MiroTalkWidget {
 
     async checkOnlineStatus() {
         try {
-            const response = await fetch(`${this.protocol}://${this.domain}/isRoomActive`, {
+            const response = await fetch(`${this.protocol}://${this.domain}/isWidgetRoomActive`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ roomId: this.roomId }),
@@ -400,7 +400,7 @@ class MiroTalkWidget {
             }
 
             const data = await response.json();
-            const online = data.message && data.message !== 'Unauthorized';
+            const online = data.message;
             this.updateOnlineStatus(online);
         } catch (error) {
             console.warn('Failed to check room status:', error.message);

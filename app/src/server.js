@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.28
+ * @version 1.6.29
  *
  */
 
@@ -601,6 +601,15 @@ app.post('/isRoomActive', (req, res) => {
     }
 });
 
+// Check if Widget room active (exists)
+app.post('/isWidgetRoomActive', (req, res) => {
+    const { roomId } = checkXSS(req.body);
+    const roomWidgetActive =
+        roomId && roomId === config?.brand?.widget?.roomId && Object.prototype.hasOwnProperty.call(peers, roomId);
+    log.debug('isWidgetRoomActive', { roomId, roomWidgetActive });
+    res.status(200).json({ message: roomWidgetActive });
+});
+
 // Handle Direct join room with params
 app.get('/join/', async (req, res) => {
     if (Object.keys(req.query).length > 0) {
@@ -1080,6 +1089,9 @@ function getServerConfig(tunnel = false) {
         // URLs for Redirection and Survey
         survey: surveyEnabled ? surveyURL : false,
         redirect: redirectEnabled ? redirectURL : false,
+
+        // Widget Configuration
+        widget: config?.brand?.widget?.enabled ? config.brand.widget : false,
 
         // Versions and environment information
         environment: process.env.NODE_ENV || 'development',
