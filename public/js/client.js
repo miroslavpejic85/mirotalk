@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.27
+ * @version 1.6.28
  *
  */
 
@@ -2337,147 +2337,65 @@ async function handleOnIceCandidate(peer_id) {
  * @param {object} peers all peers info connected to the same room
  */
 async function handleOnTrack(peer_id, peers) {
-    console.log('[ON TRACK] - peer_id', { peer_id: peer_id });
-
     peerConnections[peer_id].ontrack = (event) => {
-        const remoteVideoStream = getId(`${peer_id}___video`);
-        const remoteScreenStream = getId(`${peer_id}___screen`);
-        const remoteAudioStream = getId(`${peer_id}___audio`);
-
-        // Prefer the latest global allPeers record over the captured peers param
-        const livePeerInfo =
-            typeof allPeers !== 'undefined' && allPeers && allPeers[peer_id] ? allPeers[peer_id] : null;
-        // Fallback to the captured peers param if needed
-        const peerInfo = livePeerInfo || (peers && peers[peer_id] ? peers[peer_id] : {});
-        const peer_name = peerInfo.peer_name || 'Unknown';
-
-        // Safely determine the kind of the incoming track
-        const kind =
-            event?.track?.kind || (event?.streams && event.streams[0] && event.streams[0].getTracks()[0]?.kind) || null;
-
-        // If we cannot determine the kind, log and return to avoid runtime errors
-        if (!kind) {
-            console.warn('[ON TRACK] - Unable to determine track kind', event);
+        if (!event.streams?.[0]) {
+            console.warn('[ON TRACK] No streams found', event);
             return;
         }
 
-        if (event.streams && event.streams[0]) {
-            const inbound = event.streams[0];
-            const trackId = event.track.id;
-            const streamId = inbound.id;
-            const label = (event.track && event.track.label) || '';
-            const settings =
-                event.track && typeof event.track.getSettings === 'function' ? event.track.getSettings() : {};
-            const displaySurface = settings && settings.displaySurface;
-
-            console.log('[ON TRACK] - Full details ->', {
-                peer_id,
-                peer_name,
-                kind,
-                trackId,
-                streamId,
-                label,
-                displaySurface,
-                peer_video_status: peerInfo.peer_video_status,
-                peer_screen_status: peerInfo.peer_screen_status,
-                extras: peerInfo.extras,
-            });
-
-            switch (kind) {
-                case 'screen':
-                case 'video':
-                    // SCREEN CLASSIFICATION
-                    const mainHasScreen =
-                        remoteScreenStream &&
-                        remoteScreenStream.srcObject &&
-                        hasVideoTrack(remoteScreenStream.srcObject);
-
-                    const extras = peerInfo && peerInfo.extras ? peerInfo.extras : {};
-
-                    // Tier 1: ID-based matching (most reliable)
-                    const idMatch =
-                        (extras && extras.screen_track_id === trackId) ||
-                        (extras && extras.screen_stream_id === streamId);
-
-                    // Tier 2: Label-based (less reliable)
-                    const labelScreenDetection = /screen|window|monitor|display/i.test(label);
-
-                    // Tier 3: Status-based fallback (screen on, camera off)
-                    const fallbackScreen = !!peerInfo.peer_screen_status && !peerInfo.peer_video_status;
-
-                    console.log('[ON TRACK] - Classification ->', {
-                        idMatch,
-                        labelScreenDetection,
-                        fallbackScreen,
-                        extras,
-                    });
-
-                    // SCREEN
-                    if (idMatch || labelScreenDetection || fallbackScreen) {
-                        console.log(`[ON TRACK] - CLASSIFIED AS SCREEN -> ${peer_name}`, {
-                            reason: idMatch ? 'ID_MATCH' : labelScreenDetection ? 'LABEL' : 'FALLBACK',
-                        });
-                        if (!mainHasScreen) {
-                            loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'screen');
-                        } else {
-                            attachMediaStream(remoteScreenStream, inbound);
-                            elemDisplay(remoteScreenStream, true, 'block');
-                        }
-                        return;
-                    }
-
-                    // CAMERA
-                    const mainHasVideo =
-                        remoteVideoStream && remoteVideoStream.srcObject && hasVideoTrack(remoteVideoStream.srcObject);
-
-                    if (peerInfo.peer_video_status) {
-                        console.log(`[ON TRACK] - CLASSIFIED AS VIDEO -> ${peer_name}`);
-                        if (!mainHasVideo) {
-                            loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'video');
-                        } else {
-                            attachMediaStream(remoteVideoStream, inbound);
-                            elemDisplay(remoteVideoStream, true, 'block');
-                        }
-                        return;
-                    }
-
-                    // Fallback: default to camera tile (unknown state)
-                    console.log(`[ON TRACK] - CLASSIFIED AS VIDEO (fallback) -> ${peer_name}`);
-                    if (!mainHasVideo) {
-                        loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'video');
-                    } else {
-                        attachMediaStream(remoteVideoStream, inbound);
-                        elemDisplay(remoteVideoStream, true, 'block');
-                    }
-                    break;
-                case 'audio':
-                    console.log(`[ON TRACK] - CLASSIFIED AS AUDIO -> ${peer_name}`);
-                    // Audio track can arrive before video case creates the element
-                    if (remoteAudioStream && remoteAudioStream.srcObject) {
-                        // Element exists and already has a stream, replace it
-                        console.log(`[ON TRACK] - Replacing existing audio stream for ${peer_name}`);
-                        attachMediaStream(remoteAudioStream, inbound);
-                    } else if (remoteAudioStream && !remoteAudioStream.srcObject) {
-                        // Element exists but no stream yet, attach this one
-                        console.log(`[ON TRACK] - Attaching audio stream to existing element for ${peer_name}`);
-                        attachMediaStream(remoteAudioStream, inbound);
-                        // Ensure audio plays
-                        remoteAudioStream.play().catch((err) => {
-                            console.warn('[AUDIO] Autoplay prevented, setting up fallback:', err);
-                            handleAudioFallback(remoteAudioStream, peer_name);
-                        });
-                    } else {
-                        // Element doesn't exist, create it
-                        console.log(`[ON TRACK] - Creating new audio element for ${peer_name}`);
-                        loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'audio');
-                    }
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            console.warn('[ON TRACK] - No streams found in event', event);
+        const kind = event.track?.kind;
+        if (!kind) {
+            console.warn('[ON TRACK] Unable to determine track kind', event);
             return;
+        }
+
+        const peerInfo = allPeers?.[peer_id] || peers?.[peer_id] || {};
+        const peer_name = peerInfo.peer_name || 'Unknown';
+        const inbound = event.streams[0];
+
+        // Helper to load or attach stream
+        const handleStream = (elementId, streamType) => {
+            const element = getId(`${peer_id}___${elementId}`);
+            const hasStream = element?.srcObject && (elementId === 'audio' || hasVideoTrack(element.srcObject));
+
+            if (!hasStream) {
+                loadRemoteMediaStream(inbound, allPeers || peers, peer_id, streamType);
+            } else {
+                attachMediaStream(element, inbound);
+                elemDisplay(element, true, 'block');
+            }
+        };
+
+        if (kind === 'audio') {
+            const audioElement = getId(`${peer_id}___audio`);
+
+            if (audioElement) {
+                attachMediaStream(audioElement, inbound);
+                if (!audioElement.srcObject) {
+                    audioElement.play().catch((err) => {
+                        console.warn('[AUDIO] Autoplay not allowed by device, setting up fallback:', err);
+                        handleAudioFallback(audioElement, peer_name);
+                    });
+                }
+            } else {
+                loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'audio');
+            }
+            return;
+        }
+
+        // Video or screen track
+        if (kind === 'video') {
+            const extras = peerInfo.extras || {};
+            const label = event.track.label || '';
+
+            // Classify as screen or camera
+            const isScreen =
+                extras.screen_track_id === event.track.id ||
+                extras.screen_stream_id === inbound.id ||
+                /screen|window|monitor|display/i.test(label) ||
+                (peerInfo.peer_screen_status && !peerInfo.peer_video_status);
+
+            handleStream(isScreen ? 'screen' : 'video', isScreen ? 'screen' : 'video');
         }
     };
 }
@@ -10053,7 +9971,6 @@ function handleAudioVolume(audioVolumeId, mediaId) {
         audioVolume.value = 100;
         audioVolume.addEventListener('input', () => {
             media.volume = audioVolume.value / 100;
-            console.log('[AUDIO VOLUME] Desktop volume set to', media.volume);
         });
     } else {
         if (audioVolume) elemDisplay(audioVolume, false);
@@ -12339,7 +12256,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.27',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.28',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
