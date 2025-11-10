@@ -48,6 +48,7 @@ module.exports = {
             poweredBy: true,
             sponsors: true,
             advertisers: true,
+            supportUs: true,
             footer: true,
         },
         about: {

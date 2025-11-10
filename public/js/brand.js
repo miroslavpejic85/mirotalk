@@ -32,6 +32,7 @@ const tryEasier = document.getElementById('tryEasier');
 const poweredBy = document.getElementById('poweredBy');
 const sponsors = document.getElementById('sponsors');
 const advertisers = document.getElementById('advertisers');
+const supportUs = document.getElementById('supportUs');
 const footer = document.getElementById('footer');
 //...
 
@@ -71,11 +72,12 @@ let brand = {
         poweredBy: true,
         sponsors: true,
         advertisers: true,
+        supportUs: true,
         footer: true,
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.6.29',
+        title: 'WebRTC P2P v1.6.30',
         html: `
             <button 
                 id="support-button" 
@@ -182,8 +184,30 @@ async function getBrand() {
  * @param {object} data
  */
 function setBrand(data) {
-    brand = data;
+    brand = mergeBrand(brand, data);
     console.log('Set Brand done');
+}
+
+/**
+ * Deep merge two objects
+ * @param {object} target target object
+ * @param {object} source source object
+ * @returns {object} merged object
+ */
+function mergeBrand(target, source) {
+    if (typeof target !== 'object' || target === null) return source;
+    if (typeof source !== 'object' || source === null) return source;
+    const output = Array.isArray(target) ? target.slice() : { ...target };
+    for (const key of Object.keys(source)) {
+        const srcVal = source[key];
+        const tgtVal = output[key];
+        if (srcVal && typeof srcVal === 'object' && !Array.isArray(srcVal)) {
+            output[key] = mergeConfig(tgtVal || {}, srcVal);
+        } else {
+            output[key] = srcVal;
+        }
+    }
+    return output;
 }
 
 /**
@@ -225,6 +249,7 @@ function handleBrand() {
         [poweredBy, brand.html?.poweredBy],
         [sponsors, brand.html?.sponsors],
         [advertisers, brand.html?.advertisers],
+        [supportUs, brand.html?.supportUs],
         [footer, brand.html?.footer],
     ]);
 }
