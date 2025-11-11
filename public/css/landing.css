@@ -956,12 +956,15 @@ strong {
 
 .button-primary {
     color: #f9faff;
-    /* background-color: #376df9; */
     background-color: #000000;
 }
 
 .button-primary:hover {
     background-color: #4678f9;
+    transform: translateY(-2px);
+    transition:
+        background 0.2s ease,
+        transform 0.12s ease;
 }
 
 .button-primary.is-loading::after {
@@ -2742,23 +2745,72 @@ ul.pricing-item-features-list li {
     display: flex;
     cursor: pointer;
     justify-content: center;
-    padding: 1rem;
-    border-radius: 1rem;
-    border: none !important;
-    background: #1d2026 !important;
+    align-items: center;
+    padding: 0.625rem 1.125rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    background-color: #1d2026 !important;
     background-image: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #1d2026 100%) !important;
     width: 100%;
     max-width: 100%;
+    box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+#topSponsors .clients-logo::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
+}
+
+#topSponsors .clients-logo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+    transition: left 0.6s ease;
+}
+
+#topSponsors .clients-logo:hover::before {
+    left: 100%;
 }
 
 #topSponsors .clients-logo:hover {
-    background: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #0e0e0e 100%) !important;
+    transform: translateY(-2px) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    background-image: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #0e0e0e 100%) !important;
 }
 
 #topSponsors .clients-size-logo {
     width: 240px;
     height: 60px;
     object-fit: contain;
+    filter: brightness(0.98) contrast(1.12) saturate(1.05);
+    transition:
+        filter 0.35s ease,
+        transform 0.35s ease;
+    position: relative;
+    z-index: 2;
+}
+
+#topSponsors .clients-logo:hover .clients-size-logo {
+    filter: brightness(1.08) contrast(1.18) saturate(1.12);
+    transform: scale(1.01);
 }
 
 /*--------------------------------------------------------------
@@ -2790,12 +2842,17 @@ ul.pricing-item-features-list li {
     width: 200px;
     height: 60px;
     object-fit: contain;
-    transition: filter 0.3s ease;
-    filter: brightness(0.9) contrast(1.1);
+    transition:
+        filter 0.4s ease,
+        transform 0.4s ease;
+    filter: brightness(1) contrast(1.15) saturate(1.1);
+    position: relative;
+    z-index: 1;
 }
 
 .clients-size-logo:hover {
-    filter: brightness(1.1) contrast(1.15);
+    filter: brightness(1.15) contrast(1.2) saturate(1.15);
+    transform: scale(1.02);
 }
 
 .clients-logo {
@@ -2803,22 +2860,53 @@ ul.pricing-item-features-list li {
     cursor: pointer;
     justify-content: center;
     align-items: center;
-    padding: 1rem;
-    border-radius: 12px;
+    padding: 1.5rem 1rem !important;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background-color: #1d2026 !important;
+    background-image: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #1d2026 100%) !important;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 90px !important;
     height: auto !important;
-    background: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #1d2026 100%);
-    box-shadow:
-        0 4px 16px rgba(0, 0, 0, 0.8),
-        0 2px 6px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 }
 
+.clients-logo::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.clients-logo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+    transition: left 0.6s ease;
+}
+
+.clients-logo:hover::before {
+    left: 100%;
+}
+
 .clients-logo:hover {
-    background: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #0e0e0e 100%);
+    transform: translateY(-4px) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    background-image: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #0e0e0e 100%) !important;
 }
 
 @media (min-width: 1024px) {
