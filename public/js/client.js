@@ -6862,7 +6862,7 @@ function getAudioConstraints(deviceId = null) {
         autoGainControl: true, // Automatically adjusts microphone volume
         noiseSuppression: false, // Use RNNoise instead
         sampleRate: 48000, // High-quality audio sample rate
-        channelCount: 1, // Mono for better compression
+        channelCount: 2, // Stereo for better audio quality
     };
 
     // Add device ID if specified
