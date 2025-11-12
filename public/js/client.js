@@ -767,8 +767,8 @@ function setButtonsToolTip() {
     setTippy(captionClean, 'Clean the messages', 'bottom');
     setTippy(captionSaveBtn, 'Save the messages', 'bottom');
     setTippy(speechRecognitionIcon, 'Status', 'bottom');
-    setTippy(speechRecognitionStart, 'Start', 'top');
-    setTippy(speechRecognitionStop, 'Stop', 'top');
+    setTippy(speechRecognitionStart, 'Start caption', 'top');
+    setTippy(speechRecognitionStop, 'Stop caption', 'top');
     // Settings
     setTippy(mySettingsCloseBtn, 'Close', 'bottom');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
@@ -2246,6 +2246,9 @@ async function handleAddPeer(config) {
 
     await wbUpdate();
     playSound('addPeer');
+
+    // Screen reader announcement for peer joined
+    screenReaderAccessibility.announceMessage(`${peer_name} joined the room`);
 }
 
 /**
@@ -2749,6 +2752,10 @@ function handleRemovePeer(config) {
     delete allPeers[peer_id];
 
     playSound('removePeer');
+
+    // Screen reader announcement for peer left
+    const peer_name = allPeers && allPeers[peer_id] ? allPeers[peer_id]['peer_name'] : 'Participant';
+    screenReaderAccessibility.announceMessage(`${peer_name} left the room`);
 
     console.log('ALL PEERS', allPeers);
 }
@@ -5204,10 +5211,12 @@ function setShareRoomBtn() {
     shareRoomBtn.addEventListener('mouseenter', () => {
         if (isMobileDevice || !buttons.main.showShareQr) return;
         elemDisplay(qrRoomPopupContainer, true);
+        screenReaderAccessibility.announceMessage('Room QR code displayed');
     });
     shareRoomBtn.addEventListener('mouseleave', () => {
         if (isMobileDevice || !buttons.main.showShareQr) return;
         elemDisplay(qrRoomPopupContainer, false);
+        screenReaderAccessibility.announceMessage('Room QR code hidden');
     });
 }
 
@@ -7273,6 +7282,9 @@ function handleAudio(e, init, force = null) {
     }
 
     setMyAudioStatus(myAudioStatus);
+
+    // Screen reader announcement
+    screenReaderAccessibility.announceMessage(audioStatus ? 'Microphone on' : 'Microphone off');
 }
 
 /**
@@ -7340,6 +7352,9 @@ async function handleVideo(e, init, force = null) {
     }
 
     setMyVideoStatus(videoStatus);
+
+    // Screen reader announcement
+    screenReaderAccessibility.announceMessage(videoStatus ? 'Camera on' : 'Camera off');
 }
 
 /**
@@ -7502,6 +7517,11 @@ async function toggleScreenSharing(init = false) {
                 }
                 if (!useVideo) initVideoContainerShow(true);
             }
+
+            // Screen reader announcement for starting screen share
+            if (!init) {
+                screenReaderAccessibility.announceMessage('Screen sharing started');
+            }
         } else {
             // STOP screen sharing
             const myScreenWrap = getId('myScreenWrap');
@@ -7535,6 +7555,9 @@ async function toggleScreenSharing(init = false) {
                 } catch (_) {}
                 await emitPeerStatus('screen', false, {});
                 await refreshMyStreamToPeers(undefined, true);
+
+                // Screen reader announcement for stopping screen share
+                screenReaderAccessibility.announceMessage('Screen sharing stopped');
             }
 
             // Update init preview when stopping during init
@@ -7568,6 +7591,10 @@ async function toggleScreenSharing(init = false) {
             elemDisplay(myVideo, false);
             elemDisplay(myVideoAvatarImage, true, 'block');
         }
+
+        screenReaderAccessibility.announceMessage(
+            isScreenStreaming ? 'Screen sharing started' : 'Screen sharing stopped'
+        );
     } catch (err) {
         if (err && err.name === 'NotAllowedError') {
             console.error('Screen sharing permission was denied by the user.');
@@ -7704,7 +7731,9 @@ function toggleFullScreen() {
             isDocumentOnFullScreen = false;
         }
     }
-    setTippy(fullScreenBtn, isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen', placement);
+    const fullScreenLabel = isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen';
+    setTippy(fullScreenBtn, fullScreenLabel, placement);
+    screenReaderAccessibility.announceMessage(fullScreenLabel);
 }
 
 /**
@@ -8226,6 +8255,7 @@ function handleMediaRecorderStart(event) {
     if (isMobileDevice) elemDisplay(swapCameraBtn, false);
     recStartTs = performance.now();
     playSound('recStart');
+    screenReaderAccessibility.announceMessage('Recording started');
 }
 
 /**
@@ -8262,6 +8292,7 @@ function handleMediaRecorderStop(event) {
     if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
 
     playSound('recStop');
+    screenReaderAccessibility.announceMessage('Recording stopped');
 }
 
 /**
@@ -8453,6 +8484,7 @@ function showChatRoomDraggable() {
     }
 
     setTippy(chatRoomBtn, 'Close the chat', bottomButtonsPlacement);
+    screenReaderAccessibility.announceMessage('Chat opened');
 }
 
 /**
@@ -8475,6 +8507,7 @@ function showCaptionDraggable() {
     }
 
     setTippy(captionBtn, 'Close the caption', placement);
+    screenReaderAccessibility.announceMessage('Caption opened');
 }
 
 /**
@@ -8799,6 +8832,7 @@ function hideChatRoomAndEmojiPicker() {
     isChatRoomVisible = false;
     isChatEmojiVisible = false;
     setTippy(chatRoomBtn, 'Open the chat', bottomButtonsPlacement);
+    screenReaderAccessibility.announceMessage('Chat closed');
 }
 
 /**
@@ -8879,6 +8913,11 @@ function handleDataChannelChat(dataMessage) {
     setPeerChatAvatarImgName('left', msgFrom, msgFromAvatar);
     appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId, msgFrom);
     speechInMessages ? speechMessage(true, msgFrom, msg) : playSound('chatMessage');
+
+    // Screen reader announcement for incoming chat message
+    if (!speechInMessages) {
+        screenReaderAccessibility.announceMessage(`New message from ${msgFrom}`);
+    }
 }
 
 /**
@@ -9674,12 +9713,14 @@ function hideShowMySettings() {
         setTippy(mySettingsBtn, 'Close the settings', bottomButtonsPlacement);
         isMySettingsVisible = true;
         videoMediaContainer.style.opacity = 0.3;
+        screenReaderAccessibility.announceMessage('Settings opened');
         return;
     }
     elemDisplay(mySettings, false);
     setTippy(mySettingsBtn, 'Open the settings', bottomButtonsPlacement);
     isMySettingsVisible = false;
     videoMediaContainer.style.opacity = 1;
+    screenReaderAccessibility.announceMessage('Settings closed');
 }
 
 /**
@@ -9814,6 +9855,9 @@ function handleHideMe(isHideMeActive) {
         playSound('on');
     }
     resizeVideoMedia();
+    screenReaderAccessibility.announceMessage(
+        isHideMeActive ? 'You are hidden from the room' : 'You are visible in the room'
+    );
 }
 
 /**
@@ -9847,9 +9891,11 @@ function setMyAudioStatus(status) {
     myAudioStatusIcon.className = audioClassName;
     // send my audio status to all peers in the room
     emitPeerStatus('audio', status);
-    setTippy(myAudioStatusIcon, status ? 'My audio is on' : 'My audio is off', 'bottom');
+    const audioStatusLabel = status ? 'My audio is on' : 'My audio is off';
+    setTippy(myAudioStatusIcon, audioStatusLabel, 'bottom');
     setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', bottomButtonsPlacement);
     status ? playSound('on') : playSound('off');
+    screenReaderAccessibility.announceMessage(audioStatusLabel);
 }
 
 /**
@@ -9871,8 +9917,10 @@ function setMyVideoStatus(status) {
     // send my video status to all peers in the room
     emitPeerStatus('video', status);
 
+    const videoStatusLabel = status ? 'My video is on' : 'My video is off';
+
     if (!isMobileDevice) {
-        if (myVideoStatusIcon) setTippy(myVideoStatusIcon, status ? 'My video is on' : 'My video is off', 'bottom');
+        if (myVideoStatusIcon) setTippy(myVideoStatusIcon, videoStatusLabel, 'bottom');
         setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', bottomButtonsPlacement);
     }
 
@@ -9889,6 +9937,8 @@ function setMyVideoStatus(status) {
         ]);
         playSound('off');
     }
+
+    screenReaderAccessibility.announceMessage(videoStatusLabel);
 }
 
 /**
@@ -10661,12 +10711,14 @@ function handleRoomStatus(config) {
             elemDisplay(lockRoomBtn, false);
             elemDisplay(unlockRoomBtn, true);
             isRoomLocked = true;
+            screenReaderAccessibility.announceMessage(`${peer_name} locked the room`);
             break;
         case 'unlock':
             userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top-end');
             elemDisplay(unlockRoomBtn, false);
             elemDisplay(lockRoomBtn, true);
             isRoomLocked = false;
+            screenReaderAccessibility.announceMessage(`${peer_name} unlocked the room`);
             break;
         case 'checkPassword':
             isRoomLocked = true;
@@ -10779,6 +10831,7 @@ function toggleWhiteboard() {
     whiteboard.style.top = '50%';
     whiteboard.style.left = '50%';
     wbIsOpen = !wbIsOpen;
+    screenReaderAccessibility.announceMessage(wbIsOpen ? 'Whiteboard opened' : 'Whiteboard closed');
 }
 
 /**
@@ -11774,6 +11827,9 @@ function sendFileInformations(file, peer_id, broadcast = false) {
         setTimeout(() => {
             sendFileData(peer_id, broadcast);
         }, 1000);
+
+        // Screen reader announcement for file sharing
+        screenReaderAccessibility.announceMessage(`Sending file ${fileToSend.name}`);
     } else {
         userLog('error', 'File dragged not valid or empty.');
     }
