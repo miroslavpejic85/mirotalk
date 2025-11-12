@@ -202,7 +202,7 @@ function mergeBrand(target, source) {
         const srcVal = source[key];
         const tgtVal = output[key];
         if (srcVal && typeof srcVal === 'object' && !Array.isArray(srcVal)) {
-            output[key] = mergeConfig(tgtVal || {}, srcVal);
+            output[key] = mergeBrand(tgtVal || {}, srcVal);
         } else {
             output[key] = srcVal;
         }
