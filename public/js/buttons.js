@@ -54,6 +54,7 @@ let buttons = {
         showLockRoomBtn: true,
         showUnlockRoomBtn: true,
         showShortcutsBtn: true,
+        customNoiseSuppression: true,
     },
     remote: {
         showAudioVolume: true,

@@ -168,6 +168,7 @@ module.exports = {
             showLockRoomBtn: true,
             showUnlockRoomBtn: true,
             showShortcutsBtn: true,
+            customNoiseSuppression: true,
         },
         remote: {
             showAudioVolume: true,

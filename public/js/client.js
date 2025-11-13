@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.34
+ * @version 1.6.35
  *
  */
 
@@ -362,6 +362,7 @@ const tabRoomPeerName = getId('tabRoomPeerName');
 const tabRoomParticipants = getId('tabRoomParticipants');
 const tabRoomSecurity = getId('tabRoomSecurity');
 const tabEmailInvitation = getId('tabEmailInvitation');
+const noiseSuppressionBtn = getId('noiseSuppressionBtn');
 const isPeerPresenter = getId('isPeerPresenter');
 const peersCount = getId('peersCount');
 const screenFpsDiv = getId('screenFpsDiv');
@@ -1469,6 +1470,7 @@ function handleButtonsRule() {
         { element: tabRoomParticipants, display: buttons.settings.showTabRoomParticipants },
         { element: tabRoomSecurity, display: buttons.settings.showTabRoomSecurity },
         { element: tabEmailInvitation, display: buttons.settings.showTabEmailInvitation },
+        { element: noiseSuppressionBtn, display: buttons.settings.customNoiseSuppression },
     ]);
 
     // Whiteboard
@@ -6377,6 +6379,7 @@ function setupMySettings() {
     });
     // audio options
     switchNoiseSuppression.onchange = async (e) => {
+        if (!buttons.settings.customNoiseSuppression) return;
         const noiseSuppressionEnabled = e.currentTarget.checked;
         lsSettings.mic_noise_suppression = noiseSuppressionEnabled;
         lS.setSettings(lsSettings);
@@ -12312,7 +12315,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.34',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.35',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
