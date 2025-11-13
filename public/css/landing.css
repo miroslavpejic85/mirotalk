@@ -4066,30 +4066,66 @@ img.has-shadow {
 .support-options {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    max-width: 900px;
+    gap: 24px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
 .support-card {
     display: flex;
+    cursor: pointer;
     flex-direction: column;
     align-items: center;
-    padding: 20px 16px !important;
-    background: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #1d2026 100%);
+    justify-content: center;
+    padding: 1.5rem 1rem !important;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background-color: #1d2026 !important;
+    background-image: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #1d2026 100%) !important;
     box-shadow:
-        0 4px 16px rgba(0, 0, 0, 0.8),
-        0 2px 6px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px;
+        0 4px 20px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 90px !important;
+    height: auto !important;
+    position: relative;
+    overflow: hidden;
     text-decoration: none;
     color: inherit;
-    transition: all 0.3s ease;
+}
+
+.support-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.support-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+    transition: left 0.6s ease;
+}
+
+.support-card:hover::before {
+    left: 100%;
 }
 
 .support-card:hover {
-    background: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #0e0e0e 100%);
+    transform: translateY(-4px) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    background-image: radial-gradient(circle at bottom, #000000 0%, #000000 0%, #0e0e0e 100%) !important;
 }
 
 .support-card-icon {
@@ -4101,7 +4137,9 @@ img.has-shadow {
     justify-content: center;
     background-color: rgba(255, 255, 255, 0.08) !important;
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .support-card:hover .support-card-icon {
@@ -4109,11 +4147,21 @@ img.has-shadow {
     transform: scale(1.1);
 }
 
+.support-card-icon i {
+    transition: filter 0.4s ease;
+}
+
+.support-card:hover .support-card-icon i {
+    filter: brightness(1.2);
+}
+
 .support-card-title-small {
     margin: 0 0 8px 0;
     font-size: 16px;
     font-weight: 600;
     color: #fff;
+    position: relative;
+    z-index: 1;
 }
 
 .support-card-description-small {
@@ -4121,6 +4169,13 @@ img.has-shadow {
     font-size: 13px;
     color: rgba(255, 255, 255, 0.7);
     text-align: center;
+    position: relative;
+    z-index: 1;
+    transition: color 0.4s ease;
+}
+
+.support-card:hover .support-card-description-small {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .support-footer {
@@ -4132,14 +4187,14 @@ img.has-shadow {
 @media (max-width: 900px) {
     .support-options {
         grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
+        gap: 20px;
     }
 }
 
 @media (max-width: 480px) {
     .support-options {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 20px;
     }
 
     .support-icon .fa-heart {
@@ -4151,7 +4206,12 @@ img.has-shadow {
     }
 
     .support-card {
-        padding: 24px 16px;
-        min-height: 140px;
+        padding: 1.25rem 1rem !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .support-options {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
