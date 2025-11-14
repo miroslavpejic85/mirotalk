@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.36
+ * @version 1.6.37
  *
  */
 
@@ -410,6 +410,7 @@ const captionEveryoneBtn = getId('captionEveryoneBtn');
 const muteEveryoneBtn = getId('muteEveryoneBtn');
 const hideEveryoneBtn = getId('hideEveryoneBtn');
 const ejectEveryoneBtn = getId('ejectEveryoneBtn');
+const activeRoomsBtn = getId('activeRoomsBtn');
 const lockRoomBtn = getId('lockRoomBtn');
 const unlockRoomBtn = getId('unlockRoomBtn');
 
@@ -1459,6 +1460,7 @@ function handleButtonsRule() {
 
     // Settings buttons
     displayElements([
+        { element: activeRoomsBtn, display: buttons.settings.showActiveRoomsBtn },
         { element: micOptionsDiv, display: buttons.settings.showMicOptionsBtn || isPresenter },
         { element: captionEveryoneBtn, display: buttons.settings.showCaptionEveryoneBtn },
         { element: muteEveryoneBtn, display: buttons.settings.showMuteEveryoneBtn },
@@ -6363,6 +6365,10 @@ function setupMySettings() {
     myRoomId.addEventListener('click', () => {
         isMobileDevice ? shareRoomUrl() : copyRoomURL();
     });
+    // Fetch and display all active rooms with their participant counts
+    activeRoomsBtn.addEventListener('click', () => {
+        getActiveRooms();
+    });
     // send invite by email to join room in a specified data-time
     roomSendEmailBtn.addEventListener('click', () => {
         shareRoomByEmail();
@@ -10603,6 +10609,13 @@ function ejectEveryone() {
 }
 
 /**
+ * Get active rooms from the server
+ */
+function getActiveRooms() {
+    openURL('/activeRooms', true);
+}
+
+/**
  * Mute or Hide specific peer
  * @param {string} peer_id socket.id
  * @param {string} element type audio/video
@@ -12315,7 +12328,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.36',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.37',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

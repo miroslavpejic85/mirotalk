@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.36
+ * @version 1.6.37
  *
  */
 
@@ -153,6 +153,7 @@ const hostCfg = {
     users: hostUsers,
     authenticated: !hostProtected,
     maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 1000,
+    showActiveRooms: getEnvBoolean(process.env.SHOW_ACTIVE_ROOMS) || false,
 };
 
 // JWT config
@@ -396,6 +397,7 @@ const views = {
     newCall: path.join(__dirname, '../../', 'public/views/newcall.html'),
     notFound: path.join(__dirname, '../../', 'public/views/404.html'),
     privacy: path.join(__dirname, '../../', 'public/views/privacy.html'),
+    activeRooms: path.join(__dirname, '../../', 'public/views/activeRooms.html'),
     stunTurn: path.join(__dirname, '../../', 'public/views/testStunTurn.html'),
 };
 
@@ -403,7 +405,7 @@ const views = {
 const brandHtmlInjection = config?.brand?.htmlInjection ?? true;
 
 // File to cache and inject custom HTML data like OG tags and any other elements.
-const filesPath = [views.landing, views.newCall, views.client, views.login];
+const filesPath = [views.landing, views.newCall, views.client, views.login, views.activeRooms];
 const htmlInjector = new HtmlInjector(filesPath, config?.brand || null);
 
 const channels = {}; // collect channels
@@ -562,6 +564,11 @@ app.get('/newcall', OIDCAuth, (req, res) => {
     } else {
         htmlInjector.injectHtml(views.newCall, res);
     }
+});
+
+// Get Active rooms
+app.get('/activeRooms', OIDCAuth, (req, res) => {
+    htmlInjector.injectHtml(views.activeRooms, res);
 });
 
 // Get stats endpoint
@@ -1010,6 +1017,30 @@ app.post('/slack', (req, res) => {
 function getMeetingURL(host) {
     return 'http' + (host.includes('localhost') ? '' : 's') + '://' + host + '/join/' + uuidV4();
 }
+
+// request active rooms endpoint
+app.get(`${apiBasePath}/activeRooms`, (req, res) => {
+    // Check if endpoint allowed
+    if (!hostCfg.showActiveRooms) {
+        return res.status(403).json({
+            error: 'This endpoint has been disabled. Please contact the administrator for further information.',
+        });
+    }
+    // check if user was authorized for the api call
+    const { host, authorization = api_key_secret } = req.headers;
+    const api = new ServerApi(host, authorization, api_key_secret);
+
+    // Get active rooms
+    const activeRooms = api.getActiveRooms(peers);
+    res.json({ activeRooms: activeRooms });
+
+    // log.debug the output if all done
+    log.debug('MiroTalk get active rooms - Authorized', {
+        header: req.headers,
+        body: req.body,
+        activeRooms: activeRooms,
+    });
+});
 
 // end of MiroTalk API v1
 

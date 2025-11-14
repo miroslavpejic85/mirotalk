@@ -1342,6 +1342,7 @@ button {
     border-radius: 50px;
 }
 
+#activeRoomsBtn,
 #myPeerNameSetBtn,
 #captionEveryoneBtn,
 #muteEveryoneBtn,
@@ -1390,6 +1391,7 @@ button {
     transition: all 0.3s ease-in-out;
 }
 
+#activeRoomsBtn:hover,
 #captionEveryoneBtn:hover {
     color: green;
     transform: translateY(-3px);

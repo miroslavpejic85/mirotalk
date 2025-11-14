@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+
+:root {
+    --primary-bg: #1e2229;
+    --card-bg: #15181d;
+    --accent: #1870d7;
+    --accent2: #2186ff;
+    --text: #f6f8fa;
+    --card-shadow: 0 2px 8px #15181d;
+}
+
+body {
+    font-family: 'Montserrat';
+    background: var(--primary-bg);
+    margin: 0;
+    padding: 0;
+    color: var(--text);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    padding: 32px;
+}
+
+h1 {
+    text-align: center;
+    color: var(--accent2);
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 28px;
+}
+
+.search-input {
+    padding: 10px 16px;
+    border-radius: 6px 0 0 6px;
+    border: none;
+    font-size: 1.1em;
+    background: #23262e;
+    color: var(--text);
+    outline: none;
+    width: 220px;
+}
+
+.search-btn {
+    padding: 10px 20px;
+    border-radius: 0 6px 6px 0;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.1em;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.search-btn:hover {
+    background: var(--accent2);
+}
+
+.rooms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 28px;
+    justify-content: center;
+}
+
+.room-card {
+    background: var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 1px 6px #15181d;
+    padding: 32px 24px;
+    min-height: 220px;
+    text-align: center;
+    transition:
+        box-shadow 0.2s,
+        transform 0.2s;
+    color: var(--text);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.room-card:hover {
+    cursor: pointer;
+    transform: translateY(-4px) scale(1.03);
+}
+
+.room-title {
+    font-size: 1.15em;
+    color: #f6f8fa;
+    margin-bottom: 14px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+.peer-count {
+    font-size: 2.3em;
+    color: #ffd700;
+    font-weight: bold;
+    margin-bottom: 8px;
+    margin-top: auto;
+    align-self: center;
+}
+
+.peer-label {
+    font-size: 0.9em;
+    color: #f6f8fa;
+    opacity: 0.7;
+    margin-bottom: 60px;
+    align-self: center;
+}
+
+.empty {
+    text-align: center;
+    color: #b3c6e0;
+    margin-top: 40px;
+    font-size: 1.2em;
+}
+
+.refresh-btn {
+    display: block;
+    margin: 0 auto 32px auto;
+    padding: 10px 28px;
+    background: var(--accent2);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 4px #15181d;
+    transition: background 0.2s;
+}
+
+.refresh-btn:hover {
+    background: var(--accent);
+}
+
+.join-btn {
+    display: block;
+    margin: 0 auto 0 auto;
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    padding: 10px 24px;
+    background: var(--accent2);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.2s;
+    box-shadow: 0 1px 4px #15181d;
+}
+
+.join-btn:hover {
+    background: var(--accent);
+}
+
+@media (max-width: 900px) {
+    .container {
+        max-width: 98vw;
+        padding: 16px;
+    }
+    .rooms {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .rooms {
+        grid-template-columns: 1fr;
+    }
+    .room-card {
+        padding: 20px 10px;
+    }
+    .peer-label {
+        margin-bottom: 70px;
+    }
+}

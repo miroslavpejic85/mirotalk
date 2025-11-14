@@ -35,6 +35,14 @@ module.exports = class ServerApi {
         };
     }
 
+    getActiveRooms(roomList) {
+        return Object.entries(roomList).map(([roomId, room]) => ({
+            id: roomId,
+            peers: room && typeof room === 'object' ? Object.keys(room).length : 0,
+            join: this.getProtocol() + this._host + '/' + roomId,
+        }));
+    }
+
     getMeetings(peers) {
         const meetings = {};
         for (const room_id in peers) {

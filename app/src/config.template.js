@@ -156,6 +156,7 @@ module.exports = {
             showMaxBtn: true,
         },
         settings: {
+            showActiveRoomsBtn: true,
             showMicOptionsBtn: true,
             showTabRoomPeerName: true,
             showTabRoomParticipants: true,

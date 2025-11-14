@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title id="title">MiroTalk - Active Rooms.</title>
+        <link id="icon" rel="shortcut icon" href="../images/logo.svg" />
+        <link id="appleTouchIcon" rel="apple-touch-icon" href="../images/logo.svg" />
+
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- https://ogp.me -->
+
+        <meta property="og:type" content="{{OG_TYPE}}" />
+        <meta property="og:site_name" content="{{OG_SITE_NAME}}" />
+        <meta property="og:title" content="{{OG_TITLE}}" />
+        <meta property="og:description" content="{{OG_DESCRIPTION}}" />
+        <meta property="og:image" content="{{OG_IMAGE}}" />
+        <meta property="og:url" content="{{OG_URL}}" />
+
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+        <link rel="stylesheet" type="text/css" href="../css/activeRooms.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1>Active Rooms</h1>
+            <div class="search-bar">
+                <input class="search-input" id="searchInput" type="text" placeholder="Search by Room ID..." />
+                <button id="search-btn" class="search-btn">Search</button>
+            </div>
+            <button id="refresh-btn" class="refresh-btn">Refresh</button>
+            <div class="rooms" id="rooms"></div>
+        </div>
+        <script defer src="../js/activeRooms.js"></script>
+    </body>
+</html>
