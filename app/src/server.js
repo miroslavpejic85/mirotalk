@@ -1152,7 +1152,7 @@ server.listen(port, null, () => {
  * setting up an RTCPeerConnection with one another. During this process they'll
  * need to relay ICECandidate information to one another, as well as SessionDescription
  * information. After all of that happens, they'll finally be able to complete
- * the peer connection and will be in streaming audio/video between eachother.
+ * the peer connection and will be in streaming audio/video between each other.
  */
 io.sockets.on('connect', async (socket) => {
     log.debug('[' + socket.id + '] connection accepted', {
