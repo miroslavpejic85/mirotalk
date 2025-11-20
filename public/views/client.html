@@ -791,7 +791,56 @@ access to use this app.
                                 <td><p id="networkTurn">🔴</p></td>
                             </tr>
                         </table>
-                        <!-- <hr class="hr" /> -->
+
+                        <hr class="hr" />
+
+                        <table id="mySettingsTable">
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-upload"></i>
+                                        <p>Sent</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkSent"></p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-download"></i>
+                                        <p>Received</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkReceived"></p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                        <p>Packet Lost</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkPacketLost"></p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-wave-square"></i>
+                                        <p>Jitter</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkJitter"></p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-clock-rotate-left"></i>
+                                        <p>RTT</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkRtt"></p></td>
+                            </tr>
+                        </table>
                     </div>
 
                     <div id="tabStyling" class="tabcontent">
@@ -1055,6 +1104,7 @@ access to use this app.
         <script defer src="../js/fixWebmDuration.js"></script>
         <script defer src="../js/screenReader.js"></script>
         <script defer src="../js/client.js"></script>
+        <script defer src="../js/networkStats.js"></script>
         <script defer src="../js/speechRecognition.js"></script>
         <script defer src="../js/nodeProcessor.js"></script>
 

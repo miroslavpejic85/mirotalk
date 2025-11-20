@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.38
+ * @version 1.6.39
  *
  */
 
@@ -554,6 +554,8 @@ let peerConnections = {}; // keep track of our peer connections, indexed by peer
 let chatDataChannels = {}; // keep track of our peer chat data channels
 let fileDataChannels = {}; // keep track of our peer file sharing data channels
 let allPeers = {}; // keep track of all peers in the room, indexed by peer_id == socket.io id
+
+let lastStats = null;
 
 // stream
 let initStream; // initial webcam stream
@@ -1213,14 +1215,6 @@ function initClientPeer() {
     signalingSocket.on('peerAction', handlePeerAction);
     signalingSocket.on('cmd', handleCmd);
     signalingSocket.on('message', handleMessage);
-    signalingSocket.on('wbCanvasToJson', handleJsonToWbCanvas);
-    signalingSocket.on('whiteboardAction', handleWhiteboardAction);
-    signalingSocket.on('caption', handleCaptionActions);
-    signalingSocket.on('kickOut', handleKickedOut);
-    signalingSocket.on('fileInfo', handleFileInfo);
-    signalingSocket.on('fileAbort', handleFileAbort);
-    signalingSocket.on('fileReceiveAbort', handleAbortFileTransfer);
-    signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
@@ -12328,7 +12322,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.38',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.39',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
