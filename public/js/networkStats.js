@@ -77,13 +77,24 @@ function bytesToSize(bytes) {
     return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
 }
 
+/**
+ * Convert seconds to ms, s, h as readable string
+ */
+function timeToReadable(seconds) {
+    if (seconds < 1e-3) return (seconds * 1e6).toFixed(2) + ' μs';
+    if (seconds < 1) return (seconds * 1000).toFixed(2) + ' ms';
+    if (seconds < 60) return seconds.toFixed(3) + ' s';
+    if (seconds < 3600) return (seconds / 60).toFixed(2) + ' min';
+    return (seconds / 3600).toFixed(2) + ' h';
+}
+
 /** Display into UI */
 function showNetworkStats(stats) {
-    networkSent.innerText = stats.bytesSent;
-    networkReceived.innerText = stats.bytesReceived;
-    networkJitter.innerText = stats.jitter.toFixed(3) + ' s';
+    networkSent.innerText = bytesToSize(stats.bytesSent);
+    networkReceived.innerText = bytesToSize(stats.bytesReceived);
+    networkJitter.innerText = timeToReadable(stats.jitter);
     networkPacketLost.innerText = stats.packetsLost;
-    networkRtt.innerText = stats.rtt.toFixed(3) + ' s';
+    networkRtt.innerText = timeToReadable(stats.rtt);
 }
 
 /**
@@ -123,8 +134,8 @@ setInterval(async () => {
     if (rttCount > 0) global.rtt /= rttCount;
 
     showNetworkStats({
-        bytesSent: bytesToSize(global.bytesSent),
-        bytesReceived: bytesToSize(global.bytesReceived),
+        bytesSent: global.bytesSent,
+        bytesReceived: global.bytesReceived,
         packetsLost: global.packetsLost,
         jitter: global.jitter,
         rtt: global.rtt,
