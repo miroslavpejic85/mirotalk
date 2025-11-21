@@ -337,11 +337,17 @@ These commands should now work correctly with the MiroTalk P2P
 </details>
 
 <details open>
-<summary>Hetzner, Netcup, Hostinger & Contabo</summary>
+<summary>Cloudron, Hetzner, Netcup, Hostinger & Contabo</summary>
 
 <br/>
 
-[![Hetzner](public/sponsors/Hetzner.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn)
+[![Cloudron](public/sponsors/CloudronLogo.png)](https://www.cloudron.io/)
+
+MiroTalk integrates with [Cloudron](https://www.cloudron.io/), enabling easy, secure, and self-managed video conferencing for organizations. Cloudron automates deployment, updates, backups, and user management, letting teams focus on collaboration instead of server maintenance. Install MiroTalk in one click from the [Cloudron App Store](https://www.cloudron.io/store/index.html) and enjoy a reliable, enterprise-ready solution.
+
+---
+
+[![Hetzner](public/sponsors/Hetzner.png)](https://www.hetzner.com)
 
 This application is running for `demonstration purposes` on [Hetzner](https://www.hetzner.com/), one of `the best` [cloud providers](https://www.hetzner.com/cloud) and [dedicated root servers](https://www.hetzner.com/dedicated-rootserver).
 
