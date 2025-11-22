@@ -10,6 +10,7 @@ class MiroTalkWidget {
         widgetState: 'normal', // 'normal', 'minimized', 'closed'
         widgetType: 'support', // 'support', 'meeting', 'chat' (future)
         supportWidget: {
+            draggable: false,
             position: 'bottom-right',
             expertImages: [
                 'https://i.pravatar.cc/40?img=1',
@@ -111,6 +112,11 @@ class MiroTalkWidget {
             // Start status checking if enabled
             this.initStatusChecking();
 
+            // Make widget draggable if enabled
+            if (this.options.supportWidget.draggable) {
+                this.makeDraggable(widget);
+            }
+
             // Automatically minimize on creation
             if (this.options.widgetState === 'minimized' && this.isInitialized) {
                 window.miroTalkWidgetAction('minimize', widget);
@@ -137,6 +143,83 @@ class MiroTalkWidget {
         if (this.options.supportWidget.checkOnlineStatus) {
             this.checkOnlineStatus();
             this.statusCheckInterval = setInterval(() => this.checkOnlineStatus(), 30000); // Check every 30s
+        }
+    }
+
+    // ============================================================================
+    // WIDGET DRAGGABLE
+    // ============================================================================
+
+    makeDraggable(element) {
+        let isDragging = false;
+        let startX = 0,
+            startY = 0,
+            startLeft = 0,
+            startTop = 0;
+        let rafId = null;
+        let pendingLeft = null,
+            pendingTop = null;
+        const dragHandle = element.querySelector('.online-indicator') || element;
+        dragHandle.style.cursor = 'move';
+
+        element.style.position = 'fixed';
+        element.style.left = element.offsetLeft + 'px';
+        element.style.top = element.offsetTop + 'px';
+        element.style.transform = 'translate(0,0)';
+
+        dragHandle.addEventListener('pointerdown', onPointerDown);
+
+        function onPointerDown(e) {
+            if (e.button !== 0) return;
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const rect = element.getBoundingClientRect();
+            startLeft = rect.left;
+            startTop = rect.top;
+            element.setPointerCapture(e.pointerId);
+            element.style.zIndex = 9999;
+            element.style.willChange = 'left, top';
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+        }
+
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            scheduleMove(startLeft + dx, startTop + dy);
+        }
+
+        function onPointerUp(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            document.removeEventListener('pointermove', onPointerMove);
+            document.removeEventListener('pointerup', onPointerUp);
+            element.style.willChange = '';
+            try {
+                element.releasePointerCapture(e.pointerId);
+            } catch (err) {}
+        }
+
+        function scheduleMove(left, top) {
+            // Prevent dragging out of viewport
+            const minLeft = 0;
+            const minTop = 0;
+            const maxLeft = window.innerWidth - element.offsetWidth;
+            const maxTop = window.innerHeight - element.offsetHeight;
+            left = Math.max(minLeft, Math.min(left, maxLeft));
+            top = Math.max(minTop, Math.min(top, maxTop));
+            pendingLeft = left;
+            pendingTop = top;
+            if (rafId) return;
+            rafId = requestAnimationFrame(() => {
+                element.style.left = pendingLeft + 'px';
+                element.style.top = pendingTop + 'px';
+                element.style.transform = 'translate(0,0)';
+                rafId = null;
+            });
         }
     }
 
@@ -743,6 +826,9 @@ document.addEventListener('DOMContentLoaded', function () {
             userName: autoInit.getAttribute('data-user') || `guest-${Math.floor(Math.random() * 10000)}`,
             theme: autoInit.getAttribute('data-theme') || MiroTalkWidget.DEFAULT_OPTIONS.theme,
             widgetState: autoInit.getAttribute('data-widget-state') || MiroTalkWidget.DEFAULT_OPTIONS.widgetState,
+            draggable:
+                autoInit.getAttribute('data-draggable') === 'true' ||
+                MiroTalkWidget.DEFAULT_OPTIONS.supportWidget.draggable,
             position: autoInit.getAttribute('data-position') || MiroTalkWidget.DEFAULT_OPTIONS.supportWidget.position,
             checkOnline: autoInit.getAttribute('data-check-online') === 'true',
             expertImages: autoInit.getAttribute('data-expert-images')
@@ -780,6 +866,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 theme: config.theme,
                 supportWidget: {
                     ...MiroTalkWidget.DEFAULT_OPTIONS.supportWidget,
+                    draggable: config.draggable,
                     position: config.position,
                     expertImages: config.expertImages,
                     checkOnlineStatus: config.checkOnline,
