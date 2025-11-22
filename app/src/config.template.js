@@ -1,9 +1,17 @@
 'use strict';
 
+/**
+ * ==============================================
+ * MiroTalk P2P v.1.6.42 - Configuration File
+ * ==============================================
+ *
+ * Branding and customizations require a license:
+ * https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
+ */
+
 const packageJson = require('../../package.json');
 
 module.exports = {
-    // Branding and customizations require a license: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
     brand: {
         htmlInjection: true,
         app: {
