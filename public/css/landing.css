@@ -4184,6 +4184,14 @@ img.has-shadow {
     border-top: 1px solid rgba(70, 120, 249, 0.2);
 }
 
+.support-footer a {
+    text-decoration: none;
+}
+
+.support-footer a:hover {
+    color: #fff;
+}
+
 @media (max-width: 900px) {
     .support-options {
         grid-template-columns: repeat(2, 1fr);
