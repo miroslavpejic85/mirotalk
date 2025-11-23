@@ -90,7 +90,7 @@ const loginLimiter = rateLimit({
     windowMs: minBlockTime * 60 * 1000, // 15 minutes default
     max: maxAttempts,
     message: 'Too many login attempts, please try again later.',
-    keyGenerator: (req) => req.body.username || getIP(req),
+    keyGenerator: (req) => req.body?.username || getIP(req),
 });
 
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
