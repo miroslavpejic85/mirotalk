@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.43
+ * @version 1.6.44
  *
  */
 
@@ -90,7 +90,7 @@ const loginLimiter = rateLimit({
     windowMs: minBlockTime * 60 * 1000, // 15 minutes default
     max: maxAttempts,
     message: 'Too many login attempts, please try again later.',
-    keyGenerator: (req) => req.body.username || ipKeyGenerator(req),
+    keyGenerator: (req) => req.body.username || getIP(req),
 });
 
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
