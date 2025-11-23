@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.42
+ * @version 1.6.43
  *
  */
 
@@ -81,6 +81,17 @@ const config = safeRequire('./config');
 const nodemailer = require('./lib/nodemailer');
 
 const packageJson = require('../../package.json');
+
+// Login attempts limit
+const rateLimit = require('express-rate-limit');
+const maxAttempts = process.env.HOST_MAX_LOGIN_ATTEMPTS || 5;
+const minBlockTime = process.env.HOST_MIN_LOGIN_BLOCK_TIME || 15; // in minutes
+const loginLimiter = rateLimit({
+    windowMs: minBlockTime * 60 * 1000, // 15 minutes default
+    max: maxAttempts,
+    message: 'Too many login attempts, please try again later.',
+    keyGenerator: (req) => req.body.username || ipKeyGenerator(req),
+});
 
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 const host = process.env.HOST || `http://localhost:${port}`;
@@ -756,7 +767,7 @@ app.get('/logged', (req, res) => {
 /* AXIOS */
 
 // handle login on host protected
-app.post('/login', (req, res) => {
+app.post('/login', loginLimiter, (req, res) => {
     //
     const ip = getIP(req);
     log.debug(`Request login to host from: ${ip}`, req.body);
