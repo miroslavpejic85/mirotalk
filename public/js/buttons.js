@@ -16,6 +16,7 @@ let buttons = {
         showScreenBtn: true, // autodetected
         showRecordStreamBtn: true,
         showChatRoomBtn: true,
+        showParticipantsBtn: true,
         showCaptionRoomBtn: true,
         showRoomEmojiPickerBtn: true,
         showMyHandBtn: true,

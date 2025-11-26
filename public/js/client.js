@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.46
+ * @version 1.6.47
  *
  */
 
@@ -183,6 +183,7 @@ const shareRoomBtn = getId('shareRoomBtn');
 const recordStreamBtn = getId('recordStreamBtn');
 const fullScreenBtn = getId('fullScreenBtn');
 const chatRoomBtn = getId('chatRoomBtn');
+const participantsBtn = getId('participantsBtn');
 const captionBtn = getId('captionBtn');
 const roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
 const whiteboardBtn = getId('whiteboardBtn');
@@ -609,6 +610,7 @@ let showChatOnMessage = true;
 let isChatPinned = false;
 let isCaptionPinned = false;
 let isChatRoomVisible = false;
+let isParticipantsVisible = false;
 let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
 let isChatMarkdownOn = false;
@@ -863,6 +865,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(screenShareBtn, 'Start screen sharing', bottomButtonsPlacement);
     setTippy(myHandBtn, 'Raise your hand', bottomButtonsPlacement);
     setTippy(chatRoomBtn, 'Open the chat', bottomButtonsPlacement);
+    setTippy(participantsBtn, 'Show participants', bottomButtonsPlacement);
     setTippy(mySettingsBtn, 'Open the settings', bottomButtonsPlacement);
     setTippy(leaveRoomBtn, 'Leave this room', bottomButtonsPlacement);
 }
@@ -1425,6 +1428,7 @@ function handleButtonsRule() {
         { element: recordStreamBtn, display: buttons.main.showRecordStreamBtn },
         { element: recImage, display: buttons.main.showRecordStreamBtn },
         { element: chatRoomBtn, display: buttons.main.showChatRoomBtn },
+        { element: participantsBtn, display: buttons.main.showParticipantsBtn },
         { element: captionBtn, display: buttons.main.showCaptionRoomBtn && speechRecognition }, // auto-detected
         { element: roomEmojiPickerBtn, display: buttons.main.showRoomEmojiPickerBtn },
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
@@ -5181,6 +5185,7 @@ function manageButtons() {
     setScreenShareBtn();
     setFullScreenBtn();
     setChatRoomBtn();
+    setParticipantsBtn();
     setCaptionRoomBtn();
     setRoomEmojiButton();
     setChatEmojiBtn();
@@ -5569,6 +5574,27 @@ function setChatRoomBtn() {
 
     // adapt input font size 4 mobile
     if (isMobileDevice) msgerInput.style.fontSize = 'xx-small';
+}
+
+/**
+ * Participants room buttons click event
+ */
+function setParticipantsBtn() {
+    participantsBtn.addEventListener('click', async (e) => {
+        if (!thereArePeerConnections()) {
+            return userLog('info', 'No participants detected');
+        }
+        if (isParticipantsVisible) {
+            hideChatRoomAndEmojiPicker();
+            elemDisplay(msgerCP, false);
+        }
+        if (!isChatRoomVisible && !isParticipantsVisible) {
+            showChatRoomDraggable();
+            await sleep(500);
+            elemDisplay(msgerCP, true, 'flex');
+        }
+        isParticipantsVisible = !isParticipantsVisible;
+    });
 }
 
 /**
@@ -8473,6 +8499,9 @@ function setChatRoomAndCaptionForMobile() {
  */
 function showChatRoomDraggable() {
     playSound('newMessage');
+    // Hide Participants chat
+    elemDisplay(msgerCP, false);
+
     if (isMobileDevice) {
         elemDisplay(buttonsBar, false);
         elemDisplay(bottomButtons, false);
@@ -12344,7 +12373,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.46',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.47',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

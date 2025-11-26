@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.6.46 - Configuration File
+ * MiroTalk P2P v.1.6.47 - Configuration File
  * ==============================================
  *
  * Branding and customizations require a license:
@@ -138,6 +138,7 @@ module.exports = {
             showScreenBtn: true, // autodetected
             showRecordStreamBtn: true,
             showChatRoomBtn: true,
+            showParticipantsBtn: true,
             showCaptionRoomBtn: true,
             showRoomEmojiPickerBtn: true,
             showMyHandBtn: true,

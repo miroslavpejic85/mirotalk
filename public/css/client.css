@@ -1270,16 +1270,28 @@ button {
         width: 90%;
     }
 
+    #bottomButtons {
+        gap: 0.3rem;
+        padding: 3px;
+    }
     #bottomButtons button {
-        width: 36px;
-        font-size: 1rem;
+        width: 38px;
+        font-size: 0.95rem;
+        padding: 8px;
+        margin: 0 1px;
     }
 }
 
-@media screen and (max-width: 350px) {
+@media screen and (max-width: 360px) {
+    #bottomButtons {
+        gap: 0.15rem;
+        padding: 2px;
+    }
     #bottomButtons button {
-        width: 30px;
-        font-size: 0.6rem;
+        width: 28px;
+        font-size: 0.65rem;
+        padding: 6px;
+        margin: 0 1px;
     }
 }
 
