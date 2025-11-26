@@ -327,6 +327,30 @@ body {
     transform: var(--btns-hover-scale);
 }
 
+#participantsBtn {
+    position: relative;
+}
+
+/* Participants count badge for participants button */
+#participantsCountBadge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 9px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    pointer-events: none;
+    z-index: 2;
+    display: none;
+}
+
 /*--------------------------------------------------------------
 # Caption
 --------------------------------------------------------------*/
