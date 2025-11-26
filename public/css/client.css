@@ -576,7 +576,7 @@ body {
 
 .msger-header,
 .msger-private-header {
-    z-index: 14;
+    z-index: 11;
     display: flex;
     align-items: center;
     justify-content: space-between;
