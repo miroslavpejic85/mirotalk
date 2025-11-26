@@ -8786,7 +8786,7 @@ function cleanMessages() {
             chatMessages = [];
             // clean chatGPT context
             chatGPTcontext = [];
-            // show empity messages
+            // show empty messages
             showMsgerEmptyNoticeIfNoMessages();
             playSound('delete');
         }
@@ -8816,7 +8816,7 @@ function cleanCaptions() {
             captions.forEach((caption) => captionChat.removeChild(caption));
             // clean object
             transcripts = [];
-            // show empity caption
+            // show empty caption
             showCaptionEmptyNoticeIfNoCaptions();
             playSound('delete');
         }
