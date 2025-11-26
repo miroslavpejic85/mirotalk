@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 48 48"
+     width="100%" height="100%"
+     preserveAspectRatio="xMidYMid meet"
+     aria-hidden="true">
+
+  <style>
+    /* Customize globally if desired */
+    :root { --caption-icon: #9ca3af; }
+    .stroke { stroke: var(--caption-icon); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+
+  <!-- Speech bubble -->
+  <rect x="6" y="6" width="36" height="26" rx="6" class="stroke" />
+
+  <!-- Tail -->
+  <path d="M20 32 L24 38 L28 32" class="stroke" />
+
+  <!-- Lines indicating text -->
+  <line x1="12" y1="14" x2="32" y2="14" class="stroke" />
+  <line x1="12" y1="20" x2="26" y2="20" class="stroke" />
+</svg>
+

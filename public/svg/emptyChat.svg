@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="120" height="120" aria-labelledby="title desc" role="img">
+  <title id="title">Empty chat</title>
+  <desc id="desc">Minimal outline chat bubble with three dots</desc>
+  <path d="M3 5.5C3 4.119 4.119 3 5.5 3h13C19.881 3 21 4.119 21 5.5v7c0 1.381-1.119 2.5-2.5 2.5H8.2L5 20v-4.5H5.5C4.119 15 3 13.881 3 12.5v-7z" fill="none" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="9.5" cy="9.25" r="0.9" fill="#6B7280"/>
+  <circle cx="12" cy="9.25" r="0.9" fill="#6B7280"/>
+  <circle cx="14.5" cy="9.25" r="0.9" fill="#6B7280"/>
+</svg>

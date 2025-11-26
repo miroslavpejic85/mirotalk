@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.44
+ * @version 1.6.46
  *
  */
 
@@ -222,6 +222,7 @@ const msgerClose = getId('msgerClose');
 const msgerMaxBtn = getId('msgerMaxBtn');
 const msgerMinBtn = getId('msgerMinBtn');
 const msgerChat = getId('msgerChat');
+const msgerEmptyNotice = getId('msgerEmptyNotice');
 const msgerEmojiBtn = getId('msgerEmojiBtn');
 const msgerMarkdownBtn = getId('msgerMarkdownBtn');
 const msgerGPTBtn = getId('msgerGPTBtn');
@@ -306,6 +307,7 @@ const captionClean = getId('captionClean');
 const captionSaveBtn = getId('captionSaveBtn');
 const captionClose = getId('captionClose');
 const captionChat = getId('captionChat');
+const captionEmptyNotice = getId('captionEmptyNotice');
 const captionFooter = getId('captionFooter');
 
 // My settings
@@ -8777,15 +8779,15 @@ function cleanMessages() {
     }).then((result) => {
         // clean chat messages
         if (result.isConfirmed) {
-            let msgs = msgerChat.firstChild;
-            while (msgs) {
-                msgerChat.removeChild(msgs);
-                msgs = msgerChat.firstChild;
-            }
+            // Remove only elements with class 'msg' inside msgerChat
+            const messages = msgerChat.querySelectorAll('.msg');
+            messages.forEach((msg) => msgerChat.removeChild(msg));
             // clean chat messages
             chatMessages = [];
             // clean chatGPT context
             chatGPTcontext = [];
+            // show empity messages
+            showMsgerEmptyNoticeIfNoMessages();
             playSound('delete');
         }
     });
@@ -8798,7 +8800,7 @@ function cleanCaptions() {
     playSound('newMessage');
     Swal.fire({
         background: swBg,
-        position: 'center',
+        position: 'top',
         title: 'Clean up all caption transcripts?',
         imageUrl: images.delete,
         showDenyButton: true,
@@ -8809,13 +8811,13 @@ function cleanCaptions() {
     }).then((result) => {
         // clean chat messages
         if (result.isConfirmed) {
-            let captions = captionChat.firstChild;
-            while (captions) {
-                captionChat.removeChild(captions);
-                captions = captionChat.firstChild;
-            }
+            // Remove only elements with class 'msg' inside captionChat
+            const captions = Array.from(captionChat.querySelectorAll('.msg'));
+            captions.forEach((caption) => captionChat.removeChild(caption));
             // clean object
             transcripts = [];
+            // show empity caption
+            showCaptionEmptyNoticeIfNoCaptions();
             playSound('delete');
         }
     });
@@ -8998,7 +9000,17 @@ function handleSpeechTranscript(config) {
         name: peer_name,
         caption: text_data,
     });
+
+    showCaptionEmptyNoticeIfNoCaptions();
     playSound('speech');
+}
+
+/**
+ * Hide empty caption notice
+ */
+function showCaptionEmptyNoticeIfNoCaptions() {
+    const captions = captionChat.querySelectorAll('.msg');
+    captions.length === 0 ? captionEmptyNotice.classList.remove('hidden') : captionEmptyNotice.classList.add('hidden');
 }
 
 /**
@@ -9127,6 +9139,15 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') 
         }
     }
     chatMessagesId++;
+    showMsgerEmptyNoticeIfNoMessages();
+}
+
+/**
+ * Hide empty chat notice
+ */
+function showMsgerEmptyNoticeIfNoMessages() {
+    const messages = msgerChat.querySelectorAll('.msg');
+    messages.length === 0 ? msgerEmptyNotice.classList.remove('hidden') : msgerEmptyNotice.classList.add('hidden');
 }
 
 /**
@@ -9241,6 +9262,7 @@ function deleteMessage(id) {
         // clean this message
         if (result.isConfirmed) {
             getId(id).remove();
+            showMsgerEmptyNoticeIfNoMessages();
             playSound('delete');
         }
     });
@@ -12322,7 +12344,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.44',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.46',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

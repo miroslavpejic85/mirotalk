@@ -228,7 +228,17 @@ access to use this app.
                     </div>
                 </header>
 
-                <main id="msgerChat" class="msger-chat"></main>
+                <main id="msgerChat" class="msger-chat">
+                    <!-- EMPTY CHAT ILLUSTRATION -->
+                    <div id="msgerEmptyNotice" class="empty-chat-notice">
+                        <img alt="Empty chat illustration" class="empty-chat-img" src="../svg/emptyChat.svg" />
+                        <h5 class="empty-chat-title">Start Conversation</h5>
+                        <p class="empty-chat-desc">
+                            There are no messages here yet. Start a conversation by sending a message.
+                        </p>
+                    </div>
+                    <!-- Chat messages will be appended here -->
+                </main>
 
                 <!-- Start emoji picker -->
 
@@ -309,7 +319,14 @@ access to use this app.
                     </div>
                 </header>
 
-                <main id="captionChat" class="caption-chat"></main>
+                <main id="captionChat" class="caption-chat">
+                    <!-- EMPTY CAPTION ILLUSTRATION -->
+                    <div id="captionEmptyNotice" class="empty-caption-notice">
+                        <img alt="Empty caption illustration" class="empty-caption-img" src="../svg/emptyCaption.svg" />
+                        <h5 class="empty-caption-title">Start Caption</h5>
+                        <p class="empty-caption-desc">No captions yet. Click "Start" to begin live captions.</p>
+                    </div>
+                </main>
                 <div id="captionFooter" class="caption-inputarea">
                     <select id="recognitionLanguage"></select>
                     <select id="recognitionDialect"></select>
