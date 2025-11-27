@@ -1459,6 +1459,16 @@ button {
     border-radius: 50px;
 }
 
+#captionEveryoneStopBtn {
+    display: none;
+    padding: 10px;
+    font-size: 0.9rem;
+    border: var(--border);
+    border-radius: 5px;
+    color: #fff;
+    background-color: transparent;
+}
+
 #activeRoomsBtn,
 #myPeerNameSetBtn,
 #captionEveryoneBtn,
@@ -1500,6 +1510,11 @@ button {
     transition: all 0.3s ease-in-out;
 }
 
+#captionEveryoneStopBtn:hover {
+    color: orange;
+    transform: translateY(-3px);
+    transition: all 0.3s ease-in-out;
+}
 #muteEveryoneBtn:hover,
 #hideEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {

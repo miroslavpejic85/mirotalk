@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.51
+ * @version 1.6.52
  *
  */
 
@@ -411,6 +411,7 @@ const whiteboardCloseBtn = getId('whiteboardCloseBtn');
 
 // Room actions buttons
 const captionEveryoneBtn = getId('captionEveryoneBtn');
+const captionEveryoneStopBtn = getId('captionEveryoneStopBtn');
 const muteEveryoneBtn = getId('muteEveryoneBtn');
 const hideEveryoneBtn = getId('hideEveryoneBtn');
 const ejectEveryoneBtn = getId('ejectEveryoneBtn');
@@ -6523,6 +6524,17 @@ function setupMySettings() {
                 recognitionDialectIndex: recognitionDialect.selectedIndex,
             },
         });
+        elemDisplay(captionEveryoneBtn, false);
+        elemDisplay(captionEveryoneStopBtn, true, 'inline');
+    });
+    captionEveryoneStopBtn.addEventListener('click', (e) => {
+        sendToServer('caption', {
+            room_id: roomId,
+            peer_name: myPeerName,
+            action: 'stop',
+        });
+        elemDisplay(captionEveryoneBtn, true, 'inline');
+        elemDisplay(captionEveryoneStopBtn, false);
     });
     muteEveryoneBtn.addEventListener('click', (e) => {
         disableAllPeers('audio');
@@ -12338,6 +12350,19 @@ function handleCaptionActions(config) {
                 }
             });
             break;
+        case 'stop':
+            if (!recognitionRunning || !buttons.main.showCaptionRoomBtn) return;
+            toastMessage(
+                'warning',
+                'Stop captions',
+                `${peer_name} has stopped the captions for this session`,
+                'top-end',
+                6000
+            );
+            if (recognitionRunning) {
+                speechRecognitionStop.click();
+            }
+            break;
         default:
             break;
     }
@@ -12399,7 +12424,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.51',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.52',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
