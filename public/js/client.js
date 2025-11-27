@@ -1224,6 +1224,7 @@ function initClientPeer() {
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('fileAbort', handleFileAbort);
     signalingSocket.on('fileReceiveAbort', abortFileTransfer);
+    signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
