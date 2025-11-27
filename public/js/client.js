@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.49
+ * @version 1.6.50
  *
  */
 
@@ -1222,6 +1222,8 @@ function initClientPeer() {
     signalingSocket.on('cmd', handleCmd);
     signalingSocket.on('message', handleMessage);
     signalingSocket.on('fileInfo', handleFileInfo);
+    signalingSocket.on('fileAbort', handleFileAbort);
+    signalingSocket.on('fileReceiveAbort', abortFileTransfer);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
 } // end [initClientPeer]
@@ -9541,6 +9543,14 @@ function isImageURL(input) {
 }
 
 /**
+ * Check if Image File
+ * @return boolean
+ */
+function isImageFile(filename) {
+    return /(\.jpg|\.jpeg|\.png|\.gif|\.webp|\.bmp|\.tiff|\.svg)$/i.test(filename);
+}
+
+/**
  * Get image
  * @param {string} text
  * @returns img
@@ -11976,7 +11986,7 @@ function endDownload() {
     incomingFileData = [];
 
     // if file is image, show the preview
-    if (isImageURL(incomingFileInfo.file.fileName)) {
+    if (isImageFile(incomingFileInfo.file.fileName)) {
         const reader = new FileReader();
         reader.onload = (e) => {
             Swal.fire({
@@ -12384,7 +12394,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.49',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.50',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
