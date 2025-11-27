@@ -1221,6 +1221,10 @@ function initClientPeer() {
     signalingSocket.on('peerAction', handlePeerAction);
     signalingSocket.on('cmd', handleCmd);
     signalingSocket.on('message', handleMessage);
+    signalingSocket.on('caption', handleCaptionActions);
+    signalingSocket.on('videoPlayer', handleVideoPlayer);
+    signalingSocket.on('wbCanvasToJson', handleJsonToWbCanvas);
+    signalingSocket.on('whiteboardAction', handleWhiteboardAction);
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('fileAbort', handleFileAbort);
     signalingSocket.on('fileReceiveAbort', abortFileTransfer);
