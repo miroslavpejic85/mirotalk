@@ -5459,7 +5459,7 @@ function setChatRoomBtn() {
     // show msger participants section
     msgerCPBtn.addEventListener('click', (e) => {
         if (!thereArePeerConnections()) {
-            return userLog('info', 'No participants detected');
+            return toastMessage('info', 'No participants detected', '', 'top');
         }
         elemDisplay(msgerCP, true, 'flex');
     });
@@ -5601,7 +5601,7 @@ function setChatRoomBtn() {
 function setParticipantsBtn() {
     participantsBtn.addEventListener('click', async (e) => {
         if (!thereArePeerConnections()) {
-            return userLog('info', 'No participants detected');
+            return toastMessage('info', 'No participants detected', '', 'top');
         }
         if (isParticipantsVisible) {
             hideChatRoomAndEmojiPicker();
@@ -10632,7 +10632,7 @@ function setMyVideoOff(peer_name) {
  */
 function disableAllPeers(element) {
     if (!thereArePeerConnections()) {
-        return userLog('info', 'No participants detected');
+        return toastMessage('info', 'No participants detected', '', 'top');
     }
     Swal.fire({
         background: swBg,
@@ -10671,7 +10671,7 @@ function disableAllPeers(element) {
  */
 function ejectEveryone() {
     if (!thereArePeerConnections()) {
-        return userLog('info', 'No participants detected');
+        return toastMessage('info', 'No participants detected', '', 'top');
     }
     Swal.fire({
         background: swBg,
@@ -10705,7 +10705,7 @@ function getActiveRooms() {
  */
 function disablePeer(peer_id, element) {
     if (!thereArePeerConnections()) {
-        return userLog('info', 'No participants detected');
+        return toastMessage('info', 'No participants detected', '', 'top');
     }
     Swal.fire({
         background: swBg,
@@ -11885,7 +11885,7 @@ function sendFileInformations(file, peer_id, broadcast = false) {
     if (fileToSend && fileToSend.size > 0) {
         // no peers in the room
         if (!thereArePeerConnections()) {
-            return userLog('info', 'No participants detected');
+            return toastMessage('info', 'No participants detected', '', 'top');
         }
 
         // prevent XSS injection to remote peer (fileToSend.name is read only)
@@ -12088,7 +12088,7 @@ function sendVideoUrl(peer_id = null) {
         if (result.value) {
             result.value = filterXSS(result.value);
             if (!thereArePeerConnections()) {
-                return userLog('info', 'No participants detected');
+                return toastMessage('info', 'No participants detected', '', 'top');
             }
             console.log('Video URL: ' + result.value);
             /*
