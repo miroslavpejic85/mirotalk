@@ -12270,10 +12270,10 @@ function kickOut(peer_id) {
 
     Swal.fire({
         background: swBg,
-        position: 'center',
-        imageUrl: images.confirmation,
-        title: 'Kick out ' + pName,
-        text: 'Are you sure you want to kick out this participant?',
+        position: 'top',
+        // imageUrl: images.leave,
+        title: 'Kick out',
+        text: `Are you sure you want to kick out ${pName}?`,
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
