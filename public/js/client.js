@@ -5613,6 +5613,7 @@ function setParticipantsBtn() {
             elemDisplay(msgerCP, true, 'flex');
         }
         isParticipantsVisible = !isParticipantsVisible;
+        screenReaderAccessibility.announceMessage(isParticipantsVisible ? 'Participants panel opened' : 'Participants panel closed');
     });
 }
 
