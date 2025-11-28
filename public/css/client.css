@@ -238,7 +238,7 @@ body {
 --------------------------------------------------------------*/
 
 #buttonsBar {
-    z-index: 1;
+    z-index: 10;
     display: none;
     position: fixed;
     /* padding: 10px; */
