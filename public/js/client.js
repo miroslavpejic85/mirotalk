@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.53
+ * @version 1.6.60
  *
  */
 
@@ -41,6 +41,7 @@ const images = {
     videoOff: '../images/cam-off.png',
     audioOff: '../images/audio-off.png',
     audioGif: '../images/audio.gif',
+    screenOff: '../images/screen-off.png',
     delete: '../images/delete.png',
     message: '../images/message.png',
     leave: '../images/leave-room.png',
@@ -1161,8 +1162,24 @@ function countPeerConnections() {
  * Get Started...
  */
 document.addEventListener('DOMContentLoaded', function () {
+    //initCursorLightEffect();
     initClientPeer();
 });
+
+/**
+ * Initialize cursor light effect on video container
+ */
+function initCursorLightEffect() {
+    if (!videoMediaContainer || !isDesktopDevice) return;
+    videoMediaContainer.classList.add('mouse-light');
+    videoMediaContainer.addEventListener('mousemove', function (e) {
+        const rect = videoMediaContainer.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        videoMediaContainer.style.setProperty('--mouse-x', x + '%');
+        videoMediaContainer.style.setProperty('--mouse-y', y + '%');
+    });
+}
 
 /**
  * On body load Get started
@@ -9361,7 +9378,6 @@ async function msgerAddPeers(peers) {
             const exsistMsgerPrivateDiv = getId(peer_id + '_pMsgDiv');
             // if there isn't add it....
             if (!exsistMsgerPrivateDiv) {
-                //
                 const chatAvatar =
                     peer_avatar && isImageURL(peer_avatar)
                         ? peer_avatar
@@ -9369,26 +9385,108 @@ async function msgerAddPeers(peers) {
                           ? genGravatar(peer_name)
                           : genAvatarSvg(peer_name, 24);
 
+                // Dropdown menu options based on isPresenter
+                let dropdownOptions = '';
+
+                if (isPresenter) {
+                    dropdownOptions = `
+                        <li><button id="${peer_id}_pKickOut" class="dropdown-item"><i class='fas fa-user-slash red'></i> Eject Participant</button></li>
+                        <li><button id="${peer_id}_pToggleAudio" class="dropdown-item"><i class='fas fa-microphone red'></i> Mute</button></li>
+                        <li><button id="${peer_id}_pToggleVideo" class="dropdown-item"><i class='fas fa-video red'></i> Stop Video</button></li>
+                        <li><button id="${peer_id}_pToggleScreen" class="dropdown-item"><i class='fas fa-desktop red'></i> Stop Screen</button></li>
+                        <li><button id="${peer_id}_pSelectFile" class="dropdown-item"><i class='fas fa-upload'></i> Send File</button></li>
+                        <li><button id="${peer_id}_pSendVideoUrl" class="dropdown-item"><i class='fab fa-youtube'></i> Share Video/Audio</button></li>
+                        <li><button id="${peer_id}_pRequestGeo" class="dropdown-item"><i class='fas fa-location-dot'></i> Req. Geolocation</button></li>
+                    `;
+                } else {
+                    dropdownOptions = `
+                        <li><button id="${peer_id}_pSelectFile" class="dropdown-item"><i class='fas fa-upload'></i> Send File</button></li>
+                        <li><button id="${peer_id}_pSendVideoUrl" class="dropdown-item"><i class='fab fa-youtube'></i> Share Video/Audio</button></li>
+                    `;
+                }
+
                 const msgerPrivateDiv = `
                 <div id="${peer_id}_pMsgDiv" class="msger-peer-inputarea">
-                <span style="display: none">${peer_name}</span>
-                <img id="${peer_id}_pMsgAvatar" class="peer-img" src="${chatAvatar}"> 
-                    <textarea
-                        rows="1"
-                        cols="1"
-                        id="${peer_id}_pMsgInput"
-                        class="msger-input"
-                        placeholder="Write private message..."
-                    ></textarea>
-                    <button id="${peer_id}_pMsgBtn" class="${className.msgPrivate}" value="${peer_name}"></button>
+                    <span>${peer_name}</span>
+                    <img id="${peer_id}_pMsgAvatar" class="peer-img" src="${chatAvatar}">
+                    <div id="${peer_id}_pMsgInputWrap" class="msger-peer-inputwrap">
+                        <textarea
+                            rows="1"
+                            cols="1"
+                            id="${peer_id}_pMsgInput"
+                            class="msger-input"
+                            placeholder="Write message..."
+                        ></textarea>
+                        <button id="${peer_id}_pMsgBtn" class="${className.msgPrivate}" value="${peer_name}"></button>
+                        <div id="${peer_id}_pDropdownMenu" class="dropdown-menu-custom">
+                            <button id="${peer_id}_pDropdownToggle" class="dropdown-toggle">
+                                <i class="fas fa-ellipsis-vertical"></i>
+                            </button>
+                            <ul id="${peer_id}_pDropdownMenuList" class="dropdown-menu-custom-list">
+                                ${dropdownOptions}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 `;
+
                 msgerCPList.insertAdjacentHTML('beforeend', msgerPrivateDiv);
                 msgerCPList.scrollTop += 500;
 
                 const msgerPrivateMsgInput = getId(peer_id + '_pMsgInput');
                 const msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
-                addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, myPeerId);
+                const msgerPrivateKickOutBtn = getId(peer_id + '_pKickOut');
+                const msgerPrivateToggleAudioBtn = getId(peer_id + '_pToggleAudio');
+                const msgerPrivateToggleVideoBtn = getId(peer_id + '_pToggleVideo');
+                const msgerPrivateToggleScreenBtn = getId(peer_id + '_pToggleScreen');
+                const msgerPrivateSelectFileBtn = getId(peer_id + '_pSelectFile');
+                const msgerPrivateSendVideoUrlBtn = getId(peer_id + '_pSendVideoUrl');
+                const msgerPrivateRequestGeoBtn = getId(peer_id + '_pRequestGeo');
+
+                addMsgerPrivateBtn(
+                    msgerPrivateBtn,
+                    msgerPrivateMsgInput,
+                    msgerPrivateKickOutBtn,
+                    msgerPrivateToggleAudioBtn,
+                    msgerPrivateToggleVideoBtn,
+                    msgerPrivateToggleScreenBtn,
+                    msgerPrivateSelectFileBtn,
+                    msgerPrivateSendVideoUrlBtn,
+                    msgerPrivateRequestGeoBtn,
+                    myPeerId,
+                    peer_id
+                );
+
+                // Dropdown toggle logic
+                const dropdownDiv = getId(peer_id + '_pMsgDiv').querySelector('.dropdown-menu-custom');
+                const dropdownToggle = dropdownDiv.querySelector('.dropdown-toggle');
+                const dropdownContent = dropdownDiv.querySelector('.dropdown-menu-custom-list');
+                if (dropdownToggle && dropdownContent) {
+                    dropdownToggle.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        closeAllDropdownMenu();
+                        const displayMode = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                        dropdownContent.style.display = displayMode;
+                    });
+
+                    dropdownToggle.addEventListener('mouseenter', () => {
+                        closeAllDropdownMenu();
+                        dropdownContent.style.display = 'block';
+                    });
+                    dropdownContent.addEventListener('mouseleave', () => {
+                        closeAllDropdownMenu();
+                    });
+
+                    document.addEventListener('click', function () {
+                        closeAllDropdownMenu();
+                    });
+
+                    function closeAllDropdownMenu() {
+                        document.querySelectorAll('.dropdown-menu-custom-list').forEach((el) => {
+                            el.style.display = 'none';
+                        });
+                    }
+                }
             }
         }
     }
@@ -9431,14 +9529,26 @@ function msgerRemovePeer(peer_id) {
  * @param {object} msgerPrivateMsgInput chat private message text input
  * @param {string} peerId chat peer_id
  */
-function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
-    // add button to send private messages
+function addMsgerPrivateBtn(
+    msgerPrivateBtn,
+    msgerPrivateMsgInput,
+    msgerPrivateKickOutBtn,
+    msgerPrivateToggleAudioBtn,
+    msgerPrivateToggleVideoBtn,
+    msgerPrivateToggleScreenBtn,
+    msgerPrivateSelectFileBtn,
+    msgerPrivateSendVideoUrlBtn,
+    msgerPrivateRequestGeoBtn,
+    myPeerId,
+    peerId
+) {
+    // Send private message button
     msgerPrivateBtn.addEventListener('click', (e) => {
         e.preventDefault();
         sendPrivateMessage();
     });
 
-    // Number 13 is the "Enter" key on the keyboard
+    // Enter key to send private message
     msgerPrivateMsgInput.addEventListener('keyup', (e) => {
         if (e.keyCode === 13) {
             e.preventDefault();
@@ -9469,10 +9579,54 @@ function addMsgerPrivateBtn(msgerPrivateBtn, msgerPrivateMsgInput, peerId) {
         }
 
         const toPeerName = msgerPrivateBtn.value;
-        emitMsg(myPeerName, myPeerAvatar, toPeerName, pMsg, true, peerId);
+        emitMsg(myPeerName, myPeerAvatar, toPeerName, pMsg, true, myPeerId);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg, true, null, toPeerName);
         msgerPrivateMsgInput.value = '';
         elemDisplay(msgerCP, false);
+    }
+
+    // Dropdown actions
+    if (msgerPrivateKickOutBtn) {
+        msgerPrivateKickOutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            kickOut(peerId);
+        });
+    }
+    if (msgerPrivateToggleAudioBtn) {
+        msgerPrivateToggleAudioBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            disablePeer(peerId, 'audio');
+        });
+    }
+    if (msgerPrivateToggleVideoBtn) {
+        msgerPrivateToggleVideoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            disablePeer(peerId, 'video');
+        });
+    }
+    if (msgerPrivateToggleScreenBtn) {
+        msgerPrivateToggleScreenBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            disablePeer(peerId, 'screen');
+        });
+    }
+    if (msgerPrivateSelectFileBtn) {
+        msgerPrivateSelectFileBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            selectFileToShare(peerId);
+        });
+    }
+    if (msgerPrivateSendVideoUrlBtn) {
+        msgerPrivateSendVideoUrlBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            sendVideoUrl(peerId);
+        });
+    }
+    if (msgerPrivateRequestGeoBtn) {
+        msgerPrivateRequestGeoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            geo.askPeerGeoLocation(peerId);
+        });
     }
 }
 
@@ -10338,6 +10492,9 @@ function handlePeerAction(config) {
         case 'hideVideo':
             setMyVideoOff(peer_name);
             break;
+        case 'stopScreen':
+            setMyScreenOff(peer_name);
+            break;
         case 'recStart':
             notifyRecording(peer_id, peer_name, peer_avatar, 'Start');
             break;
@@ -10571,6 +10728,18 @@ function handleScreenStop(peer_id, peer_use_video) {
     }
 }
 
+function confirmAudioOn(config) {
+    const { peer_name } = config;
+}
+
+function confirmVideoOn(config) {
+    const { peer_name } = config;
+}
+
+function confirmScreenOn(config) {
+    const { peer_name } = config;
+}
+
 /**
  * Set my Audio off and Popup the peer name that performed this action
  * @param {string} peer_name peer name
@@ -10627,6 +10796,18 @@ function setMyVideoOff(peer_name) {
     setMyVideoStatus(myVideoStatus);
     userLog('toast', `${icons.user} ${peer_name} \n has disabled your video`);
     playSound('off');
+}
+
+/**
+ * Set my Screen off and Popup the peer name that performed this action
+ * @param {string} peer_name peer name
+ */
+function setMyScreenOff(peer_name) {
+    if (isScreenStreaming) {
+        toggleScreenSharing();
+        userLog('toast', `${icons.user} ${peer_name} \n has stopped your screen sharing`);
+        playSound('off');
+    }
 }
 
 /**
@@ -10704,23 +10885,45 @@ function getActiveRooms() {
 /**
  * Mute or Hide specific peer
  * @param {string} peer_id socket.id
- * @param {string} element type audio/video
+ * @param {string} element type audio/video/screen
  */
 function disablePeer(peer_id, element) {
     if (!thereArePeerConnections()) {
         return toastMessage('info', 'No participants detected', '', 'top');
     }
+    let text, imageUrl, title, confirmButtonText;
+
+    switch (element) {
+        case 'audio':
+            imageUrl = images.audioOff;
+            title = 'Mute this participant?';
+            text = "Once muted, you won't be able to unmute them, but they can unmute themselves at any time.";
+            confirmButtonText = 'Mute';
+            break;
+        case 'video':
+            title = 'Hide this participant?';
+            imageUrl = images.videoOff;
+            text = "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.";
+            confirmButtonText = 'Hide';
+            break;
+        case 'screen':
+            title = 'Stop screen sharing?';
+            imageUrl = images.screenOff;
+            text = "Once stopped, you wan't be able to start then, but they can start screen themselves at any time.";
+            confirmButtonText = 'Stop';
+            break;
+        default:
+            break;
+    }
+
     Swal.fire({
         background: swBg,
-        position: 'center',
-        imageUrl: element == 'audio' ? images.audioOff : images.videoOff,
-        title: element == 'audio' ? 'Mute this participant?' : 'Hide this participant?',
-        text:
-            element == 'audio'
-                ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
-                : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+        position: 'top',
+        imageUrl: imageUrl,
+        title: title,
+        text: text,
         showDenyButton: true,
-        confirmButtonText: element == 'audio' ? `Mute` : `Hide`,
+        confirmButtonText: confirmButtonText,
         denyButtonText: `Cancel`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
@@ -10734,6 +10937,10 @@ function disablePeer(peer_id, element) {
                 case 'video':
                     userLog('toast', 'Hide video 👍');
                     emitPeerAction(peer_id, 'hideVideo');
+                    break;
+                case 'screen':
+                    userLog('toast', 'Stop screen 👍');
+                    emitPeerAction(peer_id, 'stopScreen');
                     break;
                 default:
                     break;
@@ -12286,7 +12493,7 @@ function kickOut(peer_id) {
     Swal.fire({
         background: swBg,
         position: 'top',
-        // imageUrl: images.leave,
+        imageUrl: images.leave,
         title: 'Kick out',
         text: `Are you sure you want to kick out ${pName}?`,
         showDenyButton: true,
@@ -12427,7 +12634,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.53',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.60',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

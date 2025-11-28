@@ -20,6 +20,23 @@
     transition: opacity 500ms;
 }
 
+/* Video container with mouse light effect */
+#videoMediaContainer.mouse-light {
+    background:
+        radial-gradient(
+            1024px 1024px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(255, 255, 255, 0.3) 0%,
+            rgba(255, 255, 255, 0.18) 20%,
+            rgba(255, 255, 255, 0.08) 40%,
+            rgba(0, 0, 0, 0) 60%,
+            rgba(0, 0, 0, 0.1) 80%,
+            rgba(0, 0, 0, 0.25) 100%
+        ),
+        var(--body-bg, linear-gradient(135deg, #222, #444));
+    background-blend-mode: multiply, normal;
+    transition: background 0.2s;
+}
+
 #videoPinMediaContainer {
     z-index: 1;
     position: absolute;

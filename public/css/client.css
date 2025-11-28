@@ -238,7 +238,7 @@ body {
 --------------------------------------------------------------*/
 
 #buttonsBar {
-    z-index: 10;
+    z-index: 1;
     display: none;
     position: fixed;
     /* padding: 10px; */
@@ -940,6 +940,110 @@ button {
 
 #msgerSendBtn {
     float: right;
+}
+
+/*--------------------------------------------------------------
+# Chat participant dropdown and send button unified styles 
+--------------------------------------------------------------*/
+
+.msger-peer-inputarea {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    background: transparent;
+}
+
+.msger-peer-inputarea > span {
+    display: none;
+}
+
+.msger-peer-inputarea .peer-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50px !important;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.msger-peer-inputwrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+}
+
+.msger-peer-inputwrap .msger-input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.18);
+    color: #fff;
+    resize: none;
+    height: 28px;
+    margin-right: 2px;
+}
+
+.msger-peer-inputwrap .msger-input:focus {
+    outline: none;
+    border-color: #66beff;
+}
+
+.msger-peer-inputarea .dropdown-menu-custom {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    width: 32px;
+    min-width: 28px;
+    max-width: 36px;
+    margin-left: 2px;
+}
+
+.msger-peer-inputarea .dropdown-menu-custom-list {
+    z-index: 9999;
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 110%;
+    width: 240px;
+    min-width: 200px;
+    background: var(--body-bg);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 6px 0;
+    margin: 4px 35px 0px 0px;
+}
+
+.msger-peer-inputarea .dropdown-menu-custom-list.show {
+    display: block;
+}
+
+.msger-peer-inputarea .msgPrivate,
+.msger-peer-inputarea .dropdown-toggle {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 4px;
+}
+
+.msger-peer-inputarea .msgPrivate {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1em;
+    cursor: pointer;
 }
 
 /*--------------------------------------------------------------
@@ -2363,6 +2467,11 @@ hr {
     border-radius: 5px;
     border: none;
     background: var(--body-bg);
+    z-index: 9999;
+}
+
+.dropdown-menu-custom.show {
+    display: block;
 }
 
 /* Style for dropdown items */
