@@ -9433,6 +9433,7 @@ async function msgerAddPeers(peers) {
                 msgerCPList.insertAdjacentHTML('beforeend', msgerPrivateDiv);
                 msgerCPList.scrollTop += 500;
 
+                const msgerPrivateAvatar = getId(peer_id + '_pMsgAvatar');
                 const msgerPrivateMsgInput = getId(peer_id + '_pMsgInput');
                 const msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
                 const msgerPrivateKickOutBtn = getId(peer_id + '_pKickOut');
@@ -9442,6 +9443,11 @@ async function msgerAddPeers(peers) {
                 const msgerPrivateSelectFileBtn = getId(peer_id + '_pSelectFile');
                 const msgerPrivateSendVideoUrlBtn = getId(peer_id + '_pSendVideoUrl');
                 const msgerPrivateRequestGeoBtn = getId(peer_id + '_pRequestGeo');
+
+                if (!isMobileDevice) {
+                    setTippy(msgerPrivateBtn, 'Send Private Message', 'top');
+                    setTippy(msgerPrivateAvatar, peer_name, 'top');
+                }
 
                 addMsgerPrivateBtn(
                     msgerPrivateBtn,
