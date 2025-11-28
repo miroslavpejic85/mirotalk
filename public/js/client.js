@@ -763,7 +763,7 @@ function setButtonsToolTip() {
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerGPTBtn, 'ChatGPT', 'top');
     setTippy(msgerShareFileBtn, 'Share file', 'top');
-    setTippy(msgerCPBtn, 'Private messages', 'top');
+    setTippy(msgerCPBtn, 'Participants', 'top');
     setTippy(msgerCleanTextBtn, 'Clean', 'top');
     setTippy(msgerPasteBtn, 'Paste', 'top');
     setTippy(msgerSendBtn, 'Send', 'top');
@@ -8539,6 +8539,8 @@ function setChatRoomAndCaptionForMobile() {
     } else {
         // make chat room draggable for desktop
         dragElement(msgerDraggable, msgerHeader);
+        // make chat room participants draggable for desktop
+        dragElement(msgerDraggable, msgerCPHeader);
         // make caption draggable for desktop
         dragElement(captionDraggable, captionHeader);
     }
@@ -8681,7 +8683,10 @@ function chatPin() {
     setColor(msgerTogglePin, 'lime');
     resizeVideoMedia();
     msgerDraggable.style.resize = 'none';
-    if (!isMobileDevice) undragElement(msgerDraggable, msgerHeader);
+    if (!isMobileDevice) {
+        undragElement(msgerDraggable, msgerHeader);
+        undragElement(msgerDraggable, msgerCPHeader);
+    }
 }
 
 /**
@@ -8699,7 +8704,10 @@ function chatUnpin() {
     setColor(msgerTogglePin, 'white');
     resizeVideoMedia();
     msgerDraggable.style.resize = 'both';
-    if (!isMobileDevice) dragElement(msgerDraggable, msgerHeader);
+    if (!isMobileDevice) {
+        dragElement(msgerDraggable, msgerHeader);
+        dragElement(msgerDraggable, msgerCPHeader);
+    }
 }
 
 /**
