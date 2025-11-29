@@ -140,6 +140,7 @@ body {
 --------------------------------------------------------------*/
 
 #loadingDiv {
+    z-index: 9999;
     color: #fff;
     padding: 30px;
     text-align: center;
@@ -170,6 +171,7 @@ body {
 }
 
 .init-user {
+    z-index: 9999;
     display: flex;
     padding: 5px;
 }
