@@ -283,7 +283,8 @@ class PeerGeoLocation {
      * @param {string} request_id
      */
     handleGeoLocationError(requester_peer_id, error, request_id) {
-        console.error('GeoLocation Error:', error);
+        // Enhanced error logging for debugging
+        console.error('GeoLocation Error:', error, JSON.stringify(error, Object.getOwnPropertyNames(error)));
         if (this._geoResponded[request_id]) return;
         this._geoResponded[request_id] = true;
         setTimeout(() => {
@@ -301,17 +302,27 @@ class PeerGeoLocation {
                 geoError = 'The request to get user location timed out';
                 break;
             case error.UNKNOWN_ERROR:
-                geoError = 'An unknown error occurred';
+                geoError = 'An unknown error occurred while retrieving your location';
                 break;
             case 'NOT_SUPPORTED':
                 geoError = 'Geolocation is not supported by this browser';
                 break;
             default:
-                geoError = 'Geolocation error';
+                geoError =
+                    'Unable to retrieve your location. Please ensure location services are enabled in your device and browser settings, and try again';
                 break;
         }
+        // Add suggestion for unknown errors
+        if (
+            error.code === error.UNKNOWN_ERROR ||
+            error.code === undefined ||
+            geoError.startsWith('Unable to retrieve')
+        ) {
+            geoError +=
+                ' If the problem persists, check your device and browser location permissions, and ensure you have a clear view of the sky (for GPS)';
+        }
         this.sendPeerGeoLocation(requester_peer_id, 'geoLocationKO', null, geoError, request_id);
-        this.msgPopup('warning', geoError, 'top-end', 5000);
+        this.msgPopup('warning', geoError, 'top-end', 8000);
     }
 
     /**
