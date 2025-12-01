@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.64
+ * @version 1.6.65
  *
  */
 
@@ -226,6 +226,7 @@ const msgerMaxBtn = getId('msgerMaxBtn');
 const msgerMinBtn = getId('msgerMinBtn');
 const msgerChat = getId('msgerChat');
 const msgerEmptyNotice = getId('msgerEmptyNotice');
+const msgerEmptyParticipantsNotice = getId('msgerEmptyParticipantsNotice');
 const msgerEmojiBtn = getId('msgerEmojiBtn');
 const msgerMarkdownBtn = getId('msgerMarkdownBtn');
 const msgerGPTBtn = getId('msgerGPTBtn');
@@ -5617,9 +5618,7 @@ function setChatRoomBtn() {
  */
 function setParticipantsBtn() {
     participantsBtn.addEventListener('click', async (e) => {
-        if (!thereArePeerConnections()) {
-            return toastMessage('info', 'No participants detected', '', 'top');
-        }
+        e.preventDefault();
         if (isParticipantsVisible) {
             hideChatRoomAndEmojiPicker();
             elemDisplay(msgerCP, false);
@@ -8874,7 +8873,7 @@ function cleanMessages() {
             // clean chatGPT context
             chatGPTcontext = [];
             // show empty messages
-            showMsgerEmptyNoticeIfNoMessages();
+            toggleMsgerEmptyNotice();
             playSound('delete');
         }
     });
@@ -9226,15 +9225,25 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') 
         }
     }
     chatMessagesId++;
-    showMsgerEmptyNoticeIfNoMessages();
+    toggleMsgerEmptyNotice();
 }
 
 /**
- * Hide empty chat notice
+ * Toggle empty chat notice
  */
-function showMsgerEmptyNoticeIfNoMessages() {
+function toggleMsgerEmptyNotice() {
     const messages = msgerChat.querySelectorAll('.msg');
     messages.length === 0 ? msgerEmptyNotice.classList.remove('hidden') : msgerEmptyNotice.classList.add('hidden');
+}
+
+/**
+ * Toggle empty participants notice
+ */
+function toggleMsgerParticipantsEmptyNotice() {
+    const participants = msgerCPList.querySelectorAll('.msger-peer-inputarea');
+    const isEmpty = participants.length === 0;
+    msgerEmptyParticipantsNotice.classList.toggle('hidden', !isEmpty);
+    elemDisplay(msgerCPList, !isEmpty, 'block');
 }
 
 /**
@@ -9349,7 +9358,7 @@ function deleteMessage(id) {
         // clean this message
         if (result.isConfirmed) {
             getId(id).remove();
-            showMsgerEmptyNoticeIfNoMessages();
+            toggleMsgerEmptyNotice();
             playSound('delete');
         }
     });
@@ -9504,6 +9513,7 @@ async function msgerAddPeers(peers) {
             }
         }
     }
+    toggleMsgerParticipantsEmptyNotice();
 }
 
 /**
@@ -9536,10 +9546,7 @@ function msgerRemovePeer(peer_id) {
         msgerPrivateDiv.remove();
         // No peer connected
         if (msgerCPList.children.length === 0 && isChatRoomVisible && isParticipantsVisible) {
-            elemDisplay(msgerCP, false);
-            hideChatRoomAndEmojiPicker();
-            isParticipantsVisible = false;
-            isChatRoomVisible = false;
+            toggleMsgerParticipantsEmptyNotice();
         }
     }
 }
@@ -12655,7 +12662,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.64',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.65',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

@@ -1,0 +1,20 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 64 64"
+  width="100%"
+  height="100%"
+  preserveAspectRatio="xMidYMid meet"
+>
+  <!-- Circle representing a user head -->
+  <circle cx="32" cy="20" r="12" fill="#ccc" />
+
+  <!-- Body -->
+  <path
+    d="M16 52c0-8.837 7.163-16 16-16s16 7.163 16 16"
+    fill="#ccc"
+  />
+
+  <!-- Optional: multiple empty participants, here 3 simplified silhouettes -->
+  <circle cx="12" cy="40" r="6" fill="#eee" />
+  <circle cx="52" cy="40" r="6" fill="#eee" />
+</svg>
