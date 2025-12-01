@@ -9399,7 +9399,7 @@ async function msgerAddPeers(peers) {
                 if (isPresenter) {
                     dropdownOptions = `
                         <li><button id="${peer_id}_pKickOut" class="dropdown-item"><i class='fas fa-user-slash red'></i> Eject Participant</button></li>
-                        <li><button id="${peer_id}_pToggleAudio" class="dropdown-item"><i class='fas fa-microphone red'></i> Mute</button></li>
+                        <li><button id="${peer_id}_pToggleAudio" class="dropdown-item"><i class='fas fa-microphone red'></i> Mute Microphone</button></li>
                         <li><button id="${peer_id}_pToggleVideo" class="dropdown-item"><i class='fas fa-video red'></i> Stop Video</button></li>
                         <li><button id="${peer_id}_pToggleScreen" class="dropdown-item"><i class='fas fa-desktop red'></i> Stop Screen</button></li>
                         <li><button id="${peer_id}_pSelectFile" class="dropdown-item"><i class='fas fa-upload'></i> Send File</button></li>
