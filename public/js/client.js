@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.65
+ * @version 1.6.66
  *
  */
 
@@ -391,7 +391,9 @@ const wbDrawingColorEl = getId('wbDrawingColorEl');
 const whiteboardGhostButton = getId('whiteboardGhostButton');
 const wbBackgroundColorEl = getId('wbBackgroundColorEl');
 const whiteboardPencilBtn = getId('whiteboardPencilBtn');
+const whiteboardVanishingBtn = getId('whiteboardVanishingBtn');
 const whiteboardObjectBtn = getId('whiteboardObjectBtn');
+const whiteboardEraserBtn = getId('whiteboardEraserBtn');
 const whiteboardUndoBtn = getId('whiteboardUndoBtn');
 const whiteboardRedoBtn = getId('whiteboardRedoBtn');
 const whiteboardDropDownMenuBtn = getId('whiteboardDropDownMenuBtn');
@@ -400,16 +402,18 @@ const whiteboardImgFileBtn = getId('whiteboardImgFileBtn');
 const whiteboardPdfFileBtn = getId('whiteboardPdfFileBtn');
 const whiteboardImgUrlBtn = getId('whiteboardImgUrlBtn');
 const whiteboardTextBtn = getId('whiteboardTextBtn');
+const whiteboardStickyNoteBtn = getId('whiteboardStickyNoteBtn');
 const whiteboardLineBtn = getId('whiteboardLineBtn');
 const whiteboardRectBtn = getId('whiteboardRectBtn');
 const whiteboardTriangleBtn = getId('whiteboardTriangleBtn');
 const whiteboardCircleBtn = getId('whiteboardCircleBtn');
 const whiteboardSaveBtn = getId('whiteboardSaveBtn');
-const whiteboardEraserBtn = getId('whiteboardEraserBtn');
 const whiteboardCleanBtn = getId('whiteboardCleanBtn');
 const whiteboardLockBtn = getId('whiteboardLockBtn');
 const whiteboardUnlockBtn = getId('whiteboardUnlockBtn');
 const whiteboardCloseBtn = getId('whiteboardCloseBtn');
+const whiteboardShortcutsBtn = getId('whiteboardShortcutsBtn');
+const whiteboardShortcutsContent = getId('whiteboardShortcutsContent');
 
 // Room actions buttons
 const captionEveryoneBtn = getId('captionEveryoneBtn');
@@ -661,8 +665,10 @@ let wbIsDrawing = false;
 let wbIsOpen = false;
 let wbIsRedoing = false;
 let wbIsEraser = false;
+let wbIsVanishing = false;
 let wbIsBgTransparent = false;
 let wbPop = [];
+let wbVanishingObjects = [];
 let isWhiteboardFs = false;
 
 // file transfer
@@ -824,7 +830,9 @@ function setButtonsToolTip() {
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(wbBackgroundColorEl, 'Background color', 'bottom');
     setTippy(whiteboardPencilBtn, 'Drawing mode', 'bottom');
+    setTippy(whiteboardVanishingBtn, 'Vanishing pen (disappears in 5s)', 'bottom');
     setTippy(whiteboardObjectBtn, 'Object mode', 'bottom');
+    setTippy(whiteboardEraserBtn, 'Eraser mode', 'bottom');
     setTippy(whiteboardUndoBtn, 'Undo', 'bottom');
     setTippy(whiteboardRedoBtn, 'Redo', 'bottom');
     // Suspend/Hide File transfer buttons
@@ -5923,6 +5931,12 @@ function setMyWhiteboardBtn() {
     whiteboardObjectBtn.addEventListener('click', (e) => {
         whiteboardIsDrawingMode(false);
     });
+    whiteboardStickyNoteBtn.addEventListener('click', (e) => {
+        whiteboardAddObj('stickyNote');
+    });
+    whiteboardVanishingBtn.addEventListener('click', (e) => {
+        whiteboardIsVanishingMode(true);
+    });
     whiteboardUndoBtn.addEventListener('click', (e) => {
         whiteboardAction(getWhiteboardAction('undo'));
     });
@@ -5988,6 +6002,10 @@ function setMyWhiteboardBtn() {
         //setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
         wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)') : setTheme();
     });
+    whiteboardShortcutsBtn.addEventListener('click', (e) => {
+        showWhiteboardShortcuts();
+    });
+
     // Hide the whiteboard dropdown menu if clicked outside
     document.addEventListener('click', (event) => {
         if (!whiteboardDropDownMenuBtn.contains(event.target) && !whiteboardDropDownMenuBtn.contains(event.target)) {
@@ -11177,7 +11195,9 @@ function toggleWhiteboard() {
 function setupWhiteboard() {
     setupWhiteboardCanvas();
     setupWhiteboardCanvasSize();
-    setupWhiteboardLocalListners();
+    setupWhiteboardLocalListeners();
+    setupWhiteboardShortcuts();
+    setupWhiteboardDragAndDrop();
 }
 
 /**
@@ -11249,11 +11269,34 @@ function whiteboardIsDrawingMode(status) {
     wbCanvas.isDrawingMode = status;
     if (status) {
         setColor(whiteboardPencilBtn, 'green');
+        setColor(whiteboardVanishingBtn, 'white');
+        setColor(whiteboardObjectBtn, 'white');
+        setColor(whiteboardEraserBtn, 'white');
+        wbIsEraser = false;
+        wbIsVanishing = false;
+    } else {
+        setColor(whiteboardPencilBtn, 'white');
+        setColor(whiteboardVanishingBtn, 'white');
+        setColor(whiteboardObjectBtn, 'green');
+    }
+}
+
+/**
+ * Whiteboard: vanishing mode
+ * @param {boolean} status if vanishing mode on
+ */
+function whiteboardIsVanishingMode(status) {
+    wbCanvas.isDrawingMode = status;
+    wbIsVanishing = status;
+    if (status) {
+        setColor(whiteboardVanishingBtn, 'green');
+        setColor(whiteboardPencilBtn, 'white');
         setColor(whiteboardObjectBtn, 'white');
         setColor(whiteboardEraserBtn, 'white');
         wbIsEraser = false;
     } else {
-        setColor(whiteboardPencilBtn, 'white');
+        setColor(whiteboardVanishingBtn, 'white');
+        wbCanvas.isDrawingMode = false;
         setColor(whiteboardObjectBtn, 'green');
     }
 }
@@ -11263,9 +11306,18 @@ function whiteboardIsDrawingMode(status) {
  * @param {boolean} status if eraser on
  */
 function whiteboardIsEraser(status) {
-    whiteboardIsDrawingMode(false);
+    if (status) {
+        wbCanvas.isDrawingMode = false;
+        wbIsVanishing = false;
+        setColor(whiteboardPencilBtn, 'white');
+        setColor(whiteboardVanishingBtn, 'white');
+        setColor(whiteboardObjectBtn, 'white');
+        setColor(whiteboardEraserBtn, 'green');
+    } else {
+        setColor(whiteboardEraserBtn, 'white');
+        setColor(whiteboardObjectBtn, 'green');
+    }
     wbIsEraser = status;
-    setColor(whiteboardEraserBtn, wbIsEraser ? 'green' : 'white');
 }
 
 /**
@@ -11310,6 +11362,9 @@ function whiteboardAddObj(type) {
             break;
         case 'pdfFile':
             setupFileSelection('Select the PDF', wbPdfInput, renderPdfToCanvas);
+            break;
+        case 'stickyNote':
+            createStickyNote();
             break;
         case 'text':
             const text = new fabric.IText('Lorem Ipsum', {
@@ -11368,6 +11423,175 @@ function whiteboardAddObj(type) {
         default:
             break;
     }
+}
+
+function whiteboardEraseObject() {
+    if (wbCanvas && typeof wbCanvas.getActiveObjects === 'function') {
+        const activeObjects = wbCanvas.getActiveObjects();
+        if (activeObjects && activeObjects.length > 0) {
+            // Remove all selected objects
+            activeObjects.forEach((obj) => {
+                wbCanvas.remove(obj);
+            });
+            wbCanvas.discardActiveObject();
+            wbCanvas.requestRenderAll();
+            wbCanvasToJson();
+        }
+    }
+}
+
+function whiteboardCloneObject() {
+    if (wbCanvas && typeof wbCanvas.getActiveObjects === 'function') {
+        const activeObjects = wbCanvas.getActiveObjects();
+        if (activeObjects && activeObjects.length > 0) {
+            activeObjects.forEach((obj, idx) => {
+                obj.clone((cloned) => {
+                    // Offset each clone for visibility
+                    cloned.set({
+                        left: obj.left + 30 + idx * 10,
+                        top: obj.top + 30 + idx * 10,
+                        evented: true,
+                    });
+                    wbCanvas.add(cloned);
+                    wbCanvas.setActiveObject(cloned);
+                    wbCanvasToJson();
+                });
+            });
+            wbCanvas.requestRenderAll();
+        }
+    }
+}
+
+function wbHandleVanishingObjects() {
+    if (wbIsVanishing && wbCanvas._objects.length > 0) {
+        const obj = wbCanvas._objects[wbCanvas._objects.length - 1];
+        if (obj && obj.type === 'path') {
+            wbVanishingObjects.push(obj);
+            const fadeDuration = 1000,
+                vanishTimeout = 5000;
+            setTimeout(() => {
+                const start = performance.now();
+                function fade(ts) {
+                    const p = Math.min((ts - start) / fadeDuration, 1);
+                    obj.set('opacity', 1 - p);
+                    wbCanvas.requestRenderAll();
+                    if (p < 1) requestAnimationFrame(fade);
+                }
+                requestAnimationFrame(fade);
+            }, vanishTimeout - fadeDuration);
+            setTimeout(() => {
+                wbCanvas.remove(obj);
+                wbCanvas.renderAll();
+                wbCanvasToJson();
+                wbVanishingObjects.splice(wbVanishingObjects.indexOf(obj), 1);
+            }, vanishTimeout);
+        }
+    }
+}
+
+function createStickyNote() {
+    Swal.fire({
+        background: swBg,
+        title: 'Create Sticky Note',
+        html: `
+        <div class="sticky-note-form">
+            <textarea id="stickyNoteText" class="sticky-note-textarea" rows="4" placeholder="Type your note here...">Note</textarea>
+            <div class="sticky-note-colors-row">
+                <div class="sticky-note-color-group">
+                    <label for="stickyNoteColor" class="sticky-note-color-label">
+                        <i class="fas fa-palette"></i> Background
+                    </label>
+                    <input id="stickyNoteColor" type="color" value="#FFEB3B" class="sticky-note-color-input">
+                </div>
+                <div class="sticky-note-color-group">
+                    <label for="stickyNoteTextColor" class="sticky-note-color-label">
+                        <i class="fas fa-font"></i> Text
+                    </label>
+                    <input id="stickyNoteTextColor" type="color" value="#000000" class="sticky-note-color-input">
+                </div>
+            </div>
+        </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Create',
+        cancelButtonText: 'Cancel',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+        preConfirm: () => {
+            return {
+                text: getId('stickyNoteText').value,
+                color: getId('stickyNoteColor').value,
+                textColor: getId('stickyNoteTextColor').value,
+            };
+        },
+        didOpen: () => {
+            // Focus textarea for quick typing
+            setTimeout(() => {
+                getId('stickyNoteText').focus();
+            }, 100);
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const noteData = result.value;
+
+            // Create sticky note background (rectangle)
+            const noteRect = new fabric.Rect({
+                left: 100,
+                top: 100,
+                width: 220,
+                height: 160,
+                fill: noteData.color,
+                shadow: 'rgba(0,0,0,0.18) 0px 4px 12px',
+                rx: 14,
+                ry: 14,
+            });
+
+            // Create text for sticky note
+            const noteText = new fabric.Textbox(noteData.text, {
+                left: 110,
+                top: 110,
+                width: 200,
+                fontSize: 18,
+                fontFamily: 'Segoe UI, Arial, sans-serif',
+                fill: noteData.textColor,
+                textAlign: 'left',
+                editable: true,
+                fontWeight: 'bold',
+                shadow: new fabric.Shadow({
+                    color: 'rgba(255,255,255,0.18)',
+                    blur: 2,
+                    offsetX: 1,
+                    offsetY: 1,
+                }),
+                padding: 8,
+                cornerSize: 8,
+            });
+
+            // Group rectangle and text together
+            const stickyNoteGroup = new fabric.Group([noteRect, noteText], {
+                left: 100,
+                top: 100,
+                selectable: true,
+                hasControls: true,
+                hoverCursor: 'pointer',
+            });
+
+            // Make the text editable by handling double-click events
+            stickyNoteGroup.on('mousedblclick', function () {
+                noteText.enterEditing();
+                noteText.hiddenTextarea && noteText.hiddenTextarea.focus();
+            });
+
+            // Exit editing when clicking outside the noteText
+            wbCanvas.on('mouse:down', function (e) {
+                if (noteText.isEditing && e.target !== noteText) {
+                    noteText.exitEditing();
+                }
+            });
+
+            addWbCanvasObj(stickyNoteGroup);
+        }
+    });
 }
 
 /**
@@ -11569,13 +11793,15 @@ function addWbCanvasObj(obj) {
         wbCanvas.add(obj).setActiveObject(obj);
         whiteboardIsDrawingMode(false);
         wbCanvasToJson();
+    } else {
+        console.error('Invalid input. Expected an obj of canvas elements');
     }
 }
 
 /**
  * Whiteboard: Local listners
  */
-function setupWhiteboardLocalListners() {
+function setupWhiteboardLocalListeners() {
     wbCanvas.on('mouse:down', function (e) {
         mouseDown(e);
     });
@@ -11598,6 +11824,10 @@ function setupWhiteboardLocalListners() {
 function mouseDown(e) {
     wbIsDrawing = true;
     if (wbIsEraser && e.target) {
+        // Don't add vanishing objects to redo stack
+        if (!wbVanishingObjects.includes(e.target)) {
+            wbPop.push(e.target); // To allow redo
+        }
         wbCanvas.remove(e.target);
         return;
     }
@@ -11631,6 +11861,7 @@ function mouseMove() {
 function objectAdded() {
     if (!wbIsRedoing) wbPop = [];
     wbIsRedoing = false;
+    wbHandleVanishingObjects();
 }
 
 /**
@@ -11649,7 +11880,11 @@ function wbCanvasBackgroundColor(color) {
  */
 function wbCanvasUndo() {
     if (wbCanvas._objects.length > 0) {
-        wbPop.push(wbCanvas._objects.pop());
+        const obj = wbCanvas._objects.pop();
+        // Don't add vanishing objects to redo stack
+        if (!wbVanishingObjects.includes(obj)) {
+            wbPop.push(obj);
+        }
         wbCanvas.renderAll();
     }
 }
@@ -11727,12 +11962,13 @@ async function wbUpdate() {
  * Whiteboard: json to canvas objects
  * @param {object} config data
  */
-function handleJsonToWbCanvas(config) {
+function JsonToWbCanvas(config) {
     if (!wbIsOpen) toggleWhiteboard();
-
-    wbCanvas.loadFromJSON(config.wbCanvasJson);
-    wbCanvas.renderAll();
-
+    wbIsRedoing = true;
+    wbCanvas.loadFromJSON(config.wbCanvasJson, function () {
+        wbCanvas.renderAll();
+        wbIsRedoing = false;
+    });
     if (!isPresenter && !wbCanvas.isDrawingMode && wbIsLock) {
         wbDrawing(false);
     }
@@ -11760,7 +11996,7 @@ function confirmCleanBoard() {
     Swal.fire({
         background: swBg,
         imageUrl: images.delete,
-        position: 'center',
+        position: 'top',
         title: 'Clean the board',
         text: 'Are you sure you want to clean the board?',
         showDenyButton: true,
@@ -11810,6 +12046,7 @@ function handleWhiteboardAction(config, logMe = true) {
             break;
         case 'clear':
             wbCanvas.clear();
+            wbCanvas.renderAll();
             break;
         case 'toggle':
             toggleWhiteboard();
@@ -11847,6 +12084,183 @@ function wbDrawing(status) {
     wbCanvas.selection = status; // Disable object selection
     wbCanvas.forEachObject(function (obj) {
         obj.selectable = status; // Make all objects unselectable
+    });
+}
+
+/**
+ * Show whiteboard shortcuts
+ */
+function showWhiteboardShortcuts() {
+    if (!whiteboardShortcutsContent) {
+        console.error('Whiteboard shortcuts content not found');
+        return;
+    }
+    Swal.fire({
+        background: swBg,
+        position: 'center',
+        title: 'Whiteboard Shortcuts',
+        html: whiteboardShortcutsContent.innerHTML,
+        confirmButtonText: 'Got it!',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    });
+}
+
+/**
+ * Setup whiteboard drag and drop
+ * @returns void
+ */
+function setupWhiteboardDragAndDrop() {
+    if (!wbCanvas) return;
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+        wbCanvas.upperCanvasEl.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight drop area
+    ['dragenter', 'dragover'].forEach((eventName) => {
+        wbCanvas.upperCanvasEl.addEventListener(
+            eventName,
+            () => {
+                wbCanvas.upperCanvasEl.style.border = '1px dashed #fff';
+            },
+            false
+        );
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+        wbCanvas.upperCanvasEl.addEventListener(
+            eventName,
+            () => {
+                wbCanvas.upperCanvasEl.style.border = '';
+            },
+            false
+        );
+    });
+
+    // Handle dropped files
+    wbCanvas.upperCanvasEl.addEventListener('drop', handleWhiteboardDrop, false);
+}
+
+/**
+ * Handle whiteboard drop
+ * @param {object} e event
+ */
+function handleWhiteboardDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    if (files.length === 0) return;
+
+    const file = files[0];
+    const fileType = file.type;
+
+    switch (true) {
+        case fileType.startsWith('image/'):
+            renderImageToCanvas(file);
+            break;
+        case fileType === 'application/pdf':
+            renderPdfToCanvas(file);
+            break;
+        default:
+            userLog('warning', `Unsupported file type: ${fileType}. Please drop an image or PDF file.`, 6000);
+            break;
+    }
+}
+
+/**
+ * Setup whiteboard keyboard shortcuts
+ */
+function setupWhiteboardShortcuts() {
+    document.addEventListener('keydown', (event) => {
+        if (!wbIsOpen) return;
+
+        // Whiteboard clone shortcut: Cmd+C/Ctrl+C
+        if ((event.key === 'c' || event.key === 'C') && (event.ctrlKey || event.metaKey)) {
+            whiteboardCloneObject();
+            event.preventDefault();
+            return;
+        }
+        // Whiteboard erase shortcut: Cmd+X/Ctrl+X
+        if ((event.key === 'x' || event.key === 'X') && (event.ctrlKey || event.metaKey)) {
+            whiteboardEraseObject();
+            event.preventDefault();
+            return;
+        }
+
+        // Whiteboard undo shortcuts: Cmd+Z/Ctrl+Z
+        if ((event.key === 'z' || event.key === 'Z') && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
+            whiteboardAction(getWhiteboardAction('undo'));
+            event.preventDefault();
+            return;
+        }
+        // Whiteboard Redo shortcuts: Cmd+Shift+Z/Ctrl+Shift+Z or Cmd+Y/Ctrl+Y
+        if (
+            ((event.key === 'z' || event.key === 'Z') && (event.ctrlKey || event.metaKey) && event.shiftKey) ||
+            ((event.key === 'y' || event.key === 'Y') && (event.ctrlKey || event.metaKey))
+        ) {
+            whiteboardAction(getWhiteboardAction('redo'));
+            event.preventDefault();
+            return;
+        }
+
+        // Use event.code and check for Alt+Meta (Mac) or Alt+Ctrl (Windows/Linux)
+        if (event.code && event.altKey && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
+            switch (event.code) {
+                case 'KeyT': // Text
+                    whiteboardAddObj('text');
+                    event.preventDefault();
+                    break;
+                case 'KeyL': // Line
+                    whiteboardAddObj('line');
+                    event.preventDefault();
+                    break;
+                case 'KeyC': // Circle
+                    whiteboardAddObj('circle');
+                    event.preventDefault();
+                    break;
+                case 'KeyR': // Rectangle
+                    whiteboardAddObj('rect');
+                    event.preventDefault();
+                    break;
+                case 'KeyG': // Triangle (G for Geometry)
+                    whiteboardAddObj('triangle');
+                    event.preventDefault();
+                    break;
+                case 'KeyN': // Sticky Note
+                    whiteboardAddObj('stickyNote');
+                    event.preventDefault();
+                    break;
+                case 'KeyU': // Image (from URL)
+                    whiteboardAddObj('imgUrl');
+                    event.preventDefault();
+                    break;
+                case 'KeyV': // Vanishing Pen
+                    whiteboardIsVanishingMode(!wbIsVanishing);
+                    event.preventDefault();
+                    break;
+                case 'KeyI': // Image (from file)
+                    whiteboardAddObj('imgFile');
+                    event.preventDefault();
+                    break;
+                case 'KeyP': // PDF (from file)
+                    whiteboardAddObj('pdfFile');
+                    event.preventDefault();
+                    break;
+                case 'KeyQ': // Clear Board
+                    confirmCleanBoard();
+                    event.preventDefault();
+                    break;
+                default:
+                    break;
+            }
+        }
     });
 }
 
@@ -12662,7 +13076,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.65',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.66',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `

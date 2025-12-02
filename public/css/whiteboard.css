@@ -186,3 +186,198 @@
     background: transparent;
     padding: 0;
 }
+
+/* Whiteboard Shortcuts Styles */
+#whiteboardShortcutsContent {
+    display: none;
+}
+
+.wb-shortcuts-container {
+    text-align: left;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--body-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.wb-shortcuts-title {
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.wb-shortcuts-title:first-child {
+    margin-top: 0;
+}
+
+.wb-shortcuts-title i {
+    color: #ffa500;
+    font-size: 1.2rem;
+}
+
+.wb-shortcuts-code {
+    background: var(--body-bg);
+    padding: 1rem 1rem;
+    border-radius: 8px;
+    white-space: pre;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-color);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    filter: brightness(0.85);
+}
+
+.wb-shortcuts-text {
+    color: #66beff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.03em;
+    background: linear-gradient(135deg, rgba(102, 190, 255, 0.15), rgba(102, 190, 255, 0.08));
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(102, 190, 255, 0.1);
+}
+
+.wb-shortcuts-list {
+    list-style: none;
+    padding-left: 0;
+    background: var(--body-bg);
+    border-radius: 8px;
+    padding: 0.8rem;
+    filter: brightness(0.9);
+}
+
+.wb-shortcuts-list li {
+    margin: 0.6rem 0;
+    padding: 0.5rem 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.wb-shortcuts-list li:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-left: 3px solid #ffd700;
+}
+
+/* Sticky Note Dialog Styles */
+.sticky-note-form {
+    display: flex;
+    background: var(--body-bg);
+    flex-direction: column;
+    gap: 1.2rem;
+    padding: 1.2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 215, 0, 0.18);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.sticky-note-colors-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.sticky-note-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    background: rgba(255, 235, 59, 0.07);
+    color: var(--text-color, #ffffff);
+    font-size: 1rem;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    resize: vertical;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.08);
+    box-sizing: border-box;
+}
+
+.sticky-note-color-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 120px;
+}
+
+.sticky-note-color-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-color, #ffffff);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sticky-note-color-input {
+    width: 100%;
+    height: 50px;
+    border: none !important;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 4px rgba(255, 215, 0, 0.07);
+}
+
+.sticky-note-color-input:hover {
+    transform: scale(1.01);
+}
+
+.sticky-note-color-input::-webkit-color-swatch-wrapper {
+    padding: 4px;
+    border-radius: 10px;
+}
+
+.sticky-note-color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+}
+
+.sticky-note-color-input::-moz-color-swatch {
+    border: none;
+    border-radius: 8px;
+}
+
+/* Responsive styles for small screens */
+@media (max-width: 600px) {
+    .sticky-note-form {
+        padding: 0.7rem;
+        border-radius: 8px;
+        gap: 0.7rem;
+    }
+    .sticky-note-colors-row {
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+    .sticky-note-color-group {
+        min-width: 0;
+    }
+    .sticky-note-textarea {
+        font-size: 0.95rem;
+        padding: 8px;
+    }
+    .sticky-note-color-input {
+        height: 38px;
+        border-radius: 8px;
+    }
+}

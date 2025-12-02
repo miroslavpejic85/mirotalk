@@ -962,7 +962,9 @@ access to use this app.
                     <input id="wbBackgroundColorEl" class="whiteboardColorPicker" type="color" value="#000000" />
                     <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" />
                     <button id="whiteboardPencilBtn" class="fas fa-pencil-alt"></button>
+                    <button id="whiteboardVanishingBtn" class="fas fa-highlighter"></button>
                     <button id="whiteboardObjectBtn" class="fas fa-mouse-pointer"></button>
+                    <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
                     <button id="whiteboardUndoBtn" class="fas fa-undo"></button>
                     <button id="whiteboardRedoBtn" class="fas fa-redo"></button>
                     <div class="whiteboard-dropdown">
@@ -984,6 +986,9 @@ access to use this app.
                             <button id="whiteboardImgUrlBtn"><i class="fas fa-link"></i> Add image URL</button>
                             <button id="whiteboardPdfFileBtn"><i class="far fa-file-pdf"></i> Add pdf file</button>
                             <button id="whiteboardTextBtn"><i class="fas fa-spell-check"></i> Add text</button>
+                            <button id="whiteboardStickyNoteBtn">
+                                <i class="fas fa-sticky-note"></i> Add sticky note
+                            </button>
                             <button id="whiteboardLineBtn"><i class="fas fa-slash"></i> Add line</button>
                             <button id="whiteboardRectBtn"><i class="far fa-square"></i> Add rectangle</button>
                             <button id="whiteboardTriangleBtn">
@@ -1000,14 +1005,46 @@ access to use this app.
                             </button>
                             <button id="whiteboardCircleBtn"><i class="far fa-circle"></i> Add circle</button>
                             <button id="whiteboardSaveBtn"><i class="fas fa-save"></i> Save</button>
-                            <button id="whiteboardEraserBtn"><i class="fas fa-eraser"></i> Eraser</button>
                             <button id="whiteboardCleanBtn"><i class="fas fa-trash"></i> Clean</button>
+                            <button id="whiteboardShortcutsBtn"><i class="fas fa-keyboard"></i> Shortcuts</button>
                         </div>
                     </div>
                 </div>
             </header>
             <main>
                 <canvas id="wbCanvas"></canvas>
+                <div id="whiteboardShortcutsContent">
+                    <div class="wb-shortcuts-container">
+                        <h3 class="wb-shortcuts-title"><i class="fas fa-keyboard"></i> General</h3>
+                        <pre class="wb-shortcuts-code">
+Clone:  ⌘/Ctrl + C
+Erase:  ⌘/Ctrl + X
+Undo:   ⌘/Ctrl + Z
+Redo:   ⌘/Ctrl + Shift + Z or ⌘/Ctrl + Y</pre
+                        >
+
+                        <h3 class="wb-shortcuts-title"><i class="fas fa-pencil-alt"></i> Create Objects</h3>
+                        <p class="wb-shortcuts-text"><strong>Hold:</strong></p>
+                        <ul class="wb-shortcuts-list">
+                            <li>• Alt + Cmd (Mac)</li>
+                            <li>• Alt + Ctrl (Win/Linux)</li>
+                        </ul>
+                        <p class="wb-shortcuts-text"><strong>Then press:</strong></p>
+                        <pre class="wb-shortcuts-code">
+T = Text
+L = Line
+C = Circle
+R = Rectangle
+G = Triangle
+N = Sticky Note
+U = Image URL
+I = Image
+P = PDF
+V = Vanishing Pen
+Q = Clear all</pre
+                        >
+                    </div>
+                </div>
             </main>
         </section>
 
