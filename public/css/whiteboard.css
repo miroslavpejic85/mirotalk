@@ -7,10 +7,10 @@
     position: fixed;
     margin: auto;
     padding: 10px;
-    width: calc(var(--wb-width) * 1px);
-    height: calc(var(--wb-height) * 1px);
     max-width: 100vw;
     max-height: 100vh;
+    width: var(--wb-width);
+    height: var(--wb-height);
     background: var(--wb-bg);
     border: var(--border);
     box-shadow: var(--box-shadow);
@@ -178,7 +178,7 @@
     border: none;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(var(--wb-height) * 1px) !important;
+    max-height: var(--wb-height) !important;
 }
 
 /* Styles for dropdown menu items */
