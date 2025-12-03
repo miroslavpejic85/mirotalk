@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.68
+ * @version 1.6.69
  *
  */
 
@@ -9410,6 +9410,10 @@ function copyToClipboard(id) {
  */
 async function msgerAddPeers(peers) {
     // console.log("peers", peers);
+
+    // Check if I am a presenter
+    const peer_presenter = peers[myPeerId] && peers[myPeerId]['peer_presenter'];
+
     // add all current Participants
     for (const peer_id in peers) {
         const peer_name = peers[peer_id]['peer_name'];
@@ -9429,7 +9433,7 @@ async function msgerAddPeers(peers) {
                 // Dropdown menu options based on isPresenter
                 let dropdownOptions = '';
 
-                if (isPresenter) {
+                if (peer_presenter) {
                     dropdownOptions = `
                         <li><button id="${peer_id}_pKickOut" class="dropdown-item"><i class='fas fa-user-slash red'></i> Eject Participant</button></li>
                         <li><button id="${peer_id}_pToggleAudio" class="dropdown-item"><i class='fas fa-microphone red'></i> Mute Microphone</button></li>
@@ -13082,7 +13086,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.68',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.69',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
