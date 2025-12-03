@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.67
+ * @version 1.6.68
  *
  */
 
@@ -299,6 +299,8 @@ const msgerCPHeader = getId('msgerCPHeader');
 const msgerCPCloseBtn = getId('msgerCPCloseBtn');
 const msgerCPList = getId('msgerCPList');
 const searchPeerBarName = getId('searchPeerBarName');
+const msgerCPDropDownMenuBtn = getId('msgerCPDropDownMenuBtn');
+const msgerCPDropDownContent = getId('msgerCPDropDownContent');
 
 // Caption section
 const captionDraggable = getId('captionDraggable');
@@ -322,7 +324,6 @@ const tabVideoBtn = getId('tabVideoBtn');
 const tabAudioBtn = getId('tabAudioBtn');
 const tabVideoShareBtn = getId('tabVideoShareBtn');
 const tabRecordingBtn = getId('tabRecordingBtn');
-const tabParticipantsBtn = getId('tabParticipantsBtn');
 const tabProfileBtn = getId('tabProfileBtn');
 const tabShortcutsBtn = getId('tabShortcutsBtn');
 const tabNetworkBtn = getId('tabNetworkBtn');
@@ -5482,11 +5483,13 @@ function setChatRoomBtn() {
         toggleChatDropDownMenu();
     });
 
+    // dropdown msgerCP menu
+    msgerCPDropDownMenuBtn.addEventListener('click', () => {
+        toggleMsgerCPDropDownMenu();
+    });
+
     // show msger participants section
     msgerCPBtn.addEventListener('click', (e) => {
-        if (!thereArePeerConnections()) {
-            return toastMessage('info', 'No participants detected', '', 'top');
-        }
         elemDisplay(msgerCP, true, 'flex');
     });
 
@@ -6420,9 +6423,6 @@ function setupMySettings() {
     });
     tabRecordingBtn.addEventListener('click', (e) => {
         openTab(e, 'tabRecording');
-    });
-    tabParticipantsBtn.addEventListener('click', (e) => {
-        openTab(e, 'tabParticipants');
     });
     tabProfileBtn.addEventListener('click', (e) => {
         openTab(e, 'tabProfile');
@@ -8620,6 +8620,12 @@ function toggleChatDropDownMenu() {
     msgerDropDownContent.style.display === 'block'
         ? (msgerDropDownContent.style.display = 'none')
         : (msgerDropDownContent.style.display = 'block');
+}
+
+function toggleMsgerCPDropDownMenu() {
+    msgerCPDropDownContent.style.display === 'block'
+        ? (msgerCPDropDownContent.style.display = 'none')
+        : (msgerCPDropDownContent.style.display = 'block');
 }
 
 /**
@@ -10866,7 +10872,7 @@ function disableAllPeers(element) {
     }
     Swal.fire({
         background: swBg,
-        position: 'center',
+        position: 'top',
         imageUrl: element == 'audio' ? images.audioOff : images.videoOff,
         title: element == 'audio' ? 'Mute everyone except yourself?' : 'Hide everyone except yourself?',
         text:
@@ -13076,7 +13082,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.67',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.68',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -13675,6 +13681,27 @@ function handleDropdownHover() {
         msgerDropDownMenuBtn.addEventListener('mouseleave', hideChatDropdown);
         msgerDropDownContent.addEventListener('mouseenter', () => clearTimeout(chatTimeoutId));
         msgerDropDownContent.addEventListener('mouseleave', hideChatDropdown);
+    }
+
+    // Handle MsgerCP dropdown menu hover
+    if (msgerCPDropDownMenuBtn && msgerCPDropDownContent) {
+        let msgerCPTimeoutId;
+
+        const showMsgerCPDropdown = () => {
+            clearTimeout(msgerCPTimeoutId);
+            elemDisplay(msgerCPDropDownContent, true, 'block');
+        };
+
+        const hideMsgerCPDropdown = () => {
+            msgerCPTimeoutId = setTimeout(() => {
+                elemDisplay(msgerCPDropDownContent, false);
+            }, 200);
+        };
+
+        msgerCPDropDownMenuBtn.addEventListener('mouseenter', showMsgerCPDropdown);
+        msgerCPDropDownMenuBtn.addEventListener('mouseleave', hideMsgerCPDropdown);
+        msgerCPDropDownContent.addEventListener('mouseenter', () => clearTimeout(msgerCPTimeoutId));
+        msgerCPDropDownContent.addEventListener('mouseleave', hideMsgerCPDropdown);
     }
 
     // Handle Whiteboard dropdown menu hover
