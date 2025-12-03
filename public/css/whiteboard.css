@@ -7,8 +7,10 @@
     position: fixed;
     margin: auto;
     padding: 10px;
-    width: var(--wb-width);
-    height: var(--wb-height);
+    width: calc(var(--wb-width) * 1px);
+    height: calc(var(--wb-height) * 1px);
+    max-width: 100vw;
+    max-height: 100vh;
     background: var(--wb-bg);
     border: var(--border);
     box-shadow: var(--box-shadow);
@@ -27,7 +29,34 @@
     -webkit-animation-duration: 1s;
     -moz-animation-duration: 1s;
     animation-duration: 1s;
-    overflow: hidden;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    #whiteboard {
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+    .whiteboard-header {
+        padding: 2px;
+    }
+
+    .whiteboard-header-title button,
+    .whiteboard-header-options button {
+        padding: 5px;
+        font-size: 0.75rem;
+        min-width: 28px;
+        height: 28px;
+    }
+
+    .whiteboardColorPicker {
+        width: 16px;
+        height: 12px;
+        margin: 1px;
+    }
 }
 
 .whiteboard-header {
@@ -41,6 +70,11 @@
 }
 
 .whiteboard-header-title {
+    display: flex;
+    align-items: center;
+}
+
+.whiteboard-header-options {
     display: flex;
     align-items: center;
 }

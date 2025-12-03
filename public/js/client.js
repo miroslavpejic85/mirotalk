@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.69
+ * @version 1.6.70
  *
  */
 
@@ -116,8 +116,10 @@ const fileSharingInput = '*'; // allow all file extensions
 const Base64Prefix = 'data:application/pdf;base64,';
 const wbPdfInput = 'application/pdf';
 const wbImageInput = 'image/*';
-const wbWidth = 1280;
-const wbHeight = 768;
+
+// Reference dimensions for whiteboard (16:9 aspect ratio)
+const wbReferenceWidth = 1920;
+const wbReferenceHeight = 1080;
 
 // Peer infos
 const extraInfo = getId('extraInfo');
@@ -11193,8 +11195,9 @@ function toggleWhiteboard() {
     }
 
     whiteboard.classList.toggle('show');
-    whiteboard.style.top = '50%';
-    whiteboard.style.left = '50%';
+
+    centerWhiteboard();
+
     wbIsOpen = !wbIsOpen;
     screenReaderAccessibility.announceMessage(wbIsOpen ? 'Whiteboard opened' : 'Whiteboard closed');
 }
@@ -11208,6 +11211,32 @@ function setupWhiteboard() {
     setupWhiteboardLocalListeners();
     setupWhiteboardShortcuts();
     setupWhiteboardDragAndDrop();
+    setupWhiteboardResizeListener();
+}
+
+/**
+ * Whiteboard: setup resize listener for responsive behavior
+ */
+function setupWhiteboardResizeListener() {
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        // Debounce resize events to avoid performance issues
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (wbCanvas && wbIsOpen) {
+                setupWhiteboardCanvasSize();
+            }
+        }, 250);
+    });
+
+    // Also handle orientation change for mobile devices
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            if (wbCanvas && wbIsOpen) {
+                setupWhiteboardCanvasSize();
+            }
+        }, 300);
+    });
 }
 
 /**
@@ -11221,30 +11250,60 @@ function setupWhiteboardCanvas() {
 }
 
 /**
- * Whiteboard: setup canvas size
+ * Whiteboard: setup canvas size to always fit full screen with proper scaling
  */
 function setupWhiteboardCanvasSize() {
-    const optimalSize = [wbWidth, wbHeight];
-    const scaleFactorX = window.innerWidth / optimalSize[0];
-    const scaleFactorY = window.innerHeight / optimalSize[1];
-    if (scaleFactorX < scaleFactorY && scaleFactorX < 1) {
-        wbCanvas.setWidth(optimalSize[0] * scaleFactorX);
-        wbCanvas.setHeight(optimalSize[1] * scaleFactorX);
-        wbCanvas.setZoom(scaleFactorX);
-        setWhiteboardSize(optimalSize[0] * scaleFactorX, optimalSize[1] * scaleFactorX);
-    } else if (scaleFactorX > scaleFactorY && scaleFactorY < 1) {
-        wbCanvas.setWidth(optimalSize[0] * scaleFactorY);
-        wbCanvas.setHeight(optimalSize[1] * scaleFactorY);
-        wbCanvas.setZoom(scaleFactorY);
-        setWhiteboardSize(optimalSize[0] * scaleFactorY, optimalSize[1] * scaleFactorY);
-    } else {
-        wbCanvas.setWidth(optimalSize[0]);
-        wbCanvas.setHeight(optimalSize[1]);
-        wbCanvas.setZoom(1);
-        setWhiteboardSize(optimalSize[0], optimalSize[1]);
-    }
+    // Get available viewport dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Account for whiteboard container padding
+    const containerPadding = isMobileDevice ? 10 : 20; // 5px * 2 for mobile, 10px * 2 for desktop
+
+    // Header height varies by device
+    const headerHeight = isMobileDevice ? 40 : 60; // Smaller header on mobile
+
+    const extraMargin = 20; // Small margin to avoid any overflow
+
+    const availableWidth = viewportWidth - containerPadding - extraMargin;
+    const availableHeight = viewportHeight - containerPadding - headerHeight - extraMargin;
+
+    // Calculate scale factor to fit the viewport while maintaining aspect ratio
+    const scaleX = availableWidth / wbReferenceWidth;
+    const scaleY = availableHeight / wbReferenceHeight;
+    const scale = Math.min(scaleX, scaleY);
+
+    // Set canvas dimensions to scaled reference size
+    const canvasWidth = wbReferenceWidth * scale;
+    const canvasHeight = wbReferenceHeight * scale;
+
+    // Update canvas dimensions and zoom
+    wbCanvas.setWidth(canvasWidth);
+    wbCanvas.setHeight(canvasHeight);
+    wbCanvas.setZoom(scale);
+
+    // Update CSS variables for whiteboard container
+    // Add padding and header to get total container size
+    setWhiteboardSize(canvasWidth + containerPadding, canvasHeight + headerHeight + containerPadding);
+
+    // Recenter whiteboard on screen
+    centerWhiteboard();
+
+    // Recalculate offsets and render
     wbCanvas.calcOffset();
     wbCanvas.renderAll();
+}
+
+/**
+ * Whiteboard: center on screen
+ */
+function centerWhiteboard() {
+    if (whiteboard) {
+        // Force reflow to ensure centering is applied
+        whiteboard.style.top = '50%';
+        whiteboard.style.left = '50%';
+        whiteboard.style.transform = 'translate(-50%, -50%)';
+    }
 }
 
 /**
@@ -11975,10 +12034,14 @@ async function wbUpdate() {
 function handleJsonToWbCanvas(config) {
     if (!wbIsOpen) toggleWhiteboard();
     wbIsRedoing = true;
+
+    // Parse the JSON and load it
     wbCanvas.loadFromJSON(config.wbCanvasJson, function () {
-        wbCanvas.renderAll();
+        // After loading, ensure proper scaling is maintained
+        setupWhiteboardCanvasSize();
         wbIsRedoing = false;
     });
+
     if (!isPresenter && !wbCanvas.isDrawingMode && wbIsLock) {
         wbDrawing(false);
     }
@@ -13086,7 +13149,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.69',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.70',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
