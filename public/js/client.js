@@ -11277,6 +11277,7 @@ function drawCanvasGrid() {
     wbCanvas.add(gridGroup);
     gridGroup.sendToBack();
     wbCanvas.renderAll();
+    setColor(whiteboardGridBtn, 'green');
 }
 
 /**
@@ -11300,6 +11301,7 @@ function removeCanvasGrid() {
     });
     wbGridLines = [];
     wbCanvas.renderAll();
+    setColor(whiteboardGridBtn, 'white');
 }
 
 /**
