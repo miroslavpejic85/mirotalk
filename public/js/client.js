@@ -12048,7 +12048,6 @@ function wbCanvasRedo() {
 function wbCanvasClear() {
     wbCanvas.clear();
     wbCanvas.renderAll();
-    setColor(whiteboardGridBtn, 'white');
 }
 
 /**
@@ -12202,6 +12201,7 @@ function handleWhiteboardAction(config, logMe = true) {
             break;
         case 'clear':
             wbCanvasClear();
+            removeCanvasGrid();
             break;
         case 'toggle':
             toggleWhiteboard();
