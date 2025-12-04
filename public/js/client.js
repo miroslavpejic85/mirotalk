@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.70
+ * @version 1.6.71
  *
  */
 
@@ -392,6 +392,7 @@ const whiteboardTitle = getId('whiteboardTitle');
 const whiteboardOptions = getId('whiteboardOptions');
 const wbDrawingColorEl = getId('wbDrawingColorEl');
 const whiteboardGhostButton = getId('whiteboardGhostButton');
+const whiteboardGridBtn = getId('whiteboardGridBtn');
 const wbBackgroundColorEl = getId('wbBackgroundColorEl');
 const whiteboardPencilBtn = getId('whiteboardPencilBtn');
 const whiteboardVanishingBtn = getId('whiteboardVanishingBtn');
@@ -672,6 +673,10 @@ let wbIsVanishing = false;
 let wbIsBgTransparent = false;
 let wbPop = [];
 let wbVanishingObjects = [];
+let wbGridLines = [];
+let wbGridSize = 20;
+let wbStroke = '#cccccc63';
+let wbGridVisible = false;
 let isWhiteboardFs = false;
 
 // file transfer
@@ -831,6 +836,7 @@ function setButtonsToolTip() {
     setTippy(whiteboardCloseBtn, 'Close', 'right');
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
+    setTippy(whiteboardGridBtn, 'Toggle whiteboard grid', 'bottom');
     setTippy(wbBackgroundColorEl, 'Background color', 'bottom');
     setTippy(whiteboardPencilBtn, 'Drawing mode', 'bottom');
     setTippy(whiteboardVanishingBtn, 'Vanishing pen (disappears in 5s)', 'bottom');
@@ -6007,6 +6013,14 @@ function setMyWhiteboardBtn() {
         //setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
         wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)') : setTheme();
     });
+    // Canvas Grid
+    if (isDesktopDevice) {
+        whiteboardGridBtn.addEventListener('click', (e) => {
+            toggleCanvasGrid();
+        });
+    } else {
+        elemDisplay(whiteboardGridBtn, false);
+    }
     whiteboardShortcutsBtn.addEventListener('click', (e) => {
         showWhiteboardShortcuts();
     });
@@ -11240,6 +11254,64 @@ function setupWhiteboardResizeListener() {
 }
 
 /**
+ * Whiteboard: draw grid on canvas
+ */
+function drawCanvasGrid() {
+    // Use reference dimensions for grid, zoom will handle scaling
+    const width = wbReferenceWidth;
+    const height = wbReferenceHeight;
+
+    removeCanvasGrid();
+
+    // Draw vertical lines
+    for (let i = 0; i <= width; i += wbGridSize) {
+        wbGridLines.push(createGridLine(i, 0, i, height));
+    }
+    // Draw horizontal lines
+    for (let i = 0; i <= height; i += wbGridSize) {
+        wbGridLines.push(createGridLine(0, i, width, i));
+    }
+
+    // Create a group for grid lines and send it to the back
+    const gridGroup = new fabric.Group(wbGridLines, { selectable: false, evented: false });
+    wbCanvas.add(gridGroup);
+    gridGroup.sendToBack();
+    wbCanvas.renderAll();
+}
+
+/**
+ * Create a grid line
+ */
+function createGridLine(x1, y1, x2, y2) {
+    return new fabric.Line([x1, y1, x2, y2], {
+        stroke: wbStroke,
+        selectable: false,
+        evented: false,
+    });
+}
+
+/**
+ * Whiteboard: remove grid lines from canvas
+ */
+function removeCanvasGrid() {
+    wbGridLines.forEach((line) => {
+        line.set({ stroke: wbGridVisible ? wbStroke : 'rgba(255, 255, 255, 0)' });
+        wbCanvas.remove(line);
+    });
+    wbGridLines = [];
+    wbCanvas.renderAll();
+}
+
+/**
+ * Whiteboard: toggle grid
+ */
+function toggleCanvasGrid() {
+    wbGridVisible = !wbGridVisible;
+    wbGridVisible ? drawCanvasGrid() : removeCanvasGrid();
+    wbCanvasToJson();
+}
+
+/**
  * Whiteboard: setup canvas
  */
 function setupWhiteboardCanvas() {
@@ -13149,7 +13221,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.70',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.71',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
