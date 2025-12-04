@@ -16,7 +16,7 @@ This project is proudly sponsored by
 
 <h1 align=center>Recall.ai - API for meeting recording</h1>
 <p align="center">
-    <a href="https://recall.ai/?utm_source=mirotalkp2p&utm_medium=sponsorship"><strong>Recall.ai</strong></a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
+    <a href="https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=miroslavpejic85-mirotalk"><strong>Recall.ai</strong></a> – an API for recording Zoom, Google Meet, Microsoft Teams, and in-person meetings.
 </p>
 
 <hr />
