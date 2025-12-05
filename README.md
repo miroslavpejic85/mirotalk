@@ -217,6 +217,48 @@ $ docker-compose down
 </details>
 
 <details open>
+<summary>Self-Hosting</summary>
+
+</br>
+
+![setup](/public/images/self-hosting.png)
+
+## **Requirements**
+
+- A `clean server` running **Ubuntu 22.04 or 24.04 LTS**
+- **Root access** to the Server
+- A **domain or subdomain** pointing to your server’s public IPv4
+
+---
+
+## Note
+
+When **prompted**, simply **enter your domain or subdomain**. Then wait for the installation to complete.
+
+```bash
+# Install MiroTalk P2P
+wget -qO p2p-install.sh https://docs.mirotalk.com/scripts/p2p/p2p-install.sh \
+  && chmod +x p2p-install.sh \
+  && ./p2p-install.sh
+```
+
+```bash
+# Uninstall MiroTalk P2P
+wget -qO p2p-uninstall.sh https://docs.mirotalk.com/scripts/p2p/p2p-uninstall.sh \
+  && chmod +x p2p-uninstall.sh \
+  && ./p2p-uninstall.sh
+```
+
+```bash
+# Update MiroTalk P2P
+wget -qO p2p-update.sh https://docs.mirotalk.com/scripts/p2p/p2p-update.sh \
+  && chmod +x p2p-update.sh \
+  && ./p2p-update.sh
+```
+
+</details>
+
+<details open>
 <summary>Embed a meeting</summary>
 
 <br/>
