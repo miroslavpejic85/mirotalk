@@ -1846,7 +1846,7 @@ button {
     margin-top: 15px;
     padding: 6px 12px;
     width: 100%;
-    max-height: 585px;
+    max-height: 530px;
     min-height: 480px;
     border-top: none;
     background-color: var(--body-bg);
