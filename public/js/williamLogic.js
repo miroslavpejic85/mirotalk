@@ -3,7 +3,7 @@
  */
 
 // --- CONFIGURATION ---
-const GEMINI_API_KEY = "PASTE_YOUR_KEY_HERE"; 
+const GEMINI_API_KEY = "AIzaSyCjSuO-p1nsFQjbmmze9dLdM_fh1rDNTvc"; 
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 // --- 1. EARS ---
