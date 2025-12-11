@@ -203,6 +203,19 @@ function resizeMainButtons() {
 }
 
 /**
+ * Add transition effect to camera and screen tiles
+ */
+function addCameraAndScreenTransitionEffect() {
+    const Cameras = document.getElementsByClassName('Camera');
+    const Screens = document.getElementsByClassName('Screen');
+    const Tiles = [...Cameras, ...Screens];
+    for (let t of Tiles) {
+        t.style.transition = 'all 0.3s cubic-bezier(0.4,0,0.2,1)';
+        t.style.willChange = 'width, height, margin';
+    }
+}
+
+/**
  * Handle window event listener
  */
 window.addEventListener(
@@ -210,10 +223,15 @@ window.addEventListener(
     function (event) {
         resizeVideoMedia();
         resizeMainButtons();
-        window.onresize = function () {
-            resizeVideoMedia();
-            resizeMainButtons();
-        };
+        let resizeTimeout;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function () {
+                addCameraAndScreenTransitionEffect();
+                resizeVideoMedia();
+                resizeMainButtons();
+            }, 100);
+        });
     },
     false
 );
