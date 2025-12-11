@@ -40,7 +40,15 @@ function hasPathTraversal(input) {
     return false;
 }
 
+function isValidData(data) {
+    if (!data || typeof data !== 'object') {
+        return false;
+    }
+    return Object.keys(data).length > 0;
+}
+
 module.exports = {
     isValidRoomName,
     hasPathTraversal,
+    isValidData,
 };

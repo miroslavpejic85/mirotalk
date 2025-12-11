@@ -1235,6 +1235,9 @@ io.sockets.on('connect', async (socket) => {
         const data = checkXSS(dataObj);
 
         log.debug('Socket Promise', data);
+
+        if (!Validate.isValidData(data)) return;
+
         //...
         const { room_id, peer_id, peer_name, method, params } = data;
 
@@ -1328,6 +1331,8 @@ io.sockets.on('connect', async (socket) => {
 
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
 
         // log.debug('Join room', config);
         log.debug('[' + socket.id + '] join ', config);
@@ -1518,6 +1523,7 @@ io.sockets.on('connect', async (socket) => {
      * Relay ICE to peers
      */
     socket.on('relayICE', async (config) => {
+        if (!Validate.isValidData(config)) return;
         const { peer_id, ice_candidate } = config;
 
         // log.debug('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
@@ -1534,6 +1540,7 @@ io.sockets.on('connect', async (socket) => {
      * Relay SDP to peers
      */
     socket.on('relaySDP', async (config) => {
+        if (!Validate.isValidData(config)) return;
         const { peer_id, session_description } = config;
 
         log.debug('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
@@ -1552,6 +1559,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('roomAction', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         //log.debug('[' + socket.id + '] Room action:', config);
         const { room_id, peer_id, peer_name, peer_uuid, password, action } = config;
 
@@ -1604,6 +1614,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('peerName', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         // log.debug('Peer name', config);
         const { room_id, peer_name_old, peer_name_new, peer_avatar } = config;
 
@@ -1641,7 +1654,11 @@ io.sockets.on('connect', async (socket) => {
      */
     socket.on('message', async (message) => {
         const data = checkXSS(message);
+
         log.debug('Got message', data);
+
+        if (!Validate.isValidData(data)) return;
+
         await sendToRoom(data.room_id, socket.id, 'message', data);
     });
 
@@ -1654,6 +1671,8 @@ io.sockets.on('connect', async (socket) => {
      */
     socket.on('cmd', async (cfg) => {
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
 
         const { action, send_to_all, data } = config;
 
@@ -1687,6 +1706,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('peerStatus', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         // log.debug('Peer status', config);
         const { room_id, peer_name, peer_id, element, status, extras } = config;
 
@@ -1741,6 +1763,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('peerAction', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         // log.debug('Peer action', config);
         const {
             room_id,
@@ -1789,6 +1814,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('caption', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         await sendToRoom(cfg.room_id, sockets, 'caption', config);
     });
 
@@ -1798,6 +1826,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('kickOut', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         const { room_id, peer_id, peer_uuid, peer_name } = config;
 
         // Check if peer is presenter
@@ -1819,6 +1850,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('fileInfo', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         // log.debug('File info', config);
         const { room_id, peer_id, peer_name, peer_avatar, broadcast, file } = config;
 
@@ -1857,6 +1891,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('fileAbort', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         const { room_id, peer_name } = config;
 
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
@@ -1865,6 +1902,9 @@ io.sockets.on('connect', async (socket) => {
 
     socket.on('fileReceiveAbort', async (cfg) => {
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         const { room_id, peer_name } = config;
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileReceiveAbort to room_id [' + room_id + ']');
         await sendToRoom(room_id, socket.id, 'fileReceiveAbort', config);
@@ -1876,6 +1916,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('videoPlayer', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         // log.debug('Video player', config);
         const { room_id, peer_id, peer_name, video_action, video_src } = config;
 
@@ -1909,6 +1952,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('wbCanvasToJson', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         // log.debug('Whiteboard send canvas', config);
         const { room_id } = config;
         await sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
@@ -1917,6 +1963,9 @@ io.sockets.on('connect', async (socket) => {
     socket.on('whiteboardAction', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
         log.debug('Whiteboard', config);
         const { room_id } = config;
         await sendToRoom(room_id, socket.id, 'whiteboardAction', config);
