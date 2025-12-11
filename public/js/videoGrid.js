@@ -87,18 +87,22 @@ function resizeVideoMedia() {
         Width = Width - bigWidth;
     }
 
-    // loop (i recommend you optimize this)
-    let i = 1;
-    while (i < 5000) {
-        let w = Area(i, Tiles.length, Width, Height, Margin);
-        if (w === false) {
-            max = i - 1;
-            break;
+    // Optimized: binary search for best tile size
+    let low = 1;
+    let high = Math.min(Width, Height);
+    let best = 1;
+    while (low <= high) {
+        let mid = Math.floor((low + high) / 2);
+        let w = Area(mid, Tiles.length, Width, Height, Margin);
+        if (w !== false) {
+            best = mid;
+            low = mid + 1;
+        } else {
+            high = mid - 1;
         }
-        i++;
     }
 
-    max = max - Margin * 2;
+    max = best - Margin * 2;
     setWidth(Tiles, max, bigWidth, Margin, Height, isOneVideoElement);
     setSP('--vmi-wh', max / 3 + 'px');
 }
@@ -203,19 +207,6 @@ function resizeMainButtons() {
 }
 
 /**
- * Add transition effect to camera and screen tiles
- */
-function addCameraAndScreenTransitionEffect() {
-    const Cameras = document.getElementsByClassName('Camera');
-    const Screens = document.getElementsByClassName('Screen');
-    const Tiles = [...Cameras, ...Screens];
-    for (let t of Tiles) {
-        t.style.transition = 'all 0.3s cubic-bezier(0.4,0,0.2,1)';
-        t.style.willChange = 'width, height, margin';
-    }
-}
-
-/**
  * Handle window event listener
  */
 window.addEventListener(
@@ -225,12 +216,11 @@ window.addEventListener(
         resizeMainButtons();
         let resizeTimeout;
         window.addEventListener('resize', function () {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function () {
-                addCameraAndScreenTransitionEffect();
+            if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
+            resizeTimeout = requestAnimationFrame(function () {
                 resizeVideoMedia();
                 resizeMainButtons();
-            }, 100);
+            });
         });
     },
     false
