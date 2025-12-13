@@ -5940,6 +5940,8 @@ function setMyWhiteboardBtn() {
         whiteboardIsDrawingMode(true);
     });
     whiteboardObjectBtn.addEventListener('click', (e) => {
+        whiteboardIsEraser(false);
+        whiteboardIsVanishingMode(false);
         whiteboardIsDrawingMode(false);
     });
     whiteboardStickyNoteBtn.addEventListener('click', (e) => {
