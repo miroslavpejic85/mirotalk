@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.76
+ * @version 1.6.77
  *
  */
 
@@ -668,7 +668,9 @@ let wbIsLock = false;
 let wbIsDrawing = false;
 let wbIsOpen = false;
 let wbIsRedoing = false;
+let wbIsObject = false;
 let wbIsEraser = false;
+let wbIsPencil = false;
 let wbIsVanishing = false;
 let wbIsBgTransparent = false;
 let wbPop = [];
@@ -5937,17 +5939,18 @@ function setMyWhiteboardBtn() {
         handleWhiteboardToggle();
     });
     whiteboardPencilBtn.addEventListener('click', (e) => {
-        whiteboardIsDrawingMode(true);
+        whiteboardResetAllMode();
+        whiteboardIsPencilMode(true);
     });
     whiteboardObjectBtn.addEventListener('click', (e) => {
-        whiteboardIsEraser(false);
-        whiteboardIsVanishingMode(false);
-        whiteboardIsDrawingMode(false);
+        whiteboardResetAllMode();
+        whiteboardIsObjectMode(true);
     });
     whiteboardStickyNoteBtn.addEventListener('click', (e) => {
         whiteboardAddObj('stickyNote');
     });
     whiteboardVanishingBtn.addEventListener('click', (e) => {
+        whiteboardResetAllMode();
         whiteboardIsVanishingMode(true);
     });
     whiteboardUndoBtn.addEventListener('click', (e) => {
@@ -5989,7 +5992,8 @@ function setMyWhiteboardBtn() {
         whiteboardAddObj('circle');
     });
     whiteboardEraserBtn.addEventListener('click', (e) => {
-        whiteboardIsEraser(true);
+        whiteboardResetAllMode();
+        whiteboardIsEraserMode(true);
     });
     whiteboardCleanBtn.addEventListener('click', (e) => {
         confirmCleanBoard();
@@ -6005,7 +6009,8 @@ function setMyWhiteboardBtn() {
     });
     wbDrawingColorEl.addEventListener('change', (e) => {
         wbCanvas.freeDrawingBrush.color = wbDrawingColorEl.value;
-        whiteboardIsDrawingMode(true);
+        whiteboardResetAllMode();
+        whiteboardIsPencilMode(true);
     });
     wbBackgroundColorEl.addEventListener('change', (e) => {
         setWhiteboardBgColor(wbBackgroundColorEl.value);
@@ -11320,7 +11325,7 @@ function setupWhiteboardCanvas() {
     wbCanvas = new fabric.Canvas('wbCanvas');
     wbCanvas.freeDrawingBrush.color = '#FFFFFF';
     wbCanvas.freeDrawingBrush.width = 3;
-    whiteboardIsDrawingMode(true);
+    whiteboardIsPencilMode(true);
 }
 
 /**
@@ -11405,62 +11410,48 @@ function setWhiteboardBgColor(color) {
 }
 
 /**
- * Whiteboard: drawing mode
- * @param {boolean} status of drawing mode
+ * Reset all whiteboard mode
  */
-function whiteboardIsDrawingMode(status) {
-    wbCanvas.isDrawingMode = status;
-    if (status) {
-        setColor(whiteboardPencilBtn, 'green');
-        setColor(whiteboardVanishingBtn, 'white');
-        setColor(whiteboardObjectBtn, 'white');
-        setColor(whiteboardEraserBtn, 'white');
-        wbIsEraser = false;
-        wbIsVanishing = false;
-    } else {
-        setColor(whiteboardPencilBtn, 'white');
-        setColor(whiteboardVanishingBtn, 'white');
-        setColor(whiteboardObjectBtn, 'green');
-    }
+function whiteboardResetAllMode() {
+    whiteboardIsPencilMode(false);
+    whiteboardIsVanishingMode(false);
+    whiteboardIsObjectMode(false);
+    whiteboardIsEraserMode(false);
 }
 
 /**
- * Whiteboard: vanishing mode
- * @param {boolean} status if vanishing mode on
+ * Set whiteboard Pencil mode
+ */
+function whiteboardIsPencilMode(status) {
+    wbCanvas.isDrawingMode = status;
+    wbIsPencil = status;
+    setColor(whiteboardPencilBtn, wbIsPencil ? 'green' : 'white');
+}
+
+/**
+ * Set whiteboard Vanishing mode
  */
 function whiteboardIsVanishingMode(status) {
     wbCanvas.isDrawingMode = status;
     wbIsVanishing = status;
-    if (status) {
-        setColor(whiteboardVanishingBtn, 'green');
-        setColor(whiteboardPencilBtn, 'white');
-        setColor(whiteboardObjectBtn, 'white');
-        setColor(whiteboardEraserBtn, 'white');
-        wbIsEraser = false;
-    } else {
-        setColor(whiteboardVanishingBtn, 'white');
-        wbCanvas.isDrawingMode = false;
-        setColor(whiteboardObjectBtn, 'green');
-    }
+    wbCanvas.freeDrawingBrush.color = wbIsVanishing ? 'yellow' : wbDrawingColorEl.value;
+    setColor(whiteboardVanishingBtn, wbIsVanishing ? 'green' : 'white');
 }
 
 /**
- * Whiteboard: eraser
- * @param {boolean} status if eraser on
+ * Set whiteboard Object mode
  */
-function whiteboardIsEraser(status) {
-    if (status) {
-        wbCanvas.isDrawingMode = false;
-        wbIsVanishing = false;
-        setColor(whiteboardPencilBtn, 'white');
-        setColor(whiteboardVanishingBtn, 'white');
-        setColor(whiteboardObjectBtn, 'white');
-        setColor(whiteboardEraserBtn, 'green');
-    } else {
-        setColor(whiteboardEraserBtn, 'white');
-        setColor(whiteboardObjectBtn, 'green');
-    }
+function whiteboardIsObjectMode(status) {
+    wbIsObject = status;
+    setColor(whiteboardObjectBtn, status ? 'green' : 'white');
+}
+
+/**
+ * Set whiteboard Eraser mode
+ */
+function whiteboardIsEraserMode(status) {
     wbIsEraser = status;
+    setColor(whiteboardEraserBtn, wbIsEraser ? 'green' : 'white');
 }
 
 /**
@@ -11477,6 +11468,8 @@ function setColor(elem, color) {
  * @param {string} type of object to add
  */
 function whiteboardAddObj(type) {
+    wbCanvas.freeDrawingBrush.color = wbDrawingColorEl.value;
+
     switch (type) {
         case 'imgUrl':
             Swal.fire({
@@ -11844,7 +11837,8 @@ async function renderPdfToCanvas(wbCanvasPdf) {
         reader.onload = async function (event) {
             wbCanvas.requestRenderAll();
             await pdfToImage(event.target.result, wbCanvas);
-            whiteboardIsDrawingMode(false);
+            whiteboardResetAllMode();
+            whiteboardIsObjectMode(false);
             wbCanvasToJson();
         };
         reader.readAsDataURL(wbCanvasPdf);
@@ -11934,7 +11928,8 @@ async function pdfToImage(pdfData, canvas) {
 function addWbCanvasObj(obj) {
     if (obj) {
         wbCanvas.add(obj).setActiveObject(obj);
-        whiteboardIsDrawingMode(false);
+        whiteboardResetAllMode();
+        whiteboardIsObjectMode(true);
         wbCanvasToJson();
     } else {
         console.error('Invalid input. Expected an obj of canvas elements');
@@ -12397,6 +12392,7 @@ function setupWhiteboardShortcuts() {
                     event.preventDefault();
                     break;
                 case 'KeyV': // Vanishing Pen
+                    whiteboardResetAllMode();
                     whiteboardIsVanishingMode(!wbIsVanishing);
                     event.preventDefault();
                     break;
@@ -13231,7 +13227,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.76',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.77',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
