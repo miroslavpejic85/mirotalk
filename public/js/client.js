@@ -1213,10 +1213,13 @@ function initClientPeer() {
         return userLog('error', 'This browser seems not supported WebRTC!');
     }
 
-    // check if video Full screen supported on default true
-    if (peerInfo.isMobileDevice && peerInfo.osName === 'iOS') {
-        isVideoFullScreenSupported = false;
-    }
+    // Check if video full screen is supported by the browser
+    isVideoFullScreenSupported =
+        typeof document !== 'undefined' &&
+        ('fullscreenEnabled' in document ||
+            'webkitFullscreenEnabled' in document ||
+            'mozFullScreenEnabled' in document ||
+            'msFullscreenEnabled' in document);
 
     console.log('01. Connecting to signaling server');
 
