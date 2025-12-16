@@ -315,6 +315,7 @@ body {
 
 #bottomButtons button {
     width: 50px;
+    height: 50px;
     padding: 10px;
     font-size: 1.6rem;
     color: var(--btn-bar-bg-color);
@@ -322,6 +323,68 @@ body {
     border: none !important;
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
+}
+
+/* Quick device picker (Start Audio/Video) */
+#bottomButtons .device-dropdown-toggle {
+    width: 25px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+#bottomButtons .device-dropdown-toggle i {
+    font-size: 0.9rem;
+}
+
+#bottomButtons .dropdown-menu button {
+    width: auto;
+    font-size: 0.8em;
+    padding: 8px 16px;
+    border-radius: 0;
+    background: none;
+    transition: background 0.2s;
+}
+
+#bottomButtons .dropdown {
+    position: relative;
+}
+
+#bottomButtons .dropup .dropdown-menu {
+    z-index: 9999;
+    position: absolute;
+    left: 0;
+    padding: 10px 5px;
+    bottom: calc(100% + 6px);
+    border: var(--border);
+    background: var(--body-bg);
+    box-shadow: var(--box-shadow);
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+#bottomButtons #audioMenu,
+#bottomButtons #videoMenu {
+    min-width: 280px;
+    max-width: calc(100vw - 24px);
+    text-align: left;
+}
+
+#bottomButtons #audioMenu button,
+#bottomButtons #videoMenu button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    transform: none !important;
 }
 
 #bottomButtons button:hover {
@@ -1465,16 +1528,23 @@ button {
     #mySettings {
         width: 90%;
     }
-
     #bottomButtons {
         gap: 0.3rem;
         padding: 3px;
     }
     #bottomButtons button {
         width: 38px;
+        height: 38px;
         font-size: 0.95rem;
         padding: 8px;
         margin: 0 1px;
+    }
+    #bottomButtons .device-dropdown-toggle {
+        width: 19px;
+        height: 38px;
+    }
+    #bottomButtons .device-dropdown-toggle i {
+        font-size: 0.8rem;
     }
 }
 
@@ -1488,6 +1558,13 @@ button {
         font-size: 0.65rem;
         padding: 6px;
         margin: 0 1px;
+    }
+    #bottomButtons .device-dropdown-toggle {
+        width: 14px;
+        height: 24px;
+    }
+    #bottomButtons .device-dropdown-toggle i {
+        font-size: 0.7rem;
     }
 }
 

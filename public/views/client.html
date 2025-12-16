@@ -151,7 +151,33 @@ access to use this app.
         <div id="bottomButtons" class="fadein">
             <button id="toggleExtraBtn" class="fas fa-chevron-down"></button>
             <button id="audioBtn" class="fas fa-microphone"></button>
+            <div id="audioDropdown" class="dropdown dropup hidden">
+                <button
+                    id="audioToggle"
+                    class="dropdown-toggle device-dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="Select microphone"
+                >
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+                <div id="audioMenu" class="dropdown-menu text-start" aria-labelledby="audioToggle"></div>
+            </div>
             <button id="videoBtn" class="fas fa-video"></button>
+            <div id="videoDropdown" class="dropdown dropup hidden">
+                <button
+                    id="videoToggle"
+                    class="dropdown-toggle device-dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="Select camera"
+                >
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+                <div id="videoMenu" class="dropdown-menu text-start" aria-labelledby="videoToggle"></div>
+            </div>
             <button id="swapCameraBtn" class="fas fa-camera-rotate"></button>
             <button id="screenShareBtn" class="fas fa-desktop"></button>
             <button id="myHandBtn" class="fas fa-hand-paper"></button>

@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.78
+ * @version 1.6.80
  *
  */
 
@@ -202,6 +202,12 @@ const bottomButtons = getId('bottomButtons');
 const toggleExtraBtn = getId('toggleExtraBtn');
 const audioBtn = getId('audioBtn');
 const videoBtn = getId('videoBtn');
+const videoDropdown = getId('videoDropdown');
+const audioDropdown = getId('audioDropdown');
+const videoToggle = getId('videoToggle');
+const audioToggle = getId('audioToggle');
+const videoMenu = getId('videoMenu');
+const audioMenu = getId('audioMenu');
 const swapCameraBtn = getId('swapCameraBtn');
 const hideMeBtn = getId('hideMeBtn');
 const screenShareBtn = getId('screenShareBtn');
@@ -1329,6 +1335,7 @@ async function handleConnect() {
         loadSettingsFromLocalStorage();
         setupVideoUrlPlayer();
         handleDropdownHover();
+        setupQuickDeviceSwitchDropdowns();
         startSessionTime();
         await whoAreYou();
     }
@@ -1656,6 +1663,7 @@ async function whoAreYou() {
         }
         // Disable camera settings, keep screen available
         displayElements([
+            { element: getId('videoDropdown'), display: false },
             { element: getId('videoSourceDiv'), display: false },
             { element: getId('videoFitDiv'), display: false },
             { element: getId('videoFpsDiv'), display: false },
@@ -1667,6 +1675,7 @@ async function whoAreYou() {
             { element: getId('initMicrophoneSelect'), display: false },
             { element: getId('initSpeakerSelect'), display: false },
             { element: getId('tabAudioBtn'), display: false },
+            { element: getId('audioDropdown'), display: false },
         ]);
     }
     if (!buttons.main.showScreenBtn) {
@@ -13308,7 +13317,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.78',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.80',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -13874,6 +13883,193 @@ function sanitizeXSS(src) {
  */
 function disable(elem, disabled) {
     elem.disabled = disabled;
+}
+
+/**
+ * Setup Quick audio/video device switch dropdowns
+ */
+function setupQuickDeviceSwitchDropdowns() {
+    // For now keep this feature only for desktop devices
+    if (!isDesktopDevice) return;
+
+    if (!videoBtn || !audioBtn || !videoDropdown || !audioDropdown || !videoToggle || !audioToggle) {
+        return;
+    }
+
+    function syncVisibility() {
+        // Keep dropdown visible while the corresponding button is visible
+        const showVideo = !!videoBtn && window.getComputedStyle(videoBtn).display !== 'none';
+        const showAudio = !!audioBtn && window.getComputedStyle(audioBtn).display !== 'none';
+        videoDropdown.classList.toggle('hidden', !showVideo);
+        audioDropdown.classList.toggle('hidden', !showAudio);
+    }
+
+    function isMenuOpen(menuEl) {
+        return !!menuEl && menuEl.classList.contains('show');
+    }
+
+    function closeMenu(toggleEl, menuEl) {
+        if (!toggleEl || !menuEl) return;
+        menuEl.classList.remove('show');
+        toggleEl.setAttribute('aria-expanded', 'false');
+    }
+
+    function openMenu(toggleEl, menuEl, rebuildFn) {
+        if (!toggleEl || !menuEl) return;
+        if (typeof rebuildFn === 'function') rebuildFn();
+        menuEl.classList.add('show');
+        toggleEl.setAttribute('aria-expanded', 'true');
+    }
+
+    function toggleMenu(toggleEl, menuEl, rebuildFn) {
+        const open = isMenuOpen(menuEl);
+        // only one open at a time
+        closeMenu(videoToggle, videoMenu);
+        closeMenu(audioToggle, audioMenu);
+        if (!open) openMenu(toggleEl, menuEl, rebuildFn);
+    }
+
+    function buildMenu(menuEl, selectEl, emptyLabel) {
+        if (!menuEl || !selectEl) return;
+
+        menuEl.innerHTML = '';
+        const options = Array.from(selectEl.options || []).filter((o) => o && o.value);
+
+        if (options.length === 0) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.disabled = true;
+            btn.textContent = emptyLabel;
+            menuEl.appendChild(btn);
+            return;
+        }
+
+        options.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+
+            const isSelected = opt.value === selectEl.value;
+            const label = opt.textContent || opt.label || opt.value;
+
+            btn.replaceChildren();
+            if (isSelected) {
+                const icon = document.createElement('i');
+                icon.className = 'fas fa-check';
+                icon.style.marginRight = '0.5em';
+                btn.appendChild(icon);
+                btn.appendChild(document.createTextNode(` ${label}`));
+            } else {
+                const spacer = document.createElement('span');
+                spacer.style.display = 'inline-block';
+                spacer.style.width = '1.25em';
+                btn.appendChild(spacer);
+                btn.appendChild(document.createTextNode(label));
+            }
+
+            btn.addEventListener('click', () => {
+                if (selectEl.value === opt.value) return;
+                selectEl.value = opt.value;
+                selectEl.dispatchEvent(new Event('change'));
+                buildMenu(menuEl, selectEl, emptyLabel);
+            });
+
+            menuEl.appendChild(btn);
+        });
+    }
+
+    function rebuildVideoMenu() {
+        buildMenu(videoMenu, videoSelect, 'No cameras found');
+    }
+
+    function rebuildAudioMenu() {
+        buildMenu(audioMenu, audioInputSelect, 'No microphones found');
+    }
+
+    // Hover behavior (desktop only). Note: rebuilding alone is invisible if the menu isn't opened.
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (supportsHover) {
+        const attachHoverDropdown = (toggleEl, menuEl, rebuildFn, closeOtherFn) => {
+            if (!toggleEl || !menuEl) return;
+
+            let closeTimeout;
+            const cancelClose = () => {
+                if (!closeTimeout) return;
+                clearTimeout(closeTimeout);
+                closeTimeout = null;
+            };
+            const scheduleClose = () => {
+                cancelClose();
+                closeTimeout = setTimeout(() => closeMenu(toggleEl, menuEl), 180);
+            };
+
+            toggleEl.addEventListener('mouseenter', () => {
+                cancelClose();
+                if (typeof closeOtherFn === 'function') closeOtherFn();
+                openMenu(toggleEl, menuEl, rebuildFn);
+            });
+            toggleEl.addEventListener('mouseleave', scheduleClose);
+            menuEl.addEventListener('mouseenter', cancelClose);
+            menuEl.addEventListener('mouseleave', scheduleClose);
+        };
+
+        attachHoverDropdown(videoToggle, videoMenu, rebuildVideoMenu, () => closeMenu(audioToggle, audioMenu));
+        attachHoverDropdown(audioToggle, audioMenu, rebuildAudioMenu, () => closeMenu(videoToggle, videoMenu));
+    }
+
+    videoToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMenu(videoToggle, videoMenu, rebuildVideoMenu);
+    });
+
+    audioToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMenu(audioToggle, audioMenu, rebuildAudioMenu);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        const t = e.target;
+        const inVideo = videoDropdown && (videoDropdown === t || videoDropdown.contains(t));
+        const inAudio = audioDropdown && (audioDropdown === t || audioDropdown.contains(t));
+        if (!inVideo) closeMenu(videoToggle, videoMenu);
+        if (!inAudio) closeMenu(audioToggle, audioMenu);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        closeMenu(videoToggle, videoMenu);
+        closeMenu(audioToggle, audioMenu);
+    });
+
+    // Close after selecting an item
+    if (videoMenu) videoMenu.addEventListener('click', () => closeMenu(videoToggle, videoMenu));
+    if (audioMenu) audioMenu.addEventListener('click', () => closeMenu(audioToggle, audioMenu));
+
+    // Keep UI synced when settings panel changes device
+    if (videoSelect) videoSelect.addEventListener('change', rebuildVideoMenu);
+    if (audioInputSelect) audioInputSelect.addEventListener('change', rebuildAudioMenu);
+
+    // Keep arrow buttons visible only when Start buttons are visible
+    syncVisibility();
+    const observer = new MutationObserver(syncVisibility);
+    observer.observe(videoBtn, { attributes: true, attributeFilter: ['class', 'style'] });
+    observer.observe(audioBtn, { attributes: true, attributeFilter: ['class', 'style'] });
+
+    // Re-enumerate & refresh lists on hardware changes
+    if (navigator.mediaDevices && typeof navigator.mediaDevices.addEventListener === 'function') {
+        let deviceChangeFrame;
+        navigator.mediaDevices.addEventListener('devicechange', () => {
+            if (deviceChangeFrame) cancelAnimationFrame(deviceChangeFrame);
+            deviceChangeFrame = requestAnimationFrame(async () => {
+                // TODO refreshMyAudioVideoDevices from settings ...
+                rebuildVideoMenu();
+                rebuildAudioMenu();
+            });
+        });
+    }
 }
 
 /**
