@@ -327,7 +327,7 @@ body {
 
 /* Quick device picker (Start Audio/Video) */
 #bottomButtons .device-dropdown-toggle {
-    width: 25px;
+    width: 35px;
     height: 50px;
     display: inline-flex;
     align-items: center;
