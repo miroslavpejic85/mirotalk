@@ -313,6 +313,44 @@ body {
     box-shadow: var(--box-shadow);
 }
 
+/* Split button (main action + device arrow) */
+#bottomButtons .split-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    overflow: visible;
+    border-radius: 10px;
+}
+
+/* Let the dropdown menu anchor to the whole split button (not only the arrow). */
+#bottomButtons #audioDropdown,
+#bottomButtons #videoDropdown {
+    position: static;
+}
+
+#bottomButtons .split-btn > button {
+    border-radius: 0;
+    margin: 0;
+}
+
+#bottomButtons .split-btn > button:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+#bottomButtons .split-btn .device-dropdown-toggle {
+    border-radius: 0;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left: var(--border);
+    margin: 0;
+}
+
+/* Keep the group visually together when hovering. */
+#bottomButtons .split-btn button:hover {
+    transform: none;
+}
+
 #bottomButtons button {
     width: 50px;
     height: 50px;
