@@ -13890,7 +13890,17 @@ function disable(elem, disabled) {
  */
 function setupQuickDeviceSwitchDropdowns() {
     // For now keep this feature only for desktop devices
-    if (!isDesktopDevice) return;
+    if (!isDesktopDevice) {
+        // On mobile we skip dropdown behavior, but ensure split buttons still look rounded.
+        document.querySelectorAll('#bottomButtons .split-btn').forEach((group) => {
+            group.querySelectorAll('button').forEach((button) => {
+                button.style.setProperty('border-radius', '10px', 'important');
+            });
+            const toggle = group.querySelector('.device-dropdown-toggle');
+            if (toggle) toggle.style.setProperty('border-left', 'none', 'important');
+        });
+        return;
+    }
 
     if (!videoBtn || !audioBtn || !videoDropdown || !audioDropdown || !videoToggle || !audioToggle) {
         return;
@@ -14115,6 +14125,7 @@ function setupQuickDeviceSwitchDropdowns() {
             deviceChangeFrame = requestAnimationFrame(async () => {
                 if (typeof refreshMyAudioVideoDevices === 'function') {
                     try {
+                        // TODO...
                         await refreshMyAudioVideoDevices();
                     } catch (err) {
                         // ignore
