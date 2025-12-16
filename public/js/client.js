@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.82
+ * @version 1.6.83
  *
  */
 
@@ -13317,7 +13317,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.82',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.83',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -13929,10 +13929,39 @@ function setupQuickDeviceSwitchDropdowns() {
         if (!open) openMenu(toggleEl, menuEl, rebuildFn);
     }
 
-    function buildMenu(menuEl, selectEl, emptyLabel) {
-        if (!menuEl || !selectEl) return;
+    function appendMenuHeader(menuEl, iconClass, title) {
+        if (!menuEl) return;
+        const header = document.createElement('div');
+        header.className = 'device-menu-header';
 
-        menuEl.innerHTML = '';
+        const icon = document.createElement('i');
+        icon.className = iconClass;
+
+        const text = document.createElement('span');
+        text.textContent = title;
+
+        header.appendChild(icon);
+        header.appendChild(text);
+        menuEl.appendChild(header);
+    }
+
+    function appendMenuDivider(menuEl) {
+        if (!menuEl) return;
+        const divider = document.createElement('div');
+        divider.className = 'device-menu-divider';
+        menuEl.appendChild(divider);
+    }
+
+    function appendSelectOptions(menuEl, selectEl, emptyLabel, rebuildFn) {
+        if (!menuEl || !selectEl) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.disabled = true;
+            btn.textContent = emptyLabel;
+            menuEl.appendChild(btn);
+            return;
+        }
+
         const options = Array.from(selectEl.options || []).filter((o) => o && o.value);
 
         if (options.length === 0) {
@@ -13970,7 +13999,7 @@ function setupQuickDeviceSwitchDropdowns() {
                 if (selectEl.value === opt.value) return;
                 selectEl.value = opt.value;
                 selectEl.dispatchEvent(new Event('change'));
-                buildMenu(menuEl, selectEl, emptyLabel);
+                if (typeof rebuildFn === 'function') rebuildFn();
             });
 
             menuEl.appendChild(btn);
@@ -13978,11 +14007,30 @@ function setupQuickDeviceSwitchDropdowns() {
     }
 
     function rebuildVideoMenu() {
-        buildMenu(videoMenu, videoSelect, 'No cameras found');
+        if (!videoMenu) return;
+        videoMenu.innerHTML = '';
+        appendSelectOptions(videoMenu, videoSelect, 'No cameras found', rebuildVideoMenu);
     }
 
     function rebuildAudioMenu() {
-        buildMenu(audioMenu, audioInputSelect, 'No microphones found');
+        if (!audioMenu) return;
+        audioMenu.innerHTML = '';
+
+        appendMenuHeader(audioMenu, 'fas fa-microphone', 'Microphones');
+        appendSelectOptions(audioMenu, audioInputSelect, 'No microphones found', rebuildAudioMenu);
+
+        appendMenuDivider(audioMenu);
+
+        appendMenuHeader(audioMenu, 'fas fa-volume-high', 'Speakers');
+        if (!audioOutputSelect || audioOutputSelect.disabled) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.disabled = true;
+            btn.textContent = 'Speaker selection not supported';
+            audioMenu.appendChild(btn);
+            return;
+        }
+        appendSelectOptions(audioMenu, audioOutputSelect, 'No speakers found', rebuildAudioMenu);
     }
 
     // Hover behavior (desktop only). Note: rebuilding alone is invisible if the menu isn't opened.
@@ -14051,6 +14099,7 @@ function setupQuickDeviceSwitchDropdowns() {
     // Keep UI synced when settings panel changes device
     if (videoSelect) videoSelect.addEventListener('change', rebuildVideoMenu);
     if (audioInputSelect) audioInputSelect.addEventListener('change', rebuildAudioMenu);
+    if (audioOutputSelect) audioOutputSelect.addEventListener('change', rebuildAudioMenu);
 
     // Keep arrow buttons visible only when Start buttons are visible
     syncVisibility();
@@ -14064,7 +14113,13 @@ function setupQuickDeviceSwitchDropdowns() {
         navigator.mediaDevices.addEventListener('devicechange', () => {
             if (deviceChangeFrame) cancelAnimationFrame(deviceChangeFrame);
             deviceChangeFrame = requestAnimationFrame(async () => {
-                // TODO refreshMyAudioVideoDevices from settings ...
+                if (typeof refreshMyAudioVideoDevices === 'function') {
+                    try {
+                        await refreshMyAudioVideoDevices();
+                    } catch (err) {
+                        // ignore
+                    }
+                }
                 rebuildVideoMenu();
                 rebuildAudioMenu();
             });

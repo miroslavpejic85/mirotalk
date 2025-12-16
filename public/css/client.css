@@ -426,6 +426,31 @@ body {
     transform: none !important;
 }
 
+/* Quick device picker (Audio): section headers + divider (Microphones / Speakers) */
+#bottomButtons #audioMenu .device-menu-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 600;
+    user-select: none;
+}
+
+#bottomButtons #audioMenu .device-menu-header i {
+    width: 18px;
+    text-align: center;
+}
+
+#bottomButtons #audioMenu .device-menu-divider {
+    height: 1px;
+    background: var(--btns-bg-color);
+    opacity: 0.6;
+    margin: 8px 0;
+}
+
 #bottomButtons button:hover {
     background: var(--body-bg);
     transform: var(--btns-hover-scale);
