@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.84
+ * @version 1.6.85
  *
  */
 
@@ -2101,8 +2101,14 @@ async function changeLocalCamera(deviceId) {
  * @param {string} deviceId
  */
 async function changeLocalMicrophone(deviceId) {
-    if (localAudioMediaStream) {
-        await stopAudioTracks(localAudioMediaStream);
+    // If noise suppression is active, localAudioMediaStream may be the processed stream.
+    // Stop the RNNoise pipeline first and stop the *original* microphone tracks.
+    const oldMicStream = noiseProcessor?.originalStream || noiseProcessor?.mediaStream || localAudioMediaStream;
+
+    stopNoiseSuppressionPipeline();
+
+    if (oldMicStream) {
+        await stopAudioTracks(oldMicStream);
     }
 
     // Get audio constraints
@@ -2116,9 +2122,15 @@ async function changeLocalMicrophone(deviceId) {
             localAudioMediaStream = micStream;
             logStreamSettingsInfo('Success attached local microphone stream', micStream);
             getMicrophoneVolumeIndicator(micStream);
-            lsSettings.mic_noise_suppression
-                ? await restartNoiseSuppression()
-                : await refreshMyStreamToPeers(micStream, true);
+
+            if (lsSettings.mic_noise_suppression) {
+                const ok = await enableNoiseSuppression();
+                if (!ok) {
+                    await refreshMyStreamToPeers(micStream, true);
+                }
+            } else {
+                await refreshMyStreamToPeers(micStream, true);
+            }
         })
         .catch((err) => {
             console.error('[Error] changeLocalMicrophone', err);
@@ -2154,30 +2166,59 @@ function checkPeerAudioVideo() {
  * Enable RNNoise audio processing for noise suppression
  */
 async function enableNoiseSuppression() {
-    if (!localAudioMediaStream) {
+    if (!localAudioMediaStream || localAudioMediaStream.getAudioTracks().length === 0) {
         userLog('error', 'No local audio stream available for noise suppression.');
-        return;
+        return false;
     }
-    if (!noiseProcessor) noiseProcessor = new RNNoiseProcessor();
+
+    // Reset any existing pipeline to avoid keeping stale/ended streams.
+    stopNoiseSuppressionPipeline();
+
+    noiseProcessor = new RNNoiseProcessor();
+    // Keep a reference to the raw microphone stream for safe restore.
+    noiseProcessor.originalStream = localAudioMediaStream;
+
     const processedStream = await noiseProcessor.startProcessing(localAudioMediaStream);
+    if (!processedStream || processedStream.getAudioTracks().length === 0) {
+        userLog('warning', 'Noise suppression unavailable, using raw microphone.');
+        stopNoiseSuppressionPipeline();
+        await refreshMyStreamToPeers(localAudioMediaStream, true);
+        return false;
+    }
+
     noiseProcessor.toggleNoiseSuppression();
     localAudioMediaStream = processedStream;
     await refreshMyStreamToPeers(localAudioMediaStream, true);
+    return true;
 }
 
 /**
  * Disable RNNoise audio processing for noise suppression
  */
-async function disableNoiseSuppression() {
+async function disableNoiseSuppression(restoreOriginalStream = true) {
     if (noiseProcessor) {
-        localAudioMediaStream = noiseProcessor.mediaStream || localAudioMediaStream;
+        const originalStream = noiseProcessor.originalStream || noiseProcessor.mediaStream;
+        if (restoreOriginalStream && originalStream) {
+            localAudioMediaStream = originalStream;
+        }
         await refreshMyStreamToPeers(localAudioMediaStream, true);
-        noiseProcessor.toggleNoiseSuppression();
-        await noiseProcessor.stopProcessing();
-        noiseProcessor = null;
+        stopNoiseSuppressionPipeline();
     } else {
         await refreshMyStreamToPeers(localAudioMediaStream, true);
     }
+}
+
+/**
+ * Stop RNNoise audio processing pipeline
+ */
+function stopNoiseSuppressionPipeline() {
+    if (!noiseProcessor) return;
+    try {
+        noiseProcessor.stopProcessing();
+    } catch (err) {
+        // ignore
+    }
+    noiseProcessor = null;
 }
 
 /**
@@ -2185,7 +2226,8 @@ async function disableNoiseSuppression() {
  */
 async function restartNoiseSuppression() {
     if (!lsSettings.mic_noise_suppression) return;
-    await disableNoiseSuppression();
+    // Do not restore the old microphone stream when restarting.
+    await disableNoiseSuppression(false);
     await enableNoiseSuppression();
 }
 
@@ -6362,7 +6404,7 @@ function setMySettingsBtn() {
         playSound('switch');
     });
 
-    // WakeLook for mobile/tablet
+    // WakeLock for mobile/tablet
     if (!isDesktopDevice && isWakeLockSupported()) {
         switchKeepAwake.addEventListener('change', (e) => {
             applyKeepAwake(e.currentTarget.checked);
@@ -6519,14 +6561,27 @@ function setupMySettings() {
     // audio options
     switchNoiseSuppression.onchange = async (e) => {
         if (!buttons.settings.customNoiseSuppression) return;
-        const noiseSuppressionEnabled = e.currentTarget.checked;
-        lsSettings.mic_noise_suppression = noiseSuppressionEnabled;
-        lS.setSettings(lsSettings);
-        noiseSuppressionEnabled ? await enableNoiseSuppression() : await disableNoiseSuppression();
-        toastMessage(
-            noiseSuppressionEnabled ? 'success' : 'info',
-            `Noise suppression ${noiseSuppressionEnabled ? 'enabled' : 'disabled'}`
-        );
+        const desired = e.currentTarget.checked;
+
+        if (desired) {
+            lsSettings.mic_noise_suppression = true;
+            lS.setSettings(lsSettings);
+
+            const ok = await enableNoiseSuppression();
+            if (!ok) {
+                lsSettings.mic_noise_suppression = false;
+                lS.setSettings(lsSettings);
+                e.currentTarget.checked = false;
+                toastMessage('warning', 'Noise suppression unavailable');
+            } else {
+                toastMessage('success', 'Noise suppression enabled');
+            }
+        } else {
+            lsSettings.mic_noise_suppression = false;
+            lS.setSettings(lsSettings);
+            await disableNoiseSuppression(true);
+            toastMessage('info', 'Noise suppression disabled');
+        }
         e.target.blur();
     };
     // select audio output
@@ -13333,7 +13388,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.84',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.85',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
