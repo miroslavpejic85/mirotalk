@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.83
+ * @version 1.6.84
  *
  */
 
@@ -349,6 +349,8 @@ const myPeerNameSetBtn = getId('myPeerNameSetBtn');
 const switchSounds = getId('switchSounds');
 const switchShare = getId('switchShare');
 const switchKeepButtonsVisible = getId('switchKeepButtonsVisible');
+const keepAwakeButton = getId('keepAwakeButton');
+const switchKeepAwake = getId('switchKeepAwake');
 const switchPushToTalk = getId('switchPushToTalk');
 const switchAudioPitchBar = getId('switchAudioPitchBar');
 const audioInputSelect = getId('audioSource');
@@ -823,6 +825,7 @@ function setButtonsToolTip() {
     setTippy(switchSounds, 'Toggle room notify sounds', 'right');
     setTippy(switchShare, "Show 'Share Room' popup on join.", 'right');
     setTippy(switchKeepButtonsVisible, 'Keep buttons always visible', 'right');
+    setTippy(switchKeepAwake, 'Prevent the device from sleeping (if supported)', 'right');
     setTippy(recImage, 'Toggle recording', 'right');
     setTippy(networkIP, 'IP address associated with the ICE candidate', 'right');
     setTippy(
@@ -6359,6 +6362,16 @@ function setMySettingsBtn() {
         playSound('switch');
     });
 
+    // WakeLook for mobile/tablet
+    if (!isDesktopDevice && isWakeLockSupported()) {
+        switchKeepAwake.addEventListener('change', (e) => {
+            applyKeepAwake(e.currentTarget.checked);
+            playSound('switch');
+        });
+    } else {
+        elemDisplay(keepAwakeButton, false);
+    }
+
     if (isMobileDevice) {
         elemDisplay(pushToTalkDiv, false);
     } else {
@@ -6801,7 +6814,6 @@ function loadSettingsFromLocalStorage() {
     switchKeepButtonsVisible.checked = isKeepButtonsVisible;
     switchAudioPitchBar.checked = isAudioPitchBar;
     switchShortcuts.checked = isShortcutsEnabled;
-
     themeCustom.check.checked = themeCustom.keep;
     themeSelect.disabled = themeCustom.keep;
     themeCustom.input.value = themeCustom.color;
@@ -7419,6 +7431,8 @@ function handleAudio(e, init, force = null) {
         initMicrophoneSelect.disabled = !audioStatus;
         initSpeakerSelect.disabled = !audioStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.audio, audioStatus);
+    } else {
+        applyKeepAwake(myAudioStatus);
     }
 
     setMyAudioStatus(myAudioStatus);
@@ -7476,6 +7490,8 @@ async function handleVideo(e, init, force = null) {
         initVideoSelect.disabled = !videoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
         initVideoContainerShow(videoStatus);
+    } else {
+        applyKeepAwake(myVideoStatus);
     }
 
     if (!videoStatus) {
@@ -13317,7 +13333,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.83',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.84',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -13629,7 +13645,6 @@ function userLog(type, message, timer = 3000) {
                 timerProgressBar: true,
             });
             Toast.fire({
-                icon: 'info',
                 html: message,
                 showClass: { popup: 'animate__animated animate__fadeInDown' },
                 hideClass: { popup: 'animate__animated animate__fadeOutUp' },

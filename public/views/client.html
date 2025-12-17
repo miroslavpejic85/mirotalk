@@ -150,6 +150,7 @@ access to use this app.
         <!-- Start bottom buttons -->
         <div id="bottomButtons" class="fadein">
             <button id="toggleExtraBtn" class="fas fa-chevron-down"></button>
+
             <div id="audioSplit" class="split-btn">
                 <button id="audioBtn" class="fas fa-microphone"></button>
                 <div id="audioDropdown" class="dropdown dropup hidden">
@@ -182,6 +183,7 @@ access to use this app.
                     <div id="videoMenu" class="dropdown-menu text-start" aria-labelledby="videoToggle"></div>
                 </div>
             </div>
+
             <button id="swapCameraBtn" class="fas fa-camera-rotate"></button>
             <button id="screenShareBtn" class="fas fa-desktop"></button>
             <button id="myHandBtn" class="fas fa-hand-paper"></button>
@@ -531,6 +533,15 @@ access to use this app.
                                     </div>
                                 </td>
                                 <td><input id="switchKeepButtonsVisible" class="toggle" type="checkbox" /></td>
+                            </tr>
+                            <tr id="keepAwakeButton">
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-mobile-screen"></i>
+                                        <p>Keep awake</p>
+                                    </div>
+                                </td>
+                                <td><input id="switchKeepAwake" class="toggle" type="checkbox" /></td>
                             </tr>
                         </table>
                         <br />
@@ -1229,6 +1240,7 @@ Q = Clear all</pre
         <script defer src="../js/translate.js"></script>
         <script defer src="../js/fixWebmDuration.js"></script>
         <script defer src="../js/screenReader.js"></script>
+        <script defer src="../js/wakeLock.js"></script>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/networkStats.js"></script>
         <script defer src="../js/speechRecognition.js"></script>
