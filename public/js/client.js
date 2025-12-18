@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.87
+ * @version 1.6.88
  *
  */
 
@@ -175,6 +175,7 @@ const initAudioBtn = getId('initAudioBtn');
 const initScreenShareBtn = getId('initScreenShareBtn');
 const initVideoMirrorBtn = getId('initVideoMirrorBtn');
 const initUsernameEmojiButton = getId('initUsernameEmojiButton');
+const initExitBtn = getId('initExitBtn');
 const initVideoSelect = getId('initVideoSelect');
 const initMicrophoneSelect = getId('initMicrophoneSelect');
 const initSpeakerSelect = getId('initSpeakerSelect');
@@ -776,6 +777,8 @@ function setButtonsToolTip() {
     setTippy(initScreenShareBtn, 'Toggle screen sharing', 'top');
     setTippy(initVideoMirrorBtn, 'Toggle video mirror', 'top');
     setTippy(initUsernameEmojiButton, 'Toggle username emoji', 'top');
+    setTippy(initExitBtn, 'Leave room', 'top');
+
     // Main buttons
     refreshMainButtonsToolTipPlacement();
     // Chat room buttons
@@ -1647,6 +1650,9 @@ async function whoAreYou() {
     initUsernameEmojiButton.onclick = (e) => {
         getId('usernameInput').value = '';
         toggleUsernameEmoji();
+    };
+    initExitBtn.onclick = (e) => {
+        initExitRoom();
     };
 
     await loadLocalStorage();
@@ -13494,7 +13500,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.87',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.88',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -13538,6 +13544,13 @@ function showAbout() {
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     });
+}
+
+/**
+ * Init Exit Room
+ */
+function initExitRoom() {
+    openURL('/');
 }
 
 /**
