@@ -13550,7 +13550,7 @@ function showAbout() {
  * Init Exit Meeting
  */
 function initExitMeeting() {
-    openURL('/');
+    openURL('/newcall');
 }
 
 /**
