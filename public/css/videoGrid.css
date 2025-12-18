@@ -281,12 +281,10 @@
     width: var(--vmi-wh);
     height: var(--vmi-wh);
     border-radius: 50%;
-    /* center */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
+    /* reliable centering - works in all scenarios */
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     transition: box-shadow 0.2s ease;
 }
 
