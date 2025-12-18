@@ -777,7 +777,7 @@ function setButtonsToolTip() {
     setTippy(initScreenShareBtn, 'Toggle screen sharing', 'top');
     setTippy(initVideoMirrorBtn, 'Toggle video mirror', 'top');
     setTippy(initUsernameEmojiButton, 'Toggle username emoji', 'top');
-    setTippy(initExitBtn, 'Leave room', 'top');
+    setTippy(initExitBtn, 'Leave meeting', 'top');
 
     // Main buttons
     refreshMainButtonsToolTipPlacement();
@@ -1652,7 +1652,7 @@ async function whoAreYou() {
         toggleUsernameEmoji();
     };
     initExitBtn.onclick = (e) => {
-        initExitRoom();
+        initExitMeeting();
     };
 
     await loadLocalStorage();
@@ -13547,9 +13547,9 @@ function showAbout() {
 }
 
 /**
- * Init Exit Room
+ * Init Exit Meeting
  */
-function initExitRoom() {
+function initExitMeeting() {
     openURL('/');
 }
 
