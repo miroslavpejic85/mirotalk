@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.86
+ * @version 1.6.87
  *
  */
 
@@ -3288,6 +3288,112 @@ async function addChild(device, els) {
         }
         el.appendChild(option);
     });
+}
+
+/**
+ * Refresh audio/video devices list when hardware changes are detected
+ * Preserves the currently selected device if it's still available
+ */
+async function refreshMyAudioVideoDevices() {
+    console.log('Refreshing audio/video devices...');
+
+    // Store currently selected device IDs
+    const selectedVideoId = videoSelect?.value;
+    const selectedAudioInputId = audioInputSelect?.value;
+    const selectedAudioOutputId = audioOutputSelect?.value;
+
+    try {
+        // Re-enumerate all devices
+        const devices = await navigator.mediaDevices.enumerateDevices();
+
+        // Clear existing options
+        if (videoSelect) videoSelect.innerHTML = '';
+        if (audioInputSelect) audioInputSelect.innerHTML = '';
+        if (audioOutputSelect) audioOutputSelect.innerHTML = '';
+
+        // Reset device counts
+        lS.DEVICES_COUNT.video = 0;
+        lS.DEVICES_COUNT.audio = 0;
+        lS.DEVICES_COUNT.speaker = 0;
+
+        // Populate select elements with new device list
+        for (const device of devices) {
+            let el = null;
+            if (device.kind === 'videoinput') {
+                el = videoSelect;
+                lS.DEVICES_COUNT.video++;
+            } else if (device.kind === 'audioinput') {
+                el = audioInputSelect;
+                lS.DEVICES_COUNT.audio++;
+            } else if (device.kind === 'audiooutput') {
+                el = audioOutputSelect;
+                lS.DEVICES_COUNT.speaker++;
+            }
+            if (el) await addChild(device, [el]);
+        }
+
+        // Update speaker availability
+        audioOutputSelect.disabled = !sinkId || lS.DEVICES_COUNT.speaker === 0;
+
+        // Try to restore previously selected devices
+        let videoChanged = false;
+        let audioInputChanged = false;
+        let audioOutputChanged = false;
+
+        if (videoSelect && selectedVideoId) {
+            if (selectOptionByValueExist(videoSelect, selectedVideoId)) {
+                videoSelect.value = selectedVideoId;
+            } else {
+                videoChanged = true;
+                console.log('Previously selected camera no longer available');
+            }
+        }
+
+        if (audioInputSelect && selectedAudioInputId) {
+            if (selectOptionByValueExist(audioInputSelect, selectedAudioInputId)) {
+                audioInputSelect.value = selectedAudioInputId;
+            } else {
+                audioInputChanged = true;
+                console.log('Previously selected microphone no longer available');
+            }
+        }
+
+        if (audioOutputSelect && selectedAudioOutputId) {
+            if (selectOptionByValueExist(audioOutputSelect, selectedAudioOutputId)) {
+                audioOutputSelect.value = selectedAudioOutputId;
+            } else {
+                audioOutputChanged = true;
+                console.log('Previously selected speaker no longer available');
+            }
+        }
+
+        // If active device was removed, switch to the new default
+        if (videoChanged && useVideo && videoSelect?.value) {
+            console.log('Switching to new default camera:', videoSelect.value);
+            await changeLocalCamera(videoSelect.value);
+        }
+
+        if (audioInputChanged && useAudio && audioInputSelect?.value) {
+            console.log('Switching to new default microphone:', audioInputSelect.value);
+            await changeLocalMicrophone(audioInputSelect.value);
+        }
+
+        if (audioOutputChanged && audioOutputSelect?.value) {
+            console.log('Switching to new default speaker:', audioOutputSelect.value);
+            await changeAudioDestination();
+        }
+
+        // Update local storage with new selections
+        await refreshLsDevices();
+
+        console.log('Device refresh complete:', {
+            video: lS.DEVICES_COUNT.video,
+            audio: lS.DEVICES_COUNT.audio,
+            speaker: lS.DEVICES_COUNT.speaker,
+        });
+    } catch (err) {
+        console.error('Error refreshing devices:', err);
+    }
 }
 
 /**
@@ -13388,7 +13494,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.86',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.87',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -14195,10 +14301,9 @@ function setupQuickDeviceSwitchDropdowns() {
             deviceChangeFrame = requestAnimationFrame(async () => {
                 if (typeof refreshMyAudioVideoDevices === 'function') {
                     try {
-                        // TODO...
                         await refreshMyAudioVideoDevices();
                     } catch (err) {
-                        // ignore
+                        console.error('Error in devicechange handler:', err);
                     }
                 }
                 rebuildVideoMenu();
