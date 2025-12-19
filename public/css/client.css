@@ -426,7 +426,8 @@ body {
     transform: none !important;
 }
 
-/* Quick device picker (Audio): section headers + divider (Microphones / Speakers) */
+/* Quick device picker: section headers + divider (Cameras / Microphones / Speakers) */
+#bottomButtons #videoMenu .device-menu-header,
 #bottomButtons #audioMenu .device-menu-header {
     display: flex;
     align-items: center;
@@ -439,16 +440,42 @@ body {
     user-select: none;
 }
 
+#bottomButtons #videoMenu .device-menu-header i,
 #bottomButtons #audioMenu .device-menu-header i {
     width: 18px;
     text-align: center;
 }
 
+#bottomButtons #videoMenu .device-menu-divider,
 #bottomButtons #audioMenu .device-menu-divider {
     height: 1px;
     background: var(--btns-bg-color);
     opacity: 0.6;
     margin: 8px 0;
+}
+
+/* Action buttons in device menu */
+#bottomButtons #audioMenu .device-menu-action-btn,
+#bottomButtons #videoMenu .device-menu-action-btn {
+    background: var(--body-bg);
+    border: 1px solid var(--border-color);
+    color: #fff;
+    font-weight: 500;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+#bottomButtons #audioMenu .device-menu-action-btn:hover,
+#bottomButtons #videoMenu .device-menu-action-btn:hover {
+    background: var(--btns-bg-color) !important;
+    border-color: var(--btns-color);
+    transform: translateY(-1px) !important;
+}
+
+#bottomButtons #audioMenu .device-menu-action-btn i,
+#bottomButtons #videoMenu .device-menu-action-btn i {
+    width: 18px;
+    text-align: center;
 }
 
 #bottomButtons button:hover {

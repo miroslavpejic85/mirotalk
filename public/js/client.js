@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.88
+ * @version 1.6.89
  *
  */
 
@@ -6487,7 +6487,7 @@ function setMySettingsBtn() {
         hideShowMySettings();
     });
     speakerTestBtn.addEventListener('click', (e) => {
-        playSound('ring', true);
+        playSpeaker(audioOutputSelect?.value, 'ring');
     });
     myPeerNameSetBtn.addEventListener('click', (e) => {
         updateMyPeerName();
@@ -13500,7 +13500,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.88',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.89',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -13936,6 +13936,31 @@ async function playSound(name, force = false, path = '../sounds/') {
 }
 
 /**
+ * Test speaker by playing a sound through the selected audio output device
+ * @param {string} deviceId - Optional audio output device ID. If not provided, uses the currently selected speaker
+ * @param {string} name audio to play
+ * @param {string} path od sound files
+ */
+async function playSpeaker(deviceId = null, name, path = '../sounds/') {
+    const selectedDeviceId = deviceId || audioOutputSelect?.value;
+    if (selectedDeviceId) {
+        const sound = path + name + '.mp3';
+        const audioToPlay = new Audio(sound);
+        try {
+            if (typeof audioToPlay.setSinkId === 'function') {
+                await audioToPlay.setSinkId(selectedDeviceId);
+            }
+            audioToPlay.volume = 0.5;
+            await audioToPlay.play();
+        } catch (err) {
+            console.error('Cannot play test sound:', err);
+        }
+    } else {
+        playSound(name, true);
+    }
+}
+
+/**
  * Open specified URL
  * @param {string} url to open
  * @param {boolean} blank if true opne url in the new tab
@@ -14208,7 +14233,27 @@ function setupQuickDeviceSwitchDropdowns() {
     function rebuildVideoMenu() {
         if (!videoMenu) return;
         videoMenu.innerHTML = '';
+
+        appendMenuHeader(videoMenu, 'fas fa-video', 'Cameras');
         appendSelectOptions(videoMenu, videoSelect, 'No cameras found', rebuildVideoMenu);
+
+        // Add settings button
+        appendMenuDivider(videoMenu);
+        const settingsBtn = document.createElement('button');
+        settingsBtn.type = 'button';
+        settingsBtn.className = 'device-menu-action-btn';
+        const settingsIcon = document.createElement('i');
+        settingsIcon.className = 'fas fa-cog';
+        settingsBtn.appendChild(settingsIcon);
+        settingsBtn.appendChild(document.createTextNode(' Open Video Settings'));
+        settingsBtn.addEventListener('click', () => {
+            hideShowMySettings();
+            // Simulate tab click to open video devices tab
+            setTimeout(() => {
+                tabVideoBtn.click();
+            }, 100);
+        });
+        videoMenu.appendChild(settingsBtn);
     }
 
     function rebuildAudioMenu() {
@@ -14230,6 +14275,37 @@ function setupQuickDeviceSwitchDropdowns() {
             return;
         }
         appendSelectOptions(audioMenu, audioOutputSelect, 'No speakers found', rebuildAudioMenu);
+
+        // Add action buttons
+        appendMenuDivider(audioMenu);
+
+        // Test speaker button
+        const testBtn = document.createElement('button');
+        testBtn.type = 'button';
+        testBtn.className = 'device-menu-action-btn';
+        const testIcon = document.createElement('i');
+        testIcon.className = 'fa-solid fa-circle-play';
+        testBtn.appendChild(testIcon);
+        testBtn.appendChild(document.createTextNode(' Test Speaker'));
+        testBtn.addEventListener('click', () => playSpeaker(audioOutputSelect?.value, 'ring'));
+        audioMenu.appendChild(testBtn);
+
+        // Settings button
+        const settingsBtn = document.createElement('button');
+        settingsBtn.type = 'button';
+        settingsBtn.className = 'device-menu-action-btn';
+        const settingsIcon = document.createElement('i');
+        settingsIcon.className = 'fas fa-cog';
+        settingsBtn.appendChild(settingsIcon);
+        settingsBtn.appendChild(document.createTextNode(' Open Audio Settings'));
+        settingsBtn.addEventListener('click', () => {
+            hideShowMySettings();
+            // Simulate tab click to open audio devices tab
+            setTimeout(() => {
+                tabAudioBtn.click();
+            }, 100);
+        });
+        audioMenu.appendChild(settingsBtn);
     }
 
     // Hover behavior (desktop only). Note: rebuilding alone is invisible if the menu isn't opened.
