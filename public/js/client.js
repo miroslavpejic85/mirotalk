@@ -11834,6 +11834,24 @@ function whiteboardAddObj(type) {
     }
 }
 
+/**
+ * Whiteboard delte object
+ */
+function whiteboardDeleteObject() {
+    const obj = wbCanvas?.getActiveObject?.();
+    if (!obj) return;
+    // Ignore if typing in input (unless editing Fabric text)
+    const tag = document.activeElement?.tagName;
+    if ((tag === 'INPUT' || tag === 'TEXTAREA') && !obj.isEditing) return;
+    event.preventDefault();
+    if (obj.isEditing && obj.exitEditing) obj.exitEditing();
+    whiteboardEraseObject();
+    return;
+}
+
+/**
+ * Whiteboard erase object
+ */
 function whiteboardEraseObject() {
     if (wbCanvas && typeof wbCanvas.getActiveObjects === 'function') {
         const activeObjects = wbCanvas.getActiveObjects();
@@ -11849,6 +11867,9 @@ function whiteboardEraseObject() {
     }
 }
 
+/**
+ * Whoteboard clone object
+ */
 function whiteboardCloneObject() {
     if (wbCanvas && typeof wbCanvas.getActiveObjects === 'function') {
         const activeObjects = wbCanvas.getActiveObjects();
@@ -11871,6 +11892,9 @@ function whiteboardCloneObject() {
     }
 }
 
+/**
+ * Whiteboard vanishong objects
+ */
 function wbHandleVanishingObjects() {
     if (wbIsVanishing && wbCanvas._objects.length > 0) {
         const obj = wbCanvas._objects[wbCanvas._objects.length - 1];
@@ -11898,6 +11922,9 @@ function wbHandleVanishingObjects() {
     }
 }
 
+/**
+ * Whoteboard create sticky note
+ */
 function createStickyNote() {
     Swal.fire({
         background: swBg,
@@ -12633,31 +12660,9 @@ function setupWhiteboardShortcuts() {
             return;
         }
         // Whiteboard delete shortcut: Delete / Backspace
-        if (event.key === 'Delete') {
-            const activeObj = wbCanvas?.getActiveObject?.();
-            if (!activeObj) return;
-
-            // Ignore normal typing in inputs (chat, forms, etc.)
-            const tag = document.activeElement?.tagName;
-            const isTypingInInput = tag === 'INPUT' || tag === 'TEXTAREA';
-
-            const isTextObj = ['i-text', 'textbox', 'text'].includes(activeObj.type);
-            const isFabricTextEditing = isTextObj && activeObj.isEditing;
-
-            if (isTypingInInput && !isFabricTextEditing) return;
-
+        if (event.key === 'Delete' || event.key === 'Backspace') {
+            whiteboardDeleteObject();
             event.preventDefault();
-
-            // Exit text editing mode first
-            if (isFabricTextEditing && typeof activeObj.exitEditing === 'function') {
-                activeObj.exitEditing();
-                activeObj.selectable = true;
-            }
-
-            wbCanvas.setActiveObject(activeObj);
-
-            // Use existing erase logic (keeps sync + undo behavior consistent)
-            whiteboardEraseObject();
             return;
         }
 
