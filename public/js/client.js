@@ -12632,6 +12632,34 @@ function setupWhiteboardShortcuts() {
             event.preventDefault();
             return;
         }
+        // Whiteboard delete shortcut: Delete / Backspace
+        if (event.key === 'Delete') {
+            const activeObj = wbCanvas?.getActiveObject?.();
+            if (!activeObj) return;
+
+            // Ignore normal typing in inputs (chat, forms, etc.)
+            const tag = document.activeElement?.tagName;
+            const isTypingInInput = tag === 'INPUT' || tag === 'TEXTAREA';
+
+            const isTextObj = ['i-text', 'textbox', 'text'].includes(activeObj.type);
+            const isFabricTextEditing = isTextObj && activeObj.isEditing;
+
+            if (isTypingInInput && !isFabricTextEditing) return;
+
+            event.preventDefault();
+
+            // Exit text editing mode first
+            if (isFabricTextEditing && typeof activeObj.exitEditing === 'function') {
+                activeObj.exitEditing();
+                activeObj.selectable = true;
+            }
+
+            wbCanvas.setActiveObject(activeObj);
+
+            // Use existing erase logic (keeps sync + undo behavior consistent)
+            whiteboardEraseObject();
+            return;
+        }
 
         // Use event.code and check for Alt+Meta (Mac) or Alt+Ctrl (Windows/Linux)
         if (event.code && event.altKey && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
