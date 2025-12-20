@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.94
+ * @version 1.6.95
  *
  */
 
@@ -719,7 +719,7 @@ let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 let redirectActive = false;
 let redirectURL = '/newcall';
 
-let needToCreateOffer = false;
+let needToCreateOfferByPeer = {};
 
 // GeoLocation
 const notificationService = new NotificationService({ Swal, swBg, images, playSound });
@@ -2341,8 +2341,8 @@ async function handleAddPeer(config) {
     await handleRTCDataChannels(peer_id);
     await handleOnTrack(peer_id, peers);
 
-    if ((!peer_video_status || !peer_screen_status) && !needToCreateOffer) {
-        needToCreateOffer = true;
+    if ((!peer_video_status || !peer_screen_status) && !needToCreateOfferByPeer[peer_id]) {
+        needToCreateOfferByPeer[peer_id] = true;
     }
     if (should_create_offer) {
         await handleRtcOffer(peer_id);
@@ -2717,8 +2717,8 @@ function handleSessionDescription(config) {
                                 console.log('Answer setLocalDescription done!');
 
                                 // https://github.com/miroslavpejic85/mirotalk/issues/110
-                                if (needToCreateOffer) {
-                                    needToCreateOffer = false;
+                                if (needToCreateOfferByPeer[peer_id]) {
+                                    needToCreateOfferByPeer[peer_id] = false;
                                     handleRtcOffer(peer_id);
                                     console.log('[RTCSessionDescription] - NEED TO CREATE OFFER', {
                                         peer_id: peer_id,
@@ -13540,7 +13540,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.94',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.95',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
