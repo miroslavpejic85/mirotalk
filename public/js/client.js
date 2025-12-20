@@ -2298,7 +2298,8 @@ async function handleAddPeer(config) {
 
     const peer_name = peers[peer_id]['peer_name'];
     const peer_video = peers[peer_id]['peer_video'];
-    const peer_screen = peers[peer_id]['peer_screen_status'];
+    const peer_video_status = peers[peer_id]['peer_video_status'];
+    const peer_screen_status = peers[peer_id]['peer_screen_status'];
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
@@ -2340,7 +2341,7 @@ async function handleAddPeer(config) {
     await handleRTCDataChannels(peer_id);
     await handleOnTrack(peer_id, peers);
 
-    if ((!peer_video || !peer_screen) && !needToCreateOffer) {
+    if ((!peer_video_status || !peer_screen_status) && !needToCreateOffer) {
         needToCreateOffer = true;
     }
     if (should_create_offer) {
@@ -2355,8 +2356,8 @@ async function handleAddPeer(config) {
     // Add tracks (this will trigger onnegotiationneeded if needed)
     await handleAddTracks(peer_id);
 
-    // Create camera tile for peer without camera to show their avatar
-    if (!peer_video) {
+    // Create camera tile for peer without camera to show their avatar or has screen sharing on but camera off
+    if (!peer_video || (peer_screen_status && !peer_video_status)) {
         await loadRemoteMediaStream(new MediaStream(), peers, peer_id, 'video');
     }
 
