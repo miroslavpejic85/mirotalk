@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.92
+ * @version 1.6.93
  *
  */
 
@@ -2472,19 +2472,6 @@ async function handleOnTrack(peer_id, peers) {
         const peer_name = peerInfo.peer_name || 'Unknown';
         const inbound = event.streams[0];
 
-        // Helper to load or attach stream
-        const handleStream = (elementId, streamType) => {
-            const element = getId(`${peer_id}___${elementId}`);
-            const hasStream = element?.srcObject && (elementId === 'audio' || hasVideoTrack(element.srcObject));
-
-            if (!hasStream) {
-                loadRemoteMediaStream(inbound, allPeers || peers, peer_id, streamType);
-            } else {
-                attachMediaStream(element, inbound);
-                elemDisplay(element, true, 'block');
-            }
-        };
-
         if (kind === 'audio') {
             const audioElement = getId(`${peer_id}___audio`);
 
@@ -2514,7 +2501,24 @@ async function handleOnTrack(peer_id, peers) {
                 /screen|window|monitor|display/i.test(label) ||
                 (peerInfo.peer_screen_status && !peerInfo.peer_video_status);
 
-            handleStream(isScreen ? 'screen' : 'video', isScreen ? 'screen' : 'video');
+            const elementId = isScreen ? 'screen' : 'video';
+            const streamType = isScreen ? 'screen' : 'video';
+
+            // Always load the stream - this creates element if needed or updates existing one
+            loadRemoteMediaStream(inbound, allPeers || peers, peer_id, streamType);
+
+            // If this is a screen track and peer has camera off, ensure camera tile exists to show avatar
+            if (isScreen && peerInfo.peer_video_status === false) {
+                const videoElement = getId(`${peer_id}___video`);
+                if (!videoElement) {
+                    console.log('[ON TRACK] Screen detected but camera off, creating camera tile for avatar', {
+                        peer_id: peer_id,
+                        peer_name: peer_name,
+                        peer_video_status: peerInfo.peer_video_status,
+                    });
+                    loadRemoteMediaStream(new MediaStream(), allPeers || peers, peer_id, 'video');
+                }
+            }
         }
     };
 }
@@ -13532,7 +13536,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.92',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.93',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
