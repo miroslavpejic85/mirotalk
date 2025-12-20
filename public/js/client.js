@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.93
+ * @version 1.6.94
  *
  */
 
@@ -2504,15 +2504,22 @@ async function handleOnTrack(peer_id, peers) {
 
         // Video or screen track
         if (kind === 'video') {
+            // Determine if the incoming video track is a screen share or camera.
             const extras = peerInfo.extras || {};
             const label = event.track.label || '';
+            const settings = event?.track?.getSettings() || {};
 
-            // Classify as screen or camera
-            const isScreen =
-                extras.screen_track_id === event.track.id ||
-                extras.screen_stream_id === inbound.id ||
-                /screen|window|monitor|display/i.test(label) ||
-                (peerInfo.peer_screen_status && !peerInfo.peer_video_status);
+            const isDisplayCapture =
+                !!settings.displaySurface || settings.mediaSource === 'screen' || settings.displaySurface === 'monitor';
+
+            const isScreenByExtras =
+                extras.screen_track_id === event.track.id || extras.screen_stream_id === inbound.id;
+
+            const isScreenByLabel = /screen|window|monitor|display/i.test(label);
+
+            const isScreenByStatus = peerInfo.peer_screen_status && !peerInfo.peer_video_status;
+
+            const isScreen = isDisplayCapture || isScreenByExtras || isScreenByLabel || isScreenByStatus;
 
             handleStream(isScreen ? 'screen' : 'video', isScreen ? 'screen' : 'video');
         }
@@ -4270,7 +4277,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // refresh remote peers hand icon status and title
             setPeerHandStatus(peer_id, peer_name, peer_hand_status);
             // refresh remote peers video icon status and title
-            setPeerVideoStatus(peer_id, peer_screen_status ? peer_screen_status : peer_video_status);
+            setPeerVideoStatus(peer_id, peer_video_status);
             // refresh remote peers audio icon status and title
             setPeerAudioStatus(peer_id, peer_audio_status);
             // handle remote peers audio on-off
@@ -13532,7 +13539,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.93',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.94',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
