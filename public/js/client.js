@@ -2472,6 +2472,19 @@ async function handleOnTrack(peer_id, peers) {
         const peer_name = peerInfo.peer_name || 'Unknown';
         const inbound = event.streams[0];
 
+        // Helper to load or attach stream
+        const handleStream = (elementId, streamType) => {
+            const element = getId(`${peer_id}___${elementId}`);
+            const hasStream = element?.srcObject && (elementId === 'audio' || hasVideoTrack(element.srcObject));
+
+            if (!hasStream) {
+                loadRemoteMediaStream(inbound, allPeers || peers, peer_id, streamType);
+            } else {
+                attachMediaStream(element, inbound);
+                elemDisplay(element, true, 'block');
+            }
+        };
+
         if (kind === 'audio') {
             const audioElement = getId(`${peer_id}___audio`);
 
@@ -2501,24 +2514,7 @@ async function handleOnTrack(peer_id, peers) {
                 /screen|window|monitor|display/i.test(label) ||
                 (peerInfo.peer_screen_status && !peerInfo.peer_video_status);
 
-            const elementId = isScreen ? 'screen' : 'video';
-            const streamType = isScreen ? 'screen' : 'video';
-
-            // Always load the stream - this creates element if needed or updates existing one
-            loadRemoteMediaStream(inbound, allPeers || peers, peer_id, streamType);
-
-            // If this is a screen track and peer has camera off, ensure camera tile exists to show avatar
-            if (isScreen && peerInfo.peer_video_status === false) {
-                const videoElement = getId(`${peer_id}___video`);
-                if (!videoElement) {
-                    console.log('[ON TRACK] Screen detected but camera off, creating camera tile for avatar', {
-                        peer_id: peer_id,
-                        peer_name: peer_name,
-                        peer_video_status: peerInfo.peer_video_status,
-                    });
-                    loadRemoteMediaStream(new MediaStream(), allPeers || peers, peer_id, 'video');
-                }
-            }
+            handleStream(isScreen ? 'screen' : 'video', isScreen ? 'screen' : 'video');
         }
     };
 }
