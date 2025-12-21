@@ -131,27 +131,8 @@ access to use this app.
 
         <div id="usernameEmoji" class="usernameEmoji fadein center hidden"></div>
 
-        <!-- Start buttons bar https://fontawesome.com/icons?d=gallery -->
-
-        <div id="buttonsBar" class="fadein">
-            <button id="shareRoomBtn" class="fas fa-share-alt"></button>
-            <button id="hideMeBtn" class="fas fa-user"></button>
-            <button id="recordStreamBtn" class="fas fa-record-vinyl"></button>
-            <button id="fullScreenBtn" class="fas fa-expand-alt"></button>
-            <button id="roomEmojiPickerBtn" class="fas fa-face-smile"></button>
-            <button id="captionBtn" class="fas fa-closed-captioning"></button>
-            <button id="whiteboardBtn" class="fas fa-chalkboard-teacher"></button>
-            <button id="snapshotRoomBtn" class="fas fas fa-camera-retro"></button>
-            <button id="fileShareBtn" class="fas fa-folder-open"></button>
-            <button id="documentPiPBtn" class="fas fa-images"></button>
-            <button id="aboutBtn" class="fas fa-question"></button>
-        </div>
-        <!-- End left buttons -->
-
         <!-- Start bottom buttons -->
         <div id="bottomButtons" class="fadein">
-            <button id="toggleExtraBtn" class="fas fa-chevron-down"></button>
-
             <div id="audioSplit" class="split-btn">
                 <button id="audioBtn" class="fas fa-microphone"></button>
                 <div id="audioDropdown" class="dropdown dropup hidden">
@@ -192,7 +173,41 @@ access to use this app.
             <button id="participantsBtn" class="fas fa-users">
                 <span id="participantsCountBadge"></span>
             </button>
-            <button id="mySettingsBtn" class="fas fa-cogs"></button>
+
+            <div id="settingsSplit" class="split-btn">
+                <button id="mySettingsBtn" class="fas fa-cogs"></button>
+                <div id="settingsExtraDropdown" class="dropdown dropup">
+                    <button
+                        id="settingsExtraToggle"
+                        class="dropdown-toggle device-dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="Settings menu"
+                    >
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <div
+                        id="settingsExtraMenu"
+                        class="dropdown-menu text-start hidden"
+                        aria-labelledby="settingsExtraToggle"
+                    >
+                        <!-- https://fontawesome.com/icons?d=gallery -->
+                        <button id="shareRoomBtn"><i class="fas fa-share-alt"></i> Share Room</button>
+                        <button id="hideMeBtn"><i class="fas fa-user"></i> Hide Me</button>
+                        <button id="recordStreamBtn"><i class="fas fa-record-vinyl"></i> Recording</button>
+                        <button id="fullScreenBtn"><i class="fas fa-expand-alt"></i> Full screen</button>
+                        <button id="roomEmojiPickerBtn"><i class="fas fa-face-smile"></i> Room Emoji</button>
+                        <button id="captionBtn"><i class="fas fa-closed-captioning"></i> Caption</button>
+                        <button id="whiteboardBtn"><i class="fas fa-chalkboard-teacher"></i> Whiteboard</button>
+                        <button id="snapshotRoomBtn"><i class="fas fa-camera-retro"></i> Snapshot</button>
+                        <button id="fileShareBtn"><i class="fas fa-folder-open"></i> File Share</button>
+                        <button id="documentPiPBtn"><i class="fas fa-images"></i> Document PiP</button>
+                        <button id="aboutBtn"><i class="fas fa-question"></i> About</button>
+                    </div>
+                </div>
+            </div>
+
             <button id="leaveRoomBtn" class="fa-solid fa-phone-slash"></button>
         </div>
 
@@ -1022,7 +1037,6 @@ access to use this app.
         <section id="whiteboard" class="hidden">
             <header id="whiteboardHeader" class="whiteboard-header">
                 <div id="whiteboardTitle" class="whiteboard-header-title">
-                    <button id="whiteboardCloseBtn" class="fas fa-times"></button>
                     <button id="whiteboardLockBtn" class="fa-solid fa-lock-open"></button>
                     <button id="whiteboardUnlockBtn" class="fa-solid fa-lock"></button>
                 </div>
@@ -1079,6 +1093,7 @@ access to use this app.
                             <button id="whiteboardShortcutsBtn"><i class="fas fa-keyboard"></i> Shortcuts</button>
                         </div>
                     </div>
+                    <button id="whiteboardCloseBtn" class="fas fa-times"></button>
                 </div>
             </header>
             <main>

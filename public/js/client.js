@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.95
+ * @version 1.6.96
  *
  */
 
@@ -182,7 +182,6 @@ const initSpeakerSelect = getId('initSpeakerSelect');
 const usernameEmoji = getId('usernameEmoji');
 
 // Buttons bar
-const buttonsBar = getId('buttonsBar');
 const shareRoomBtn = getId('shareRoomBtn');
 const recordStreamBtn = getId('recordStreamBtn');
 const fullScreenBtn = getId('fullScreenBtn');
@@ -195,12 +194,10 @@ const whiteboardBtn = getId('whiteboardBtn');
 const snapshotRoomBtn = getId('snapshotRoomBtn');
 const fileShareBtn = getId('fileShareBtn');
 const documentPiPBtn = getId('documentPiPBtn');
-const mySettingsBtn = getId('mySettingsBtn');
 const aboutBtn = getId('aboutBtn');
 
 // Buttons bottom
 const bottomButtons = getId('bottomButtons');
-const toggleExtraBtn = getId('toggleExtraBtn');
 const audioBtn = getId('audioBtn');
 const videoBtn = getId('videoBtn');
 const videoDropdown = getId('videoDropdown');
@@ -213,6 +210,11 @@ const swapCameraBtn = getId('swapCameraBtn');
 const hideMeBtn = getId('hideMeBtn');
 const screenShareBtn = getId('screenShareBtn');
 const myHandBtn = getId('myHandBtn');
+const mySettingsBtn = getId('mySettingsBtn');
+const settingsSplit = getId('settingsSplit');
+const settingsExtraDropdown = getId('settingsExtraDropdown');
+const settingsExtraToggle = getId('settingsExtraToggle');
+const settingsExtraMenu = getId('settingsExtraMenu');
 const leaveRoomBtn = getId('leaveRoomBtn');
 
 // Room Emoji Picker
@@ -371,8 +373,6 @@ const recordingTime = getId('recordingTime');
 const lastRecordingInfo = getId('lastRecordingInfo');
 const themeSelect = getId('mirotalkTheme');
 const videoObjFitSelect = getId('videoObjFitSelect');
-const mainButtonsBar = getQsA('#buttonsBar button');
-const mainButtonsIcon = getQsA('#buttonsBar button i');
 const btnsBarSelect = getId('mainButtonsBarPosition');
 const pinUnpinGridDiv = getId('pinUnpinGridDiv');
 const pinVideoPositionSelect = getId('pinVideoPositionSelect');
@@ -849,7 +849,7 @@ function setButtonsToolTip() {
     // Whiteboard buttons
     setTippy(whiteboardLockBtn, 'Toggle Lock whiteboard', 'right');
     setTippy(whiteboardUnlockBtn, 'Toggle Lock whiteboard', 'right');
-    setTippy(whiteboardCloseBtn, 'Close', 'right');
+    setTippy(whiteboardCloseBtn, 'Close', 'bottom');
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(whiteboardGridBtn, 'Toggle whiteboard grid', 'bottom');
@@ -884,19 +884,6 @@ function refreshMainButtonsToolTipPlacement() {
     // BottomButtons
     bottomButtonsPlacement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'top' : 'right';
 
-    setTippy(shareRoomBtn, 'Share the Room', placement);
-    setTippy(hideMeBtn, 'Toggle hide myself from the room view', placement);
-    setTippy(recordStreamBtn, 'Start recording', placement);
-    setTippy(fullScreenBtn, 'View full screen', placement);
-    setTippy(captionBtn, 'Open the caption', placement);
-    setTippy(roomEmojiPickerBtn, 'Send reaction', placement);
-    setTippy(whiteboardBtn, 'Open the whiteboard', placement);
-    setTippy(snapshotRoomBtn, 'Snapshot screen, windows or tab', placement);
-    setTippy(fileShareBtn, 'Share file', placement);
-    setTippy(documentPiPBtn, 'Toggle Document picture in picture', placement);
-    setTippy(aboutBtn, 'About this project', placement);
-
-    setTippy(toggleExtraBtn, 'Toggle extra buttons', bottomButtonsPlacement);
     setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', bottomButtonsPlacement);
     setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', bottomButtonsPlacement);
     setTippy(screenShareBtn, 'Start screen sharing', bottomButtonsPlacement);
@@ -1477,16 +1464,18 @@ function handleRules(isPresenter) {
  * Hide not desired buttons
  */
 function handleButtonsRule() {
+    const showExtraBtn =
+        buttons.main.showExtraBtn &&
+        Array.from(settingsExtraMenu.children).filter((el) => el.style.display !== 'none').length > 0;
+    if (!showExtraBtn) {
+        mySettingsBtn.style.borderRadius = '10px';
+    }
+
     // Main buttons
     displayElements([
         { element: shareRoomBtn, display: buttons.main.showShareRoomBtn },
         { element: hideMeBtn, display: buttons.main.showHideMeBtn },
-        {
-            element: toggleExtraBtn,
-            display:
-                buttons.main.showExtraBtn &&
-                Array.from(buttonsBar.children).filter((el) => el.style.display !== 'none').length > 0,
-        },
+        { element: settingsExtraDropdown, display: showExtraBtn },
         { element: audioBtn, display: buttons.main.showAudioBtn },
         { element: videoBtn, display: buttons.main.showVideoBtn },
         //{ element: screenShareBtn, display: buttons.main.showScreenBtn }, // auto-detected
@@ -2282,7 +2271,7 @@ async function joinToChannel() {
         peer_privacy_status: isVideoPrivacyActive,
         userAgent: userAgent,
     });
-    handleBodyOnMouseMove(); // show/hide buttonsBar, bottomButtons ...
+    handleBodyOnMouseMove(); // show/hide bottomButtons ...
     makeRoomPopupQR();
 }
 
@@ -3115,13 +3104,6 @@ function setButtonsBarPosition(position) {
     mainButtonsBarPosition = position;
     switch (mainButtonsBarPosition) {
         case 'vertical':
-            // buttonsBar
-            setSP('--btns-top', '50%');
-            setSP('--btns-right', '0px');
-            setSP('--btns-left', '15px');
-            setSP('--btns-margin-left', '0px');
-            setSP('--btns-width', '40px');
-            setSP('--btns-flex-direction', 'column');
             // bottomButtons horizontally
             setSP('--bottom-btns-top', 'auto');
             setSP('--bottom-btns-left', '50%');
@@ -3132,13 +3114,6 @@ function setButtonsBarPosition(position) {
             setSP('--bottom-btns-flex-direction', 'row');
             break;
         case 'horizontal':
-            // buttonsBar
-            setSP('--btns-top', '95%');
-            setSP('--btns-right', '25%');
-            setSP('--btns-left', '50%');
-            setSP('--btns-margin-left', '-260px');
-            setSP('--btns-width', '520px');
-            setSP('--btns-flex-direction', 'row');
             // bottomButtons vertically
             setSP('--bottom-btns-top', '50%');
             setSP('--bottom-btns-left', '15px');
@@ -5434,10 +5409,10 @@ function manageButtons() {
     setMyFileShareBtn();
     setDocumentPiPBtn();
     setMySettingsBtn();
+    setMySettingsExtraBtns();
     setAboutBtn();
 
     // Buttons bottom
-    setToggleExtraButtons();
     setAudioBtn();
     setVideoBtn();
     setSwapCameraBtn();
@@ -5476,39 +5451,6 @@ function setHideMeButton() {
         isHideMeActive = !isHideMeActive;
         handleHideMe(isHideMeActive);
     });
-}
-
-/**
- * Toggle extra buttons
- */
-function setToggleExtraButtons() {
-    toggleExtraBtn.addEventListener('click', () => {
-        toggleExtraButtons();
-        if (!isMobileDevice) {
-            isToggleExtraBtnClicked = true;
-            setTimeout(() => {
-                isToggleExtraBtnClicked = false;
-            }, 2000);
-        }
-    });
-    toggleExtraBtn.addEventListener('mouseover', () => {
-        if (isToggleExtraBtnClicked || isMobileDevice) return;
-        if (buttonsBar.style.display === 'none') {
-            toggleExtraButtons();
-        }
-    });
-}
-
-/**
- * Toggle extra buttons
- */
-function toggleExtraButtons() {
-    const isButtonsBarHidden = buttonsBar.style.display === 'none' || buttonsBar.style.display === '';
-    const displayValue = isButtonsBarHidden ? 'flex' : 'none';
-    const cName = isButtonsBarHidden ? className.up : className.down;
-
-    elemDisplay(buttonsBar, isButtonsBarHidden, displayValue);
-    toggleExtraBtn.className = cName;
 }
 
 /**
@@ -5594,11 +5536,7 @@ function setScreenShareBtn() {
  */
 function setRecordStreamBtn() {
     recordStreamBtn.addEventListener('click', (e) => {
-        if (isStreamRecording) {
-            stopStreamRecording();
-        } else {
-            startStreamRecording();
-        }
+        isStreamRecording ? stopStreamRecording() : startStreamRecording();
     });
     recImage.addEventListener('click', (e) => {
         recordStreamBtn.click();
@@ -5619,11 +5557,12 @@ function setFullScreenBtn() {
     if (fsSupported) {
         // detect esc from full screen mode
         document.addEventListener('fullscreenchange', (e) => {
+            const fullScreenIcon = fullScreenBtn.querySelector('i');
+
             let fullscreenElement = document.fullscreenElement;
             if (!fullscreenElement) {
-                fullScreenBtn.className = className.fsOff;
+                fullScreenIcon.className = className.fsOff;
                 isDocumentOnFullScreen = false;
-                setTippy(fullScreenBtn, 'View full screen', placement);
             }
         });
         fullScreenBtn.addEventListener('click', (e) => {
@@ -5847,11 +5786,7 @@ function setCaptionRoomBtn() {
     if (buttons.main.showCaptionRoomBtn) {
         // open hide caption
         captionBtn.addEventListener('click', (e) => {
-            if (!isCaptionBoxVisible) {
-                showCaptionDraggable();
-            } else {
-                hideCaptionBox();
-            }
+            !isCaptionBoxVisible ? showCaptionDraggable() : hideCaptionBox();
         });
 
         // Maximize caption
@@ -6057,12 +5992,13 @@ function setRoomEmojiButton() {
     }
 
     function toggleEmojiPicker() {
+        const roomEmojiPickerIcon = roomEmojiPickerBtn.querySelector('i');
         if (emojiPickerContainer.style.display === 'block') {
             elemDisplay(emojiPickerContainer, false);
-            setColor(roomEmojiPickerBtn, 'var(--btn-bar-bg-color)');
+            setColor(roomEmojiPickerIcon, 'var(--btn-bar-bg-color)');
         } else {
             emojiPickerContainer.style.display = 'block';
-            setColor(roomEmojiPickerBtn, 'yellow');
+            setColor(roomEmojiPickerIcon, 'yellow');
         }
     }
 }
@@ -6485,7 +6421,6 @@ async function documentPictureInPictureOpen() {
 function setMySettingsBtn() {
     mySettingsBtn.addEventListener('click', (e) => {
         if (isMobileDevice) {
-            elemDisplay(buttonsBar, false);
             elemDisplay(bottomButtons, false);
             isButtonsVisible = false;
         }
@@ -6578,6 +6513,61 @@ function setMySettingsBtn() {
 }
 
 /**
+ * Settings extra buttons
+ */
+function setMySettingsExtraBtns() {
+    // Settings Split Dropdown logic (desktop hover support)
+    if (settingsSplit && settingsExtraDropdown && settingsExtraToggle && settingsExtraMenu) {
+        let showTimeout;
+        let hideTimeout;
+        function showMenu() {
+            clearTimeout(hideTimeout);
+            settingsExtraMenu.classList.remove('hidden');
+            settingsExtraMenu.classList.add('show');
+        }
+        function hideMenu() {
+            clearTimeout(showTimeout);
+            settingsExtraMenu.classList.remove('show');
+            settingsExtraMenu.classList.add('hidden');
+        }
+        // Toggle on click (arrow button)
+        settingsExtraToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            !settingsExtraMenu.classList.contains('hidden') ? hideMenu() : showMenu();
+        });
+
+        // Desktop hover support
+        const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        if (supportsHover) {
+            let closeTimeout;
+            const cancelClose = () => {
+                if (!closeTimeout) return;
+                clearTimeout(closeTimeout);
+                closeTimeout = null;
+            };
+            const scheduleClose = () => {
+                cancelClose();
+                closeTimeout = setTimeout(() => hideMenu(), 180);
+            };
+            settingsExtraToggle.addEventListener('mouseenter', () => {
+                cancelClose();
+                showMenu();
+            });
+            settingsExtraToggle.addEventListener('mouseleave', scheduleClose);
+            settingsExtraMenu.addEventListener('mouseenter', cancelClose);
+            settingsExtraMenu.addEventListener('mouseleave', scheduleClose);
+        }
+
+        // Optional: close on click outside
+        document.addEventListener('click', function (e) {
+            if (!settingsExtraToggle.contains(e.target) && !settingsExtraMenu.contains(e.target)) {
+                hideMenu();
+            }
+        });
+    }
+}
+
+/**
  * About button click event
  */
 function setAboutBtn() {
@@ -6601,14 +6591,6 @@ function setLeaveRoomBtn() {
 function handleBodyOnMouseMove() {
     document.body.addEventListener('mousemove', (e) => {
         showButtonsBarAndMenu();
-    });
-
-    // detect buttons bar over
-    buttonsBar.addEventListener('mouseover', () => {
-        isButtonsBarOver = true;
-    });
-    buttonsBar.addEventListener('mouseout', () => {
-        isButtonsBarOver = false;
     });
 
     bottomButtons.addEventListener('mouseover', () => {
@@ -6766,7 +6748,6 @@ function setupMySettings() {
             lsSettings.buttons_bar = btnsBarSelect.selectedIndex;
             lS.setSettings(lsSettings);
             setButtonsBarPosition(btnsBarSelect.value);
-            resizeMainButtons();
         });
     }
 
@@ -7001,7 +6982,6 @@ function loadSettingsFromLocalStorage() {
     setSP('--video-object-fit', videoObjFitSelect.value);
     setButtonsBarPosition(btnsBarSelect.value);
     toggleVideoPin(pinVideoPositionSelect.value);
-    resizeMainButtons();
 }
 
 /**
@@ -7383,8 +7363,6 @@ function showButtonsBarAndMenu() {
     )
         return;
     toggleClassElements('navbar', 'block');
-    //elemDisplay(buttonsBar, true, 'flex');
-    toggleExtraBtn.className = className.down;
     elemDisplay(bottomButtons, true, 'flex');
     isButtonsVisible = true;
 }
@@ -7395,15 +7373,11 @@ function showButtonsBarAndMenu() {
 function checkButtonsBarAndMenu() {
     if (lsSettings.keep_buttons_visible) {
         toggleClassElements('navbar', 'block');
-        toggleExtraBtn.className = className.up;
-        elemDisplay(buttonsBar, true, 'flex');
         elemDisplay(bottomButtons, true, 'flex');
         isButtonsVisible = true;
     } else {
         if (!isButtonsBarOver) {
             toggleClassElements('navbar', 'none');
-            toggleExtraBtn.className = className.up;
-            elemDisplay(buttonsBar, false);
             elemDisplay(bottomButtons, false);
             isButtonsVisible = false;
         }
@@ -8115,19 +8089,19 @@ async function setMyVideoStatusTrue() {
  * https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API
  */
 function toggleFullScreen() {
+    const fullScreenIcon = fullScreenBtn.querySelector('i');
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
-        fullScreenBtn.className = className.fsOn;
+        fullScreenIcon.className = className.fsOn;
         isDocumentOnFullScreen = true;
     } else {
         if (document.exitFullscreen) {
             document.exitFullscreen();
-            fullScreenBtn.className = className.fsOff;
+            fullScreenIcon.className = className.fsOff;
             isDocumentOnFullScreen = false;
         }
     }
     const fullScreenLabel = isDocumentOnFullScreen ? 'Exit full screen' : 'View full screen';
-    setTippy(fullScreenBtn, fullScreenLabel, placement);
     screenReaderAccessibility.announceMessage(fullScreenLabel);
 }
 
@@ -8652,8 +8626,8 @@ function handleMediaRecorderStart(event) {
     emitPeerStatus('rec', true);
     console.log('MediaRecorder started: ', event);
     isStreamRecording = true;
-    recordStreamBtn.style.setProperty('color', '#ff4500');
-    setTippy(recordStreamBtn, 'Stop recording', placement);
+    const recordStreamIcon = recordStreamBtn.querySelector('i');
+    recordStreamIcon.style.setProperty('color', '#ff4500');
     if (isMobileDevice) elemDisplay(swapCameraBtn, false);
     recStartTs = performance.now();
     playSound('recStart');
@@ -8688,9 +8662,11 @@ function handleMediaRecorderStop(event) {
         });
         isRecScreenStream = false;
     }
-    recordStreamBtn.style.setProperty('color', '#ffffff');
+
+    const recordStreamIcon = recordStreamBtn.querySelector('i');
+    recordStreamIcon.style.setProperty('color', '#ffffff');
     downloadRecordedStream();
-    setTippy(recordStreamBtn, 'Start recording', placement);
+
     if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
 
     playSound('recStop');
@@ -8876,7 +8852,6 @@ function showChatRoomDraggable() {
     elemDisplay(msgerCP, false);
 
     if (isMobileDevice) {
-        elemDisplay(buttonsBar, false);
         elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
@@ -8900,20 +8875,21 @@ function showChatRoomDraggable() {
 function showCaptionDraggable() {
     playSound('newMessage');
     if (isMobileDevice) {
-        elemDisplay(buttonsBar, false);
         elemDisplay(bottomButtons, false);
         isButtonsVisible = false;
     }
-    //captionRightCenter();
+
     captionCenter();
-    captionBtn.className = 'far fa-closed-captioning';
+
+    const captionIcon = captionBtn.querySelector('i');
+    captionIcon.className = 'far fa-closed-captioning';
+
     isCaptionBoxVisible = true;
 
     if (isDesktopDevice && canBePinned()) {
         toggleCaptionPin();
     }
 
-    setTippy(captionBtn, 'Close the caption', placement);
     screenReaderAccessibility.announceMessage('Caption opened');
 }
 
@@ -9262,9 +9238,11 @@ function hideCaptionBox() {
         captionUnpin();
     }
     elemDisplay(captionDraggable, false);
-    captionBtn.className = className.captionOn;
+
+    const captionIcon = captionBtn.querySelector('i');
+    captionIcon.className = 'fas fa-closed-captioning';
+
     isCaptionBoxVisible = false;
-    setTippy(captionBtn, 'Open the caption', placement);
 }
 
 /**
@@ -10451,16 +10429,17 @@ async function emitPeerStatus(element, status, extras = {}) {
  * @param {boolean} isHideMeActive
  */
 function handleHideMe(isHideMeActive) {
+    const hideMeIcon = hideMeBtn.querySelector('i');
     if (isHideMeActive) {
         if (isVideoPinned) myVideoPinBtn.click();
         elemDisplay(myVideoWrap, false);
-        setColor(hideMeBtn, 'red');
-        hideMeBtn.className = className.hideMeOn;
+        setColor(hideMeIcon, 'red');
+        hideMeIcon.className = className.hideMeOn;
         playSound('off');
     } else {
         elemDisplay(myVideoWrap, true, 'inline-block');
-        hideMeBtn.className = className.hideMeOff;
-        setColor(hideMeBtn, 'var(--btn-bar-bg-color)');
+        hideMeIcon.className = className.hideMeOff;
+        setColor(hideMeIcon, 'var(--btn-bar-bg-color)');
         playSound('on');
     }
     resizeVideoMedia();
@@ -11491,9 +11470,6 @@ function toggleLockUnlockWhiteboard() {
 function toggleWhiteboard() {
     if (!wbIsOpen) {
         playSound('newMessage');
-        setTippy(whiteboardBtn, 'Close the Whiteboard', placement);
-    } else {
-        setTippy(whiteboardBtn, 'Open the Whiteboard', placement);
     }
 
     whiteboard.classList.toggle('show');
@@ -13540,7 +13516,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.95',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.96',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -14140,19 +14116,29 @@ function disable(elem, disabled) {
 }
 
 /**
+ * Remove Border Radius
+ */
+function restoreSplitButtonsBorderRadius() {
+    // On mobile we skip dropdown behavior, but ensure split buttons still look rounded.
+    document.querySelectorAll('#bottomButtons .split-btn').forEach((group) => {
+        group.querySelectorAll('button').forEach((button) => {
+            // Hack: Exclude settingsExtraToggle extra buttons...
+            if (button.id != 'settingsExtraToggle' && button.id != 'mySettingsBtn') {
+                button.style.setProperty('border-radius', '10px', 'important');
+            }
+        });
+        const toggle = group.querySelector('.device-dropdown-toggle');
+        if (toggle) toggle.style.setProperty('border-left', 'none', 'important');
+    });
+}
+
+/**
  * Setup Quick audio/video device switch dropdowns
  */
 function setupQuickDeviceSwitchDropdowns() {
     // For now keep this feature only for desktop devices
     if (!isDesktopDevice) {
-        // On mobile we skip dropdown behavior, but ensure split buttons still look rounded.
-        document.querySelectorAll('#bottomButtons .split-btn').forEach((group) => {
-            group.querySelectorAll('button').forEach((button) => {
-                button.style.setProperty('border-radius', '10px', 'important');
-            });
-            const toggle = group.querySelector('.device-dropdown-toggle');
-            if (toggle) toggle.style.setProperty('border-left', 'none', 'important');
-        });
+        restoreSplitButtonsBorderRadius();
         return;
     }
 

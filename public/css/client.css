@@ -45,15 +45,6 @@
     --btn-bar-bg-color: #ffffff;
     --btn-bar-color: #000000;
 
-    /* left buttons bar vertical default */
-    --btns-top: 50%;
-    --btns-right: 0%;
-    --btns-left: 15px;
-    --btns-margin-left: 0px;
-    --btns-width: 40px;
-    --btns-flex-direction: column;
-    --btns-bg-color: rgba(0, 0, 0, 0.7);
-
     /* bottom buttons bar horizontal default */
     --bottom-btns-top: auto;
     --bottom-btns-left: 50%;
@@ -62,15 +53,6 @@
     --bottom-btns-translate-Y: 0%;
     --bottom-btns-margin-bottom: 18px;
     --bottom-btns-flex-direction: row;
-
-    /* left buttons bar horizontal
-    --btns-top: 95%;
-    --btns-right: 25%;
-    --btns-left: 50%;
-    --btns-margin-left: -330px;
-    --btns-width: 660px;
-    --btns-flex-direction: row;
-    */
 
     /* dark theme */
     --body-bg: radial-gradient(#393939, #000000);
@@ -236,53 +218,8 @@ body {
 }
 
 /*--------------------------------------------------------------
-# Left buttons
+# Right extra buttons after my settings
 --------------------------------------------------------------*/
-
-#buttonsBar {
-    z-index: 10;
-    display: none;
-    position: fixed;
-    /* padding: 10px; */
-    top: var(--btns-top);
-    right: var(--btns-right);
-    left: var(--btns-left);
-    margin-left: var(--btns-margin-left);
-    width: var(--btns-width);
-    flex-direction: var(--btns-flex-direction);
-
-    justify-content: center;
-    grid-gap: 0.8rem;
-
-    -webkit-transform: translate(0%, -50%);
-    -ms-transform: translate(0%, -50%);
-    transform: translate(0%, -50%);
-
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-#buttonsBar button {
-    padding: 5px !important;
-    font-size: 1.4rem;
-    color: var(--btn-bar-bg-color);
-    background: var(--btns-bg-color);
-    border: none !important;
-    border-radius: 10px;
-}
-
-#buttonsBar button:hover {
-    background: var(--body-bg);
-    transform: translateY(-3px);
-}
-
-#buttonsBar button:focus {
-    outline: none;
-}
-
-#toggleExtraBtn {
-    color: #66beff !important;
-}
 
 .fa-phone-slash,
 .fa-microphone-slash,
@@ -324,7 +261,8 @@ body {
 
 /* Let the dropdown menu anchor to the whole split button (not only the arrow). */
 #bottomButtons #audioDropdown,
-#bottomButtons #videoDropdown {
+#bottomButtons #videoDropdown,
+#bottomButtons #settingsExtraDropdown {
     position: static;
 }
 
@@ -401,10 +339,6 @@ body {
     box-shadow: var(--box-shadow);
 }
 
-.dropdown-menu.show {
-    display: block;
-}
-
 #bottomButtons #audioMenu,
 #bottomButtons #videoMenu {
     min-width: 280px;
@@ -412,8 +346,34 @@ body {
     text-align: left;
 }
 
+#bottomButtons #settingsExtraMenu {
+    min-width: 200px;
+    max-width: calc(100vw - 24px);
+    text-align: left;
+}
+
+/* Mobile: keep settingsExtraMenu inside viewport and scrollable */
+@media (max-width: 600px) {
+    #bottomButtons #audioMenu,
+    #bottomButtons #videoMenu,
+    #bottomButtons #settingsExtraMenu {
+        min-width: unset;
+        max-width: 90vw;
+        left: 5vw !important;
+        right: 5vw !important;
+        position: fixed !important;
+        bottom: 70px !important;
+        z-index: 9999;
+        overflow-y: auto;
+        max-height: 60vh;
+        border-radius: 12px;
+        box-shadow: var(--box-shadow);
+    }
+}
+
 #bottomButtons #audioMenu button,
-#bottomButtons #videoMenu button {
+#bottomButtons #videoMenu button,
+#bottomButtons #settingsExtraMenu button {
     display: flex;
     width: 100%;
     height: 35px;
@@ -426,9 +386,19 @@ body {
     transform: none !important;
 }
 
+#bottomButtons #settingsExtraMenu button i {
+    width: 20px;
+    min-width: 20px;
+    text-align: center;
+    margin-right: 10px;
+    font-size: 1.1em;
+    display: inline-block;
+}
+
 /* Quick device picker: section headers + divider (Cameras / Microphones / Speakers) */
 #bottomButtons #videoMenu .device-menu-header,
-#bottomButtons #audioMenu .device-menu-header {
+#bottomButtons #audioMenu .device-menu-header,
+#bottomButtons #settingsExtraMenu .device-menu-header {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -441,13 +411,15 @@ body {
 }
 
 #bottomButtons #videoMenu .device-menu-header i,
-#bottomButtons #audioMenu .device-menu-header i {
+#bottomButtons #audioMenu .device-menu-header i,
+#bottomButtons #settingsExtraMenu .device-menu-header i {
     width: 18px;
     text-align: center;
 }
 
 #bottomButtons #videoMenu .device-menu-divider,
-#bottomButtons #audioMenu .device-menu-divider {
+#bottomButtons #audioMenu .device-menu-divider,
+#bottomButtons #settingsExtraMenu .device-menu-divider {
     height: 1px;
     background: var(--btns-bg-color);
     opacity: 0.6;
@@ -456,7 +428,8 @@ body {
 
 /* Action buttons in device menu */
 #bottomButtons #audioMenu .device-menu-action-btn,
-#bottomButtons #videoMenu .device-menu-action-btn {
+#bottomButtons #videoMenu .device-menu-action-btn,
+#bottomButtons #settingsExtraMenu .device-menu-action-btn {
     background: var(--body-bg);
     border: 1px solid var(--border-color);
     color: #fff;
@@ -466,14 +439,16 @@ body {
 }
 
 #bottomButtons #audioMenu .device-menu-action-btn:hover,
-#bottomButtons #videoMenu .device-menu-action-btn:hover {
+#bottomButtons #videoMenu .device-menu-action-btn:hover,
+#bottomButtons #settingsExtraMenu .device-menu-action-btn:hover {
     background: var(--btns-bg-color) !important;
     border-color: var(--btns-color);
     transform: translateY(-1px) !important;
 }
 
 #bottomButtons #audioMenu .device-menu-action-btn i,
-#bottomButtons #videoMenu .device-menu-action-btn i {
+#bottomButtons #videoMenu .device-menu-action-btn i,
+#bottomButtons #settingsExtraMenu .device-menu-action-btn i {
     width: 18px;
     text-align: center;
 }
@@ -2786,7 +2761,7 @@ hr {
 --------------------------------------------------------------*/
 
 .red {
-    color: red !important;
+    color: #ff4500 !important;
 }
 
 .orange {

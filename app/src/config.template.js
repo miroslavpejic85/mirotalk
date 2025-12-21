@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.6.95 - Configuration File
+ * MiroTalk P2P v.1.6.96 - Configuration File
  * ==============================================
  *
  * Branding and customizations require a license:
@@ -129,26 +129,26 @@ module.exports = {
      */
     buttons: {
         main: {
-            showShareQr: true,
-            showShareRoomBtn: true, // For guests
-            showHideMeBtn: true,
-            showFullScreenBtn: true,
             showAudioBtn: true,
             showVideoBtn: true,
             showScreenBtn: true, // autodetected
-            showRecordStreamBtn: true,
+            showMyHandBtn: true,
             showChatRoomBtn: true,
             showParticipantsBtn: true,
-            showCaptionRoomBtn: true,
+            showMySettingsBtn: true,
+            showExtraBtn: true,
+            showShareQr: true,
+            showShareRoomBtn: true, // For guests
+            showHideMeBtn: true,
+            showRecordStreamBtn: true,
+            showFullScreenBtn: true,
             showRoomEmojiPickerBtn: true,
-            showMyHandBtn: true,
+            showCaptionRoomBtn: true,
             showWhiteboardBtn: true,
             showSnapshotRoomBtn: true,
             showFileShareBtn: true,
             showDocumentPipBtn: true,
-            showMySettingsBtn: true,
             showAboutBtn: true, // Please keep me always true, Thank you!
-            showExtraBtn: true,
         },
         chat: {
             showTogglePinBtn: true,
