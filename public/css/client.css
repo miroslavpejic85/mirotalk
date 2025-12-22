@@ -1507,7 +1507,7 @@ button {
 .userEmoji {
     z-index: 18;
     position: absolute;
-    left: 80px;
+    left: 15px;
     bottom: 60px;
     border-radius: 10px;
 }
