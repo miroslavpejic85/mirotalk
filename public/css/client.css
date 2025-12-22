@@ -217,14 +217,20 @@ body {
     background: var(--body-bg);
 }
 
-/*--------------------------------------------------------------
-# Right extra buttons after my settings
---------------------------------------------------------------*/
-
 .fa-phone-slash,
 .fa-microphone-slash,
 .fa-video-slash {
     color: red !important;
+}
+
+/*--------------------------------------------------------------
+# Session Time
+--------------------------------------------------------------*/
+
+#myCurrentSessionTime {
+    font-size: 14px;
+    color: white;
+    margin-right: 5px;
 }
 
 /*--------------------------------------------------------------
@@ -495,6 +501,9 @@ body {
         top: 1px;
         right: 1px;
     }
+    #myCurrentSessionTime {
+        font-size: 12px;
+    }
 }
 
 @media (max-width: 400px) {
@@ -504,6 +513,9 @@ body {
         height: 14px;
         top: 0px;
         right: 0px;
+    }
+    #myCurrentSessionTime {
+        font-size: 10px;
     }
 }
 

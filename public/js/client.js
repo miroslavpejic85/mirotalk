@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.6.96
+ * @version 1.6.97
  *
  */
 
@@ -541,7 +541,6 @@ let thisMaxRoomParticipants = 8;
 
 // misc
 let swBg = 'rgba(0, 0, 0, 0.7)'; // swAlert background color
-let callElapsedTime; // count time
 let isDocumentOnFullScreen = false;
 let isToggleExtraBtnClicked = false;
 
@@ -3560,6 +3559,7 @@ async function loadLocalMedia(stream, kind) {
 
             // html elements
             const myVideoNavBar = document.createElement('div');
+            const myCurrentSessionTime = document.createElement('span');
             const myVideoPeerName = document.createElement('p');
             const myHandStatusIcon = document.createElement('button');
             const myVideoToImgBtn = document.createElement('button');
@@ -3576,6 +3576,10 @@ async function loadLocalMedia(stream, kind) {
             const myVideoAvatarImage = document.createElement('img');
             const myPitchMeter = document.createElement('div');
             const myPitchBar = document.createElement('div');
+
+            //my current session time
+            myCurrentSessionTime.setAttribute('id', 'myCurrentSessionTime');
+            myCurrentSessionTime.className = 'notranslate';
 
             // my peer name
             myVideoPeerName.setAttribute('id', 'myVideoPeerName');
@@ -3659,6 +3663,8 @@ async function loadLocalMedia(stream, kind) {
 
             // my video nav bar
             myVideoNavBar.className = 'navbar fadein';
+
+            myVideoNavBar.appendChild(myCurrentSessionTime);
 
             !isMobileDevice && myVideoNavBar.appendChild(myVideoPinBtn);
 
@@ -5354,11 +5360,17 @@ function takeSnapshot(video) {
  * Start session time
  */
 function startSessionTime() {
-    callElapsedTime = 0;
+    let callStartTime = Date.now();
+    let callElapsedSecondsTime = 0;
     elemDisplay(mySessionTime, true);
     setInterval(function printTime() {
-        callElapsedTime++;
-        mySessionTime.innerText = secondsToHms(callElapsedTime);
+        callElapsedSecondsTime++;
+        let callElapsedTime = Date.now() - callStartTime;
+        mySessionTime.innerText = getTimeToString(callElapsedTime);
+        const myCurrentSessionTime = getId('myCurrentSessionTime');
+        if (myCurrentSessionTime) {
+            myCurrentSessionTime.innerText = secondsToHms(callElapsedSecondsTime);
+        }
     }, 1000);
 }
 
@@ -8328,6 +8340,24 @@ function checkRecording() {
 function handleRecordingError(error, popupLog = true) {
     console.error('Recording error', error);
     if (popupLog) userLog('error', error);
+}
+
+/**
+ * Get time to string HH:MM:SS
+ * @param {number} time in milliseconds
+ * @return {string} format HH:MM:SS
+ */
+function getTimeToString(time) {
+    let diffInHrs = time / 3600000;
+    let hh = Math.floor(diffInHrs);
+    let diffInMin = (diffInHrs - hh) * 60;
+    let mm = Math.floor(diffInMin);
+    let diffInSec = (diffInMin - mm) * 60;
+    let ss = Math.floor(diffInSec);
+    let formattedHH = hh.toString().padStart(2, '0');
+    let formattedMM = mm.toString().padStart(2, '0');
+    let formattedSS = ss.toString().padStart(2, '0');
+    return `${formattedHH}:${formattedMM}:${formattedSS}`;
 }
 
 /**
@@ -13516,7 +13546,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.96',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.6.97',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
