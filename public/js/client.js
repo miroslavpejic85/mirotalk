@@ -7387,6 +7387,7 @@ function attachMediaStream(element, stream) {
  */
 function showButtonsBarAndMenu() {
     if (
+        wbIsBgTransparent ||
         isButtonsBarOver ||
         isButtonsVisible ||
         (isMobileDevice && isChatRoomVisible) ||
