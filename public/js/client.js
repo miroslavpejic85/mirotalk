@@ -996,8 +996,8 @@ function getRoomId() {
     // skip /join/
     let roomId = queryRoomId ? queryRoomId : window.location.pathname.split('/join/')[1];
 
-    // if not specified room id, create one random
-    if (roomId == '') {
+    // if not specified room id or 'random', create one random
+    if (roomId == '' || roomId === 'random') {
         roomId = makeId(20);
         const newUrl = signalingServer + '/join/' + roomId;
         window.history.pushState({ url: newUrl }, roomId, newUrl);
