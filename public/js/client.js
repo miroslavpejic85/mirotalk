@@ -3110,6 +3110,7 @@ function setTheme() {
             console.log('No theme found');
             break;
     }
+    wbIsBgTransparent = false;
     //setButtonsBarPosition(mainButtonsBarPosition);
 }
 
@@ -11523,6 +11524,8 @@ function toggleWhiteboard() {
     if (!wbIsOpen) {
         playSound('newMessage');
     }
+
+    if (wbIsBgTransparent) setTheme();
 
     whiteboard.classList.toggle('show');
 
