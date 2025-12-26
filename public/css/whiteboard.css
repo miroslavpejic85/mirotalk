@@ -109,44 +109,53 @@
     appearance: none;
     padding: 0;
     width: 20px;
-    height: 15px;
+    height: 20px;
     margin: 2px;
-    border-radius: 20px;
-    border: solid 0.5px #afadad38;
+    border-radius: 50%;
+    border: 2px solid #afadad38;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    background: transparent;
     cursor: pointer;
+    transition:
+        box-shadow 0.2s,
+        border 0.2s,
+        transform 0.2s;
+    display: inline-block;
+    vertical-align: middle;
 }
 .whiteboardColorPicker:hover {
-    transform: var(--btns-hover-scale);
-    transition: all 0.3s ease-in-out;
+    box-shadow: 0 0 0 2px rgba(102, 190, 255, 0.18);
+    border: 2px solid #66beff;
+    transform: scale(1.12);
 }
 .whiteboardColorPicker::-webkit-color-swatch {
     border: none;
-    border-radius: 20px;
+    border-radius: 50%;
     padding: 0;
 }
 .whiteboardColorPicker::-webkit-color-swatch-wrapper {
     border: none;
-    border-radius: 20px;
+    border-radius: 50%;
     padding: 0;
 }
 .whiteboardColorPicker::-moz-color-swatch {
     border: none;
-    border-radius: 20px;
+    border-radius: 50%;
     padding: 0;
 }
 .whiteboardColorPicker::-moz-color-swatch-wrapper {
     border: none;
-    border-radius: 20px;
+    border-radius: 50%;
     padding: 0;
 }
 .whiteboardColorPicker::color-swatch {
     border: none;
-    border-radius: 20px;
+    border-radius: 50%;
     padding: 0;
 }
 .whiteboardColorPicker::color-swatch-wrapper {
     border: none;
-    border-radius: 20px;
+    border-radius: 50%;
     padding: 0;
 }
 
