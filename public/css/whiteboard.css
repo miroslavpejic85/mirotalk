@@ -245,6 +245,7 @@
     max-width: 340px;
     margin: 0 auto;
     font-size: 0.85em;
+    max-height: 70vh;
 }
 
 .wb-shortcuts-title {
