@@ -1270,18 +1270,6 @@ function initClientPeer() {
 
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
-    signalingSocket.on('reconnect', (attemptNumber) => {
-        console.log('Socket reconnected after', attemptNumber, 'attempts');
-    });
-    signalingSocket.on('reconnect_attempt', (attemptNumber) => {
-        console.log('Attempting to reconnect...', attemptNumber);
-    });
-    signalingSocket.on('reconnect_error', (error) => {
-        console.error('Reconnection error:', error);
-    });
-    signalingSocket.on('reconnect_failed', () => {
-        console.error('Reconnection failed');
-    });
     signalingSocket.on('unauthorized', handleUnauthorized);
     signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
     signalingSocket.on('roomAction', handleRoomAction);
