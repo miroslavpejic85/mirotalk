@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.04
+ * @version 1.7.05
  *
  */
 
@@ -1270,6 +1270,18 @@ function initClientPeer() {
 
     // on receiving data from signaling server...
     signalingSocket.on('connect', handleConnect);
+    signalingSocket.on('reconnect', (attemptNumber) => {
+        console.log('Socket reconnected after', attemptNumber, 'attempts');
+    });
+    signalingSocket.on('reconnect_attempt', (attemptNumber) => {
+        console.log('Attempting to reconnect...', attemptNumber);
+    });
+    signalingSocket.on('reconnect_error', (error) => {
+        console.error('Reconnection error:', error);
+    });
+    signalingSocket.on('reconnect_failed', () => {
+        console.error('Reconnection failed');
+    });
     signalingSocket.on('unauthorized', handleUnauthorized);
     signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
     signalingSocket.on('roomAction', handleRoomAction);
@@ -1328,7 +1340,12 @@ async function handleConnect() {
 
     await getButtons();
 
-    if (localVideoMediaStream && localAudioMediaStream) {
+    // If reconnecting, force rejoin to properly sync with other peers
+    if (isPeerReconnected && localVideoMediaStream && localAudioMediaStream) {
+        console.log('Reconnected - rejoining channel');
+        await joinToChannel();
+        isPeerReconnected = false; // Reset flag after successful rejoin
+    } else if (localVideoMediaStream && localAudioMediaStream) {
         await joinToChannel();
     } else {
         await initEnumerateDevices();
@@ -1380,7 +1397,14 @@ function handleServerInfo(config) {
     }
 
     // Let start with some basic rules
-    isPresenter = isPeerReconnected ? isPresenter : is_presenter;
+    // On reconnection, preserve presenter status if we were presenter before
+    // Otherwise, accept what the server tells us
+    if (isPeerReconnected) {
+        console.log('Reconnected - preserving presenter status:', isPresenter);
+    } else {
+        isPresenter = is_presenter;
+        console.log('New connection - presenter status from server:', isPresenter);
+    }
     isPeerPresenter.innerText = isPresenter;
 
     // Peer identified if presenter or not then....
@@ -2311,7 +2335,16 @@ async function handleAddPeer(config) {
 
     if (peer_id in peerConnections) {
         // This could happen if the user joins multiple channels where the other peer is also in.
-        return console.log('Already connected to peer', peer_id);
+        // Or when a peer reconnects - close the old connection and create a new one
+        console.log('Already connected to peer', peer_id, '- closing old connection and creating new one');
+        try {
+            peerConnections[peer_id].close();
+            delete peerConnections[peer_id];
+            delete chatDataChannels[peer_id];
+            delete fileDataChannels[peer_id];
+        } catch (err) {
+            console.error('Error closing stale peer connection', err);
+        }
     }
 
     console.log('iceServers', iceServers[0]);
@@ -2822,7 +2855,9 @@ function handleDisconnect(reason) {
     peerVideoMediaElements = {};
     peerAudioMediaElements = {};
 
+    // Set reconnection flag to trigger proper rejoin
     isPeerReconnected = true;
+    console.log('Set isPeerReconnected=true, will attempt to rejoin on reconnect');
 }
 
 /**
@@ -13571,7 +13606,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.04',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.05',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
