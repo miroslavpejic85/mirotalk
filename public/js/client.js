@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.09
+ * @version 1.7.10
  *
  */
 
@@ -7793,236 +7793,14 @@ async function loadScreenMedia() {
  */
 async function toggleScreenSharing(init = false) {
     try {
-        // Set screen frame rate
         screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
-
-        // Screen share constraints
-        const constraints = {
-            audio: true, // Always request screen audio when available
-            video: { frameRate: screenMaxFrameRate },
-        };
-
-        // Reset privacy on toggle
+        const constraints = getScreenShareConstraints();
         isVideoPrivacyActive = false;
         if (!init) emitPeerStatus('privacy', isVideoPrivacyActive);
 
-        if (!isScreenStreaming) {
-            // START screen sharing
-            const displayStream = await navigator.mediaDevices.getDisplayMedia(constraints);
-            if (!displayStream) return;
+        !isScreenStreaming ? await startScreenSharing(constraints, init) : await stopScreenSharing(init);
 
-            // Keep reference for cleanup/reuse
-            localScreenDisplayStream = displayStream;
-
-            // Keep only video track for local screen UI stream
-            const screenVideoTrack = getVideoTrack(displayStream);
-            if (!screenVideoTrack) {
-                console.error('[ScreenShare] No video track in display stream');
-                return;
-            }
-
-            // Build outgoing audio track for screen sharing:
-            // - screen/tab audio (when supported)
-            // - plus microphone (if enabled)
-            const screenAudioTrack = getAudioTrack(displayStream);
-            const micAudioTrack =
-                myAudioStatus && hasAudioTrack(localAudioMediaStream) ? getAudioTrack(localAudioMediaStream) : null;
-
-            // Clean up previous mix context, if any
-            if (screenShareAudioContext) {
-                try {
-                    await screenShareAudioContext.close();
-                } catch (_) {}
-                screenShareAudioContext = null;
-            }
-
-            let outgoingAudioTrack = null;
-            if (screenAudioTrack && micAudioTrack) {
-                try {
-                    screenShareAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const destination = screenShareAudioContext.createMediaStreamDestination();
-
-                    const screenSource = screenShareAudioContext.createMediaStreamSource(
-                        new MediaStream([screenAudioTrack])
-                    );
-                    screenSource.connect(destination);
-
-                    const micSource = screenShareAudioContext.createMediaStreamSource(new MediaStream([micAudioTrack]));
-                    micSource.connect(destination);
-
-                    try {
-                        await screenShareAudioContext.resume();
-                    } catch (_) {}
-
-                    outgoingAudioTrack = destination.stream.getAudioTracks()[0] || null;
-                } catch (err) {
-                    console.warn(
-                        '[ScreenShare] Unable to mix screen+mic audio, falling back to screen audio only:',
-                        err
-                    );
-                    outgoingAudioTrack = screenAudioTrack;
-                }
-            } else if (screenAudioTrack) {
-                outgoingAudioTrack = screenAudioTrack;
-            } else if (micAudioTrack) {
-                // Browser may not provide screen audio; still allow mic while sharing
-                outgoingAudioTrack = micAudioTrack;
-            }
-
-            localScreenMediaStream = outgoingAudioTrack
-                ? new MediaStream([screenVideoTrack, outgoingAudioTrack])
-                : new MediaStream([screenVideoTrack]);
-
-            // Update state
-            isScreenStreaming = true;
-            myScreenStatus = true;
-
-            // Deterministic routing identifiers
-            const extras = getLocalScreenExtras();
-            if (extras) {
-                try {
-                    peerInfo.extras = { ...(peerInfo.extras || {}), ...extras };
-                } catch (_) {}
-                await emitPeerStatus('screen', true, extras);
-            }
-
-            // Only emit and create tile when in-room (not during init)
-            if (!init) {
-                emitPeersAction('screenStart', extras);
-
-                await loadScreenMedia();
-
-                // Push updated tracks to peers (including screen share audio, if any)
-                await refreshMyStreamToPeers(undefined, true);
-            }
-
-            // Auto-stop handler from browser picker
-            screenVideoTrack.onended = () => {
-                if (isScreenStreaming) toggleScreenSharing(init);
-            };
-
-            // Update init preview only (no tiles/emits)
-            if (init) {
-                if (initStream) await stopTracks(initStream);
-                initStream = displayStream;
-                const initVideoTrack = getVideoTrack(initStream);
-                if (initVideoTrack) {
-                    const newInitStream = new MediaStream([initVideoTrack]);
-                    elemDisplay(initVideo, true, 'block');
-                    initVideo.classList.toggle('mirror');
-                    initVideo.srcObject = newInitStream;
-                    disable(initVideoSelect, true);
-                    disable(initVideoBtn, true);
-                } else {
-                    elemDisplay(initVideo, false);
-                }
-                if (!useVideo) initVideoContainerShow(true);
-            }
-
-            // Screen reader announcement for starting screen share
-            if (!init) {
-                screenReaderAccessibility.announceMessage('Screen sharing started');
-            }
-        } else {
-            // STOP screen sharing
-            const myScreenWrap = getId('myScreenWrap');
-            const myScreenPinBtn = getId('myScreenPinBtn');
-
-            // Unpin if pinned (in-room only)
-            if (!init && myScreenWrap && isVideoPinned && pinnedVideoPlayerId === 'myScreen') {
-                console.log('[ScreenShare] Unpinning my screen before removal');
-                if (myScreenPinBtn) myScreenPinBtn.click();
-            }
-
-            // Remove tile (in-room only)
-            if (!init && myScreenWrap) myScreenWrap.remove();
-
-            // Stop tracks and clear stream
-            if (localScreenMediaStream) {
-                localScreenMediaStream.getTracks().forEach((t) => t.stop());
-            }
-            if (localScreenDisplayStream) {
-                localScreenDisplayStream.getTracks().forEach((t) => t.stop());
-            }
-            localScreenDisplayStream = null;
-
-            if (screenShareAudioContext) {
-                try {
-                    await screenShareAudioContext.close();
-                } catch (_) {}
-                screenShareAudioContext = null;
-            }
-            localScreenMediaStream = null;
-            if (!init) adaptAspectRatio();
-
-            // Update state
-            isScreenStreaming = false;
-            myScreenStatus = false;
-
-            // Notify peers and refresh tracks (in-room only)
-            if (!init) {
-                emitPeersAction('screenStop');
-                try {
-                    peerInfo.extras = {};
-                } catch (_) {}
-                await emitPeerStatus('screen', false, {});
-
-                // Ensure mic audio is restored
-                const micTrack = getAudioTrack(localAudioMediaStream);
-                if (useAudio && (!micTrack || micTrack.readyState === 'ended')) {
-                    try {
-                        await changeLocalMicrophone(audioInputSelect.value);
-                        console.log('[ScreenShare] Require microphone after screen share stop');
-                    } catch (err) {
-                        console.error('[ScreenShare] Failed to reacquire microphone after screen share stop:', err);
-                    }
-                } else {
-                    if (micTrack) {
-                        micTrack.enabled = true;
-                        await refreshMyStreamToPeers(localAudioMediaStream, true);
-                        console.log('[ScreenShare] Refreshing mic audio after screen share stop');
-                    }
-                }
-
-                // Screen reader announcement for stopping screen share
-                screenReaderAccessibility.announceMessage('Screen sharing stopped');
-            }
-
-            // Update init preview when stopping during init
-            if (init) {
-                if (initStream) await stopTracks(initStream);
-                // Restart camera to restore previous view
-                if (useVideo) {
-                    try {
-                        await changeInitCamera(initVideoSelect.value);
-                        initVideo.classList.toggle('mirror');
-                    } catch (err) {
-                        console.error('[ScreenShare] Error restarting camera after screen share stop:', err);
-                        initStream = null;
-                        elemDisplay(initVideo, false);
-                    }
-                } else {
-                    initStream = null;
-                    elemDisplay(initVideo, false);
-                    initVideoContainerShow(false);
-                }
-                disable(initVideoSelect, false);
-                disable(initVideoBtn, false);
-            }
-        }
-
-        // Update button states
-        setScreenSharingStatus(isScreenStreaming);
-
-        // Update avatar visibility (in-room only)
-        if (!init && myVideoAvatarImage && !useVideo) {
-            elemDisplay(myVideo, false);
-            elemDisplay(myVideoAvatarImage, true, 'block');
-        }
-
-        screenReaderAccessibility.announceMessage(
-            isScreenStreaming ? 'Screen sharing started' : 'Screen sharing stopped'
-        );
+        updateScreenSharingUI(isScreenStreaming, init);
     } catch (err) {
         if (err && err.name === 'NotAllowedError') {
             console.error('[ScreenShare] Screen sharing permission was denied by the user.');
@@ -8031,6 +7809,199 @@ async function toggleScreenSharing(init = false) {
         }
         if (init) return;
     }
+}
+
+/**
+ * Get screen share constraints
+ */
+function getScreenShareConstraints() {
+    return {
+        audio: true,
+        video: { frameRate: screenMaxFrameRate },
+    };
+}
+
+/**
+ * Start screen sharing with given constraints
+ * @param {object} constraints - MediaStreamConstraints for screen sharing
+ * @param {boolean} init - Indicates if it's the initial screen share
+ */
+async function startScreenSharing(constraints, init) {
+    const displayStream = await navigator.mediaDevices.getDisplayMedia(constraints);
+    if (!displayStream) return;
+    localScreenDisplayStream = displayStream;
+    const screenVideoTrack = getVideoTrack(displayStream);
+    if (!screenVideoTrack) {
+        console.error('[ScreenShare] No video track in display stream');
+        return;
+    }
+    const screenAudioTrack = getAudioTrack(displayStream);
+    const micAudioTrack =
+        myAudioStatus && hasAudioTrack(localAudioMediaStream) ? getAudioTrack(localAudioMediaStream) : null;
+    if (screenShareAudioContext) {
+        try {
+            await screenShareAudioContext.close();
+        } catch (_) {}
+        screenShareAudioContext = null;
+    }
+    const outgoingAudioTrack = await mixScreenAndMicAudio(screenAudioTrack, micAudioTrack);
+    localScreenMediaStream = outgoingAudioTrack
+        ? new MediaStream([screenVideoTrack, outgoingAudioTrack])
+        : new MediaStream([screenVideoTrack]);
+    isScreenStreaming = true;
+    myScreenStatus = true;
+    const extras = getLocalScreenExtras();
+    if (extras) {
+        try {
+            peerInfo.extras = { ...(peerInfo.extras || {}), ...extras };
+        } catch (_) {}
+        await emitPeerStatus('screen', true, extras);
+    }
+    if (!init) {
+        emitPeersAction('screenStart', extras);
+        await loadScreenMedia();
+        await refreshMyStreamToPeers(undefined, true);
+    }
+    screenVideoTrack.onended = () => {
+        if (isScreenStreaming) toggleScreenSharing(init);
+    };
+    if (init) {
+        if (initStream) await stopTracks(initStream);
+        initStream = displayStream;
+        const initVideoTrack = getVideoTrack(initStream);
+        if (initVideoTrack) {
+            const newInitStream = new MediaStream([initVideoTrack]);
+            elemDisplay(initVideo, true, 'block');
+            initVideo.classList.toggle('mirror');
+            initVideo.srcObject = newInitStream;
+            disable(initVideoSelect, true);
+            disable(initVideoBtn, true);
+        } else {
+            elemDisplay(initVideo, false);
+        }
+        if (!useVideo) initVideoContainerShow(true);
+    }
+    if (!init) {
+        screenReaderAccessibility.announceMessage('Screen sharing started');
+    }
+}
+
+/**
+ * Stop screen sharing and clean up resources
+ * @param {boolean} init - Indicates if it's the initial screen share
+ */
+async function stopScreenSharing(init) {
+    const myScreenWrap = getId('myScreenWrap');
+    const myScreenPinBtn = getId('myScreenPinBtn');
+    if (!init && myScreenWrap && isVideoPinned && pinnedVideoPlayerId === 'myScreen') {
+        console.log('[ScreenShare] Unpinning my screen before removal');
+        if (myScreenPinBtn) myScreenPinBtn.click();
+    }
+    if (!init && myScreenWrap) myScreenWrap.remove();
+    if (localScreenMediaStream) {
+        localScreenMediaStream.getTracks().forEach((t) => t.stop());
+    }
+    if (localScreenDisplayStream) {
+        localScreenDisplayStream.getTracks().forEach((t) => t.stop());
+    }
+    localScreenDisplayStream = null;
+    if (screenShareAudioContext) {
+        try {
+            await screenShareAudioContext.close();
+        } catch (_) {}
+        screenShareAudioContext = null;
+    }
+    localScreenMediaStream = null;
+    if (!init) adaptAspectRatio();
+    isScreenStreaming = false;
+    myScreenStatus = false;
+    if (!init) {
+        emitPeersAction('screenStop');
+        try {
+            peerInfo.extras = {};
+        } catch (_) {}
+        await emitPeerStatus('screen', false, {});
+        const micTrack = getAudioTrack(localAudioMediaStream);
+        if (useAudio && (!micTrack || micTrack.readyState === 'ended')) {
+            try {
+                await changeLocalMicrophone(audioInputSelect.value);
+                console.log('[ScreenShare] Require microphone after screen share stop');
+            } catch (err) {
+                console.error('[ScreenShare] Failed to reacquire microphone after screen share stop:', err);
+            }
+        } else {
+            if (micTrack) {
+                micTrack.enabled = true;
+                await refreshMyStreamToPeers(localAudioMediaStream, true);
+                console.log('[ScreenShare] Refreshing mic audio after screen share stop');
+            }
+        }
+        screenReaderAccessibility.announceMessage('Screen sharing stopped');
+    }
+    if (init) {
+        if (initStream) await stopTracks(initStream);
+        if (useVideo) {
+            try {
+                await changeInitCamera(initVideoSelect.value);
+                initVideo.classList.toggle('mirror');
+            } catch (err) {
+                console.error('[ScreenShare] Error restarting camera after screen share stop:', err);
+                initStream = null;
+                elemDisplay(initVideo, false);
+            }
+        } else {
+            initStream = null;
+            elemDisplay(initVideo, false);
+            initVideoContainerShow(false);
+        }
+        disable(initVideoSelect, false);
+        disable(initVideoBtn, false);
+    }
+}
+
+/**
+ * Mix screen and microphone audio tracks into a single audio track
+ * @param {MediaStreamTrack} screenAudioTrack - The audio track from the screen share
+ * @param {MediaStreamTrack} micAudioTrack - The audio track from the microphone
+ * @returns {Promise<MediaStreamTrack|null>} - The mixed audio track or null if none available
+ */
+async function mixScreenAndMicAudio(screenAudioTrack, micAudioTrack) {
+    if (screenAudioTrack && micAudioTrack) {
+        try {
+            screenShareAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const destination = screenShareAudioContext.createMediaStreamDestination();
+            const screenSource = screenShareAudioContext.createMediaStreamSource(new MediaStream([screenAudioTrack]));
+            screenSource.connect(destination);
+            const micSource = screenShareAudioContext.createMediaStreamSource(new MediaStream([micAudioTrack]));
+            micSource.connect(destination);
+            try {
+                await screenShareAudioContext.resume();
+            } catch (_) {}
+            return destination.stream.getAudioTracks()[0] || null;
+        } catch (err) {
+            console.warn('[ScreenShare] Unable to mix screen+mic audio, falling back to screen audio only:', err);
+            return screenAudioTrack;
+        }
+    } else if (screenAudioTrack) {
+        return screenAudioTrack;
+    } else if (micAudioTrack) {
+        return micAudioTrack;
+    }
+    return null;
+}
+
+/**
+ * Update Screen Sharing UI
+ * @param {boolean} isScreenStreaming - Indicates if screen sharing is active
+ * @param {boolean} init - Indicates if it's the initial screen share
+ */
+function updateScreenSharingUI(isScreenStreaming, init) {
+    setScreenSharingStatus(isScreenStreaming);
+    if (!init && myVideoAvatarImage && !useVideo) {
+        elemDisplay(myVideo, false);
+        elemDisplay(myVideoAvatarImage, true, 'block');
+    }
+    screenReaderAccessibility.announceMessage(isScreenStreaming ? 'Screen sharing started' : 'Screen sharing stopped');
 }
 
 /**
@@ -13591,7 +13562,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.09',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.10',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
