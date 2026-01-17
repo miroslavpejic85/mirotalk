@@ -1381,14 +1381,8 @@ function handleServerInfo(config) {
     }
 
     // Let start with some basic rules
-    // On reconnection, preserve presenter status if we were presenter before
-    // Otherwise, accept what the server tells us
-    if (isPeerReconnected) {
-        console.log('Reconnected - preserving presenter status:', isPresenter);
-    } else {
-        isPresenter = is_presenter;
-        console.log('New connection - presenter status from server:', isPresenter);
-    }
+    isPresenter = is_presenter;
+    console.log('New connection - presenter status from server:', isPresenter);
     isPeerPresenter.innerText = isPresenter;
 
     // Peer identified if presenter or not then....
@@ -7986,6 +7980,7 @@ async function toggleScreenSharing(init = false) {
                     if (micTrack) {
                         micTrack.enabled = true;
                         await refreshMyStreamToPeers(localAudioMediaStream, true);
+                        console.log('[ScreenShare] Refreshing mic audio after screen share stop');
                     }
                 }
 
