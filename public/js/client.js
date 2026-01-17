@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.08
+ * @version 1.7.09
  *
  */
 
@@ -7823,7 +7823,7 @@ async function toggleScreenSharing(init = false) {
             // Keep only video track for local screen UI stream
             const screenVideoTrack = getVideoTrack(displayStream);
             if (!screenVideoTrack) {
-                console.error('No video track in display stream');
+                console.error('[ScreenShare] No video track in display stream');
                 return;
             }
 
@@ -7936,7 +7936,7 @@ async function toggleScreenSharing(init = false) {
 
             // Unpin if pinned (in-room only)
             if (!init && myScreenWrap && isVideoPinned && pinnedVideoPlayerId === 'myScreen') {
-                console.log('[STOP SCREEN] Unpinning my screen before removal');
+                console.log('[ScreenShare] Unpinning my screen before removal');
                 if (myScreenPinBtn) myScreenPinBtn.click();
             }
 
@@ -7974,20 +7974,20 @@ async function toggleScreenSharing(init = false) {
                 await emitPeerStatus('screen', false, {});
 
                 // Ensure mic audio is restored
-                let micTrack = getAudioTrack(localAudioMediaStream);
-                if (!micTrack || micTrack.readyState === 'ended') {
+                const micTrack = getAudioTrack(localAudioMediaStream);
+                if (useAudio && (!micTrack || micTrack.readyState === 'ended')) {
                     try {
-                        const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        localAudioMediaStream = micStream;
-                        micTrack = getAudioTrack(localAudioMediaStream);
-                        console.log('Reacquired microphone after screen share stop');
+                        await changeLocalMicrophone(audioInputSelect.value);
+                        console.log('[ScreenShare] Require microphone after screen share stop');
                     } catch (err) {
-                        console.error('Failed to reacquire microphone after screen share stop:', err);
+                        console.error('[ScreenShare] Failed to reacquire microphone after screen share stop:', err);
                     }
                 } else {
-                    micTrack.enabled = true;
+                    if (micTrack) {
+                        micTrack.enabled = true;
+                        await refreshMyStreamToPeers(localAudioMediaStream, true);
+                    }
                 }
-                await refreshMyStreamToPeers(localAudioMediaStream, true);
 
                 // Screen reader announcement for stopping screen share
                 screenReaderAccessibility.announceMessage('Screen sharing stopped');
@@ -8002,7 +8002,7 @@ async function toggleScreenSharing(init = false) {
                         await changeInitCamera(initVideoSelect.value);
                         initVideo.classList.toggle('mirror');
                     } catch (err) {
-                        console.error('Error restarting camera after screen share stop:', err);
+                        console.error('[ScreenShare] Error restarting camera after screen share stop:', err);
                         initStream = null;
                         elemDisplay(initVideo, false);
                     }
@@ -8030,7 +8030,7 @@ async function toggleScreenSharing(init = false) {
         );
     } catch (err) {
         if (err && err.name === 'NotAllowedError') {
-            console.error('Screen sharing permission was denied by the user.');
+            console.error('[ScreenShare] Screen sharing permission was denied by the user.');
         } else {
             await handleToggleScreenException(`[Warning] Unable to share the screen: ${err}`, init);
         }
@@ -13596,7 +13596,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.08',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.09',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
