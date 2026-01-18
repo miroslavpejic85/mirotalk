@@ -534,7 +534,6 @@ const pickr = Pickr.create({
     .on('changestop', () => {
         lsSettings.theme_color = themeCustom.color;
         lS.setSettings(lsSettings);
-        setTheme();
     });
 
 // Room
@@ -6548,7 +6547,8 @@ function setMySettingsBtn() {
         lsSettings.theme_custom = themeCustom.keep;
         lsSettings.theme_color = themeCustom.color;
         lS.setSettings(lsSettings);
-        setTheme();
+        // When switching to non-custom, re-apply the selected theme from dropdown
+        !themeCustom.keep ? themeSelect.dispatchEvent(new Event('change', { bubbles: true })) : setTheme();
         userLog('toast', `${icons.theme} Custom theme keep ` + (themeCustom.keep ? 'ON' : 'OFF'));
         playSound('switch');
         e.target.blur();
