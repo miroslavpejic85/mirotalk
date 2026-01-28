@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "1.7.15",
+    "version": "1.7.16",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
@@ -43,8 +43,8 @@
     "dependencies": {
         "@mattermost/client": "11.3.0",
         "@ngrok/ngrok": "1.7.0",
-        "@sentry/node": "^10.36.0",
-        "axios": "^1.13.2",
+        "@sentry/node": "^10.37.0",
+        "axios": "^1.13.4",
         "chokidar": "^5.0.0",
         "colors": "^1.4.0",
         "compression": "^1.8.1",
@@ -61,7 +61,7 @@
         "js-yaml": "^4.1.1",
         "jsdom": "^27.4.0",
         "jsonwebtoken": "^9.0.3",
-        "nodemailer": "^7.0.12",
+        "nodemailer": "^7.0.13",
         "openai": "^6.16.0",
         "qs": "^6.14.1",
         "socket.io": "^4.8.3",
@@ -69,7 +69,7 @@
         "uuid": "13.0.0"
     },
     "devDependencies": {
-        "mocha": "^11.7.5",
+        "mocha": "^11.3.0",
         "node-fetch": "^3.3.2",
         "nodemon": "^3.1.11",
         "prettier": "3.8.1",
