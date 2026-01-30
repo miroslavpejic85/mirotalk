@@ -24,3 +24,5 @@ output
 env.txt
 
 .idea
+
+public/js/config.js

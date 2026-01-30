@@ -1278,5 +1278,26 @@ access to use this app.
 		the <video> and <audio> tags are all added and removed dynamically
 		in 'onAddStream', 'setupLocalMedia', and 'removePeer'/'disconnect'
 		-->
+
+         <!-- Test work  Adding the brain-->
+
+        <script defer src="../js/utils.js"></script>
+        <script defer src="../js/client.js"></script>
+        <script defer src="../js/config.js"></script>
+        <script defer src="../js/williamLogic.js"></script>
+
+        <script>
+            // Wait for the window to fully load before attaching listeners
+            window.addEventListener('load', function() {
+                document.body.addEventListener('click', function() {
+                    if (typeof startWilliamListener === 'function') {
+                        startWilliamListener();
+                        console.log("William activated.");
+                    }
+                }, { once: true });
+            });
+        </script>
+
+         <!-- End test work Adding the brain-->
     </body>
 </html>
