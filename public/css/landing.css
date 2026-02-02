@@ -971,6 +971,25 @@ strong {
     border-color: #f9faff;
 }
 
+.button-custom-room {
+    background: linear-gradient(100deg, #232b3a 0%, #141b27 60%, #0d111a 100%);
+    border: none;
+    color: rgba(255, 255, 255, 0.88) !important;
+    border-radius: 6px;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.12s ease,
+        filter 0.2s ease;
+}
+
+.button-custom-room:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    filter: brightness(1.03) saturate(1.05);
+    transform: translateY(-2px);
+}
+
 .button-custom {
     border: 0;
     color: #f9faff !important;

@@ -22,6 +22,7 @@ const appTitle = document.getElementById('appTitle');
 const appDescription = document.getElementById('appDescription');
 const appJoinDescription = document.getElementById('appJoinDescription');
 const joinRoomBtn = document.getElementById('joinRoomButton');
+const customizeRoomBtn = document.getElementById('customizeRoomButton');
 const appJoinLastRoom = document.getElementById('appJoinLastRoom');
 
 const topSponsors = document.getElementById('topSponsors');
@@ -47,6 +48,7 @@ let brand = {
             'Start your next video call with a single click. No download, plug-in, or login is required. Just get straight to talking, messaging, and sharing your screen.',
         joinDescription: 'Pick a room name.<br />How about this one?',
         joinButtonLabel: 'JOIN ROOM',
+        customizeRoomButtonLabel: 'CUSTOMIZE ROOM',
         joinLastLabel: 'Your recent room:',
     },
     site: {
@@ -77,7 +79,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.7.18',
+        title: 'WebRTC P2P v1.7.19',
         html: `
             <button 
                 id="support-button" 
@@ -235,6 +237,8 @@ function handleBrand() {
     if (appDescription && brand.app?.description) appDescription.textContent = brand.app.description;
     if (appJoinDescription && brand.app?.joinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
     if (joinRoomBtn && brand.app?.joinButtonLabel) joinRoomBtn.innerText = brand.app.joinButtonLabel;
+    if (customizeRoomBtn && brand.app?.customizeRoomButtonLabel)
+        customizeRoomBtn.innerText = brand.app.customizeRoomButtonLabel;
     if (appJoinLastRoom && brand.app?.joinLastLabel) appJoinLastRoom.innerText = brand.app.joinLastLabel;
 
     // helper to toggle multiple elements

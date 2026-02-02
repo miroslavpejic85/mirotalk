@@ -8,7 +8,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('customRoomForm');
+    const form = document.getElementById('customizeRoomForm');
     const errorEl = document.getElementById('crError');
     const statusEl = document.getElementById('crStatus');
     const previewEl = document.getElementById('crPreviewUrl');
