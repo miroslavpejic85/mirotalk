@@ -120,8 +120,8 @@ This project is proudly sponsored by
 <br/>
 
 - You can `directly join a room` by using links like:
-- https://p2p.mirotalk.com/join?room=test&name=mirotalk&avatar=0&audio=0&video=0&screen=0&chat=0&hide=0&notify=0
-- https://mirotalk.up.railway.app/join?room=test&name=mirotalk&avatar=0&audio=0&video=0&screen=0&chat=0&hide=0&notify=0
+- https://p2p.mirotalk.com/join?room=test&name=random&avatar=0&audio=0&video=0&screen=0&chat=0&hide=0&notify=0
+- https://mirotalk.up.railway.app/join?room=test&name=random&avatar=0&audio=0&video=0&screen=0&chat=0&hide=0&notify=0
 
     | Params | Type    | Description     |
     | ------ | ------- | --------------- |
@@ -353,17 +353,17 @@ curl -X POST "https://mirotalk.up.railway.app/api/v1/meeting" -H "authorization:
 ### 4. Join Meeting (Basic)
 
 ```bash
-curl -X POST "http://localhost:3000/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","avatar":false,"audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true}'
-curl -X POST "https://p2p.mirotalk.com/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","avatar":false,"audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true}'
-curl -X POST "https://mirotalk.up.railway.app/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","avatar":false,"audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true}'
+curl -X POST "http://localhost:3000/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"random","avatar":false,"audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true}'
+curl -X POST "https://p2p.mirotalk.com/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"random","avatar":false,"audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true}'
+curl -X POST "https://mirotalk.up.railway.app/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"random","avatar":false,"audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true}'
 ```
 
 ### 5. Join Meeting with Token
 
 ```bash
-curl -X POST "http://localhost:3000/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true,"token":{"username":"username","password":"password","presenter":true,"expire":"1h"}}'
-curl -X POST "https://p2p.mirotalk.com/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true,"token":{"username":"username","password":"password","presenter":true,"expire":"1h"}}'
-curl -X POST "https://mirotalk.up.railway.app/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"mirotalk","audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true,"token":{"username":"username","password":"password","presenter":true,"expire":"1h"}}'
+curl -X POST "http://localhost:3000/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"random","audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true,"token":{"username":"username","password":"password","presenter":true,"expire":"1h"}}'
+curl -X POST "https://p2p.mirotalk.com/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"random","audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true,"token":{"username":"username","password":"password","presenter":true,"expire":"1h"}}'
+curl -X POST "https://mirotalk.up.railway.app/api/v1/join" -H "authorization: mirotalkp2p_default_secret" -H "Content-Type: application/json" --data '{"room":"test","name":"random","audio":true,"video":true,"screen":false,"chat":false,"hide":false,"notify":true,"token":{"username":"username","password":"password","presenter":true,"expire":"1h"}}'
 ```
 
 ### 6. Generate Token
