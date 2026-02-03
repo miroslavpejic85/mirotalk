@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Accept HH:MM:SS format only
         const re = /^(\d{2}):(\d{2}):(\d{2})$/;
         if (!re.test(value)) {
-            throw new Error('Duration must be HH:MM:SS (e.g. 12:30:00) or left empty for unlimited');
+            throw new Error('Duration must be HH:MM:SS (e.g. 00:30:00) or left empty for unlimited');
         }
         return value;
     };
