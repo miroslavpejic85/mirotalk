@@ -972,7 +972,13 @@ strong {
 }
 
 .button-custom-room {
-    background: linear-gradient(100deg, #232b3a 0%, #141b27 60%, #0d111a 100%);
+    background:
+        radial-gradient(900px circle at 20% 15%, rgba(70, 120, 249, 0.22) 0%, rgba(70, 120, 249, 0) 55%),
+        radial-gradient(700px circle at 80% 85%, rgba(70, 120, 249, 0.14) 0%, rgba(70, 120, 249, 0) 52%),
+        linear-gradient(135deg, rgba(0, 0, 0, 0.95) 60%, rgba(70, 120, 249, 0.25) 100%);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
     border: none;
     color: rgba(255, 255, 255, 0.88) !important;
     border-radius: 6px;
