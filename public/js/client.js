@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.19
+ * @version 1.7.20
  *
  */
 
@@ -28,6 +28,7 @@ const signalingServer = getSignalingServer();
 
 // This room
 const myRoomId = getId('myRoomId');
+const roomSessionDuration = getRoomDuration();
 const roomId = getRoomId();
 const myRoomUrl = window.location.origin + '/join/' + roomId; // share room url
 
@@ -992,8 +993,7 @@ function getSignalingServer() {
  */
 function getRoomId() {
     // check if passed as params /join?room=id
-    let qs = new URLSearchParams(window.location.search);
-    let queryRoomId = filterXSS(qs.get('room'));
+    let queryRoomId = getQueryParam('room');
 
     // skip /join/
     let roomId = queryRoomId ? queryRoomId : window.location.pathname.split('/join/')[1];
@@ -1012,6 +1012,74 @@ function getRoomId() {
     // Save room name in local storage
     window.localStorage.lastRoom = roomId;
     return roomId;
+}
+
+/**
+ * Room Session Duration
+ */
+function getRoomDuration() {
+    const roomDuration = getQueryParam('duration');
+
+    if (isValidDuration(roomDuration)) {
+        if (roomDuration === 'unlimited') {
+            console.log('The room has no time limit');
+            return roomDuration;
+        }
+        const timeLimit = timeToMilliseconds(roomDuration);
+        setTimeout(() => {
+            playSound('eject');
+            Swal.fire({
+                background: swBg,
+                position: 'center',
+                title: 'Time Limit Reached',
+                text: 'The room has reached its time limit and will close shortly',
+                icon: 'warning',
+                timer: 6000, // 6 seconds
+                timerProgressBar: true,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                willClose: () => {
+                    exitRoom();
+                },
+            });
+        }, timeLimit);
+
+        console.log('Direct join', { duration: roomDuration, timeLimit: timeLimit });
+        return roomDuration;
+    }
+    return 'unlimited';
+}
+
+/**
+ * Convert HH:MM:SS to milliseconds
+ * @param {string} timeString Time string in HH:MM:SS format
+ * @returns {integer} milliseconds
+ */
+function timeToMilliseconds(timeString) {
+    const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    return (hours * 3600 + minutes * 60 + seconds) * 1000;
+}
+
+/**
+ * Validate duration format
+ * @param {string} duration Duration string
+ * @returns {boolean} true/false
+ */
+function isValidDuration(duration) {
+    if (duration === 'unlimited') return true;
+    // Check if the format is HH:MM:SS
+    const regex = /^(\d{2}):(\d{2}):(\d{2})$/;
+    const match = duration.match(regex);
+    if (!match) return false;
+    const [hours, minutes, seconds] = match.slice(1).map(Number);
+    // Validate ranges: hours, minutes, and seconds
+    if (hours < 0 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -1049,8 +1117,7 @@ function getUUID() {
  * @returns {boolean} true/false (default true)
  */
 function getNotify() {
-    let qs = new URLSearchParams(window.location.search);
-    let notify = filterXSS(qs.get('notify'));
+    let notify = getQueryParam('notify');
     if (notify) {
         let queryNotify = notify === '1' || notify === 'true';
         if (queryNotify != null) {
@@ -1068,8 +1135,7 @@ function getNotify() {
  * @returns {boolean} true/false
  */
 function getChat() {
-    let qs = new URLSearchParams(window.location.search);
-    let chat = filterXSS(qs.get('chat'));
+    let chat = getQueryParam('chat');
     if (chat) {
         let queryChat = chat === '1' || chat === 'true';
         if (queryChat != null) {
@@ -1088,8 +1154,7 @@ function getChat() {
  */
 function getPeerToken() {
     if (window.sessionStorage.peer_token) return window.sessionStorage.peer_token;
-    let qs = new URLSearchParams(window.location.search);
-    let token = filterXSS(qs.get('token'));
+    let token = getQueryParam('token');
     let queryToken = false;
     if (token) {
         queryToken = token;
@@ -1103,8 +1168,7 @@ function getPeerToken() {
  * @returns {string} Peer Name
  */
 function getPeerName() {
-    const qs = new URLSearchParams(window.location.search);
-    const name = filterXSS(qs.get('name'));
+    const name = getQueryParam('name');
     if (isHtml(name)) {
         console.log('Direct join', { name: 'Invalid name' });
         return 'Invalid name';
@@ -1138,8 +1202,7 @@ function generateRandomName() {
  * @returns {string} Peer Avatar
  */
 function getPeerAvatar() {
-    const qs = new URLSearchParams(window.location.search);
-    const avatar = filterXSS(qs.get('avatar'));
+    const avatar = getQueryParam('avatar');
     const avatarDisabled = avatar === '0' || avatar === 'false';
 
     console.log('Direct join', { avatar: avatar });
@@ -1155,8 +1218,7 @@ function getPeerAvatar() {
  * @returns {boolean} true/false
  */
 function getScreenEnabled() {
-    let qs = new URLSearchParams(window.location.search);
-    let screen = filterXSS(qs.get('screen'));
+    let screen = getQueryParam('screen');
     if (screen) {
         screen = screen.toLowerCase();
         let queryPeerScreen = screen === '1' || screen === 'true';
@@ -1172,8 +1234,7 @@ function getScreenEnabled() {
  * @returns {boolean} true/false
  */
 function getHideMeActive() {
-    let qs = new URLSearchParams(window.location.search);
-    let hide = filterXSS(qs.get('hide'));
+    let hide = getQueryParam('hide');
     let queryHideMe = false;
     if (hide) {
         hide = hide.toLowerCase();
@@ -1181,6 +1242,16 @@ function getHideMeActive() {
     }
     console.log('Direct join', { hide: queryHideMe });
     return queryHideMe;
+}
+
+/**
+ * Get query parameter from URL
+ * @param {string} param parameter name
+ * @returns {string} parameter value
+ */
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return filterXSS(urlParams.get(param));
 }
 
 /**
@@ -2161,9 +2232,8 @@ async function changeLocalMicrophone(deviceId) {
  * 1/true = enabled / 0/false = disabled
  */
 function checkPeerAudioVideo() {
-    let qs = new URLSearchParams(window.location.search);
-    let audio = filterXSS(qs.get('audio'));
-    let video = filterXSS(qs.get('video'));
+    let audio = getQueryParam('audio');
+    let video = getQueryParam('video');
     if (audio) {
         audio = audio.toLowerCase();
         let queryPeerAudio = useAudio ? audio === '1' || audio === 'true' : false;
@@ -13570,7 +13640,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.19',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.20',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -13629,6 +13699,14 @@ function initExitMeeting() {
 function leaveRoom() {
     checkRecording();
     surveyActive ? leaveFeedback() : redirectOnLeave();
+}
+
+/**
+ * Exit the Room
+ */
+function exitRoom() {
+    checkRecording();
+    redirectOnLeave();
 }
 
 /**

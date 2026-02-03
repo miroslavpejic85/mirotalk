@@ -58,7 +58,7 @@ module.exports = class ServerApi {
 
     getJoinURL(data) {
         // Get data
-        const { room, name, avatar, audio, video, screen, chat, notify, hide, token } = data;
+        const { room, name, avatar, audio, video, screen, chat, notify, hide, duration, token } = data;
 
         const roomValue = room || uuidV4();
         const nameValue = name || 'User-' + this.getRandomNumber();
@@ -69,6 +69,7 @@ module.exports = class ServerApi {
         const chatValue = chat || false;
         const hideValue = hide || false;
         const notifyValue = notify || false;
+        const durationValue = duration || 'unlimited';
         const jwtToken = token ? '&token=' + this.getToken(token) : '';
 
         const joinURL =
@@ -84,6 +85,7 @@ module.exports = class ServerApi {
             `&chat=${chatValue}` +
             `&hide=${hideValue}` +
             `&notify=${notifyValue}` +
+            `&duration=${durationValue}` +
             jwtToken;
 
         return joinURL;

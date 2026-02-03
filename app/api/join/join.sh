@@ -18,6 +18,7 @@ REQUEST_DATA='{
     "chat": false,
     "hide": false,
     "notify": true,
+    "duration": "unlimited",
     "token": {
         "username": "username",
         "password": "password",

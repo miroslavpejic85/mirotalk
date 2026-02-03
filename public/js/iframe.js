@@ -9,6 +9,7 @@ class IframeApi {
         chat: false,
         hide: false,
         notify: false,
+        duration: 'unlimited',
         width: '100vw',
         height: '100vh',
         token: null,
@@ -53,6 +54,7 @@ class IframeApi {
             chat: this.options.chat ? 1 : 0,
             hide: this.options.hide ? 1 : 0,
             notify: this.options.notify ? 1 : 0,
+            duration: this.options.duration || 'unlimited',
         });
 
         if (this.options.token) {

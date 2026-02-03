@@ -137,6 +137,21 @@
                     </div>
 
                     <div class="cr-field">
+                        <label class="cr-label" for="duration">Duration (optional)</label>
+                        <input
+                            id="duration"
+                            name="duration"
+                            class="cr-input"
+                            type="text"
+                            inputmode="numeric"
+                            placeholder="12:30:00"
+                            pattern="^\d{2}:\d{2}:\d{2}$"
+                            maxlength="8"
+                        />
+                        <p class="cr-hint">Format HH:MM:SS. Leave empty for unlimited (uses duration=unlimited).</p>
+                    </div>
+
+                    <div class="cr-field">
                         <label class="cr-label" for="crPreviewUrl">Join link</label>
                         <div class="cr-preview-row">
                             <input id="crPreviewUrl" class="cr-input cr-preview" type="text" readonly />

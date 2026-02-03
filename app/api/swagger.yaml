@@ -105,6 +105,9 @@ paths:
                           notify:
                               type: boolean
                               default: false
+                          duration:
+                              type: string
+                              default: 'unlimited'
                           token:
                               type: object
                               description: |

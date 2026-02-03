@@ -4,7 +4,7 @@
  * Custom Room page: build /join URL from form settings.
  *
  * Query params used by client.js:
- * - room, name, avatar, audio, video, screen, chat, hide, notify
+ * - room, name, avatar, audio, video, screen, chat, hide, notify, duration, token
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameEl = document.getElementById('name');
     const avatarEl = document.getElementById('avatar');
     const tokenEl = document.getElementById('token');
+
+    const durationEl = document.getElementById('duration');
 
     const audioEl = document.getElementById('audio');
     const videoEl = document.getElementById('video');
@@ -53,12 +55,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const boolToFlag = (checked) => (checked ? '1' : '0');
 
+    const normalizeDuration = (raw) => {
+        const value = safe(raw);
+        if (!value) return 'unlimited';
+        if (value.toLowerCase() === 'unlimited') return 'unlimited';
+        // Accept HH:MM:SS format only
+        const re = /^(\d{2}):(\d{2}):(\d{2})$/;
+        if (!re.test(value)) {
+            throw new Error('Duration must be HH:MM:SS (e.g. 12:30:00) or left empty for unlimited');
+        }
+        return value;
+    };
+
     const buildJoinUrl = () => {
         const room = safe(roomEl?.value) || 'random';
         const name = safe(nameEl?.value) || 'random';
         const avatarRaw = safe(avatarEl?.value);
         const avatar = avatarRaw ? avatarRaw : '0';
         const token = safe(tokenEl?.value);
+        const duration = normalizeDuration(durationEl?.value);
 
         const url = new URL('/join', window.location.origin);
         url.searchParams.set('room', room);
@@ -71,6 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         url.searchParams.set('chat', boolToFlag(!!chatEl?.checked));
         url.searchParams.set('hide', boolToFlag(!!hideEl?.checked));
         url.searchParams.set('notify', boolToFlag(!!notifyEl?.checked));
+
+        url.searchParams.set('duration', duration);
 
         if (token) url.searchParams.set('token', token);
 

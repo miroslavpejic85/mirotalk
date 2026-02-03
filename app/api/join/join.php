@@ -27,6 +27,7 @@ $data = array(
     "chat"          => false,
     "hide"          => false,
     "notify"        => true,
+    "duration"      => "unlimited",
     "token"         => array(
         "username"      => "username",
         "password"      => "password",
