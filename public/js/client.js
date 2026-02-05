@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.22
+ * @version 1.7.23
  *
  */
 
@@ -4887,29 +4887,53 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
     const videoPlayer = getId(videoId);
     const videoFullScreenBtn = getId(videoFullScreenBtnId);
 
-    // handle Chrome Firefox Opera Microsoft Edge videoPlayer ESC
-    videoPlayer.addEventListener('fullscreenchange', (e) => {
-        // if Controls enabled, or document on FS do nothing
-        if (videoPlayer.controls || isDocumentOnFullScreen) return;
-        const fullscreenElement = document.fullscreenElement;
-        if (!fullscreenElement) {
-            videoPlayer.style.pointerEvents = 'auto';
-            isVideoOnFullScreen = false;
-            // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
-        }
-    });
+    if (!videoPlayer || !videoFullScreenBtn) return;
 
-    // handle Safari videoPlayer ESC
-    videoPlayer.addEventListener('webkitfullscreenchange', (e) => {
+    // Prefer fullscreen on the wrapper tile (.Camera) to avoid browser-specific fullscreen video behaviors
+    const videoWrap = videoPlayer.closest('.Camera') || videoPlayer.parentElement;
+    const fsTarget = videoWrap || videoPlayer;
+
+    const getFsElement = () =>
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement ||
+        null;
+
+    const requestFs = (el) => {
+        if (!el) return;
+        if (el.requestFullscreen) return el.requestFullscreen();
+        if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+        if (el.mozRequestFullScreen) return el.mozRequestFullScreen();
+        if (el.msRequestFullscreen) return el.msRequestFullscreen();
+    };
+
+    const exitFs = () => {
+        if (document.exitFullscreen) return document.exitFullscreen();
+        if (document.webkitCancelFullScreen) return document.webkitCancelFullScreen();
+        if (document.mozCancelFullScreen) return document.mozCancelFullScreen();
+        if (document.msExitFullscreen) return document.msExitFullscreen();
+    };
+
+    const sync = () => {
         // if Controls enabled, or document on FS do nothing
         if (videoPlayer.controls || isDocumentOnFullScreen) return;
-        const webkitIsFullScreen = document.webkitIsFullScreen;
-        if (!webkitIsFullScreen) {
-            videoPlayer.style.pointerEvents = 'auto';
-            isVideoOnFullScreen = false;
-            // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
-        }
-    });
+
+        const fsEl = getFsElement();
+        isVideoOnFullScreen = !!fsEl;
+
+        const isThisTargetFullscreen = fsEl === fsTarget || fsEl === videoPlayer;
+        videoPlayer.style.pointerEvents = isThisTargetFullscreen ? 'none' : 'auto';
+    };
+
+    // Attach fullscreen sync listeners once per video element
+    if (!videoPlayer.dataset.fsSyncAttached) {
+        videoPlayer.dataset.fsSyncAttached = '1';
+        document.addEventListener('fullscreenchange', sync);
+        document.addEventListener('webkitfullscreenchange', sync);
+        document.addEventListener('mozfullscreenchange', sync);
+        document.addEventListener('MSFullscreenChange', sync);
+    }
 
     // on button click go on FS mobile/desktop
     videoFullScreenBtn.addEventListener('click', (e) => {
@@ -4917,6 +4941,7 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
             return userLog('toast', 'Full Screen not allowed if video on privacy mode');
         }
         gotoFS();
+        setTimeout(sync, 0);
     });
 
     // on video click go on FS
@@ -4960,34 +4985,16 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
         // if Controls enabled, or document on FS do nothing
         if (videoPlayer.controls || isDocumentOnFullScreen) return;
 
-        if (!isVideoOnFullScreen) {
-            if (videoPlayer.requestFullscreen) {
-                // Chrome Firefox Opera Microsoft Edge
-                videoPlayer.requestFullscreen();
-            } else if (videoPlayer.webkitRequestFullscreen) {
-                // Safari request full screen mode
-                videoPlayer.webkitRequestFullscreen();
-            } else if (videoPlayer.msRequestFullscreen) {
-                // IE11 request full screen mode
-                videoPlayer.msRequestFullscreen();
-            }
-            isVideoOnFullScreen = true;
-            videoPlayer.style.pointerEvents = 'none';
-            // console.log("Go on FS isVideoOnFullScreen", isVideoOnFullScreen);
+        const fsEl = getFsElement();
+        const isThisTargetFullscreen = fsEl === fsTarget || fsEl === videoPlayer;
+
+        if (!fsEl) {
+            requestFs(fsTarget);
+        } else if (isThisTargetFullscreen) {
+            exitFs();
         } else {
-            if (document.exitFullscreen) {
-                // Chrome Firefox Opera Microsoft Edge
-                document.exitFullscreen();
-            } else if (document.webkitCancelFullScreen) {
-                // Safari exit full screen mode ( Not work... )
-                document.webkitCancelFullScreen();
-            } else if (document.msExitFullscreen) {
-                // IE11 exit full screen mode
-                document.msExitFullscreen();
-            }
-            isVideoOnFullScreen = false;
-            videoPlayer.style.pointerEvents = 'auto';
-            // console.log("Esc FS isVideoOnFullScreen", isVideoOnFullScreen);
+            // Exit the current fullscreen first, then enter fullscreen for this target
+            Promise.resolve(exitFs()).finally(() => requestFs(fsTarget));
         }
     }
 }
@@ -13636,7 +13643,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.22',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.23',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
