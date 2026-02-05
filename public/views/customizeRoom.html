@@ -34,16 +34,27 @@
                 <form id="customizeRoomForm" class="cr-form" autocomplete="off">
                     <div class="cr-field">
                         <label class="cr-label" for="room">Room</label>
-                        <input
-                            id="room"
-                            name="room"
-                            class="cr-input"
-                            type="text"
-                            inputmode="text"
-                            placeholder="room123"
-                            maxlength="64"
-                            required
-                        />
+                        <div class="cr-input-wrap">
+                            <input
+                                id="room"
+                                name="room"
+                                class="cr-input"
+                                type="text"
+                                inputmode="text"
+                                placeholder="room123"
+                                maxlength="64"
+                                required
+                            />
+                            <button
+                                id="crRandomRoom"
+                                class="cr-input-action"
+                                type="button"
+                                aria-label="Generate random room id"
+                                title="Generate random room id"
+                            >
+                                Random
+                            </button>
+                        </div>
                     </div>
 
                     <div class="cr-field">

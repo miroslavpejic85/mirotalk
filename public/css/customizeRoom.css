@@ -179,6 +179,48 @@ body::before {
     box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06);
 }
 
+.cr-input-wrap {
+    position: relative;
+    display: block;
+}
+
+.cr-input-wrap .cr-input {
+    width: 100%;
+    padding-right: 96px;
+}
+
+.cr-input-action {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--cr-text);
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        transform 120ms ease;
+}
+
+.cr-input-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+.cr-input-action:active {
+    transform: translateY(1px);
+}
+
+.cr-input-action:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.25);
+    outline-offset: 2px;
+}
+
 .cr-toggle-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
