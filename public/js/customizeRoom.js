@@ -68,7 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const buildJoinUrl = () => {
-        const room = safe(roomEl?.value) || 'random';
+        const room = safe(roomEl?.value);
+        if (!room) {
+            throw new Error('Room name is required');
+        }
+
         const name = safe(nameEl?.value) || 'random';
         const avatarRaw = safe(avatarEl?.value);
         const avatar = avatarRaw ? avatarRaw : '0';
