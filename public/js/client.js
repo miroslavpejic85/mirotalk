@@ -15,16 +15,13 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.20
+ * @version 1.7.21
  *
  */
 
 'use strict';
 
 // https://www.w3schools.com/js/js_strict.asp
-
-// Signaling server URL
-const signalingServer = getSignalingServer();
 
 // This room
 const myRoomId = getId('myRoomId');
@@ -978,16 +975,6 @@ function getInfo() {
 }
 
 /**
- * Get Signaling server URL
- * @returns {string} Signaling server URL
- */
-function getSignalingServer() {
-    console.log('00 Location', window.location);
-    // Must include port (e.g. localhost:3000) to keep pushState same-origin.
-    return window.location.origin;
-}
-
-/**
  * Generate random Room id if not set
  * @returns {string} Room Id
  */
@@ -1001,7 +988,16 @@ function getRoomId() {
     // if not specified room id or 'random', create one random
     if (roomId == '' || roomId === 'random') {
         roomId = makeId(20);
-        const newUrl = signalingServer + '/join/' + roomId;
+        // Preserve existing query params (audio, video, name, duration, notify, etc.) and set `room` as query param
+        const url = new URL(window.location.href);
+
+        // Force join route to query-based format: /join?room=...
+        url.pathname = `/join`;
+
+        // Ensure room is in query string
+        url.searchParams.set('room', roomId);
+
+        const newUrl = url.toString();
         window.history.pushState({ url: newUrl }, roomId, newUrl);
     }
     console.log('Direct join', { room: roomId });
@@ -13640,7 +13636,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.20',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.21',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
