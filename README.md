@@ -271,7 +271,7 @@ To embed a meeting within `your service or app` using an iframe, you can use the
 
 ```html
 <iframe
-    allow="camera; microphone; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay"
+    allow="camera; microphone; speaker-selection; display-capture; fullscreen; clipboard-read; clipboard-write; web-share; autoplay; picture-in-picture"
     src="https://p2p.mirotalk.com/newcall"
     style="height: 100vh; width: 100vw; border: 0px;"
 ></iframe>

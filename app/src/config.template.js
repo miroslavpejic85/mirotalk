@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.7.23 - Configuration File
+ * MiroTalk P2P v.1.7.24 - Configuration File
  * ==============================================
  *
  * Branding and customizations require a license:
