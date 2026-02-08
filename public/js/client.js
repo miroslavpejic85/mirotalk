@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.24
+ * @version 1.7.25
  *
  */
 
@@ -4889,9 +4889,15 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
 
     if (!videoPlayer || !videoFullScreenBtn) return;
 
-    // Prefer fullscreen on the wrapper tile (.Camera) to avoid browser-specific fullscreen video behaviors
-    const videoWrap = videoPlayer.closest('.Camera') || videoPlayer.parentElement;
+    // Prefer fullscreen on the wrapper tile (.Camera/.Screen) to avoid browser-specific fullscreen video behaviors
+    const videoWrap = videoPlayer.closest('.Camera, .Screen') || videoPlayer.parentElement;
     const fsTarget = videoWrap || videoPlayer;
+
+    // Detect if this fullscreen handler is attached to a screen-share tile
+    const isScreenTile =
+        !!videoPlayer.closest('.Screen') ||
+        String(videoId).includes('___screen') ||
+        String(videoPlayer.style?.name || '').includes('typeScreen');
 
     const getFsElement = () =>
         document.fullscreenElement ||
@@ -4959,10 +4965,20 @@ function handleVideoPlayerFs(videoId, videoFullScreenBtnId, peer_id = null) {
     });
 
     function gotoFS() {
-        // handle remote peer video fs
+        // handle remote peer video/screen fs
         if (peer_id !== null) {
+            if (isScreenTile) {
+                const remoteScreenStatusBtn = getId(peer_id + '_screenStatus');
+                if (!remoteScreenStatusBtn || remoteScreenStatusBtn.className === className.videoOn) {
+                    handleFSVideo();
+                } else {
+                    showMsg();
+                }
+                return;
+            }
+
             const remoteVideoStatusBtn = getId(peer_id + '_videoStatus');
-            if (remoteVideoStatusBtn.className === className.videoOn) {
+            if (remoteVideoStatusBtn && remoteVideoStatusBtn.className === className.videoOn) {
                 handleFSVideo();
             } else {
                 showMsg();
@@ -13643,7 +13659,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.24',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.25',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
