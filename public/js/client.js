@@ -3678,7 +3678,7 @@ async function loadLocalMedia(stream, kind) {
 
             // my peer name
             myVideoPeerName.setAttribute('id', 'myVideoPeerName');
-            myVideoPeerName.className = 'videoPeerName notranslate';
+            myVideoPeerName.className = 'videoPeerName notranslate fadein';
 
             // my hand status element
             myHandStatusIcon.setAttribute('id', 'myHandStatusIcon');
@@ -3887,7 +3887,7 @@ async function loadLocalMedia(stream, kind) {
 
             // my screen peer name
             myScreenPeerName.setAttribute('id', 'myScreenPeerName');
-            myScreenPeerName.className = 'videoPeerName notranslate';
+            myScreenPeerName.className = 'videoPeerName notranslate fadein';
             myScreenPeerName.innerText = myPeerName + ' (me)';
 
             // my screen to image
@@ -4120,7 +4120,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // remote peer name element
             remotePeerName.setAttribute('id', peer_id + '_name');
-            remotePeerName.className = 'videoPeerName';
+            remotePeerName.className = 'videoPeerName notranslate fadein';
 
             const peerVideoText = document.createTextNode(peer_name);
             remotePeerName.appendChild(peerVideoText);
@@ -4427,7 +4427,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // IDs and classes
             remoteScreenPeerName.setAttribute('id', peer_id + '_screen_name');
-            remoteScreenPeerName.className = 'videoPeerName';
+            remoteScreenPeerName.className = 'videoPeerName notranslate fadein';
             remoteScreenPeerName.appendChild(document.createTextNode(peer_name + ' (screen)'));
 
             remoteScreenPrivateMsgBtn.setAttribute('id', peer_id + '_screen_privateMsg');
