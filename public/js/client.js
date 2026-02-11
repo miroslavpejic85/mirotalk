@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.25
+ * @version 1.7.26
  *
  */
 
@@ -127,6 +127,7 @@ const parser = new UAParser(userAgent);
 const parserResult = parser.getResult();
 const deviceType = parserResult.device.type || 'desktop';
 const isMobileDevice = deviceType === 'mobile';
+const isMobileSafari = isMobileDevice && parserResult.browser.name.toLowerCase().includes('safari');
 const isTabletDevice = deviceType === 'tablet';
 const isIPadDevice = parserResult.device.model?.toLowerCase() === 'ipad';
 const isDesktopDevice = deviceType === 'desktop';
@@ -7301,13 +7302,21 @@ function getAudioConstraints(deviceId = null) {
         echoCancellation: true, // Prevents echo/feedback
         autoGainControl: true, // Automatically adjusts microphone volume
         noiseSuppression: false, // Use RNNoise instead
-        sampleRate: 48000, // High-quality audio sample rate
-        channelCount: 2, // Stereo for better audio quality
     };
-
-    // Add device ID if specified
+    /* 
+    deviceId handling is platform-dependent:
+        - iOS Safari: routing is OS-controlled; ignore deviceId.
+        - Mobile (Android): best-effort with `ideal`.
+        - Desktop: `exact` is reliable.
+    */
     if (deviceId) {
-        audioConstraints.deviceId = { exact: deviceId };
+        if (isMobileSafari) {
+            // ignore
+        } else if (isMobileDevice) {
+            audioConstraints.deviceId = { ideal: deviceId };
+        } else {
+            audioConstraints.deviceId = { exact: deviceId };
+        }
     }
 
     return {
@@ -13659,7 +13668,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.25',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.26',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
@@ -14560,20 +14569,31 @@ function setupQuickDeviceSwitchDropdowns() {
     observer.observe(audioBtn, { attributes: true, attributeFilter: ['class', 'style'] });
 
     // Re-enumerate & refresh lists on hardware changes
-    if (navigator.mediaDevices && typeof navigator.mediaDevices.addEventListener === 'function') {
+    if (navigator.mediaDevices) {
         let deviceChangeFrame;
-        navigator.mediaDevices.addEventListener('devicechange', () => {
+        let lastChangeTime = 0;
+
+        navigator.mediaDevices.addEventListener('devicechange', async () => {
+            const now = Date.now();
+
+            // Debounce: ignore rapid-fire changes
+            if (now - lastChangeTime < 1000) return;
+            lastChangeTime = now;
+
             if (deviceChangeFrame) cancelAnimationFrame(deviceChangeFrame);
             deviceChangeFrame = requestAnimationFrame(async () => {
-                if (typeof refreshMyAudioVideoDevices === 'function') {
-                    try {
-                        await refreshMyAudioVideoDevices();
-                    } catch (err) {
-                        console.error('Error in devicechange handler:', err);
-                    }
+                console.log('🔄 Audio devices changed - refreshing...');
+                // Give OS time to finish routing (especially important on mobile)
+                await new Promise((resolve) => setTimeout(resolve, isMobileDevice ? 1500 : 500));
+                try {
+                    await refreshMyAudioVideoDevices();
+                } catch (err) {
+                    console.warn('Device refresh failed:', err);
                 }
-                rebuildVideoMenu();
-                rebuildAudioMenu();
+                setTimeout(() => {
+                    rebuildVideoMenu();
+                    rebuildAudioMenu();
+                }, 50);
             });
         });
     }
