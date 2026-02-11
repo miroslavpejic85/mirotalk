@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.26
+ * @version 1.7.27
  *
  */
 
@@ -7230,62 +7230,50 @@ function getAudioVideoConstraints() {
 }
 
 /**
- * Get video constraints: https://webrtc.github.io/samples/src/content/getusermedia/resolution/
- * WebCam resolution: https://webcamtests.com/resolution
+ * Get Resolution Map
+ */
+function getResolutionMap() {
+    return {
+        qvga: [320, 240],
+        vga: [640, 480],
+        hd: [1280, 720],
+        fhd: [1920, 1080],
+        '2k': [2560, 1440],
+        '4k': [3840, 2160],
+        '6k': [6144, 3456],
+        '8k': [7680, 4320],
+    };
+}
+
+/**
+ * Get safe cross-browser video constraints
  * @param {string} videoQuality desired video quality
  * @returns {object} video constraints
  */
 function getVideoConstraints(videoQuality) {
-    const frameRate = videoMaxFrameRate;
+    const frameRate = videoMaxFrameRate || 30;
 
-    // Function to construct constraints with ideal or exact width/height
-    function createConstraints(width, height, frameRate, isIdeal = false) {
-        const constraints = {
-            width: isIdeal ? { ideal: width } : { exact: width },
-            height: isIdeal ? { ideal: height } : { exact: height },
-        };
-        // Only add frameRate for non-Firefox browsers
-        if (!isFirefox) {
-            constraints.frameRate = isIdeal ? { ideal: frameRate } : frameRate;
+    const resolutionMap = getResolutionMap();
+
+    // Default HD
+    let width = 1280;
+    let height = 720;
+
+    if (videoQuality === 'default') {
+        // Default 4k
+        if (forceCamMaxResolutionAndFps) {
+            width = 3840;
+            height = 2160;
         }
-        return constraints;
+    } else if (resolutionMap[videoQuality]) {
+        [width, height] = resolutionMap[videoQuality];
     }
 
-    let constraints = {};
-
-    switch (videoQuality) {
-        case 'default':
-            forceCamMaxResolutionAndFps
-                ? (constraints = createConstraints(7680, 4320, 60, true)) // 8K resolution, 60fps (ideal)
-                : (constraints = createConstraints(1280, 720, 30, true)); // HD resolution, 30fps (ideal)
-            break;
-        case 'qvgaVideo':
-            constraints = createConstraints(320, 240, frameRate, isFirefox); // Low bandwidth (exact)
-            break;
-        case 'vgaVideo':
-            constraints = createConstraints(640, 480, frameRate, isFirefox); // Medium bandwidth (exact)
-            break;
-        case 'hdVideo':
-            constraints = createConstraints(1280, 720, frameRate, isFirefox); // High bandwidth (exact)
-            break;
-        case 'fhdVideo':
-            constraints = createConstraints(1920, 1080, frameRate, isFirefox); // Very high bandwidth (exact)
-            break;
-        case '2kVideo':
-            constraints = createConstraints(2560, 1440, frameRate, isFirefox); // Ultra high bandwidth (exact)
-            break;
-        case '4kVideo':
-            constraints = createConstraints(3840, 2160, frameRate, isFirefox); // Ultra high bandwidth (exact)
-            break;
-        case '6kVideo':
-            constraints = createConstraints(6144, 3456, frameRate, isFirefox); // Very ultra high bandwidth (exact)
-            break;
-        case '8kVideo':
-            constraints = createConstraints(7680, 4320, frameRate, isFirefox); // Very ultra high bandwidth (exact)
-            break;
-        default:
-            break;
-    }
+    const constraints = {
+        width: { ideal: width },
+        height: { ideal: height },
+        frameRate: { ideal: frameRate },
+    };
 
     console.log('Get Video constraints', constraints);
     return constraints;
@@ -13668,7 +13656,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.26',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.7.27',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: `
