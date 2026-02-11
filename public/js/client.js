@@ -7231,6 +7231,7 @@ function getAudioVideoConstraints() {
 
 /**
  * Get Resolution Map
+ * https://webrtc.github.io/samples/src/content/getusermedia/resolution/
  */
 function getResolutionMap() {
     return {
