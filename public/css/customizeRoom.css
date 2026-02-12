@@ -30,16 +30,14 @@
     box-sizing: border-box;
 }
 
-html,
-body {
-    height: 100%;
-}
-
 html {
+    height: 100%;
     color-scheme: dark;
+    background-color: var(--cr-bg-color);
 }
 
 body {
+    min-height: 100%;
     margin: 0;
     font-family:
         Inter,
@@ -366,6 +364,14 @@ body::before {
     align-items: center;
 }
 
+.cr-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
 .cr-preview {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     font-size: 13px;
@@ -403,6 +409,40 @@ body::before {
     cursor: not-allowed;
 }
 
+.cr-qr-wrap {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid var(--cr-card-border);
+    background: rgba(255, 255, 255, 0.03);
+    display: grid;
+    gap: 10px;
+    place-items: center;
+}
+
+.cr-qr {
+    width: 180px;
+    height: 180px;
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid var(--cr-input-border);
+    background: var(--cr-input-bg);
+    display: grid;
+    place-items: center;
+}
+
+.cr-qr canvas,
+.cr-qr img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 10px;
+}
+
+.cr-qr-hint {
+    text-align: center;
+}
+
 @media (max-width: 520px) {
     .cr-card {
         padding: 24px 18px;
@@ -415,5 +455,13 @@ body::before {
 
     .cr-toggle-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .cr-preview-row {
+        grid-template-columns: 1fr;
+    }
+
+    .cr-actions {
+        justify-content: flex-start;
     }
 }

@@ -167,10 +167,20 @@
                         <label class="cr-label" for="crPreviewUrl">Join link</label>
                         <div class="cr-preview-row">
                             <input id="crPreviewUrl" class="cr-input cr-preview" type="text" readonly />
-                            <button id="crCopy" class="cr-copy" type="button" aria-label="Copy join link">
-                                <span class="cr-copy-icon" aria-hidden="true">⧉</span>
-                                <span>Copy</span>
-                            </button>
+                            <div class="cr-actions" aria-label="Link actions">
+                                <button id="crCopy" class="cr-copy" type="button" aria-label="Copy join link">
+                                    <span class="cr-copy-icon" aria-hidden="true">⧉</span>
+                                    <span>Copy</span>
+                                </button>
+                                <button id="crShare" class="cr-copy" type="button" aria-label="Share join link" hidden>
+                                    <span class="cr-copy-icon" aria-hidden="true">↗</span>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="crQrWrap" class="cr-qr-wrap" hidden>
+                            <div id="crQr" class="cr-qr" role="img" aria-label="Join link QR code"></div>
+                            <p class="cr-hint cr-qr-hint">Scan with your camera to open the join link.</p>
                         </div>
                         <p id="crStatus" class="cr-hint" role="status" aria-live="polite"></p>
                     </div>
@@ -182,6 +192,7 @@
             </section>
         </main>
 
+        <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
         <script defer src="../js/customizeRoom.js"></script>
     </body>
 </html>

@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = document.getElementById('crStatus');
     const previewEl = document.getElementById('crPreviewUrl');
     const copyBtn = document.getElementById('crCopy');
+    const shareBtn = document.getElementById('crShare');
+    const qrWrapEl = document.getElementById('crQrWrap');
+    const qrEl = document.getElementById('crQr');
     const randomRoomBtn = document.getElementById('crRandomRoom');
 
     const roomEl = document.getElementById('room');
@@ -32,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reasonable defaults (matches the screenshot: audio/video on, others off)
     if (audioEl) audioEl.checked = true;
     if (videoEl) videoEl.checked = true;
+
+    let qrCode = null;
 
     const setError = (msg) => {
         if (!errorEl) return;
@@ -55,6 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const boolToFlag = (checked) => (checked ? '1' : '0');
+
+    const canWebShare = typeof navigator?.share === 'function';
+    if (shareBtn) {
+        shareBtn.hidden = !canWebShare;
+    }
 
     const uuidv4 = () => {
         // Prefer native implementation when available.
@@ -125,12 +135,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const getThemeColor = (name, fallback) => {
+        try {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return value || fallback;
+        } catch {
+            return fallback;
+        }
+    };
+
+    const ensureQrCode = () => {
+        if (!qrEl) return null;
+        if (qrCode) return qrCode;
+        if (typeof window.QRCode !== 'function') return null;
+
+        // Prefer a standard dark-on-light QR for best scanning reliability.
+        const colorDark = getThemeColor('--cr-bg-color', '#000000');
+        const colorLight = getThemeColor('--cr-text', '#ffffff');
+
+        const correctLevel = window.QRCode.CorrectLevel?.M;
+
+        const options = {
+            width: 180,
+            height: 180,
+            colorDark,
+            colorLight,
+        };
+
+        if (correctLevel) {
+            options.correctLevel = correctLevel;
+        }
+
+        qrCode = new window.QRCode(qrEl, options);
+
+        return qrCode;
+    };
+
+    const updateShareAndQr = (joinUrl) => {
+        const hasValidUrl = !!joinUrl;
+
+        if (shareBtn) {
+            shareBtn.disabled = !hasValidUrl;
+        }
+
+        if (qrWrapEl) {
+            qrWrapEl.hidden = !hasValidUrl;
+        }
+
+        if (!hasValidUrl) return;
+        const qr = ensureQrCode();
+        if (!qr) return;
+
+        try {
+            qr.clear();
+            qr.makeCode(joinUrl.toString());
+        } catch {
+            // No-op: QR generation failure should not block the form.
+        }
+    };
+
     const updatePreview = () => {
         if (!previewEl) return;
         const url = buildJoinUrlForPreview();
         const room = safe(roomEl?.value);
         previewEl.value = room ? url.toString() : `${window.location.origin}/join?room=...`;
         if (copyBtn) copyBtn.disabled = !room;
+
+        let joinUrl = null;
+        try {
+            joinUrl = buildJoinUrl();
+        } catch {
+            joinUrl = null;
+        }
+        updateShareAndQr(joinUrl);
     };
 
     const copyToClipboard = async (text) => {
@@ -182,6 +259,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 setStatus('Link copied to clipboard.');
             } catch (err) {
                 setError(err?.message || 'Unable to copy join URL');
+            }
+        });
+    }
+
+    if (shareBtn && canWebShare) {
+        shareBtn.addEventListener('click', async () => {
+            setError('');
+            setStatus('');
+            try {
+                const joinUrl = buildJoinUrl();
+                await navigator.share({
+                    title: document.title || 'MiroTalk Room',
+                    url: joinUrl.toString(),
+                });
+            } catch (err) {
+                // Ignore user cancellation; surface other errors.
+                const msg = err && err.name === 'AbortError' ? '' : err?.message;
+                if (msg) setError(msg);
             }
         });
     }
