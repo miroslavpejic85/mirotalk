@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.37
+ * @version 1.7.38
  *
  */
 
@@ -110,6 +110,16 @@ const options = {
 
 // Server both http and https
 const server = httpolyglot.createServer(options, app);
+
+// Handle client errors (malformed/incomplete HTTP requests) gracefully
+server.on('clientError', (err, socket) => {
+    err.code === 'HPE_HEADER_OVERFLOW' || err.message === 'Parse Error'
+        ? log.warn('Client HTTP parse error', { error: err.message, code: err.code })
+        : log.warn('Client connection error', { error: err.message, code: err.code });
+    if (socket && !socket.destroyed) {
+        socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    }
+});
 
 // Trust Proxy
 const trustProxy = !!getEnvBoolean(process.env.TRUST_PROXY);
