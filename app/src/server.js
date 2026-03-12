@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.39
+ * @version 1.7.40
  *
  */
 
@@ -506,31 +506,33 @@ app.use((err, req, res, next) => {
     }
 });
 
-// OpenID Connect - Dynamically set baseURL based on incoming host and protocol
+// OpenID Connect - Cache auth() middleware instead of re-creating per request
 if (OIDC.enabled) {
-    const getDynamicConfig = (host, protocol) => {
-        const baseURL = `${protocol}://${host}`;
-        const config = OIDC.baseUrlDynamic
-            ? {
-                  ...OIDC.config,
-                  baseURL,
-              }
-            : OIDC.config;
-        return config;
-    };
+    if (OIDC.baseUrlDynamic) {
+        // Cache a middleware instance per host
+        const authMiddlewareCache = new Map();
 
-    // Apply the authentication middleware using dynamic baseURL configuration
-    app.use((req, res, next) => {
-        const host = req.headers.host;
-        const protocol = req.protocol === 'https' ? 'https' : 'http';
-        const dynamicOIDCConfig = getDynamicConfig(host, protocol);
-        try {
-            auth(dynamicOIDCConfig)(req, res, next);
-        } catch (err) {
-            log.error('OIDC Auth Middleware Error', err);
-            process.exit(1);
-        }
-    });
+        app.use((req, res, next) => {
+            const host = req.headers.host;
+            const protocol = req.protocol === 'https' ? 'https' : 'http';
+            const cacheKey = `${protocol}://${host}`;
+
+            if (!authMiddlewareCache.has(cacheKey)) {
+                const config = { ...OIDC.config, baseURL: cacheKey };
+                authMiddlewareCache.set(cacheKey, auth(config));
+            }
+
+            try {
+                authMiddlewareCache.get(cacheKey)(req, res, next);
+            } catch (err) {
+                log.error('OIDC Auth Middleware Error', err);
+                process.exit(1);
+            }
+        });
+    } else {
+        // Static baseURL: create the middleware once
+        app.use(auth(OIDC.config));
+    }
 }
 
 // Route to display user information
