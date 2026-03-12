@@ -288,7 +288,7 @@ if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
         };
     });
 
-    log.error('Sentry error', { foo: 'bar' });
+    // log.error('Sentry error', { foo: 'bar' });
     // log.warn('Sentry warning');
 }
 
