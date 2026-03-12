@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.40
+ * @version 1.7.41
  *
  */
 
@@ -267,25 +267,28 @@ if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
         ? process.env.SENTRY_LOG_LEVELS.split(',').map((level) => level.trim())
         : ['error'];
 
+    const stripAnsi = (str) => (typeof str === 'string' ? str.replace(/\u001b\[[0-9;]*m/g, '') : str);
+
     const originalConsole = {};
     logLevels.forEach((level) => {
         originalConsole[level] = console[level];
         console[level] = function (...args) {
+            const cleanArgs = args.map(stripAnsi);
             switch (level) {
                 case 'warn':
-                    Sentry.captureMessage(args.join(' '), 'warning');
+                    Sentry.captureMessage(cleanArgs.join(' '), 'warning');
                     break;
                 case 'error':
                     args[0] instanceof Error
                         ? Sentry.captureException(args[0])
-                        : Sentry.captureException(new Error(args.join(' ')));
+                        : Sentry.captureException(new Error(cleanArgs.join(' ')));
                     break;
             }
             originalConsole[level].apply(console, args);
         };
     });
 
-    // log.error('Sentry error', { foo: 'bar' });
+    log.error('Sentry error', { foo: 'bar' });
     // log.warn('Sentry warning');
 }
 
