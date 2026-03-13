@@ -1581,10 +1581,18 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
 
-        if (!Validate.isValidData(config)) return;
+        if (!Validate.isValidData(config)) {
+            log.warn('Room action invalid data', { peer_id: socket.id, room_id: socket.room_id });
+            return;
+        }
 
         //log.debug('[' + socket.id + '] Room action:', config);
         const { room_id, peer_id, peer_name, peer_uuid, password, action } = config;
+
+        if (!peers[room_id]) {
+            log.warn('Room action room not found', { peer_id: socket.id, room_id });
+            return;
+        }
 
         // Check if peer is presenter
         const isPresenter = isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
