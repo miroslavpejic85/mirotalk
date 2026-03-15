@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create config from template
+        run: cp app/src/config.template.js app/src/config.js
+
       - name: Run unit tests
         run: npm test
 
