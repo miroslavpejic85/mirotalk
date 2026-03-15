@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.7.41
+ * @version 1.7.42
  *
  */
 
@@ -493,13 +493,13 @@ const mattermost = new MattermostController(app, mattermostCfg, htmlInjector, vi
 
 // Remove trailing slashes in url handle bad requests
 app.use((err, req, res, next) => {
-    if (err instanceof SyntaxError || err.status === 400 || 'body' in err) {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
         log.error('Request Error', {
             header: req.headers,
             body: req.body,
             error: err.message,
         });
-        return res.status(400).send({ status: 404, message: err.message }); // Bad request
+        return res.status(400).send({ status: 400, message: 'Invalid JSON' }); // Bad request
     }
     if (req.path.substr(-1) === '/' && req.path.length > 1) {
         let query = req.url.slice(req.path.length);
