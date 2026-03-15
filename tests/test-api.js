@@ -9,6 +9,7 @@ const proxyquire = require('proxyquire');
 const jwt = require('jsonwebtoken');
 const CryptoJS = require('crypto-js');
 const ServerApi = require('../app/src/api');
+const config = require('../app/src/config');
 
 describe('test-api', () => {
     let serverApi;
@@ -184,12 +185,12 @@ describe('test-api', () => {
             result.should.equal('jwtToken');
 
             signStub
-                .calledWith({ data: 'encryptedPayload' }, 'mirotalk_jwt_secret', { expiresIn: '1h' })
+                .calledWith({ data: 'encryptedPayload' }, config.jwt.key, { expiresIn: '1h' })
                 .should.be.true();
             encryptStub
                 .calledWith(
                     JSON.stringify({ username: 'user', password: 'pass', presenter: 'true' }),
-                    'mirotalk_jwt_secret'
+                    config.jwt.key
                 )
                 .should.be.true();
 

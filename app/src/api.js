@@ -5,8 +5,9 @@ const CryptoJS = require('crypto-js');
 
 const { v4: uuidV4 } = require('uuid');
 
-const JWT_KEY = process.env.JWT_KEY || 'mirotalk_jwt_secret';
-const JWT_EXP = process.env.JWT_EXP || '1h';
+const config = require('./config');
+const JWT_KEY = config.jwt.key;
+const JWT_EXP = config.jwt.exp;
 module.exports = class ServerApi {
     constructor(host = null, authorization = null, api_key_secret = null) {
         this._host = host;

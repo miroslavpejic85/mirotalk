@@ -4,6 +4,7 @@
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
+        "prestart": "test -f app/src/config.js || cp app/src/config.template.js app/src/config.js",
         "start": "node app/src/server.js",
         "start-dev": "nodemon app/src/server.js",
         "test": "mocha tests/*.js",

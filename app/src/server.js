@@ -51,8 +51,6 @@ dependencies: {
 
 'use strict'; // https://www.w3schools.com/js/js_strict.asp
 
-require('dotenv').config();
-
 const { auth, requiresAuth } = require('express-openid-connect');
 const { Server } = require('socket.io');
 const httpolyglot = require('httpolyglot');
@@ -74,8 +72,8 @@ const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
 
-// Custom Brand and buttons
-const config = safeRequire('./config');
+// Central configuration (reads .env via dotenv internally)
+const config = require('./config');
 
 // Email alerts and notifications
 const nodemailer = require('./lib/nodemailer');
@@ -84,8 +82,8 @@ const packageJson = require('../../package.json');
 
 // Login attempts limit
 const rateLimit = require('express-rate-limit');
-const maxAttempts = process.env.HOST_MAX_LOGIN_ATTEMPTS || 5;
-const minBlockTime = process.env.HOST_MIN_LOGIN_BLOCK_TIME || 15; // in minutes
+const maxAttempts = config.host.maxLoginAttempts;
+const minBlockTime = config.host.minLoginBlockTime; // in minutes
 const loginLimiter = rateLimit({
     windowMs: minBlockTime * 60 * 1000, // 15 minutes default
     max: maxAttempts,
@@ -93,8 +91,8 @@ const loginLimiter = rateLimit({
     keyGenerator: (req) => req.body?.username || getIP(req),
 });
 
-const port = process.env.PORT || 3000;
-const host = process.env.HOST || `http://localhost:${port}`;
+const port = config.server.port;
+const host = config.server.host;
 
 const authHost = new Host(); // Authenticated IP by Login
 
@@ -122,34 +120,12 @@ server.on('clientError', (err, socket) => {
 });
 
 // Trust Proxy
-const trustProxy = !!getEnvBoolean(process.env.TRUST_PROXY);
+const trustProxy = config.server.trustProxy;
 
 // Cors
-const cors_origin = process.env.CORS_ORIGIN;
-const cors_methods = process.env.CORS_METHODS;
-
-let corsOrigin = '*';
-let corsMethods = ['GET', 'POST'];
-
-if (cors_origin && cors_origin !== '*') {
-    try {
-        corsOrigin = JSON.parse(cors_origin);
-    } catch (error) {
-        log.error('Error parsing CORS_ORIGIN', error.message);
-    }
-}
-
-if (cors_methods && cors_methods !== '') {
-    try {
-        corsMethods = JSON.parse(cors_methods);
-    } catch (error) {
-        log.error('Error parsing CORS_METHODS', error.message);
-    }
-}
-
 const corsOptions = {
-    origin: corsOrigin,
-    methods: corsMethods,
+    origin: config.cors.origin,
+    methods: config.cors.methods,
 };
 
 /*  
@@ -164,28 +140,23 @@ const io = new Server({
 // console.log(io);
 
 // Host protection (disabled by default)
-const hostProtected = getEnvBoolean(process.env.HOST_PROTECTED);
-const userAuth = getEnvBoolean(process.env.HOST_USER_AUTH);
-const hostUsersString = process.env.HOST_USERS || '[{"username": "MiroTalk", "password": "P2P"}]';
-const hostUsers = JSON.parse(hostUsersString);
 const hostCfg = {
-    protected: hostProtected,
-    user_auth: userAuth,
-    users: hostUsers,
-    authenticated: !hostProtected,
-    maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 1000,
-    showActiveRooms: getEnvBoolean(process.env.SHOW_ACTIVE_ROOMS) || false,
+    protected: config.host.protected,
+    user_auth: config.host.userAuth,
+    users: config.host.users,
+    authenticated: !config.host.protected,
+    maxRoomParticipants: config.host.maxRoomParticipants,
+    showActiveRooms: config.host.showActiveRooms,
 };
 
 // JWT config
 const jwtCfg = {
-    JWT_KEY: process.env.JWT_KEY || 'mirotalk_jwt_secret',
-    JWT_EXP: process.env.JWT_EXP || '1h',
+    JWT_KEY: config.jwt.key,
+    JWT_EXP: config.jwt.exp,
 };
 
 // Room presenters
-const roomPresentersString = process.env.PRESENTERS || '["MiroTalk P2P"]';
-const roomPresenters = JSON.parse(roomPresentersString);
+const roomPresenters = config.presenters;
 
 // Swagger config
 const yaml = require('js-yaml');
@@ -196,30 +167,29 @@ const swaggerDocument = yaml.load(fs.readFileSync(path.join(__dirname, '/../api/
 const { v4: uuidV4 } = require('uuid');
 const apiBasePath = '/api/v1'; // api endpoint path
 const api_docs = host + apiBasePath + '/docs'; // api docs
-const api_key_secret = process.env.API_KEY_SECRET || 'mirotalkp2p_default_secret';
-const apiDisabledString = process.env.API_DISABLED || '["token", "meetings"]';
-const api_disabled = JSON.parse(apiDisabledString);
+const api_key_secret = config.api.keySecret;
+const api_disabled = config.api.disabled;
 
 // Ngrok config
 const ngrok = require('@ngrok/ngrok');
-const ngrokEnabled = getEnvBoolean(process.env.NGROK_ENABLED);
-const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
+const ngrokEnabled = config.ngrok.enabled;
+const ngrokAuthToken = config.ngrok.authToken;
 
 // Handle WebHook
 const webhook = {
-    enabled: config?.webhook?.enabled || false,
-    url: config?.webhook?.url || 'http://localhost:8888/webhook-endpoint',
+    enabled: config.webhook?.enabled || false,
+    url: config.webhook?.url || 'http://localhost:8888/webhook-endpoint',
 };
 
 // Stun (https://bloggeek.me/webrtcglossary/stun/)
 // Turn (https://bloggeek.me/webrtcglossary/turn/)
 const iceServers = [];
-const stunServerUrl = process.env.STUN_SERVER_URL;
-const turnServerUrl = process.env.TURN_SERVER_URL;
-const turnServerUsername = process.env.TURN_SERVER_USERNAME;
-const turnServerCredential = process.env.TURN_SERVER_CREDENTIAL;
-const stunServerEnabled = getEnvBoolean(process.env.STUN_SERVER_ENABLED);
-const turnServerEnabled = getEnvBoolean(process.env.TURN_SERVER_ENABLED);
+const stunServerUrl = config.webrtc.stun.url;
+const turnServerUrl = config.webrtc.turn.url;
+const turnServerUsername = config.webrtc.turn.username;
+const turnServerCredential = config.webrtc.turn.credential;
+const stunServerEnabled = config.webrtc.stun.enabled;
+const turnServerEnabled = config.webrtc.turn.enabled;
 // Stun is mandatory for not internal network
 if (stunServerEnabled && stunServerUrl) iceServers.push({ urls: stunServerUrl });
 // Turn is recommended if direct peer to peer connection is not possible
@@ -232,27 +202,27 @@ if (turnServerEnabled && turnServerUrl && turnServerUsername && turnServerCreden
 const testStunTurn = host + '/icetest';
 
 // IP Lookup
-const IPLookupEnabled = getEnvBoolean(process.env.IP_LOOKUP_ENABLED);
+const IPLookupEnabled = config.ipLookup.enabled;
 
 // Survey URL
-const surveyEnabled = getEnvBoolean(process.env.SURVEY_ENABLED);
-const surveyURL = process.env.SURVEY_URL || 'https://www.questionpro.com/t/AUs7VZq00L';
+const surveyEnabled = config.survey.enabled;
+const surveyURL = config.survey.url;
 
 // Redirect URL
-const redirectEnabled = getEnvBoolean(process.env.REDIRECT_ENABLED);
-const redirectURL = process.env.REDIRECT_URL || '/newcall';
+const redirectEnabled = config.redirect.enabled;
+const redirectURL = config.redirect.url;
 
 // Sentry config
 const Sentry = require('@sentry/node');
-const sentryEnabled = getEnvBoolean(process.env.SENTRY_ENABLED);
-const sentryDSN = process.env.SENTRY_DSN;
-const sentryTracesSampleRate = parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.0');
+const sentryEnabled = config.sentry.enabled;
+const sentryDSN = config.sentry.dsn;
+const sentryTracesSampleRate = config.sentry.tracesSampleRate;
 
 // Slack API
 const CryptoJS = require('crypto-js');
 const qS = require('qs');
-const slackEnabled = getEnvBoolean(process.env.SLACK_ENABLED);
-const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
+const slackEnabled = config.slack.enabled;
+const slackSigningSecret = config.slack.signingSecret;
 
 // Setup sentry client
 if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
@@ -263,9 +233,7 @@ if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
         tracesSampleRate: sentryTracesSampleRate,
     });
 
-    const logLevels = process.env.SENTRY_LOG_LEVELS
-        ? process.env.SENTRY_LOG_LEVELS.split(',').map((level) => level.trim())
-        : ['error'];
+    const logLevels = config.sentry.logLevels;
 
     const stripAnsi = (str) => (typeof str === 'string' ? str.replace(/\u001b\[[0-9;]*m/g, '') : str);
 
@@ -294,14 +262,7 @@ if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
 
 // OpenAI/ChatGPT
 let chatGPT;
-const configChatGPT = {
-    enabled: getEnvBoolean(process.env.CHATGPT_ENABLED),
-    basePath: process.env.CHATGPT_BASE_PATH,
-    apiKey: process.env.CHATGPT_APIKEY,
-    model: process.env.CHATGPT_MODEL,
-    max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
-    temperature: parseInt(process.env.CHATGPT_TEMPERATURE),
-};
+const configChatGPT = config.chatGPT;
 if (configChatGPT.enabled) {
     if (configChatGPT.apiKey) {
         const { OpenAI } = require('openai');
@@ -316,37 +277,10 @@ if (configChatGPT.enabled) {
 }
 
 // IP Whitelist
-const ipWhitelist = {
-    enabled: getEnvBoolean(process.env.IP_WHITELIST_ENABLED),
-    allowed: process.env.IP_WHITELIST_ALLOWED ? JSON.parse(process.env.IP_WHITELIST_ALLOWED) : [],
-};
+const ipWhitelist = config.ipWhitelist;
 
 // OIDC - Open ID Connect
-const OIDC = {
-    enabled: process.env.OIDC_ENABLED ? getEnvBoolean(process.env.OIDC_ENABLED) : false,
-    allowRoomCreationForAuthUsers: process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS
-        ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
-        : false,
-    baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
-    config: {
-        issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
-        clientID: process.env.OIDC_CLIENT_ID,
-        clientSecret: process.env.OIDC_CLIENT_SECRET,
-        baseURL: process.env.OIDC_BASE_URL,
-        secret: process.env.SESSION_SECRET,
-        authorizationParams: {
-            response_type: 'code',
-            scope: 'openid profile email',
-        },
-        authRequired: process.env.OIDC_AUTH_REQUIRED ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED) : false, // Set to true if authentication is required for all routes
-        auth0Logout: process.env.OIDC_AUTH_LOGOUT ? getEnvBoolean(process.env.OIDC_AUTH_LOGOUT) : true, // Set to true to enable logout with Auth0
-        routes: {
-            callback: '/auth/callback', // Indicating the endpoint where your application will handle the callback from the authentication provider after a user has been authenticated.
-            login: false, // Dedicated route in your application for user login.
-            logout: '/logout', // Indicating the endpoint where your application will handle user logout requests.
-        },
-    },
-};
+const OIDC = config.oidc;
 
 // Custom middleware function for OIDC authentication
 function OIDCAuth(req, res, next) {
@@ -390,23 +324,19 @@ function OIDCAuth(req, res, next) {
 
 // Mattermost config
 const mattermostCfg = {
-    enabled: getEnvBoolean(process.env.MATTERMOST_ENABLED),
-    server_url: process.env.MATTERMOST_SERVER_URL,
-    username: process.env.MATTERMOST_USERNAME,
-    password: process.env.MATTERMOST_PASSWORD,
-    token: process.env.MATTERMOST_TOKEN,
-    roomTokenExpire: process.env.MATTERMOST_ROOM_TOKEN_EXPIRE,
-    encryptionKey: process.env.JWT_KEY,
+    enabled: config.mattermost.enabled,
+    server_url: config.mattermost.serverUrl,
+    username: config.mattermost.username,
+    password: config.mattermost.password,
+    token: config.mattermost.token,
+    roomTokenExpire: config.mattermost.roomTokenExpire,
+    encryptionKey: config.jwt.key,
     security: hostCfg.protected || OIDC.enabled,
     api_disabled: api_disabled,
 };
 
 // stats configuration
-const statsData = {
-    enabled: process.env.STATS_ENABLED ? getEnvBoolean(process.env.STATS_ENABLED) : true,
-    src: process.env.STATS_SCR || 'https://stats.mirotalk.com/script.js',
-    id: process.env.STATS_ID || 'c7615aa7-ceec-464a-baba-54cb605d7261',
-};
+const statsData = config.stats;
 
 // directory
 const dir = {
@@ -427,11 +357,11 @@ const views = {
 };
 
 // Branding configuration
-const brandHtmlInjection = config?.brand?.htmlInjection ?? true;
+const brandHtmlInjection = config.brand?.htmlInjection ?? true;
 
 // File to cache and inject custom HTML data like OG tags and any other elements.
 const filesPath = [views.landing, views.newCall, views.client, views.login, views.activeRooms, views.customizeRoom];
-const htmlInjector = new HtmlInjector(filesPath, config?.brand || null);
+const htmlInjector = new HtmlInjector(filesPath, config.brand || null);
 
 const channels = {}; // collect channels
 const sockets = {}; // collect sockets
@@ -644,7 +574,7 @@ app.post('/isRoomActive', (req, res) => {
 app.post('/isWidgetRoomActive', (req, res) => {
     const { roomId } = checkXSS(req.body);
     const roomWidgetActive =
-        roomId && roomId === config?.brand?.widget?.roomId && Object.prototype.hasOwnProperty.call(peers, roomId);
+        roomId && roomId === config.brand?.widget?.roomId && Object.prototype.hasOwnProperty.call(peers, roomId);
     log.debug('isWidgetRoomActive', { roomId, roomWidgetActive });
     res.status(200).json({ message: roomWidgetActive });
 });
@@ -829,12 +759,12 @@ app.post('/login', loginLimiter, (req, res) => {
 
 // UI buttons configuration
 app.get('/buttons', (req, res) => {
-    res.status(200).json({ message: config && config.buttons ? config.buttons : false });
+    res.status(200).json({ message: config.buttons ? config.buttons : false });
 });
 
 // UI brand configuration
 app.get('/brand', (req, res) => {
-    res.status(200).json({ message: config && config.brand && brandHtmlInjection ? config.brand : false });
+    res.status(200).json({ message: config.brand && brandHtmlInjection ? config.brand : false });
 });
 
 // Join roomId redirect to /join?room=roomId
@@ -1154,10 +1084,10 @@ function getServerConfig(tunnel = false) {
         redirect: redirectEnabled ? redirectURL : false,
 
         // Widget Configuration
-        widget: config?.brand?.widget?.enabled ? config.brand.widget : false,
+        widget: config.brand?.widget?.enabled ? config.brand.widget : false,
 
         // Versions and environment information
-        environment: process.env.NODE_ENV || 'development',
+        environment: config.server.environment,
         app_version: packageJson.version,
         node_version: process.versions.node,
     };
@@ -2134,17 +2064,6 @@ io.sockets.on('connect', async (socket) => {
 }); // end [sockets.on-connect]
 
 /**
- * Get Env as boolean
- * @param {string} key
- * @param {boolean} force_true_if_undefined
- * @returns boolean
- */
-function getEnvBoolean(key, force_true_if_undefined = false) {
-    if (key == undefined && force_true_if_undefined) return true;
-    return key == 'true' ? true : false;
-}
-
-/**
  * Check if valid filename
  * @param {string} fileName
  * @returns boolean
@@ -2425,21 +2344,6 @@ function removeIP(socket) {
             });
         }
     }
-}
-
-/**
- * Load modules if exists
- * @param {string} filePath
- * @returns
- */
-function safeRequire(filePath) {
-    let data = null;
-    try {
-        data = require(filePath);
-    } catch (error) {
-        log.error(error);
-    }
-    return data;
 }
 
 /**

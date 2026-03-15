@@ -5,13 +5,258 @@
  * MiroTalk P2P v.1.7.42 - Configuration File
  * ==============================================
  *
+ * This file is the central configuration source.
+ * All environment variables are read here so the
+ * rest of the codebase imports config values
+ * instead of reading process.env directly.
+ *
+ * Setup:
+ *   cp app/src/config.template.js app/src/config.js
+ *   Then edit config.js to match your environment.
+ *
+ * Docker/container environments inject values via
+ * environment variables which are read at startup.
+ *
  * Branding and customizations require a license:
  * https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  */
 
+require('dotenv').config();
+
 const packageJson = require('../../package.json');
 
+// Helper: parse env string to boolean
+function getEnvBoolean(key, force_true_if_undefined = false) {
+    if (key == undefined && force_true_if_undefined) return true;
+    return key == 'true' ? true : false;
+}
+
+// Helper: safely parse JSON env vars with a fallback
+function parseJsonEnv(envValue, fallback) {
+    if (!envValue) return fallback;
+    try {
+        return JSON.parse(envValue);
+    } catch (e) {
+        return fallback;
+    }
+}
+
+const port = process.env.PORT || 3000;
+
 module.exports = {
+    // ==========================================
+    // Server
+    // ==========================================
+    server: {
+        port: port,
+        host: process.env.HOST || `http://localhost:${port}`,
+        environment: process.env.NODE_ENV || 'development',
+        trustProxy: !!getEnvBoolean(process.env.TRUST_PROXY),
+    },
+
+    // ==========================================
+    // CORS
+    // ==========================================
+    cors: {
+        origin: parseJsonEnv(process.env.CORS_ORIGIN, '*'),
+        methods: parseJsonEnv(process.env.CORS_METHODS, ['GET', 'POST']),
+    },
+
+    // ==========================================
+    // Host Protection
+    // ==========================================
+    host: {
+        protected: getEnvBoolean(process.env.HOST_PROTECTED),
+        userAuth: getEnvBoolean(process.env.HOST_USER_AUTH),
+        users: parseJsonEnv(process.env.HOST_USERS, [{ username: 'MiroTalk', password: 'P2P' }]),
+        maxLoginAttempts: process.env.HOST_MAX_LOGIN_ATTEMPTS || 5,
+        minLoginBlockTime: process.env.HOST_MIN_LOGIN_BLOCK_TIME || 15, // in minutes
+        maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 1000,
+        showActiveRooms: getEnvBoolean(process.env.SHOW_ACTIVE_ROOMS) || false,
+    },
+
+    // ==========================================
+    // JWT
+    // ==========================================
+    jwt: {
+        key: process.env.JWT_KEY || 'mirotalk_jwt_secret',
+        exp: process.env.JWT_EXP || '1h',
+    },
+
+    // ==========================================
+    // Presenters
+    // ==========================================
+    presenters: parseJsonEnv(process.env.PRESENTERS, ['MiroTalk P2P']),
+
+    // ==========================================
+    // API
+    // ==========================================
+    api: {
+        keySecret: process.env.API_KEY_SECRET || 'mirotalkp2p_default_secret',
+        disabled: parseJsonEnv(process.env.API_DISABLED, ['token', 'meetings']),
+    },
+
+    // ==========================================
+    // Ngrok
+    // ==========================================
+    ngrok: {
+        enabled: getEnvBoolean(process.env.NGROK_ENABLED),
+        authToken: process.env.NGROK_AUTH_TOKEN,
+    },
+
+    // ==========================================
+    // WebRTC ICE Servers
+    // ==========================================
+    webrtc: {
+        stun: {
+            enabled: getEnvBoolean(process.env.STUN_SERVER_ENABLED),
+            url: process.env.STUN_SERVER_URL,
+        },
+        turn: {
+            enabled: getEnvBoolean(process.env.TURN_SERVER_ENABLED),
+            url: process.env.TURN_SERVER_URL,
+            username: process.env.TURN_SERVER_USERNAME,
+            credential: process.env.TURN_SERVER_CREDENTIAL,
+        },
+    },
+
+    // ==========================================
+    // IP Lookup
+    // ==========================================
+    ipLookup: {
+        enabled: getEnvBoolean(process.env.IP_LOOKUP_ENABLED),
+    },
+
+    // ==========================================
+    // Survey
+    // ==========================================
+    survey: {
+        enabled: getEnvBoolean(process.env.SURVEY_ENABLED),
+        url: process.env.SURVEY_URL || 'https://www.questionpro.com/t/AUs7VZq00L',
+    },
+
+    // ==========================================
+    // Redirect
+    // ==========================================
+    redirect: {
+        enabled: getEnvBoolean(process.env.REDIRECT_ENABLED),
+        url: process.env.REDIRECT_URL || '/newcall',
+    },
+
+    // ==========================================
+    // Sentry
+    // ==========================================
+    sentry: {
+        enabled: getEnvBoolean(process.env.SENTRY_ENABLED),
+        dsn: process.env.SENTRY_DSN,
+        tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.0'),
+        logLevels: process.env.SENTRY_LOG_LEVELS
+            ? process.env.SENTRY_LOG_LEVELS.split(',').map((level) => level.trim())
+            : ['error'],
+    },
+
+    // ==========================================
+    // Slack
+    // ==========================================
+    slack: {
+        enabled: getEnvBoolean(process.env.SLACK_ENABLED),
+        signingSecret: process.env.SLACK_SIGNING_SECRET,
+    },
+
+    // ==========================================
+    // ChatGPT / OpenAI
+    // ==========================================
+    chatGPT: {
+        enabled: getEnvBoolean(process.env.CHATGPT_ENABLED),
+        basePath: process.env.CHATGPT_BASE_PATH,
+        apiKey: process.env.CHATGPT_APIKEY,
+        model: process.env.CHATGPT_MODEL,
+        max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
+        temperature: parseInt(process.env.CHATGPT_TEMPERATURE),
+    },
+
+    // ==========================================
+    // IP Whitelist
+    // ==========================================
+    ipWhitelist: {
+        enabled: getEnvBoolean(process.env.IP_WHITELIST_ENABLED),
+        allowed: parseJsonEnv(process.env.IP_WHITELIST_ALLOWED, []),
+    },
+
+    // ==========================================
+    // OIDC - OpenID Connect
+    // ==========================================
+    oidc: {
+        enabled: process.env.OIDC_ENABLED ? getEnvBoolean(process.env.OIDC_ENABLED) : false,
+        allowRoomCreationForAuthUsers: process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS
+            ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
+            : false,
+        baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC
+            ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC)
+            : false,
+        config: {
+            issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
+            clientID: process.env.OIDC_CLIENT_ID,
+            clientSecret: process.env.OIDC_CLIENT_SECRET,
+            baseURL: process.env.OIDC_BASE_URL,
+            secret: process.env.SESSION_SECRET,
+            authorizationParams: {
+                response_type: 'code',
+                scope: 'openid profile email',
+            },
+            authRequired: process.env.OIDC_AUTH_REQUIRED
+                ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED)
+                : false,
+            auth0Logout: process.env.OIDC_AUTH_LOGOUT
+                ? getEnvBoolean(process.env.OIDC_AUTH_LOGOUT)
+                : true,
+            routes: {
+                callback: '/auth/callback',
+                login: false,
+                logout: '/logout',
+            },
+        },
+    },
+
+    // ==========================================
+    // Mattermost
+    // ==========================================
+    mattermost: {
+        enabled: getEnvBoolean(process.env.MATTERMOST_ENABLED),
+        serverUrl: process.env.MATTERMOST_SERVER_URL,
+        username: process.env.MATTERMOST_USERNAME,
+        password: process.env.MATTERMOST_PASSWORD,
+        token: process.env.MATTERMOST_TOKEN,
+        roomTokenExpire: process.env.MATTERMOST_ROOM_TOKEN_EXPIRE,
+    },
+
+    // ==========================================
+    // Stats / Analytics
+    // ==========================================
+    stats: {
+        enabled: process.env.STATS_ENABLED ? getEnvBoolean(process.env.STATS_ENABLED) : true,
+        src: process.env.STATS_SCR || 'https://stats.mirotalk.com/script.js',
+        id: process.env.STATS_ID || 'c7615aa7-ceec-464a-baba-54cb605d7261',
+    },
+
+    // ==========================================
+    // Email
+    // ==========================================
+    email: {
+        alert: process.env.EMAIL_ALERT === 'true' || false,
+        host: process.env.EMAIL_HOST,
+        port: Number(process.env.EMAIL_PORT),
+        username: process.env.EMAIL_USERNAME,
+        password: process.env.EMAIL_PASSWORD,
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USERNAME,
+        sendTo: process.env.EMAIL_SEND_TO,
+        https: process.env.HTTPS === 'true' || false,
+        serverPort: process.env.PORT || 3000,
+    },
+
+    // ==========================================
+    // Branding (UI customizations)
+    // ==========================================
     brand: {
         htmlInjection: true,
         app: {
@@ -206,6 +451,9 @@ module.exports = {
             whiteboardLockBtn: false,
         },
     },
+    // ==========================================
+    // Webhook
+    // ==========================================
     webhook: {
         enabled: false, // Enable webhook functionality
         url: 'http://localhost:8888/webhook-endpoint', // Webhook server URL

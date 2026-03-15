@@ -173,7 +173,9 @@ $ git clone https://github.com/miroslavpejic85/mirotalk.git
 $ cd mirotalk
 # copy .env.template to .env (edit it according to your needs)
 $ cp .env.template .env
-# Copy app/src/config.template.js in app/src/config.js (edit it according to your needs)
+# Setup configuration: copy the template and edit config.js to match your environment.
+# config.js is the central configuration file — it reads environment variables
+# and also contains branding, button visibility, and webhook settings.
 $ cp app/src/config.template.js app/src/config.js
 # install dependencies
 $ npm install
@@ -202,7 +204,7 @@ $ git clone https://github.com/miroslavpejic85/mirotalk.git
 $ cd mirotalk
 # copy .env.template to .env (edit it according to your needs)
 $ cp .env.template .env
-# Copy app/src/config.template.js in app/src/config.js (edit it according to your needs)
+# Copy app/src/config.template.js in app/src/config.js (central configuration file)
 $ cp app/src/config.template.js app/src/config.js
 # Copy docker-compose.template.yml in docker-compose.yml (edit it according to your needs)
 $ cp docker-compose.template.yml docker-compose.yml

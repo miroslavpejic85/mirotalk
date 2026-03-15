@@ -4,18 +4,20 @@ const nodemailer = require('nodemailer');
 const Logs = require('../logs');
 const log = new Logs('NodeMailer');
 
+const config = require('../config');
+
 // Email config
 const emailCfg = {
-    alert: process.env.EMAIL_ALERT === 'true' || false,
-    host: process.env.EMAIL_HOST,
-    port: Number(process.env.EMAIL_PORT),
-    username: process.env.EMAIL_USERNAME,
-    password: process.env.EMAIL_PASSWORD,
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USERNAME,
-    send_to: process.env.EMAIL_SEND_TO,
+    alert: config.email.alert,
+    host: config.email.host,
+    port: config.email.port,
+    username: config.email.username,
+    password: config.email.password,
+    from: config.email.from,
+    send_to: config.email.sendTo,
     // Room join params
-    https: process.env.HTTPS === 'true' || false,
-    server_port: process.env.PORT || 3000,
+    https: config.email.https,
+    server_port: config.email.serverPort,
 };
 
 const isTLSPort = emailCfg.port === 465; // 465 is the default TLS/SSL port
