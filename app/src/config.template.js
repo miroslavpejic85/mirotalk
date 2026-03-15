@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.7.42 - Configuration File
+ * MiroTalk P2P v.1.7.43 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -191,9 +191,7 @@ module.exports = {
         allowRoomCreationForAuthUsers: process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS
             ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
             : false,
-        baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC
-            ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC)
-            : false,
+        baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
         config: {
             issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
             clientID: process.env.OIDC_CLIENT_ID,
@@ -204,12 +202,8 @@ module.exports = {
                 response_type: 'code',
                 scope: 'openid profile email',
             },
-            authRequired: process.env.OIDC_AUTH_REQUIRED
-                ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED)
-                : false,
-            auth0Logout: process.env.OIDC_AUTH_LOGOUT
-                ? getEnvBoolean(process.env.OIDC_AUTH_LOGOUT)
-                : true,
+            authRequired: process.env.OIDC_AUTH_REQUIRED ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED) : false,
+            auth0Logout: process.env.OIDC_AUTH_LOGOUT ? getEnvBoolean(process.env.OIDC_AUTH_LOGOUT) : true,
             routes: {
                 callback: '/auth/callback',
                 login: false,
