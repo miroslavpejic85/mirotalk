@@ -17,8 +17,9 @@ COPY ./app/src/config.template.js ./app/src/config.js
 # Install necessary system packages
 RUN apk add --no-cache bash vim
 
-# Install Node.js dependencies (retry up to 3 times to handle intermittent QEMU crashes in cross-platform builds)
-RUN for i in 1 2 3; do npm ci --only=production --silent && break || echo "Retry $i..."; done \
+# Install Node.js dependencies (fail the build immediately if install fails,
+# so a broken arm64 image is never published)
+RUN npm ci --omit=dev --silent \
     && npm cache clean --force \
     && rm -rf /tmp/* /var/tmp/* /usr/share/doc/*
 
