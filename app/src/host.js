@@ -11,7 +11,10 @@ module.exports = class Host {
      * @returns string IP
      */
     getIP(req) {
-        return req.headers['x-forwarded-for'] || req.headers['X-Forwarded-For'] || req.socket.remoteAddress || req.ip;
+        // Rely on Express's resolved req.ip which honours the configured
+        // `trust proxy` setting. Reading X-Forwarded-For directly would let
+        // any client spoof its source address.
+        return req.ip || (req.socket && req.socket.remoteAddress);
     }
 
     /**

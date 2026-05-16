@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.37
+ * @version 1.8.38
  *
  */
 
@@ -387,6 +387,27 @@ function getPeerCount(roomId) {
 }
 
 app.set('trust proxy', trustProxy); // Enables trust for proxy headers (e.g., X-Forwarded-For) based on the trustProxy setting
+
+// Guardrail: IP_WHITELIST_ENABLED=true without TRUST_PROXY=true is almost always a
+// misconfiguration. Refuse to start unless explicitly acknowledged via
+// IP_WHITELIST_ALLOW_UNTRUSTED_PROXY=true (then only the direct socket IP is matched).
+if (ipWhitelist.enabled && !trustProxy) {
+    const optIn = String(process.env.IP_WHITELIST_ALLOW_UNTRUSTED_PROXY || '').toLowerCase() === 'true';
+    if (!optIn) {
+        log.error(
+            'IP_WHITELIST_ENABLED=true requires TRUST_PROXY=true so that the real client IP can be resolved from a trusted reverse proxy. ' +
+                'Without it, X-Forwarded-For is attacker-controlled and the allow-list can be bypassed. ' +
+                'If this instance has no proxy in front and you understand that only direct socket addresses will be evaluated, ' +
+                'set IP_WHITELIST_ALLOW_UNTRUSTED_PROXY=true to acknowledge.',
+            { trustProxy, ipWhitelist }
+        );
+        process.exit(1);
+    }
+    log.warn(
+        'IP_WHITELIST_ENABLED=true with TRUST_PROXY=false (acknowledged): X-Forwarded-For will be ignored and only the direct socket address is checked.'
+    );
+}
+
 app.use(helmet.noSniff()); // Enable content type sniffing prevention
 
 // Use all static files from the public folder
@@ -2311,33 +2332,32 @@ function isAllowedRoomAccess(logMessage, req, hostCfg, peers, roomId) {
 
 /**
  * Get ip
+ * Honours the X-Forwarded-For header only when Express has been configured
+ * with a `trust proxy` setting that matches the deployment topology. Reading
+ * the header directly from req.headers would let any client spoof its source
+ * address and bypass security controls such as the IP allow-list.
  * @param {object} req
  * @returns string ip
  */
 function getIP(req) {
-    const forwarded = req.headers['x-forwarded-for'] || req.headers['X-Forwarded-For'];
-
-    if (forwarded) {
-        // Return only the first IP (client's real IP)
-        return forwarded.split(',')[0].trim();
-    }
-
-    return req.socket.remoteAddress || req.ip;
+    return req.ip || req.socket?.remoteAddress;
 }
 
 /**
  * Get IP from socket
+ * Same rationale as getIP(): rely on the address that the underlying
+ * transport observed and only trust X-Forwarded-For when explicitly enabled
+ * via the trust proxy configuration.
  * @param {object} socket
  * @returns string
  */
 function getSocketIP(socket) {
-    const forwarded = socket.handshake.headers['x-forwarded-for'] || socket.handshake.headers['X-Forwarded-For'];
-
-    if (forwarded) {
-        // Return only the first IP (client's real IP)
-        return forwarded.split(',')[0].trim();
+    if (trustProxy) {
+        const forwarded = socket.handshake.headers['x-forwarded-for'] || socket.handshake.headers['X-Forwarded-For'];
+        if (forwarded) {
+            return forwarded.split(',')[0].trim();
+        }
     }
-
     return socket.handshake.address;
 }
 
