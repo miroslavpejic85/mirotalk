@@ -15,7 +15,7 @@ const log = new Logger('Xss');
 purify.setConfig({
     ALLOWED_TAGS: ['a', 'img', 'div', 'span', 'svg', 'g', 'p'], // Allow specific tags
     ALLOWED_ATTR: ['href', 'src', 'title', 'id', 'class', 'target', 'width', 'height'], // Allow specific attributes
-    ALLOWED_URI_REGEXP: /^(?!data:|javascript:|vbscript:|file:|view-source:).*/, // Disallow dangerous URIs
+    ALLOWED_URI_REGEXP: /^(?!\s*(?:data|javascript|vbscript|file|view-source)\s*:)/i, // Disallow dangerous URIs (case-insensitive, ignores leading whitespace)
 });
 
 // Clean problematic attributes

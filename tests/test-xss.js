@@ -215,4 +215,14 @@ describe('test-xss', () => {
             sanitizedContent.should.containEql('<div>Normal text  more text</div>');
         });
     });
+
+    describe('9. Handling Mixed-Case JavaScript URI', () => {
+        it('should sanitize mixed-case `javascript:` URLs in anchor href', () => {
+            const mixedCaseJsUrl = '<a href="JaVaScRiPt:alert(1)">x</a>';
+            const sanitized = checkXSS(mixedCaseJsUrl);
+            sanitized.toLowerCase().should.not.containEql('javascript:');
+            sanitized.should.not.containEql('alert');
+            sanitized.should.equal('<a>x</a>');
+        });
+    });
 });
