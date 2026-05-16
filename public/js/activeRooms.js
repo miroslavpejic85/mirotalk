@@ -25,6 +25,22 @@ function setRoomsContent(html) {
     roomsDiv.innerHTML = html;
 }
 
+// Security: escape user-controlled strings before injecting into innerHTML.
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"'`=\/]/g, (c) => {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '`': '&#96;',
+            '=': '&#61;',
+            '/': '&#47;',
+        }[c];
+    });
+}
+
 function getRoomsData(res) {
     return !isTest ? res.data.activeRooms || [] : mockRooms();
 }
@@ -75,30 +91,33 @@ function renderRooms(rooms) {
     }
     setRoomsContent(
         rooms
-            .map(
-                (room) => `
+            .map((room) => {
+                const id = escapeHtml(room.id);
+                const peers = Number(room.peers) || 0;
+                const join = escapeHtml(room.join);
+                return `
             <div class="room-card">
                 <div class="room-card-header">
                     <div class="room-title">
-                        <i class="fa-solid fa-door-open"></i>${room.id}
+                        <i class="fa-solid fa-door-open"></i>${id}
                     </div>
                     <div class="peer-badge">
                         <i class="fa-solid fa-users"></i>
-                        ${room.peers}
+                        ${peers}
                     </div>
                 </div>
                 <div class="room-card-footer">
                     <div class="peer-status">
                         <span class="dot"></span>
-                        ${room.peers} ${room.peers === 1 ? 'peer' : 'peers'} connected
+                        ${peers} ${peers === 1 ? 'peer' : 'peers'} connected
                     </div>
-                    <a href="${room.join}" class="join-btn" target="_blank">
+                    <a href="${join}" class="join-btn" target="_blank" rel="noopener noreferrer">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i> Join
                     </a>
                 </div>
             </div>
-        `
-            )
+        `;
+            })
             .join('')
     );
 }
