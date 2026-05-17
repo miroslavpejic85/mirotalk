@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.39
+ * @version 1.8.40
  *
  */
 
@@ -1436,6 +1436,29 @@ io.sockets.on('connect', async (socket) => {
             peer_uuid: peer_uuid,
             is_presenter: is_presenter,
         };
+
+        // Recover presenter status on reconnect: if a stale presenter entry
+        // exists for this user (same peer_name AND same peer_uuid) under a
+        // previous socket.id, migrate it to the current socket.id. peer_uuid
+        // is never broadcast to other peers, so it cannot be spoofed by
+        // someone who only learned the display name.
+        for (const [existingPeerID, existingPresenter] of Object.entries(presenters[channel])) {
+            if (
+                existingPeerID !== socket.id &&
+                existingPresenter &&
+                existingPresenter.peer_name === peer_name &&
+                existingPresenter.peer_uuid === peer_uuid
+            ) {
+                delete presenters[channel][existingPeerID];
+                presenters[channel][socket.id] = presenter;
+                log.debug('[' + socket.id + '] Presenter recovered on reconnect', {
+                    previous_peer_id: existingPeerID,
+                    peer_name: peer_name,
+                });
+                break;
+            }
+        }
+
         // first we check if the username match the presenters username
         if (roomPresenters && roomPresenters.includes(peer_name)) {
             presenters[channel][socket.id] = presenter;
@@ -1572,15 +1595,16 @@ io.sockets.on('connect', async (socket) => {
         }
 
         //log.debug('[' + socket.id + '] Room action:', config);
-        const { room_id, peer_id, peer_name, peer_uuid, password, action } = config;
+        const { room_id, peer_name, peer_uuid, password, action } = config;
 
         if (!peers[room_id]) {
             log.warn('Room action room not found', { peer_id: socket.id, room_id });
             return;
         }
 
-        // Check if peer is presenter
-        const isPresenter = isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
+        // Check if peer is presenter using the server-controlled socket.id
+        // (NOT the client-supplied peer_id) to prevent role spoofing.
+        const isPresenter = isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
 
         let room_is_locked = false;
         //
@@ -1692,15 +1716,16 @@ io.sockets.on('connect', async (socket) => {
 
         const { action, send_to_all, data } = config;
 
-        const { room_id, peer_id, peer_name, peer_uuid, to_peer_id } = data;
+        const { room_id, peer_name, peer_uuid, to_peer_id } = data;
 
         log.debug('cmd', config);
 
         // Only the presenter can do this actions
         const presenterActions = ['geoLocation'];
         if (presenterActions.some((v) => action === v)) {
-            // Check if peer is presenter
-            const isPresenter = isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
+            // Authorize using the server-controlled socket.id, not the
+            // client-supplied peer_id, to prevent role spoofing.
+            const isPresenter = isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
             // if not presenter do nothing
             if (!isPresenter) return;
         }
@@ -1798,8 +1823,9 @@ io.sockets.on('connect', async (socket) => {
         // Only the presenter can do this actions
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll'];
         if (presenterActions.some((v) => peer_action === v)) {
-            // Check if peer is presenter
-            const isPresenter = isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
+            // Authorize using the server-controlled socket.id, not the
+            // client-supplied peer_id, to prevent role spoofing.
+            const isPresenter = isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
             // if not presenter do nothing
             if (!isPresenter) return;
         }
@@ -1845,10 +1871,12 @@ io.sockets.on('connect', async (socket) => {
 
         if (!Validate.isValidData(config)) return;
 
+        // peer_id here is the TARGET to kick; the caller's identity is the
+        // server-controlled socket.id, not anything the client supplies.
         const { room_id, peer_id, peer_uuid, peer_name } = config;
 
-        // Check if peer is presenter
-        const isPresenter = await isPeerPresenter(room_id, peer_id, peer_name, peer_uuid);
+        // Authorize the caller using socket.id to prevent role spoofing.
+        const isPresenter = isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
 
         // Only the presenter can kickOut others
         if (isPresenter) {
@@ -2160,25 +2188,28 @@ async function getPeerGeoLocation(ip) {
  */
 function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
     try {
-        if (!presenters[room_id] || !presenters[room_id][peer_id]) {
-            // Presenter not in the presenters config list, disconnected, or peer_id changed...
-            for (const [existingPeerID, presenter] of Object.entries(presenters[room_id] || {})) {
-                if (presenter.peer_name === peer_name) {
-                    log.debug('[' + peer_id + '] Presenter found', presenters[room_id][existingPeerID]);
-                    return true;
-                }
-            }
+        // peer_id MUST be the server-controlled socket.id of the caller.
+        // Never trust a client-supplied peer_id, peer_name, or peer_uuid for
+        // authorization decisions: look up the stored presenter entry by
+        // socket.id and require both peer_name and peer_uuid to match what
+        // was recorded at join time.
+        const roomPresentersMap = presenters[room_id];
+        const stored = roomPresentersMap && roomPresentersMap[peer_id];
+
+        if (!stored) {
+            log.debug('[' + peer_id + '] isPeerPresenter - no stored presenter entry for caller', {
+                peer_name: peer_name,
+            });
             return false;
         }
 
         const isPresenter =
-            (typeof presenters[room_id] === 'object' &&
-                Object.keys(presenters[room_id][peer_id]).length > 1 &&
-                presenters[room_id][peer_id]['peer_name'] === peer_name &&
-                presenters[room_id][peer_id]['peer_uuid'] === peer_uuid) ||
-            (roomPresenters && roomPresenters.includes(peer_name));
+            typeof stored === 'object' &&
+            Object.keys(stored).length > 1 &&
+            stored.peer_name === peer_name &&
+            stored.peer_uuid === peer_uuid;
 
-        log.debug('[' + peer_id + '] isPeerPresenter', presenters[room_id][peer_id]);
+        log.debug('[' + peer_id + '] isPeerPresenter', { stored, isPresenter });
 
         return isPresenter;
     } catch (err) {
