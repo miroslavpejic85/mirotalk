@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.41
+ * @version 1.8.42
  *
  */
 
@@ -10919,7 +10919,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') 
                     id="msg-speech-${chatMessagesId}"
                     class="${className.speech}" 
                     style="color:#fff; border:none; background:transparent;"
-                    onclick="speechElementText(false, '${getFrom}', 'message-${chatMessagesId}')"
+                    onclick="speechElementText(false, '${escapeJsString(getFrom)}', 'message-${chatMessagesId}')"
                 ></button>`;
     }
 
@@ -11224,6 +11224,33 @@ function toggleMsgerParticipantsEmptyNotice() {
     msgerPrivateChatsEmpty?.classList.toggle('hidden', hasPrivateChats || isMobileParticipantsView);
     elemDisplay(msgerCPList, hasPrivateChats, 'flex');
     elemDisplay(msgerParticipantsList, false);
+}
+
+/**
+ * Escape a value for safe embedding inside a single-quoted JavaScript string
+ * literal that lives in an HTML attribute (e.g. an inline onclick handler).
+ *
+ * filterXSS() / DOMPurify do NOT encode characters that break out of a JS
+ * string context (single-quote, backslash, newline). Embedding user-controlled
+ * data such as a peer name directly in an inline handler without this escape
+ * allows a stored XSS where a crafted name like `X', alert(1), '` would close
+ * the string argument and inject an arbitrary JS expression as a new argument.
+ *
+ * @param {*} value
+ * @returns {string}
+ */
+function escapeJsString(value) {
+    return String(value == null ? '' : value)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029')
+        .replace(/</g, '\\x3C')
+        .replace(/>/g, '\\x3E')
+        .replace(/&/g, '\\x26');
 }
 
 /**
@@ -15823,7 +15850,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.41',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.42',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
