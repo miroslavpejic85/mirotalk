@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.8.42 - Configuration File
+ * MiroTalk P2P v.1.8.44 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -192,6 +192,19 @@ module.exports = {
             ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
             : false,
         baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
+        /*
+         * When `baseUrlDynamic` is true, the OIDC baseURL (and therefore the redirect_uri
+         * sent to the IdP) is derived from the incoming `Host` header. To prevent
+         * Host-header injection from redirecting authorization codes to an attacker,
+         * list every origin the server is allowed to serve here (full origin, no path).
+         * The static `config.baseURL` is always trusted and does not need to be repeated.
+         * Example: ['https://p2p.mirotalk.com', 'https://meet.example.com']
+         */
+        allowedDynamicBaseURLs: process.env.OIDC_ALLOWED_DYNAMIC_BASE_URLS
+            ? process.env.OIDC_ALLOWED_DYNAMIC_BASE_URLS.split(',')
+                  .map((u) => u.trim())
+                  .filter(Boolean)
+            : [],
         config: {
             issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
             clientID: process.env.OIDC_CLIENT_ID,
