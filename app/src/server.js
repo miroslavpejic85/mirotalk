@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.46
+ * @version 1.8.47
  *
  */
 
@@ -2033,6 +2033,17 @@ io.sockets.on('connect', async (socket) => {
 
         if (!Validate.isValidData(config)) return;
 
+        // Security: cap payload size. A joined peer could otherwise spam
+        // huge canvas JSONs to chew CPU on every other peer's renderer.
+        // 2 MB is far above any realistic whiteboard state (a few hundred
+        // strokes + several base64-encoded images), well below DoS range.
+        if (typeof config.wbCanvasJson === 'string' && config.wbCanvasJson.length > 2_000_000) {
+            log.debug('wbCanvasToJson blocked: payload too large', {
+                size: config.wbCanvasJson.length,
+            });
+            return;
+        }
+
         // log.debug('Whiteboard send canvas', config);
         const { room_id, peer_name, peer_uuid } = config;
 
@@ -2056,6 +2067,12 @@ io.sockets.on('connect', async (socket) => {
             });
             return;
         }
+
+        // Security: strip fabric image objects whose `src` would force
+        // recipients' browsers to make outbound requests to attacker-chosen
+        // URLs (used as tracking beacons / internal-network probes). Only
+        // https://, http:// to public hosts, and data:image/ are allowed.
+        Validate.sanitizeWbCanvasJson(config, (msg, ctx) => log.debug(msg, ctx));
 
         await sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
     });
