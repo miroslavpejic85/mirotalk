@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.45
+ * @version 1.8.46
  *
  */
 
@@ -378,6 +378,7 @@ const channels = {}; // collect channels
 const sockets = {}; // collect sockets
 const peers = {}; // collect peers info grp by channels
 const presenters = {}; // collect presenters grp by channels
+const wbLocks = {}; // server-authoritative whiteboard lock state grp by channels
 
 const roomMetaKeys = new Set(['lock', 'password']);
 
@@ -2033,7 +2034,29 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
 
         // log.debug('Whiteboard send canvas', config);
-        const { room_id } = config;
+        const { room_id, peer_name, peer_uuid } = config;
+
+        // Security: require the sender to be an actual joined peer of the room.
+        // Without this, a socket that never joined could broadcast whiteboard
+        // payloads to all real peers in the room.
+        if (!peers[room_id] || !peers[room_id][socket.id]) {
+            log.debug('wbCanvasToJson blocked: sender is not a joined peer', {
+                room_id,
+                socket_id: socket.id,
+            });
+            return;
+        }
+
+        // Security: when the whiteboard is locked, only the presenter may
+        // overwrite the shared canvas. The lock state is server-authoritative
+        // and does not depend on the client toggling its local wbIsLock flag.
+        if (wbLocks[room_id] && !isPeerPresenter(room_id, socket.id, peer_name, peer_uuid)) {
+            log.debug('wbCanvasToJson blocked: whiteboard is locked and sender is not presenter', {
+                peer_name,
+            });
+            return;
+        }
+
         await sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
     });
 
@@ -2043,8 +2066,48 @@ io.sockets.on('connect', async (socket) => {
 
         if (!Validate.isValidData(config)) return;
 
+        const { room_id, peer_name, peer_uuid, action } = config;
+
+        // Security: require the sender to be an actual joined peer of the room
+        // (see wbCanvasToJson above for rationale).
+        if (!peers[room_id] || !peers[room_id][socket.id]) {
+            log.debug('whiteboardAction blocked: sender is not a joined peer', {
+                room_id,
+                socket_id: socket.id,
+            });
+            return;
+        }
+
+        // Security: whiteboardAction mutates global whiteboard state
+        // (clear / undo / redo / bgcolor / lock / unlock / open / close) for
+        // every other peer. Only the presenter is allowed to trigger these.
+        // Verify against server-known peer identity, not client-supplied
+        // peer_name / peer_uuid (which are attacker-controlled in the request
+        // body).
+        if (!isPeerPresenter(room_id, socket.id, peer_name, peer_uuid)) {
+            log.debug('whiteboardAction blocked: sender is not presenter', {
+                action,
+                peer_name,
+            });
+            return;
+        }
+
+        // Overwrite the broadcast peer_name with the server-known value so a
+        // presenter can't be tricked into proxying an HTML payload supplied
+        // in the request body (the client renders peer_name inside a
+        // SweetAlert toast).
+        const stored = peers[room_id][socket.id];
+        if (stored && stored.peer_name) {
+            config.peer_name = stored.peer_name;
+        }
+
+        // Track lock state server-side so late-joining peers / future
+        // requests are gated even if the presenter never re-toggles the
+        // button.
+        if (action === 'lock') wbLocks[room_id] = true;
+        if (action === 'unlock') delete wbLocks[room_id];
+
         log.debug('Whiteboard', config);
-        const { room_id } = config;
         await sendToRoom(room_id, socket.id, 'whiteboardAction', config);
     });
 
@@ -2104,6 +2167,7 @@ io.sockets.on('connect', async (socket) => {
                 delete peers[channel];
                 delete presenters[channel];
                 delete channels[channel]; // Clean up channels to prevent memory leak
+                delete wbLocks[channel]; // Clean up whiteboard lock state
             }
         } catch (err) {
             log.error('Remove Peer', toJson(err));

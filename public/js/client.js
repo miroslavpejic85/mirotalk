@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.45
+ * @version 1.8.46
  *
  */
 
@@ -14735,6 +14735,8 @@ function wbCanvasToJson() {
     if (thereArePeerConnections()) {
         const config = {
             room_id: roomId,
+            peer_name: myPeerName,
+            peer_uuid: myPeerUUID,
             wbCanvasJson: JSON.stringify(wbCanvas.toJSON()),
         };
         sendToServer('wbCanvasToJson', config);
@@ -14780,6 +14782,7 @@ function getWhiteboardAction(action) {
     return {
         room_id: roomId,
         peer_name: myPeerName,
+        peer_uuid: myPeerUUID,
         action: action,
     };
 }
@@ -14829,7 +14832,17 @@ function handleWhiteboardAction(config, logMe = true) {
     const { peer_name, action, color } = config;
 
     if (logMe) {
-        userLog('toast', `${icons.user} ${peer_name} \n whiteboard action: ${action}`);
+        // Security: peer_name is attacker-controllable in upstream payloads and
+        // the Swal toast renders the title as HTML. Escape angle brackets /
+        // quotes so a crafted name like `<img src=//attacker/track>` can't
+        // trigger outbound requests in every recipient's browser.
+        const safePeerName = String(peer_name || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        userLog('toast', `${icons.user} ${safePeerName} \n whiteboard action: ${action}`);
     }
     switch (action) {
         case 'bgcolor':
@@ -15854,7 +15867,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.45',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.46',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
