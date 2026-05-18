@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.44
+ * @version 1.8.45
  *
  */
 
@@ -9650,7 +9650,11 @@ function toggleVideoAudioTabs(disabled = false) {
  * @param {object} mediaRecorder
  */
 function handleMediaRecorder(mediaRecorder) {
-    mediaRecorder.start();
+    // Always pass a timeslice so the browser flushes encoded chunks into
+    // recordedBlobs periodically instead of buffering the entire recording
+    // in renderer memory. This makes long (>1h) recordings stable and
+    // avoids MediaRecorder auto-stops caused by memory pressure.
+    mediaRecorder.start(1000);
     mediaRecorder.addEventListener('start', handleMediaRecorderStart);
     mediaRecorder.addEventListener('dataavailable', handleMediaRecorderData);
     mediaRecorder.addEventListener('stop', handleMediaRecorderStop);
@@ -15850,7 +15854,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.44',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.45',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
