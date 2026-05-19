@@ -163,6 +163,8 @@ class MiroTalkWidget {
         dragHandle.style.cursor = 'move';
 
         element.style.position = 'fixed';
+        element.style.right = 'auto';
+        element.style.bottom = 'auto';
         element.style.left = element.offsetLeft + 'px';
         element.style.top = element.offsetTop + 'px';
         element.style.transform = 'translate(0,0)';
@@ -179,6 +181,7 @@ class MiroTalkWidget {
             startLeft = rect.left;
             startTop = rect.top;
             element.setPointerCapture(e.pointerId);
+            element.classList.add('dragging');
             element.style.zIndex = 9999;
             element.style.willChange = 'left, top';
             document.addEventListener('pointermove', onPointerMove);
@@ -197,6 +200,7 @@ class MiroTalkWidget {
             isDragging = false;
             document.removeEventListener('pointermove', onPointerMove);
             document.removeEventListener('pointerup', onPointerUp);
+            element.classList.remove('dragging');
             element.style.willChange = '';
             try {
                 element.releasePointerCapture(e.pointerId);

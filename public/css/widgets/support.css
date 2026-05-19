@@ -101,6 +101,10 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
 
+.mirotalk-support-widget.dragging {
+    transition: none;
+}
+
 /* Online Indicator */
 .mirotalk-support-widget .online-indicator {
     display: flex;
@@ -481,8 +485,26 @@
     .mirotalk-support-widget {
         width: 280px;
         padding: 20px;
+    }
+
+    .mirotalk-support-widget.bottom-right {
         bottom: 15px;
         right: 15px;
+    }
+
+    .mirotalk-support-widget.bottom-left {
+        bottom: 15px;
+        left: 15px;
+    }
+
+    .mirotalk-support-widget.top-right {
+        top: 15px;
+        right: 15px;
+    }
+
+    .mirotalk-support-widget.top-left {
+        top: 15px;
+        left: 15px;
     }
 
     .mirotalk-support-widget .main-heading {
@@ -520,19 +542,27 @@
     .mirotalk-support-widget {
         width: 260px;
         padding: 18px;
-        bottom: 12px;
-        right: 12px;
         border-radius: 16px;
     }
 
-    .mirotalk-support-widget.bottom-left,
-    .mirotalk-support-widget.top-left {
+    .mirotalk-support-widget.bottom-right {
+        bottom: 12px;
+        right: 12px;
+    }
+
+    .mirotalk-support-widget.bottom-left {
+        bottom: 12px;
         left: 12px;
     }
 
-    .mirotalk-support-widget.top-right,
+    .mirotalk-support-widget.top-right {
+        top: 12px;
+        right: 12px;
+    }
+
     .mirotalk-support-widget.top-left {
         top: 12px;
+        left: 12px;
     }
 
     .mirotalk-support-widget .main-heading {
@@ -604,19 +634,27 @@
     .mirotalk-support-widget {
         width: 240px;
         padding: 16px;
-        bottom: 10px;
-        right: 10px;
         border-radius: 14px;
     }
 
-    .mirotalk-support-widget.bottom-left,
-    .mirotalk-support-widget.top-left {
+    .mirotalk-support-widget.bottom-right {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .mirotalk-support-widget.bottom-left {
+        bottom: 10px;
         left: 10px;
     }
 
-    .mirotalk-support-widget.top-right,
+    .mirotalk-support-widget.top-right {
+        top: 10px;
+        right: 10px;
+    }
+
     .mirotalk-support-widget.top-left {
         top: 10px;
+        left: 10px;
     }
 
     .mirotalk-support-widget .online-indicator {
@@ -715,18 +753,26 @@
     .mirotalk-support-widget {
         width: 220px;
         padding: 14px;
+    }
+
+    .mirotalk-support-widget.bottom-right {
         bottom: 8px;
         right: 8px;
     }
 
-    .mirotalk-support-widget.bottom-left,
-    .mirotalk-support-widget.top-left {
+    .mirotalk-support-widget.bottom-left {
+        bottom: 8px;
         left: 8px;
     }
 
-    .mirotalk-support-widget.top-right,
+    .mirotalk-support-widget.top-right {
+        top: 8px;
+        right: 8px;
+    }
+
     .mirotalk-support-widget.top-left {
         top: 8px;
+        left: 8px;
     }
 
     .mirotalk-support-widget .main-heading {
