@@ -173,6 +173,7 @@ class MiroTalkWidget {
 
         function onPointerDown(e) {
             if (e.button !== 0) return;
+            if (e.target.closest('.widget-controls')) return;
             e.preventDefault();
             isDragging = true;
             startX = e.clientX;
