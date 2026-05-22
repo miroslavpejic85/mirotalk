@@ -1,0 +1,103 @@
+/*
+ * MiroTalk P2P — Shared design tokens.
+ *
+ * Common values (colors, spacing, radius, shadows, motion, z-index)
+ * used across all pages. Tokens are prefixed with `--ds-` so they
+ * don't clash with existing CSS variables.
+ */
+
+:root {
+    /* Colors */
+    --ds-brand-50: #eef3ff;
+    --ds-brand-100: #d9e3ff;
+    --ds-brand-300: #8aa9ff;
+    --ds-brand-500: #4678f9;
+    --ds-brand-600: #376df9;
+    --ds-brand-700: #2a5ad6;
+
+    --ds-neutral-0: #ffffff;
+    --ds-neutral-50: #f9faff;
+    --ds-neutral-100: #e8ecf1;
+    --ds-neutral-300: #b0b6c2;
+    --ds-neutral-500: #6a6f82;
+    --ds-neutral-700: #292b32;
+    --ds-neutral-800: #1d2026;
+    --ds-neutral-900: #0f1117;
+
+    --ds-success: #22c55e;
+    --ds-warning: #ffc107;
+    --ds-danger: #e74c3c;
+    --ds-info: #5a8aff;
+
+    /* Spacing (4px base) */
+    --ds-space-1: 4px;
+    --ds-space-2: 8px;
+    --ds-space-3: 12px;
+    --ds-space-4: 16px;
+    --ds-space-5: 20px;
+    --ds-space-6: 24px;
+    --ds-space-7: 32px;
+    --ds-space-8: 40px;
+    --ds-space-9: 48px;
+    --ds-space-10: 64px;
+
+    /* Border radius */
+    --ds-radius-xs: 4px;
+    --ds-radius-sm: 6px;
+    --ds-radius-md: 10px;
+    --ds-radius-lg: 14px;
+    --ds-radius-xl: 20px;
+    --ds-radius-full: 999px;
+
+    /* Shadows */
+    --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.18);
+    --ds-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.22);
+    --ds-shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.32);
+    --ds-shadow-focus: 0 0 0 2px var(--ds-brand-500), 0 0 0 4px rgba(70, 120, 249, 0.28);
+
+    /* Stacking order (use these instead of raw z-index values) */
+    --ds-z-base: 1;
+    --ds-z-grid: 5;
+    --ds-z-toolbar: 20;
+    --ds-z-popover: 40;
+    --ds-z-panel: 60;
+    --ds-z-overlay: 80;
+    --ds-z-modal: 100;
+    --ds-z-toast: 200;
+    --ds-z-tooltip: 300;
+
+    /* Motion */
+    --ds-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --ds-ease-in: cubic-bezier(0.55, 0.06, 0.68, 0.19);
+    --ds-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ds-duration-fast: 120ms;
+    --ds-duration-base: 180ms;
+    --ds-duration-slow: 240ms;
+
+    /* Minimum touch target size */
+    --ds-touch-min: 44px;
+
+    /* Typography */
+    --ds-font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --ds-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* Visible focus ring when navigating with keyboard. */
+:where(button, [role='button'], a, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ds-brand-500);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(70, 120, 249, 0.28);
+    border-radius: var(--ds-radius-sm);
+}
+
+/* Honor the user's "reduce motion" system preference. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}

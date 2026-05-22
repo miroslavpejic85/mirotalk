@@ -32,6 +32,7 @@
 
         <!-- StyleSheet -->
 
+        <link rel="stylesheet" href="../css/_tokens.css" />
         <link rel="stylesheet" href="../css/client.css" />
         <link rel="stylesheet" href="../css/videoGrid.css" />
         <link rel="stylesheet" href="../css/whiteboard.css" />
@@ -150,7 +151,13 @@ access to use this app.
         <!-- Start bottom buttons -->
         <div id="bottomButtons" class="fadein">
             <div id="audioSplit" class="split-btn">
-                <button id="audioBtn" class="fas fa-microphone"></button>
+                <button
+                    id="audioBtn"
+                    class="fas fa-microphone"
+                    type="button"
+                    aria-label="Toggle microphone"
+                    aria-pressed="false"
+                ></button>
                 <div id="audioDropdown" class="dropdown dropup hidden">
                     <button
                         id="audioToggle"
@@ -170,7 +177,13 @@ access to use this app.
                 </div>
             </div>
             <div id="videoSplit" class="split-btn">
-                <button id="videoBtn" class="fas fa-video"></button>
+                <button
+                    id="videoBtn"
+                    class="fas fa-video"
+                    type="button"
+                    aria-label="Toggle camera"
+                    aria-pressed="false"
+                ></button>
                 <div id="videoDropdown" class="dropdown dropup hidden">
                     <button
                         id="videoToggle"
@@ -190,11 +203,35 @@ access to use this app.
                 </div>
             </div>
 
-            <button id="swapCameraBtn" class="fas fa-camera-rotate"></button>
-            <button id="screenShareBtn" class="fas fa-desktop"></button>
-            <button id="myHandBtn" class="fas fa-hand-paper"></button>
-            <button id="chatRoomBtn" class="fas fa-comment"></button>
-            <button id="participantsBtn" class="fas fa-users">
+            <button id="swapCameraBtn" class="fas fa-camera-rotate" type="button" aria-label="Swap camera"></button>
+            <button
+                id="screenShareBtn"
+                class="fas fa-desktop"
+                type="button"
+                aria-label="Toggle screen sharing"
+                aria-pressed="false"
+            ></button>
+            <button
+                id="myHandBtn"
+                class="fas fa-hand-paper"
+                type="button"
+                aria-label="Raise hand"
+                aria-pressed="false"
+            ></button>
+            <button
+                id="chatRoomBtn"
+                class="fas fa-comment"
+                type="button"
+                aria-label="Toggle chat"
+                aria-pressed="false"
+            ></button>
+            <button
+                id="participantsBtn"
+                class="fas fa-users"
+                type="button"
+                aria-label="Show participants"
+                aria-expanded="false"
+            >
                 <span id="participantsCountBadge"></span>
             </button>
 

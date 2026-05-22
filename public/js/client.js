@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.50
+ * @version 1.8.51
  *
  */
 
@@ -943,13 +943,13 @@ function refreshMainButtonsToolTipPlacement() {
     // BottomButtons
     bottomButtonsPlacement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'top' : 'right';
 
-    setTippy(audioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', bottomButtonsPlacement);
-    setTippy(videoBtn, useVideo ? 'Stop the video' : 'My video is disabled', bottomButtonsPlacement);
-    setTippy(screenShareBtn, 'Start screen sharing', bottomButtonsPlacement);
-    setTippy(myHandBtn, 'Raise your hand', bottomButtonsPlacement);
-    setTippy(chatRoomBtn, 'Open the chat', bottomButtonsPlacement);
+    setTippy(audioBtn, useAudio ? 'Stop the audio (A)' : 'My audio is disabled', bottomButtonsPlacement);
+    setTippy(videoBtn, useVideo ? 'Stop the video (V)' : 'My video is disabled', bottomButtonsPlacement);
+    setTippy(screenShareBtn, 'Start screen sharing (S)', bottomButtonsPlacement);
+    setTippy(myHandBtn, 'Raise your hand (H)', bottomButtonsPlacement);
+    setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
     setTippy(participantsBtn, 'Show participants', bottomButtonsPlacement);
-    setTippy(mySettingsBtn, 'Open the settings', bottomButtonsPlacement);
+    setTippy(mySettingsBtn, 'Open the settings (O)', bottomButtonsPlacement);
     setTippy(leaveRoomBtn, 'Leave this room', bottomButtonsPlacement);
 }
 
@@ -7825,7 +7825,7 @@ function handleShortcuts() {
                     mySettingsBtn.click();
                     break;
                 case 'x':
-                    if (notPresenter && !button.main.showHideMeBtn) {
+                    if (notPresenter && !buttons.main.showHideMeBtn) {
                         toastMessage('warning', 'The presenter has disabled your ability to hide yourself');
                         break;
                     }
@@ -9075,7 +9075,8 @@ function setScreenSharingStatus(status) {
         { element: initScreenShareBtn, status, mediaType: 'screen' },
         { element: screenShareBtn, status, mediaType: 'screen' },
     ]);
-    setTippy(screenShareBtn, status ? 'Stop screen sharing' : 'Start screen sharing', placement);
+    setTippy(screenShareBtn, status ? 'Stop screen sharing (S)' : 'Start screen sharing (S)', placement);
+    if (screenShareBtn && screenShareBtn.setAttribute) screenShareBtn.setAttribute('aria-pressed', String(!!status));
 }
 
 /**
@@ -9919,7 +9920,8 @@ function showChatRoomDraggable() {
 
     syncParticipantsPanelVisibility();
 
-    setTippy(chatRoomBtn, 'Close the chat', bottomButtonsPlacement);
+    setTippy(chatRoomBtn, 'Close the chat (C)', bottomButtonsPlacement);
+    if (chatRoomBtn && chatRoomBtn.setAttribute) chatRoomBtn.setAttribute('aria-pressed', 'true');
     screenReaderAccessibility.announceMessage('Chat opened');
 }
 
@@ -10421,7 +10423,8 @@ function hideChatRoomAndEmojiPicker() {
     isParticipantsVisible = false;
     isChatOpenedByParticipantsBtn = false;
     isChatEmojiVisible = false;
-    setTippy(chatRoomBtn, 'Open the chat', bottomButtonsPlacement);
+    setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
+    if (chatRoomBtn && chatRoomBtn.setAttribute) chatRoomBtn.setAttribute('aria-pressed', 'false');
     screenReaderAccessibility.announceMessage('Chat closed');
 }
 
@@ -12609,14 +12612,15 @@ function setMyHandStatus() {
         // Raise hand
         setColor(myHandBtn, '#FFD700');
         elemDisplay(myHandStatusIcon, true);
-        setTippy(myHandBtn, 'Raise your hand', bottomButtonsPlacement);
+        setTippy(myHandBtn, 'Lower your hand (H)', bottomButtonsPlacement);
         playSound('raiseHand');
     } else {
         // Lower hand
         setColor(myHandBtn, 'var(--btn-bar-bg-color)');
         elemDisplay(myHandStatusIcon, false);
-        setTippy(myHandBtn, 'Lower your hand', bottomButtonsPlacement);
+        setTippy(myHandBtn, 'Raise your hand (H)', bottomButtonsPlacement);
     }
+    if (myHandBtn && myHandBtn.setAttribute) myHandBtn.setAttribute('aria-pressed', String(!!myHandStatus));
     emitPeerStatus('hand', myHandStatus);
 }
 
@@ -12633,7 +12637,8 @@ function setMyAudioStatus(status) {
     emitPeerStatus('audio', status);
     const audioStatusLabel = status ? 'My audio is on' : 'My audio is off';
     setTippy(myAudioStatusIcon, audioStatusLabel, 'bottom');
-    setTippy(audioBtn, status ? 'Stop the audio' : 'Start the audio', bottomButtonsPlacement);
+    setTippy(audioBtn, status ? 'Stop the audio (A)' : 'Start the audio (A)', bottomButtonsPlacement);
+    if (audioBtn && audioBtn.setAttribute) audioBtn.setAttribute('aria-pressed', String(!!status));
     status ? playSound('on') : playSound('off');
     screenReaderAccessibility.announceMessage(audioStatusLabel);
 }
@@ -12661,8 +12666,9 @@ function setMyVideoStatus(status) {
 
     if (!isMobileDevice) {
         if (myVideoStatusIcon) setTippy(myVideoStatusIcon, videoStatusLabel, 'bottom');
-        setTippy(videoBtn, status ? 'Stop the video' : 'Start the video', bottomButtonsPlacement);
+        setTippy(videoBtn, status ? 'Stop the video (V)' : 'Start the video (V)', bottomButtonsPlacement);
     }
+    if (videoBtn && videoBtn.setAttribute) videoBtn.setAttribute('aria-pressed', String(!!status));
 
     if (status) {
         displayElements([
@@ -15867,7 +15873,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.50',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.51',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
