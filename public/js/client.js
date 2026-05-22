@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.51
+ * @version 1.8.52
  *
  */
 
@@ -80,7 +80,7 @@ const className = {
     shareVideoAudio: 'fab fa-youtube',
     kickOut: 'fas fa-sign-out-alt',
     chatOn: 'fas fa-comment',
-    chatOff: 'fas fa-comment-slash',
+    chatOff: 'fas fa-comment',
     ghost: 'fas fa-ghost',
     undo: 'fas fa-undo',
     captionOn: 'fas fa-closed-captioning',
@@ -688,6 +688,7 @@ let isCaptionPinned = false;
 let isChatRoomVisible = false;
 let isParticipantsVisible = false;
 let isChatOpenedByParticipantsBtn = false;
+let isOpeningParticipants = false;
 let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
 let isChatMarkdownOn = false;
@@ -6324,6 +6325,7 @@ function setChatRoomBtn() {
         setActiveConversation('public');
         msgerDraggable.classList.remove('msger-pinned-sidebar-open');
         msgerCPBtn.classList.remove('active');
+        syncChatToolbarButtons();
         msgerInput.focus();
         msgerChat.scrollTop = msgerChat.scrollHeight;
     });
@@ -6331,6 +6333,7 @@ function setChatRoomBtn() {
     msgerSidebarCloseBtn?.addEventListener('click', () => {
         msgerDraggable.classList.remove('msger-pinned-sidebar-open');
         msgerCPBtn.classList.remove('active');
+        syncChatToolbarButtons();
         closeAllMsgerParticipantDropdownMenus();
     });
 
@@ -6361,12 +6364,7 @@ function setChatRoomBtn() {
 
     // open hide chat room
     chatRoomBtn.addEventListener('click', (e) => {
-        if (!isChatRoomVisible) {
-            showChatRoomDraggable();
-        } else {
-            hideChatRoomAndEmojiPicker();
-            e.target.className = className.chatOn;
-        }
+        !isChatRoomVisible ? showChatRoomDraggable() : hideChatRoomAndEmojiPicker();
     });
 
     // pin/unpin
@@ -6404,6 +6402,7 @@ function setChatRoomBtn() {
         if (isChatPinned) {
             const isOpen = msgerDraggable.classList.toggle('msger-pinned-sidebar-open');
             msgerCPBtn.classList.toggle('active', isOpen);
+            syncChatToolbarButtons();
             if (isOpen) {
                 searchPeerBarName?.focus();
             } else {
@@ -6570,6 +6569,7 @@ function setParticipantsBtn() {
 
                 msgerDraggable.classList.remove('msger-pinned-sidebar-open');
                 msgerCPBtn.classList.remove('active');
+                syncChatToolbarButtons();
                 closeAllMsgerParticipantDropdownMenus();
                 screenReaderAccessibility.announceMessage('Participants list closed');
                 return;
@@ -6577,9 +6577,10 @@ function setParticipantsBtn() {
 
             msgerDraggable.classList.add('msger-pinned-sidebar-open');
 
-            if (!isChatRoomVisible) {
-                showChatRoomDraggable();
-            }
+            isOpeningParticipants = true;
+            msgerCPBtn.classList.add('active');
+
+            !isChatRoomVisible ? showChatRoomDraggable() : syncChatToolbarButtons();
 
             isChatOpenedByParticipantsBtn = openedChatForParticipants;
 
@@ -6591,6 +6592,8 @@ function setParticipantsBtn() {
             await sleep(500);
 
             msgerCPBtn.classList.add('active');
+            isOpeningParticipants = false;
+            syncChatToolbarButtons();
             searchPeerBarName?.focus();
             screenReaderAccessibility.announceMessage('Participants list opened');
             return;
@@ -9911,7 +9914,6 @@ function showChatRoomDraggable() {
     //chatLeftCenter();
     chatCenter();
 
-    chatRoomBtn.className = className.chatOff;
     isChatRoomVisible = true;
 
     if (!isMobileDevice && canBePinned() && pinChatByDefault && !isChatPinned && !isCaptionPinned) {
@@ -9919,10 +9921,28 @@ function showChatRoomDraggable() {
     }
 
     syncParticipantsPanelVisibility();
+    syncChatToolbarButtons();
 
     setTippy(chatRoomBtn, 'Close the chat (C)', bottomButtonsPlacement);
-    if (chatRoomBtn && chatRoomBtn.setAttribute) chatRoomBtn.setAttribute('aria-pressed', 'true');
     screenReaderAccessibility.announceMessage('Chat opened');
+}
+
+/**
+ * Sync the active visual state of the chat / participants toolbar buttons
+ * with the current chat & participants panel visibility.
+ */
+function syncChatToolbarButtons() {
+    const participantsActive = isOpeningParticipants || !!(msgerCPBtn && msgerCPBtn.classList.contains('active'));
+    const chatActive = !!isChatRoomVisible && !participantsActive;
+    if (chatRoomBtn) {
+        chatRoomBtn.classList.toggle('is-active', chatActive);
+        chatRoomBtn.setAttribute('aria-pressed', chatActive ? 'true' : 'false');
+    }
+    if (participantsBtn) {
+        participantsBtn.classList.toggle('is-active', participantsActive);
+        participantsBtn.setAttribute('aria-pressed', participantsActive ? 'true' : 'false');
+        participantsBtn.setAttribute('aria-expanded', participantsActive ? 'true' : 'false');
+    }
 }
 
 function shouldDockParticipantsPanel() {
@@ -9966,6 +9986,7 @@ function syncParticipantsPanelVisibility(forceVisible = null) {
         msgerCPBtn.classList.remove('active');
         closeAllMsgerParticipantDropdownMenus();
         isParticipantsVisible = false;
+        syncChatToolbarButtons();
         return;
     }
 
@@ -9987,6 +10008,7 @@ function syncParticipantsPanelVisibility(forceVisible = null) {
     }
 
     isParticipantsVisible = shouldShow;
+    syncChatToolbarButtons();
     toggleMsgerParticipantsEmptyNotice();
 }
 
@@ -10418,13 +10440,12 @@ function hideChatRoomAndEmojiPicker() {
     elemDisplay(msgerCP, false);
     elemDisplay(msgerEmojiPicker, false);
     setColor(msgerEmojiBtn, '#FFFFFF');
-    chatRoomBtn.className = className.chatOn;
     isChatRoomVisible = false;
     isParticipantsVisible = false;
     isChatOpenedByParticipantsBtn = false;
     isChatEmojiVisible = false;
     setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
-    if (chatRoomBtn && chatRoomBtn.setAttribute) chatRoomBtn.setAttribute('aria-pressed', 'false');
+    syncChatToolbarButtons();
     screenReaderAccessibility.announceMessage('Chat closed');
 }
 
@@ -15873,7 +15894,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.51',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.52',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

@@ -508,6 +508,18 @@ body {
     transition: all 0.3s ease-in-out;
 }
 
+/* Active state for chat / participants toolbar buttons (theme-aware) */
+#bottomButtons #chatRoomBtn.is-active,
+#bottomButtons #participantsBtn.is-active {
+    background: color-mix(in srgb, var(--dd-color, #4678f9) 18%, transparent) !important;
+    box-shadow: inset 0 0 0 1px var(--dd-color, #4678f9);
+    color: var(--dd-color, #4678f9) !important;
+}
+#bottomButtons #chatRoomBtn.is-active:hover,
+#bottomButtons #participantsBtn.is-active:hover {
+    background: color-mix(in srgb, var(--dd-color, #4678f9) 28%, transparent) !important;
+}
+
 /* Quick device picker (Start Audio/Video) */
 #bottomButtons .device-dropdown-toggle {
     width: 35px;
