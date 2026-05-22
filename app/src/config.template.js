@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.8.52 - Configuration File
+ * MiroTalk P2P v.1.8.53 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -52,6 +52,32 @@ module.exports = {
         host: process.env.HOST || `http://localhost:${port}`,
         environment: process.env.NODE_ENV || 'development',
         trustProxy: !!getEnvBoolean(process.env.TRUST_PROXY),
+
+        /**
+         * Embed (iframe) Restrictions
+         * ---------------------------
+         * Controls which origins are allowed to embed MiroTalk P2P in an <iframe>
+         * via the HTTP `Content-Security-Policy: frame-ancestors` header
+         * (also mirrored to `X-Frame-Options` when possible for legacy browsers).
+         *
+         * Behavior:
+         * - Empty / unset  → header NOT set, embedding allowed anywhere (default).
+         * - 'none'         → block ALL embedding (frame-ancestors 'none' + X-Frame-Options: DENY).
+         * - 'self'         → only same-origin embedding (frame-ancestors 'self' + X-Frame-Options: SAMEORIGIN).
+         * - list           → comma-separated origins, 'self' is always implicitly included.
+         *                    Wildcards like https://*.example.com are valid in CSP.
+         *
+         * IMPORTANT: This affects the widget too — the MiroTalk widget embeds
+         * the room in an iframe on the host site, so every site that should
+         * load the widget must be listed here.
+         */
+        embed: {
+            allowedOrigins: process.env.ALLOWED_EMBED_ORIGINS
+                ? process.env.ALLOWED_EMBED_ORIGINS.split(',')
+                      .map((o) => o.trim())
+                      .filter(Boolean)
+                : [],
+        },
     },
 
     // ==========================================

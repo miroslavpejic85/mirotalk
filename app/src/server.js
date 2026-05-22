@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.52
+ * @version 1.8.53
  *
  */
 
@@ -72,6 +72,7 @@ const Validate = require('./validate');
 const HtmlInjector = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
+const { applyEmbedHeaders, embedAllowedOrigins, embedCsp } = require('./middleware/embedHeaders');
 const log = new Logs('server');
 
 // Central configuration (reads .env via dotenv internally)
@@ -412,6 +413,7 @@ if (ipWhitelist.enabled && !trustProxy) {
 }
 
 app.use(helmet.noSniff()); // Enable content type sniffing prevention
+app.use(applyEmbedHeaders); // Apply iframe embedding restrictions (CSP frame-ancestors / X-Frame-Options)
 
 // Use all static files from the public folder
 const staticOptions = {
@@ -1128,6 +1130,10 @@ function getServerConfig(tunnel = false) {
         // Core Configurations
         jwtCfg: jwtCfg,
         cors: corsOptions,
+        embed: {
+            allowedOrigins: embedAllowedOrigins.length ? embedAllowedOrigins : 'any',
+            csp: embedCsp ? embedCsp.csp : 'not set (embedding allowed from any origin)',
+        },
         iceServers: iceServers,
         test_ice_servers: testStunTurn,
         email: nodemailer.emailCfg.alert ? nodemailer.emailCfg : false,
