@@ -317,7 +317,15 @@ access to use this app.
                 </div>
             </div>
 
-            <button id="leaveRoomBtn" class="fa-solid fa-phone-slash"></button>
+            <div id="exitDropdown">
+                <button id="leaveRoomBtn" class="fa-solid fa-phone-slash"></button>
+                <div id="exitMenu" class="hidden" aria-labelledby="leaveRoomBtn">
+                    <button id="exitLeaveBtn"><i class="fas fa-sign-out-alt"></i> Leave room</button>
+                    <button id="exitLeaveAllBtn" class="hidden">
+                        <i class="fas fa-power-off red"></i> <span class="red">End room for all</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- End bottom buttons -->

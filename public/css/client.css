@@ -466,6 +466,61 @@ body {
     border-radius: 10px;
 }
 
+/* Exit dropdown menu (Leave room / End room for all) */
+#bottomButtons #exitDropdown {
+    position: relative;
+    display: inline-flex;
+}
+
+#bottomButtons #exitMenu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    z-index: 9999;
+    background: var(--body-bg);
+    border: var(--border);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    padding: 6px 0;
+    text-align: left;
+}
+
+#bottomButtons #exitMenu button {
+    display: flex;
+    width: 100%;
+    height: auto;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    border-radius: 0;
+    background: transparent;
+    color: #fff;
+    transition:
+        padding-left 0.2s ease,
+        background 0.2s ease;
+}
+
+#bottomButtons #exitMenu button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    padding-left: 22px;
+    transform: none;
+}
+
+#bottomButtons #exitMenu button i {
+    width: 20px;
+    min-width: 20px;
+    text-align: center;
+    margin-right: 10px;
+    font-size: 1.1em;
+}
+
+#bottomButtons #exitMenu .red {
+    color: #dc3545 !important;
+}
+
 /* Let the dropdown menu anchor to the whole split button (not only the arrow). */
 #bottomButtons #audioDropdown,
 #bottomButtons #videoDropdown,

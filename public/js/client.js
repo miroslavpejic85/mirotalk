@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.53
+ * @version 1.8.54
  *
  */
 
@@ -221,6 +221,11 @@ const settingsExtraDropdown = getId('settingsExtraDropdown');
 const settingsExtraToggle = getId('settingsExtraToggle');
 const settingsExtraMenu = getId('settingsExtraMenu');
 const leaveRoomBtn = getId('leaveRoomBtn');
+
+const exitDropdown = getId('exitDropdown');
+const exitMenu = getId('exitMenu');
+const exitLeaveBtn = getId('exitLeaveBtn');
+const exitLeaveAllBtn = getId('exitLeaveAllBtn');
 
 // Room Emoji Picker
 const closeEmojiPickerContainer = getId('closeEmojiPickerContainer');
@@ -7520,8 +7525,64 @@ function setAboutBtn() {
  */
 function setLeaveRoomBtn() {
     leaveRoomBtn.addEventListener('click', (e) => {
-        leaveRoom();
+        if (e && e.shiftKey) return leaveRoom();
+        toggleExitMenu();
     });
+    if (exitLeaveBtn) exitLeaveBtn.onclick = handleExitLeave;
+    if (exitLeaveAllBtn) exitLeaveAllBtn.onclick = handleExitLeaveForAll;
+    document.addEventListener('click', handleExitMenuOutsideClick);
+}
+
+/**
+ * Toggle the exit dropdown menu. The "End room for all" entry is
+ * only available to the presenter.
+ */
+function toggleExitMenu() {
+    if (!exitMenu) return leaveRoom();
+    if (exitLeaveAllBtn) {
+        isPresenter ? exitLeaveAllBtn.classList.remove('hidden') : exitLeaveAllBtn.classList.add('hidden');
+    }
+    exitMenu.classList.toggle('hidden');
+}
+
+function handleExitLeave() {
+    if (exitMenu) exitMenu.classList.add('hidden');
+    leaveRoom();
+}
+
+function handleExitLeaveForAll() {
+    if (exitMenu) exitMenu.classList.add('hidden');
+    leaveRoomForAll();
+}
+
+function handleExitMenuOutsideClick(e) {
+    if (!exitDropdown || !exitMenu) return;
+    if (exitMenu.classList.contains('hidden')) return;
+    if (!exitDropdown.contains(e.target)) exitMenu.classList.add('hidden');
+}
+
+/**
+ * Presenter: kick out all other peers, then leave the room.
+ */
+function leaveRoomForAll() {
+    if (!isPresenter) return leaveRoom();
+    try {
+        if (allPeers && typeof allPeers === 'object') {
+            for (const peer_id in allPeers) {
+                if (!allPeers[peer_id]) continue;
+                if (peer_id === myPeerId) continue;
+                sendToServer('kickOut', {
+                    room_id: roomId,
+                    peer_id: peer_id,
+                    peer_uuid: myPeerUUID,
+                    peer_name: myPeerName,
+                });
+            }
+        }
+    } catch (err) {
+        console.warn('[leaveRoomForAll] failed to kick all peers', err);
+    }
+    leaveRoom();
 }
 
 /**
@@ -15894,7 +15955,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.53',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.54',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
