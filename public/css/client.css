@@ -2437,20 +2437,19 @@ button {
     display: block;
     width: 100%;
     min-width: 0;
-    padding: 12px 14px;
+    padding: 0;
     margin: 0;
     font-size: 0.95rem;
     background-color: transparent;
     color: #ffffff;
-    border: var(--border);
-    border-radius: 14px;
+    border: none;
+    border-radius: 0;
     box-sizing: border-box;
     transition: all 0.25s ease;
 }
 
 #searchPeerBarName:focus {
     outline: none;
-    border-color: rgba(97, 195, 201, 0.34);
     background-color: transparent;
 }
 
