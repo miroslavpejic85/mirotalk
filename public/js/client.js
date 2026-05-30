@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.56
+ * @version 1.8.57
  *
  */
 
@@ -5110,7 +5110,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // Change audio output if supported and audioOutputSelect is present
             if (sinkId && audioOutputSelect && audioOutputSelect.value) {
                 try {
-                    await changeAudioDestination(remoteAudioMedia);
+                    await changeAudioDestination(remoteAudioMedia, false);
                 } catch (e) {
                     console.warn('[AUDIO] changeAudioDestination failed for ' + peer_name, e);
                 }
@@ -8272,11 +8272,11 @@ async function setLocalVideoQuality() {
 /**
  * Change audio output (Speaker)
  */
-async function changeAudioDestination(audioElement = false) {
+async function changeAudioDestination(audioElement = false, deferUntilUserActivation = true) {
     const audioDestination = audioOutputSelect.value;
     if (audioElement) {
         // change audio output to specified participant audio
-        await attachSinkId(audioElement, audioDestination);
+        await attachSinkId(audioElement, audioDestination, deferUntilUserActivation);
     } else {
         const audioElements = audioMediaContainer.querySelectorAll('audio');
         // change audio output for all participants audio
@@ -8284,7 +8284,7 @@ async function changeAudioDestination(audioElement = false) {
         audioElements.forEach((audioElement) => {
             // discard my own audio on this device, so I won't hear myself.
             if (audioElement.id != 'myAudio') {
-                promises.push(attachSinkId(audioElement, audioDestination));
+                promises.push(attachSinkId(audioElement, audioDestination, deferUntilUserActivation));
             }
         });
         // Wait for all audio outputs to be changed
@@ -8296,8 +8296,9 @@ async function changeAudioDestination(audioElement = false) {
  * Attach audio output device to audio element using device/sink ID.
  * @param {object} element audio element to attach the audio output
  * @param {string} sinkId uuid audio output device
+ * @param {boolean} deferUntilUserActivation when true, defer applying setSinkId() until the next user gesture if no user activation is present
  */
-async function attachSinkId(element, sinkId) {
+async function attachSinkId(element, sinkId, deferUntilUserActivation = true) {
     if (typeof element.sinkId === 'undefined') {
         console.warn('Browser does not support output device selection.');
         return;
@@ -8333,6 +8334,11 @@ async function attachSinkId(element, sinkId) {
     // If a user gesture is required (Chrome policy), defer until the next interaction
     const needsUserGesture = !!(navigator.userActivation && !navigator.userActivation.isActive);
     if (needsUserGesture) {
+        // Automatic calls (e.g. on new audio consumer) must NOT register a global
+        // user-activation listener: applying setSinkId() on an unrelated click resets
+        // the audio pipeline and breaks echo cancellation. The selected speaker is
+        // re-applied the next time the user explicitly interacts with the speaker select.
+        if (!deferUntilUserActivation) return;
         // Show a single notification prompting the user to click
         if (!window.__sinkGestureNotified) {
             window.__sinkGestureNotified = true;
@@ -15956,7 +15962,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.56',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.57',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
