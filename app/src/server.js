@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.60
+ * @version 1.8.61
  *
  */
 
@@ -1318,13 +1318,35 @@ io.sockets.on('connect', async (socket) => {
                         context.push(...systemMessage, ...recentMessages);
                     }
 
-                    // Call OpenAI's API to generate response
-                    const completion = await chatGPT.chat.completions.create({
-                        model: configChatGPT.model || 'gpt-3.5-turbo',
-                        messages: context,
-                        max_tokens: configChatGPT.max_tokens || 1000,
-                        temperature: configChatGPT.temperature || 0,
-                    });
+                    // Call OpenAI's API to generate response (with retry on transient 5xx errors)
+                    const MAX_RETRIES = 3;
+                    let completion;
+                    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                        try {
+                            completion = await chatGPT.chat.completions.create({
+                                model: configChatGPT.model || 'gpt-3.5-turbo',
+                                messages: context,
+                                max_tokens: configChatGPT.max_tokens || 1000,
+                                temperature: configChatGPT.temperature || 0,
+                            });
+                            break; // success
+                        } catch (retryError) {
+                            const isTransient = retryError.status >= 500 && retryError.status < 600;
+                            if (isTransient && attempt < MAX_RETRIES) {
+                                const delay = Math.pow(2, attempt) * 500; // 1s, 2s backoff
+                                log.warn(
+                                    `ChatGPT transient error (attempt ${attempt}/${MAX_RETRIES}), retrying in ${delay}ms`,
+                                    {
+                                        status: retryError.status,
+                                        message: retryError.message,
+                                    }
+                                );
+                                await new Promise((resolve) => setTimeout(resolve, delay));
+                            } else {
+                                throw retryError;
+                            }
+                        }
+                    }
                     // Extract message from completion
                     const message = completion.choices[0].message.content.trim();
                     // Add response to context
