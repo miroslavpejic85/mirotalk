@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.8.75 - Configuration File
+ * MiroTalk P2P v.1.8.80 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -294,6 +294,7 @@ module.exports = {
         htmlInjection: true,
         app: {
             language: 'en', // https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
+            translationMode: 'google', // In-room UI: auto (native file else Google) | native (human files only, no Google) | google (default, always Google)
             name: 'MiroTalk',
             title: '<h1>MiroTalk</h1>Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
             description:

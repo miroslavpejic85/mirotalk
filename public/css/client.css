@@ -257,9 +257,14 @@ body {
     font-size: 60px;
     font-family: 'Montserrat';
 }
-#loadingDiv pre {
+#loadingDiv pre,
+#loadingDiv p {
     padding: 5px;
     font-family: 'Montserrat';
+}
+#loadingDiv p {
+    max-width: 35ch;
+    margin-inline: auto;
 }
 
 /* Custom CSS spinner */

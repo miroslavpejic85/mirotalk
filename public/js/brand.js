@@ -54,6 +54,7 @@ const footer = document.getElementById('footer');
 let brand = {
     app: {
         language: 'en',
+        translationMode: 'google',
         name: 'MiroTalk',
         title: 'MiroTalk<br />Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
         description:
@@ -109,7 +110,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.8.75',
+        title: 'WebRTC P2P v1.8.80',
         html: `
             <button 
                 id="support-button" 
@@ -179,6 +180,9 @@ async function initBrand() {
     handleBrand();
 
     handleWidget();
+
+    // Signal to i18n.js (and others) that brand config is resolved.
+    document.dispatchEvent(new Event('brand:ready'));
 }
 
 /**
