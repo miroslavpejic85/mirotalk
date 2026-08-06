@@ -37,12 +37,22 @@ function updateElapsedTime() {
 }
 elapsedTimerId = setInterval(updateElapsedTime, 10000);
 
+// Translate a UI string via the native i18n layer when active (falls back to English).
+function translateWaitingText(text) {
+    try {
+        return window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(text, 'labels') : text;
+    } catch (e) {
+        return text;
+    }
+}
+
 // Brand text (overridden by Brand.js if configured)
 function getWaitingRoomBrand(key, fallback) {
     try {
-        return (typeof brand !== 'undefined' && brand?.site?.[key]) || fallback;
+        const value = (typeof brand !== 'undefined' && brand?.site?.[key]) || fallback;
+        return translateWaitingText(value);
     } catch (e) {
-        return fallback;
+        return translateWaitingText(fallback);
     }
 }
 
@@ -107,7 +117,8 @@ function scheduleCheck() {
     }
 }
 
-checkRoom();
+// Start polling after native translations are ready so status text is localized on first paint.
+Promise.resolve(window.i18n && window.i18n.ready).then(checkRoom);
 
 // Waiting room audio player
 const audioPlayerEl = document.getElementById('waitingAudioPlayer');
@@ -141,11 +152,11 @@ function initAudioPlayer() {
         if (audioPlaying) {
             waitingAudio.pause();
             audioIcon.className = 'fa-solid fa-play';
-            audioBtn.title = 'Play music';
+            audioBtn.title = translateWaitingText('Play music');
         } else {
             waitingAudio.play().catch(function () {});
             audioIcon.className = 'fa-solid fa-pause';
-            audioBtn.title = 'Pause music';
+            audioBtn.title = translateWaitingText('Pause music');
         }
         audioPlaying = !audioPlaying;
     };
@@ -153,7 +164,7 @@ function initAudioPlayer() {
     audioMuteBtn.onclick = function () {
         waitingAudio.muted = !waitingAudio.muted;
         audioMuteIcon.className = waitingAudio.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
-        audioMuteBtn.title = waitingAudio.muted ? 'Unmute' : 'Mute';
+        audioMuteBtn.title = translateWaitingText(waitingAudio.muted ? 'Unmute' : 'Mute');
     };
 }
 

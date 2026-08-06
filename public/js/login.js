@@ -141,8 +141,17 @@ function showLoginError(msg) {
         const loginBtn = document.getElementById('loginButton');
         if (loginBtn) loginBtn.parentNode.insertBefore(el, loginBtn);
     }
-    el.textContent = msg;
+    el.textContent = translateLoginText(msg);
     el.style.display = 'block';
+}
+
+// Translate a UI string via the native i18n layer when active (falls back to English).
+function translateLoginText(text) {
+    try {
+        return window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(text, 'labels') : text;
+    } catch (e) {
+        return text;
+    }
 }
 
 function hideLoginError() {
