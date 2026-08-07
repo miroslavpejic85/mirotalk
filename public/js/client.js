@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.81
+ * @version 1.8.82
  *
  */
 
@@ -15945,7 +15945,7 @@ function handleKickedOut(config) {
                 const content = Swal.getHtmlContainer();
                 if (content) {
                     const b = content.querySelector('b');
-                    if (b) b.textContent = Swal.getTimerLeft();
+                    if (b) b.textContent = Math.ceil(Swal.getTimerLeft() / 1000);
                 }
             }, 100);
         },
@@ -15971,7 +15971,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.81',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.82',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

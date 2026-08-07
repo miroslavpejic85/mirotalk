@@ -3011,9 +3011,45 @@ button {
     height: 256px;
 }
 
-.kicked-out-modal-alert-title,
+.kicked-out-modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-2) 0;
+}
+
+.kicked-out-modal-text {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ds-neutral-100);
+}
+
+.kicked-out-modal-peer {
+    font-weight: 700;
+    color: var(--ds-danger);
+}
+
+.kicked-out-modal-redirect {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-2);
+    padding: var(--ds-space-2) var(--ds-space-4);
+    border-radius: var(--ds-radius-full);
+    background: rgba(231, 76, 60, 0.12);
+    color: var(--ds-neutral-300);
+    font-size: 14px;
+}
+
 .kicked-out-modal-alert-time {
-    color: #ff2d00;
+    display: inline-block;
+    min-width: 1.2em;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--ds-danger);
 }
 
 /*--------------------------------------------------------------
