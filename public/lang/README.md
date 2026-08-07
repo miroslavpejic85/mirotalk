@@ -14,7 +14,7 @@ See [app/src/config.template.js](../../app/src/config.template.js).
 ## Translation mode (`translationMode`)
 
 `config.brand.app.translationMode` controls the strategy.
-**The default is `google`** — if the value is unset, empty, or invalid, MiroTalk behaves
+**The default is `google`**, if the value is unset, empty, or invalid, MiroTalk behaves
 exactly as before native translation existed (backward compatible). Native translation is
 opt-in via `auto` or `native`.
 
