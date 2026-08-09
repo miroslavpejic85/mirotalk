@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.86
+ * @version 1.8.87
  *
  */
 
@@ -93,7 +93,9 @@ const loginLimiter = rateLimit({
     message: {
         message: `Too many login attempts. Please try again after ${minBlockTime} minute${minBlockTime == 1 ? '' : 's'}.`,
     },
-    keyGenerator: (req) => req.body?.username || getIP(req),
+    // Throttle by client IP only. A client-supplied username can be varied per
+    // request to get a fresh bucket, defeating the login lockout entirely.
+    keyGenerator: (req) => getIP(req),
 });
 
 const port = config.server.port;
@@ -1231,6 +1233,22 @@ server.listen(port, null, async () => {
     }
     if (jwtCfg.JWT_KEY === 'mirotalk_jwt_secret') {
         log.warn('WARNING: JWT_SECRET is set to the default value. Change it before deploying!');
+    }
+    if (hostCfg.protected || hostCfg.user_auth) {
+        const defaultCreds = [
+            { username: 'admin', password: 'admin' },
+            { username: 'guest', password: 'guest' },
+        ];
+        const usesDefaultUsers =
+            Array.isArray(hostCfg.users) &&
+            hostCfg.users.some(
+                (u) => u && defaultCreds.some((d) => u.username === d.username && u.password === d.password)
+            );
+        if (usesDefaultUsers) {
+            log.warn(
+                'WARNING: HOST_USERS still contains default credentials (e.g. admin/admin, guest/guest). Change them!'
+            );
+        }
     }
 });
 
