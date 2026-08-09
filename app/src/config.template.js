@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.8.85 - Configuration File
+ * MiroTalk P2P v.1.8.86 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.

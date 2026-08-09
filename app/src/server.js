@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.85
+ * @version 1.8.86
  *
  */
 
@@ -1434,19 +1434,23 @@ io.sockets.on('connect', async (socket) => {
         if (channel in socket.channels) {
             return log.debug('[' + socket.id + '] [Warning] already joined', channel);
         }
-        // no channel aka room in channels init
-        if (!(channel in channels)) channels[channel] = {};
-
-        // no channel aka room in peers init
-        if (!(channel in peers)) peers[channel] = {};
-
-        // no presenter aka host in presenters init
-        if (!(channel in presenters)) presenters[channel] = {};
 
         let is_presenter = true;
 
+        // Is this join opening a brand new room (no presenter/host yet)? Computed from
+        // current state BEFORE any room structure is created, so a rejected join never
+        // leaves an empty room behind (which would otherwise make roomExist true and let
+        // guests bypass host protection over the HTTP /join layer).
+        const isRoomNew = !(channel in presenters) || Object.keys(presenters[channel]).length === 0;
+
+        // Auth is required when global user auth is enabled, when a token is supplied
+        // (always validate it), or when host protection is on and this join would open
+        // a new room. The last case stops unauthenticated Socket.IO clients from creating
+        // protected rooms and becoming presenter, bypassing the HTTP login/waiting-room.
+        const authRequired = hostCfg.user_auth || peer_token || (hostCfg.protected && isRoomNew);
+
         // User Auth required, we check if peer valid
-        if (hostCfg.user_auth || peer_token) {
+        if (authRequired) {
             // Check JWT
             if (peer_token) {
                 try {
@@ -1467,8 +1471,7 @@ io.sockets.on('connect', async (socket) => {
                     }
 
                     // Presenter if token 'presenter' is '1'/'true' or first to join room
-                    is_presenter =
-                        presenter === '1' || presenter === 'true' || Object.keys(presenters[channel]).length === 0;
+                    is_presenter = presenter === '1' || presenter === 'true' || isRoomNew;
 
                     log.debug('[' + socket.id + '] JOIN ROOM - USER AUTH check peer', {
                         ip: peer_ip,
@@ -1487,6 +1490,11 @@ io.sockets.on('connect', async (socket) => {
                 return socket.emit('unauthorized');
             }
         }
+
+        // Auth passed — safe to create the room structures now
+        if (!(channel in channels)) channels[channel] = {};
+        if (!(channel in peers)) peers[channel] = {};
+        if (!(channel in presenters)) presenters[channel] = {};
 
         // room locked by the participants can't join
         if (peers[channel]['lock'] === true && peers[channel]['password'] != channel_password) {
