@@ -284,3 +284,13 @@ This project is tested with [BrowserStack](https://www.browserstack.com).
 <p align="center">
   Built with ❤️ by <a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/">Miroslav</a> and the open-source community
 </p>
+
+<h2 align="center">Contributors</h2>
+
+<p align="center">Thanks to all the amazing people who have contributed to MiroTalk P2P 💙</p>
+
+<p align="center">
+  <a href="https://github.com/miroslavpejic85/mirotalk/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=miroslavpejic85/mirotalk" />
+  </a>
+</p>
