@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.84
+ * @version 1.8.85
  *
  */
 
@@ -1764,6 +1764,15 @@ io.sockets.on('connect', async (socket) => {
 
         if (!Validate.isValidData(data)) return;
 
+        // Security: only a joined peer of the room may broadcast into it.
+        if (!isPeerInRoom(data.room_id, socket.id)) {
+            log.debug('message blocked: sender is not a joined peer', {
+                room_id: data.room_id,
+                socket_id: socket.id,
+            });
+            return;
+        }
+
         await sendToRoom(data.room_id, socket.id, 'message', data);
     });
 
@@ -1784,6 +1793,12 @@ io.sockets.on('connect', async (socket) => {
         const { room_id, peer_name, peer_uuid, to_peer_id } = data;
 
         log.debug('cmd', config);
+
+        // Security: only a joined peer of the room may relay commands into it.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('cmd blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
 
         // Only the presenter can do this actions
         const presenterActions = ['geoLocation'];
@@ -1817,6 +1832,12 @@ io.sockets.on('connect', async (socket) => {
 
         // log.debug('Peer status', config);
         const { room_id, peer_name, peer_id, element, status, extras } = config;
+
+        // Security: only a joined peer of the room may broadcast status into it.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('peerStatus blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
 
         const data = {
             peer_id: peer_id,
@@ -1885,6 +1906,12 @@ io.sockets.on('connect', async (socket) => {
             send_to_all,
         } = config;
 
+        // Security: only a joined peer of the room may relay actions into it.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('peerAction blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
+
         // Only the presenter can do this actions
         const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll', 'stopScreen', 'recStart', 'recStop'];
         if (presenterActions.some((v) => peer_action === v)) {
@@ -1924,7 +1951,15 @@ io.sockets.on('connect', async (socket) => {
 
         if (!Validate.isValidData(config)) return;
 
-        await sendToRoom(cfg.room_id, sockets, 'caption', config);
+        const { room_id } = config;
+
+        // Security: only a joined peer of the room may broadcast captions into it.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('caption blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
+
+        await sendToRoom(room_id, socket.id, 'caption', config);
     });
 
     /**
@@ -1964,6 +1999,12 @@ io.sockets.on('connect', async (socket) => {
 
         // log.debug('File info', config);
         const { room_id, peer_id, peer_name, peer_avatar, broadcast, file } = config;
+
+        // Security: only a joined peer of the room may share file info into it.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('fileInfo blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
 
         // check if valid fileName
         if (!isValidFileName(file.fileName)) {
@@ -2005,6 +2046,12 @@ io.sockets.on('connect', async (socket) => {
 
         const { room_id, peer_name } = config;
 
+        // Security: only a joined peer of the room may broadcast into it.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('fileAbort blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
+
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
         await sendToRoom(room_id, socket.id, 'fileAbort');
     });
@@ -2015,6 +2062,13 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
 
         const { room_id, peer_name } = config;
+
+        // Security: only a joined peer of the room may broadcast into it.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('fileReceiveAbort blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
+
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileReceiveAbort to room_id [' + room_id + ']');
         await sendToRoom(room_id, socket.id, 'fileReceiveAbort', config);
     });
@@ -2030,6 +2084,12 @@ io.sockets.on('connect', async (socket) => {
 
         // log.debug('Video player', config);
         const { room_id, peer_id, peer_name, video_action, video_src, broadcast } = config;
+
+        // Security: only a joined peer of the room may drive the shared video player.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('videoPlayer blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
 
         // Check if valid video src url
         if (video_action == 'open' && !isValidHttpURL(video_src)) {
@@ -2295,13 +2355,20 @@ function isValidFileName(fileName) {
 
 /**
  * Check if valid URL
+ * Rejects non-http(s) schemes and, to prevent browser-side SSRF, any host
+ * that is localhost or a private / loopback / link-local / reserved IP.
  * @param {string} str to check
  * @returns boolean true/false
  */
 function isValidHttpURL(input) {
     try {
         const url = new URL(input);
-        return url.protocol === 'http:' || url.protocol === 'https:';
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+        const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+        if (!host) return false;
+        if (host === 'localhost' || host.endsWith('.localhost')) return false;
+        if (Validate.isPrivateOrLoopbackHost(host)) return false;
+        return true;
     } catch (_) {
         return false;
     }
@@ -2321,6 +2388,19 @@ async function getPeerGeoLocation(ip) {
         .get(endpoint)
         .then((response) => response.data)
         .catch((error) => log.error(error));
+}
+
+/**
+ * Check if a socket is a joined peer of the given room.
+ * Room broadcasts (message, caption, peerStatus, fileInfo, videoPlayer, ...)
+ * must be authorized against the server-controlled socket.id so a socket that
+ * never joined the room cannot inject events into it (cross-room injection).
+ * @param {string} room_id
+ * @param {string} socket_id server-controlled socket.id of the caller
+ * @returns {boolean}
+ */
+function isPeerInRoom(room_id, socket_id) {
+    return !!(room_id && peers[room_id] && peers[room_id][socket_id]);
 }
 
 /**
