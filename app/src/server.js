@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.87
+ * @version 1.8.88
  *
  */
 
@@ -1999,7 +1999,7 @@ io.sockets.on('connect', async (socket) => {
 
         // peer_id here is the TARGET to kick; the caller's identity is the
         // server-controlled socket.id, not anything the client supplies.
-        const { room_id, peer_id, peer_uuid, peer_name } = config;
+        const { room_id, peer_id, peer_uuid, peer_name, peer_kicked_reason } = config;
 
         // Authorize the caller using socket.id to prevent role spoofing.
         const isPresenter = isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
@@ -2010,6 +2010,7 @@ io.sockets.on('connect', async (socket) => {
 
             await sendToPeer(peer_id, sockets, 'kickOut', {
                 peer_name: peer_name,
+                peer_kicked_reason: peer_kicked_reason,
             });
         }
     });

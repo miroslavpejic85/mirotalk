@@ -3031,6 +3031,21 @@ button {
     color: var(--ds-danger);
 }
 
+.kicked-out-modal-reason {
+    margin: 0;
+    max-width: 100%;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ds-neutral-300);
+    font-style: italic;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.kicked-out-modal-reason:empty {
+    display: none;
+}
+
 .kicked-out-modal-redirect {
     margin: 0;
     display: inline-flex;

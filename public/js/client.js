@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.87
+ * @version 1.8.88
  *
  */
 
@@ -15831,6 +15831,13 @@ function kickOut(peer_id) {
         imageUrl: images.leave,
         title: 'Kick out',
         text: `Are you sure you want to kick out ${pName}?`,
+        input: 'text',
+        inputPlaceholder: 'Reason (optional)',
+        inputAttributes: {
+            maxlength: 128,
+            autocapitalize: 'off',
+            autocorrect: 'off',
+        },
         showDenyButton: true,
         confirmButtonText: `Yes`,
         denyButtonText: `No`,
@@ -15844,6 +15851,7 @@ function kickOut(peer_id) {
                 peer_id: peer_id,
                 peer_uuid: myPeerUUID,
                 peer_name: myPeerName,
+                peer_kicked_reason: (result.value || '').trim(),
             });
         }
     });
@@ -15920,7 +15928,7 @@ function handleCaptionActions(config) {
 function handleKickedOut(config) {
     signalingSocket.disconnect();
 
-    const { peer_name } = config;
+    const { peer_name, peer_kicked_reason } = config;
 
     playSound('eject');
 
@@ -15935,6 +15943,7 @@ function handleKickedOut(config) {
         html: renderRoomTemplate('tpl-kicked-out-modal', {
             text: {
                 peerName: peer_name,
+                reason: peer_kicked_reason && peer_kicked_reason.trim() ? `Reason: ${peer_kicked_reason.trim()}` : '',
             },
         }),
         timer: 5000,
@@ -15971,7 +15980,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.87',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.88',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
