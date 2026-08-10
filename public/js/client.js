@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.90
+ * @version 1.8.91
  *
  */
 
@@ -738,7 +738,9 @@ let themeCardDebounce = null;
 let mediaRecorder;
 let recordedBlobs;
 let audioRecorder; // helpers.js
+let screenAudioRecorder; // helpers.js - mixes participant audio with system/tab audio
 let recScreenStream; // screen media to recording
+let recScreenAudioTracks = []; // raw system/tab audio tracks to stop on recording end
 let recTimer;
 let recCodecs;
 let recElapsedTime;
@@ -9623,6 +9625,7 @@ function startDesktopRecording(options, audioMixerTracks) {
     // Define constraints for capturing the screen
     const constraints = {
         video: { frameRate: { max: 30 } }, // Recording max 30fps
+        audio: true, // Allow capturing system/tab audio when the user shares it
     };
 
     // Request access to screen capture using the specified constraints
@@ -9633,6 +9636,10 @@ function startDesktopRecording(options, audioMixerTracks) {
             const screenTracks = screenStream.getVideoTracks();
             console.log('Screen video tracks --->', screenTracks);
 
+            // Get system/tab audio tracks the user chose to share (if any)
+            const screenAudioTracks = screenStream.getAudioTracks();
+            console.log('Screen audio tracks --->', screenAudioTracks);
+
             // Create an array to combine screen tracks and audio mixer tracks
             const combinedTracks = [];
 
@@ -9641,10 +9648,22 @@ function startDesktopRecording(options, audioMixerTracks) {
                 combinedTracks.push(...screenTracks);
             }
 
-            // Add audio mixer tracks to combinedTracks if available
+            // Determine the audio to record: participant mix, plus system/tab audio if shared
+            let recordAudioTracks = [];
             if (useAudio && Array.isArray(audioMixerTracks)) {
-                combinedTracks.push(...audioMixerTracks);
+                recordAudioTracks = [...audioMixerTracks];
             }
+            if (screenAudioTracks.length > 0) {
+                // MediaRecorder encodes only one audio track, so mix participant + system/tab audio into one
+                screenAudioRecorder = new MixedAudioRecorder();
+                const streamsToMix = [
+                    ...recordAudioTracks.map((track) => new MediaStream([track])),
+                    ...screenAudioTracks.map((track) => new MediaStream([track])),
+                ];
+                recordAudioTracks = screenAudioRecorder.getMixedAudioStream(streamsToMix).getTracks();
+                recScreenAudioTracks = screenAudioTracks; // keep raw tracks to stop them on recording end
+            }
+            combinedTracks.push(...recordAudioTracks);
 
             // Create a new MediaStream using the combinedTracks
             recScreenStream = new MediaStream(combinedTracks);
@@ -9788,6 +9807,15 @@ function handleMediaRecorderStop(event) {
             if (track.kind === 'video') track.stop();
         });
         isRecScreenStream = false;
+    }
+    // Stop system/tab audio capture and its mixer, if used
+    if (recScreenAudioTracks.length) {
+        recScreenAudioTracks.forEach((track) => track.stop());
+        recScreenAudioTracks = [];
+    }
+    if (screenAudioRecorder) {
+        screenAudioRecorder.stopMixedAudioStream();
+        screenAudioRecorder = null;
     }
 
     const recordStreamIcon = recordStreamBtn.querySelector('i');
@@ -15986,7 +16014,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.90',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.91',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
