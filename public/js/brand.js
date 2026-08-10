@@ -110,7 +110,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.8.88',
+        title: 'WebRTC P2P v1.8.89',
         html: `
             <button 
                 id="support-button" 
