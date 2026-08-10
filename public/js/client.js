@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.91
+ * @version 1.8.92
  *
  */
 
@@ -6292,6 +6292,17 @@ function setRecordStreamBtn() {
 }
 
 /**
+ * Update the record button label, preserving its icon
+ * @param {string} label text to display
+ */
+function setRecordStreamBtnLabel(label) {
+    const icon = recordStreamBtn.querySelector('i');
+    recordStreamBtn.textContent = '';
+    if (icon) recordStreamBtn.appendChild(icon);
+    recordStreamBtn.appendChild(document.createTextNode(' ' + label));
+}
+
+/**
  * Full screen button click event
  */
 function setFullScreenBtn() {
@@ -9774,6 +9785,7 @@ function handleMediaRecorderStart(event) {
     isStreamRecording = true;
     const recordStreamIcon = recordStreamBtn.querySelector('i');
     recordStreamIcon.style.setProperty('color', '#ff4500');
+    setRecordStreamBtnLabel('Stop Recording');
     if (isMobileDevice) elemDisplay(swapCameraBtn, false);
     recStartTs = performance.now();
     playSound('recStart');
@@ -9820,6 +9832,7 @@ function handleMediaRecorderStop(event) {
 
     const recordStreamIcon = recordStreamBtn.querySelector('i');
     recordStreamIcon.style.setProperty('color', '#ffffff');
+    setRecordStreamBtnLabel('Start Recording');
     downloadRecordedStream();
 
     if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
@@ -16014,7 +16027,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.91',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.92',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
