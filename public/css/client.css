@@ -760,6 +760,38 @@ body {
     text-align: center;
 }
 
+/* Live audio input level meter inside the audio device menu */
+#bottomButtons #audioMenu button .device-menu-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.device-menu-audio-meter {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 14px;
+    margin-left: auto;
+    padding-left: 12px;
+    flex: 0 0 auto;
+    pointer-events: none;
+}
+
+.device-menu-audio-meter .device-meter-bar {
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background-color: rgba(255, 255, 255, 0.18);
+    transition: background-color 0.08s ease;
+}
+
+.device-menu-audio-meter .device-meter-bar.active {
+    background-color: #19bb5c;
+}
+
 #bottomButtons button:hover {
     background: var(--body-bg);
     transform: var(--btns-hover-scale);
