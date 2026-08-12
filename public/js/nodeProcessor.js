@@ -237,11 +237,6 @@ class RNNoiseProcessor {
     }
 
     stopProcessing() {
-        // Stop the raw input (mic) tracks so the previous device is released on a device switch
-        try {
-            this.mediaStream?.getTracks?.().forEach((t) => t.stop());
-        } catch (e) {}
-
         this.mediaStream = null;
 
         // Signal the worklet to free WASM memory before disconnecting

@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.94
+ * @version 1.8.95
  *
  */
 
@@ -2642,6 +2642,46 @@ async function restartNoiseSuppression() {
     // Do not restore the old microphone stream when restarting.
     await disableNoiseSuppression(false);
     await enableNoiseSuppression();
+}
+
+/**
+ * Apply the noise suppression state and keep all UI toggles in sync.
+ * Shared by the audio settings switch and the audio dropdown menu switch.
+ * Returns the final effective state.
+ */
+async function applyNoiseSuppression(enabled) {
+    if (!buttons.settings.customNoiseSuppression) return false;
+
+    if (enabled) {
+        lsSettings.mic_noise_suppression = true;
+        lS.setSettings(lsSettings);
+
+        const ok = await enableNoiseSuppression();
+        if (!ok) {
+            lsSettings.mic_noise_suppression = false;
+            lS.setSettings(lsSettings);
+        } else {
+            toastMessage('success', 'Noise suppression enabled');
+        }
+    } else {
+        lsSettings.mic_noise_suppression = false;
+        lS.setSettings(lsSettings);
+        await disableNoiseSuppression(true);
+        toastMessage('info', 'Noise suppression disabled');
+    }
+
+    syncNoiseSuppressionUI();
+    return lsSettings.mic_noise_suppression;
+}
+
+/**
+ * Reflect the current noise suppression state on every UI toggle.
+ */
+function syncNoiseSuppressionUI() {
+    const state = !!lsSettings.mic_noise_suppression;
+    if (switchNoiseSuppression) switchNoiseSuppression.checked = state;
+    const menuToggle = getId('audioMenuNoiseSuppression');
+    if (menuToggle) menuToggle.checked = state;
 }
 
 /**
@@ -7690,26 +7730,7 @@ function setupMySettings() {
     // audio options
     switchNoiseSuppression.onchange = async (e) => {
         if (!buttons.settings.customNoiseSuppression) return;
-        const desired = e.currentTarget.checked;
-
-        if (desired) {
-            lsSettings.mic_noise_suppression = true;
-            lS.setSettings(lsSettings);
-
-            const ok = await enableNoiseSuppression();
-            if (!ok) {
-                lsSettings.mic_noise_suppression = false;
-                lS.setSettings(lsSettings);
-                switchNoiseSuppression.checked = false;
-            } else {
-                toastMessage('success', 'Noise suppression enabled');
-            }
-        } else {
-            lsSettings.mic_noise_suppression = false;
-            lS.setSettings(lsSettings);
-            await disableNoiseSuppression(true);
-            toastMessage('info', 'Noise suppression disabled');
-        }
+        await applyNoiseSuppression(e.currentTarget.checked);
         switchNoiseSuppression.blur();
     };
 
@@ -16027,7 +16048,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.94',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.95',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -16882,6 +16903,42 @@ function setupQuickDeviceSwitchDropdowns() {
         menuEl.appendChild(divider);
     }
 
+    function appendNoiseSuppressionToggle(menuEl) {
+        if (!menuEl) return;
+
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'app-dropdown-action device-menu-toggle-btn';
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-ear-listen';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'device-menu-label';
+        labelSpan.textContent = ' Noise Suppression';
+
+        const toggle = document.createElement('input');
+        toggle.id = 'audioMenuNoiseSuppression';
+        toggle.className = 'toggle';
+        toggle.type = 'checkbox';
+        toggle.checked = !!lsSettings.mic_noise_suppression;
+        // Clicks are handled on the row to keep the whole item tappable.
+        toggle.style.pointerEvents = 'none';
+
+        row.appendChild(icon);
+        row.appendChild(labelSpan);
+        row.appendChild(toggle);
+
+        row.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            row.disabled = true;
+            await applyNoiseSuppression(!lsSettings.mic_noise_suppression);
+            row.disabled = false;
+        });
+
+        menuEl.appendChild(row);
+    }
+
     function appendSelectOptions(menuEl, selectEl, emptyLabel, rebuildFn, meterCollector) {
         if (!menuEl || !selectEl) {
             const btn = document.createElement('button');
@@ -16983,6 +17040,13 @@ function setupQuickDeviceSwitchDropdowns() {
         const audioMeterEntries = [];
         appendSelectOptions(audioMenu, audioInputSelect, 'No microphones found', rebuildAudioMenu, audioMeterEntries);
         if (audioMeterManager.active) audioMeterManager.start(audioMeterEntries);
+
+        // Noise suppression toggle (mirrors the audio settings switch)
+        if (buttons.settings.customNoiseSuppression && isRNNoiseSupported) {
+            appendMenuDivider(audioMenu);
+            appendMenuHeader(audioMenu, 'fas fa-ear-listen', 'Microphone Effects');
+            appendNoiseSuppressionToggle(audioMenu);
+        }
 
         appendMenuDivider(audioMenu);
 

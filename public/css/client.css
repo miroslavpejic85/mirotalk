@@ -760,6 +760,21 @@ body {
     text-align: center;
 }
 
+/* Noise suppression toggle row inside the audio device menu */
+#bottomButtons #audioMenu .device-menu-toggle-btn {
+    gap: 8px;
+}
+
+#bottomButtons #audioMenu .device-menu-toggle-btn i {
+    width: 18px;
+    text-align: center;
+}
+
+#bottomButtons #audioMenu .device-menu-toggle-btn .toggle {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
 /* Live audio input level meter inside the audio device menu */
 #bottomButtons #audioMenu button .device-menu-label {
     flex: 1 1 auto;
