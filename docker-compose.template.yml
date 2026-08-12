@@ -3,6 +3,9 @@ services:
         image: mirotalk/p2p:latest
         container_name: mirotalk
         hostname: mirotalk
+        # Run as non-root (uid:gid). The image already defaults to the non-root
+        # "node" user (1000:1000); set this to override with a different uid/gid.
+        user: '1000:1000'
         restart: unless-stopped
         ports:
             - '${PORT}:${PORT}'

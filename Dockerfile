@@ -27,5 +27,9 @@ RUN npm ci --omit=dev --silent \
 COPY app app
 COPY public public
 
+# Run as the non-root "node" user (uid/gid 1000) shipped with the base image
+RUN chown -R node:node /src
+USER node
+
 # Set default command to start the application
 CMD ["npm", "start"]
