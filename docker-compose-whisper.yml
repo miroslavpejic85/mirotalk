@@ -24,7 +24,7 @@
 #
 #   WHISPER_ENABLED=true
 #   # If MiroTalk runs on the SAME host (not in Docker), use localhost:
-#   WHISPER_BASE_PATH=http://localhost:9000/v1/
+#   WHISPER_BASE_PATH=http://localhost:8000/v1/
 #   # If MiroTalk runs in Docker on the same network, use the service name:
 #   # WHISPER_BASE_PATH=http://whisper:8000/v1/
 #   # Self-hosted server needs no key (leave empty):
@@ -47,7 +47,7 @@ services:
         profiles: ['cpu']
         ports:
             # Host 9000 -> container 8000 (matches WHISPER default basePath).
-            - '${WHISPER_PORT:-9000}:8000'
+            - '${WHISPER_PORT:-8000}:8000'
         environment:
             # Model downloaded on first use and cached in the volume below.
             # Options: tiny | base | small | medium | large-v3 (Systran/faster-whisper-*)
@@ -66,7 +66,7 @@ services:
         restart: unless-stopped
         profiles: ['gpu']
         ports:
-            - '${WHISPER_PORT:-9000}:8000'
+            - '${WHISPER_PORT:-8000}:8000'
         environment:
             WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-medium}'
             WHISPER__INFERENCE_DEVICE: 'cuda'

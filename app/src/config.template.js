@@ -217,7 +217,7 @@ module.exports = {
     //
     // - enabled        : Enable/disable Whisper transcription [true/false] (default: false)
     // - basePath       : OpenAI-compatible API endpoint (default: 'https://api.openai.com/v1/')
-    //                    For a self-hosted server use e.g. 'http://localhost:9000/v1/'
+    //                    For a self-hosted server use e.g. 'http://localhost:8000/v1/'
     // - apiKey         : API secret key (ALWAYS store in .env, never sent to the browser).
     //                    May be empty for self-hosted servers that don't require auth.
     // - model          : Whisper model name (default: 'whisper-1')
