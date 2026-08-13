@@ -269,7 +269,7 @@ if (sentryEnabled && typeof sentryDSN === 'string' && sentryDSN.trim()) {
 
 // OpenAI/ChatGPT
 let chatGPT;
-const configChatGPT = config.chatGPT;
+const configChatGPT = config.chatGPT || {};
 if (configChatGPT.enabled) {
     if (configChatGPT.apiKey) {
         const { OpenAI } = require('openai');
@@ -287,7 +287,7 @@ if (configChatGPT.enabled) {
 // Whisper is an asynchronous SIDE-CHANNEL: it transcribes short audio segments
 // sent by the browser and returns text. It is intentionally NOT part of the
 // WebRTC media path, so it can never block, delay or modify peer audio/video.
-const configWhisper = config.whisper;
+const configWhisper = config.whisper || {};
 const whisperLib = require('./lib/whisper');
 if (configWhisper.enabled) {
     log.info('Whisper transcription enabled', {
