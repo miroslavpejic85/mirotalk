@@ -32,9 +32,10 @@
 #   # server below must be started with the SAME value (API_KEY env var), so
 #   # only MiroTalk can reach it.
 #   WHISPER_API_KEY=your-strong-secret-key
-#   # Model name is chosen by THIS server (WHISPER__MODEL below), not by MiroTalk.
-#   # Keep MiroTalk's model as-is; it is ignored by faster-whisper-server.
-#   WHISPER_MODEL=whisper-1
+#   # IMPORTANT: this server (speaches / faster-whisper-server) loads the model
+#   # named in EACH request. Set WHISPER_MODEL to a REAL model it can load
+#   # (NOT 'whisper-1' — that is OpenAI-only and causes a 500 here).
+#   WHISPER_MODEL=Systran/faster-whisper-small
 #
 # =============================================================================
 
@@ -52,8 +53,9 @@ services:
             # Host 8000 -> container 8000 (matches WHISPER default basePath).
             - '${WHISPER_PORT:-8000}:8000'
         environment:
-            # Model downloaded on first use and cached in the volume below.
-            # Options: tiny | base | small | medium | large-v3 (Systran/faster-whisper-*)
+            # Optional preload hint. The actual model used is the one MiroTalk
+            # sends per request (WHISPER_MODEL in .env), which must match a real
+            # model name below. Options: Systran/faster-whisper-{tiny|base|small|medium|large-v3}
             WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-small}'
             WHISPER__INFERENCE_DEVICE: 'cpu'
             # Optional auth: when set, clients must send Authorization: Bearer <key>.
