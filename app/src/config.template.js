@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.8.95 - Configuration File
+ * MiroTalk P2P v.1.8.96 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -199,6 +199,39 @@ module.exports = {
         model: process.env.CHATGPT_MODEL,
         max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
         temperature: parseInt(process.env.CHATGPT_TEMPERATURE),
+    },
+
+    // ==========================================
+    // Whisper Speech-to-Text (server-side transcription)
+    // ==========================================
+    // Server-side audio transcription using an OpenAI-compatible Whisper
+    // endpoint. Works with the official OpenAI API or any self-hosted,
+    // OpenAI-compatible server (whisper.cpp server, faster-whisper, etc.).
+    //
+    // IMPORTANT: Whisper is a side-channel only. The browser records short
+    // audio segments from a SECONDARY copy of the local microphone stream and
+    // sends them here for transcription. It NEVER sits in the WebRTC media
+    // path: the RTCPeerConnection audio track is untouched and keeps the
+    // lowest possible latency. The resulting text is distributed to peers over
+    // the existing WebRTC DataChannel, not through this server.
+    //
+    // - enabled        : Enable/disable Whisper transcription [true/false] (default: false)
+    // - basePath       : OpenAI-compatible API endpoint (default: 'https://api.openai.com/v1/')
+    //                    For a self-hosted server use e.g. 'http://localhost:9000/v1/'
+    // - apiKey         : API secret key (ALWAYS store in .env, never sent to the browser).
+    //                    May be empty for self-hosted servers that don't require auth.
+    // - model          : Whisper model name (default: 'whisper-1')
+    // - language       : Optional ISO-639-1 language hint (e.g. 'en'). Empty = auto-detect.
+    // - segmentSeconds : Length of each recorded audio segment sent for transcription (default: 3)
+    // - maxAudioBytes  : Reject audio segments larger than this (default: 25MB)
+    whisper: {
+        enabled: getEnvBoolean(process.env.WHISPER_ENABLED),
+        basePath: process.env.WHISPER_BASE_PATH || 'https://api.openai.com/v1/',
+        apiKey: process.env.WHISPER_API_KEY || '',
+        model: process.env.WHISPER_MODEL || 'whisper-1',
+        language: process.env.WHISPER_LANGUAGE || '',
+        segmentSeconds: parseInt(process.env.WHISPER_SEGMENT_SECONDS) || 3,
+        maxAudioBytes: parseInt(process.env.WHISPER_MAX_AUDIO_BYTES) || 25 * 1024 * 1024,
     },
 
     // ==========================================

@@ -1,0 +1,84 @@
+# =============================================================================
+# MiroTalk P2P - Self-hosted Whisper (Speech-to-Text) server
+# =============================================================================
+#
+# Runs an OpenAI-compatible Whisper server so you can use the room
+# "Whisper mode" transcription WITHOUT sending audio to the OpenAI API.
+#
+# The image (fedirz/faster-whisper-server) exposes an OpenAI-compatible
+# endpoint at /v1/audio/transcriptions, so MiroTalk can talk to it exactly
+# like the official OpenAI API.
+#
+# -----------------------------------------------------------------------------
+# Quick start (CPU, works on any VPS/VDS)
+# -----------------------------------------------------------------------------
+#   docker compose -f docker-compose-whisper.yml --profile cpu up -d
+#
+# Quick start (GPU, requires NVIDIA GPU + nvidia-container-toolkit)
+#   docker compose -f docker-compose-whisper.yml --profile gpu up -d
+#
+# -----------------------------------------------------------------------------
+# Point MiroTalk P2P at this server
+# -----------------------------------------------------------------------------
+# In your MiroTalk .env set:
+#
+#   WHISPER_ENABLED=true
+#   # If MiroTalk runs on the SAME host (not in Docker), use localhost:
+#   WHISPER_BASE_PATH=http://localhost:9000/v1/
+#   # If MiroTalk runs in Docker on the same network, use the service name:
+#   # WHISPER_BASE_PATH=http://whisper:8000/v1/
+#   # Self-hosted server needs no key (leave empty):
+#   WHISPER_API_KEY=
+#   # Model name is chosen by THIS server (WHISPER__MODEL below), not by MiroTalk.
+#   # Keep MiroTalk's model as-is; it is ignored by faster-whisper-server.
+#   WHISPER_MODEL=whisper-1
+#
+# =============================================================================
+
+services:
+    # -------------------------------------------------------------------------
+    # CPU variant — runs anywhere, no GPU required.
+    # -------------------------------------------------------------------------
+    whisper:
+        image: fedirz/faster-whisper-server:latest-cpu
+        container_name: mirotalkwhisper
+        hostname: whisper
+        restart: unless-stopped
+        profiles: ['cpu']
+        ports:
+            # Host 9000 -> container 8000 (matches WHISPER default basePath).
+            - '${WHISPER_PORT:-9000}:8000'
+        environment:
+            # Model downloaded on first use and cached in the volume below.
+            # Options: tiny | base | small | medium | large-v3 (Systran/faster-whisper-*)
+            WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-small}'
+            WHISPER__INFERENCE_DEVICE: 'cpu'
+        volumes:
+            - whisper_cache:/root/.cache/huggingface
+
+    # -------------------------------------------------------------------------
+    # GPU variant — requires an NVIDIA GPU and nvidia-container-toolkit.
+    # -------------------------------------------------------------------------
+    whisper-gpu:
+        image: fedirz/faster-whisper-server:latest-cuda
+        container_name: mirotalkwhisper
+        hostname: whisper
+        restart: unless-stopped
+        profiles: ['gpu']
+        ports:
+            - '${WHISPER_PORT:-9000}:8000'
+        environment:
+            WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-medium}'
+            WHISPER__INFERENCE_DEVICE: 'cuda'
+        volumes:
+            - whisper_cache:/root/.cache/huggingface
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities: [gpu]
+
+volumes:
+    whisper_cache:

@@ -1002,6 +1002,11 @@ body {
     background: rgba(0, 0, 0, 0.2);
 }
 
+/* Whisper mode hides the language selects; keep the play/stop button on the right. */
+.caption-inputarea.caption-inputarea-whisper {
+    justify-content: flex-end;
+}
+
 .caption-inputarea select {
     min-width: 50px;
     margin: 0 8px;

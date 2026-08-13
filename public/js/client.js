@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.95
+ * @version 1.8.96
  *
  */
 
@@ -356,6 +356,8 @@ const captionDropDownMenuBtn = getId('captionDropDownMenuBtn');
 const captionDropDownContent = getId('captionDropDownContent');
 const transcriptShowOnMsgEl = getId('transcriptShowOnMsg');
 const transcriptSendToAllEl = getId('transcriptSendToAll');
+const transcriptWhisperModeEl = getId('transcriptWhisperMode');
+const transcriptWhisperLi = getId('transcriptWhisperLi');
 const captionChat = getId('captionChat');
 const captionEmptyNotice = getId('captionEmptyNotice');
 const captionFooter = getId('captionFooter');
@@ -879,6 +881,11 @@ function setButtonsToolTip() {
     setTippy(captionTogglePin, 'Toggle caption pin', 'bottom');
     setTippy(captionTheme, 'Ghost theme', 'bottom');
     setTippy(transcriptSendToAllEl, 'When enabled, your transcription will be sent to all participants', 'bottom');
+    setTippy(
+        transcriptWhisperModeEl,
+        'When enabled, uses server-side Whisper for higher accuracy transcription',
+        'bottom'
+    );
     setTippy(speechRecognitionIcon, 'Status', 'bottom');
     setTippy(speechRecognitionStart, 'Start caption', 'top');
     setTippy(speechRecognitionStop, 'Stop caption', 'top');
@@ -1565,6 +1572,13 @@ function handleServerInfo(config) {
     redirectActive = redirect.active;
     redirectURL = redirect.url;
 
+    // Whisper (server-side) transcription capability. Only a capability flag +
+    // segment length are sent; the API key/basePath stay on the server.
+    if (config.whisper && typeof setWhisperServerConfig === 'function') {
+        setWhisperServerConfig(config.whisper);
+        applyWhisperUiAvailability();
+    }
+
     // Limit room to n peers
     if (maxRoomParticipants) thisMaxRoomParticipants = maxRoomParticipants;
     if (peers_count > thisMaxRoomParticipants) {
@@ -1700,7 +1714,10 @@ function handleButtonsRule() {
         { element: recImage, display: buttons.main.showRecordStreamBtn },
         { element: chatRoomBtn, display: buttons.main.showChatRoomBtn },
         { element: participantsBtn, display: buttons.main.showParticipantsBtn },
-        { element: captionBtn, display: buttons.main.showCaptionRoomBtn && speechRecognition }, // auto-detected
+        {
+            element: captionBtn,
+            display: buttons.main.showCaptionRoomBtn && (speechRecognition || isWhisperAvailable()),
+        }, // auto-detected
         { element: roomEmojiPickerBtn, display: buttons.main.showRoomEmojiPickerBtn },
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
         { element: whiteboardBtn, display: buttons.main.showWhiteboardBtn },
@@ -6788,6 +6805,18 @@ function setCaptionRoomBtn() {
             lS.setSettings(lsSettings);
         });
 
+        // Whisper mode: switch between Web Speech API and server-side Whisper.
+        // The WebRTC call is never affected by this toggle.
+        transcriptWhisperModeEl?.addEventListener('change', (e) => {
+            playSound('switch');
+            const enabled = setWhisperMode(e.currentTarget.checked);
+            // setWhisperMode may refuse while a transcription is running.
+            e.currentTarget.checked = enabled;
+            enabled
+                ? msgPopup('info', 'Server-side Whisper transcription enabled', 'top-end', 3000)
+                : msgPopup('info', 'Using browser Web Speech transcription', 'top-end', 3000);
+        });
+
         // close caption box - show left button and status menu if hide
         captionClose.addEventListener('click', (e) => {
             captionMinimize();
@@ -6798,22 +6827,36 @@ function setCaptionRoomBtn() {
         // hide it
         elemDisplay(speechRecognitionStop, false);
 
-        if (speechRecognition) {
-            // start recognition speech
-            speechRecognitionStart.addEventListener('click', (e) => {
-                startSpeech();
-            });
-            // stop recognition speech
-            speechRecognitionStop.addEventListener('click', (e) => {
-                stopSpeech();
-            });
-        } else {
-            elemDisplay(captionFooter, false);
-        }
+        // Start/stop transcription. Handlers branch on the selected mode so the
+        // same buttons drive either the Web Speech API or server-side Whisper.
+        speechRecognitionStart.addEventListener('click', (e) => {
+            if (whisperMode) return startWhisperTranscription();
+            if (speechRecognition) startSpeech();
+        });
+        speechRecognitionStop.addEventListener('click', (e) => {
+            if (whisperMode) return stopWhisperTranscription();
+            if (speechRecognition) stopSpeech();
+        });
+        elemDisplay(captionFooter, !!speechRecognition || isWhisperAvailable(), 'flex');
     } else {
         elemDisplay(captionBtn, false);
         // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility
     }
+}
+
+/**
+ * Reveal the transcription UI when the server offers Whisper, even if the
+ * browser has no Web Speech API. Called once server info is received.
+ */
+function applyWhisperUiAvailability() {
+    if (!isWhisperAvailable()) return;
+    if (transcriptWhisperLi) transcriptWhisperLi.classList.remove('hidden');
+    if (buttons.main.showCaptionRoomBtn) {
+        elemDisplay(captionBtn, true);
+        elemDisplay(captionFooter, true, 'flex');
+    }
+    // Hide the Web-Speech-only language/dialect selectors when they are irrelevant.
+    updateTranscriptionSelectsVisibility();
 }
 
 /**
@@ -10956,6 +10999,9 @@ function handleSpeechTranscript(config) {
 
     const { peer_name, peer_avatar, text_data } = config;
 
+    // Optional detected/source language (present for Whisper transcripts).
+    const language = config.language ? filterXSS(String(config.language)) : '';
+
     const time_stamp = getFormatDate(new Date());
 
     const avatar_image =
@@ -10974,7 +11020,7 @@ function handleSpeechTranscript(config) {
     const captionAvatarTmpId = `capt-av-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const msgHTML = renderRoomTemplate('tpl-caption-message', {
         text: {
-            captionInfoText: `${peer_name} : ${time_stamp}`,
+            captionInfoText: language ? `${peer_name} (${language}) : ${time_stamp}` : `${peer_name} : ${time_stamp}`,
             captionText: text_data,
         },
         attrs: {
@@ -16048,7 +16094,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.95',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.96',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
