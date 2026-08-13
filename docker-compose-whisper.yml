@@ -5,9 +5,9 @@
 # Runs an OpenAI-compatible Whisper server so you can use the room
 # "Whisper mode" transcription WITHOUT sending audio to the OpenAI API.
 #
-# The image (fedirz/faster-whisper-server) exposes an OpenAI-compatible
-# endpoint at /v1/audio/transcriptions, so MiroTalk can talk to it exactly
-# like the official OpenAI API.
+# The image (ghcr.io/speaches-ai/speaches, formerly fedirz/faster-whisper-server)
+# exposes an OpenAI-compatible endpoint at /v1/audio/transcriptions, so MiroTalk
+# can talk to it exactly like the official OpenAI API.
 #
 # -----------------------------------------------------------------------------
 # Quick start (CPU, works on any VPS/VDS)
@@ -27,14 +27,14 @@
 #   WHISPER_BASE_PATH=http://localhost:8000/v1/
 #   # If MiroTalk runs in Docker on the same network, use the service name:
 #   # WHISPER_BASE_PATH=http://whisper:8000/v1/
-#   # Auth (optional): leave empty for no auth, OR set a secret to require it.
+#   # Auth: leave empty for NO AUTH (endpoint is PUBLIC), OR set a secret to require it.
 #   # When set, MiroTalk sends it as "Authorization: Bearer <key>" and the
 #   # server below must be started with the SAME value (API_KEY env var), so
 #   # only MiroTalk can reach it.
 #   WHISPER_API_KEY=your-strong-secret-key
-#   # IMPORTANT: this server (speaches / faster-whisper-server) loads the model
-#   # named in EACH request. Set WHISPER_MODEL to a REAL model it can load
-#   # (NOT 'whisper-1' — that is OpenAI-only and causes a 500 here).
+#   # IMPORTANT: speaches does NOT auto-download models. The model in WHISPER_MODEL
+#   # is preloaded at startup via PRELOAD_MODELS below and selected per request.
+#   # Use a REAL model it can load (NOT 'whisper-1' — that is OpenAI-only).
 #   WHISPER_MODEL=Systran/faster-whisper-small
 #
 # =============================================================================
@@ -44,7 +44,7 @@ services:
     # CPU variant — runs anywhere, no GPU required.
     # -------------------------------------------------------------------------
     whisper:
-        image: fedirz/faster-whisper-server:latest-cpu
+        image: ghcr.io/speaches-ai/speaches:latest-cpu
         container_name: mirotalkwhisper
         hostname: whisper
         restart: unless-stopped
@@ -53,21 +53,22 @@ services:
             # Host 8000 -> container 8000 (matches WHISPER default basePath).
             - '${WHISPER_PORT:-8000}:8000'
         environment:
-            # Model downloaded on first use and cached in the volume below.
+            # speaches does NOT auto-download on request: preload the model at startup.
             # Options: tiny | base | small | medium | large-v3 (Systran/faster-whisper-*)
-            WHISPER__MODEL: '${WHISPER_MODEL:-Systran/faster-whisper-small}'
+            PRELOAD_MODELS: '["${WHISPER_MODEL:-Systran/faster-whisper-small}"]'
             WHISPER__INFERENCE_DEVICE: 'cpu'
-            # Optional auth: when set, clients must send Authorization: Bearer <key>.
-            # Use the SAME value as MiroTalk's WHISPER_API_KEY. Empty = no auth.
+            # Auth: when set, ALL API requests must send Authorization: Bearer <key>.
+            # Use the SAME value as MiroTalk's WHISPER_API_KEY.
+            # WARNING: empty = NO AUTH, the endpoint is PUBLIC to anyone who can reach it.
             API_KEY: '${WHISPER_API_KEY:-}'
         volumes:
-            - whisper_cache:/root/.cache/huggingface
+            - speaches_cache:/home/ubuntu/.cache/huggingface/hub
 
     # -------------------------------------------------------------------------
     # GPU variant — requires an NVIDIA GPU and nvidia-container-toolkit.
     # -------------------------------------------------------------------------
     whisper-gpu:
-        image: fedirz/faster-whisper-server:latest-cuda
+        image: ghcr.io/speaches-ai/speaches:latest-cuda
         container_name: mirotalkwhisper
         hostname: whisper
         restart: unless-stopped
@@ -75,13 +76,15 @@ services:
         ports:
             - '${WHISPER_PORT:-8000}:8000'
         environment:
-            WHISPER__MODEL: '${WHISPER_MODEL:-Systran/faster-whisper-medium}'
+            # speaches does NOT auto-download on request: preload the model at startup.
+            PRELOAD_MODELS: '["${WHISPER_MODEL:-Systran/faster-whisper-medium}"]'
             WHISPER__INFERENCE_DEVICE: 'cuda'
-            # Optional auth: when set, clients must send Authorization: Bearer <key>.
-            # Use the SAME value as MiroTalk's WHISPER_API_KEY. Empty = no auth.
+            # Auth: when set, ALL API requests must send Authorization: Bearer <key>.
+            # Use the SAME value as MiroTalk's WHISPER_API_KEY.
+            # WARNING: empty = NO AUTH, the endpoint is PUBLIC to anyone who can reach it.
             API_KEY: '${WHISPER_API_KEY:-}'
         volumes:
-            - whisper_cache:/root/.cache/huggingface
+            - speaches_cache:/home/ubuntu/.cache/huggingface/hub
         deploy:
             resources:
                 reservations:
@@ -91,4 +94,4 @@ services:
                           capabilities: [gpu]
 
 volumes:
-    whisper_cache:
+    speaches_cache:
