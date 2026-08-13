@@ -27,8 +27,11 @@
 #   WHISPER_BASE_PATH=http://localhost:8000/v1/
 #   # If MiroTalk runs in Docker on the same network, use the service name:
 #   # WHISPER_BASE_PATH=http://whisper:8000/v1/
-#   # Self-hosted server needs no key (leave empty):
-#   WHISPER_API_KEY=
+#   # Auth (optional): leave empty for no auth, OR set a secret to require it.
+#   # When set, MiroTalk sends it as "Authorization: Bearer <key>" and the
+#   # server below must be started with the SAME value (API_KEY env var), so
+#   # only MiroTalk can reach it.
+#   WHISPER_API_KEY=your-strong-secret-key
 #   # Model name is chosen by THIS server (WHISPER__MODEL below), not by MiroTalk.
 #   # Keep MiroTalk's model as-is; it is ignored by faster-whisper-server.
 #   WHISPER_MODEL=whisper-1
@@ -53,6 +56,9 @@ services:
             # Options: tiny | base | small | medium | large-v3 (Systran/faster-whisper-*)
             WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-small}'
             WHISPER__INFERENCE_DEVICE: 'cpu'
+            # Optional auth: when set, clients must send Authorization: Bearer <key>.
+            # Use the SAME value as MiroTalk's WHISPER_API_KEY. Empty = no auth.
+            API_KEY: '${WHISPER_API_KEY:-}'
         volumes:
             - whisper_cache:/root/.cache/huggingface
 
@@ -70,6 +76,9 @@ services:
         environment:
             WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-medium}'
             WHISPER__INFERENCE_DEVICE: 'cuda'
+            # Optional auth: when set, clients must send Authorization: Bearer <key>.
+            # Use the SAME value as MiroTalk's WHISPER_API_KEY. Empty = no auth.
+            API_KEY: '${WHISPER_API_KEY:-}'
         volumes:
             - whisper_cache:/root/.cache/huggingface
         deploy:
