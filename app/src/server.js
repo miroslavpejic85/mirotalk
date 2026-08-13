@@ -2042,11 +2042,10 @@ io.sockets.on('connect', async (socket) => {
             const type = typeof mimeType === 'string' && mimeType.startsWith('audio/') ? mimeType : 'audio/webm';
             const ext = whisperLib.resolveAudioExtension(type);
 
-            // 3. Build the multipart/form-data request expected by the OpenAI-compatible
-            //    /audio/transcriptions endpoint. Native FormData/Blob (Node 18+) avoids an
-            //    extra dependency and is handled transparently by axios.
+            // 3. Build the multipart/form-data request expected by the OpenAI-compatible /audio/transcriptions endpoint
+            const FormData = require('form-data');
             const form = new FormData();
-            form.append('file', new Blob([buffer], { type }), `segment.${ext}`);
+            form.append('file', buffer, { filename: `segment.${ext}`, contentType: type });
             form.append('model', configWhisper.model || 'whisper-1');
             form.append('response_format', 'verbose_json');
 
@@ -2054,7 +2053,7 @@ io.sockets.on('connect', async (socket) => {
             const lang = typeof language === 'string' && language ? language : configWhisper.language;
             if (lang) form.append('language', lang);
 
-            const headers = {};
+            const headers = { ...form.getHeaders() };
             // Only attach auth when configured (self-hosted servers may not require it).
             if (configWhisper.apiKey) headers['Authorization'] = `Bearer ${configWhisper.apiKey}`;
 
