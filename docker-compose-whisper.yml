@@ -54,7 +54,7 @@ services:
         environment:
             # Model downloaded on first use and cached in the volume below.
             # Options: tiny | base | small | medium | large-v3 (Systran/faster-whisper-*)
-            WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-small}'
+            WHISPER__MODEL: '${WHISPER_MODEL:-Systran/faster-whisper-small}'
             WHISPER__INFERENCE_DEVICE: 'cpu'
             # Optional auth: when set, clients must send Authorization: Bearer <key>.
             # Use the SAME value as MiroTalk's WHISPER_API_KEY. Empty = no auth.
@@ -74,7 +74,7 @@ services:
         ports:
             - '${WHISPER_PORT:-8000}:8000'
         environment:
-            WHISPER__MODEL: '${WHISPER_MODEL_NAME:-Systran/faster-whisper-medium}'
+            WHISPER__MODEL: '${WHISPER_MODEL:-Systran/faster-whisper-medium}'
             WHISPER__INFERENCE_DEVICE: 'cuda'
             # Optional auth: when set, clients must send Authorization: Bearer <key>.
             # Use the SAME value as MiroTalk's WHISPER_API_KEY. Empty = no auth.
