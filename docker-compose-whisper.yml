@@ -46,7 +46,7 @@ services:
         restart: unless-stopped
         profiles: ['cpu']
         ports:
-            # Host 9000 -> container 8000 (matches WHISPER default basePath).
+            # Host 8000 -> container 8000 (matches WHISPER default basePath).
             - '${WHISPER_PORT:-8000}:8000'
         environment:
             # Model downloaded on first use and cached in the volume below.
