@@ -276,8 +276,8 @@ function recordWhisperSegment() {
     recorder.onstop = () => {
         clearInterval(levelMonitor);
         const blob = new Blob(chunks, { type: effectiveType });
-        // Drop silent or tiny segments, and skip if a request is already in flight.
-        if (whisperActive && hasSpeech && blob.size > 1000 && !whisperBusy) {
+        // Drop silent or tiny segments, skip if a request is already in flight, or the microphone is off.
+        if (whisperActive && hasSpeech && blob.size > 1000 && !whisperBusy && myAudioStatus) {
             sendWhisperBlob(blob, effectiveType);
         }
         // Chain the next segment only while still active.

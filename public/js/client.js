@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.97
+ * @version 1.8.98
  *
  */
 
@@ -6830,18 +6830,12 @@ function setCaptionRoomBtn() {
         // Start/stop transcription. Handlers branch on the selected mode so the
         // same buttons drive either the Web Speech API or server-side Whisper.
         speechRecognitionStart.addEventListener('click', (e) => {
-            // Transcription captures from the microphone. When audio is off the
-            // mic track is disabled, so nothing will be transcribed.
+            // Transcription can only capture speech when the microphone is on.
             if (!myAudioStatus) {
-                msgPopup(
-                    'warning',
-                    'Your audio is off, so transcription will not be captured. Turn your audio on to be transcribed.',
-                    'top-end',
-                    6000
-                );
+                confirmTranscriptionStartWithAudioOff();
+                return;
             }
-            if (whisperMode) return startWhisperTranscription();
-            if (speechRecognition) startSpeech();
+            startTranscription();
         });
         speechRecognitionStop.addEventListener('click', (e) => {
             if (whisperMode) return stopWhisperTranscription();
@@ -6852,6 +6846,41 @@ function setCaptionRoomBtn() {
         elemDisplay(captionBtn, false);
         // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API#browser_compatibility
     }
+}
+
+/**
+ * Start transcription using the selected mode (Web Speech API or server-side Whisper).
+ */
+function startTranscription() {
+    if (whisperMode) return startWhisperTranscription();
+    if (speechRecognition) startSpeech();
+}
+
+/**
+ * Transcription can only capture speech when the microphone is on. Ask the user
+ * to turn it on before starting.
+ */
+function confirmTranscriptionStartWithAudioOff() {
+    Swal.fire({
+        allowOutsideClick: false,
+        background: swBg,
+        position: 'center',
+        imageUrl: images.caption,
+        title: 'Your microphone is off',
+        text: 'Transcription needs your microphone on to capture your speech. Turn it on to start transcribing.',
+        showDenyButton: true,
+        confirmButtonText: 'Turn on microphone',
+        denyButtonText: 'Cancel',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            if (!myAudioStatus && audioBtn) {
+                audioBtn.click();
+            }
+            startTranscription();
+        }
+    });
 }
 
 /**
@@ -16104,7 +16133,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.97',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.98',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

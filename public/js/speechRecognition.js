@@ -104,6 +104,8 @@ if (speechRecognition) {
 
     // Detect the said words
     recognition.onresult = (e) => {
+        // Skip capturing while the microphone is off.
+        if (!myAudioStatus) return;
         let current = e.resultIndex;
         // Get a transcript of what was said.
         let transcript = e.results[current][0].transcript;
