@@ -327,6 +327,7 @@
         "Or pick a random avatar:": "Или изаберите насумични аватар:",
         "Orange": "Narandžasta",
         "Outgoing transfer": "Odlazni prenos",
+        "Output volume:": "Jačina izlaznog zvuka:",
         "Packet Lost": "Пацкет Лост",
         "participantName": "participantName",
         "Participants": "Učesnici",
@@ -462,7 +463,7 @@
         "The room is locked, try with another one.": "Soba je zaključana, pokušajte sa drugom.",
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Username": "Корисничко име",
-        "WebRTC P2P v1.8.98": "WebRTC P2P v1.8.98",
+        "WebRTC P2P v1.8.99": "WebRTC P2P v1.8.99",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da"
     },

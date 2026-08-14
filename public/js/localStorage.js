@@ -21,6 +21,7 @@ class LocalStorage {
             speech_in_msg: false,
             pin_chat_by_default: false,
             mic_noise_suppression: true, // Noise suppression using RNNoise
+            speaker_volume: 100, // master output volume 0-100
             video_fps: 1, // default 30fps
             screen_fps: 1, // default 30fps
             pitch_bar: true,

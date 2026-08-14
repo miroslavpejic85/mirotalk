@@ -327,6 +327,7 @@
         "Or pick a random avatar:": "أو اختر صورة رمزية عشوائية:",
         "Orange": "برتقالي",
         "Outgoing transfer": "نقل صادر",
+        "Output volume:": "مستوى صوت الإخراج:",
         "Packet Lost": "فقدت الحزمة",
         "participantName": "participantName",
         "Participants": "المشاركون",
@@ -462,7 +463,7 @@
         "The room is locked, try with another one.": "الغرفة مقفلة، جرّب غرفة أخرى.",
         "Time Limit Reached": "تم بلوغ الحد الزمني",
         "Username": "اسم المستخدم",
-        "WebRTC P2P v1.8.98": "WebRTC P2P v1.8.98",
+        "WebRTC P2P v1.8.99": "WebRTC P2P v1.8.99",
         "Whiteboard Shortcuts": "اختصارات السبورة",
         "Yes": "نعم"
     },

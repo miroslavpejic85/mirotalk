@@ -327,6 +327,7 @@
         "Or pick a random avatar:": "Vagy válassz egy véletlenszerű avatart:",
         "Orange": "Narancssárga",
         "Outgoing transfer": "Kimenő átvitel",
+        "Output volume:": "Kimeneti hangerő:",
         "Packet Lost": "Csomag elveszett",
         "participantName": "participantName",
         "Participants": "Résztvevők",
@@ -462,7 +463,7 @@
         "The room is locked, try with another one.": "A szoba zárolva van, próbálkozz egy másikkal.",
         "Time Limit Reached": "Időkorlát elérve",
         "Username": "Felhasználónév",
-        "WebRTC P2P v1.8.98": "WebRTC P2P v1.8.98",
+        "WebRTC P2P v1.8.99": "WebRTC P2P v1.8.99",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen"
     },

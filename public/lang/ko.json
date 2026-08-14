@@ -327,6 +327,7 @@
         "Or pick a random avatar:": "또는 임의의 아바타를 선택하세요.",
         "Orange": "주황",
         "Outgoing transfer": "발신 전송",
+        "Output volume:": "출력 볼륨:",
         "Packet Lost": "패킷 손실",
         "participantName": "participantName",
         "Participants": "참가자",
@@ -462,7 +463,7 @@
         "The room is locked, try with another one.": "방이 잠겨 있습니다. 다른 방을 시도하세요.",
         "Time Limit Reached": "시간 제한 도달",
         "Username": "사용자 이름",
-        "WebRTC P2P v1.8.98": "WebRTC P2P v1.8.98",
+        "WebRTC P2P v1.8.99": "WebRTC P2P v1.8.99",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예"
     },

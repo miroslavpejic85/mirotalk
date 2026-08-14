@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.8.98
+ * @version 1.8.99
  *
  */
 
@@ -400,6 +400,8 @@ const audioInputSelect = getId('audioSource');
 const audioOutputSelect = getId('audioOutput');
 const audioOutputDiv = getId('audioOutputDiv');
 const speakerTestBtn = getId('speakerTestBtn');
+const speakerVolume = getId('speakerVolume');
+const speakerVolumeValue = getId('speakerVolumeValue');
 const videoSelect = getId('videoSource');
 const videoQualitySelect = getId('videoQuality');
 const videoFpsSelect = getId('videoFps');
@@ -650,6 +652,10 @@ let noiseProcessor = null; // RNNoise audio processing
 let peerScreenMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_screen
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
 let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
+
+let masterOutputVolume = 1; // 0..1 master speaker volume, multiplied with each per-peer volume
+let elementVolumeWritable; // HTMLMediaElement.volume is read-only on iOS
+let outputAudioContext = null; // used to control the output volume where volume is read-only
 
 // main and bottom buttons
 let mainButtonsBarPosition = 'vertical'; // vertical - horizontal
@@ -5140,6 +5146,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteAudioVolumeEl = getId(remoteAudioVolumeId);
             remoteAudioMedia.id = peer_id + '___audio';
             remoteAudioMedia.volume = 1.0;
+            remoteAudioMedia.dataset.peerVolume = 1;
             remoteAudioMedia.autoplay = true;
             remoteAudioMedia.controls = false;
 
@@ -5151,6 +5158,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             audioMediaContainer.appendChild(remoteAudioWrap);
             attachMediaStream(remoteAudioMedia, stream);
             peerAudioMediaElements[remoteAudioMedia.id] = remoteAudioWrap;
+            applyOutputVolume(remoteAudioMedia);
 
             // Explicitly play audio to ensure it starts (handles autoplay policies)
             remoteAudioMedia.play().catch((err) => {
@@ -7821,6 +7829,16 @@ function setupMySettings() {
         await changeAudioDestination();
         refreshLsDevices();
     });
+    // speaker master output volume
+    if (speakerVolume) {
+        speakerVolume.oninput = () => {
+            setSpeakerVolume(speakerVolume.value);
+        };
+        speakerVolume.onchange = () => {
+            lsSettings.speaker_volume = Number(speakerVolume.value);
+            lS.setSettings(lsSettings);
+        };
+    }
     // select video input
     videoSelect.addEventListener('change', async () => {
         await changeLocalCamera(videoSelect.value);
@@ -8130,6 +8148,8 @@ function loadSettingsFromLocalStorage() {
     themeCustom.input.value = themeCustom.color;
 
     switchNoiseSuppression.checked = lsSettings.mic_noise_suppression;
+
+    setSpeakerVolume(lsSettings.speaker_volume !== undefined ? lsSettings.speaker_volume : 100);
 
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
@@ -13015,10 +13035,140 @@ function handleAudioVolume(audioVolumeId, mediaId) {
         audioVolume.style.cursor = 'pointer';
         audioVolume.value = 100;
         audioVolume.addEventListener('input', () => {
-            media.volume = audioVolume.value / 100;
+            media.dataset.peerVolume = audioVolume.value / 100;
+            applyOutputVolume(media);
         });
     } else {
         if (audioVolume) elemDisplay(audioVolume, false);
+    }
+}
+
+// ####################################################
+// MASTER OUTPUT (SPEAKER) VOLUME
+// ####################################################
+
+/**
+ * Set the master output volume from the settings/device menu slider
+ * @param {number|string} value volume 0-100
+ */
+function setSpeakerVolume(value) {
+    const volume = Math.min(100, Math.max(0, Number(value) || 0));
+
+    if (speakerVolume) speakerVolume.value = volume;
+    if (speakerVolumeValue) speakerVolumeValue.textContent = `${volume}%`;
+
+    const menuSlider = getId('audioMenuSpeakerVolume');
+    if (menuSlider) menuSlider.value = volume;
+    const menuValue = getId('audioMenuSpeakerVolumeValue');
+    if (menuValue) menuValue.textContent = `${volume}%`;
+
+    setMasterOutputVolume(volume / 100);
+}
+
+/**
+ * Get all the remote peers audio elements
+ * @returns {Array<HTMLAudioElement>}
+ */
+function getOutputAudioElements() {
+    return Array.from(audioMediaContainer?.querySelectorAll('audio[data-peer-volume]') || []);
+}
+
+/**
+ * Apply the master output volume to all the remote peers audio elements
+ * @param {number} volume 0-1
+ */
+function setMasterOutputVolume(volume) {
+    const value = Number(volume);
+    masterOutputVolume = Math.min(1, Math.max(0, isNaN(value) ? 1 : value));
+    getOutputAudioElements().forEach((elem) => applyOutputVolume(elem));
+}
+
+/**
+ * Apply per-peer volume multiplied by the master output volume
+ * @param {HTMLAudioElement} audioPlayer
+ */
+function applyOutputVolume(audioPlayer) {
+    if (!audioPlayer) return;
+
+    const peerVolume = Number(audioPlayer.dataset.peerVolume);
+    const volume = Math.min(1, Math.max(0, (isNaN(peerVolume) ? 1 : peerVolume) * masterOutputVolume));
+
+    const gainNode = getOutputGainNode(audioPlayer, volume);
+    if (gainNode) {
+        gainNode.gain.value = volume;
+        return;
+    }
+
+    if (canSetElementVolume()) {
+        audioPlayer.volume = volume;
+    } else {
+        audioPlayer.muted = volume === 0;
+    }
+}
+
+/**
+ * Check if HTMLMediaElement.volume is writable (it is read-only on iOS)
+ * @returns {boolean}
+ */
+function canSetElementVolume() {
+    if (elementVolumeWritable === undefined) {
+        const probe = document.createElement('audio');
+        try {
+            probe.volume = 0.5;
+        } catch {
+            // ignore, handled by the read back below
+        }
+        elementVolumeWritable = probe.volume === 0.5;
+    }
+    return elementVolumeWritable;
+}
+
+/**
+ * Get (lazily create) the shared AudioContext used for the output volume fallback
+ * @returns {AudioContext|null}
+ */
+function getOutputAudioContext() {
+    if (!outputAudioContext) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        outputAudioContext = new AudioContextClass();
+    }
+    if (outputAudioContext.state === 'suspended') {
+        outputAudioContext.resume().catch((err) => console.warn('Output AudioContext resume', err));
+    }
+    return outputAudioContext;
+}
+
+/**
+ * Get (lazily create) the gain node of a given audio element
+ * @param {HTMLAudioElement} elem
+ * @param {number} volume 0-1
+ * @returns {GainNode|null}
+ */
+function getOutputGainNode(elem, volume) {
+    if (elem._outputGainNode) return elem._outputGainNode;
+
+    // Web Audio routing is engaged lazily and only where HTMLMediaElement.volume is
+    // read-only (iOS), so the default full-volume output path stays untouched elsewhere.
+    if (volume >= 1 || elem._outputGainUnavailable || canSetElementVolume()) return null;
+
+    const audioContext = getOutputAudioContext();
+    if (!audioContext) {
+        elem._outputGainUnavailable = true;
+        return null;
+    }
+
+    try {
+        const source = audioContext.createMediaElementSource(elem);
+        const gainNode = audioContext.createGain();
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        elem._outputGainNode = gainNode;
+        return gainNode;
+    } catch (err) {
+        console.error('Create output gain node error', err);
+        elem._outputGainUnavailable = true;
+        return null;
     }
 }
 
@@ -16133,7 +16283,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.98',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.8.99',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -16610,7 +16760,7 @@ async function playSpeaker(deviceId = null, name, path = '../sounds/') {
             if (typeof audioToPlay.setSinkId === 'function') {
                 await audioToPlay.setSinkId(selectedDeviceId);
             }
-            audioToPlay.volume = 0.5;
+            audioToPlay.volume = 0.5 * masterOutputVolume;
             await audioToPlay.play();
         } catch (err) {
             console.error('Cannot play test sound:', err);
@@ -17143,9 +17293,44 @@ function setupQuickDeviceSwitchDropdowns() {
             btn.disabled = true;
             btn.textContent = 'Speaker selection not supported';
             audioMenu.appendChild(btn);
-            return;
+        } else {
+            appendSelectOptions(audioMenu, audioOutputSelect, 'No speakers found', rebuildAudioMenu);
         }
-        appendSelectOptions(audioMenu, audioOutputSelect, 'No speakers found', rebuildAudioMenu);
+
+        // Master output volume
+        const volumeRow = document.createElement('div');
+        volumeRow.className = 'device-menu-volume-row';
+
+        const volumeIcon = document.createElement('i');
+        volumeIcon.className = 'fas fa-volume-high';
+        volumeRow.appendChild(volumeIcon);
+
+        const volumeSlider = document.createElement('input');
+        volumeSlider.id = 'audioMenuSpeakerVolume';
+        volumeSlider.className = 'output-volume-slider';
+        volumeSlider.type = 'range';
+        volumeSlider.min = '0';
+        volumeSlider.max = '100';
+        volumeSlider.step = '1';
+        volumeSlider.value = speakerVolume ? speakerVolume.value : 100;
+        volumeRow.appendChild(volumeSlider);
+
+        const volumeValue = document.createElement('span');
+        volumeValue.id = 'audioMenuSpeakerVolumeValue';
+        volumeValue.className = 'output-volume-value';
+        volumeValue.textContent = `${volumeSlider.value}%`;
+        volumeRow.appendChild(volumeValue);
+
+        volumeSlider.addEventListener('input', () => {
+            setSpeakerVolume(volumeSlider.value);
+        });
+        volumeSlider.addEventListener('change', () => {
+            lsSettings.speaker_volume = Number(volumeSlider.value);
+            lS.setSettings(lsSettings);
+        });
+        volumeRow.addEventListener('click', (e) => e.stopPropagation());
+
+        audioMenu.appendChild(volumeRow);
 
         // Add action buttons
         appendMenuDivider(audioMenu);

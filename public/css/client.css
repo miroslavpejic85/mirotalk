@@ -807,6 +807,41 @@ body {
     background-color: #19bb5c;
 }
 
+/* Settings / device menu - speaker output volume */
+.output-volume-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.output-volume-slider {
+    flex: 1;
+    min-width: 0;
+    height: 5px;
+    accent-color: #3498db;
+    background-color: var(--body-bg);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.output-volume-value {
+    flex: 0 0 auto;
+    min-width: 42px;
+    text-align: right;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+#bottomButtons #audioMenu .device-menu-volume-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    color: #fff;
+    user-select: none;
+}
+
 #bottomButtons button:hover {
     background: var(--body-bg);
     transform: var(--btns-hover-scale);

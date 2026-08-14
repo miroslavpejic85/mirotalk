@@ -327,6 +327,7 @@
         "Or pick a random avatar:": "Veya rastgele bir avatar seçin:",
         "Orange": "Turuncu",
         "Outgoing transfer": "Giden aktarım",
+        "Output volume:": "Çıkış ses seviyesi:",
         "Packet Lost": "Paket Kayıp",
         "participantName": "participantName",
         "Participants": "Katılımcılar",
@@ -462,7 +463,7 @@
         "The room is locked, try with another one.": "Oda kilitli, başka bir tane deneyin.",
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v1.8.98": "WebRTC P2P v1.8.98",
+        "WebRTC P2P v1.8.99": "WebRTC P2P v1.8.99",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet"
     },

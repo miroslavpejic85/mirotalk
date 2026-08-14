@@ -328,6 +328,7 @@
         "Or pick a random avatar:": "Or pick a random avatar:",
         "Orange": "Orange",
         "Outgoing transfer": "Outgoing transfer",
+        "Output volume:": "Output volume:",
         "Packet Lost": "Packet Lost",
         "participantName": "participantName",
         "Participants": "Participants",
@@ -464,7 +465,7 @@
         "The room is locked, try with another one.": "The room is locked, try with another one.",
         "Time Limit Reached": "Time Limit Reached",
         "Username": "Username",
-        "WebRTC P2P v1.8.98": "WebRTC P2P v1.8.98",
+        "WebRTC P2P v1.8.99": "WebRTC P2P v1.8.99",
         "Whiteboard Shortcuts": "Whiteboard Shortcuts",
         "Yes": "Yes"
     },
