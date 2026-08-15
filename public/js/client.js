@@ -17342,7 +17342,7 @@ function setupQuickDeviceSwitchDropdowns() {
         const testIcon = document.createElement('i');
         testIcon.className = 'fa-solid fa-circle-play';
         testBtn.appendChild(testIcon);
-        testBtn.appendChild(document.createTextNode(' Test Speaker'));
+        testBtn.appendChild(document.createTextNode(' Test'));
         testBtn.addEventListener('click', () => playSpeaker(audioOutputSelect?.value, 'speaker'));
         audioMenu.appendChild(testBtn);
 
