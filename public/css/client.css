@@ -815,6 +815,47 @@ body {
     width: 100%;
 }
 
+/* Speaker select + test button on the same line */
+.speaker-select-row {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#mySettings .speaker-select-row select {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    margin-top: 0;
+    height: 44px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.speaker-select-row .buttons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    float: none;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    height: 44px;
+    margin: 0;
+    padding: 0 14px;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+#mySettings .speaker-select-row .buttons i,
+#mySettings .speaker-select-row .buttons p {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+}
+
 .output-volume-slider {
     flex: 1;
     min-width: 0;
