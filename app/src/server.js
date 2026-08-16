@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.00
+ * @version 1.9.01
  *
  */
 
@@ -400,7 +400,7 @@ const peers = {}; // collect peers info grp by channels
 const presenters = {}; // collect presenters grp by channels
 const wbLocks = {}; // server-authoritative whiteboard lock state grp by channels
 
-const roomMetaKeys = new Set(['lock', 'password']);
+const roomMetaKeys = new Set(['lock', 'password', 'joinLock']);
 
 function getPeerCount(roomId) {
     if (!peers[roomId]) return 0;
@@ -1578,6 +1578,13 @@ io.sockets.on('connect', async (socket) => {
         // Check if peer is presenter, if token check the presenter key
         const isPresenter = peer_token ? is_presenter : isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
+        // Room locked by the host for new participants, only presenters can still join
+        if (peers[channel]['joinLock'] === true && !isPresenter) {
+            log.debug('[' + socket.id + '] [Warning] Room Is Locked for new participants', channel);
+            delete presenters[channel][socket.id];
+            return socket.emit('roomIsJoinLocked');
+        }
+
         // Some peer info data
         const { osName, osVersion, browserName, browserVersion, extras } = peer_info;
 
@@ -1620,6 +1627,7 @@ io.sockets.on('connect', async (socket) => {
             host_protected: hostCfg.protected,
             user_auth: hostCfg.user_auth,
             is_presenter: isPresenter,
+            join_locked: peers[channel]['joinLock'] === true,
             survey: {
                 active: surveyEnabled,
                 url: surveyURL,
@@ -1736,6 +1744,22 @@ io.sockets.on('connect', async (socket) => {
                     if (!isPresenter) return;
                     delete peers[room_id]['lock'];
                     delete peers[room_id]['password'];
+                    await sendToRoom(room_id, socket.id, 'roomAction', {
+                        peer_name: peer_name,
+                        action: action,
+                    });
+                    break;
+                case 'joinLockOn':
+                    if (!isPresenter) return;
+                    peers[room_id]['joinLock'] = true;
+                    await sendToRoom(room_id, socket.id, 'roomAction', {
+                        peer_name: peer_name,
+                        action: action,
+                    });
+                    break;
+                case 'joinLockOff':
+                    if (!isPresenter) return;
+                    delete peers[room_id]['joinLock'];
                     await sendToRoom(room_id, socket.id, 'roomAction', {
                         peer_name: peer_name,
                         action: action,

@@ -55,6 +55,7 @@ let buttons = {
         showEjectEveryoneBtn: true,
         showLockRoomBtn: true,
         showUnlockRoomBtn: true,
+        showJoinLockBtn: true,
         showShortcutsBtn: true,
         customNoiseSuppression: true,
     },

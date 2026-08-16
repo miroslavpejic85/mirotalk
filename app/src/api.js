@@ -23,7 +23,7 @@ module.exports = class ServerApi {
     }
 
     getStats(peers, timestamp = new Date().toISOString()) {
-        const metaKeys = new Set(['lock', 'password']);
+        const metaKeys = new Set(['lock', 'password', 'joinLock']);
         let totalRooms = 0;
         let totalPeers = 0;
 
@@ -40,7 +40,7 @@ module.exports = class ServerApi {
     }
 
     getActiveRooms(roomList) {
-        const metaKeys = new Set(['lock', 'password']);
+        const metaKeys = new Set(['lock', 'password', 'joinLock']);
         return Object.entries(roomList).map(([roomId, room]) => ({
             id: roomId,
             peers: room && typeof room === 'object' ? Object.keys(room).filter((k) => !metaKeys.has(k)).length : 0,

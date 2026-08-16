@@ -3206,6 +3206,7 @@ button {
     margin: auto;
     padding: 10px;
     width: 50%;
+    height: auto;
     background: var(--body-bg);
     box-shadow: var(--box-shadow);
     border: var(--border);
@@ -3709,7 +3710,9 @@ button {
 #ejectEveryoneBtn,
 #roomSendEmailBtn,
 #lockRoomBtn,
-#unlockRoomBtn {
+#unlockRoomBtn,
+#joinLockBtn,
+#joinUnlockBtn {
     padding: 10px;
     font-size: 0.9rem;
     border: var(--border);
@@ -3723,7 +3726,9 @@ button {
 #myProfileAvatarResetBtn:hover,
 #roomSendEmailBtn:hover,
 #lockRoomBtn:hover,
-#unlockRoomBtn:hover {
+#unlockRoomBtn:hover,
+#joinLockBtn:hover,
+#joinUnlockBtn:hover {
     background: var(--body-bg);
     transform: translateY(-3px);
     transition: all 0.3s ease-in-out;
@@ -3884,7 +3889,7 @@ button {
     position: relative;
     padding: 0px 20px 0px 0px; /* top right bottom left */
     width: 65%;
-    max-height: 540px;
+    height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
 }

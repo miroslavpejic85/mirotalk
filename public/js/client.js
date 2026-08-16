@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.00
+ * @version 1.9.01
  *
  */
 
@@ -486,6 +486,8 @@ const ejectEveryoneBtnDesktop = getId('ejectEveryoneBtnDesktop');
 const activeRoomsBtn = getId('activeRoomsBtn');
 const lockRoomBtn = getId('lockRoomBtn');
 const unlockRoomBtn = getId('unlockRoomBtn');
+const joinLockBtn = getId('joinLockBtn');
+const joinUnlockBtn = getId('joinUnlockBtn');
 
 // File send progress
 const sendFileDiv = getId('sendFileDiv');
@@ -735,6 +737,7 @@ let screenFpsSelectedIndex = 1; // 30 fps
 let isMySettingsVisible = false;
 let thisRoomPassword = null;
 let isRoomLocked = false;
+let isJoinLocked = false;
 let isKeepButtonsVisible = false;
 let isAudioPitchBar = true;
 let isPushToTalkActive = false;
@@ -1475,6 +1478,7 @@ async function initClientPeer() {
     signalingSocket.on('connect', handleConnect);
     signalingSocket.on('unauthorized', handleUnauthorized);
     signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
+    signalingSocket.on('roomIsJoinLocked', handleRoomJoinLocked);
     signalingSocket.on('roomAction', handleRoomAction);
     signalingSocket.on('addPeer', handleAddPeer);
     signalingSocket.on('serverInfo', handleServerInfo);
@@ -1565,7 +1569,8 @@ async function handleConnect() {
 function handleServerInfo(config) {
     console.log('13. Server info', config);
 
-    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect, maxRoomParticipants } = config;
+    const { peers_count, host_protected, user_auth, is_presenter, survey, redirect, maxRoomParticipants, join_locked } =
+        config;
 
     isHostProtected = host_protected;
     isPeerAuthEnabled = user_auth;
@@ -1593,6 +1598,7 @@ function handleServerInfo(config) {
 
     // Let start with some basic rules
     isPresenter = is_presenter;
+    isJoinLocked = join_locked === true;
     console.log('New connection - presenter status from server:', isPresenter);
     isPeerPresenter.innerText = isPresenter;
 
@@ -1784,6 +1790,8 @@ function handleButtonsRule() {
         { element: tabEmailInvitation, display: buttons.settings.showTabEmailInvitation },
         { element: noiseSuppressionBtn, display: buttons.settings.customNoiseSuppression && isRNNoiseSupported },
     ]);
+
+    updateJoinLockButtons();
 
     // Whiteboard
     elemDisplay(
@@ -7965,6 +7973,12 @@ function setupMySettings() {
     unlockRoomBtn.addEventListener('click', (e) => {
         handleRoomAction({ action: 'unlock' }, true);
     });
+    joinLockBtn.addEventListener('click', (e) => {
+        confirmJoinLock(true);
+    });
+    joinUnlockBtn.addEventListener('click', (e) => {
+        confirmJoinLock(false);
+    });
 }
 
 /**
@@ -13979,6 +13993,11 @@ function handleRoomAction(config, emit = false) {
                 sendToServer('roomAction', thisConfig);
                 handleRoomStatus(thisConfig);
                 break;
+            case 'joinLockOn':
+            case 'joinLockOff':
+                sendToServer('roomAction', thisConfig);
+                handleRoomStatus(thisConfig);
+                break;
             default:
                 break;
         }
@@ -14015,9 +14034,86 @@ function handleRoomStatus(config) {
             isRoomLocked = true;
             password == 'OK' ? joinToChannel() : handleRoomLocked();
             break;
+        case 'joinLockOn':
+            playSound('locked');
+            userLog(
+                'toast',
+                `${icons.user} ${peer_name} \n has 🔒 LOCKED the room, no new participants can join`,
+                'top-end'
+            );
+            isJoinLocked = true;
+            updateJoinLockButtons();
+            screenReaderAccessibility.announceMessage(`${peer_name} locked the room for new participants`);
+            break;
+        case 'joinLockOff':
+            userLog(
+                'toast',
+                `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room, new participants can join`,
+                'top-end'
+            );
+            isJoinLocked = false;
+            updateJoinLockButtons();
+            screenReaderAccessibility.announceMessage(`${peer_name} unlocked the room for new participants`);
+            break;
         default:
             break;
     }
+}
+
+/**
+ * Show the join lock or join unlock button according to the current room state
+ */
+function updateJoinLockButtons() {
+    const canLock = buttons.settings.showJoinLockBtn && (isPresenter || !isRulesActive);
+    elemDisplay(joinLockBtn, canLock && !isJoinLocked);
+    elemDisplay(joinUnlockBtn, canLock && isJoinLocked);
+}
+
+/**
+ * Ask the presenter to confirm the room lock/unlock for new participants
+ * @param {boolean} lock true to lock the room, false to unlock it
+ */
+function confirmJoinLock(lock) {
+    playSound('newMessage');
+
+    Swal.fire({
+        background: swBg,
+        imageUrl: images.locked,
+        title: lock ? 'Lock room?' : 'Unlock room?',
+        text: lock
+            ? 'Are you sure you want to lock the room? No new participants will be able to join from now on.'
+            : 'Are you sure you want to unlock the room? New participants will be able to join again.',
+        showDenyButton: true,
+        confirmButtonText: lock ? 'Lock room' : 'Unlock room',
+        denyButtonText: `Cancel`,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) handleRoomAction({ action: lock ? 'joinLockOn' : 'joinLockOff' }, true);
+    });
+}
+
+/**
+ * The room is locked by the host, new participants are not allowed to join
+ */
+function handleRoomJoinLocked() {
+    playSound('alert');
+
+    console.log('Room is Locked for new participants');
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swBg,
+        position: 'center',
+        imageUrl: images.locked,
+        title: 'Oops, Room is Locked',
+        text: 'The host has locked the room, new participants are not allowed to join.',
+        confirmButtonText: `Ok`,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then(() => {
+        openURL('/newcall');
+    });
 }
 
 /**
@@ -16283,7 +16379,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.00',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.01',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

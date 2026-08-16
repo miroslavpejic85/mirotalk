@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.9.00 - Configuration File
+ * MiroTalk P2P v.1.9.01 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -545,6 +545,7 @@ module.exports = {
             showEjectEveryoneBtn: true,
             showLockRoomBtn: true,
             showUnlockRoomBtn: true,
+            showJoinLockBtn: true,
             showShortcutsBtn: true,
             customNoiseSuppression: getEnvBoolean(process.env.CUSTOM_NOISE_SUPPRESSION_ENABLED, true),
         },
