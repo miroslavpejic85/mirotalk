@@ -4772,8 +4772,10 @@ input:checked + .slider:before {
 
 #about button {
     border: none;
-    width: 170px;
+    min-width: 170px;
+    width: auto;
     height: 40px;
+    padding: 0 18px;
     font-size: 1.2rem;
     border-radius: 8px;
     color: #ffffff;

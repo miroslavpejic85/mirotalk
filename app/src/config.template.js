@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.9.02 - Configuration File
+ * MiroTalk P2P v.1.9.03 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -395,10 +395,11 @@ module.exports = {
             title: `WebRTC P2P v${packageJson.version}`,
             html: `
                 <button 
-                    id="support-button" 
-                    data-umami-event="Support button" 
-                    onclick="window.open('https://codecanyon.net/user/miroslavpejic85')">
-                    <i class="fas fa-heart" ></i>&nbsp;Support
+                    id="upgrade-button" 
+                    style="white-space: nowrap;"
+                    data-umami-event="Upgrade button" 
+                    onclick="window.open('https://docs.mirotalk.com/mirotalk-ultimate/')">
+                    <i class="fas fa-crown" ></i>&nbsp;Upgrade to Ultimate
                 </button>
                 <br /><br /><br />
                 Author:<a 
