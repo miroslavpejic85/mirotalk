@@ -3018,14 +3018,23 @@ button {
     gap: 10px;
     padding: 10px 14px;
     color: #fff;
-    background: rgba(15, 23, 42, 0.34);
+    /* Solid-enough fallback so the pill stays visible if backdrop-filter is unsupported/dropped */
+    background: rgba(15, 23, 42, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 999px;
     box-shadow: 0 22px 44px rgba(0, 0, 0, 0.22);
-    backdrop-filter: blur(8px);
-    will-change: transform, opacity;
     transform: translate3d(0, 0, 0) scale(0.82);
     animation: roomEmojiFloat 4.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Opt-in blur only where backdrop-filter is reliably supported, to avoid dropped
+   compositor layers (blank emoji) seen with will-change + backdrop-filter on some GPUs */
+@supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
+    .user-emoji-burst {
+        background: rgba(15, 23, 42, 0.34);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
 }
 
 .user-emoji-burst__icon {
