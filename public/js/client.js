@@ -7689,12 +7689,16 @@ let exitMenuHideTimer = null;
 function setLeaveRoomBtn() {
     leaveRoomBtn.addEventListener('click', (e) => {
         if (e && e.shiftKey) return leaveRoom();
+        if (isMobileDevice || isTabletDevice) {
+            exitMenu && !exitMenu.classList.contains('hidden') ? hideExitMenu() : showExitMenu();
+            return;
+        }
         hideExitMenu();
         leaveRoom();
     });
     if (exitLeaveBtn) exitLeaveBtn.onclick = handleExitLeave;
     if (exitLeaveAllBtn) exitLeaveAllBtn.onclick = handleExitLeaveForAll;
-    if (exitDropdown) {
+    if (exitDropdown && isDesktopDevice) {
         exitDropdown.addEventListener('mouseenter', showExitMenu);
         exitDropdown.addEventListener('mouseleave', scheduleHideExitMenu);
     }
