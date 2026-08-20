@@ -7701,7 +7701,7 @@ function setLeaveRoomBtn() {
     });
     if (exitLeaveBtn) exitLeaveBtn.onclick = handleExitLeave;
     if (exitLeaveAllBtn) exitLeaveAllBtn.onclick = handleExitLeaveForAll;
-    if (exitDropdown && isDesktopDevice && isPresenter) {
+    if (exitDropdown && isDesktopDevice) {
         exitDropdown.addEventListener('mouseenter', showExitMenu);
         exitDropdown.addEventListener('mouseleave', scheduleHideExitMenu);
     }
@@ -7713,13 +7713,13 @@ function setLeaveRoomBtn() {
  * only available to the presenter.
  */
 function showExitMenu() {
-    if (!exitMenu) return;
+    if (!exitMenu || !isPresenter) return;
     if (exitMenuHideTimer) {
         clearTimeout(exitMenuHideTimer);
         exitMenuHideTimer = null;
     }
     if (exitLeaveAllBtn) {
-        isPresenter ? exitLeaveAllBtn.classList.remove('hidden') : exitLeaveAllBtn.classList.add('hidden');
+        exitLeaveAllBtn.classList.remove('hidden');
     }
     exitMenu.classList.remove('hidden');
 }
