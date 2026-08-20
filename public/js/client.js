@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.05
+ * @version 1.9.06
  *
  */
 
@@ -7684,27 +7684,57 @@ function setAboutBtn() {
 /**
  * Leave room button click event
  */
+let exitMenuHideTimer = null;
+
 function setLeaveRoomBtn() {
     leaveRoomBtn.addEventListener('click', (e) => {
         if (e && e.shiftKey) return leaveRoom();
-        if (!isPresenter) return leaveRoom();
-        toggleExitMenu();
+        hideExitMenu();
+        leaveRoom();
     });
     if (exitLeaveBtn) exitLeaveBtn.onclick = handleExitLeave;
     if (exitLeaveAllBtn) exitLeaveAllBtn.onclick = handleExitLeaveForAll;
+    if (exitDropdown) {
+        exitDropdown.addEventListener('mouseenter', showExitMenu);
+        exitDropdown.addEventListener('mouseleave', scheduleHideExitMenu);
+    }
     document.addEventListener('click', handleExitMenuOutsideClick);
 }
 
 /**
- * Toggle the exit dropdown menu. The "End room for all" entry is
+ * Show the exit dropdown menu. The "End room for all" entry is
  * only available to the presenter.
  */
-function toggleExitMenu() {
-    if (!exitMenu) return leaveRoom();
+function showExitMenu() {
+    if (!exitMenu) return;
+    if (exitMenuHideTimer) {
+        clearTimeout(exitMenuHideTimer);
+        exitMenuHideTimer = null;
+    }
     if (exitLeaveAllBtn) {
         isPresenter ? exitLeaveAllBtn.classList.remove('hidden') : exitLeaveAllBtn.classList.add('hidden');
     }
-    exitMenu.classList.toggle('hidden');
+    exitMenu.classList.remove('hidden');
+}
+
+/**
+ * Hide the exit dropdown menu after a short delay so the pointer can
+ * travel from the button to the menu without it closing.
+ */
+function scheduleHideExitMenu() {
+    if (exitMenuHideTimer) clearTimeout(exitMenuHideTimer);
+    exitMenuHideTimer = setTimeout(hideExitMenu, 400);
+}
+
+/**
+ * Hide the exit dropdown menu.
+ */
+function hideExitMenu() {
+    if (exitMenuHideTimer) {
+        clearTimeout(exitMenuHideTimer);
+        exitMenuHideTimer = null;
+    }
+    if (exitMenu) exitMenu.classList.add('hidden');
 }
 
 function handleExitLeave() {
@@ -16379,7 +16409,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.05',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.06',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
