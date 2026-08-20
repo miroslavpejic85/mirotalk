@@ -1514,6 +1514,14 @@ body {
     white-space: nowrap;
 }
 
+.msger-chat-item.isPresenter .msger-chat-item-copy strong::before {
+    content: '\f505';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: #4caf50;
+    margin-right: 6px;
+}
+
 .msger-chat-item-copy small {
     display: block;
     font-size: 0.8rem;

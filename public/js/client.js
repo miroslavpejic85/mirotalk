@@ -15,7 +15,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.06
+ * @version 1.9.10
  *
  */
 
@@ -1600,6 +1600,8 @@ function handleServerInfo(config) {
     isJoinLocked = join_locked === true;
     console.log('New connection - presenter status from server:', isPresenter);
     isPeerPresenter.innerText = isPresenter;
+    setPresenterBadge(myVideoPeerName, isPresenter);
+    setPresenterBadge(getId('myScreenPeerName'), isPresenter);
 
     // Peer identified if presenter or not then....
     handleShortcuts();
@@ -4451,6 +4453,7 @@ async function loadLocalMedia(stream, kind) {
             myScreenPeerName.setAttribute('id', 'myScreenPeerName');
             myScreenPeerName.className = 'videoPeerName notranslate fadein';
             myScreenPeerName.innerText = myPeerName + ' (me)';
+            setPresenterBadge(myScreenPeerName, isPresenter);
 
             // my screen to image
             myScreenToImgBtn.setAttribute('id', 'myScreenToImgBtn');
@@ -4640,6 +4643,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
     const peer_hand_status = peers[peer_id]['peer_hand_status'];
     const peer_rec_status = peers[peer_id]['peer_rec_status'];
     const peer_privacy_status = peers[peer_id]['peer_privacy_status'];
+    const peer_presenter = peers[peer_id]['peer_presenter'];
 
     if (stream) console.log('LOAD REMOTE MEDIA STREAM TRACKS - PeerName:[' + peer_name + ']', stream.getTracks());
 
@@ -4682,6 +4686,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // remote peer name element
             remotePeerName.setAttribute('id', peer_id + '_name');
             remotePeerName.className = 'videoPeerName notranslate fadein';
+            setPresenterBadge(remotePeerName, peer_presenter);
 
             const peerVideoText = document.createTextNode(peer_name);
             remotePeerName.appendChild(peerVideoText);
@@ -5014,6 +5019,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenPeerName.setAttribute('id', peer_id + '_screen_name');
             remoteScreenPeerName.className = 'videoPeerName notranslate fadein';
             remoteScreenPeerName.appendChild(document.createTextNode(peer_name + ' (screen)'));
+            setPresenterBadge(remoteScreenPeerName, peer_presenter);
 
             remoteScreenPrivateMsgBtn.setAttribute('id', peer_id + '_screen_privateMsg');
             remoteScreenPrivateMsgBtn.className = className.msgPrivate;
@@ -5489,6 +5495,16 @@ function genAvatarSvg(peerName, avatarImgSize) {
         </text>
     </svg>`;
     return 'data:image/svg+xml,' + svg.replace(/#/g, '%23').replace(/"/g, "'").replace(/&/g, '&amp;');
+}
+
+/**
+ * Show/hide the green shield badge marking the meeting presenter
+ * @param {HTMLElement} element peer name or participant list entry
+ * @param {boolean} presenter
+ */
+function setPresenterBadge(element, presenter) {
+    if (!element) return;
+    element.classList.toggle('isPresenter', !!presenter);
 }
 
 /**
@@ -11922,6 +11938,7 @@ async function msgerAddPeers(peers) {
                 msgerCPList.scrollTop += 500;
 
                 const msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
+                setPresenterBadge(msgerPrivateBtn, peers[peer_id]['peer_presenter']);
                 const msgerPrivateKickOutBtn = getId(peer_id + '_pKickOut');
                 const msgerPrivateToggleAudioBtn = getId(peer_id + '_pToggleAudio');
                 const msgerPrivateToggleVideoBtn = getId(peer_id + '_pToggleVideo');
@@ -16415,7 +16432,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.06',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.10',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
