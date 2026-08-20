@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.9.10 - Configuration File
+ * MiroTalk P2P v.1.9.11 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -112,7 +112,11 @@ module.exports = {
     // ==========================================
     // Presenters
     // ==========================================
-    presenters: parseJsonEnv(process.env.PRESENTERS, ['MiroTalk P2P']),
+    // WARNING: without host protection / user auth, the peer name is unverified client input,
+    // so each entry acts as a shared secret. Use unique, non-guessable values (never a real
+    // name or email) or anyone who guesses it becomes presenter. Empty by default: a shipped
+    // name is a public credential.
+    presenters: parseJsonEnv(process.env.PRESENTERS, []),
 
     // ==========================================
     // API
