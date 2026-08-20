@@ -976,7 +976,6 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
     setTippy(participantsBtn, 'Show participants', bottomButtonsPlacement);
     setTippy(mySettingsBtn, 'Open the settings (O)', bottomButtonsPlacement);
-    setTippy(leaveRoomBtn, 'Leave this room', bottomButtonsPlacement);
 }
 
 /**
