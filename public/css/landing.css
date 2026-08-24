@@ -4883,7 +4883,11 @@ a:focus-visible {
     }
 
     .clients-inner ul {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .clients-size-logo {
+        max-width: 100%;
     }
 }
 
