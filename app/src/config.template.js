@@ -384,7 +384,6 @@ module.exports = {
         html: {
             topSponsors: true,
             features: true,
-            browsers: true,
             teams: true, // please keep me always true ;)
             tryEasier: true,
             poweredBy: true,

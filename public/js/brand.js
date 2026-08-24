@@ -98,7 +98,6 @@ let brand = {
     html: {
         topSponsors: true,
         features: true,
-        browsers: true,
         teams: true, // please keep me always true ;)
         tryEasier: true,
         poweredBy: true,
@@ -298,7 +297,6 @@ function handleBrand() {
     displayElements([
         [topSponsors, brand.html?.topSponsors],
         [features, brand.html?.features],
-        [browsers, brand.html?.browsers],
         [teams, brand.html?.teams],
         [tryEasier, brand.html?.tryEasier],
         [poweredBy, brand.html?.poweredBy],

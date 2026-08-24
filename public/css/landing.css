@@ -4259,8 +4259,12 @@ body {
 --------------------------------------------------------------*/
 
 #supportUs .cta-inner {
-    background-color: rgba(0, 0, 0, 0.95) !important;
-    background-image: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 60%, rgba(70, 120, 249, 0.25) 100%) !important;
+    background-color: var(--landing-surface) !important;
+    background-image: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.48) 60%,
+        color-mix(in srgb, var(--landing-primary) 22%, transparent)
+    ) !important;
 }
 
 .support-us-content {
@@ -4792,6 +4796,33 @@ a:focus-visible {
     background: rgba(24, 30, 38, 0.58);
 }
 
+#teams .tiles-item-inner {
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+#teams .rounded-image {
+    border: 0;
+    box-shadow:
+        0 0 22px rgba(255, 255, 255, 0.18),
+        0 16px 40px rgba(0, 0, 0, 0.36);
+}
+
+#teams .team-item-name {
+    color: var(--landing-text);
+}
+
+#teams .team-item-role {
+    color: var(--landing-text-muted) !important;
+}
+
+@media (min-width: 641px) {
+    #teams .section-header {
+        padding-bottom: 48px;
+    }
+}
+
 .clients-logo,
 #topSponsors .clients-logo,
 .support-card {
@@ -4814,7 +4845,7 @@ a:focus-visible {
 }
 
 #tryEasier .button-custom {
-    background: linear-gradient(100deg, var(--landing-primary), var(--landing-secondary) 75%, var(--landing-accent));
+    background: linear-gradient(100deg, var(--landing-primary), #32b8e8);
     box-shadow: 0 10px 28px rgba(55, 109, 249, 0.22);
 }
 
