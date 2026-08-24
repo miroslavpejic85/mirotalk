@@ -1,3 +1,16 @@
+/* The login page has no header content, so do not reserve space for it. */
+.site-header {
+    display: none;
+}
+
+.site-header + .site-content .section:first-of-type {
+    padding-top: 0;
+}
+
+.site-content.mt-32 {
+    margin-top: 0;
+}
+
 /* Login Card */
 .login-card {
     max-width: 460px;
