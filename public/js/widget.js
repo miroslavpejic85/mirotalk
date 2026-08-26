@@ -163,11 +163,6 @@ class MiroTalkWidget {
         dragHandle.style.cursor = 'move';
 
         element.style.position = 'fixed';
-        element.style.right = 'auto';
-        element.style.bottom = 'auto';
-        element.style.left = element.offsetLeft + 'px';
-        element.style.top = element.offsetTop + 'px';
-        element.style.transform = 'translate(0,0)';
 
         dragHandle.addEventListener('pointerdown', onPointerDown);
 
@@ -181,6 +176,11 @@ class MiroTalkWidget {
             const rect = element.getBoundingClientRect();
             startLeft = rect.left;
             startTop = rect.top;
+            element.style.right = 'auto';
+            element.style.bottom = 'auto';
+            element.style.left = startLeft + 'px';
+            element.style.top = startTop + 'px';
+            element.style.transform = 'translate(0,0)';
             element.setPointerCapture(e.pointerId);
             element.classList.add('dragging');
             element.style.zIndex = 9999;
@@ -292,12 +292,12 @@ class MiroTalkWidget {
                 <div class="online-text" style="display: ${this.isOnline ? 'inline' : 'none'}">${customMessages.onlineText}</div>
                 <div class="offline-text" style="display: ${this.isOnline ? 'none' : 'inline'}">${customMessages.offlineText}</div>
                 <div class="widget-controls">
-                    <button class="minimize-btn" onclick="miroTalkWidgetAction('minimize', this)" title="Minimize">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <button type="button" class="minimize-btn" onclick="miroTalkWidgetAction('minimize', this)" title="Minimize" aria-label="Minimize support widget">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path d="M19 13H5v-2h14v2z"/>
                         </svg>
                     </button>
-                    <div class="close-btn" onclick="miroTalkWidgetAction('close', this)" title="Close">&times;</div>
+                    <button type="button" class="close-btn" onclick="miroTalkWidgetAction('close', this)" title="Close" aria-label="Close support widget">&times;</button>
                 </div>
             </div>
             <h2 class="main-heading">${customMessages.heading}</h2>
@@ -327,11 +327,11 @@ class MiroTalkWidget {
         if (flags.video) {
             buttons.push({ action: 'startVideoCall', icon: this.getVideoIcon(), text: 'Start Video Call' });
         }
-        if (flags.screen && navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
-            buttons.push({ action: 'startScreenShare', icon: this.getScreenIcon(), text: 'Start Screen Share' });
-        }
         if (flags.chat) {
             buttons.push({ action: 'startChat', icon: this.getChatIcon(), text: 'Start Chat' });
+        }
+        if (flags.screen && navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+            buttons.push({ action: 'startScreenShare', icon: this.getScreenIcon(), text: 'Start Screen Share' });
         }
         if (flags.join) {
             buttons.push({ action: 'joinRoom', icon: this.getJoinIcon(), text: 'Join Room' });

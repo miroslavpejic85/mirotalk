@@ -403,6 +403,78 @@
                 transform: scale(0.97);
             }
 
+            .preview-section {
+                grid-column: 1 / -1;
+                background: #f8f9fa;
+                padding: 25px;
+                border: 1px solid #e9ecef;
+                border-radius: 12px;
+            }
+
+            .preview-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                margin-bottom: 16px;
+            }
+
+            .preview-header h2 {
+                color: #2a2a3e;
+                font-size: 1.4rem;
+            }
+
+            .preview-controls {
+                display: inline-flex;
+                padding: 3px;
+                background: #e2e6ea;
+                border-radius: 8px;
+            }
+
+            .preview-btn {
+                width: 40px;
+                height: 36px;
+                border: 0;
+                border-radius: 6px;
+                color: #66707a;
+                background: transparent;
+                cursor: pointer;
+            }
+
+            .preview-btn[aria-pressed='true'] {
+                color: #116d3d;
+                background: white;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+            }
+
+            .preview-btn:focus-visible {
+                outline: 3px solid rgba(0, 200, 83, 0.3);
+                outline-offset: 2px;
+            }
+
+            .preview-stage {
+                display: flex;
+                justify-content: center;
+                min-height: 792px;
+                padding: 16px;
+                overflow: hidden;
+                background: #e5e8eb;
+                border-radius: 8px;
+            }
+
+            #widget-preview {
+                width: 100%;
+                height: 760px;
+                background: white;
+                border: 1px solid #cbd1d6;
+                border-radius: 6px;
+                transition: width 0.25s ease;
+            }
+
+            #widget-preview.mobile {
+                width: min(390px, 100%);
+            }
+
             @media (max-width: 768px) {
                 .content {
                     grid-template-columns: 1fr;
@@ -442,6 +514,19 @@
 
                 .header p {
                     font-size: 1rem;
+                }
+
+                .preview-section {
+                    padding: 20px;
+                }
+
+                .preview-stage {
+                    min-height: 696px;
+                    padding: 8px;
+                }
+
+                #widget-preview {
+                    height: 680px;
                 }
             }
         </style>
@@ -501,6 +586,16 @@
                             <option value="normal">Normal (Visible)</option>
                             <option value="minimized">Minimized</option>
                             <option value="closed">Closed (Button Only)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="draggable" class="tooltip" data-tooltip="Allow visitors to reposition the widget">
+                            Draggable
+                        </label>
+                        <select id="draggable">
+                            <option value="false">False</option>
+                            <option value="true">True</option>
                         </select>
                     </div>
 
@@ -599,6 +694,41 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                     </div>
                 </div>
 
+                <section class="preview-section" aria-labelledby="preview-heading">
+                    <div class="preview-header">
+                        <h2 id="preview-heading">Live Preview</h2>
+                        <div class="preview-controls" aria-label="Preview size">
+                            <button
+                                type="button"
+                                class="preview-btn"
+                                data-preview="desktop"
+                                aria-label="Desktop preview"
+                                aria-pressed="true"
+                                title="Desktop preview"
+                            >
+                                <i class="fa-solid fa-desktop" aria-hidden="true"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="preview-btn"
+                                data-preview="mobile"
+                                aria-label="Mobile preview"
+                                aria-pressed="false"
+                                title="Mobile preview"
+                            >
+                                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="preview-stage">
+                        <iframe
+                            id="widget-preview"
+                            title="MiroTalk widget preview"
+                            sandbox="allow-scripts allow-popups"
+                        ></iframe>
+                    </div>
+                </section>
+
                 <!-- Generated Code -->
                 <div class="output-section">
                     <h2>Generated Code</h2>
@@ -626,6 +756,7 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                 theme: document.getElementById('theme'),
                 position: document.getElementById('position'),
                 widgetState: document.getElementById('widget-state'),
+                draggable: document.getElementById('draggable'),
                 checkOnline: document.getElementById('check-online'),
                 heading: document.getElementById('heading'),
                 subheading: document.getElementById('subheading'),
@@ -642,6 +773,15 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
             };
 
             const generatedCode = document.getElementById('generated-code');
+            const widgetPreview = document.getElementById('widget-preview');
+            let previewTimer;
+
+            function updatePreview() {
+                clearTimeout(previewTimer);
+                previewTimer = setTimeout(() => {
+                    widgetPreview.srcdoc = generatedCode.value;
+                }, 300);
+            }
 
             // Generate HTML code
             function generateCode() {
@@ -651,6 +791,7 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                     theme: form.theme.value,
                     position: form.position.value,
                     widgetState: form.widgetState.value,
+                    draggable: form.draggable.value,
                     checkOnline: form.checkOnline.checked,
                     heading: form.heading.value || 'Need Help?',
                     subheading: form.subheading.value || 'Get instant support from our expert team!',
@@ -678,7 +819,7 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>MiroTalk Widget</title>
-<script src="https://${config.domain}/js/Widget.js"><\/script>
+<script src="https://${config.domain}/js/widget.js"><\/script>
 </head>
 <body>
 <div
@@ -690,6 +831,7 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
   data-widget-type="support"
   data-position="${config.position}"
   data-widget-state="${config.widgetState}"
+    data-draggable="${config.draggable}"
   data-buttons="${buttonsAttr}"
   data-check-online="${config.checkOnline}"
   data-expert-images="${escapeHtml(config.expertImages)}"
@@ -703,6 +845,7 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
 </body>
 </html>`;
                 generatedCode.value = html;
+                updatePreview();
             }
 
             // Escape HTML
@@ -752,6 +895,7 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
                 form.theme.value = 'dark';
                 form.position.value = 'bottom-right';
                 form.widgetState.value = 'normal';
+                form.draggable.value = 'false';
                 form.checkOnline.checked = false;
                 form.heading.value = 'Need Help?';
                 form.subheading.value = 'Get instant support from our expert team!';
@@ -858,6 +1002,14 @@ https://i.pravatar.cc/40?img=1,https://i.pravatar.cc/40?img=2,https://i.pravatar
             document.getElementById('copy-btn').addEventListener('click', copyCode);
             document.getElementById('download-btn').addEventListener('click', downloadCode);
             document.getElementById('reset-btn').addEventListener('click', resetForm);
+            document.querySelectorAll('.preview-btn').forEach((button) => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.preview-btn').forEach((previewButton) => {
+                        previewButton.setAttribute('aria-pressed', String(previewButton === button));
+                    });
+                    widgetPreview.classList.toggle('mobile', button.dataset.preview === 'mobile');
+                });
+            });
 
             // Generate initial code and load saved data
             generateCode();

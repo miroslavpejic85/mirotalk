@@ -150,62 +150,50 @@
 .mirotalk-support-widget .widget-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     margin-left: auto;
 }
 
-.mirotalk-support-widget .minimize-btn {
+.mirotalk-support-widget .minimize-btn,
+.mirotalk-support-widget .close-btn {
+    box-sizing: border-box;
     background: rgba(255, 255, 255, 0.1);
-    border: none;
+    border: 0;
     color: #aaa;
     cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 6px;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: inherit;
 }
 
-.mirotalk-support-widget.light-theme .minimize-btn {
+.mirotalk-support-widget.light-theme .minimize-btn,
+.mirotalk-support-widget.light-theme .close-btn {
     background: rgba(0, 0, 0, 0.05);
     color: #666;
 }
 
-.mirotalk-support-widget .minimize-btn:hover {
+.mirotalk-support-widget .minimize-btn:hover,
+.mirotalk-support-widget .close-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     color: #fff;
 }
 
-.mirotalk-support-widget.light-theme .minimize-btn:hover {
+.mirotalk-support-widget.light-theme .minimize-btn:hover,
+.mirotalk-support-widget.light-theme .close-btn:hover {
     background: rgba(0, 0, 0, 0.1);
     color: #333;
 }
 
 .mirotalk-support-widget .close-btn {
-    cursor: pointer;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 19px;
     line-height: 1;
-    padding: 4px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    color: #aaa;
-}
-
-.mirotalk-support-widget.light-theme .close-btn {
-    color: #666;
-}
-
-.mirotalk-support-widget .close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    transform: scale(1.1);
-}
-
-.mirotalk-support-widget.light-theme .close-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: #333;
 }
 
 /* Content Elements */
@@ -672,8 +660,8 @@
     }
 
     .mirotalk-support-widget .close-btn {
-        font-size: 16px;
-        padding: 2px;
+        font-size: 18px;
+        padding: 0;
     }
 
     .mirotalk-support-widget .main-heading {
