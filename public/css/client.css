@@ -481,37 +481,51 @@ body {
     position: absolute;
     bottom: calc(100% + 8px);
     right: 0;
-    min-width: 220px;
+    min-width: 200px;
     z-index: 9999;
+    overflow: hidden;
     background: var(--body-bg);
     border: var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: var(--box-shadow);
-    padding: 6px 0;
+    padding: 0;
     text-align: left;
 }
 
 #bottomButtons #exitMenu button {
     display: flex;
-    width: calc(100% - 12px);
-    height: auto;
+    width: 100%;
+    min-height: 44px;
     align-items: center;
     justify-content: flex-start;
     text-align: left;
-    padding: 10px 16px;
-    margin: 2px 6px;
-    font-size: 0.9rem;
-    border-radius: 8px;
+    padding: 0 16px;
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 0;
     background: transparent;
     color: #fff;
-    transition:
-        transform 0.15s ease,
-        background 0.2s ease;
+    transition: background 0.2s ease;
+}
+
+#bottomButtons #exitMenu button + button {
+    position: relative;
+}
+
+#bottomButtons #exitMenu button + button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 10px;
+    left: 10px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.18);
 }
 
 #bottomButtons #exitMenu button:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateX(3px) !important;
+    background: rgba(255, 255, 255, 0.06);
+    transform: none !important;
 }
 
 #bottomButtons #exitMenu button i {
@@ -519,11 +533,11 @@ body {
     min-width: 20px;
     text-align: center;
     margin-right: 10px;
-    font-size: 1.1em;
+    font-size: 1.05rem;
 }
 
 #bottomButtons #exitMenu .red {
-    color: #dc3545 !important;
+    color: #fff !important;
 }
 
 /* Let the dropdown menu anchor to the whole split button (not only the arrow). */
