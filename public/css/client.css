@@ -627,17 +627,40 @@ body {
     position: relative;
 }
 
-#bottomButtons .dropup .dropdown-menu {
+#bottomButtons .split-btn .dropdown-menu {
     z-index: 9999;
     position: absolute;
-    left: 0;
+    box-sizing: border-box;
     padding: 8px;
-    bottom: 45px;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     background: var(--body-bg);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(12px);
+}
+
+#bottomButtons .dropup .dropdown-menu {
+    left: 0;
+    bottom: 45px;
+}
+
+#bottomButtons[data-position='horizontal'] .split-btn {
+    position: static;
+}
+
+#bottomButtons[data-position='horizontal'] .split-btn .dropdown-menu {
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: calc(100% + 8px) !important;
+    transform: translateY(-50%) !important;
+    max-height: calc(100vh - 24px);
+}
+
+#bottomButtons[data-position='horizontal'] .device-dropdown-toggle i {
+    transform: rotate(90deg);
 }
 
 #bottomButtons #audioMenu,
