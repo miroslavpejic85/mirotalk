@@ -1,5 +1,6 @@
 /*
- ██████ ██      ██ ███████ ███    ██ ████████ 
+ * Show the leave-room tooltip only while the participant is alone.
+ * @param {number} participantsCount number of participants in the room
 ██      ██      ██ ██      ████   ██    ██    
 ██      ██      ██ █████   ██ ██  ██    ██    
 ██      ██      ██ ██      ██  ██ ██    ██    
@@ -15,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.21
+ * @version 1.9.22
  *
  */
 
@@ -969,6 +970,8 @@ function refreshMainButtonsToolTipPlacement() {
     // BottomButtons
     bottomButtonsPlacement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'top' : 'right';
 
+    updateLeaveRoomTooltip(videoMediaContainer.childElementCount);
+
     setTippy(audioBtn, useAudio ? 'Stop the audio (A)' : 'My audio is disabled', bottomButtonsPlacement);
     setTippy(videoBtn, useVideo ? 'Stop the video (V)' : 'My video is disabled', bottomButtonsPlacement);
     setTippy(screenShareBtn, 'Start screen sharing (S)', bottomButtonsPlacement);
@@ -1001,6 +1004,21 @@ function setTippy(element, content, placement) {
     } else {
         console.warn('setTippy element not found with content', content);
     }
+}
+
+/**
+ * Update the leave room tooltip based on the user's role and number of participants.
+ * @param {number} participantsCount the number of participants in the room
+ */
+function updateLeaveRoomTooltip(participantsCount) {
+    if (!leaveRoomBtn || isMobileDevice) return;
+    if (!isPresenter || participantsCount <= 1) {
+        leaveRoomBtn._tippy
+            ? leaveRoomBtn._tippy.setProps({ placement: bottomButtonsPlacement })
+            : setTippy(leaveRoomBtn, 'Leave room', bottomButtonsPlacement);
+        return;
+    }
+    if (leaveRoomBtn._tippy) leaveRoomBtn._tippy.destroy();
 }
 
 /**
@@ -5360,6 +5378,7 @@ function logStreamSettingsInfo(name, stream) {
 function adaptAspectRatio() {
     const participantsCount = videoMediaContainer.childElementCount;
     if (peersCount) peersCount.innerText = participantsCount;
+    updateLeaveRoomTooltip(participantsCount);
     let desktop,
         mobile = 1;
 
@@ -16432,7 +16451,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.21',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.22',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

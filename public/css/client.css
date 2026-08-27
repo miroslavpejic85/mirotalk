@@ -582,19 +582,6 @@ body {
     transition: all 0.3s ease-in-out;
 }
 
-#bottomButtons #leaveRoomBtn {
-    color: #ff1616 !important;
-    background: #35171d;
-    border: 1px solid rgba(255, 65, 65, 0.12) !important;
-    border-radius: 12px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-
-#bottomButtons #leaveRoomBtn:hover {
-    background: #481920;
-    border-color: rgba(255, 65, 65, 0.22) !important;
-}
-
 /* Active state for chat / participants toolbar buttons (theme-aware) */
 #bottomButtons #chatRoomBtn.is-active,
 #bottomButtons #participantsBtn.is-active {
