@@ -4830,7 +4830,7 @@ input:checked + .slider:before {
     text-decoration: none;
 }
 
-#about a:hover {
+#about a:not(.about-primary-action):hover {
     color: var(--hover-color);
     transition: all 0.3s ease-in-out;
 }
