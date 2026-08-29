@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.9.23 - Configuration File
+ * MiroTalk P2P v.1.9.24 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -397,31 +397,48 @@ module.exports = {
             imageUrl: '../images/mirotalk-logo.gif',
             title: `WebRTC P2P v${packageJson.version}`,
             html: `
-                <button 
-                    id="upgrade-button" 
-                    style="white-space: nowrap;"
-                    data-umami-event="Upgrade button" 
-                    onclick="window.open('https://docs.mirotalk.com/mirotalk-ultimate/')">
-                    <i class="fas fa-crown" ></i>&nbsp;Upgrade to Ultimate
-                </button>
-                <br /><br /><br />
-                Author:<a 
-                    id="linkedin-button" 
-                    data-umami-event="Linkedin button" 
-                    href="https://www.linkedin.com/in/miroslav-pejic-976a07101/" target="_blank"> 
-                    Miroslav Pejic
-                </a>
-                <br />
-                Email:<a 
-                    id="email-button" 
-                    data-umami-event="Email button" 
-                    href="mailto:miroslav.pejic.85@gmail.com?subject=MiroTalk P2P info"> 
-                    miroslav.pejic.85@gmail.com
-                </a>
-                <br /><br />
-                <hr />
-                <span>&copy; 2025 MiroTalk P2P, all rights reserved</span>
-                <hr />
+                <div class="about-content">
+                    <p class="about-description">
+                        Secure peer-to-peer video meetings directly in your browser.
+                    </p>
+                    <a
+                        class="about-primary-action"
+                        data-umami-event="About button"
+                        href="https://docs.mirotalk.com/sites/p2p.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <i class="fas fa-info-circle" aria-hidden="true"></i>
+                        <span>About</span>
+                    </a>
+                    <dl class="about-details">
+                        <div>
+                            <dt>Author</dt>
+                            <dd>
+                                <a
+                                    id="linkedin-button"
+                                    data-umami-event="Linkedin button"
+                                    href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >Miroslav Pejic</a>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>Email</dt>
+                            <dd>
+                                <a
+                                    id="email-button"
+                                    data-umami-event="Email button"
+                                    href="mailto:miroslav.pejic.85@gmail.com?subject=MiroTalk P2P info"
+                                >miroslav.pejic.85@gmail.com</a>
+                            </dd>
+                        </div>
+                    </dl>
+                    <footer class="about-footer">
+                        &copy; ${new Date().getFullYear()} MiroTalk P2P. All rights reserved.
+                    </footer>
+                </div>
             `,
         },
         // https://docs.mirotalk.com/mirotalk-p2p/integration/#widgets-integration
