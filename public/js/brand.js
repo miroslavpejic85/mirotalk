@@ -67,7 +67,7 @@ let brand = {
     site: {
         shortcutIcon: '../images/logo.svg',
         appleTouchIcon: '../images/logo.svg',
-        landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
+        landingTitle: 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
         newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
         newCallRoomTitle: 'Pick name. <br />Share URL. <br />Start conference.',
         newCallRoomDescription:
@@ -109,7 +109,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v1.9.25',
+        title: 'WebRTC P2P v1.9.26',
         html: `
             <button 
                 id="support-button" 

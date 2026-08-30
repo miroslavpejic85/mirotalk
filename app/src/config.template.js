@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.1.9.25 - Configuration File
+ * MiroTalk P2P v.1.9.26 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -344,16 +344,16 @@ module.exports = {
         og: {
             type: 'app-webrtc',
             siteName: 'MiroTalk',
-            title: 'Click the link to make a call.',
+            title: 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
             description:
-                'MiroTalk calling provides real-time HD quality and latency simply not available with traditional technology.',
+                'MiroTalk P2P is an open-source self-hosted WebRTC video calling and meeting platform. Create fast peer-to-peer video calls with screen sharing, chat, whiteboard and collaboration directly in the browser.',
             image: 'https://p2p.mirotalk.com/images/preview.png',
             url: 'https://p2p.mirotalk.com',
         },
         site: {
             shortcutIcon: '../images/logo.svg',
             appleTouchIcon: '../images/logo.svg',
-            landingTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
+            landingTitle: 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
             newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
             newCallRoomTitle: 'Pick name. <br />Share URL. <br />Start conference.',
             newCallRoomDescription:
