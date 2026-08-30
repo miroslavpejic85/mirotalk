@@ -4,9 +4,9 @@
     </a>
 </div>
 
-<h1 align="center">MiroTalk P2P</h1>
+<h1 align="center">MiroTalk P2P - Open Source Self-Hosted WebRTC P2P Video Conferencing</h1>
 
-<h3 align="center">Open Source WebRTC P2P Video Conferencing You Can Self-Host in Minutes</h3>
+<h3 align="center">Open Source Peer-to-Peer Video Conferencing You Can Self-Host in Minutes</h3>
 
 <h4 align="center">Free, Secure, Fast Real-Time Communication - up to 8K, 60fps. Works in All Browsers and Platforms.</h4>
 
