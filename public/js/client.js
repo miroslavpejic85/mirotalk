@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.28
+ * @version 1.9.29
  *
  */
 
@@ -1796,7 +1796,7 @@ function handleButtonsRule() {
     // Settings buttons
     displayElements([
         { element: activeRoomsBtn, display: buttons.settings.showActiveRoomsBtn },
-        { element: micOptionsDiv, display: buttons.settings.showMicOptionsBtn || isPresenter },
+        { element: micOptionsDiv, display: buttons.settings.showMicOptionsBtn || isPresenter, mode: 'block' },
         { element: captionEveryoneBtn, display: buttons.settings.showCaptionEveryoneBtn },
         { element: muteEveryoneBtn, display: buttons.settings.showMuteEveryoneBtn },
         { element: hideEveryoneBtn, display: buttons.settings.showHideEveryoneBtn },
@@ -1805,9 +1805,13 @@ function handleButtonsRule() {
         { element: unlockRoomBtn, display: buttons.settings.showUnlockRoomBtn },
         { element: tabRoomPeerName, display: buttons.settings.showTabRoomPeerName },
         { element: tabRoomParticipants, display: buttons.settings.showTabRoomParticipants },
-        { element: tabRoomSecurity, display: buttons.settings.showTabRoomSecurity },
-        { element: tabEmailInvitation, display: buttons.settings.showTabEmailInvitation },
-        { element: noiseSuppressionBtn, display: buttons.settings.customNoiseSuppression && isRNNoiseSupported },
+        { element: tabRoomSecurity, display: buttons.settings.showTabRoomSecurity, mode: 'grid' },
+        { element: tabEmailInvitation, display: buttons.settings.showTabEmailInvitation, mode: 'block' },
+        {
+            element: noiseSuppressionBtn,
+            display: buttons.settings.customNoiseSuppression && isRNNoiseSupported,
+            mode: 'table-row',
+        },
     ]);
 
     updateJoinLockButtons();
@@ -16456,7 +16460,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.28',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.29',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

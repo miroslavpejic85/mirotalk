@@ -3267,8 +3267,10 @@ button {
     display: none;
     margin: auto;
     padding: 10px;
-    width: 50%;
+    width: min(900px, calc(100vw - 32px));
     height: auto;
+    max-height: calc(100vh - 24px);
+    box-sizing: border-box;
     background: var(--body-bg);
     box-shadow: var(--box-shadow);
     border: var(--border);
@@ -3279,26 +3281,48 @@ button {
 .mySettingsMain {
     display: flex;
     width: 100%;
+    height: min(720px, calc(100vh - 64px));
+    min-height: 0;
+}
+
+.settings-option-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+
+.settings-option-copy strong {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.settings-option-copy small {
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 0.72rem;
+    line-height: 1.3;
 }
 
 @media screen and (max-width: 1030px) {
     #mySettings {
-        width: 75%;
+        width: calc(100vw - 32px);
     }
 }
 
 @media screen and (max-width: 830px) {
     #mySettings {
-        width: 80%;
+        width: calc(100vw - 24px);
     }
     .mySettingsMain {
-        flex-direction: row;
+        flex-direction: column;
     }
 }
 
 @media screen and (max-width: 500px) {
     #mySettings {
-        width: 90%;
+        width: calc(100vw - 18px);
     }
     #bottomButtons {
         gap: 0.3rem;
@@ -3424,10 +3448,23 @@ button {
 }
 
 .inline-check-box {
-    margin-bottom: 20px;
-    display: inline-flex;
+    margin-top: 12px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background: var(--body-bg);
     text-align: left;
     color: white;
+}
+
+.inline-check-box > .toggle {
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
 /*--------------------------------------------------------------
@@ -3442,7 +3479,7 @@ button {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 16px;
     margin-bottom: 10px;
 }
 
@@ -3579,7 +3616,7 @@ button {
     z-index: 6;
     padding: 10px;
     margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     width: 130px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
@@ -3601,10 +3638,6 @@ button {
     outline: none;
     border-color: rgba(70, 120, 249, 0.6);
     box-shadow: 0 0 0 2px rgba(70, 120, 249, 0.15);
-}
-
-#keepCustomTheme {
-    margin-bottom: 10px;
 }
 
 .buttons {
@@ -3725,7 +3758,22 @@ button {
 
 #tabRoomSecurity button {
     width: 100%;
-    margin-bottom: 5px;
+    margin: 0;
+}
+
+#tabRoomSecurity {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+#tabEmailInvitation {
+    margin: 10px 0 20px;
+}
+
+#tabEmailInvitation button {
+    margin: 0;
 }
 
 #myProfileAvatarContainer {
@@ -3863,7 +3911,8 @@ button {
 # Settings Table
 --------------------------------------------------------------*/
 
-#mySettingsTable {
+#mySettingsTable,
+.mySettingsTable {
     width: 100%;
     color: #fff;
     table-layout: auto;
@@ -3873,19 +3922,86 @@ button {
 }
 
 #mySettingsTable td,
-#mySettingsTable th {
+#mySettingsTable th,
+.mySettingsTable td,
+.mySettingsTable th {
     padding: 10px;
     text-align: left;
+    vertical-align: middle;
 }
 
-#mySettingsTable td:first-child {
+#mySettingsTable td:first-child,
+.mySettingsTable td:first-child {
     width: auto;
 }
 
-#mySettingsTable td:last-child {
+#mySettingsTable td:last-child,
+.mySettingsTable td:last-child {
     width: 140px;
     justify-content: center;
     align-items: center;
+}
+
+#mySettings .tabcontent .title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+
+#mySettings .tabcontent .title > i {
+    width: 24px;
+    min-width: 24px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+#mySettings .tabcontent .title > p {
+    margin: 0;
+    padding: 0;
+}
+
+.settings-field {
+    margin-bottom: 22px;
+}
+
+.settings-field:last-child {
+    margin-bottom: 0;
+}
+
+.settings-field > .title + :is(select, input, .speaker-select-row, .output-volume-row, #myPeerNameSetContainer) {
+    margin-top: 16px;
+}
+
+#tabAudio > .settings-section-intro + .settings-field .volume-container {
+    margin-top: 10px;
+}
+
+#tabLanguages #google_translate_element {
+    margin-top: 16px;
+}
+
+#tabLanguages #google_translate_element select {
+    margin-top: 0;
+}
+
+.settings-block {
+    margin-top: 22px;
+}
+
+#mySettings #mySettingsTable td.w-80,
+#mySettings .mySettingsTable td.w-80 {
+    width: auto !important;
+}
+
+#mySettings #mySettingsTable td.w-80 + td,
+#mySettings .mySettingsTable td.w-80 + td {
+    width: 64px;
+}
+
+#mySettings :is(#mySettingsTable, .mySettingsTable) td:last-child > .toggle {
+    transform: translateY(2px);
 }
 
 /* Optional alternating row background */
@@ -3937,20 +4053,61 @@ button {
 --------------------------------------------------------------*/
 
 .tab {
-    padding: 0px 10px 10px 0; /* top right bottom left */
-    overflow: hidden;
-    width: 35%;
+    padding: 8px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 240px;
+    flex-shrink: 0;
+    box-sizing: border-box;
     background-color: var(--body-bg);
-    min-height: 480px;
+    min-height: 0;
     display: flex;
     flex-direction: column;
+    gap: 2px;
     border-right: var(--border);
+}
+
+.settings-nav-label {
+    margin: 12px 10px 4px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.settings-nav-label:first-child {
+    margin-top: 4px;
+}
+
+.settings-section-intro {
+    margin: 0 -12px 18px;
+    padding: 14px 18px 16px;
+    border-bottom: var(--border);
+}
+
+.settings-section-intro h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+#mySettings .settings-section-intro p {
+    display: block;
+    margin: 5px 0 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.82rem;
+    line-height: 1.45;
 }
 
 .tabActions {
     position: relative;
     padding: 0px 20px 0px 0px; /* top right bottom left */
-    width: 65%;
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -3958,24 +4115,56 @@ button {
 
 @media screen and (max-width: 830px) {
     .tab {
-        display: flex;
-        flex-direction: column;
-        width: auto;
-        min-width: 50px;
-        min-height: auto;
+        width: 100%;
+        min-width: 0;
+        min-height: 62px;
+        height: 62px;
+        padding: 6px;
+        flex-direction: row;
+        align-items: center;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-right: 0;
+        border-bottom: var(--border);
+        border-radius: 10px;
     }
     .tab button {
+        width: auto;
+        min-width: max-content;
+        height: 46px;
+        margin: 0;
+        gap: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
+        padding: 0 12px;
+        font-size: 1rem;
     }
     .tabActions {
         width: 100%;
+        margin: 6px 0 0;
         border-radius: 10px;
     }
     .tabButtonText {
-        display: none !important;
+        display: inline-flex !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        white-space: nowrap;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+    .settings-nav-label {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .tab button {
+        height: 42px;
+        padding: 0 10px;
+        font-size: 0.9rem;
+        border-radius: 8px;
     }
 }
 
@@ -4011,6 +4200,7 @@ button {
     display: none;
     padding: 6px 12px;
     width: 100%;
+    box-sizing: border-box;
     min-height: 480px;
     border-top: none;
     background-color: var(--body-bg);

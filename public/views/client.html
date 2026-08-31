@@ -720,21 +720,25 @@
             </header>
             <main class="mySettingsMain">
                 <div class="tab">
+                    <span class="settings-nav-label">Meeting</span>
                     <button id="tabRoomBtn" class="fas fa-home tablinks">
                         <p class="tabButtonText">Room</p>
                     </button>
+                    <button id="tabRecordingBtn" class="fas fa-record-vinyl tablinks">
+                        <p class="tabButtonText">Recording</p>
+                    </button>
+                    <span class="settings-nav-label">Devices</span>
                     <button id="tabVideoBtn" class="fas fa-video tablinks">
                         <p class="tabButtonText">Video</p>
                     </button>
                     <button id="tabAudioBtn" class="fas fa-microphone tablinks">
                         <p class="tabButtonText">Audio</p>
                     </button>
-                    <button id="tabRecordingBtn" class="fas fa-record-vinyl tablinks">
-                        <p class="tabButtonText">Recording</p>
-                    </button>
+                    <span class="settings-nav-label">Share and stream</span>
                     <button id="tabVideoShareBtn" class="fab fa-youtube tablinks">
-                        <p class="tabButtonText">Media</p>
+                        <p class="tabButtonText">Share media</p>
                     </button>
+                    <span class="settings-nav-label">Personal</span>
                     <button id="tabProfileBtn" class="fa-solid fa-user tablinks">
                         <p class="tabButtonText">Profile</p>
                     </button>
@@ -745,7 +749,7 @@
                         <p class="tabButtonText">Network</p>
                     </button>
                     <button id="tabStylingBtn" class="fas fa-palette tablinks">
-                        <p class="tabButtonText">Style</p>
+                        <p class="tabButtonText">Appearance</p>
                     </button>
                     <button id="tabLanguagesBtn" class="fas fa-globe tablinks">
                         <p class="tabButtonText">Language</p>
@@ -754,6 +758,10 @@
 
                 <div class="tabActions">
                     <div id="tabRoom" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Room settings</h3>
+                            <p>Manage access, invitations, and your in-room preferences.</p>
+                        </div>
                         <table class="mySettingsTable">
                             <tr>
                                 <td>
@@ -781,22 +789,21 @@
                             <button id="unlockRoomBtn" class="red">
                                 <i class="fas fa-lock red"></i>&nbsp;Remove room password
                             </button>
-                            <br />
                         </div>
                         <div id="tabEmailInvitation">
                             <button id="roomSendEmailBtn">
                                 <i class="fas fa-envelope-circle-check"></i>&nbsp;Send email invitation
-                                <br />
                             </button>
                         </div>
-                        <br />
-                        <br />
                         <table id="mySettingsTable">
                             <tr>
                                 <td class="w-80">
                                     <div class="title">
                                         <i class="fas fa-microphone-lines"></i>
-                                        <p>Volume bar</p>
+                                        <span class="settings-option-copy">
+                                            <strong>Microphone level</strong>
+                                            <small>Show your input volume</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
@@ -805,7 +812,10 @@
                                 <td class="w-80">
                                     <div class="title">
                                         <i class="fas fa-music"></i>
-                                        <p>Sounds</p>
+                                        <span class="settings-option-copy">
+                                            <strong>Meeting sounds</strong>
+                                            <small>Play audio alerts for room events</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><input id="switchSounds" class="toggle" type="checkbox" checked /></td>
@@ -814,7 +824,10 @@
                                 <td class="w-80">
                                     <div class="title">
                                         <i class="fas fa-share-alt"></i>
-                                        <p>Share</p>
+                                        <span class="settings-option-copy">
+                                            <strong>Room link on join</strong>
+                                            <small>Show the sharing prompt when you enter</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><input id="switchShare" class="toggle" type="checkbox" checked /></td>
@@ -823,7 +836,10 @@
                                 <td class="w-80">
                                     <div class="title">
                                         <i class="fas fa-eye"></i>
-                                        <p>Buttons</p>
+                                        <span class="settings-option-copy">
+                                            <strong>Keep controls visible</strong>
+                                            <small>Do not auto-hide the meeting toolbar</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><input id="switchKeepButtonsVisible" class="toggle" type="checkbox" /></td>
@@ -832,7 +848,10 @@
                                 <td class="w-80">
                                     <div class="title">
                                         <i class="fa-solid fa-mobile-screen"></i>
-                                        <p>Keep awake</p>
+                                        <span class="settings-option-copy">
+                                            <strong>Keep device awake</strong>
+                                            <small>Prevent sleep while the meeting is open</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><input id="switchKeepAwake" class="toggle" type="checkbox" /></td>
@@ -841,58 +860,61 @@
                                 <td class="w-80">
                                     <div class="title">
                                         <i class="fas fa-comments"></i>
-                                        <p>Pin chat</p>
+                                        <span class="settings-option-copy">
+                                            <strong>Pin chat when opened</strong>
+                                            <small>Keep chat beside the meeting view</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><input id="switchPinChatByDefault" class="toggle" type="checkbox" /></td>
                             </tr>
                         </table>
-                        <br />
-                        <table id="mySettingsTable">
+                        <table id="mySettingsTable" class="settings-block">
                             <tr>
                                 <td>
                                     <div class="title">
                                         <i class="fas fa-clock"></i>
+                                        <span id="mySessionTime">0s</span>
                                     </div>
-                                    <span id="mySessionTime">0s</span>
                                 </td>
                             </tr>
                         </table>
                     </div>
 
                     <div id="tabVideo" class="tabcontent">
-                        <div id="videoSourceDiv">
+                        <div class="settings-section-intro">
+                            <h3>Video</h3>
+                            <p>Choose your camera and balance image quality with performance.</p>
+                        </div>
+                        <div id="videoSourceDiv" class="settings-field">
                             <div class="title">
                                 <i class="fas fa-video"></i>
                                 <p>Video Source</p>
                             </div>
-                            <br />
                             <select id="videoSource"></select>
-                            <br />
                         </div>
-                        <div class="title">
-                            <i class="fas fa-palette"></i>
-                            <p>Video Quality</p>
+                        <div class="settings-field">
+                            <div class="title">
+                                <i class="fas fa-palette"></i>
+                                <p>Video Quality</p>
+                            </div>
+                            <select id="videoQuality">
+                                <option value="default">🎥 Default</option>
+                                <option value="qvga">🎥 Low (320×240)</option>
+                                <option value="vga">🎥 Standard (640×480)</option>
+                                <option value="hd">🎥 HD (720p)</option>
+                                <option value="fhd">🎥 Full HD (1080p)</option>
+                                <option value="2k">🎥 2k</option>
+                                <option value="4k">🎥 4K</option>
+                                <option value="6k">🎥 6K</option>
+                                <option value="8k">🎥 8K</option>
+                            </select>
                         </div>
-                        <br />
-                        <select id="videoQuality">
-                            <option value="default">Default</option>
-                            <option value="qvga">QVGA</option>
-                            <option value="vga">VGA</option>
-                            <option value="hd">HD</option>
-                            <option value="fhd">FULL HD</option>
-                            <option value="2k">2k</option>
-                            <option value="4k">4K</option>
-                            <option value="6k">6K</option>
-                            <option value="8k">8K</option>
-                        </select>
-                        <div id="videoFitDiv">
-                            <br />
+                        <div id="videoFitDiv" class="settings-field">
                             <div class="title">
                                 <i class="fa-solid fa-film"></i>
                                 <p>Video fit</p>
                             </div>
-                            <br />
                             <select id="videoObjFitSelect">
                                 <option value="fill">Fill</option>
                                 <option value="contain">Contain</option>
@@ -901,60 +923,57 @@
                                 <option value="none">None</option>
                             </select>
                         </div>
-                        <div id="videoFpsDiv">
-                            <br />
+                        <div id="videoFpsDiv" class="settings-field">
                             <div class="title">
                                 <i class="fa-solid fa-camera"></i>
                                 <p>Camera FPS</p>
                             </div>
-                            <br />
                             <select id="videoFps">
-                                <option value="60">60 - frame-per-second</option>
-                                <option value="30">30 - frame-per-second</option>
-                                <option value="15">15 - frame-per-second</option>
-                                <option value="5">5 - frame-per-second</option>
+                                <option value="60">60 fps</option>
+                                <option value="30">30 fps</option>
+                                <option value="15">15 fps</option>
+                                <option value="5">5 fps</option>
                             </select>
                         </div>
-                        <div id="screenFpsDiv">
-                            <br />
+                        <div id="screenFpsDiv" class="settings-field">
                             <div class="title">
                                 <i class="fa-solid fa-desktop"></i>
                                 <p>Screen FPS</p>
                             </div>
-                            <br />
                             <select id="screenFps">
-                                <option value="60">60 - frame-per-second</option>
-                                <option value="30">30 - frame-per-second</option>
-                                <option value="15">15 - frame-per-second</option>
-                                <option value="5">5 - frame-per-second</option>
+                                <option value="60">60 fps</option>
+                                <option value="30">30 fps</option>
+                                <option value="15">15 fps</option>
+                                <option value="5">5 fps</option>
                             </select>
                         </div>
                     </div>
 
                     <div id="tabAudio" class="tabcontent">
-                        <div>
+                        <div class="settings-section-intro">
+                            <h3>Audio</h3>
+                            <p>Select your microphone and speakers, then adjust call audio behavior.</p>
+                        </div>
+                        <div class="settings-field">
                             <div class="title">
                                 <i class="fas fa-microphone"></i>
                                 <p>Microphone</p>
                             </div>
-                            <br />
                             <select id="audioSource"></select>
+                            <div class="volume-container">
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                            </div>
                         </div>
-                        <br />
-                        <div class="volume-container">
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                            <div class="volume-bar"></div>
-                        </div>
-                        <br />
-                        <div id="micOptionsDiv">
+                        <div id="micOptionsDiv" class="settings-field">
                             <table id="mySettingsTable">
                                 <tr id="noiseSuppressionBtn">
                                     <td class="w-80">
@@ -966,14 +985,12 @@
                                     <td><input id="switchNoiseSuppression" class="toggle" type="checkbox" /></td>
                                 </tr>
                             </table>
-                            <br /><br />
                         </div>
-                        <div id="audioOutputDiv">
+                        <div id="audioOutputDiv" class="settings-field">
                             <div class="title">
                                 <i class="fas fa-headphones"></i>
                                 <p>Speaker</p>
                             </div>
-                            <br />
                             <div class="speaker-select-row">
                                 <select id="audioOutput"></select>
                                 <button id="speakerTestBtn" class="buttons">
@@ -981,14 +998,12 @@
                                     <p>Test</p>
                                 </button>
                             </div>
-                            <br />
                         </div>
-                        <div id="speakerVolumeDiv">
+                        <div id="speakerVolumeDiv" class="settings-field">
                             <div class="title">
                                 <i class="fas fa-volume-high"></i>
                                 <p>Output volume:</p>
                             </div>
-                            <br />
                             <div class="output-volume-row">
                                 <input
                                     id="speakerVolume"
@@ -1001,7 +1016,6 @@
                                 />
                                 <span id="speakerVolumeValue" class="output-volume-value">100%</span>
                             </div>
-                            <br /><br />
                         </div>
                         <table id="mySettingsTable">
                             <tr id="pushToTalkDiv">
@@ -1017,10 +1031,14 @@
                     </div>
 
                     <div id="tabRecording" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Recording</h3>
+                            <p>Control and review your local meeting recordings.</p>
+                        </div>
                         <img id="recImage" src="../images/recording.png" />
                         <div class="trow">
                             <span class="clw notranslate" id="recordingTime"></span>
-                            <br />
+
                             <button id="pauseRecBtn" class="buttons">
                                 <i class="far fa-pause-circle"></i>
                                 <p>Pause recording</p>
@@ -1034,6 +1052,10 @@
                     </div>
 
                     <div id="tabMedia" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Share media</h3>
+                            <p>Play a video or audio source for everyone in the room.</p>
+                        </div>
                         <button id="shareMediaAudioVideoBtn" class="buttons">
                             <i class="fa-solid fa-circle-play"></i>
                             <p>Share a Video or Audio</p>
@@ -1048,9 +1070,13 @@
                     </div>
 
                     <div id="tabShortcuts" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Keyboard shortcuts</h3>
+                            <p>Enable quick keyboard controls and review the available keys.</p>
+                        </div>
                         <table class="mySettingsTable">
                             <tr>
-                                <td>
+                                <td class="w-80">
                                     <div class="title">
                                         <i class="fa-solid fa-keyboard"></i>
                                         <p>Keyboard shortcuts</p>
@@ -1145,8 +1171,12 @@
                     </div>
 
                     <div id="tabProfile" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Your profile</h3>
+                            <p>Review your meeting identity and update your avatar.</p>
+                        </div>
                         <div id="tabRoomPeerName">
-                            <div id="myProfileAvatarContainer">
+                            <div id="myProfileAvatarContainer" class="settings-field">
                                 <img id="myProfileAvatar" />
                                 <div id="myProfileAvatarBtns">
                                     <button id="myProfileAvatarUploadBtn">
@@ -1157,25 +1187,28 @@
                                     </button>
                                 </div>
                             </div>
-                            <br />
-                            <div class="title">
-                                <i class="fas fa-user"></i>
-                                <p>Name</p>
-                            </div>
-                            <br /><br />
-                            <div id="myPeerNameSetContainer">
-                                <input id="myPeerNameSet" type="text" placeholder="Change name..." maxlength="254" />
-                                <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change</button>
+                            <div class="settings-field">
+                                <div class="title">
+                                    <i class="fas fa-user"></i>
+                                    <p>Name</p>
+                                </div>
+                                <div id="myPeerNameSetContainer">
+                                    <input
+                                        id="myPeerNameSet"
+                                        type="text"
+                                        placeholder="Change name..."
+                                        maxlength="254"
+                                    />
+                                    <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change</button>
+                                </div>
                             </div>
                         </div>
-                        <br />
-                        <div class="title">
+                        <div class="title settings-block">
                             <i class="fa-solid fa-user-shield"></i>
                             <p>Presenter:</p>
                             <p id="isPeerPresenter">true</p>
                         </div>
-                        <br /><br />
-                        <div class="title">
+                        <div class="title settings-block">
                             <i class="fa-solid fa-circle-info"></i>
                             <p>Extra info:</p>
                         </div>
@@ -1185,6 +1218,10 @@
                     </div>
 
                     <div id="tabNetwork" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Network status</h3>
+                            <p>Review connection details and real-time transport statistics.</p>
+                        </div>
                         <table id="mySettingsTable">
                             <tr>
                                 <td>
@@ -1276,89 +1313,91 @@
                     </div>
 
                     <div id="tabStyling" class="tabcontent">
-                        <div class="title">
-                            <i class="fa-solid fa-palette"></i>
-                            <p>Theme</p>
+                        <div class="settings-section-intro">
+                            <h3>Appearance</h3>
+                            <p>Personalize the interface theme and control placement.</p>
                         </div>
-                        <br />
-                        <select id="mirotalkTheme">
-                            <option value="dark">Dark</option>
-                            <option value="grey">Grey</option>
-                            <option value="green">Green</option>
-                            <option value="blue">Blue</option>
-                            <option value="red">Red</option>
-                            <option value="purple">Purple</option>
-                            <option value="orange">Orange</option>
-                            <option value="yellow">Yellow</option>
-                        </select>
-                        <div id="themeCardsGrid" class="theme-cards-grid">
-                            <div class="theme-card" data-theme="dark" data-index="0">
-                                <i class="fa-solid fa-moon"></i>
-                                <span>Dark</span>
+                        <div class="settings-field">
+                            <div class="title">
+                                <i class="fa-solid fa-palette"></i>
+                                <p>Theme</p>
                             </div>
-                            <div class="theme-card" data-theme="grey" data-index="1">
-                                <i class="fa-solid fa-cloud"></i>
-                                <span>Grey</span>
-                            </div>
-                            <div class="theme-card" data-theme="green" data-index="2">
-                                <i class="fa-solid fa-leaf"></i>
-                                <span>Green</span>
-                            </div>
-                            <div class="theme-card" data-theme="blue" data-index="3">
-                                <i class="fa-solid fa-droplet"></i>
-                                <span>Blue</span>
-                            </div>
-                            <div class="theme-card" data-theme="red" data-index="4">
-                                <i class="fa-solid fa-fire"></i>
-                                <span>Red</span>
-                            </div>
-                            <div class="theme-card" data-theme="purple" data-index="5">
-                                <i class="fa-solid fa-gem"></i>
-                                <span>Purple</span>
-                            </div>
-                            <div class="theme-card" data-theme="orange" data-index="6">
-                                <i class="fa-solid fa-sun"></i>
-                                <span>Orange</span>
-                            </div>
-                            <div class="theme-card" data-theme="yellow" data-index="7">
-                                <i class="fa-solid fa-star"></i>
-                                <span>Yellow</span>
-                            </div>
-                        </div>
-                        <br />
-                        <div class="title">
-                            <i class="fas fa-fill-drip"></i>
-                            <p>Custom theme</p>
-                        </div>
-                        <br />
-                        <input id="themeColorPicker" class="theme-color-picker" type="text" />
-                        <br />
-                        <div class="inline-check-box">
-                            <div>
-                                <div class="title">
-                                    <i class="fas fa-save"></i>
-                                    <p>Keep custom</p>
+                            <select id="mirotalkTheme">
+                                <option value="dark">Dark</option>
+                                <option value="grey">Grey</option>
+                                <option value="green">Green</option>
+                                <option value="blue">Blue</option>
+                                <option value="red">Red</option>
+                                <option value="purple">Purple</option>
+                                <option value="orange">Orange</option>
+                                <option value="yellow">Yellow</option>
+                            </select>
+                            <div id="themeCardsGrid" class="theme-cards-grid">
+                                <div class="theme-card" data-theme="dark" data-index="0">
+                                    <i class="fa-solid fa-moon"></i>
+                                    <span>Dark</span>
+                                </div>
+                                <div class="theme-card" data-theme="grey" data-index="1">
+                                    <i class="fa-solid fa-cloud"></i>
+                                    <span>Grey</span>
+                                </div>
+                                <div class="theme-card" data-theme="green" data-index="2">
+                                    <i class="fa-solid fa-leaf"></i>
+                                    <span>Green</span>
+                                </div>
+                                <div class="theme-card" data-theme="blue" data-index="3">
+                                    <i class="fa-solid fa-droplet"></i>
+                                    <span>Blue</span>
+                                </div>
+                                <div class="theme-card" data-theme="red" data-index="4">
+                                    <i class="fa-solid fa-fire"></i>
+                                    <span>Red</span>
+                                </div>
+                                <div class="theme-card" data-theme="purple" data-index="5">
+                                    <i class="fa-solid fa-gem"></i>
+                                    <span>Purple</span>
+                                </div>
+                                <div class="theme-card" data-theme="orange" data-index="6">
+                                    <i class="fa-solid fa-sun"></i>
+                                    <span>Orange</span>
+                                </div>
+                                <div class="theme-card" data-theme="yellow" data-index="7">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span>Yellow</span>
                                 </div>
                             </div>
-                            <input id="keepCustomTheme" class="toggle" type="checkbox" />
                         </div>
-                        <br />
-                        <div class="title">
-                            <i class="fa-solid fa-up-down-left-right"></i>
-                            <p>Buttons bar</p>
+                        <div class="settings-field">
+                            <div class="title">
+                                <i class="fas fa-fill-drip"></i>
+                                <p>Custom theme</p>
+                            </div>
+                            <input id="themeColorPicker" class="theme-color-picker" type="text" />
+                            <div class="inline-check-box">
+                                <div>
+                                    <div class="title">
+                                        <i class="fas fa-save"></i>
+                                        <p>Save custom color</p>
+                                    </div>
+                                </div>
+                                <input id="keepCustomTheme" class="toggle" type="checkbox" />
+                            </div>
                         </div>
-                        <br />
-                        <select id="mainButtonsBarPosition">
-                            <option value="vertical">Vertical</option>
-                            <option value="horizontal">Horizontal</option>
-                        </select>
-                        <br />
-                        <div id="pinUnpinGridDiv">
+                        <div class="settings-field">
+                            <div class="title">
+                                <i class="fa-solid fa-up-down-left-right"></i>
+                                <p>Buttons bar</p>
+                            </div>
+                            <select id="mainButtonsBarPosition">
+                                <option value="vertical">Vertical</option>
+                                <option value="horizontal">Horizontal</option>
+                            </select>
+                        </div>
+                        <div id="pinUnpinGridDiv" class="settings-field">
                             <div class="title">
                                 <i class="fa-solid fa-map-pin"></i>
                                 <p>Pin video position</p>
                             </div>
-                            <br />
                             <select id="pinVideoPositionSelect">
                                 <option value="vertical">Vertical</option>
                                 <option value="horizontal">Horizontal</option>
@@ -1368,15 +1407,18 @@
                     </div>
 
                     <div id="tabLanguages" class="tabcontent">
-                        <div class="title">
-                            <i class="fa-solid fa-language"></i>
-                            <p>Language</p>
+                        <div class="settings-section-intro">
+                            <h3>Language</h3>
+                            <p>Choose the language used by the meeting interface.</p>
                         </div>
-                        <br />
-                        <div id="google_translate_element"></div>
-                        <br />
+                        <div class="settings-field">
+                            <div class="title">
+                                <i class="fa-solid fa-language"></i>
+                                <p>Language</p>
+                            </div>
+                            <div id="google_translate_element"></div>
+                        </div>
                     </div>
-                    <br />
                 </div>
             </main>
         </section>
@@ -1622,7 +1664,7 @@
             <div id="videoUrlHeader">
                 <button id="videoUrlCloseBtn" class="fas fa-times"></button>
             </div>
-            <br />
+
             <iframe
                 id="videoUrlIframe"
                 title="Video Url Player"
@@ -1641,7 +1683,7 @@
             <div id="videoAudioUrlHeader">
                 <button id="videoAudioCloseBtn" class="fas fa-times"></button>
             </div>
-            <br />
+
             <video id="videoAudioUrlElement" src="" autoplay playsinline controls></video>
         </div>
 
@@ -1790,7 +1832,7 @@
             <div id="qrRoomContainer">
                 <canvas id="qrRoom"></canvas>
             </div>
-            <br />
+
             <p class="share-room-modal-highlight">Join from your mobile device</p>
             <p class="share-room-modal-description">
                 No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by
@@ -1867,7 +1909,6 @@ Note</textarea>
         </template>
 
         <template id="tpl-about-modal">
-            <br />
             <div id="about" data-template-html="aboutHtml"></div>
         </template>
 
@@ -1880,17 +1921,15 @@ Note</textarea>
         </template>
 
         <template id="tpl-last-recording-info">
-            <br />Last recording info: <span data-template-html="recordingInfo"></span>
+            Last recording info: <span data-template-html="recordingInfo"></span>
         </template>
 
         <template id="tpl-room-busy-message">
-            The room is limited to <span data-template-text="maxUsers"></span> users. <br />
-            Please try again later
+            The room is limited to <span data-template-text="maxUsers"></span> users. Please try again later
         </template>
 
         <template id="tpl-username-in-use-message">
-            The Username is already in use. <br />
-            Please try with another one
+            The Username is already in use. Please try with another one
         </template>
 
         <!-- End dynamic room templates -->
