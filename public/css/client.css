@@ -668,6 +668,7 @@ body {
     min-width: 280px;
     max-width: calc(100vw - 24px);
     text-align: left;
+    padding: 8px 6px;
 }
 
 #bottomButtons #settingsExtraMenu {
@@ -741,33 +742,40 @@ body {
 
 /* Quick device picker: section headers + divider (Cameras / Microphones / Speakers) */
 #bottomButtons #videoMenu .device-menu-header,
-#bottomButtons #audioMenu .device-menu-header,
-#bottomButtons #settingsExtraMenu .device-menu-header {
+#bottomButtons #audioMenu .device-menu-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    color: #fff;
-    font-weight: 600;
-    font-size: 1rem;
-    font-weight: 600;
+    gap: 7px;
+    padding: 12px 10px 6px;
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
     user-select: none;
+    pointer-events: none;
 }
 
 #bottomButtons #videoMenu .device-menu-header i,
-#bottomButtons #audioMenu .device-menu-header i,
-#bottomButtons #settingsExtraMenu .device-menu-header i {
-    width: 18px;
+#bottomButtons #audioMenu .device-menu-header i {
+    width: 14px;
     text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.8;
 }
 
 #bottomButtons #videoMenu .device-menu-divider,
-#bottomButtons #audioMenu .device-menu-divider,
-#bottomButtons #settingsExtraMenu .device-menu-divider {
+#bottomButtons #audioMenu .device-menu-divider {
     height: 1px;
-    background: var(--btns-bg-color);
-    opacity: 0.6;
-    margin: 8px 0;
+    margin: 7px 10px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#bottomButtons #audioMenu button,
+#bottomButtons #videoMenu button {
+    height: 38px;
+    padding-right: 12px;
+    padding-left: 12px;
 }
 
 /* Action buttons in device menu */
