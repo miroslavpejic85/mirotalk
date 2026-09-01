@@ -5030,14 +5030,21 @@ input:checked + .slider:before {
 
 #videoAudioUrlHeader button,
 #videoUrlHeader button {
-    height: 30px;
-    width: 30px;
+    z-index: 16;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    width: 44px;
     font-size: 1.2rem;
-    margin-top: 10px;
-    margin-left: 10px;
-    border: none;
+    margin-top: 12px;
+    margin-left: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
     color: #fff;
-    background: black;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
 }
 
 #videoAudioUrlHeader button:hover,
@@ -5045,6 +5052,12 @@ input:checked + .slider:before {
     color: var(--hover-color);
     transform: var(--btns-hover-scale);
     transition: all 0.3s ease-in-out;
+}
+
+#videoAudioUrlHeader button:focus-visible,
+#videoUrlHeader button:focus-visible {
+    outline: 3px solid var(--hover-color);
+    outline-offset: 2px;
 }
 
 #videoUrlIframe {
