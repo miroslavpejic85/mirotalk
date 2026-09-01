@@ -3812,6 +3812,7 @@ button {
 
 #activeRoomsBtn,
 #myPeerNameSetBtn,
+#shareMediaAudioVideoBtn,
 #myProfileAvatarUploadBtn,
 #myProfileAvatarResetBtn,
 #captionEveryoneBtn,
@@ -3832,6 +3833,7 @@ button {
 }
 
 #myPeerNameSetBtn:hover,
+#shareMediaAudioVideoBtn:hover,
 #myProfileAvatarUploadBtn:hover,
 #myProfileAvatarResetBtn:hover,
 #roomSendEmailBtn:hover,
@@ -3890,7 +3892,8 @@ button {
     gap: 8px;
 }
 
-#myPeerNameSetBtn {
+#myPeerNameSetBtn,
+#shareMediaAudioVideoBtn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -3903,8 +3906,64 @@ button {
     box-sizing: border-box;
 }
 
-#myPeerNameSetBtn:hover {
+#myPeerNameSetBtn:hover,
+#shareMediaAudioVideoBtn:hover {
     transform: none;
+}
+
+#mySettings #shareMediaAudioVideoBtn i {
+    margin: 0;
+    padding: 0;
+}
+
+#shareMediaUrlContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+#shareMediaUrlInput {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 46px;
+    margin-top: 0;
+    padding: 0 14px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 0.92rem;
+    background: rgba(0, 0, 0, 0.22);
+    border: var(--border);
+    border-radius: 8px;
+    outline: none;
+}
+
+#shareMediaUrlInput:focus {
+    border-color: var(--select-border-color);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+#shareMediaUrlInput::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+#mySettings #shareMediaUrlHint {
+    display: block;
+    margin: 8px 0 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.78rem;
+}
+
+@media screen and (max-width: 500px) {
+    #shareMediaUrlContainer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #shareMediaAudioVideoBtn {
+        width: 100%;
+    }
 }
 
 /*--------------------------------------------------------------
@@ -3970,7 +4029,9 @@ button {
     margin-bottom: 0;
 }
 
-.settings-field > .title + :is(select, input, .speaker-select-row, .output-volume-row, #myPeerNameSetContainer) {
+.settings-field
+    > .title
+    + :is(select, input, .speaker-select-row, .output-volume-row, #myPeerNameSetContainer, #shareMediaUrlContainer) {
     margin-top: 16px;
 }
 

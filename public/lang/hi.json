@@ -444,6 +444,9 @@
         "Recording": "रिकॉर्डिंग",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "कमरे में सभी के लिए एक वीडियो या ऑडियो स्रोत चलाएं।",
+        "Video or audio URL": "वीडियो या ऑडियो URL",
+        "Paste a video or audio URL...": "वीडियो या ऑडियो URL पेस्ट करें...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "समर्थित: YouTube लिंक, .mp4, .mp3, .webm, .ogg",
         "Your profile": "आपकी प्रोफ़ाइल",
         "Review your meeting identity and update your avatar.": "अपनी मीटिंग पहचान की समीक्षा करें और अपना अवतार अपडेट करें।",
         "Enable quick keyboard controls and review the available keys.": "त्वरित कीबोर्ड नियंत्रण सक्षम करें और उपलब्ध कुंजियों की समीक्षा करें।",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ"
     },

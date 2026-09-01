@@ -444,6 +444,9 @@
         "Recording": "التسجيل",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "قم بتشغيل مصدر فيديو أو صوت لكل شخص في الغرفة.",
+        "Video or audio URL": "رابط الفيديو أو الصوت",
+        "Paste a video or audio URL...": "الصق رابط فيديو أو صوت...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "المدعوم: روابط YouTube، .mp4، .mp3، .webm، .ogg",
         "Your profile": "ملفك الشخصي",
         "Review your meeting identity and update your avatar.": "قم بمراجعة هوية الاجتماع الخاص بك وقم بتحديث الصورة الرمزية الخاصة بك.",
         "Enable quick keyboard controls and review the available keys.": "تمكين عناصر التحكم السريعة في لوحة المفاتيح ومراجعة المفاتيح المتاحة.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "تم بلوغ الحد الزمني",
         "Unlock room?": "إلغاء قفل الغرفة؟",
         "Username": "اسم المستخدم",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "اختصارات السبورة",
         "Yes": "نعم"
     },

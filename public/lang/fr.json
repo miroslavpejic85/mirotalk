@@ -444,6 +444,9 @@
         "Recording": "Enregistrement",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "Lisez une source vidéo ou audio pour toutes les personnes présentes dans la pièce.",
+        "Video or audio URL": "URL vidéo ou audio",
+        "Paste a video or audio URL...": "Collez une URL vidéo ou audio...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "Formats pris en charge : liens YouTube, .mp4, .mp3, .webm, .ogg",
         "Your profile": "Votre profil",
         "Review your meeting identity and update your avatar.": "Vérifiez votre identité de réunion et mettez à jour votre avatar.",
         "Enable quick keyboard controls and review the available keys.": "Activez les commandes rapides du clavier et examinez les touches disponibles.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "Limite de temps atteinte",
         "Unlock room?": "Déverrouiller la salle ?",
         "Username": "Nom d'utilisateur",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "Raccourcis du tableau blanc",
         "Yes": "Oui"
     },

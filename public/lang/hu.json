@@ -444,6 +444,9 @@
         "Recording": "Felvétel",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "Játsszon video- vagy hangforrást a szobában mindenki számára.",
+        "Video or audio URL": "Videó- vagy hanganyag URL-címe",
+        "Paste a video or audio URL...": "Illesszen be egy videó- vagy hanganyag URL-címét...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "Támogatott: YouTube-hivatkozások, .mp4, .mp3, .webm, .ogg",
         "Your profile": "A profilod",
         "Review your meeting identity and update your avatar.": "Tekintse át a megbeszélés személyazonosságát, és frissítse avatarodját.",
         "Enable quick keyboard controls and review the available keys.": "Engedélyezze a gyors billentyűzetvezérlőket, és tekintse át az elérhető billentyűket.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen"
     },

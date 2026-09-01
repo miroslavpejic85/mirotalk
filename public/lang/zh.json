@@ -444,6 +444,9 @@
         "Recording": "记录",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "为房间中的每个人播放视频或音频源。",
+        "Video or audio URL": "视频或音频网址",
+        "Paste a video or audio URL...": "粘贴视频或音频网址...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "支持：YouTube 链接、.mp4、.mp3、.webm、.ogg",
         "Your profile": "您的个人资料",
         "Review your meeting identity and update your avatar.": "检查您的会议身份并更新您的头像。",
         "Enable quick keyboard controls and review the available keys.": "启用快速键盘控制并查看可用的按键。",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是"
     },

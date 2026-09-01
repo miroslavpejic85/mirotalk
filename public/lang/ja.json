@@ -444,6 +444,9 @@
         "Recording": "録音",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "部屋にいる全員にビデオまたはオーディオ ソースを再生します。",
+        "Video or audio URL": "動画または音声のURL",
+        "Paste a video or audio URL...": "動画または音声のURLを貼り付けてください...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "対応形式: YouTubeリンク、.mp4、.mp3、.webm、.ogg",
         "Your profile": "あなたのプロフィール",
         "Review your meeting identity and update your avatar.": "会議の ID を確認し、アバターを更新します。",
         "Enable quick keyboard controls and review the available keys.": "クイック キーボード コントロールを有効にし、使用可能なキーを確認します。",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい"
     },

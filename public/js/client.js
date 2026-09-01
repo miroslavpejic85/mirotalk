@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.29
+ * @version 1.9.30
  *
  */
 
@@ -436,6 +436,7 @@ const labelNoiseSuppression = getId('labelNoiseSuppression');
 
 // Tab Media
 const shareMediaAudioVideoBtn = getId('shareMediaAudioVideoBtn');
+const shareMediaUrlInput = getId('shareMediaUrlInput');
 
 // My whiteboard
 const whiteboard = getId('whiteboard');
@@ -954,6 +955,7 @@ function setButtonsToolTip() {
     setTippy(videoUrlCloseBtn, 'Close the video player', 'bottom');
     setTippy(videoAudioCloseBtn, 'Close the video player', 'bottom');
     setTippy(msgerVideoUrlBtn, 'Share a video or audio to all participants', 'top');
+    setTippy(shareMediaAudioVideoBtn, 'Share the video or audio URL', 'top');
 }
 
 /**
@@ -7861,6 +7863,7 @@ function setupMySettings() {
     });
     tabVideoShareBtn.addEventListener('click', (e) => {
         openTab(e, 'tabMedia');
+        prefillShareMediaUrlFromClipboard();
     });
     tabRecordingBtn.addEventListener('click', (e) => {
         openTab(e, 'tabRecording');
@@ -7894,9 +7897,13 @@ function setupMySettings() {
     });
     // tab media
     shareMediaAudioVideoBtn.addEventListener('click', (e) => {
-        const shareTarget = getConversationShareTarget('video or audio');
-        if (!shareTarget) return;
-        sendVideoUrl(shareTarget.videoPeerId, shareTarget.peerName, shareTarget.broadcast);
+        shareMediaFromSettings();
+    });
+    shareMediaUrlInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            shareMediaFromSettings();
+        }
     });
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
@@ -16069,6 +16076,84 @@ function saveBlobToFile(blob, file) {
 }
 
 /**
+ * Prefill the settings media URL input with a supported URL from the clipboard
+ */
+function prefillShareMediaUrlFromClipboard() {
+    if (shareMediaUrlInput.value.trim() || !navigator.clipboard?.readText) return;
+    navigator.clipboard
+        .readText()
+        .then((clipboardText) => {
+            if (!clipboardText) return;
+            const sanitizedText = filterXSS(clipboardText.trim());
+            if (isVideoTypeSupported(sanitizedText)) shareMediaUrlInput.value = sanitizedText;
+        })
+        .catch(() => {});
+}
+
+/**
+ * Share the Video/Audio URL typed in the settings Share media tab
+ */
+function shareMediaFromSettings() {
+    const mediaUrl = shareMediaUrlInput.value.trim();
+    if (!mediaUrl) {
+        return userLog('warning', 'Please paste a Video or audio URL to share');
+    }
+    const shareTarget = getConversationShareTarget('video or audio');
+    if (!shareTarget) return;
+    if (shareMediaUrl(mediaUrl, shareTarget.videoPeerId, shareTarget.peerName, shareTarget.broadcast)) {
+        shareMediaUrlInput.value = '';
+    }
+}
+
+/**
+ * Open and send Video/Audio URL to the room or to a specific peer
+ * @param {string} url Video or audio URL
+ * @param {string} peer_id socket.id
+ * @param {string} peer_name target peer name
+ * @param {boolean} broadcast share with everyone
+ * @returns {boolean} true if shared
+ */
+function shareMediaUrl(url, peer_id = null, peer_name = '', broadcast = !peer_id) {
+    const mediaUrl = filterXSS(url.trim());
+    if (!mediaUrl) return false;
+
+    if (!thereArePeerConnections()) {
+        toastMessage('info', 'No participants detected', '', 'top');
+        return false;
+    }
+    console.log('Video URL: ' + mediaUrl);
+    /*
+        https://www.youtube.com/watch?v=RT6_Id5-7-s
+        http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
+        https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3
+    */
+    if (!isVideoTypeSupported(mediaUrl)) {
+        userLog('warning', 'Something wrong, try with another Video or audio URL');
+        return false;
+    }
+    const targetPeerName = !broadcast ? filterXSS(peer_name || resolvePeerNameById(peer_id) || 'Participant') : '';
+    const is_youtube = getVideoType(mediaUrl) == 'na' ? true : false;
+    const video_url = is_youtube ? getYoutubeEmbed(mediaUrl) : mediaUrl;
+    const config = {
+        peer_id: peer_id,
+        video_src: video_url,
+        broadcast: broadcast,
+    };
+    openVideoUrlPlayer(config);
+    emitVideoPlayer('open', config);
+    appendMessage(
+        myPeerName,
+        rightChatAvatar,
+        'right',
+        `${icons.share} Shared media: <br/><a href="${video_url}" target="_blank" rel="noopener noreferrer">${video_url}</a>`,
+        !broadcast,
+        null,
+        targetPeerName
+    );
+    return true;
+}
+
+/**
  * Opend and send Video URL to all peers in the room
  * @param {string} peer_id socket.id
  */
@@ -16091,37 +16176,7 @@ function sendVideoUrl(peer_id = null, peer_name = '', broadcast = !peer_id) {
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.value) {
-            result.value = filterXSS(result.value);
-            if (!thereArePeerConnections()) {
-                return toastMessage('info', 'No participants detected', '', 'top');
-            }
-            console.log('Video URL: ' + result.value);
-            /*
-                https://www.youtube.com/watch?v=RT6_Id5-7-s
-                http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
-                https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3
-            */
-            if (!isVideoTypeSupported(result.value)) {
-                return userLog('warning', 'Something wrong, try with another Video or audio URL');
-            }
-            const is_youtube = getVideoType(result.value) == 'na' ? true : false;
-            const video_url = is_youtube ? getYoutubeEmbed(result.value) : result.value;
-            const config = {
-                peer_id: peer_id,
-                video_src: video_url,
-                broadcast: broadcast,
-            };
-            openVideoUrlPlayer(config);
-            emitVideoPlayer('open', config);
-            appendMessage(
-                myPeerName,
-                rightChatAvatar,
-                'right',
-                `${icons.share} Shared media: <br/><a href="${video_url}" target="_blank" rel="noopener noreferrer">${video_url}</a>`,
-                !broadcast,
-                null,
-                targetPeerName
-            );
+            shareMediaUrl(result.value, peer_id, peer_name, broadcast);
         }
     });
 
@@ -16460,7 +16515,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.29',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.30',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

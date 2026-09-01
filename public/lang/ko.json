@@ -444,6 +444,9 @@
         "Recording": "녹음",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "방에 있는 모든 사람을 위해 비디오 또는 오디오 소스를 재생합니다.",
+        "Video or audio URL": "비디오 또는 오디오 URL",
+        "Paste a video or audio URL...": "비디오 또는 오디오 URL을 붙여넣으세요...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "지원 형식: YouTube 링크, .mp4, .mp3, .webm, .ogg",
         "Your profile": "귀하의 프로필",
         "Review your meeting identity and update your avatar.": "회의 ID를 검토하고 아바타를 업데이트하세요.",
         "Enable quick keyboard controls and review the available keys.": "빠른 키보드 제어를 활성화하고 사용 가능한 키를 검토합니다.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예"
     },

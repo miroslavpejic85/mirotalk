@@ -444,6 +444,9 @@
         "Recording": "Запись",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "Воспроизведите источник видео или аудио для всех в комнате.",
+        "Video or audio URL": "URL-адрес видео или аудио",
+        "Paste a video or audio URL...": "Вставьте URL-адрес видео или аудио...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "Поддерживаются ссылки YouTube, .mp4, .mp3, .webm, .ogg",
         "Your profile": "Ваш профиль",
         "Review your meeting identity and update your avatar.": "Проверьте свою личность собрания и обновите свой аватар.",
         "Enable quick keyboard controls and review the available keys.": "Включите быстрое управление с клавиатуры и просмотрите доступные клавиши.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "Достигнут лимит времени",
         "Unlock room?": "Разблокировать комнату?",
         "Username": "Имя пользователя",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "Горячие клавиши доски",
         "Yes": "Да"
     },

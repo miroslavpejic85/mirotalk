@@ -444,6 +444,9 @@
         "Recording": "Kayıt",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "Odadaki herkes için bir video veya ses kaynağı oynatın.",
+        "Video or audio URL": "Video veya ses URL'si",
+        "Paste a video or audio URL...": "Bir video veya ses URL'si yapıştırın...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "Desteklenenler: YouTube bağlantıları, .mp4, .mp3, .webm, .ogg",
         "Your profile": "Profiliniz",
         "Review your meeting identity and update your avatar.": "Toplantı kimliğinizi gözden geçirin ve avatarınızı güncelleyin.",
         "Enable quick keyboard controls and review the available keys.": "Hızlı klavye kontrollerini etkinleştirin ve mevcut tuşları inceleyin.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet"
     },

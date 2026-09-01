@@ -444,6 +444,9 @@
         "Recording": "Rekaman",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "Memutar sumber video atau audio untuk semua orang di ruangan.",
+        "Video or audio URL": "URL video atau audio",
+        "Paste a video or audio URL...": "Tempel URL video atau audio...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "Didukung: tautan YouTube, .mp4, .mp3, .webm, .ogg",
         "Your profile": "Profil Anda",
         "Review your meeting identity and update your avatar.": "Tinjau identitas rapat Anda dan perbarui avatar Anda.",
         "Enable quick keyboard controls and review the available keys.": "Aktifkan kontrol keyboard cepat dan tinjau tombol yang tersedia.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya"
     },

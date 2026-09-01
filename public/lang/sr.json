@@ -444,6 +444,9 @@
         "Recording": "Снимање",
         "Control and review your local meeting recordings.": "Control and review your local meeting recordings.",
         "Play a video or audio source for everyone in the room.": "Пустите видео или аудио извор за све у просторији.",
+        "Video or audio URL": "URL видео или аудио садржаја",
+        "Paste a video or audio URL...": "Налепите URL видео или аудио садржаја...",
+        "Supported: YouTube links, .mp4, .mp3, .webm, .ogg": "Подржано: YouTube везе, .mp4, .mp3, .webm, .ogg",
         "Your profile": "Ваш профил",
         "Review your meeting identity and update your avatar.": "Прегледајте идентитет састанка и ажурирајте свој аватар.",
         "Enable quick keyboard controls and review the available keys.": "Омогућите брзе контроле тастатуре и прегледајте доступне тастере.",
@@ -512,7 +515,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v1.9.29": "WebRTC P2P v1.9.29",
+        "WebRTC P2P v1.9.30": "WebRTC P2P v1.9.30",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da"
     },
