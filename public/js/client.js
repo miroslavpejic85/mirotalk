@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.31
+ * @version 1.9.32
  *
  */
 
@@ -371,6 +371,8 @@ const tabVideoBtn = getId('tabVideoBtn');
 const tabAudioBtn = getId('tabAudioBtn');
 const tabVideoShareBtn = getId('tabVideoShareBtn');
 const tabRecordingBtn = getId('tabRecordingBtn');
+const recordingTypeSelect = getId('recordingTypeSelect');
+const recordingScreenOption = getId('recordingScreenOption');
 const tabProfileBtn = getId('tabProfileBtn');
 const tabShortcutsBtn = getId('tabShortcutsBtn');
 const tabNetworkBtn = getId('tabNetworkBtn');
@@ -409,7 +411,7 @@ const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
 const pushToTalkDiv = getId('pushToTalkDiv');
-const recImage = getId('recImage');
+const recordingActionBtn = getId('recordingActionBtn');
 const pauseRecBtn = getId('pauseRecBtn');
 const resumeRecBtn = getId('resumeRecBtn');
 const recordingTime = getId('recordingTime');
@@ -920,7 +922,6 @@ function setButtonsToolTip() {
     setTippy(switchKeepButtonsVisible, 'Keep buttons always visible', 'right');
     setTippy(switchPinChatByDefault, 'Open chat pinned by default', 'right');
     setTippy(switchKeepAwake, 'Prevent the device from sleeping (if supported)', 'right');
-    setTippy(recImage, 'Toggle recording', 'right');
     setTippy(networkIP, 'IP address associated with the ICE candidate', 'right');
     setTippy(
         networkHost,
@@ -1744,7 +1745,7 @@ function handleButtonsRule() {
         { element: videoBtn, display: buttons.main.showVideoBtn },
         //{ element: screenShareBtn, display: buttons.main.showScreenBtn }, // auto-detected
         { element: recordStreamBtn, display: buttons.main.showRecordStreamBtn },
-        { element: recImage, display: buttons.main.showRecordStreamBtn },
+        { element: recordingActionBtn, display: buttons.main.showRecordStreamBtn },
         { element: chatRoomBtn, display: buttons.main.showChatRoomBtn },
         { element: participantsBtn, display: buttons.main.showParticipantsBtn },
         {
@@ -6401,10 +6402,14 @@ function setScreenShareBtn() {
  * Start - Stop Stream recording
  */
 function setRecordStreamBtn() {
+    if (isMobileDevice) {
+        recordingTypeSelect.value = 'camera';
+        recordingScreenOption.disabled = true;
+    }
     recordStreamBtn.addEventListener('click', (e) => {
         isStreamRecording ? stopStreamRecording() : startStreamRecording();
     });
-    recImage.addEventListener('click', (e) => {
+    recordingActionBtn.addEventListener('click', (e) => {
         recordStreamBtn.click();
     });
 }
@@ -6418,6 +6423,9 @@ function setRecordStreamBtnLabel(label) {
     recordStreamBtn.textContent = '';
     if (icon) recordStreamBtn.appendChild(icon);
     recordStreamBtn.appendChild(document.createTextNode(' ' + label));
+
+    recordingActionBtn.querySelector('p').textContent = label;
+    recordingActionBtn.classList.toggle('recording-active', label === 'Stop Recording');
 }
 
 /**
@@ -9769,40 +9777,13 @@ function startStreamRecording() {
         const audioMixerTracks = audioMixerStreams.getTracks();
         console.log('Audio mixer tracks --->', audioMixerTracks);
 
-        isMobileDevice ? startMobileRecording(options, audioMixerTracks) : recordingOptions(options, audioMixerTracks);
+        const recordingType = isMobileDevice ? 'camera' : recordingTypeSelect.value;
+        recordingType === 'screen'
+            ? startDesktopRecording(options, audioMixerTracks)
+            : startMobileRecording(options, audioMixerTracks);
     } catch (err) {
         handleRecordingError('Exception while creating MediaRecorder: ' + err);
     }
-}
-
-/**
- * Recording options Camera or Screen/Window for Desktop devices
- * @param {MediaRecorderOptions} options - MediaRecorder options.
- * @param {array} audioMixerTracks - Array of audio tracks from the audio mixer.
- */
-function recordingOptions(options, audioMixerTracks) {
-    Swal.fire({
-        background: swBg,
-        position: 'top',
-        imageUrl: images.recording,
-        title: 'Recording options',
-        text: 'Select the recording type you want to start. Audio will be recorded from all participants.',
-        showDenyButton: true,
-        showCancelButton: true,
-        cancelButtonColor: 'red',
-        denyButtonColor: 'green',
-        confirmButtonText: `Camera`,
-        denyButtonText: `Screen/Window`,
-        cancelButtonText: `Cancel`,
-        showClass: { popup: 'animate__animated animate__fadeInDown' },
-        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            startMobileRecording(options, audioMixerTracks);
-        } else if (result.isDenied) {
-            startDesktopRecording(options, audioMixerTracks);
-        }
-    });
 }
 
 /**
@@ -10079,7 +10060,7 @@ function stopStreamRecording() {
 function pauseRecButtons() {
     displayElements([
         { element: pauseRecBtn, display: false },
-        { element: resumeRecBtn, display: true },
+        { element: resumeRecBtn, display: true, mode: 'inline-flex' },
     ]);
 }
 /**
@@ -10088,7 +10069,7 @@ function pauseRecButtons() {
 function resumeRecButtons() {
     displayElements([
         { element: resumeRecBtn, display: false },
-        { element: pauseRecBtn, display: true },
+        { element: pauseRecBtn, display: true, mode: 'inline-flex' },
     ]);
 }
 /**
@@ -16515,7 +16496,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.31',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.32',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

@@ -1035,10 +1035,22 @@
                             <h3>Recording</h3>
                             <p>Control and review your local meeting recordings.</p>
                         </div>
-                        <img id="recImage" src="../images/recording.png" />
-                        <div class="trow">
-                            <span class="clw notranslate" id="recordingTime"></span>
-
+                        <div class="settings-field">
+                            <div class="title">
+                                <i class="fa-solid fa-film"></i>
+                                <p>Recording type</p>
+                            </div>
+                            <select id="recordingTypeSelect">
+                                <option value="camera">Camera</option>
+                                <option id="recordingScreenOption" value="screen">Screen/Window</option>
+                            </select>
+                            <p class="settings-field-hint">Audio from all participants is included.</p>
+                        </div>
+                        <div class="recording-controls">
+                            <button id="recordingActionBtn" class="buttons">
+                                <i class="fas fa-record-vinyl"></i>
+                                <p>Start recording</p>
+                            </button>
                             <button id="pauseRecBtn" class="buttons">
                                 <i class="far fa-pause-circle"></i>
                                 <p>Pause recording</p>
@@ -1048,6 +1060,7 @@
                                 <p>Resume recording</p>
                             </button>
                         </div>
+                        <span class="recording-time notranslate" id="recordingTime" aria-live="polite"></span>
                         <div class="clw" id="lastRecordingInfo"></div>
                     </div>
 

@@ -3846,21 +3846,6 @@ button {
     transition: all 0.3s ease-in-out;
 }
 
-#recImage {
-    width: 128px;
-    height: auto;
-    margin-bottom: 10px;
-    margin-top: 5px;
-    border-radius: 30px;
-    cursor: pointer;
-}
-
-#recImage:hover {
-    box-shadow: 0px 4px 8px 0px rgba(255, 255, 255, 0.2);
-    transform: scale(0.95);
-    transition: all 0.3s ease-in-out;
-}
-
 #captionEveryoneStopBtn:hover {
     color: orange;
     transform: translateY(-3px);
@@ -4027,6 +4012,54 @@ button {
 
 .settings-field:last-child {
     margin-bottom: 0;
+}
+
+#mySettings .settings-field-hint {
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.82rem;
+}
+
+.recording-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#mySettings #recordingActionBtn {
+    display: inline-flex;
+}
+
+#mySettings .recording-controls .buttons {
+    align-items: center;
+    gap: 8px;
+    float: none;
+    min-height: 42px;
+}
+
+#mySettings .recording-controls .buttons i,
+#mySettings .recording-controls .buttons p {
+    margin: 0;
+    padding: 0;
+}
+
+#recordingActionBtn.recording-active {
+    border-color: #ff4500;
+    color: #ff8a65;
+}
+
+.recording-time {
+    display: block;
+    margin-bottom: 20px;
+    color: #ff8a65;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.recording-time:empty {
+    display: none;
 }
 
 .settings-field
