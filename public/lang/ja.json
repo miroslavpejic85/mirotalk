@@ -515,9 +515,14 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
-        "Yes": "はい"
+        "Yes": "はい",
+        "Schedule email invitation": "メール招待をスケジュール",
+        "Meeting date and time": "会議の日時",
+        "Choose date and time": "日時を選択",
+        "Open email": "メールを開く",
+        "Choose a meeting date and time": "会議の日時を選択してください"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ ファイル転送が中止されました",

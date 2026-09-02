@@ -517,9 +517,14 @@
         "Time Limit Reached": "Time Limit Reached",
         "Unlock room?": "Unlock room?",
         "Username": "Username",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "Whiteboard Shortcuts",
-        "Yes": "Yes"
+        "Yes": "Yes",
+        "Schedule email invitation": "Schedule email invitation",
+        "Meeting date and time": "Meeting date and time",
+        "Choose date and time": "Choose date and time",
+        "Open email": "Open email",
+        "Choose a meeting date and time": "Choose a meeting date and time"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ File transfer aborted",

@@ -515,9 +515,14 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
-        "Yes": "Evet"
+        "Yes": "Evet",
+        "Schedule email invitation": "E-posta davetini planla",
+        "Meeting date and time": "Toplantı tarihi ve saati",
+        "Choose date and time": "Tarih ve saat seçin",
+        "Open email": "E-postayı aç",
+        "Choose a meeting date and time": "Toplantı tarihi ve saati seçin"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ Dosya aktarımı iptal edildi",

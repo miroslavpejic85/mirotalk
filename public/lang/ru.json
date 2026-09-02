@@ -515,9 +515,14 @@
         "Time Limit Reached": "Достигнут лимит времени",
         "Unlock room?": "Разблокировать комнату?",
         "Username": "Имя пользователя",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "Горячие клавиши доски",
-        "Yes": "Да"
+        "Yes": "Да",
+        "Schedule email invitation": "Запланировать приглашение по электронной почте",
+        "Meeting date and time": "Дата и время встречи",
+        "Choose date and time": "Выберите дату и время",
+        "Open email": "Открыть почту",
+        "Choose a meeting date and time": "Выберите дату и время встречи"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ Передача файлов прервана.",

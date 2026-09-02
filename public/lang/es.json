@@ -515,9 +515,14 @@
         "Time Limit Reached": "Límite de tiempo alcanzado",
         "Unlock room?": "¿Desbloquear la sala?",
         "Username": "Nombre de usuario",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "Atajos de la pizarra",
-        "Yes": "Sí"
+        "Yes": "Sí",
+        "Schedule email invitation": "Programar invitación por correo electrónico",
+        "Meeting date and time": "Fecha y hora de la reunión",
+        "Choose date and time": "Elige fecha y hora",
+        "Open email": "Abrir correo electrónico",
+        "Choose a meeting date and time": "Elige la fecha y hora de la reunión"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ Transferencia de archivos cancelada",

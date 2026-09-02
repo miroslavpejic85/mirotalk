@@ -515,9 +515,14 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "Prečice table",
-        "Yes": "Da"
+        "Yes": "Da",
+        "Schedule email invitation": "Закажите позивницу е-поштом",
+        "Meeting date and time": "Датум и време састанка",
+        "Choose date and time": "Изаберите датум и време",
+        "Open email": "Отвори е-пошту",
+        "Choose a meeting date and time": "Изаберите датум и време састанка"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠ Пренос датотеке је прекинут",

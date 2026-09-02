@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.33
+ * @version 1.9.34
  *
  */
 
@@ -8852,6 +8852,10 @@ function copyRoomURL() {
 /**
  * Send the room ID via email at the scheduled date and time.
  */
+function translateDialogText(text) {
+    return window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(text, 'dialogs') : text;
+}
+
 function shareRoomByEmail() {
     Swal.fire({
         allowOutsideClick: false,
@@ -8859,10 +8863,24 @@ function shareRoomByEmail() {
         background: swBg,
         imageUrl: images.message,
         position: 'center',
-        title: 'Select a Date and Time',
-        html: '<input type="text" id="datetimePicker" class="flatpickr" />',
+        title: translateDialogText('Schedule email invitation'),
+        html: `
+            <div class="email-invitation-date-field">
+                <label for="datetimePicker">${translateDialogText('Meeting date and time')}</label>
+                <div class="email-invitation-date-control">
+                    <i class="fas fa-calendar-days" aria-hidden="true"></i>
+                    <input
+                        type="text"
+                        id="datetimePicker"
+                        class="flatpickr"
+                        placeholder="${translateDialogText('Choose date and time')}"
+                        aria-label="${translateDialogText('Meeting date and time')}"
+                    />
+                </div>
+            </div>
+        `,
         showCancelButton: true,
-        confirmButtonText: 'OK',
+        confirmButtonText: translateDialogText('Open email'),
         cancelButtonColor: 'red',
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
@@ -8870,6 +8888,10 @@ function shareRoomByEmail() {
             const roomURL = getRoomURL();
             const newLine = '%0D%0A%0D%0A';
             const selectedDateTime = document.getElementById('datetimePicker').value;
+            if (!selectedDateTime) {
+                Swal.showValidationMessage(translateDialogText('Choose a meeting date and time'));
+                return false;
+            }
             const roomPassword = isRoomLocked && thisRoomPassword ? 'Password: ' + thisRoomPassword + newLine : '';
             const email = '';
             const emailSubject = `Please join our MiroTalk P2P Video Chat Meeting`;
@@ -16496,7 +16518,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.33',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.34',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

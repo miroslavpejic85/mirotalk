@@ -515,9 +515,14 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "白板快捷键",
-        "Yes": "是"
+        "Yes": "是",
+        "Schedule email invitation": "安排电子邮件邀请",
+        "Meeting date and time": "会议日期和时间",
+        "Choose date and time": "选择日期和时间",
+        "Open email": "打开电子邮件",
+        "Choose a meeting date and time": "请选择会议日期和时间"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ 文件传输已中止",

@@ -131,6 +131,10 @@ function scanJs(file) {
     const fieldTplRe = new RegExp(`\\b(${DIALOG_FIELDS.join('|')})\\s*:\\s*\`([^\`$]*)\``, 'g');
     while ((m = fieldTplRe.exec(src))) add('dialogs', unescapeJs(m[2]));
 
+    // Dialog strings passed through the runtime translation helper.
+    const dialogTextRe = /translateDialogText\(\s*(['"])((?:\\.|(?!\1).)*)\1\s*\)/g;
+    while ((m = dialogTextRe.exec(src))) add('dialogs', unescapeJs(m[2]));
+
     // Dynamically-built UI text: text nodes and textContent/innerText assignments.
     const textNodeRe = /createTextNode\(\s*(['"])((?:\\.|(?!\1).)*)\1/g;
     while ((m = textNodeRe.exec(src))) add('labels', unescapeJs(m[2]));

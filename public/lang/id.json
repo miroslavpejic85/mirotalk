@@ -515,9 +515,14 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v1.9.33": "WebRTC P2P v1.9.33",
+        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
-        "Yes": "Ya"
+        "Yes": "Ya",
+        "Schedule email invitation": "Jadwalkan undangan email",
+        "Meeting date and time": "Tanggal dan waktu rapat",
+        "Choose date and time": "Pilih tanggal dan waktu",
+        "Open email": "Buka email",
+        "Choose a meeting date and time": "Pilih tanggal dan waktu rapat"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ Transfer file dibatalkan",
