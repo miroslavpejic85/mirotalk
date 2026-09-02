@@ -80,6 +80,13 @@ function isPrivateOrLoopbackHost(host) {
         // IPv4-mapped: ::ffff:127.0.0.1
         const v4 = host.match(/:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
         if (v4) return isPrivateOrLoopbackHost(v4[1]);
+        // IPv4-mapped hex: ::ffff:7f00:1
+        const hexV4 = host.match(/(?:^|:)ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+        if (hexV4) {
+            const high = parseInt(hexV4[1], 16);
+            const low = parseInt(hexV4[2], 16);
+            return isPrivateOrLoopbackHost(`${high >> 8}.${high & 0xff}.${low >> 8}.${low & 0xff}`);
+        }
         return false;
     }
     return false;

@@ -146,6 +146,16 @@ describe('test-Validator', () => {
             checkValidator.isPrivateOrLoopbackHost('::ffff:8.8.8.8').should.be.false();
         });
 
+        it('should decode IPv4-mapped IPv6 hex literals before checking their ranges', () => {
+            checkValidator.isPrivateOrLoopbackHost('::ffff:7f00:1').should.be.true();
+            checkValidator.isPrivateOrLoopbackHost('::ffff:a9fe:a9fe').should.be.true();
+            checkValidator.isPrivateOrLoopbackHost('::ffff:a00:1').should.be.true();
+            checkValidator.isPrivateOrLoopbackHost('::ffff:c0a8:1').should.be.true();
+            checkValidator.isPrivateOrLoopbackHost('::ffff:ac10:fe01').should.be.true();
+            checkValidator.isPrivateOrLoopbackHost('0:0:0:0:0:ffff:7f00:1').should.be.true();
+            checkValidator.isPrivateOrLoopbackHost('::ffff:808:808').should.be.false();
+        });
+
         it('should not flag public IPv6', () => {
             checkValidator.isPrivateOrLoopbackHost('2001:4860:4860::8888').should.be.false();
         });
@@ -204,6 +214,8 @@ describe('test-Validator', () => {
             checkValidator.isSafeImageSrc('http://169.254.169.254/latest/meta-data/').should.be.false();
             checkValidator.isSafeImageSrc('http://[::1]/x').should.be.false();
             checkValidator.isSafeImageSrc('http://[fe80::1]/x').should.be.false();
+            checkValidator.isSafeImageSrc('http://[::ffff:7f00:1]/x').should.be.false();
+            checkValidator.isSafeImageSrc('http://[::ffff:a9fe:a9fe]/x').should.be.false();
         });
     });
 
