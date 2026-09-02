@@ -3141,19 +3141,6 @@ button {
 }
 
 /*--------------------------------------------------------------
-# Data time picker
---------------------------------------------------------------*/
-
-#datetimePicker {
-    padding: 10px;
-    text-align: center;
-    color: white;
-    background: var(--body-bg);
-    border: var(--border);
-    border-radius: 8px;
-}
-
-/*--------------------------------------------------------------
 # Room QR
 --------------------------------------------------------------*/
 
@@ -4488,6 +4475,9 @@ input:checked + .slider:before {
 .email-invitation-date-control input:focus {
     border-color: #1d8ecd;
     background: rgba(255, 255, 255, 0.12);
+}
+
+.email-invitation-date-control input:focus-visible {
     box-shadow: 0 0 0 3px rgba(29, 142, 205, 0.2);
 }
 
