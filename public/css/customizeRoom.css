@@ -354,9 +354,9 @@ summary:focus-visible {
 
 .cr-switch-wrap {
     position: relative;
-    width: 44px;
+    width: 64px;
     height: 26px;
-    flex: 0 0 44px;
+    flex: 0 0 64px;
 }
 
 .cr-switch-wrap input {
@@ -380,6 +380,18 @@ summary:focus-visible {
         box-shadow 160ms ease;
 }
 
+.cr-switch::before {
+    content: 'OFF';
+    position: absolute;
+    top: 50%;
+    right: 7px;
+    color: var(--cr-text);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    transform: translateY(-50%);
+}
+
 .cr-switch::after {
     content: '';
     position: absolute;
@@ -399,8 +411,15 @@ summary:focus-visible {
     background: var(--cr-accent);
 }
 
+.cr-switch-wrap input:checked + .cr-switch::before {
+    content: 'ON';
+    right: auto;
+    left: 8px;
+    color: var(--cr-accent-ink);
+}
+
 .cr-switch-wrap input:checked + .cr-switch::after {
-    left: 21px;
+    left: 41px;
     background: var(--cr-accent-ink);
 }
 

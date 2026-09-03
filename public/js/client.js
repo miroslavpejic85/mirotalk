@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.37
+ * @version 1.9.38
  *
  */
 
@@ -3517,6 +3517,9 @@ let themeMap = {
         '--btn-bar-color': '#121214',
         '--btns-bg-color': 'rgba(18, 18, 20, 0.75)',
         '--dd-color': '#E8E8EC',
+        '--toggle-off-bg': '#000000',
+        '--toggle-on-bg': 'green',
+        '--toggle-on-ink': '#FFFFFF',
     },
     grey: {
         '--body-bg': 'radial-gradient(#3b3f47, #1e2028)',
@@ -3655,6 +3658,10 @@ function applyThemeVars(vars) {
     for (const [prop, value] of Object.entries(vars)) {
         setSP(prop, value);
     }
+    setSP('--toggle-off-bg', vars['--toggle-off-bg'] || vars['--select-bg'] || '#000000');
+    setSP('--toggle-on-bg', vars['--toggle-on-bg'] || vars['--dd-color'] || 'green');
+    setSP('--toggle-off-ink', vars['--toggle-off-ink'] || '#FFFFFF');
+    setSP('--toggle-on-ink', vars['--toggle-on-ink'] || vars['--btn-bar-color'] || '#FFFFFF');
     document.body.style.background = vars['--body-bg'];
 }
 
@@ -3680,6 +3687,9 @@ function setCustomTheme() {
         '--btn-bar-bg-color': '#FFFFFF',
         '--btn-bar-color': '#000000',
         '--btns-bg-color': color,
+        '--toggle-off-bg': `color-mix(in srgb, ${color} 55%, black)`,
+        '--toggle-on-bg': `color-mix(in srgb, ${color} 55%, white)`,
+        '--toggle-on-ink': '#101314',
     });
 }
 
@@ -16700,7 +16710,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.37',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.38',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
