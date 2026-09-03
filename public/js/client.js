@@ -5873,7 +5873,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
                 cam.className = '';
                 cam.style.width = '100%';
                 cam.style.height = '100%';
-                toggleVideoPin(pinVideoPositionSelect.value);
+                toggleVideoPin('speaker-left');
                 videoPinMediaContainer.appendChild(cam);
                 elemDisplay(videoPinMediaContainer, true, 'block');
                 pinnedVideoPlayerId = elemId;
