@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.38
+ * @version 1.9.39
  *
  */
 
@@ -4271,7 +4271,7 @@ async function loadLocalMedia(stream, kind) {
 
             //my current session time
             myCurrentSessionTime.setAttribute('id', 'myCurrentSessionTime');
-            myCurrentSessionTime.className = 'notranslate';
+            myCurrentSessionTime.className = 'notranslate navbar-session-time';
 
             // my peer name
             myVideoPeerName.setAttribute('id', 'myVideoPeerName');
@@ -4373,6 +4373,17 @@ async function loadLocalMedia(stream, kind) {
             myDropdownBtn.className = 'fas fa-ellipsis-vertical';
             myDropdownContent.className = 'navbar-dropdown-content';
 
+            !isMobileDevice &&
+                myDropdownContent.appendChild(createResponsiveDropdownItem(myVideoPinBtn, 'Pin Video', 'compact'));
+            buttons.local.showVideoFocusBtn &&
+                myDropdownContent.appendChild(createResponsiveDropdownItem(myVideoFocusBtn, 'Focus Mode'));
+            if (showVideoPipBtn && buttons.local.showVideoPipBtn) {
+                myDropdownContent.appendChild(createResponsiveDropdownItem(myVideoPiPBtn, 'Picture in Picture'));
+            }
+            buttons.local.showSnapShotBtn &&
+                myDropdownContent.appendChild(createResponsiveDropdownItem(myVideoToImgBtn, 'Take Snapshot'));
+            buttons.local.showVideoCircleBtn &&
+                myDropdownContent.appendChild(createResponsiveDropdownItem(myPrivacyBtn, 'Video Privacy'));
             myDropdownContent.appendChild(createDropdownItem(myVideoMirrorBtn, 'Mirror', myDropdownContent));
             isVideoFullScreenSupported &&
                 myDropdownContent.appendChild(
@@ -4849,6 +4860,24 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteDropdownContent.className = 'navbar-dropdown-content';
 
             // Build dropdown items
+            !isMobileDevice &&
+                remoteDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteVideoPinBtn, 'Pin Video', 'compact')
+                );
+            buttons.remote.showVideoFocusBtn &&
+                remoteDropdownContent.appendChild(createResponsiveDropdownItem(remoteVideoFocusBtn, 'Focus Mode'));
+            if (showVideoPipBtn && buttons.remote.showVideoPipBtn) {
+                remoteDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteVideoPiPBtn, 'Picture in Picture')
+                );
+            }
+            buttons.remote.showSnapShotBtn &&
+                remoteDropdownContent.appendChild(createResponsiveDropdownItem(remoteVideoToImgBtn, 'Take Snapshot'));
+            if (!isMobileDevice && peer_audio && buttons.remote.showAudioVolume) {
+                remoteDropdownContent.appendChild(
+                    createResponsiveDropdownRangeItem(remoteAudioVolume, 'Volume', 'fa-volume-high')
+                );
+            }
             remoteDropdownContent.appendChild(
                 createDropdownItem(remoteVideoMirrorBtn, 'Mirror', remoteDropdownContent)
             );
@@ -5280,6 +5309,52 @@ function createDropdownItem(btnEl, label, dropdownContent, color) {
         dispatching = false;
         if (dropdownContent) dropdownContent.classList.remove('show');
     });
+    return item;
+}
+
+/**
+ * Create a compact-menu proxy for an action that remains visible on larger tiles.
+ * @param {HTMLButtonElement} sourceButton the original navbar action
+ * @param {string} label the dropdown label
+ * @param {string} [tier] responsive tier at which the navbar action is hidden
+ */
+function createResponsiveDropdownItem(sourceButton, label, tier = 'secondary') {
+    sourceButton.classList.add(`navbar-${tier}-action`);
+    const proxyButton = sourceButton.cloneNode(false);
+    proxyButton.removeAttribute('id');
+    proxyButton.removeAttribute('style');
+    proxyButton.addEventListener('click', () => sourceButton.click());
+    return createDropdownItem(proxyButton, label);
+}
+
+/**
+ * Create a compact-menu range control synchronized with its navbar control.
+ * @param {HTMLInputElement} sourceRange the original navbar range input
+ * @param {string} label the dropdown label
+ * @param {string} iconClass the Font Awesome icon class
+ */
+function createResponsiveDropdownRangeItem(sourceRange, label, iconClass) {
+    sourceRange.classList.add('navbar-secondary-action');
+    const item = document.createElement('div');
+    item.className = 'navbar-dropdown-item navbar-dropdown-control';
+
+    const icon = document.createElement('i');
+    icon.className = `fas ${iconClass}`;
+    const span = document.createElement('span');
+    span.textContent = label;
+    const proxyRange = sourceRange.cloneNode(false);
+    proxyRange.removeAttribute('id');
+    proxyRange.removeAttribute('style');
+
+    proxyRange.addEventListener('input', () => {
+        sourceRange.value = proxyRange.value;
+        sourceRange.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    sourceRange.addEventListener('input', () => {
+        proxyRange.value = sourceRange.value;
+    });
+
+    item.append(icon, span, proxyRange);
     return item;
 }
 
@@ -16710,7 +16785,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.38',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.39',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
