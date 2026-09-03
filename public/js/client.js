@@ -5929,30 +5929,31 @@ function autoPinVideoForLayout() {
 
 function toggleVideoPin(position) {
     if (!isVideoPinned) return;
+    const participantAreaWidth = isChatPinned || isCaptionPinned ? 75 : 100;
+    const speakerWidth = participantAreaWidth * 0.75;
+    const thumbnailWidth = participantAreaWidth - speakerWidth;
     videoPinMediaContainer.style.top = 0;
     videoPinMediaContainer.style.left = 0;
-    videoPinMediaContainer.style.width = '100%';
+    videoPinMediaContainer.style.width = participantAreaWidth + '%';
     videoPinMediaContainer.style.height = '100%';
     elemDisplay(videoMediaContainer, true, 'flex');
     videoMediaContainer.style.top = 0;
-    videoMediaContainer.style.left = '';
+    videoMediaContainer.style.left = 0;
     videoMediaContainer.style.right = '';
-    videoMediaContainer.style.width = '100%';
+    videoMediaContainer.style.width = participantAreaWidth + '%';
     videoMediaContainer.style.height = '100%';
     switch (position) {
         case 'speaker-bottom':
         case 'top':
             videoPinMediaContainer.style.top = '25%';
-            videoPinMediaContainer.style.width = '100%';
             videoPinMediaContainer.style.height = '75%';
-            videoMediaContainer.style.width = '100%';
             videoMediaContainer.style.height = '25%';
             break;
         case 'speaker-left':
         case 'vertical':
-            videoPinMediaContainer.style.width = '75%';
-            videoMediaContainer.style.width = '25%';
-            videoMediaContainer.style.right = 0;
+            videoPinMediaContainer.style.width = speakerWidth + '%';
+            videoMediaContainer.style.left = speakerWidth + '%';
+            videoMediaContainer.style.width = thumbnailWidth + '%';
             break;
         case 'speaker-top':
         case 'horizontal':
@@ -5961,9 +5962,9 @@ function toggleVideoPin(position) {
             videoMediaContainer.style.height = '25%';
             break;
         case 'speaker-right':
-            videoPinMediaContainer.style.left = '25%';
-            videoPinMediaContainer.style.width = '75%';
-            videoMediaContainer.style.width = '25%';
+            videoPinMediaContainer.style.left = thumbnailWidth + '%';
+            videoPinMediaContainer.style.width = speakerWidth + '%';
+            videoMediaContainer.style.width = thumbnailWidth + '%';
             break;
         case 'speaker-1:1':
             elemDisplay(videoMediaContainer, false);
@@ -5972,6 +5973,12 @@ function toggleVideoPin(position) {
             break;
     }
     if (position !== 'speaker-1:1') resizeVideoMedia();
+}
+
+function refreshPinnedVideoLayout() {
+    if (!isVideoPinned) return;
+    const participantMode = participantViewMode.value;
+    toggleVideoPin(participantMode.startsWith('speaker-') ? participantMode : pinVideoPositionSelect.value);
 }
 
 function setParticipantViewMode(requestedMode, persist = true, notify = true) {
@@ -10687,6 +10694,7 @@ function chatPin() {
     videoMediaContainerPin();
     chatPinned();
     isChatPinned = true;
+    refreshPinnedVideoLayout();
     setChatPinnedLayout(true);
     setColor(msgerTogglePin, 'lime');
     resizeVideoMedia();
@@ -10709,6 +10717,7 @@ function chatUnpin() {
     elemDisplay(msgerMinBtn, false);
     buttons.chat.showMaxBtn && elemDisplay(msgerMaxBtn, true);
     isChatPinned = false;
+    refreshPinnedVideoLayout();
     setChatPinnedLayout(false);
     //chatLeftCenter();
     chatCenter();
@@ -10808,6 +10817,7 @@ function captionPin() {
     videoMediaContainerPin();
     captionPinned();
     isCaptionPinned = true;
+    refreshPinnedVideoLayout();
     captionDraggable.classList.add('caption-pinned');
     setColor(captionTogglePin, 'lime');
     resizeVideoMedia();
@@ -10828,6 +10838,7 @@ function captionUnpin() {
     elemDisplay(captionMinBtn, false);
     buttons.caption.showMaxBtn && elemDisplay(captionMaxBtn, true);
     isCaptionPinned = false;
+    refreshPinnedVideoLayout();
     captionDraggable.classList.remove('caption-pinned');
     //captionRightCenter();
     captionCenter();
