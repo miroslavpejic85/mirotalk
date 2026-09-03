@@ -73,6 +73,8 @@ function resizeVideoMedia() {
     let max = 0;
     let optional = isHideMeActive && videoMediaContainer.childElementCount <= 2 ? 1 : 0;
     let isOneVideoElement = videoMediaContainer.childElementCount - optional == 1 ? true : false;
+    let isPinnedSingleVideo = isOneVideoElement && isVideoPinned;
+    let expandSingleVideo = isOneVideoElement && !isPinnedSingleVideo;
 
     // console.log('videoMediaContainer.childElementCount:', {
     //     isOneVideoElement: isOneVideoElement,
@@ -83,13 +85,17 @@ function resizeVideoMedia() {
     resetZoom(); //...
 
     let bigWidth = Width * 4;
-    if (isOneVideoElement) {
+    if (expandSingleVideo) {
         Width = Width - bigWidth;
     }
 
     // Optimized: binary search for best tile size
     let low = 1;
     let high = Math.min(Width, Height);
+    if (isPinnedSingleVideo) {
+        const tileRatio = customRatio ? 0.75 : ratio;
+        high = Math.min(Width, Math.floor((Height - Margin * 2) / tileRatio));
+    }
     let best = 1;
     while (low <= high) {
         let mid = Math.floor((low + high) / 2);
@@ -103,10 +109,10 @@ function resizeVideoMedia() {
     }
 
     max = best - Margin * 2;
-    setWidth(Tiles, max, bigWidth, Margin, Height, isOneVideoElement);
+    setWidth(Tiles, max, bigWidth, Margin, Height, expandSingleVideo);
 
     // When alone, use fixed avatar size; otherwise proportional to tile
-    const avatarSize = isOneVideoElement ? Math.min(200, Math.max(120, Height * 0.25)) : max / 3;
+    const avatarSize = expandSingleVideo ? Math.min(200, Math.max(120, Height * 0.25)) : max / 3;
     setSP('--vmi-wh', avatarSize + 'px');
 }
 

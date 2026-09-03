@@ -35,6 +35,7 @@ class LocalStorage {
             buttons_bar: 0, // vertical
             pin_grid: 0, // speaker left
             participant_view: 'grid',
+            video_aspect_ratio: 0, // automatic based on participant count
             peer_avatar: '', // persisted avatar URL
         };
 
