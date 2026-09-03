@@ -594,30 +594,12 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     transform: none;
-    translate: 0 0;
-}
-
-#bottomButtons #participantViewMenu button:hover {
-    translate: 3px 0;
 }
 
 #bottomButtons #participantViewMenu button i {
     width: 18px;
     min-width: 18px;
     text-align: center;
-}
-
-#bottomButtons #participantViewMenu button.active {
-    color: #fff;
-    background: color-mix(in srgb, var(--dd-color, #4678f9) 20%, transparent);
-    box-shadow: inset 3px 0 0 var(--dd-color, #4678f9);
-}
-
-#bottomButtons #participantViewButton[aria-expanded='true'] {
-    color: var(--dd-color, #4678f9) !important;
-    background: color-mix(in srgb, var(--dd-color, #4678f9) 18%, var(--btns-bg-color)) !important;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dd-color, #4678f9) 65%, transparent) !important;
-    transition-property: transform;
 }
 
 #bottomButtons .split-btn > button {
@@ -692,7 +674,8 @@ body {
         transform 0.15s ease;
 }
 
-#bottomButtons .dropdown-menu button:hover {
+#bottomButtons .dropdown-menu button:hover,
+#bottomButtons #participantViewMenu button.active {
     background: rgba(255, 255, 255, 0.08);
 }
 
