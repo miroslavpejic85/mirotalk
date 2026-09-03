@@ -96,7 +96,8 @@
         "Zoom in screen": "화면 확대",
         "Zoom in video": "비디오 확대",
         "Zoom out screen": "화면 축소",
-        "Zoom out video": "비디오 축소"
+        "Zoom out video": "비디오 축소",
+        "Change participant view": "참가자 보기 변경"
     },
     "buttons": {
         "Abort": "중단",
@@ -185,7 +186,14 @@
         "Video": "비디오",
         "Whiteboard": "화이트보드",
         "Zoom In": "확대",
-        "Zoom Out": "축소"
+        "Zoom Out": "축소",
+        "Grid": "그리드",
+        "Layout": "레이아웃",
+        "Speaker top": "발표자 위",
+        "Speaker bottom": "발표자 아래",
+        "Speaker left": "발표자 왼쪽",
+        "Speaker right": "발표자 오른쪽",
+        "Speaker 1:1": "발표자 1:1"
     },
     "labels": {
         "Are you the host?": "호스트이신가요?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "인터페이스 테마를 개인화하고 배치를 제어하세요.",
         "Save custom color": "맞춤 색상 저장",
-        "Choose the language used by the meeting interface.": "회의 인터페이스에서 사용되는 언어를 선택합니다."
+        "Choose the language used by the meeting interface.": "회의 인터페이스에서 사용되는 언어를 선택합니다.",
+        "Video layout": "비디오 레이아웃",
+        "Control participant arrangement and toolbar placement.": "참가자 배치와 도구 모음 위치를 제어합니다.",
+        "Participant view": "참가자 보기"
     },
     "dialogs": {
         "All messages": "모든 메시지",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",

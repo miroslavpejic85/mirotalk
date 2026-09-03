@@ -96,7 +96,8 @@
         "Zoom in screen": "Vergrößern Sie den Bildschirm",
         "Zoom in video": "Video vergrößern",
         "Zoom out screen": "Bildschirm verkleinern",
-        "Zoom out video": "Video verkleinern"
+        "Zoom out video": "Video verkleinern",
+        "Change participant view": "Teilnehmeransicht ändern"
     },
     "buttons": {
         "Abort": "Abbrechen",
@@ -185,7 +186,14 @@
         "Video": "Video",
         "Whiteboard": "Whiteboard",
         "Zoom In": "Vergrößern",
-        "Zoom Out": "Herauszoomen"
+        "Zoom Out": "Herauszoomen",
+        "Grid": "Raster",
+        "Layout": "Layout",
+        "Speaker top": "Sprecher oben",
+        "Speaker bottom": "Sprecher unten",
+        "Speaker left": "Sprecher links",
+        "Speaker right": "Sprecher rechts",
+        "Speaker 1:1": "Sprecher 1:1"
     },
     "labels": {
         "Are you the host?": "Sind Sie der Gastgeber?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Personalisieren Sie das Design und die Position der Steuerelemente.",
         "Save custom color": "Benutzerdefinierte Farbe speichern",
-        "Choose the language used by the meeting interface.": "Wählen Sie die Sprache der Besprechungsoberfläche."
+        "Choose the language used by the meeting interface.": "Wählen Sie die Sprache der Besprechungsoberfläche.",
+        "Video layout": "Video-Layout",
+        "Control participant arrangement and toolbar placement.": "Steuern Sie die Anordnung der Teilnehmer und die Position der Symbolleiste.",
+        "Participant view": "Teilnehmeransicht"
     },
     "dialogs": {
         "All messages": "Alle Nachrichten",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "Zeitlimit erreicht",
         "Unlock room?": "Raum entsperren?",
         "Username": "Benutzername",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Whiteboard-Tastenkürzel",
         "Yes": "Ja",
         "Schedule email invitation": "E-Mail-Einladung planen",

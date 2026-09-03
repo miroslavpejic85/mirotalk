@@ -96,7 +96,8 @@
         "Zoom in screen": "Memperbesar layar",
         "Zoom in video": "Perbesar video",
         "Zoom out screen": "Perkecil layar",
-        "Zoom out video": "Perkecil video"
+        "Zoom out video": "Perkecil video",
+        "Change participant view": "Ubah tampilan peserta"
     },
     "buttons": {
         "Abort": "Batalkan",
@@ -185,7 +186,14 @@
         "Video": "Video",
         "Whiteboard": "Papan Tulis",
         "Zoom In": "Perbesar",
-        "Zoom Out": "Perkecil"
+        "Zoom Out": "Perkecil",
+        "Grid": "Kisi",
+        "Layout": "Tata letak",
+        "Speaker top": "Pembicara di atas",
+        "Speaker bottom": "Pembicara di bawah",
+        "Speaker left": "Pembicara di kiri",
+        "Speaker right": "Pembicara di kanan",
+        "Speaker 1:1": "Pembicara 1:1"
     },
     "labels": {
         "Are you the host?": "Apakah Anda tuan rumah?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Personalisasikan tema antarmuka dan penempatan kontrol.",
         "Save custom color": "Simpan warna khusus",
-        "Choose the language used by the meeting interface.": "Pilih bahasa yang digunakan oleh antarmuka rapat."
+        "Choose the language used by the meeting interface.": "Pilih bahasa yang digunakan oleh antarmuka rapat.",
+        "Video layout": "Tata letak video",
+        "Control participant arrangement and toolbar placement.": "Atur susunan peserta dan posisi bilah alat.",
+        "Participant view": "Tampilan peserta"
     },
     "dialogs": {
         "All messages": "Semua pesan",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",

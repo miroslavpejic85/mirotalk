@@ -96,7 +96,8 @@
         "Zoom in screen": "Zoom sur l'écran",
         "Zoom in video": "Zoomer sur la vidéo",
         "Zoom out screen": "Zoom arrière sur l'écran",
-        "Zoom out video": "Zoom arrière sur la vidéo"
+        "Zoom out video": "Zoom arrière sur la vidéo",
+        "Change participant view": "Modifier l'affichage des participants"
     },
     "buttons": {
         "Abort": "Abandonner",
@@ -185,7 +186,14 @@
         "Video": "Vidéo",
         "Whiteboard": "Tableau blanc",
         "Zoom In": "Zoomer",
-        "Zoom Out": "Zoom arrière"
+        "Zoom Out": "Zoom arrière",
+        "Grid": "Grille",
+        "Layout": "Disposition",
+        "Speaker top": "Intervenant en haut",
+        "Speaker bottom": "Intervenant en bas",
+        "Speaker left": "Intervenant à gauche",
+        "Speaker right": "Intervenant à droite",
+        "Speaker 1:1": "Intervenant 1:1"
     },
     "labels": {
         "Are you the host?": "Êtes-vous l'hôte ?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Personnalisez le thème de l’interface et contrôlez le placement.",
         "Save custom color": "Enregistrer la couleur personnalisée",
-        "Choose the language used by the meeting interface.": "Choisissez la langue utilisée par l'interface de réunion."
+        "Choose the language used by the meeting interface.": "Choisissez la langue utilisée par l'interface de réunion.",
+        "Video layout": "Disposition vidéo",
+        "Control participant arrangement and toolbar placement.": "Contrôlez la disposition des participants et l'emplacement de la barre d'outils.",
+        "Participant view": "Vue des participants"
     },
     "dialogs": {
         "All messages": "Tous les messages",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "Limite de temps atteinte",
         "Unlock room?": "Déverrouiller la salle ?",
         "Username": "Nom d'utilisateur",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Raccourcis du tableau blanc",
         "Yes": "Oui",
         "Schedule email invitation": "Planifier l’invitation par e-mail",

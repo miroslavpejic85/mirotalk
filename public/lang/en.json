@@ -97,7 +97,8 @@
         "Zoom in screen": "Zoom in screen",
         "Zoom in video": "Zoom in video",
         "Zoom out screen": "Zoom out screen",
-        "Zoom out video": "Zoom out video"
+        "Zoom out video": "Zoom out video",
+        "Change participant view": "Change participant view"
     },
     "buttons": {
         "Abort": "Abort",
@@ -186,7 +187,14 @@
         "Video": "Video",
         "Whiteboard": "Whiteboard",
         "Zoom In": "Zoom In",
-        "Zoom Out": "Zoom Out"
+        "Zoom Out": "Zoom Out",
+        "Grid": "Grid",
+        "Layout": "Layout",
+        "Speaker top": "Speaker top",
+        "Speaker bottom": "Speaker bottom",
+        "Speaker left": "Speaker left",
+        "Speaker right": "Speaker right",
+        "Speaker 1:1": "Speaker 1:1"
     },
     "labels": {
         "Are you the host?": "Are you the host?",
@@ -456,7 +464,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Personalize the interface theme and control placement.",
         "Save custom color": "Save custom color",
-        "Choose the language used by the meeting interface.": "Choose the language used by the meeting interface."
+        "Choose the language used by the meeting interface.": "Choose the language used by the meeting interface.",
+        "Video layout": "Video layout",
+        "Control participant arrangement and toolbar placement.": "Control participant arrangement and toolbar placement.",
+        "Participant view": "Participant view"
     },
     "dialogs": {
         "All messages": "All messages",
@@ -517,7 +528,7 @@
         "Time Limit Reached": "Time Limit Reached",
         "Unlock room?": "Unlock room?",
         "Username": "Username",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Whiteboard Shortcuts",
         "Yes": "Yes",
         "Schedule email invitation": "Schedule email invitation",

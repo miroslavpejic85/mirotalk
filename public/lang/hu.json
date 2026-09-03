@@ -96,7 +96,8 @@
         "Zoom in screen": "Képernyő nagyítása",
         "Zoom in video": "Videó nagyítása",
         "Zoom out screen": "Képernyő kicsinyítése",
-        "Zoom out video": "Videó kicsinyítése"
+        "Zoom out video": "Videó kicsinyítése",
+        "Change participant view": "Résztvevői nézet módosítása"
     },
     "buttons": {
         "Abort": "Megszakítás",
@@ -185,7 +186,14 @@
         "Video": "Videó",
         "Whiteboard": "Tábla",
         "Zoom In": "Nagyítás",
-        "Zoom Out": "Kicsinyítés"
+        "Zoom Out": "Kicsinyítés",
+        "Grid": "Rács",
+        "Layout": "Elrendezés",
+        "Speaker top": "Beszélő felül",
+        "Speaker bottom": "Beszélő alul",
+        "Speaker left": "Beszélő balra",
+        "Speaker right": "Beszélő jobbra",
+        "Speaker 1:1": "Beszélő 1:1"
     },
     "labels": {
         "Are you the host?": "Ön a házigazda?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Személyre szabhatja a felület témáját és a vezérlőelhelyezést.",
         "Save custom color": "Mentse el az egyéni színt",
-        "Choose the language used by the meeting interface.": "Válassza ki az értekezlet felületén használt nyelvet."
+        "Choose the language used by the meeting interface.": "Válassza ki az értekezlet felületén használt nyelvet.",
+        "Video layout": "Videóelrendezés",
+        "Control participant arrangement and toolbar placement.": "Szabályozza a résztvevők elrendezését és az eszköztár helyzetét.",
+        "Participant view": "Résztvevői nézet"
     },
     "dialogs": {
         "All messages": "Minden üzenet",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",

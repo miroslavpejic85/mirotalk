@@ -96,7 +96,8 @@
         "Zoom in screen": "Увећајте екран",
         "Zoom in video": "Увећајте видео",
         "Zoom out screen": "Умањите екран",
-        "Zoom out video": "Умањите видео"
+        "Zoom out video": "Умањите видео",
+        "Change participant view": "Промени приказ учесника"
     },
     "buttons": {
         "Abort": "Prekini",
@@ -185,7 +186,14 @@
         "Video": "Video",
         "Whiteboard": "Tabla",
         "Zoom In": "Увећај",
-        "Zoom Out": "Зоом Оут"
+        "Zoom Out": "Зоом Оут",
+        "Grid": "Мрежа",
+        "Layout": "Распоред",
+        "Speaker top": "Говорник горе",
+        "Speaker bottom": "Говорник доле",
+        "Speaker left": "Говорник лево",
+        "Speaker right": "Говорник десно",
+        "Speaker 1:1": "Говорник 1:1"
     },
     "labels": {
         "Are you the host?": "Да ли сте домаћин?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Персонализујте тему интерфејса и контролишите постављање.",
         "Save custom color": "Сачувајте прилагођену боју",
-        "Choose the language used by the meeting interface.": "Изаберите језик који користи интерфејс састанка."
+        "Choose the language used by the meeting interface.": "Изаберите језик који користи интерфејс састанка.",
+        "Video layout": "Видео распоред",
+        "Control participant arrangement and toolbar placement.": "Контролишите распоред учесника и положај траке са алаткама.",
+        "Participant view": "Приказ учесника"
     },
     "dialogs": {
         "All messages": "Све поруке",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",

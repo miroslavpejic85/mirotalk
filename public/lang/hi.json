@@ -96,7 +96,8 @@
         "Zoom in screen": "स्क्रीन को ज़ूम इन करें",
         "Zoom in video": "वीडियो को ज़ूम इन करें",
         "Zoom out screen": "स्क्रीन ज़ूम आउट करें",
-        "Zoom out video": "वीडियो ज़ूम आउट करें"
+        "Zoom out video": "वीडियो ज़ूम आउट करें",
+        "Change participant view": "प्रतिभागी दृश्य बदलें"
     },
     "buttons": {
         "Abort": "रद्द करें",
@@ -185,7 +186,14 @@
         "Video": "वीडियो",
         "Whiteboard": "व्हाइटबोर्ड",
         "Zoom In": "ज़ूम इन",
-        "Zoom Out": "ज़ूम आउट"
+        "Zoom Out": "ज़ूम आउट",
+        "Grid": "ग्रिड",
+        "Layout": "लेआउट",
+        "Speaker top": "वक्ता ऊपर",
+        "Speaker bottom": "वक्ता नीचे",
+        "Speaker left": "वक्ता बाईं ओर",
+        "Speaker right": "वक्ता दाईं ओर",
+        "Speaker 1:1": "वक्ता 1:1"
     },
     "labels": {
         "Are you the host?": "क्या आप होस्ट हैं?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "इंटरफ़ेस थीम को वैयक्तिकृत करें और प्लेसमेंट को नियंत्रित करें।",
         "Save custom color": "कस्टम रंग सहेजें",
-        "Choose the language used by the meeting interface.": "मीटिंग इंटरफ़ेस द्वारा उपयोग की जाने वाली भाषा चुनें."
+        "Choose the language used by the meeting interface.": "मीटिंग इंटरफ़ेस द्वारा उपयोग की जाने वाली भाषा चुनें.",
+        "Video layout": "वीडियो लेआउट",
+        "Control participant arrangement and toolbar placement.": "प्रतिभागियों की व्यवस्था और टूलबार की स्थिति नियंत्रित करें।",
+        "Participant view": "प्रतिभागी दृश्य"
     },
     "dialogs": {
         "All messages": "सभी संदेश",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",

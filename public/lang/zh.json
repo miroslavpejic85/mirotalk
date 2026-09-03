@@ -96,7 +96,8 @@
         "Zoom in screen": "放大屏幕",
         "Zoom in video": "放大视频",
         "Zoom out screen": "缩小屏幕",
-        "Zoom out video": "缩小视频"
+        "Zoom out video": "缩小视频",
+        "Change participant view": "更改参与者视图"
     },
     "buttons": {
         "Abort": "中止",
@@ -185,7 +186,14 @@
         "Video": "视频",
         "Whiteboard": "白板",
         "Zoom In": "放大",
-        "Zoom Out": "缩小"
+        "Zoom Out": "缩小",
+        "Grid": "网格",
+        "Layout": "布局",
+        "Speaker top": "发言者置顶",
+        "Speaker bottom": "发言者置底",
+        "Speaker left": "发言者居左",
+        "Speaker right": "发言者居右",
+        "Speaker 1:1": "发言者 1:1"
     },
     "labels": {
         "Are you the host?": "您是主持人吗？",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "个性化界面主题和控件放置。",
         "Save custom color": "保存自定义颜色",
-        "Choose the language used by the meeting interface.": "选择会议界面使用的语言。"
+        "Choose the language used by the meeting interface.": "选择会议界面使用的语言。",
+        "Video layout": "视频布局",
+        "Control participant arrangement and toolbar placement.": "控制参与者排列和工具栏位置。",
+        "Participant view": "参与者视图"
     },
     "dialogs": {
         "All messages": "所有消息",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",

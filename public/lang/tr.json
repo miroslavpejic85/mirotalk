@@ -96,7 +96,8 @@
         "Zoom in screen": "Ekranı yakınlaştır",
         "Zoom in video": "Videoyu yakınlaştır",
         "Zoom out screen": "Ekranı uzaklaştır",
-        "Zoom out video": "Videoyu uzaklaştır"
+        "Zoom out video": "Videoyu uzaklaştır",
+        "Change participant view": "Katılımcı görünümünü değiştir"
     },
     "buttons": {
         "Abort": "İptal et",
@@ -185,7 +186,14 @@
         "Video": "Video",
         "Whiteboard": "Beyaz Tahta",
         "Zoom In": "Yakınlaştır",
-        "Zoom Out": "Uzaklaştır"
+        "Zoom Out": "Uzaklaştır",
+        "Grid": "Izgara",
+        "Layout": "Düzen",
+        "Speaker top": "Konuşmacı üstte",
+        "Speaker bottom": "Konuşmacı altta",
+        "Speaker left": "Konuşmacı solda",
+        "Speaker right": "Konuşmacı sağda",
+        "Speaker 1:1": "Konuşmacı 1:1"
     },
     "labels": {
         "Are you the host?": "Toplantı sahibi misiniz?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Arayüz temasını ve kontrol yerleşimini kişiselleştirin.",
         "Save custom color": "Özel rengi kaydet",
-        "Choose the language used by the meeting interface.": "Toplantı arayüzünün kullandığı dili seçin."
+        "Choose the language used by the meeting interface.": "Toplantı arayüzünün kullandığı dili seçin.",
+        "Video layout": "Video düzeni",
+        "Control participant arrangement and toolbar placement.": "Katılımcı düzenini ve araç çubuğu konumunu kontrol edin.",
+        "Participant view": "Katılımcı görünümü"
     },
     "dialogs": {
         "All messages": "Tüm mesajlar",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",

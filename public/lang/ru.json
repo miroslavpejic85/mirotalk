@@ -96,7 +96,8 @@
         "Zoom in screen": "Увеличение экрана",
         "Zoom in video": "Увеличить видео",
         "Zoom out screen": "Уменьшить экран",
-        "Zoom out video": "Уменьшить видео"
+        "Zoom out video": "Уменьшить видео",
+        "Change participant view": "Изменить вид участников"
     },
     "buttons": {
         "Abort": "Прервать",
@@ -185,7 +186,14 @@
         "Video": "Видео",
         "Whiteboard": "Доска",
         "Zoom In": "Увеличить масштаб",
-        "Zoom Out": "Уменьшить масштаб"
+        "Zoom Out": "Уменьшить масштаб",
+        "Grid": "Сетка",
+        "Layout": "Макет",
+        "Speaker top": "Выступающий сверху",
+        "Speaker bottom": "Выступающий снизу",
+        "Speaker left": "Выступающий слева",
+        "Speaker right": "Выступающий справа",
+        "Speaker 1:1": "Выступающий 1:1"
     },
     "labels": {
         "Are you the host?": "Вы организатор?",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "Персонализируйте тему интерфейса и управляйте размещением.",
         "Save custom color": "Сохранить собственный цвет",
-        "Choose the language used by the meeting interface.": "Выберите язык, используемый интерфейсом собрания."
+        "Choose the language used by the meeting interface.": "Выберите язык, используемый интерфейсом собрания.",
+        "Video layout": "Видеомакет",
+        "Control participant arrangement and toolbar placement.": "Управляйте расположением участников и панели инструментов.",
+        "Participant view": "Вид участников"
     },
     "dialogs": {
         "All messages": "Все сообщения",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "Достигнут лимит времени",
         "Unlock room?": "Разблокировать комнату?",
         "Username": "Имя пользователя",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "Горячие клавиши доски",
         "Yes": "Да",
         "Schedule email invitation": "Запланировать приглашение по электронной почте",

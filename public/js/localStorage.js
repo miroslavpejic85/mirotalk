@@ -33,7 +33,8 @@ class LocalStorage {
             theme_color: '#000000', // custom theme color
             theme_custom: false, // keep custom theme
             buttons_bar: 0, // vertical
-            pin_grid: 0, // vertical
+            pin_grid: 0, // speaker left
+            participant_view: 'grid',
             peer_avatar: '', // persisted avatar URL
         };
 

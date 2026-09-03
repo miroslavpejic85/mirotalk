@@ -96,7 +96,8 @@
         "Zoom in screen": "تكبير الشاشة",
         "Zoom in video": "تكبير الفيديو",
         "Zoom out screen": "تصغير الشاشة",
-        "Zoom out video": "تصغير الفيديو"
+        "Zoom out video": "تصغير الفيديو",
+        "Change participant view": "تغيير عرض المشاركين"
     },
     "buttons": {
         "Abort": "إحباط",
@@ -185,7 +186,14 @@
         "Video": "الفيديو",
         "Whiteboard": "السبورة",
         "Zoom In": "تكبير",
-        "Zoom Out": "تصغير"
+        "Zoom Out": "تصغير",
+        "Grid": "شبكة",
+        "Layout": "التخطيط",
+        "Speaker top": "المتحدث في الأعلى",
+        "Speaker bottom": "المتحدث في الأسفل",
+        "Speaker left": "المتحدث على اليسار",
+        "Speaker right": "المتحدث على اليمين",
+        "Speaker 1:1": "المتحدث 1:1"
     },
     "labels": {
         "Are you the host?": "هل أنت المضيف؟",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "إضفاء الطابع الشخصي على موضوع الواجهة والتحكم في الموضع.",
         "Save custom color": "حفظ اللون المخصص",
-        "Choose the language used by the meeting interface.": "اختر اللغة التي تستخدمها واجهة الاجتماع."
+        "Choose the language used by the meeting interface.": "اختر اللغة التي تستخدمها واجهة الاجتماع.",
+        "Video layout": "تخطيط الفيديو",
+        "Control participant arrangement and toolbar placement.": "تحكم في ترتيب المشاركين وموضع شريط الأدوات.",
+        "Participant view": "عرض المشاركين"
     },
     "dialogs": {
         "All messages": "جميع الرسائل",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "تم بلوغ الحد الزمني",
         "Unlock room?": "إلغاء قفل الغرفة؟",
         "Username": "اسم المستخدم",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "اختصارات السبورة",
         "Yes": "نعم",
         "Schedule email invitation": "جدولة دعوة عبر البريد الإلكتروني",

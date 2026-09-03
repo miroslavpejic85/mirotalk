@@ -233,6 +233,42 @@
                 <span id="participantsCountBadge"></span>
             </button>
 
+            <div id="participantViewDropdown" class="dropdown dropup hidden">
+                <button
+                    id="participantViewButton"
+                    class="dropdown-toggle"
+                    type="button"
+                    aria-expanded="false"
+                    aria-label="Participant view"
+                >
+                    <i class="fa-solid fa-table-cells-large"></i>
+                </button>
+                <div
+                    id="participantViewMenu"
+                    class="dropdown-menu text-start app-dropdown-menu"
+                    aria-labelledby="participantViewButton"
+                >
+                    <button type="button" data-participant-view="grid">
+                        <i class="fa-solid fa-border-all"></i> Grid
+                    </button>
+                    <button type="button" data-participant-view="speaker-top">
+                        <i class="fa-solid fa-window-maximize"></i> Speaker top
+                    </button>
+                    <button type="button" data-participant-view="speaker-bottom">
+                        <i class="fa-solid fa-window-minimize"></i> Speaker bottom
+                    </button>
+                    <button type="button" data-participant-view="speaker-left">
+                        <i class="fa-solid fa-table-columns"></i> Speaker left
+                    </button>
+                    <button type="button" data-participant-view="speaker-right">
+                        <i class="fa-solid fa-table-columns"></i> Speaker right
+                    </button>
+                    <button type="button" data-participant-view="speaker-1:1">
+                        <i class="fa-solid fa-square"></i> Speaker 1:1
+                    </button>
+                </div>
+            </div>
+
             <div id="settingsSplit" class="split-btn">
                 <button id="mySettingsBtn" class="fas fa-cogs"></button>
                 <div id="settingsExtraDropdown" class="dropdown dropup">
@@ -747,6 +783,9 @@
                     </button>
                     <button id="tabNetworkBtn" class="fa-solid fa-network-wired tablinks">
                         <p class="tabButtonText">Network</p>
+                    </button>
+                    <button id="tabLayoutBtn" class="fa-solid fa-table-cells-large tablinks">
+                        <p class="tabButtonText">Layout</p>
                     </button>
                     <button id="tabStylingBtn" class="fas fa-palette tablinks">
                         <p class="tabButtonText">Appearance</p>
@@ -1410,6 +1449,27 @@
                                 <input id="keepCustomTheme" class="toggle" type="checkbox" />
                             </div>
                         </div>
+                    </div>
+
+                    <div id="tabLayout" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Video layout</h3>
+                            <p>Control participant arrangement and toolbar placement.</p>
+                        </div>
+                        <div class="settings-field">
+                            <div class="title">
+                                <i class="fa-solid fa-table-cells-large"></i>
+                                <p>Participant view</p>
+                            </div>
+                            <select id="participantViewMode">
+                                <option value="grid">Grid</option>
+                                <option value="speaker-top">Speaker top</option>
+                                <option value="speaker-bottom">Speaker bottom</option>
+                                <option value="speaker-left">Speaker left</option>
+                                <option value="speaker-right">Speaker right</option>
+                                <option value="speaker-1:1">Speaker 1:1</option>
+                            </select>
+                        </div>
                         <div class="settings-field">
                             <div class="title">
                                 <i class="fa-solid fa-up-down-left-right"></i>
@@ -1420,15 +1480,17 @@
                                 <option value="horizontal">Horizontal</option>
                             </select>
                         </div>
-                        <div id="pinUnpinGridDiv" class="settings-field">
+                        <div id="pinUnpinGridDiv" class="settings-field hidden">
                             <div class="title">
                                 <i class="fa-solid fa-map-pin"></i>
                                 <p>Pin video position</p>
                             </div>
                             <select id="pinVideoPositionSelect">
-                                <option value="vertical">Vertical</option>
-                                <option value="horizontal">Horizontal</option>
-                                <option value="top">Top</option>
+                                <option value="speaker-left">Left</option>
+                                <option value="speaker-top">Top</option>
+                                <option value="speaker-bottom">Bottom</option>
+                                <option value="speaker-right">Right</option>
+                                <option value="speaker-1:1">Full screen</option>
                             </select>
                         </div>
                     </div>

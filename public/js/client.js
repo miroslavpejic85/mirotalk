@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.34
+ * @version 1.9.35
  *
  */
 
@@ -376,6 +376,7 @@ const recordingScreenOption = getId('recordingScreenOption');
 const tabProfileBtn = getId('tabProfileBtn');
 const tabShortcutsBtn = getId('tabShortcutsBtn');
 const tabNetworkBtn = getId('tabNetworkBtn');
+const tabLayoutBtn = getId('tabLayoutBtn');
 const networkIP = getId('networkIP');
 const networkHost = getId('networkHost');
 const networkStun = getId('networkStun');
@@ -419,6 +420,10 @@ const lastRecordingInfo = getId('lastRecordingInfo');
 const themeSelect = getId('mirotalkTheme');
 const videoObjFitSelect = getId('videoObjFitSelect');
 const btnsBarSelect = getId('mainButtonsBarPosition');
+const participantViewDropdown = getId('participantViewDropdown');
+const participantViewButton = getId('participantViewButton');
+const participantViewMenu = getId('participantViewMenu');
+const participantViewMode = getId('participantViewMode');
 const pinUnpinGridDiv = getId('pinUnpinGridDiv');
 const pinVideoPositionSelect = getId('pinVideoPositionSelect');
 const tabRoomPeerName = getId('tabRoomPeerName');
@@ -689,6 +694,9 @@ let myVideoStatusIcon;
 let myAudioStatusIcon;
 let isVideoPrivacyActive = false; // Video circle for privacy
 let isVideoPinned = false;
+let isApplyingParticipantViewMode = false;
+let pinnedVideoPinButtonId = null;
+let participantViewRestoreTimer = null;
 let isVideoFullScreenSupported = true;
 let isVideoOnFullScreen = false;
 let isScreenSharingSupported = false;
@@ -981,6 +989,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(myHandBtn, 'Raise your hand (H)', bottomButtonsPlacement);
     setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
     setTippy(participantsBtn, 'Show participants', bottomButtonsPlacement);
+    setTippy(participantViewButton, 'Change participant view', bottomButtonsPlacement);
     setTippy(mySettingsBtn, 'Open the settings (O)', bottomButtonsPlacement);
 }
 
@@ -5868,6 +5877,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
                 videoPinMediaContainer.appendChild(cam);
                 elemDisplay(videoPinMediaContainer, true, 'block');
                 pinnedVideoPlayerId = elemId;
+                pinnedVideoPinButtonId = pnId;
                 setColor(btnPn, 'lime');
             } else {
                 if (pinnedVideoPlayerId != videoPlayer.id) {
@@ -5883,47 +5893,131 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
                 videoMediaContainer.appendChild(cam);
                 removeVideoPinMediaContainer(peerId, true);
                 setColor(btnPn, 'white');
+                if (!isApplyingParticipantViewMode) setParticipantViewMode('grid', true, false);
             }
             adaptAspectRatio();
         });
+        scheduleParticipantViewRestore();
     }
+}
+
+function scheduleParticipantViewRestore() {
+    const mode = lsSettings.participant_view;
+    if (isMobileDevice || isVideoPinned || !mode?.startsWith('speaker-')) return;
+    clearTimeout(participantViewRestoreTimer);
+    participantViewRestoreTimer = setTimeout(() => {
+        participantViewRestoreTimer = null;
+        if (!isVideoPinned) setParticipantViewMode(mode, false, false);
+    }, 250);
+}
+
+function autoPinVideoForLayout() {
+    if (isVideoPinned) return true;
+    const presenterPinButtons = [];
+    if (isPresenter && myVideoPinBtn) presenterPinButtons.push(myVideoPinBtn);
+    Object.keys(allPeers).forEach((peerId) => {
+        if (allPeers[peerId]?.peer_presenter) presenterPinButtons.push(getId(peerId + '_pinUnpin'));
+    });
+    const pinButton =
+        presenterPinButtons.find(Boolean) ||
+        myVideoPinBtn ||
+        document.querySelector('#videoMediaContainer button[id$="_pinUnpin"]');
+    if (!pinButton) return false;
+    pinButton.click();
+    return isVideoPinned;
 }
 
 function toggleVideoPin(position) {
     if (!isVideoPinned) return;
+    videoPinMediaContainer.style.top = 0;
+    videoPinMediaContainer.style.left = 0;
+    videoPinMediaContainer.style.width = '100%';
+    videoPinMediaContainer.style.height = '100%';
+    elemDisplay(videoMediaContainer, true, 'flex');
+    videoMediaContainer.style.top = 0;
+    videoMediaContainer.style.left = '';
+    videoMediaContainer.style.right = '';
+    videoMediaContainer.style.width = '100%';
+    videoMediaContainer.style.height = '100%';
     switch (position) {
+        case 'speaker-bottom':
         case 'top':
             videoPinMediaContainer.style.top = '25%';
             videoPinMediaContainer.style.width = '100%';
-            videoPinMediaContainer.style.height = '70%';
-            videoMediaContainer.style.top = 0;
+            videoPinMediaContainer.style.height = '75%';
             videoMediaContainer.style.width = '100%';
             videoMediaContainer.style.height = '25%';
-            videoMediaContainer.style.right = 0;
             break;
+        case 'speaker-left':
         case 'vertical':
-            videoPinMediaContainer.style.top = 0;
             videoPinMediaContainer.style.width = '75%';
-            videoPinMediaContainer.style.height = '100%';
-            videoMediaContainer.style.top = 0;
             videoMediaContainer.style.width = '25%';
-            videoMediaContainer.style.height = '100%';
             videoMediaContainer.style.right = 0;
             break;
+        case 'speaker-top':
         case 'horizontal':
-            videoPinMediaContainer.style.top = 0;
-            videoPinMediaContainer.style.width = '100%';
             videoPinMediaContainer.style.height = '75%';
             videoMediaContainer.style.top = '75%';
-            videoMediaContainer.style.right = null;
-            videoMediaContainer.style.width = null;
-            videoMediaContainer.style.width = '100% !important';
             videoMediaContainer.style.height = '25%';
+            break;
+        case 'speaker-right':
+            videoPinMediaContainer.style.left = '25%';
+            videoPinMediaContainer.style.width = '75%';
+            videoMediaContainer.style.width = '25%';
+            break;
+        case 'speaker-1:1':
+            elemDisplay(videoMediaContainer, false);
             break;
         default:
             break;
     }
-    resizeVideoMedia();
+    if (position !== 'speaker-1:1') resizeVideoMedia();
+}
+
+function setParticipantViewMode(requestedMode, persist = true, notify = true) {
+    const legacyModes = { default: 'grid', vertical: 'speaker-left', horizontal: 'speaker-top', top: 'speaker-bottom' };
+    const supportedModes = new Set([
+        'grid',
+        'speaker-top',
+        'speaker-bottom',
+        'speaker-left',
+        'speaker-right',
+        'speaker-1:1',
+    ]);
+    const migratedMode = legacyModes[requestedMode] || requestedMode;
+    const mode = supportedModes.has(migratedMode) ? migratedMode : 'grid';
+    const isSpeakerView = mode.startsWith('speaker-');
+
+    participantViewMode.value = mode;
+    document.querySelectorAll('#participantViewMenu [data-participant-view]').forEach((button) => {
+        const active = button.dataset.participantView === mode;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', active);
+    });
+
+    if (isSpeakerView) {
+        pinVideoPositionSelect.value = mode;
+        lsSettings.pin_grid = pinVideoPositionSelect.selectedIndex;
+        autoPinVideoForLayout();
+        toggleVideoPin(mode);
+        if (notify && !isVideoPinned) userLog('toast', 'No participant video is available for this speaker view', 5000);
+    } else if (isVideoPinned && pinnedVideoPinButtonId) {
+        const pinButton = getId(pinnedVideoPinButtonId);
+        if (pinButton) {
+            isApplyingParticipantViewMode = true;
+            try {
+                pinButton.click();
+            } finally {
+                isApplyingParticipantViewMode = false;
+            }
+        }
+    }
+
+    if (persist) {
+        lsSettings.participant_view = mode;
+        lS.setSettings(lsSettings);
+    }
+    if (!isSpeakerView) resizeVideoMedia();
 }
 
 /**
@@ -6129,6 +6223,7 @@ function removeVideoPinMediaContainer(peer_id, force_remove = false) {
         elemDisplay(videoPinMediaContainer, false);
         isVideoPinned = false;
         pinnedVideoPlayerId = null;
+        pinnedVideoPinButtonId = null;
         videoMediaContainerUnpin();
         if (isChatPinned) {
             chatPin();
@@ -6156,8 +6251,10 @@ function videoMediaContainerPin() {
  */
 function videoMediaContainerUnpin() {
     if (!isVideoPinned) {
+        elemDisplay(videoMediaContainer, true, 'flex');
         videoMediaContainer.style.top = 0;
-        videoMediaContainer.style.right = null;
+        videoMediaContainer.style.left = '';
+        videoMediaContainer.style.right = '';
         videoMediaContainer.style.width = '100%';
         videoMediaContainer.style.height = '100%';
     }
@@ -7885,6 +7982,9 @@ function setupMySettings() {
     tabNetworkBtn.addEventListener('click', (e) => {
         openTab(e, 'tabNetwork');
     });
+    tabLayoutBtn.addEventListener('click', (e) => {
+        openTab(e, 'tabLayout');
+    });
     tabStylingBtn.addEventListener('click', (e) => {
         openTab(e, 'tabStyling');
     });
@@ -8016,15 +8116,62 @@ function setupMySettings() {
         });
     }
 
+    function openParticipantViewMenu() {
+        participantViewButton._tippy?.hide();
+        participantViewButton._tippy?.disable();
+        participantViewMenu.classList.add('show');
+        participantViewButton.setAttribute('aria-expanded', 'true');
+    }
+    function closeParticipantViewMenu() {
+        participantViewMenu.classList.remove('show');
+        participantViewButton.setAttribute('aria-expanded', 'false');
+        participantViewButton._tippy?.enable();
+    }
+
+    participantViewButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        participantViewMenu.classList.contains('show') ? closeParticipantViewMenu() : openParticipantViewMenu();
+    });
+    participantViewMenu.addEventListener('click', (e) => {
+        const viewButton = e.target.closest('[data-participant-view]');
+        if (!viewButton) return;
+        setParticipantViewMode(viewButton.dataset.participantView);
+        closeParticipantViewMenu();
+    });
+    document.addEventListener('click', (e) => {
+        if (!participantViewDropdown.contains(e.target)) {
+            closeParticipantViewMenu();
+        }
+    });
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        let closeTimeout;
+        const cancelClose = () => clearTimeout(closeTimeout);
+        const scheduleClose = () => {
+            cancelClose();
+            closeTimeout = setTimeout(closeParticipantViewMenu, 180);
+        };
+        participantViewButton.addEventListener('mouseenter', () => {
+            cancelClose();
+            openParticipantViewMenu();
+        });
+        participantViewButton.addEventListener('mouseleave', scheduleClose);
+        participantViewMenu.addEventListener('mouseenter', cancelClose);
+        participantViewMenu.addEventListener('mouseleave', scheduleClose);
+    }
+    participantViewMode.addEventListener('change', () => {
+        setParticipantViewMode(participantViewMode.value);
+    });
+
     // Mobile not support pin/unpin video
     if (!isMobileDevice) {
         pinVideoPositionSelect.addEventListener('change', (e) => {
-            lsSettings.pin_grid = pinVideoPositionSelect.selectedIndex;
-            lS.setSettings(lsSettings);
-            toggleVideoPin(pinVideoPositionSelect.value);
+            setParticipantViewMode(pinVideoPositionSelect.value);
         });
+        elemDisplay(participantViewDropdown, true, 'block');
     } else {
         elemDisplay(pinUnpinGridDiv, false);
+        elemDisplay(tabLayoutBtn, false);
     }
     // room actions
     captionEveryoneBtn.addEventListener('click', (e) => {
@@ -8263,9 +8410,10 @@ function loadSettingsFromLocalStorage() {
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
+    participantViewMode.value = lsSettings.participant_view || 'grid';
     setSP('--video-object-fit', videoObjFitSelect.value);
     setButtonsBarPosition(btnsBarSelect.value);
-    toggleVideoPin(pinVideoPositionSelect.value);
+    setParticipantViewMode(participantViewMode.value, false, false);
 }
 
 /**
@@ -16518,7 +16666,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.34',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.35',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

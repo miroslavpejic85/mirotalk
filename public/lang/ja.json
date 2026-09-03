@@ -96,7 +96,8 @@
         "Zoom in screen": "画面を拡大する",
         "Zoom in video": "ビデオをズームインする",
         "Zoom out screen": "画面をズームアウトする",
-        "Zoom out video": "ビデオをズームアウトする"
+        "Zoom out video": "ビデオをズームアウトする",
+        "Change participant view": "参加者ビューを変更"
     },
     "buttons": {
         "Abort": "中止",
@@ -185,7 +186,14 @@
         "Video": "ビデオ",
         "Whiteboard": "ホワイトボード",
         "Zoom In": "ズームイン",
-        "Zoom Out": "ズームアウト"
+        "Zoom Out": "ズームアウト",
+        "Grid": "グリッド",
+        "Layout": "レイアウト",
+        "Speaker top": "発言者を上に表示",
+        "Speaker bottom": "発言者を下に表示",
+        "Speaker left": "発言者を左に表示",
+        "Speaker right": "発言者を右に表示",
+        "Speaker 1:1": "発言者 1:1"
     },
     "labels": {
         "Are you the host?": "あなたはホストですか？",
@@ -454,7 +462,10 @@
         "Review connection details and real-time transport statistics.": "Review connection details and real-time transport statistics.",
         "Personalize the interface theme and control placement.": "インターフェイスのテーマをカスタマイズし、配置を制御します。",
         "Save custom color": "カスタムカラーを保存する",
-        "Choose the language used by the meeting interface.": "会議インターフェイスで使用される言語を選択します。"
+        "Choose the language used by the meeting interface.": "会議インターフェイスで使用される言語を選択します。",
+        "Video layout": "ビデオレイアウト",
+        "Control participant arrangement and toolbar placement.": "参加者の配置とツールバーの位置を制御します。",
+        "Participant view": "参加者ビュー"
     },
     "dialogs": {
         "All messages": "すべてのメッセージ",
@@ -515,7 +526,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v1.9.34": "WebRTC P2P v1.9.34",
+        "WebRTC P2P v1.9.35": "WebRTC P2P v1.9.35",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",
