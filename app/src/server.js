@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.40
+ * @version 1.9.50
  *
  */
 
@@ -2383,6 +2383,33 @@ io.sockets.on('connect', async (socket) => {
 
         log.debug('Whiteboard', config);
         await sendToRoom(room_id, socket.id, 'whiteboardAction', config);
+    });
+
+    socket.on('videoDrawing', async (cfg) => {
+        const config = checkXSS(cfg);
+        if (!Validate.isValidData(config)) return;
+
+        const { room_id, screenOwnerId, points, end } = config;
+        if (!isPeerInRoom(room_id, socket.id) || !peers[room_id]?.[screenOwnerId]) return;
+        if (!Array.isArray(points) || points.length === 0 || points.length > 128) return;
+
+        const validPoints = points.every(
+            (point) =>
+                point &&
+                Number.isFinite(point.x) &&
+                Number.isFinite(point.y) &&
+                point.x >= 0 &&
+                point.x <= 1 &&
+                point.y >= 0 &&
+                point.y <= 1
+        );
+        if (!validPoints) return;
+
+        await sendToRoom(room_id, socket.id, 'videoDrawing', {
+            screenOwnerId,
+            points,
+            end: Boolean(end),
+        });
     });
 
     /**

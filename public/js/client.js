@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.40
+ * @version 1.9.50
  *
  */
 
@@ -1523,12 +1523,17 @@ async function initClientPeer() {
     signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('wbCanvasToJson', handleJsonToWbCanvas);
     signalingSocket.on('whiteboardAction', handleWhiteboardAction);
+    signalingSocket.on('videoDrawing', (data) => VideoDrawingOverlay.receive(data));
     signalingSocket.on('fileInfo', handleFileInfo);
     signalingSocket.on('fileAbort', handleFileAbort);
     signalingSocket.on('fileReceiveAbort', abortFileTransfer);
     signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('disconnect', handleDisconnect);
     signalingSocket.on('removePeer', handleRemovePeer);
+
+    VideoDrawingOverlay.onEmitDrawing = (data) => {
+        sendToServer('videoDrawing', { room_id: roomId, ...data });
+    };
 } // end [initClientPeer]
 
 /**
@@ -3388,6 +3393,7 @@ function handleDisconnect(reason) {
         }
 
         if (peerScreenMediaElements[peerScreenId] && peerScreenMediaElements[peerScreenId].parentNode) {
+            VideoDrawingOverlay.destroyById(peer_id);
             peerScreenMediaElements[peerScreenId].parentNode.removeChild(peerScreenMediaElements[peerScreenId]);
         }
         if (peerVideoMediaElements[peerVideoId] && peerVideoMediaElements[peerVideoId].parentNode) {
@@ -3449,6 +3455,7 @@ function handleRemovePeer(config) {
     }
 
     if (peerScreenId in peerScreenMediaElements) {
+        VideoDrawingOverlay.destroyById(peer_id);
         const peerScreen = getId(peerScreenId);
         if (peerScreen) {
             // Peer screen in focus mode
@@ -4508,6 +4515,7 @@ async function loadLocalMedia(stream, kind) {
             const myScreenZoomInBtn = document.createElement('button');
             const myScreenZoomOutBtn = document.createElement('button');
             const myScreenPiPBtn = document.createElement('button');
+            const myScreenDrawingBtn = document.createElement('button');
             const myScreenAvatarImage = document.createElement('img');
 
             // my screen peer name
@@ -4542,6 +4550,11 @@ async function loadLocalMedia(stream, kind) {
             myScreenPinBtn.setAttribute('id', 'myScreenPinBtn');
             myScreenPinBtn.className = className.pinUnpin;
 
+            myScreenDrawingBtn.setAttribute('id', 'myScreenDrawingBtn');
+            myScreenDrawingBtn.className = 'fas fa-pencil-alt';
+            myScreenDrawingBtn.setAttribute('aria-label', 'Enable screen drawing');
+            myScreenDrawingBtn.setAttribute('aria-pressed', 'false');
+
             // no mobile devices
             if (!isMobileDevice) {
                 setTippy(myScreenToImgBtn, 'Take a snapshot', 'bottom');
@@ -4551,6 +4564,7 @@ async function loadLocalMedia(stream, kind) {
                 setTippy(myScreenPiPBtn, 'Toggle picture in picture', 'bottom');
                 setTippy(myScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(myScreenPinBtn, 'Toggle Pin screen', 'bottom');
+                setTippy(myScreenDrawingBtn, 'Enable screen drawing', 'bottom');
             }
 
             // my screen avatar image
@@ -4566,6 +4580,8 @@ async function loadLocalMedia(stream, kind) {
             buttons.local.showVideoFocusBtn && myScreenNavBar.appendChild(myScreenFocusBtn);
 
             buttons.local.showSnapShotBtn && myScreenNavBar.appendChild(myScreenToImgBtn);
+
+            myScreenNavBar.appendChild(myScreenDrawingBtn);
 
             myScreenNavBar.appendChild(myScreenPiPBtn);
 
@@ -4602,6 +4618,9 @@ async function loadLocalMedia(stream, kind) {
 
             logStreamSettingsInfo('localScreenMediaStream', stream);
             attachMediaStream(myScreenMedia, stream);
+
+            const myScreenDrawing = VideoDrawingOverlay.getOrCreate(myPeerId, myScreenWrap, myScreenMedia);
+            myScreenDrawingBtn.addEventListener('click', () => myScreenDrawing.toggle(myScreenDrawingBtn));
 
             adaptAspectRatio();
 
@@ -5092,6 +5111,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenVideoAudioUrlBtn = document.createElement('button');
             const remoteScreenFileShareBtn = document.createElement('button');
             const remoteScreenPrivateMsgBtn = document.createElement('button');
+            const remoteScreenDrawingBtn = document.createElement('button');
             const remoteScreenAvatarImage = document.createElement('img');
 
             // IDs and classes
@@ -5129,6 +5149,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenPinBtn.setAttribute('id', peer_id + '_screen_pinUnpin');
             remoteScreenPinBtn.className = className.pinUnpin;
 
+            remoteScreenDrawingBtn.setAttribute('id', peer_id + '_screen_drawing');
+            remoteScreenDrawingBtn.className = 'fas fa-pencil-alt';
+            remoteScreenDrawingBtn.setAttribute('aria-label', 'Enable screen drawing');
+            remoteScreenDrawingBtn.setAttribute('aria-pressed', 'false');
+
             if (!isMobileDevice) {
                 setTippy(remoteScreenPeerName, 'Participant screen', 'bottom');
                 setTippy(remoteScreenVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
@@ -5141,6 +5166,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 setTippy(remoteScreenPiPBtn, 'Toggle picture in picture', 'bottom');
                 setTippy(remoteScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(remoteScreenPinBtn, 'Toggle Pin screen', 'bottom');
+                setTippy(remoteScreenDrawingBtn, 'Enable screen drawing', 'bottom');
             }
 
             remoteScreenAvatarImage.setAttribute('id', peer_id + '_screen_avatar');
@@ -5152,6 +5178,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             buttons.remote.showVideoFocusBtn && remoteScreenNavBar.appendChild(remoteScreenFocusBtn);
 
             buttons.remote.showSnapShotBtn && remoteScreenNavBar.appendChild(remoteScreenToImgBtn);
+
+            remoteScreenNavBar.appendChild(remoteScreenDrawingBtn);
 
             remoteScreenNavBar.appendChild(remoteScreenPiPBtn);
             if (buttons.remote.showZoomInOutBtn) {
@@ -5188,6 +5216,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             videoMediaContainer.appendChild(remoteScreenWrap);
             attachMediaStream(remoteScreenMedia, stream);
+            const remoteScreenDrawing = VideoDrawingOverlay.getOrCreate(peer_id, remoteScreenWrap, remoteScreenMedia);
+            remoteScreenDrawingBtn.addEventListener('click', () => remoteScreenDrawing.toggle(remoteScreenDrawingBtn));
             // Explicitly play – required on mobile Safari where autoplay alone is not enough
             remoteScreenMedia.play().catch(() => {});
             adaptAspectRatio();
@@ -9501,7 +9531,10 @@ async function stopScreenSharing(init) {
         console.log('[ScreenShare] Unpinning my screen before removal');
         if (myScreenPinBtn) myScreenPinBtn.click();
     }
-    if (!init && myScreenWrap) myScreenWrap.remove();
+    if (!init && myScreenWrap) {
+        VideoDrawingOverlay.destroyById(myPeerId);
+        myScreenWrap.remove();
+    }
     if (localScreenMediaStream) {
         localScreenMediaStream.getTracks().forEach((t) => t.stop());
     }
@@ -14056,6 +14089,7 @@ function handleScreenStop(peer_id, peer_use_video) {
 
     // Remove dedicated remote screen tile if present
     if (remoteScreenWrap) {
+        VideoDrawingOverlay.destroyById(peer_id);
         remoteScreenWrap.remove();
         adaptAspectRatio();
     }
@@ -16785,7 +16819,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.40',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.50',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

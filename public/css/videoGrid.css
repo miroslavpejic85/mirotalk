@@ -126,6 +126,22 @@
     display: inline;
 }
 
+.video-drawing-canvas {
+    position: absolute;
+    z-index: 7;
+    pointer-events: none;
+    touch-action: none;
+    cursor: crosshair;
+}
+
+.video-drawing-canvas.video-drawing-active {
+    pointer-events: auto;
+}
+
+.navbar button.video-drawing-pen-active {
+    color: #4caf50;
+}
+
 /* Dropdown overrides - must beat .navbar div */
 .navbar div.navbar-dropdown-content {
     display: none !important;
