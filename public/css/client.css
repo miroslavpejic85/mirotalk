@@ -4197,8 +4197,10 @@ button {
     padding: 8px;
     overflow-x: hidden;
     overflow-y: auto;
-    width: 240px;
-    flex-shrink: 0;
+    width: max-content;
+    min-width: 180px;
+    max-width: 42%;
+    flex: 0 0 auto;
     box-sizing: border-box;
     background-color: var(--body-bg);
     min-height: 0;
@@ -4311,6 +4313,8 @@ button {
 
 /* Style the buttons inside the tab */
 .tab button {
+    display: flex;
+    align-items: center;
     margin: 2px 3px;
     padding: 7px 11px;
     float: left;
@@ -4323,6 +4327,17 @@ button {
     outline: none;
     cursor: pointer;
     transition: 0.3s;
+}
+
+.tab button::before {
+    flex: 0 0 1.25rem;
+    width: 1.25rem;
+    text-align: center;
+}
+
+.tabButtonText {
+    margin: 0 !important;
+    white-space: nowrap;
 }
 
 /* Change background color of buttons on hover */
