@@ -120,6 +120,10 @@ class VideoDrawingOverlay {
 
     scheduleSync(end) {
         this.pendingEnd = this.pendingEnd || end;
+        if (end) {
+            this.flushSync();
+            return;
+        }
         if (this.syncTimer) return;
         this.syncTimer = setTimeout(() => this.flushSync(), VideoDrawingOverlay.SYNC_INTERVAL_MS);
     }
