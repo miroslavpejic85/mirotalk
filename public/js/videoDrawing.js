@@ -3,6 +3,8 @@
 class VideoDrawingOverlay {
     static overlays = new Map();
     static onEmitDrawing = null;
+    static getLocalDrawerId = null;
+    static resolveDrawerName = null;
     static AUTO_CLEAR_MS = 5000;
     static SYNC_INTERVAL_MS = 50;
     static BRUSH_COLOR = 'rgba(255, 255, 0, 0.85)';
@@ -16,6 +18,7 @@ class VideoDrawingOverlay {
         this.strokes = [];
         this.pendingPoints = [];
         this.clearTimers = new Map();
+        this.remoteStrokes = new Map();
 
         this.canvas = document.createElement('canvas');
         this.canvas.className = 'video-drawing-canvas';
@@ -83,7 +86,12 @@ class VideoDrawingOverlay {
         event.preventDefault();
         this.canvas.setPointerCapture(event.pointerId);
         this.isDrawing = true;
-        const stroke = { color: VideoDrawingOverlay.BRUSH_COLOR, width: 0.004, points: [this.getPoint(event)] };
+        const stroke = {
+            drawerId: VideoDrawingOverlay.getLocalDrawerId?.(),
+            color: VideoDrawingOverlay.BRUSH_COLOR,
+            width: 0.004,
+            points: [this.getPoint(event)],
+        };
         this.strokes.push(stroke);
         this.activeStroke = stroke;
         this.pendingPoints = [...stroke.points];
@@ -141,24 +149,29 @@ class VideoDrawingOverlay {
         VideoDrawingOverlay.onEmitDrawing?.(data);
     }
 
-    addRemotePoints(points, end) {
+    addRemotePoints(drawerId, points, end) {
         if (!Array.isArray(points) || !points.length) return;
-        if (!this.remoteStroke) {
-            this.remoteStroke = { color: VideoDrawingOverlay.BRUSH_COLOR, width: 0.004, points: [] };
-            this.strokes.push(this.remoteStroke);
-            this.scheduleClear(this.remoteStroke);
+        const strokeKey = drawerId || 'remote';
+        let stroke = this.remoteStrokes.get(strokeKey);
+        if (!stroke) {
+            stroke = { drawerId, color: VideoDrawingOverlay.BRUSH_COLOR, width: 0.004, points: [] };
+            this.remoteStrokes.set(strokeKey, stroke);
+            this.strokes.push(stroke);
         }
-        this.remoteStroke.points.push(...points);
+        stroke.points.push(...points);
+        this.scheduleClear(stroke);
         if (end) {
-            this.scheduleClear(this.remoteStroke);
-            this.remoteStroke = null;
+            this.remoteStrokes.delete(strokeKey);
         }
         this.render();
     }
 
     scheduleClear(stroke) {
+        clearTimeout(this.clearTimers.get(stroke));
         const timer = setTimeout(() => {
             this.strokes = this.strokes.filter((item) => item !== stroke);
+            const strokeKey = stroke.drawerId || 'remote';
+            if (this.remoteStrokes.get(strokeKey) === stroke) this.remoteStrokes.delete(strokeKey);
             this.clearTimers.delete(stroke);
             this.render();
         }, VideoDrawingOverlay.AUTO_CLEAR_MS);
@@ -168,6 +181,7 @@ class VideoDrawingOverlay {
     render() {
         const rect = this.canvas.getBoundingClientRect();
         this.context.clearRect(0, 0, rect.width, rect.height);
+        const latestStrokesByDrawer = new Map();
         for (const stroke of this.strokes) {
             if (!stroke.points.length) continue;
             this.context.beginPath();
@@ -180,7 +194,47 @@ class VideoDrawingOverlay {
                 this.context.lineTo(point.x * rect.width, point.y * rect.height);
             }
             this.context.stroke();
+            latestStrokesByDrawer.set(stroke.drawerId || 'remote', stroke);
         }
+        for (const stroke of latestStrokesByDrawer.values()) {
+            this.renderDrawerName(stroke, rect);
+        }
+    }
+
+    renderDrawerName(stroke, rect) {
+        const drawerName = String(VideoDrawingOverlay.resolveDrawerName?.(stroke.drawerId) || 'Participant').trim();
+        const point = stroke.points.at(-1);
+        if (!drawerName || !point) return;
+
+        const paddingX = 6;
+        const labelHeight = 22;
+        const maxTextWidth = Math.min(160, Math.max(40, rect.width - paddingX * 2));
+        const fontFamily = getComputedStyle(this.screenWrap).fontFamily || 'sans-serif';
+        this.context.save();
+        this.context.font = `600 12px ${fontFamily}`;
+        this.context.textBaseline = 'middle';
+
+        let label = drawerName;
+        while (label.length > 1 && this.context.measureText(label).width > maxTextWidth) {
+            label = `${label.slice(0, -4)}...`;
+        }
+
+        const labelWidth = Math.min(maxTextWidth, this.context.measureText(label).width) + paddingX * 2;
+        const pointX = point.x * rect.width;
+        const pointY = point.y * rect.height;
+        let labelX = pointX + 10;
+        if (labelX + labelWidth > rect.width) labelX = pointX - labelWidth - 10;
+        labelX = Math.max(0, Math.min(rect.width - labelWidth, labelX));
+
+        let labelY = pointY - labelHeight - 10;
+        if (labelY < 0) labelY = pointY + 10;
+        labelY = Math.max(0, Math.min(rect.height - labelHeight, labelY));
+
+        this.context.fillStyle = 'rgba(0, 0, 0, 0.78)';
+        this.context.fillRect(labelX, labelY, labelWidth, labelHeight);
+        this.context.fillStyle = '#fff';
+        this.context.fillText(label, labelX + paddingX, labelY + labelHeight / 2, maxTextWidth);
+        this.context.restore();
     }
 
     destroy() {
@@ -197,7 +251,7 @@ class VideoDrawingOverlay {
 
     static receive(data) {
         const overlay = data && this.overlays.get(data.screenOwnerId);
-        overlay?.addRemotePoints(data.points, data.end);
+        overlay?.addRemotePoints(data.drawerId, data.points, data.end);
     }
 
     static destroyById(screenOwnerId) {
