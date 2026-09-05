@@ -1517,38 +1517,87 @@
         <section id="whiteboard" class="hidden">
             <header id="whiteboardHeader" class="whiteboard-header">
                 <div id="whiteboardTitle" class="whiteboard-header-title">
-                    <button id="whiteboardLockBtn" class="fa-solid fa-lock-open"></button>
-                    <button id="whiteboardUnlockBtn" class="fa-solid fa-lock"></button>
+                    <span class="whiteboard-title-mark" aria-hidden="true"><i class="fas fa-pen-ruler"></i></span>
+                    <span class="whiteboard-title-text">Whiteboard</span>
+                    <button id="whiteboardLockBtn" class="fa-solid fa-lock-open" aria-label="Lock whiteboard"></button>
+                    <button id="whiteboardUnlockBtn" class="fa-solid fa-lock" aria-label="Unlock whiteboard"></button>
                 </div>
                 <div id="whiteboardOptions" class="whiteboard-header-options">
-                    <button id="whiteboardGhostButton" class="whiteboard-responsive-action">
-                        <i class="fas fa-circle-half-stroke"></i>
-                        <span>Transparency</span>
-                    </button>
-                    <button id="whiteboardGridBtn" class="whiteboard-responsive-action hidden">
-                        <i class="fas fa-table-cells-large"></i>
-                        <span>Grid</span>
-                    </button>
-                    <input id="wbBackgroundColorEl" class="whiteboardColorPicker" type="color" value="#000000" />
-                    <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" />
-                    <button id="whiteboardPencilBtn" class="fas fa-pencil-alt"></button>
-                    <button id="whiteboardVanishingBtn" class="whiteboard-responsive-action">
-                        <i class="fas fa-highlighter"></i>
-                        <span>Vanishing pen</span>
-                    </button>
-                    <button id="whiteboardObjectBtn" class="fas fa-mouse-pointer"></button>
-                    <button id="whiteboardEraserBtn" class="whiteboard-responsive-action">
-                        <i class="fas fa-eraser"></i>
-                        <span>Eraser</span>
-                    </button>
-                    <button id="whiteboardUndoBtn" class="whiteboard-responsive-action">
-                        <i class="fas fa-undo"></i>
-                        <span>Undo</span>
-                    </button>
-                    <button id="whiteboardRedoBtn" class="whiteboard-responsive-action">
-                        <i class="fas fa-redo"></i>
-                        <span>Redo</span>
-                    </button>
+                    <div class="whiteboard-tool-group whiteboard-canvas-tools" aria-label="Canvas appearance">
+                        <label class="whiteboard-color-control" aria-label="Background color">
+                            <span>Canvas</span>
+                            <input
+                                id="wbBackgroundColorEl"
+                                class="whiteboardColorPicker"
+                                type="color"
+                                value="#000000"
+                            />
+                        </label>
+                        <button
+                            id="whiteboardGhostButton"
+                            class="whiteboard-responsive-action"
+                            aria-label="Toggle transparent background"
+                            aria-pressed="false"
+                        >
+                            <i class="fas fa-circle-half-stroke"></i>
+                            <span>Transparency</span>
+                        </button>
+                        <button
+                            id="whiteboardGridBtn"
+                            class="whiteboard-responsive-action hidden"
+                            aria-label="Toggle canvas grid"
+                            aria-pressed="false"
+                        >
+                            <i class="fas fa-table-cells-large"></i>
+                            <span>Grid</span>
+                        </button>
+                    </div>
+                    <div class="whiteboard-tool-group whiteboard-drawing-tools" aria-label="Drawing tools">
+                        <label class="whiteboard-color-control" aria-label="Drawing color">
+                            <span>Ink</span>
+                            <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" />
+                        </label>
+                        <button
+                            id="whiteboardPencilBtn"
+                            class="fas fa-pencil-alt"
+                            aria-label="Pencil tool"
+                            aria-pressed="false"
+                        ></button>
+                        <button
+                            id="whiteboardVanishingBtn"
+                            class="whiteboard-responsive-action"
+                            aria-label="Vanishing pen"
+                            aria-pressed="false"
+                        >
+                            <i class="fas fa-highlighter"></i>
+                            <span>Vanishing pen</span>
+                        </button>
+                        <button
+                            id="whiteboardObjectBtn"
+                            class="fas fa-mouse-pointer"
+                            aria-label="Select objects"
+                            aria-pressed="false"
+                        ></button>
+                        <button
+                            id="whiteboardEraserBtn"
+                            class="whiteboard-responsive-action"
+                            aria-label="Eraser tool"
+                            aria-pressed="false"
+                        >
+                            <i class="fas fa-eraser"></i>
+                            <span>Eraser</span>
+                        </button>
+                    </div>
+                    <div class="whiteboard-tool-group whiteboard-history-tools" aria-label="Edit history">
+                        <button id="whiteboardUndoBtn" class="whiteboard-responsive-action" aria-label="Undo">
+                            <i class="fas fa-undo"></i>
+                            <span>Undo</span>
+                        </button>
+                        <button id="whiteboardRedoBtn" class="whiteboard-responsive-action" aria-label="Redo">
+                            <i class="fas fa-redo"></i>
+                            <span>Redo</span>
+                        </button>
+                    </div>
                     <div class="whiteboard-dropdown">
                         <button
                             class="whiteboard-dropdown-toggle"
@@ -1612,7 +1661,11 @@
                             </button>
                         </div>
                     </div>
-                    <button id="whiteboardCloseBtn" class="fas fa-times"></button>
+                    <button
+                        id="whiteboardCloseBtn"
+                        class="fas fa-times whiteboard-close-button"
+                        aria-label="Close whiteboard"
+                    ></button>
                 </div>
             </header>
             <main>

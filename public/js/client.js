@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.55
+ * @version 1.9.56
  *
  */
 
@@ -7491,6 +7491,7 @@ function setMyWhiteboardBtn() {
     });
     whiteboardGhostButton.addEventListener('click', (e) => {
         wbIsBgTransparent = !wbIsBgTransparent;
+        setWhiteboardControlState(whiteboardGhostButton, wbIsBgTransparent);
         //setWhiteboardBgColor(wbIsBgTransparent ? 'rgba(0, 0, 0, 0.100)' : wbBackgroundColorEl.value);
         wbIsBgTransparent ? wbCanvasBackgroundColor('rgba(0, 0, 0, 0.100)') : setTheme();
     });
@@ -14721,7 +14722,7 @@ function drawCanvasGrid() {
     wbCanvas.add(gridGroup);
     gridGroup.sendToBack();
     wbCanvas.renderAll();
-    setColor(whiteboardGridBtn, 'green');
+    setWhiteboardControlState(whiteboardGridBtn, true);
 }
 
 /**
@@ -14745,7 +14746,7 @@ function removeCanvasGrid() {
     });
     wbGridLines = [];
     wbCanvas.renderAll();
-    setColor(whiteboardGridBtn, 'white');
+    setWhiteboardControlState(whiteboardGridBtn, false);
 }
 
 /**
@@ -14864,7 +14865,7 @@ function whiteboardResetAllMode() {
 function whiteboardIsPencilMode(status) {
     wbCanvas.isDrawingMode = status;
     wbIsPencil = status;
-    setColor(whiteboardPencilBtn, wbIsPencil ? 'green' : 'white');
+    setWhiteboardControlState(whiteboardPencilBtn, wbIsPencil);
 }
 
 /**
@@ -14874,7 +14875,7 @@ function whiteboardIsVanishingMode(status) {
     wbCanvas.isDrawingMode = status;
     wbIsVanishing = status;
     wbCanvas.freeDrawingBrush.color = wbIsVanishing ? 'yellow' : wbDrawingColorEl.value;
-    setColor(whiteboardVanishingBtn, wbIsVanishing ? 'green' : 'white');
+    setWhiteboardControlState(whiteboardVanishingBtn, wbIsVanishing);
 }
 
 /**
@@ -14882,7 +14883,7 @@ function whiteboardIsVanishingMode(status) {
  */
 function whiteboardIsObjectMode(status) {
     wbIsObject = status;
-    setColor(whiteboardObjectBtn, status ? 'green' : 'white');
+    setWhiteboardControlState(whiteboardObjectBtn, wbIsObject);
 }
 
 /**
@@ -14890,16 +14891,26 @@ function whiteboardIsObjectMode(status) {
  */
 function whiteboardIsEraserMode(status) {
     wbIsEraser = status;
-    setColor(whiteboardEraserBtn, wbIsEraser ? 'green' : 'white');
+    setWhiteboardControlState(whiteboardEraserBtn, wbIsEraser);
 }
 
 /**
- * Set color to specific element
- * @param {object} elem element
- * @param {string} color to set
+ * Reflect a whiteboard toggle or mode in its visual and accessible state.
+ * @param {HTMLElement} control whiteboard control
+ * @param {boolean} isActive whether the control is active
  */
-function setColor(elem, color) {
-    elem.style.color = color;
+function setWhiteboardControlState(control, isActive) {
+    control.classList.toggle('is-active', isActive);
+    control.setAttribute('aria-pressed', String(isActive));
+}
+
+/**
+ * Set color on a specific element.
+ * @param {HTMLElement} element target element
+ * @param {string} color CSS color value
+ */
+function setColor(element, color) {
+    element.style.color = color;
 }
 
 /**
@@ -16862,7 +16873,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.55',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.56',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
