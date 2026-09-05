@@ -4175,6 +4175,29 @@ button {
     text-align: center;
 }
 
+#mySettings .room-id-row td:last-child {
+    width: 42px;
+    padding-left: 0;
+}
+
+#mySettings .settings-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+}
+
+#mySettings .settings-icon-btn:hover,
+#mySettings .settings-icon-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 #mySettings .tabcontent .title > p {
     margin: 0;
     padding: 0;

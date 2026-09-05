@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.60
+ * @version 1.9.61
  *
  */
 
@@ -26,6 +26,7 @@
 
 // This room
 const myRoomId = getId('myRoomId');
+const copyRoomUrlBtn = getId('copyRoomUrlBtn');
 const roomSessionDuration = getRoomDuration();
 const roomId = getRoomId();
 const myRoomUrl = window.location.origin + '/join/' + roomId; // share room url
@@ -915,7 +916,9 @@ function setButtonsToolTip() {
     // Settings
     setTippy(mySettingsCloseBtn, 'Close', 'bottom');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
-    setTippy(myRoomId, 'Room name (click to copy/share)', 'right');
+    const copyRoomUrlLabel = isMobileDevice ? 'Share room link' : 'Copy room link';
+    copyRoomUrlBtn.setAttribute('aria-label', copyRoomUrlLabel);
+    setTippy(copyRoomUrlBtn, copyRoomUrlLabel, 'left');
     setTippy(mySessionTime, 'Session time', 'right');
     setTippy(
         switchNoiseSuppression,
@@ -8170,8 +8173,8 @@ function setupMySettings() {
     tabLanguagesBtn.addEventListener('click', (e) => {
         openTab(e, 'tabLanguages');
     });
-    // copy room URL
-    myRoomId.addEventListener('click', () => {
+    // Copy or share room URL
+    copyRoomUrlBtn.addEventListener('click', () => {
         isMobileDevice ? shareRoomUrl() : copyRoomURL();
     });
     // Fetch and display all active rooms with their participant counts
@@ -16913,7 +16916,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.60',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.61',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
