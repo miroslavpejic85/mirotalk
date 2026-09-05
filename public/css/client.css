@@ -5430,6 +5430,11 @@ input:checked + .slider:before {
     border-radius: 10px;
 }
 
+button.panel-close-button:hover {
+    background: rgba(255, 92, 92, 0.18) !important;
+    color: #ff8a8a !important;
+}
+
 /*--------------------------------------------------------------
 # Common
 --------------------------------------------------------------*/
