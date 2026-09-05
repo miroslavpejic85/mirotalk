@@ -11,9 +11,6 @@ ENV NODE_ENV="production"
 COPY package*.json ./
 COPY .env.template ./.env
 
-# Rename config.template.js to config.js
-COPY ./app/src/config.template.js ./app/src/config.js
-
 # Install necessary system packages
 RUN apk add --no-cache bash vim
 
@@ -23,12 +20,14 @@ RUN npm ci --omit=dev --silent \
     && npm cache clean --force \
     && rm -rf /tmp/* /var/tmp/* /usr/share/doc/*
 
-# Copy the application code
-COPY app app
-COPY public public
+# Copy the application code, already owned by the runtime user
+COPY --chown=node:node app app
+COPY --chown=node:node public public
+
+# Rename config.template.js to config.js
+COPY --chown=node:node ./app/src/config.template.js ./app/src/config.js
 
 # Run as the non-root "node" user (uid/gid 1000) shipped with the base image
-RUN chown -R node:node /src
 USER node
 
 # Set default command to start the application
