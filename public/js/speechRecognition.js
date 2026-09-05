@@ -99,7 +99,7 @@ if (speechRecognition) {
         elemDisplay(speechRecognitionStart, false);
         elemDisplay(speechRecognitionStop, true, 'block');
         setColor(speechRecognitionIcon, 'lime');
-        !isPersistentMode ? userLog('toast', 'TSpeech recognition started') : (isPersistent = true);
+        !isPersistentMode ? userLog('toast', 'Speech recognition started') : (isPersistent = true);
     };
 
     // Detect the said words
