@@ -1521,16 +1521,34 @@
                     <button id="whiteboardUnlockBtn" class="fa-solid fa-lock"></button>
                 </div>
                 <div id="whiteboardOptions" class="whiteboard-header-options">
-                    <button id="whiteboardGhostButton" class="fas fa-circle-half-stroke"></button>
-                    <button id="whiteboardGridBtn" class="fas fa-table-cells-large hidden"></button>
+                    <button id="whiteboardGhostButton" class="whiteboard-responsive-action">
+                        <i class="fas fa-circle-half-stroke"></i>
+                        <span>Transparency</span>
+                    </button>
+                    <button id="whiteboardGridBtn" class="whiteboard-responsive-action hidden">
+                        <i class="fas fa-table-cells-large"></i>
+                        <span>Grid</span>
+                    </button>
                     <input id="wbBackgroundColorEl" class="whiteboardColorPicker" type="color" value="#000000" />
                     <input id="wbDrawingColorEl" class="whiteboardColorPicker" type="color" value="#FFFFFF" />
                     <button id="whiteboardPencilBtn" class="fas fa-pencil-alt"></button>
-                    <button id="whiteboardVanishingBtn" class="fas fa-highlighter"></button>
+                    <button id="whiteboardVanishingBtn" class="whiteboard-responsive-action">
+                        <i class="fas fa-highlighter"></i>
+                        <span>Vanishing pen</span>
+                    </button>
                     <button id="whiteboardObjectBtn" class="fas fa-mouse-pointer"></button>
-                    <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
-                    <button id="whiteboardUndoBtn" class="fas fa-undo"></button>
-                    <button id="whiteboardRedoBtn" class="fas fa-redo"></button>
+                    <button id="whiteboardEraserBtn" class="whiteboard-responsive-action">
+                        <i class="fas fa-eraser"></i>
+                        <span>Eraser</span>
+                    </button>
+                    <button id="whiteboardUndoBtn" class="whiteboard-responsive-action">
+                        <i class="fas fa-undo"></i>
+                        <span>Undo</span>
+                    </button>
+                    <button id="whiteboardRedoBtn" class="whiteboard-responsive-action">
+                        <i class="fas fa-redo"></i>
+                        <span>Redo</span>
+                    </button>
                     <div class="whiteboard-dropdown">
                         <button
                             class="whiteboard-dropdown-toggle"
@@ -1546,6 +1564,7 @@
                             class="whiteboard-dropdown-menu app-dropdown-menu"
                             aria-labelledby="whiteboardDropDownMenu"
                         >
+                            <div id="whiteboardResponsiveActionsMenu"></div>
                             <button id="whiteboardImgFileBtn" class="app-dropdown-action">
                                 <i class="far fa-image"></i> Add image file
                             </button>

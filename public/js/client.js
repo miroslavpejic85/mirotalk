@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.54
+ * @version 1.9.55
  *
  */
 
@@ -463,6 +463,7 @@ const whiteboardObjectBtn = getId('whiteboardObjectBtn');
 const whiteboardEraserBtn = getId('whiteboardEraserBtn');
 const whiteboardUndoBtn = getId('whiteboardUndoBtn');
 const whiteboardRedoBtn = getId('whiteboardRedoBtn');
+const whiteboardResponsiveActionsMenu = getId('whiteboardResponsiveActionsMenu');
 const whiteboardDropDownMenuBtn = getId('whiteboardDropDownMenuBtn');
 const whiteboardDropdownMenu = getId('whiteboardDropdownMenu');
 const whiteboardImgFileBtn = getId('whiteboardImgFileBtn');
@@ -7430,9 +7431,12 @@ function setMyWhiteboardBtn() {
         whiteboardAction(getWhiteboardAction('redo'));
     });
     whiteboardDropDownMenuBtn.addEventListener('click', function () {
-        whiteboardDropdownMenu.style.display === 'block'
-            ? elemDisplay(whiteboardDropdownMenu, false)
-            : elemDisplay(whiteboardDropdownMenu, true, 'block');
+        if (whiteboardDropdownMenu.style.display === 'block') {
+            elemDisplay(whiteboardDropdownMenu, false);
+        } else {
+            elemDisplay(whiteboardDropdownMenu, true, 'block');
+            updateWhiteboardDropdownMaxHeight();
+        }
     });
     whiteboardSaveBtn.addEventListener('click', (e) => {
         wbCanvasSaveImg();
@@ -14632,6 +14636,39 @@ function setupWhiteboard() {
     setupWhiteboardShortcuts();
     setupWhiteboardDragAndDrop();
     setupWhiteboardResizeListener();
+    setupWhiteboardResponsiveActions();
+}
+
+/**
+ * Move secondary actions into the dropdown when toolbar space is limited.
+ */
+function setupWhiteboardResponsiveActions() {
+    const compactToolbar = window.matchMedia('(max-width: 768px)');
+    const responsiveActions = Array.from(whiteboardOptions.querySelectorAll('.whiteboard-responsive-action'));
+    const actionAnchors = responsiveActions.map((button) => {
+        const anchor = document.createComment(`${button.id}-anchor`);
+        button.before(anchor);
+        return [button, anchor];
+    });
+
+    const updateResponsiveActions = (event) => {
+        actionAnchors.forEach(([button, anchor]) => {
+            event.matches ? whiteboardResponsiveActionsMenu.appendChild(button) : anchor.after(button);
+        });
+    };
+
+    updateResponsiveActions(compactToolbar);
+    compactToolbar.addEventListener('change', updateResponsiveActions);
+}
+
+/**
+ * Keep the dropdown inside both the rendered whiteboard and the viewport.
+ */
+function updateWhiteboardDropdownMaxHeight() {
+    const menuTop = whiteboardDropdownMenu.getBoundingClientRect().top;
+    const boundary = Math.min(whiteboard.getBoundingClientRect().bottom, window.innerHeight);
+    const availableHeight = Math.max(0, Math.floor(boundary - menuTop - 8));
+    whiteboardDropdownMenu.style.setProperty('--whiteboard-dropdown-max-height', `${availableHeight}px`);
 }
 
 /**
@@ -14644,6 +14681,9 @@ function setupWhiteboardResizeListener() {
         resizeFrame = requestAnimationFrame(() => {
             if (wbCanvas && wbIsOpen) {
                 setupWhiteboardCanvasSize();
+            }
+            if (whiteboardDropdownMenu.style.display === 'block') {
+                updateWhiteboardDropdownMaxHeight();
             }
         });
     });
@@ -16822,7 +16862,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.54',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.55',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -18091,6 +18131,7 @@ function handleDropdownHover() {
         const showWhiteboardDropdown = () => {
             clearTimeout(wbTimeoutId);
             elemDisplay(whiteboardDropdownMenu, true, 'block');
+            updateWhiteboardDropdownMaxHeight();
         };
 
         const hideWhiteboardDropdown = () => {

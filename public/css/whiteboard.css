@@ -33,32 +33,6 @@
     box-sizing: border-box;
 }
 
-/* Mobile optimizations */
-@media (max-width: 768px) {
-    #whiteboard {
-        padding: 5px;
-        border-radius: 8px;
-    }
-
-    .whiteboard-header {
-        padding: 2px;
-    }
-
-    .whiteboard-header-title button,
-    .whiteboard-header-options button {
-        padding: 5px;
-        font-size: 0.75rem;
-        min-width: 28px;
-        height: 28px;
-    }
-
-    .whiteboardColorPicker {
-        width: 16px;
-        height: 12px;
-        margin: 1px;
-    }
-}
-
 .whiteboard-header {
     display: flex;
     justify-content: space-between;
@@ -101,6 +75,14 @@
 .whiteboard-header-title button:hover,
 .whiteboard-header-options button:hover {
     background: var(--body-bg);
+}
+
+.whiteboard-responsive-action span {
+    display: none;
+}
+
+.whiteboard-responsive-action i {
+    pointer-events: none;
 }
 
 .whiteboardColorPicker {
@@ -170,8 +152,16 @@
 /* Styles for the dropdown button */
 .whiteboard-dropdown {
     margin-left: 5px;
-    float: right;
     position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.whiteboard-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 /* Styles for the dropdown menu container */
@@ -185,7 +175,9 @@
     min-width: 200px;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: var(--wb-height) !important;
+    max-height: var(--whiteboard-dropdown-max-height, calc(100dvh - 80px)) !important;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
 }
 
 /* Styles for dropdown menu items */
@@ -463,6 +455,74 @@
 #drag-handle-bottom-right:hover,
 #drag-handle-bottom-left:hover {
     opacity: 1;
+}
+
+/* Keep primary drawing tools visible and move secondary actions into overflow. */
+@media (max-width: 768px) {
+    #whiteboard {
+        padding: 5px;
+        border-radius: 8px;
+    }
+
+    .whiteboard-header {
+        padding: 2px;
+    }
+
+    .whiteboard-header-title button,
+    .whiteboard-header-options > button,
+    .whiteboard-dropdown-toggle {
+        padding: 5px;
+        font-size: 0.75rem;
+        min-width: 28px;
+        height: 28px;
+    }
+
+    .whiteboard-dropdown {
+        height: 28px;
+    }
+
+    .whiteboardColorPicker {
+        width: 16px;
+        height: 16px;
+        margin: 1px;
+    }
+
+    #whiteboardResponsiveActionsMenu {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 4px;
+        padding-bottom: 4px;
+    }
+
+    #whiteboardResponsiveActionsMenu:empty {
+        display: none;
+    }
+
+    #whiteboardResponsiveActionsMenu .whiteboard-responsive-action {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 0.8em;
+        text-align: left;
+        line-height: 1.35;
+    }
+
+    #whiteboardResponsiveActionsMenu .whiteboard-responsive-action i {
+        width: 18px;
+        min-width: 18px;
+        text-align: center;
+        flex: 0 0 18px;
+    }
+
+    #whiteboardResponsiveActionsMenu .whiteboard-responsive-action span {
+        display: inline;
+        font-weight: normal;
+    }
 }
 
 /* Hide secondary drag handles on touch/mobile devices (no hover, dragElement is mouse-only) */
