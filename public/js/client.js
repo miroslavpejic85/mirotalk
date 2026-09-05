@@ -7368,7 +7368,6 @@ function setRoomEmojiButton() {
             sendToServer('message', message);
         }
         handleEmoji(message);
-        toggleEmojiPicker();
     }
 
     function toggleEmojiPicker() {
