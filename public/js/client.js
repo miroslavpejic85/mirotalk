@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.57
+ * @version 1.9.58
  *
  */
 
@@ -3669,6 +3669,7 @@ function applyThemeVars(vars) {
     for (const [prop, value] of Object.entries(vars)) {
         setSP(prop, value);
     }
+    setSP('--room-switch-accent', vars['--room-switch-accent'] || vars['--dd-color'] || '#4678f9');
     setSP('--toggle-off-bg', vars['--toggle-off-bg'] || vars['--select-bg'] || '#000000');
     setSP('--toggle-on-bg', vars['--toggle-on-bg'] || vars['--dd-color'] || 'green');
     setSP('--toggle-off-ink', vars['--toggle-off-ink'] || '#FFFFFF');
@@ -3698,6 +3699,7 @@ function setCustomTheme() {
         '--btn-bar-bg-color': '#FFFFFF',
         '--btn-bar-color': '#000000',
         '--btns-bg-color': color,
+        '--room-switch-accent': `color-mix(in srgb, ${color} 45%, white)`,
         '--toggle-off-bg': `color-mix(in srgb, ${color} 55%, black)`,
         '--toggle-on-bg': `color-mix(in srgb, ${color} 55%, white)`,
         '--toggle-on-ink': '#101314',
@@ -7232,40 +7234,61 @@ function setRoomEmojiButton() {
         { emoji: '🚀', shortcodes: ':rocket:' },
     ];
 
-    // Header with close button
     const header = document.createElement('div');
     header.className = 'room-emoji-header';
 
-    const title = document.createElement('span');
-    title.textContent = 'Emoji Picker';
+    const title = document.createElement('div');
     title.className = 'room-emoji-title';
 
-    // Create a close button for the emoji picker
+    const titleMark = document.createElement('span');
+    titleMark.className = 'room-emoji-title-mark';
+    titleMark.innerHTML = '<i class="fas fa-face-smile" aria-hidden="true"></i>';
+
+    const titleText = document.createElement('span');
+    titleText.className = 'room-emoji-title-text';
+    titleText.textContent = 'Room Emoji';
+
+    title.appendChild(titleMark);
+    title.appendChild(titleText);
+
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'room-emoji-close-btn panel-close-button';
+    closeBtn.type = 'button';
+    closeBtn.className = 'room-emoji-close-btn';
+    closeBtn.setAttribute('aria-label', 'Close room emoji');
     closeBtn.innerHTML = icons.close;
 
     header.appendChild(title);
     header.appendChild(closeBtn);
 
-    // Tabs (less invasive style)
     const tabContainer = document.createElement('div');
     tabContainer.className = 'room-emoji-tab-container';
+    tabContainer.setAttribute('role', 'tablist');
+    tabContainer.setAttribute('aria-label', 'Room emoji categories');
 
     const allTab = document.createElement('button');
-    allTab.textContent = 'All';
+    allTab.type = 'button';
+    allTab.innerHTML = '<i class="fas fa-face-smile" aria-hidden="true"></i><span>All</span>';
     allTab.className = 'room-emoji-tab active';
+    allTab.setAttribute('role', 'tab');
+    allTab.setAttribute('aria-selected', 'true');
+    allTab.setAttribute('aria-controls', 'roomEmojiMart');
 
     const soundTab = document.createElement('button');
-    soundTab.textContent = 'Sounds';
+    soundTab.type = 'button';
+    soundTab.innerHTML = '<i class="fas fa-volume-high" aria-hidden="true"></i><span>Sounds</span>';
     soundTab.className = 'room-emoji-tab';
+    soundTab.setAttribute('role', 'tab');
+    soundTab.setAttribute('aria-selected', 'false');
+    soundTab.setAttribute('aria-controls', 'roomEmojiSounds');
 
     tabContainer.appendChild(allTab);
     tabContainer.appendChild(soundTab);
 
     // EmojiMart picker (default)
     const emojiMartDiv = document.createElement('div');
+    emojiMartDiv.id = 'roomEmojiMart';
     emojiMartDiv.className = 'room-emoji-mart';
+    emojiMartDiv.setAttribute('role', 'tabpanel');
     const pickerRoomOptions = {
         theme: 'dark',
         onEmojiSelect: sendEmojiToRoom,
@@ -7275,7 +7298,9 @@ function setRoomEmojiButton() {
 
     // Custom sound emoji grid (6 per row, circular hover effect)
     const emojiGrid = document.createElement('div');
+    emojiGrid.id = 'roomEmojiSounds';
     emojiGrid.className = 'room-emoji-grid';
+    emojiGrid.setAttribute('role', 'tabpanel');
 
     // Set grid layout only when visible
     function showEmojiGrid() {
@@ -7293,16 +7318,21 @@ function setRoomEmojiButton() {
         emojiGrid.appendChild(btn);
     });
 
-    // Tab switching
+    function setActiveRoomEmojiTab(activeTab) {
+        const isAllActive = activeTab === allTab;
+        allTab.classList.toggle('active', isAllActive);
+        soundTab.classList.toggle('active', !isAllActive);
+        allTab.setAttribute('aria-selected', String(isAllActive));
+        soundTab.setAttribute('aria-selected', String(!isAllActive));
+    }
+
     allTab.onclick = () => {
-        allTab.classList.add('active');
-        soundTab.classList.remove('active');
+        setActiveRoomEmojiTab(allTab);
         emojiMartDiv.style.display = 'block';
         hideEmojiGrid();
     };
     soundTab.onclick = () => {
-        soundTab.classList.add('active');
-        allTab.classList.remove('active');
+        setActiveRoomEmojiTab(soundTab);
         emojiMartDiv.style.display = 'none';
         showEmojiGrid();
     };
@@ -7338,17 +7368,16 @@ function setRoomEmojiButton() {
             sendToServer('message', message);
         }
         handleEmoji(message);
+        toggleEmojiPicker();
     }
 
     function toggleEmojiPicker() {
         const roomEmojiPickerIcon = roomEmojiPickerBtn.querySelector('i');
-        if (emojiPickerContainer.style.display === 'block') {
-            elemDisplay(emojiPickerContainer, false);
-            setColor(roomEmojiPickerIcon, 'var(--btn-bar-bg-color)');
-        } else {
-            emojiPickerContainer.style.display = 'block';
-            setColor(roomEmojiPickerIcon, 'yellow');
-        }
+        const isOpen = emojiPickerContainer.style.display !== 'block';
+        emojiPickerContainer.style.display = isOpen ? 'block' : 'none';
+        roomEmojiPickerBtn.classList.toggle('is-active', isOpen);
+        roomEmojiPickerBtn.setAttribute('aria-pressed', String(isOpen));
+        setColor(roomEmojiPickerIcon, isOpen ? '#ffd600' : 'var(--btn-bar-bg-color)');
     }
 }
 
@@ -16873,7 +16902,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.57',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.58',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

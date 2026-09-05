@@ -3005,90 +3005,175 @@ button {
 /* Emoji Picker (Room) */
 
 .roomEmoji {
+    --room-emoji-accent: var(--room-switch-accent, var(--dd-color, #4678f9));
+    --room-emoji-toolbar-surface: rgba(18, 18, 21, 0.88);
+    --room-emoji-control-surface: rgba(255, 255, 255, 0.06);
     z-index: 18;
     position: absolute;
     display: none;
+    container-type: inline-size;
+    container-name: room-emoji;
+    width: min(370px, calc(100vw - 16px));
+    max-height: calc(100dvh - 16px);
+    padding: 8px;
     background: var(--body-bg);
-    border: var(--border);
-    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
     box-shadow: var(--box-shadow);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    overflow: hidden;
     --rgb-background: var(--body-bg);
     --color-border-over: var(--body-bg);
     --font-family: 'Montserrat';
 }
 
 .room-emoji-header {
+    position: relative;
+    z-index: 2;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--body-bg);
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    padding: 8px 12px 4px 12px;
+    gap: 10px;
+    min-height: 48px;
+    padding: 5px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: var(--room-emoji-toolbar-surface);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(14px);
     cursor: move;
 }
 
 .room-emoji-title {
-    font-weight: bold;
-    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 0 4px;
     color: #fff;
+}
+
+.room-emoji-title-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--room-emoji-accent) 14%, transparent);
+    color: var(--room-emoji-accent);
+}
+
+.room-emoji-title-text {
+    overflow: hidden;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .room-emoji-close-btn {
-    display: inline-block;
-    position: static;
-    margin-left: 8px;
-    font-size: 1.2rem;
-    background: none;
-    border: none;
-    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none !important;
+    border-radius: 6px;
+    background: transparent;
     color: #fff;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease;
 }
 
 .room-emoji-close-btn:hover {
-    background: var(--body-bg);
-    border-radius: 50%;
+    background: rgba(255, 92, 92, 0.18) !important;
+    color: #ff8a8a !important;
+    transform: none;
+}
+
+.room-emoji-close-btn:focus-visible,
+.room-emoji-tab:focus-visible,
+.room-emoji-btn:focus-visible {
+    outline: 2px solid var(--room-emoji-accent);
+    outline-offset: 2px;
 }
 
 .room-emoji-tab-container {
-    display: flex;
-    justify-content: center;
-    margin: 0 0 8px 0;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px;
+    margin: 8px 0;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    background: var(--room-emoji-control-surface);
 }
 
 .room-emoji-tab {
-    margin-top: 10px;
-    background: none;
-    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0 12px;
     border: none;
-    border-radius: 8px;
-    padding: 3px 14px;
-    font-size: 0.95rem;
+    border-radius: 6px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.78rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease;
 }
-.room-emoji-tab.active {
+
+.room-emoji-tab:hover {
     background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.room-emoji-tab.active {
+    background: color-mix(in srgb, var(--room-emoji-accent) 18%, transparent);
+    color: var(--room-emoji-accent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--room-emoji-accent) 40%, transparent);
 }
 
 .room-emoji-mart {
     display: block;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.room-emoji-mart > * {
+    max-width: 100%;
 }
 
 .room-emoji-grid {
     display: none;
     gap: 8px;
     font-size: 2rem;
-    max-width: 360px;
+    width: 100%;
     margin: 0 auto;
     justify-items: center;
     align-items: center;
-    padding: 16px 16px;
+    padding: 12px 8px;
+    box-sizing: border-box;
 }
+
 .room-emoji-grid.visible {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -3114,6 +3199,12 @@ button {
 .room-emoji-btn:hover {
     background: rgba(255, 255, 255, 0.18);
     transform: scale(1.15);
+}
+
+@container room-emoji (max-width: 320px) {
+    .room-emoji-grid.visible {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
 }
 
 .userEmoji {
