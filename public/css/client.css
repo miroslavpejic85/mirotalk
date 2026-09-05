@@ -1457,6 +1457,8 @@ body {
 }
 
 .msger-sidebar-header {
+    position: relative;
+    z-index: 20;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -2920,6 +2922,12 @@ button {
 
 @media (max-width: 820px) {
     .msger-draggable {
+        width: min(var(--msger-width), calc(100vw - 16px));
+        min-width: 0;
+        max-width: calc(100vw - 16px);
+        height: min(var(--msger-height), calc(100dvh - 16px));
+        min-height: 0;
+        max-height: calc(100dvh - 16px);
         border-radius: 20px;
     }
 
@@ -2961,6 +2969,34 @@ button {
     .private-msg-bubble,
     .msg-bubble {
         max-width: 86%;
+    }
+}
+
+@media (max-width: 480px) {
+    .msger-header {
+        gap: 6px;
+        padding: 10px 12px;
+    }
+
+    .msger-header-options {
+        gap: 4px;
+    }
+
+    .msger-header-options > button,
+    .msger-header-options .dropdown-toggle-custom {
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+
+    .msger-header-title .msger-panel-heading h3 {
+        font-size: 0.95rem;
+    }
+
+    .msger-header-title .msger-sidebar-label {
+        font-size: 0.6rem;
     }
 }
 
@@ -4351,6 +4387,7 @@ button {
     .tab {
         width: 100%;
         min-width: 0;
+        max-width: 100%;
         min-height: 62px;
         height: 62px;
         padding: 6px;
@@ -4378,6 +4415,7 @@ button {
     .tabActions {
         width: 100%;
         margin: 6px 0 0;
+        padding: 0;
         border-radius: 10px;
     }
     .tabButtonText {
@@ -5849,6 +5887,38 @@ hr {
         width: min(200px, calc(100vw - 32px));
         min-width: min(200px, calc(100vw - 32px));
         max-width: min(200px, calc(100vw - 32px));
+    }
+}
+
+.msger-sidebar-header-options .dropdown-custom {
+    position: static;
+}
+
+.msger-sidebar-header-options .dropdown-custom > .msger-participant-dropdown-menu.msger-room-actions-menu {
+    width: min(240px, calc(100% - 8px));
+    min-width: 0;
+    max-width: calc(100% - 8px);
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: var(--body-bg);
+    overflow: hidden;
+}
+
+.msger-participant-dropdown-menu.msger-room-actions-menu .msger-participant-action {
+    min-height: 42px;
+    padding: 7px 8px;
+    border-radius: 10px;
+}
+
+.msger-participant-dropdown-menu.msger-room-actions-menu .msger-participant-action-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 820px) {
+    .msger-sidebar-header-options .dropdown-custom > .msger-participant-dropdown-menu.msger-room-actions-menu {
+        width: min(220px, calc(100% - 8px));
     }
 }
 
