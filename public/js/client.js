@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.64
+ * @version 1.9.65
  *
  */
 
@@ -756,7 +756,8 @@ let isJoinLocked = false;
 let isKeepButtonsVisible = false;
 let isAudioPitchBar = true;
 let isPushToTalkActive = false;
-let isSpaceDown = false;
+let isPushToTalkPressed = false;
+let pushToTalkAudioContext = null;
 let isShortcutsEnabled = false;
 let themeCardDebounce = null;
 
@@ -6574,27 +6575,79 @@ function setHideMeButton() {
  */
 function setAudioBtn() {
     audioBtn.addEventListener('click', (e) => {
+        if (isPushToTalkActive) return;
         handleAudio(e, false);
     });
 
+    audioBtn.addEventListener('pointerdown', (e) => {
+        if (!isPushToTalkActive) return;
+        audioBtn.setPointerCapture(e.pointerId);
+        setPushToTalkPressed(true);
+    });
+    audioBtn.addEventListener('pointerup', () => setPushToTalkPressed(false));
+    audioBtn.addEventListener('pointercancel', () => setPushToTalkPressed(false));
+
     document.onkeydown = (e) => {
         if (!isPushToTalkActive || isChatRoomVisible) return;
-        if (e.code === 'Space') {
-            if (isSpaceDown) return; // prevent multiple call
-            handleAudio(audioBtn, false, true);
-            isSpaceDown = true;
-            console.log('Push-to-talk: audio ON');
-        }
+        if (e.code === 'Space') setPushToTalkPressed(true);
     };
     document.onkeyup = (e) => {
-        e.preventDefault();
-        if (!isPushToTalkActive || isChatRoomVisible) return;
+        if (!isPushToTalkActive) return;
         if (e.code === 'Space') {
-            handleAudio(audioBtn, false, false);
-            isSpaceDown = false;
-            console.log('Push-to-talk: audio OFF');
+            e.preventDefault();
+            setPushToTalkPressed(false);
         }
     };
+    window.addEventListener('blur', () => setPushToTalkPressed(false));
+}
+
+function playPushToTalkBlip(pressed) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    try {
+        if (!pushToTalkAudioContext || pushToTalkAudioContext.state === 'closed') {
+            pushToTalkAudioContext = new AudioContextClass();
+        }
+        if (pushToTalkAudioContext.state === 'suspended') {
+            pushToTalkAudioContext.resume().catch((err) => console.warn('Push-to-talk AudioContext resume', err));
+        }
+
+        const oscillator = pushToTalkAudioContext.createOscillator();
+        const gain = pushToTalkAudioContext.createGain();
+        const now = pushToTalkAudioContext.currentTime;
+        const duration = 0.08;
+
+        oscillator.connect(gain);
+        gain.connect(pushToTalkAudioContext.destination);
+        oscillator.frequency.setValueAtTime(pressed ? 880 : 800, now);
+        oscillator.frequency.linearRampToValueAtTime(pressed ? 1200 : 500, now + duration);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        oscillator.start(now);
+        oscillator.stop(now + duration);
+    } catch (err) {
+        console.warn('Unable to play push-to-talk blip', err);
+    }
+}
+
+function updatePushToTalkUi(enabled, transmitting = false) {
+    const audioSplit = getId('audioSplit');
+    const status = getId('pushToTalkStatus');
+    audioSplit.classList.toggle('ptt-enabled', enabled);
+    audioSplit.classList.toggle('ptt-transmitting', enabled && transmitting);
+    status.classList.toggle('hidden', !enabled || !transmitting);
+    audioBtn.className = enabled ? 'fas fa-microphone-lines' : myAudioStatus ? className.audioOn : className.audioOff;
+}
+
+function setPushToTalkPressed(pressed) {
+    if (!isPushToTalkActive || pressed === isPushToTalkPressed) return;
+
+    isPushToTalkPressed = pressed;
+    playPushToTalkBlip(pressed);
+    handleAudio(audioBtn, false, pressed, false);
+    updatePushToTalkUi(true, pressed);
+    console.log(`Push-to-talk: audio ${pressed ? 'ON' : 'OFF'}`);
 }
 
 /**
@@ -7889,7 +7942,14 @@ function setMySettingsBtn() {
     } else {
         // Push to talk
         switchPushToTalk.addEventListener('change', (e) => {
-            isPushToTalkActive = e.currentTarget.checked;
+            const enablePushToTalk = e.currentTarget.checked;
+            if (!enablePushToTalk && isPushToTalkPressed) setPushToTalkPressed(false);
+            isPushToTalkActive = enablePushToTalk;
+            isPushToTalkPressed = false;
+            handleAudio(audioBtn, false, !isPushToTalkActive, false);
+            updatePushToTalkUi(isPushToTalkActive);
+            const audioMenuPushToTalk = getId('audioMenuPushToTalk');
+            if (audioMenuPushToTalk) audioMenuPushToTalk.checked = isPushToTalkActive;
             userLog('toast', `👆 Push to talk ` + (isPushToTalkActive ? 'ON' : 'OFF'));
             playSound('switch');
         });
@@ -9262,8 +9322,9 @@ function getRoomURL() {
  * @param {object} e event
  * @param {boolean} init on join room
  * @param {null|boolean} force audio off (default null can be true/false)
+ * @param {boolean} playStatusSound play the standard microphone status sound
  */
-function handleAudio(e, init, force = null) {
+function handleAudio(e, init, force = null, playStatusSound = true) {
     if (!useAudio) return;
     // https://developer.mozilla.org/en-US/docs/Web/API/MediaStream/getAudioTracks
 
@@ -9298,7 +9359,7 @@ function handleAudio(e, init, force = null) {
         applyKeepAwake(myAudioStatus);
     }
 
-    setMyAudioStatus(myAudioStatus);
+    setMyAudioStatus(myAudioStatus, playStatusSound);
 
     // Screen reader announcement
     screenReaderAccessibility.announceMessage(audioStatus ? 'Microphone on' : 'Microphone off');
@@ -13353,8 +13414,9 @@ function setMyHandStatus() {
 /**
  * Set My Audio Status Icon and Title
  * @param {boolean} status of my audio
+ * @param {boolean} playStatusSound play the standard microphone status sound
  */
-function setMyAudioStatus(status) {
+function setMyAudioStatus(status, playStatusSound = true) {
     console.log('My audio status', status);
     const audioClassName = status ? className.audioOn : className.audioOff;
     audioBtn.className = audioClassName;
@@ -13365,7 +13427,7 @@ function setMyAudioStatus(status) {
     setTippy(myAudioStatusIcon, audioStatusLabel, 'bottom');
     setTippy(audioBtn, status ? 'Stop the audio (A)' : 'Start the audio (A)', bottomButtonsPlacement);
     if (audioBtn && audioBtn.setAttribute) audioBtn.setAttribute('aria-pressed', String(!!status));
-    status ? playSound('on') : playSound('off');
+    if (playStatusSound) status ? playSound('on') : playSound('off');
     screenReaderAccessibility.announceMessage(audioStatusLabel);
 }
 
@@ -16920,7 +16982,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.64',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.65',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -17761,7 +17823,7 @@ function setupQuickDeviceSwitchDropdowns() {
         icon.className = iconClass;
 
         const text = document.createElement('span');
-        text.textContent = title;
+        text.textContent = window.i18n?.t(title, 'labels') || title;
 
         header.appendChild(icon);
         header.appendChild(text);
@@ -17787,7 +17849,7 @@ function setupQuickDeviceSwitchDropdowns() {
 
         const labelSpan = document.createElement('span');
         labelSpan.className = 'device-menu-label';
-        labelSpan.textContent = ' Noise Suppression';
+        labelSpan.textContent = ` ${window.i18n?.t('Noise Suppression', 'labels') || 'Noise Suppression'}`;
 
         const toggle = document.createElement('input');
         toggle.id = 'audioMenuNoiseSuppression';
@@ -17811,13 +17873,47 @@ function setupQuickDeviceSwitchDropdowns() {
         menuEl.appendChild(row);
     }
 
+    function appendPushToTalkToggle(menuEl) {
+        if (!menuEl) return;
+
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'app-dropdown-action device-menu-toggle-btn';
+
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-hand-pointer';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'device-menu-label';
+        labelSpan.textContent = ` ${window.i18n?.t('Push to talk', 'labels') || 'Push to talk'}`;
+
+        const toggle = document.createElement('input');
+        toggle.id = 'audioMenuPushToTalk';
+        toggle.className = 'toggle';
+        toggle.type = 'checkbox';
+        toggle.checked = switchPushToTalk.checked;
+        toggle.style.pointerEvents = 'none';
+
+        row.appendChild(icon);
+        row.appendChild(labelSpan);
+        row.appendChild(toggle);
+
+        row.addEventListener('click', (e) => {
+            e.stopPropagation();
+            switchPushToTalk.checked = !switchPushToTalk.checked;
+            switchPushToTalk.dispatchEvent(new Event('change'));
+        });
+
+        menuEl.appendChild(row);
+    }
+
     function appendSelectOptions(menuEl, selectEl, emptyLabel, rebuildFn, meterCollector) {
         if (!menuEl || !selectEl) {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'app-dropdown-action';
             btn.disabled = true;
-            btn.textContent = emptyLabel;
+            btn.textContent = window.i18n?.t(emptyLabel, 'labels') || emptyLabel;
             menuEl.appendChild(btn);
             return;
         }
@@ -17829,7 +17925,7 @@ function setupQuickDeviceSwitchDropdowns() {
             btn.type = 'button';
             btn.className = 'app-dropdown-action';
             btn.disabled = true;
-            btn.textContent = emptyLabel;
+            btn.textContent = window.i18n?.t(emptyLabel, 'labels') || emptyLabel;
             menuEl.appendChild(btn);
             return;
         }
@@ -17913,11 +18009,13 @@ function setupQuickDeviceSwitchDropdowns() {
         appendSelectOptions(audioMenu, audioInputSelect, 'No microphones found', rebuildAudioMenu, audioMeterEntries);
         if (audioMeterManager.active) audioMeterManager.start(audioMeterEntries);
 
-        // Noise suppression toggle (mirrors the audio settings switch)
-        if (buttons.settings.customNoiseSuppression && isRNNoiseSupported) {
+        const showNoiseSuppression = buttons.settings.customNoiseSuppression && isRNNoiseSupported;
+        const showPushToTalk = !isMobileDevice;
+        if (showNoiseSuppression || showPushToTalk) {
             appendMenuDivider(audioMenu);
-            appendMenuHeader(audioMenu, 'fas fa-ear-listen', 'Microphone Effects');
-            appendNoiseSuppressionToggle(audioMenu);
+            appendMenuHeader(audioMenu, 'fa-solid fa-sliders', 'Microphone Controls');
+            if (showNoiseSuppression) appendNoiseSuppressionToggle(audioMenu);
+            if (showPushToTalk) appendPushToTalkToggle(audioMenu);
         }
 
         appendMenuDivider(audioMenu);
@@ -17979,7 +18077,7 @@ function setupQuickDeviceSwitchDropdowns() {
         const testIcon = document.createElement('i');
         testIcon.className = 'fa-solid fa-circle-play';
         testBtn.appendChild(testIcon);
-        testBtn.appendChild(document.createTextNode(' Test speaker'));
+        testBtn.appendChild(document.createTextNode(` ${window.i18n?.t('Test speaker', 'buttons') || 'Test speaker'}`));
         testBtn.addEventListener('click', () => playSpeaker(audioOutputSelect?.value, 'speaker'));
         audioMenu.appendChild(testBtn);
 
@@ -17990,7 +18088,9 @@ function setupQuickDeviceSwitchDropdowns() {
         const settingsIcon = document.createElement('i');
         settingsIcon.className = 'fas fa-cog';
         settingsBtn.appendChild(settingsIcon);
-        settingsBtn.appendChild(document.createTextNode(' Open Audio Settings'));
+        settingsBtn.appendChild(
+            document.createTextNode(` ${window.i18n?.t('Open Audio Settings', 'labels') || 'Open Audio Settings'}`)
+        );
         settingsBtn.addEventListener('click', () => {
             hideShowMySettings();
             // Simulate tab click to open audio devices tab

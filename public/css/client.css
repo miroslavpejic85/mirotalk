@@ -475,6 +475,33 @@ body {
     border-radius: 10px;
 }
 
+#bottomButtons .push-to-talk-status {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    z-index: 2;
+    padding: 5px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    background: var(--body-bg);
+    box-shadow: var(--box-shadow);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateX(-50%);
+}
+
+#bottomButtons #audioSplit.ptt-enabled:not(.ptt-transmitting) > #audioBtn {
+    color: red !important;
+}
+
+#bottomButtons #audioSplit.ptt-transmitting > #audioBtn {
+    color: #19bb5c !important;
+}
+
 /* Exit dropdown menu (Leave room / End room for all) */
 #bottomButtons #exitDropdown {
     position: relative;
