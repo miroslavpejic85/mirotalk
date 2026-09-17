@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "Ok ekle",
+        "Add diamond": "Eşkenar dörtgen ekle",
+        "Add frame": "Çerçeve ekle",
+        "Group selection": "Seçimi grupla",
+        "Ungroup selection": "Seçimin grubunu çöz",
         "Abort": "İptal et",
         "About": "Hakkında",
         "Active rooms": "Aktif odalar",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= Ok",
+        "= Diamond": "= Eşkenar dörtgen",
+        "= Frame": "= Çerçeve",
+        "Frame title": "Çerçeve başlığı",
         "Are you the host?": "Toplantı sahibi misiniz?",
         "Checking room status...": "Oda durumu kontrol ediliyor...",
         "Enter room name": "Oda adını girin",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "Çerçeve başlığını düzenle",
+        "Enter a frame title": "Bir çerçeve başlığı girin",
         "All messages": "Tüm mesajlar",
         "Apply": "Uygula",
         "Are you sure to want eject all participants from the room?": "Tüm katılımcıları odadan çıkarmak istediğinizden emin misiniz?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "Grubunu çözmek için gruplanmış bir nesne seçin.",
+        "Select two or more objects to group.": "Gruplamak için iki veya daha fazla nesne seçin.",
         "⚠️ File transfer aborted": "⚠️ Dosya aktarımı iptal edildi",
         "Another video seems pinned, unpin it before to pin this one": "Başka bir video sabitlenmiş görünüyor, bunu sabitlemeden önce sabitlemeyi kaldırın",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "Dodaj strelicu",
+        "Add diamond": "Dodaj romb",
+        "Add frame": "Dodaj okvir",
+        "Group selection": "Grupiši izbor",
+        "Ungroup selection": "Razgrupiši izbor",
         "Abort": "Prekini",
         "About": "O aplikaciji",
         "Active rooms": "Aktivne sobe",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= Strelica",
+        "= Diamond": "= Romb",
+        "= Frame": "= Okvir",
+        "Frame title": "Naslov okvira",
         "Are you the host?": "Да ли сте домаћин?",
         "Checking room status...": "Провера статуса собе...",
         "Enter room name": "Унесите назив собе",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "Izmeni naslov okvira",
+        "Enter a frame title": "Unesite naslov okvira",
         "All messages": "Све поруке",
         "Apply": "Primeni",
         "Are you sure to want eject all participants from the room?": "Да ли сте сигурни да желите да избаците све учеснике из собе?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "Izaberite grupisani objekat za razgrupisavanje.",
+        "Select two or more objects to group.": "Izaberite dva ili više objekata za grupisanje.",
         "⚠️ File transfer aborted": "⚠ Пренос датотеке је прекинут",
         "Another video seems pinned, unpin it before to pin this one": "Изгледа да је још један видео закачен, откачите га пре него што закачите овај",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

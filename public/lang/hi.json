@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "तीर जोड़ें",
+        "Add diamond": "हीराकार जोड़ें",
+        "Add frame": "फ़्रेम जोड़ें",
+        "Group selection": "चयन को समूहित करें",
+        "Ungroup selection": "चयन का समूह हटाएँ",
         "Abort": "रद्द करें",
         "About": "परिचय",
         "Active rooms": "सक्रिय रूम",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= तीर",
+        "= Diamond": "= हीराकार",
+        "= Frame": "= फ़्रेम",
+        "Frame title": "फ़्रेम शीर्षक",
         "Are you the host?": "क्या आप होस्ट हैं?",
         "Checking room status...": "कक्ष स्थिति जाँची जा रही है...",
         "Enter room name": "कक्ष का नाम दर्ज करें",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "फ़्रेम शीर्षक संपादित करें",
+        "Enter a frame title": "फ़्रेम शीर्षक दर्ज करें",
         "All messages": "सभी संदेश",
         "Apply": "लागू करें",
         "Are you sure to want eject all participants from the room?": "क्या आप वाकई सभी प्रतिभागियों को कमरे से बाहर निकालना चाहते हैं?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "समूह हटाने के लिए समूहित ऑब्जेक्ट चुनें।",
+        "Select two or more objects to group.": "समूहित करने के लिए दो या अधिक ऑब्जेक्ट चुनें।",
         "⚠️ File transfer aborted": "⚠️ फ़ाइल स्थानांतरण निरस्त किया गया",
         "Another video seems pinned, unpin it before to pin this one": "एक और वीडियो पिन किया हुआ लगता है, इसे पिन करने से पहले इसे अनपिन करें",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

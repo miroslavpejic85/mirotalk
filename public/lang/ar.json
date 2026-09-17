@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "إضافة سهم",
+        "Add diamond": "إضافة شكل ماسي",
+        "Add frame": "إضافة إطار",
+        "Group selection": "تجميع التحديد",
+        "Ungroup selection": "فك تجميع التحديد",
         "Abort": "إحباط",
         "About": "حول",
         "Active rooms": "الغرف النشطة",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= سهم",
+        "= Diamond": "= شكل ماسي",
+        "= Frame": "= إطار",
+        "Frame title": "عنوان الإطار",
         "Are you the host?": "هل أنت المضيف؟",
         "Checking room status...": "جارٍ التحقق من حالة الغرفة...",
         "Enter room name": "أدخل اسم الغرفة",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "تعديل عنوان الإطار",
+        "Enter a frame title": "أدخل عنوانًا للإطار",
         "All messages": "جميع الرسائل",
         "Apply": "تطبيق",
         "Are you sure to want eject all participants from the room?": "هل أنت متأكد أنك تريد إخراج جميع المشاركين من الغرفة؟",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "تم بلوغ الحد الزمني",
         "Unlock room?": "إلغاء قفل الغرفة؟",
         "Username": "اسم المستخدم",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "اختصارات السبورة",
         "Yes": "نعم",
         "Schedule email invitation": "جدولة دعوة عبر البريد الإلكتروني",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "حدد كائنًا مجمعًا لفك تجميعه.",
+        "Select two or more objects to group.": "حدد عنصرين أو أكثر لتجميعهما.",
         "⚠️ File transfer aborted": "⚠️ تم إحباط نقل الملف",
         "Another video seems pinned, unpin it before to pin this one": "يبدو أن هناك فيديو آخر مثبتًا، قم بإزالة تثبيته قبل تثبيت هذا الفيديو",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

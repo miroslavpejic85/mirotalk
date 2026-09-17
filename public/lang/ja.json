@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "矢印を追加",
+        "Add diamond": "ひし形を追加",
+        "Add frame": "フレームを追加",
+        "Group selection": "選択項目をグループ化",
+        "Ungroup selection": "選択項目のグループ化を解除",
         "Abort": "中止",
         "About": "情報",
         "Active rooms": "アクティブなルーム",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= 矢印",
+        "= Diamond": "= ひし形",
+        "= Frame": "= フレーム",
+        "Frame title": "フレームタイトル",
         "Are you the host?": "あなたはホストですか？",
         "Checking room status...": "ルームの状態を確認しています...",
         "Enter room name": "ルーム名を入力してください",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "フレームタイトルを編集",
+        "Enter a frame title": "フレームタイトルを入力してください",
         "All messages": "すべてのメッセージ",
         "Apply": "適用",
         "Are you sure to want eject all participants from the room?": "すべての参加者を部屋から退出させてもよろしいですか?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "グループ化を解除するオブジェクトを選択してください。",
+        "Select two or more objects to group.": "グループ化するオブジェクトを2つ以上選択してください。",
         "⚠️ File transfer aborted": "⚠️ ファイル転送が中止されました",
         "Another video seems pinned, unpin it before to pin this one": "別の動画が固定されているようです。この動画を固定する前に固定を解除してください",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

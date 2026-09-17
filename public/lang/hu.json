@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "Nyíl hozzáadása",
+        "Add diamond": "Rombusz hozzáadása",
+        "Add frame": "Keret hozzáadása",
+        "Group selection": "Kijelölés csoportosítása",
+        "Ungroup selection": "Kijelölés csoportbontása",
         "Abort": "Megszakítás",
         "About": "Névjegy",
         "Active rooms": "Aktív szobák",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= Nyíl",
+        "= Diamond": "= Rombusz",
+        "= Frame": "= Keret",
+        "Frame title": "Keret címe",
         "Are you the host?": "Ön a házigazda?",
         "Checking room status...": "Szoba állapotának ellenőrzése...",
         "Enter room name": "Adja meg a szoba nevét",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "Keret címének szerkesztése",
+        "Enter a frame title": "Adja meg a keret címét",
         "All messages": "Minden üzenet",
         "Apply": "Alkalmaz",
         "Are you sure to want eject all participants from the room?": "Biztosan ki akarja utasítani az összes résztvevőt a teremből?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "Jelöljön ki egy csoportosított objektumot a csoportbontáshoz.",
+        "Select two or more objects to group.": "Jelöljön ki két vagy több objektumot a csoportosításhoz.",
         "⚠️ File transfer aborted": "⚠️ A fájlátvitel megszakadt",
         "Another video seems pinned, unpin it before to pin this one": "Úgy tűnik, egy másik videó rögzítve van. A rögzítéshez távolítsa el a rögzítést",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

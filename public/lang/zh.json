@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "添加箭头",
+        "Add diamond": "添加菱形",
+        "Add frame": "添加框架",
+        "Group selection": "组合所选对象",
+        "Ungroup selection": "取消组合所选对象",
         "Abort": "中止",
         "About": "关于",
         "Active rooms": "活动房间",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= 箭头",
+        "= Diamond": "= 菱形",
+        "= Frame": "= 框架",
+        "Frame title": "框架标题",
         "Are you the host?": "您是主持人吗？",
         "Checking room status...": "正在检查房间状态...",
         "Enter room name": "输入房间名称",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "编辑框架标题",
+        "Enter a frame title": "请输入框架标题",
         "All messages": "所有消息",
         "Apply": "应用",
         "Are you sure to want eject all participants from the room?": "您确定要将所有参与者逐出房间吗？",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "请选择一个已组合的对象以取消组合。",
+        "Select two or more objects to group.": "请选择两个或更多对象进行组合。",
         "⚠️ File transfer aborted": "⚠️ 文件传输已中止",
         "Another video seems pinned, unpin it before to pin this one": "另一个视频似乎已固定，请先取消固定以固定此视频",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.66
+ * @version 1.9.67
  *
  */
 
@@ -473,9 +473,14 @@ const whiteboardImgUrlBtn = getId('whiteboardImgUrlBtn');
 const whiteboardTextBtn = getId('whiteboardTextBtn');
 const whiteboardStickyNoteBtn = getId('whiteboardStickyNoteBtn');
 const whiteboardLineBtn = getId('whiteboardLineBtn');
+const whiteboardArrowBtn = getId('whiteboardArrowBtn');
 const whiteboardRectBtn = getId('whiteboardRectBtn');
+const whiteboardDiamondBtn = getId('whiteboardDiamondBtn');
 const whiteboardTriangleBtn = getId('whiteboardTriangleBtn');
 const whiteboardCircleBtn = getId('whiteboardCircleBtn');
+const whiteboardFrameBtn = getId('whiteboardFrameBtn');
+const whiteboardGroupBtn = getId('whiteboardGroupBtn');
+const whiteboardUngroupBtn = getId('whiteboardUngroupBtn');
 const whiteboardSaveBtn = getId('whiteboardSaveBtn');
 const whiteboardCleanBtn = getId('whiteboardCleanBtn');
 const whiteboardLockBtn = getId('whiteboardLockBtn');
@@ -7548,14 +7553,29 @@ function setMyWhiteboardBtn() {
     whiteboardLineBtn.addEventListener('click', (e) => {
         whiteboardAddObj('line');
     });
+    whiteboardArrowBtn.addEventListener('click', (e) => {
+        whiteboardAddObj('arrow');
+    });
     whiteboardRectBtn.addEventListener('click', (e) => {
         whiteboardAddObj('rect');
+    });
+    whiteboardDiamondBtn.addEventListener('click', (e) => {
+        whiteboardAddObj('diamond');
     });
     whiteboardTriangleBtn.addEventListener('click', (e) => {
         whiteboardAddObj('triangle');
     });
     whiteboardCircleBtn.addEventListener('click', (e) => {
         whiteboardAddObj('circle');
+    });
+    whiteboardFrameBtn.addEventListener('click', (e) => {
+        whiteboardAddObj('frame');
+    });
+    whiteboardGroupBtn.addEventListener('click', (e) => {
+        whiteboardGroupSelection();
+    });
+    whiteboardUngroupBtn.addEventListener('click', (e) => {
+        whiteboardUngroupSelection();
     });
     whiteboardEraserBtn.addEventListener('click', (e) => {
         whiteboardResetAllMode();
@@ -15082,6 +15102,29 @@ function whiteboardAddObj(type) {
             });
             addWbCanvasObj(line);
             break;
+        case 'arrow':
+            const arrowColor = wbCanvas.freeDrawingBrush.color;
+            const arrow = new fabric.Group(
+                [
+                    new fabric.Line([0, 30, 180, 30], {
+                        stroke: arrowColor,
+                        strokeWidth: wbCanvas.freeDrawingBrush.width,
+                    }),
+                    new fabric.Triangle({
+                        left: 180,
+                        top: 30,
+                        width: 24,
+                        height: 28,
+                        fill: arrowColor,
+                        originX: 'center',
+                        originY: 'center',
+                        angle: 90,
+                    }),
+                ],
+                { left: 100, top: 100 }
+            );
+            addWbCanvasObj(arrow);
+            break;
         case 'circle':
             const circle = new fabric.Circle({
                 radius: 50,
@@ -15103,6 +15146,25 @@ function whiteboardAddObj(type) {
             });
             addWbCanvasObj(rect);
             break;
+        case 'diamond':
+            const diamond = new fabric.Polygon(
+                [
+                    { x: 75, y: 0 },
+                    { x: 150, y: 55 },
+                    { x: 75, y: 110 },
+                    { x: 0, y: 55 },
+                ],
+                {
+                    left: 100,
+                    top: 100,
+                    fill: 'transparent',
+                    stroke: wbCanvas.freeDrawingBrush.color,
+                    strokeWidth: wbCanvas.freeDrawingBrush.width,
+                    strokeUniform: true,
+                }
+            );
+            addWbCanvasObj(diamond);
+            break;
         case 'triangle':
             const triangle = new fabric.Triangle({
                 top: 0,
@@ -15114,6 +15176,32 @@ function whiteboardAddObj(type) {
                 strokeWidth: wbCanvas.freeDrawingBrush.width,
             });
             addWbCanvasObj(triangle);
+            break;
+        case 'frame':
+            const frameColor = wbCanvas.freeDrawingBrush.color;
+            const frame = new fabric.Group(
+                [
+                    new fabric.Rect({
+                        width: 360,
+                        height: 220,
+                        fill: 'transparent',
+                        stroke: frameColor,
+                        strokeWidth: 2,
+                        strokeDashArray: [10, 6],
+                        strokeUniform: true,
+                    }),
+                    new fabric.Textbox(window.i18n?.t('Frame title', 'labels') || 'Frame title', {
+                        left: 12,
+                        top: 10,
+                        width: 320,
+                        fontSize: 20,
+                        fontFamily: 'Montserrat',
+                        fill: frameColor,
+                    }),
+                ],
+                { left: 100, top: 100 }
+            );
+            addWbCanvasObj(frame);
             break;
         default:
             break;
@@ -15175,6 +15263,27 @@ function whiteboardCloneObject() {
             wbCanvas.requestRenderAll();
         }
     }
+}
+
+function whiteboardGroupSelection() {
+    const selection = wbCanvas?.getActiveObject?.();
+    if (!selection || selection.type !== 'activeSelection' || selection.size() < 2) {
+        return userLog('info', 'Select two or more objects to group.', 'top-end');
+    }
+    const group = selection.toGroup();
+    wbCanvas.setActiveObject(group);
+    wbCanvas.requestRenderAll();
+    wbCanvasToJson();
+}
+
+function whiteboardUngroupSelection() {
+    const group = wbCanvas?.getActiveObject?.();
+    if (!group || group.type !== 'group') {
+        return userLog('info', 'Select a grouped object to ungroup.', 'top-end');
+    }
+    group.toActiveSelection();
+    wbCanvas.requestRenderAll();
+    wbCanvasToJson();
 }
 
 /**
@@ -15648,6 +15757,9 @@ function setupWhiteboardLocalListeners() {
     wbCanvas.on('mouse:down', function (e) {
         mouseDown(e);
     });
+    wbCanvas.on('mouse:dblclick', function (e) {
+        editWhiteboardGroupedText(e);
+    });
     wbCanvas.on('mouse:up', function () {
         mouseUp();
     });
@@ -15657,6 +15769,35 @@ function setupWhiteboardLocalListeners() {
     wbCanvas.on('object:added', function () {
         objectAdded();
     });
+}
+
+async function editWhiteboardGroupedText(e) {
+    const group = e.target;
+    if (!group || group.type !== 'group' || typeof group.getObjects !== 'function') return;
+
+    const objects = group.getObjects();
+    const frameBorder = objects.find((obj) => obj.type === 'rect' && obj.strokeDashArray?.length);
+    const frameTitle = objects.find((obj) => obj.type === 'textbox');
+    if (!frameBorder || !frameTitle) return;
+
+    const result = await Swal.fire({
+        background: swBg,
+        title: window.i18n?.t('Edit frame title', 'dialogs') || 'Edit frame title',
+        input: 'text',
+        inputValue: frameTitle.text,
+        inputAttributes: { maxlength: 120 },
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        inputValidator: (value) =>
+            !value.trim() ? window.i18n?.t('Enter a frame title', 'dialogs') || 'Enter a frame title' : undefined,
+    });
+    if (!result.isConfirmed) return;
+
+    frameTitle.set('text', result.value.trim());
+    group.addWithUpdate();
+    group.setCoords();
+    wbCanvas.requestRenderAll();
+    wbCanvasToJson();
 }
 
 /**
@@ -16098,6 +16239,10 @@ function setupWhiteboardShortcuts() {
                     whiteboardAddObj('line');
                     event.preventDefault();
                     break;
+                case 'KeyA': // Arrow
+                    whiteboardAddObj('arrow');
+                    event.preventDefault();
+                    break;
                 case 'KeyC': // Circle
                     whiteboardAddObj('circle');
                     event.preventDefault();
@@ -16108,6 +16253,14 @@ function setupWhiteboardShortcuts() {
                     break;
                 case 'KeyG': // Triangle (G for Geometry)
                     whiteboardAddObj('triangle');
+                    event.preventDefault();
+                    break;
+                case 'KeyD': // Diamond
+                    whiteboardAddObj('diamond');
+                    event.preventDefault();
+                    break;
+                case 'KeyF': // Frame
+                    whiteboardAddObj('frame');
                     event.preventDefault();
                     break;
                 case 'KeyN': // Sticky Note
@@ -16982,7 +17135,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.66',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.67',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

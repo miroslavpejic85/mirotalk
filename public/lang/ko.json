@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "화살표 추가",
+        "Add diamond": "마름모 추가",
+        "Add frame": "프레임 추가",
+        "Group selection": "선택 항목 그룹화",
+        "Ungroup selection": "선택 항목 그룹 해제",
         "Abort": "중단",
         "About": "정보",
         "Active rooms": "활성 방",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= 화살표",
+        "= Diamond": "= 마름모",
+        "= Frame": "= 프레임",
+        "Frame title": "프레임 제목",
         "Are you the host?": "호스트이신가요?",
         "Checking room status...": "방 상태를 확인하는 중...",
         "Enter room name": "방 이름을 입력하세요",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "프레임 제목 편집",
+        "Enter a frame title": "프레임 제목을 입력하세요",
         "All messages": "모든 메시지",
         "Apply": "적용",
         "Are you sure to want eject all participants from the room?": "모든 참가자를 방에서 퇴장시키시겠습니까?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "그룹을 해제할 그룹 개체를 선택하세요.",
+        "Select two or more objects to group.": "그룹화할 개체를 두 개 이상 선택하세요.",
         "⚠️ File transfer aborted": "⚠️ 파일 전송이 중단되었습니다",
         "Another video seems pinned, unpin it before to pin this one": "다른 동영상이 고정된 것 같습니다. 이 동영상을 고정하려면 먼저 고정을 해제하세요.",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

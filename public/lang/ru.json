@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "Добавить стрелку",
+        "Add diamond": "Добавить ромб",
+        "Add frame": "Добавить рамку",
+        "Group selection": "Сгруппировать выбранное",
+        "Ungroup selection": "Разгруппировать выбранное",
         "Abort": "Прервать",
         "About": "О программе",
         "Active rooms": "Активные комнаты",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= Стрелка",
+        "= Diamond": "= Ромб",
+        "= Frame": "= Рамка",
+        "Frame title": "Заголовок рамки",
         "Are you the host?": "Вы организатор?",
         "Checking room status...": "Проверка состояния комнаты...",
         "Enter room name": "Введите название комнаты",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "Изменить заголовок рамки",
+        "Enter a frame title": "Введите заголовок рамки",
         "All messages": "Все сообщения",
         "Apply": "Применить",
         "Are you sure to want eject all participants from the room?": "Вы уверены, что хотите удалить всех участников из комнаты?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "Достигнут лимит времени",
         "Unlock room?": "Разблокировать комнату?",
         "Username": "Имя пользователя",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "Горячие клавиши доски",
         "Yes": "Да",
         "Schedule email invitation": "Запланировать приглашение по электронной почте",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "Выберите сгруппированный объект для разгруппировки.",
+        "Select two or more objects to group.": "Выберите два или более объекта для группировки.",
         "⚠️ File transfer aborted": "⚠️ Передача файлов прервана.",
         "Another video seems pinned, unpin it before to pin this one": "Кажется, другое видео закреплено. Открепите его, прежде чем закрепить это.",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

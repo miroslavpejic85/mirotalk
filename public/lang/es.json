@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "Añadir flecha",
+        "Add diamond": "Añadir rombo",
+        "Add frame": "Añadir marco",
+        "Group selection": "Agrupar selección",
+        "Ungroup selection": "Desagrupar selección",
         "Abort": "Cancelar",
         "About": "Acerca de",
         "Active rooms": "Salas activas",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= Flecha",
+        "= Diamond": "= Rombo",
+        "= Frame": "= Marco",
+        "Frame title": "Título del marco",
         "Are you the host?": "¿Eres el anfitrión?",
         "Checking room status...": "Comprobando el estado de la sala...",
         "Enter room name": "Introduce el nombre de la sala",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "Editar título del marco",
+        "Enter a frame title": "Introduce un título para el marco",
         "All messages": "Todos los mensajes",
         "Apply": "Aplicar",
         "Are you sure to want eject all participants from the room?": "¿Está seguro de que desea expulsar a todos los participantes de la sala?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "Límite de tiempo alcanzado",
         "Unlock room?": "¿Desbloquear la sala?",
         "Username": "Nombre de usuario",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "Atajos de la pizarra",
         "Yes": "Sí",
         "Schedule email invitation": "Programar invitación por correo electrónico",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "Selecciona un objeto agrupado para desagruparlo.",
+        "Select two or more objects to group.": "Selecciona dos o más objetos para agruparlos.",
         "⚠️ File transfer aborted": "⚠️ Transferencia de archivos cancelada",
         "Another video seems pinned, unpin it before to pin this one": "Otro vídeo parece fijado, desanclalo antes para fijar este.",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

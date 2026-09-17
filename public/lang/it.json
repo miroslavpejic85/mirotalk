@@ -105,6 +105,11 @@
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
     },
     "buttons": {
+        "Add arrow": "Aggiungi freccia",
+        "Add diamond": "Aggiungi rombo",
+        "Add frame": "Aggiungi cornice",
+        "Group selection": "Raggruppa selezione",
+        "Ungroup selection": "Separa selezione",
         "Abort": "Annulla",
         "About": "Informazioni",
         "Active rooms": "Stanze attive",
@@ -208,6 +213,10 @@
         "Test": "Test"
     },
     "labels": {
+        "= Arrow": "= Freccia",
+        "= Diamond": "= Rombo",
+        "= Frame": "= Cornice",
+        "Frame title": "Titolo cornice",
         "Are you the host?": "Sei l'host?",
         "Checking room status...": "Verifica dello stato della stanza in corso...",
         "Enter room name": "Inserisci il nome della stanza",
@@ -507,6 +516,8 @@
         "Whisper mode": "Whisper mode"
     },
     "dialogs": {
+        "Edit frame title": "Modifica titolo cornice",
+        "Enter a frame title": "Inserisci un titolo per la cornice",
         "All messages": "Tutti i messaggi",
         "Apply": "Applica",
         "Are you sure to want eject all participants from the room?": "Sei sicuro di voler espellere tutti i partecipanti dalla stanza?",
@@ -565,7 +576,7 @@
         "Time Limit Reached": "Limite di tempo raggiunto",
         "Unlock room?": "Sbloccare la stanza?",
         "Username": "Nome utente",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "Scorciatoie della lavagna",
         "Yes": "Sì",
         "Schedule email invitation": "Pianifica invito via email",
@@ -597,6 +608,8 @@
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "Seleziona un oggetto raggruppato da separare.",
+        "Select two or more objects to group.": "Seleziona due o più oggetti da raggruppare.",
         "⚠️ File transfer aborted": "⚠️ Trasferimento file interrotto",
         "Another video seems pinned, unpin it before to pin this one": "Un altro video sembra fissato, sbloccalo prima di fissare questo",
         "Answer setLocalDescription failed": "Answer setLocalDescription failed",

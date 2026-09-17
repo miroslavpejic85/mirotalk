@@ -105,6 +105,11 @@
         "Zoom out video": "Zoom out video"
     },
     "buttons": {
+        "Add arrow": "Add arrow",
+        "Add diamond": "Add diamond",
+        "Add frame": "Add frame",
+        "Group selection": "Group selection",
+        "Ungroup selection": "Ungroup selection",
         "Abort": "Abort",
         "About": "About",
         "Active rooms": "Active rooms",
@@ -208,6 +213,10 @@
         "Zoom Out": "Zoom Out"
     },
     "labels": {
+        "= Arrow": "= Arrow",
+        "= Diamond": "= Diamond",
+        "= Frame": "= Frame",
+        "Frame title": "Frame title",
         "= Circle": "= Circle",
         "= Clear all": "= Clear all",
         "= Image": "= Image",
@@ -507,6 +516,8 @@
         "Your profile": "Your profile"
     },
     "dialogs": {
+        "Edit frame title": "Edit frame title",
+        "Enter a frame title": "Enter a frame title",
         "All messages": "All messages",
         "Apply": "Apply",
         "Are you sure to want eject all participants from the room?": "Are you sure to want eject all participants from the room?",
@@ -591,12 +602,14 @@
         "Unlock room": "Unlock room",
         "Unlock room?": "Unlock room?",
         "Username": "Username",
-        "WebRTC P2P v1.9.66": "WebRTC P2P v1.9.66",
+        "WebRTC P2P v1.9.67": "WebRTC P2P v1.9.67",
         "Whiteboard Shortcuts": "Whiteboard Shortcuts",
         "Yes": "Yes",
         "Your microphone is off": "Your microphone is off"
     },
     "toasts": {
+        "Select a grouped object to ungroup.": "Select a grouped object to ungroup.",
+        "Select two or more objects to group.": "Select two or more objects to group.",
         "⚠️ File transfer aborted": "⚠️ File transfer aborted",
         "⚪ Wake Lock released": "⚪ Wake Lock released",
         "🔴 Failed to request Wake Lock:": "🔴 Failed to request Wake Lock:",
