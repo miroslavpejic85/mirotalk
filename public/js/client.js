@@ -15754,11 +15754,28 @@ function addWbCanvasObj(obj) {
  * Whiteboard: Local listners
  */
 function setupWhiteboardLocalListeners() {
+    let lastTapTarget = null;
+    let lastTapAt = 0;
+
     wbCanvas.on('mouse:down', function (e) {
         mouseDown(e);
+
+        if (isMobileDevice) {
+            const tappedAt = Date.now();
+            const isDoubleTap = e.target && e.target === lastTapTarget && tappedAt - lastTapAt < 500;
+
+            lastTapTarget = e.target;
+            lastTapAt = tappedAt;
+
+            if (isDoubleTap) {
+                lastTapTarget = null;
+                lastTapAt = 0;
+                editWhiteboardGroupedText(e);
+            }
+        }
     });
     wbCanvas.on('mouse:dblclick', function (e) {
-        editWhiteboardGroupedText(e);
+        if (!isMobileDevice) editWhiteboardGroupedText(e);
     });
     wbCanvas.on('mouse:up', function () {
         mouseUp();
