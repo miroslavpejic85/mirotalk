@@ -163,7 +163,7 @@ For detailed guides and references, visit the **[official documentation](https:/
 | Provider                                                                                       | Description                                                                                                                                             | Link                                                                |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | [![Cloudron](public/sponsors/Cloudron.png)](https://www.cloudron.io/)                          | One-click install from the [Cloudron App Store](https://www.cloudron.io/store/index.html). Automates deployment, updates, backups, and user management. | [Get Started](https://www.cloudron.io/)                             |
-| [![Hetzner](public/sponsors/Hetzner.png)](https://www.hetzner.com)                             | High-performance cloud servers and dedicated root servers with top-tier reliability. Powers our live demo.                                              | [Get €20 Free Credits](https://hetzner.cloud/?ref=XdRifCzCK3bn)     |
+| [![Hetzner](public/sponsors/Hetzner.png)](https://www.hetzner.com)                             | High-performance cloud servers and dedicated root servers with top-tier reliability. Powers our live demo.                                              |
 | [![Netcup](public/sponsors/Netcup.png)](https://www.netcup.com/en/?ref=309627)                 | Enterprise-grade performance at unbeatable prices. Scalable and reliable.                                                                               | [Explore Netcup](https://www.netcup.com/en/?ref=309627)             |
 | [![Hostinger](public/advertisers/Hostinger.png)](https://hostinger.com/?REFERRALCODE=MIROTALK) | Fast, reliable hosting with 24/7 support and great performance.                                                                                         | [Check out Hostinger](https://hostinger.com/?REFERRALCODE=MIROTALK) |
 | [![Contabo](public/advertisers/Contabo.png)](https://www.dpbolvw.net/click-101027391-14462707) | Top-tier German hosting, dedicated servers, VPS, and web hosting at unbeatable prices.                                                                  | [Explore Contabo](https://www.dpbolvw.net/click-101027391-14462707) |
@@ -237,10 +237,10 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 
 We are grateful to our past sponsors for their support!
 
-|                                                                                        |                                                                 |                                                                         |
-| -------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/?ref=XdRifCzCK3bn) | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com) | [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/) |
-| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)                    |                                                                 |                                                                         |
+|                                                                       |                                                                 |                                                                         |
+| --------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/) | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com) | [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/) |
+| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)   |                                                                 |                                                                         |
 
 </details>
 
