@@ -237,10 +237,10 @@ Do you find MiroTalk P2P indispensable for your needs? Join us in supporting thi
 
 We are grateful to our past sponsors for their support!
 
-|                                                                       |                                                                 |                                                                         |
-| --------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [![Hetzner](public/sponsors/HetznerLogo.png)](https://hetzner.cloud/) | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com) | [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/) |
-| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)   |                                                                 |                                                                         |
+|                                                                              |                                                                 |                                                                         |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [![Hetzner](public/sponsors/HetznerLogo.png)](https://www.hetzner.com/cloud) | [![Kiquix](public/sponsors/KiquixLogo.png)](https://kiquix.com) | [![BroadcastX](public/sponsors/BroadcastX.png)](https://broadcastx.de/) |
+| [![LuvLounge](public/sponsors/LuvLounge.png)](https://luvlounge.ca)          |                                                                 |                                                                         |
 
 </details>
 
