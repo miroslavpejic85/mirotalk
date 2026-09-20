@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.71
+ * @version 1.9.80
  *
  */
 
@@ -2345,6 +2345,39 @@ io.sockets.on('connect', async (socket) => {
         Validate.sanitizeWbCanvasJson(config, (msg, ctx) => log.debug(msg, ctx));
 
         await sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
+    });
+
+    socket.on('whiteboardObject', async (cfg) => {
+        const config = checkXSS(cfg);
+
+        if (!Validate.isValidData(config)) return;
+
+        let rawSize;
+        try {
+            rawSize = JSON.stringify(config).length;
+        } catch (_) {
+            return;
+        }
+        if (rawSize > 2_000_000) return;
+
+        const { room_id, peer_name, peer_uuid, action, object_id } = config;
+        if (!peers[room_id] || !peers[room_id][socket.id]) return;
+        if (wbLocks[room_id] && !isPeerPresenter(room_id, socket.id, peer_name, peer_uuid)) return;
+        if (!['upsert', 'remove'].includes(action)) return;
+        if (typeof object_id !== 'string' || object_id.length > 200) return;
+
+        if (action === 'upsert') {
+            if (!config.object || typeof config.object !== 'object') return;
+            const canvas = { wbCanvasJson: { objects: [config.object] } };
+            Validate.sanitizeWbCanvasJson(canvas, (msg, ctx) => log.debug(msg, ctx));
+            if (canvas.wbCanvasJson.objects.length !== 1) return;
+            config.object = canvas.wbCanvasJson.objects[0];
+            config.object.wbId = object_id;
+        } else {
+            delete config.object;
+        }
+
+        await sendToRoom(room_id, socket.id, 'whiteboardObject', config);
     });
 
     socket.on('whiteboardAction', async (cfg) => {

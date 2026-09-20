@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.71
+ * @version 1.9.80
  *
  */
 
@@ -792,6 +792,9 @@ let wbIsEraser = false;
 let wbIsPencil = false;
 let wbIsVanishing = false;
 let wbIsBgTransparent = false;
+let wbIsApplyingRemote = false;
+let wbObjectIdCounter = 0;
+const wbTextSyncTimers = new Map();
 let wbPop = [];
 let wbVanishingObjects = [];
 let wbGridLines = [];
@@ -1536,6 +1539,7 @@ async function initClientPeer() {
     signalingSocket.on('caption', handleCaptionActions);
     signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('wbCanvasToJson', handleJsonToWbCanvas);
+    signalingSocket.on('whiteboardObject', handleWhiteboardObject);
     signalingSocket.on('whiteboardAction', handleWhiteboardAction);
     signalingSocket.on('videoDrawing', (data) => VideoDrawingOverlay.receive(data));
     signalingSocket.on('fileInfo', handleFileInfo);
@@ -14869,10 +14873,12 @@ function createGridLine(x1, y1, x2, y2) {
  * Whiteboard: remove grid lines from canvas
  */
 function removeCanvasGrid() {
+    const gridGroup = wbGridLines[0]?.group;
     wbGridLines.forEach((line) => {
         line.set({ stroke: wbGridVisible ? wbStroke : 'rgba(255, 255, 255, 0)' });
         wbCanvas.remove(line);
     });
+    if (gridGroup) wbEmitObjectUpsert(gridGroup);
     wbGridLines = [];
     wbCanvas.renderAll();
     setWhiteboardControlState(whiteboardGridBtn, false);
@@ -14884,7 +14890,6 @@ function removeCanvasGrid() {
 function toggleCanvasGrid() {
     wbGridVisible = !wbGridVisible;
     wbGridVisible ? drawCanvasGrid() : removeCanvasGrid();
-    wbCanvasToJson();
 }
 
 /**
@@ -15235,7 +15240,6 @@ function whiteboardEraseObject() {
             });
             wbCanvas.discardActiveObject();
             wbCanvas.requestRenderAll();
-            wbCanvasToJson();
         }
     }
 }
@@ -15257,7 +15261,6 @@ function whiteboardCloneObject() {
                     });
                     wbCanvas.add(cloned);
                     wbCanvas.setActiveObject(cloned);
-                    wbCanvasToJson();
                 });
             });
             wbCanvas.requestRenderAll();
@@ -15273,7 +15276,6 @@ function whiteboardGroupSelection() {
     const group = selection.toGroup();
     wbCanvas.setActiveObject(group);
     wbCanvas.requestRenderAll();
-    wbCanvasToJson();
 }
 
 function whiteboardUngroupSelection() {
@@ -15283,7 +15285,6 @@ function whiteboardUngroupSelection() {
     }
     group.toActiveSelection();
     wbCanvas.requestRenderAll();
-    wbCanvasToJson();
 }
 
 /**
@@ -15309,7 +15310,6 @@ function wbHandleVanishingObjects() {
             setTimeout(() => {
                 wbCanvas.remove(obj);
                 wbCanvas.renderAll();
-                wbCanvasToJson();
                 wbVanishingObjects.splice(wbVanishingObjects.indexOf(obj), 1);
             }, vanishTimeout);
         }
@@ -15653,7 +15653,6 @@ async function renderPdfToCanvas(wbCanvasPdf) {
             await pdfToImage(event.target.result, wbCanvas);
             whiteboardResetAllMode();
             whiteboardIsObjectMode(false);
-            wbCanvasToJson();
         };
         reader.readAsDataURL(wbCanvasPdf);
     }
@@ -15744,7 +15743,6 @@ function addWbCanvasObj(obj) {
         wbCanvas.add(obj).setActiveObject(obj);
         whiteboardResetAllMode();
         whiteboardIsObjectMode(true);
-        wbCanvasToJson();
     } else {
         console.error('Invalid input. Expected an obj of canvas elements');
     }
@@ -15783,8 +15781,17 @@ function setupWhiteboardLocalListeners() {
     wbCanvas.on('mouse:move', function () {
         mouseMove();
     });
-    wbCanvas.on('object:added', function () {
-        objectAdded();
+    wbCanvas.on('object:added', function (event) {
+        objectAdded(event.target);
+    });
+    wbCanvas.on('object:modified', function (event) {
+        wbEmitObjectUpsert(event.target);
+    });
+    wbCanvas.on('object:removed', function (event) {
+        wbEmitObjectRemove(event.target);
+    });
+    wbCanvas.on('text:changed', function (event) {
+        wbScheduleTextSync(event.target);
     });
 }
 
@@ -15814,7 +15821,7 @@ async function editWhiteboardGroupedText(e) {
     group.addWithUpdate();
     group.setCoords();
     wbCanvas.requestRenderAll();
-    wbCanvasToJson();
+    wbEmitObjectUpsert(group);
 }
 
 /**
@@ -15839,7 +15846,6 @@ function mouseDown(e) {
  */
 function mouseUp() {
     wbIsDrawing = false;
-    wbCanvasToJson();
 }
 
 /**
@@ -15859,10 +15865,126 @@ function mouseMove() {
 /**
  * Whiteboard: tmp objects
  */
-function objectAdded() {
+function objectAdded(obj) {
+    if (wbIsApplyingRemote) return;
     if (!wbIsRedoing) wbPop = [];
     wbIsRedoing = false;
     wbHandleVanishingObjects();
+    const duplicateId =
+        obj?.wbId && wbCanvas.getObjects().some((candidate) => candidate !== obj && candidate.wbId === obj.wbId);
+    if (duplicateId) obj.set('wbId', null);
+    wbEmitObjectUpsert(obj);
+}
+
+/**
+ * Get the unique whiteboard object ID, generating one if it doesn't exist.
+ * @param {object} obj The whiteboard object.
+ * @returns {string|null} The unique ID of the whiteboard object, or null if the object is invalid.
+ */
+function wbGetObjectId(obj) {
+    if (!obj) return null;
+    if (!obj.wbId) {
+        const randomId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${++wbObjectIdCounter}`;
+        obj.set('wbId', `${myPeerId}-${randomId}`);
+    }
+    return obj.wbId;
+}
+
+/**
+ * Check if the whiteboard is in a state where it can synchronize objects with other peers.
+ * @returns {boolean} True if objects can be synchronized, false otherwise.
+ */
+function wbCanSyncObjects() {
+    return !wbIsApplyingRemote && (!wbIsLock || isPresenter) && thereArePeerConnections();
+}
+
+/**
+ * Emit an upsert event for a whiteboard object to synchronize it with other peers.
+ * @param {object} obj The whiteboard object to upsert.
+ * @returns {void}
+ */
+function wbEmitObjectUpsert(obj) {
+    if (!obj || !wbCanSyncObjects()) return;
+    sendToServer('whiteboardObject', {
+        room_id: roomId,
+        peer_name: myPeerName,
+        peer_uuid: myPeerUUID,
+        action: 'upsert',
+        object_id: wbGetObjectId(obj),
+        object: obj.toObject(['wbId']),
+    });
+}
+
+/**
+ * Emit a remove event for a whiteboard object to synchronize its removal with other peers.
+ * @param {object} obj The whiteboard object to remove.
+ * @returns {void}
+ */
+function wbEmitObjectRemove(obj) {
+    if (!obj || !wbCanSyncObjects()) return;
+    sendToServer('whiteboardObject', {
+        room_id: roomId,
+        peer_name: myPeerName,
+        peer_uuid: myPeerUUID,
+        action: 'remove',
+        object_id: wbGetObjectId(obj),
+    });
+}
+
+/**
+ * Schedule a synchronization of the text content of a whiteboard object with other peers.
+ * @param {object} obj The whiteboard object whose text content should be synchronized.
+ * @returns {void}
+ */
+function wbScheduleTextSync(obj) {
+    if (!obj || wbIsApplyingRemote) return;
+    const objectId = wbGetObjectId(obj);
+    clearTimeout(wbTextSyncTimers.get(objectId));
+    wbTextSyncTimers.set(
+        objectId,
+        setTimeout(() => {
+            wbTextSyncTimers.delete(objectId);
+            wbEmitObjectUpsert(obj);
+        }, 100)
+    );
+}
+
+/**
+ * Handle an incoming whiteboard object event from the server and update the local whiteboard accordingly.
+ * @param {object} config The configuration object containing the action and whiteboard object data.
+ * @returns {void}
+ */
+function handleWhiteboardObject(config) {
+    if (!config || !wbCanvas) return;
+    if (!wbIsOpen) toggleWhiteboard();
+
+    if (config.action === 'remove') {
+        const existing = wbCanvas.getObjects().find((obj) => obj.wbId === config.object_id);
+        wbIsApplyingRemote = true;
+        if (existing) wbCanvas.remove(existing);
+        wbCanvas.requestRenderAll();
+        wbIsApplyingRemote = false;
+        return;
+    }
+
+    if (config.action !== 'upsert' || !config.object) return;
+
+    fabric.util.enlivenObjects([config.object], (objects) => {
+        const updated = objects[0];
+        if (!updated) return;
+        const existing = wbCanvas.getObjects().find((obj) => obj.wbId === config.object_id);
+        wbIsApplyingRemote = true;
+        updated.set('wbId', config.object_id);
+        if (existing) {
+            const index = wbCanvas.getObjects().indexOf(existing);
+            wbCanvas.remove(existing);
+            wbCanvas.insertAt(updated, index, false);
+        } else {
+            wbCanvas.add(updated);
+        }
+        wbCanvas.requestRenderAll();
+        wbIsApplyingRemote = false;
+    });
 }
 
 /**
@@ -15949,11 +16071,12 @@ function saveDataToFile(dataURL, fileName) {
 function wbCanvasToJson() {
     if (!isPresenter && wbIsLock) return;
     if (thereArePeerConnections()) {
+        wbCanvas.getObjects().forEach(wbGetObjectId);
         const config = {
             room_id: roomId,
             peer_name: myPeerName,
             peer_uuid: myPeerUUID,
-            wbCanvasJson: JSON.stringify(wbCanvas.toJSON()),
+            wbCanvasJson: JSON.stringify(wbCanvas.toJSON(['wbId'])),
         };
         sendToServer('wbCanvasToJson', config);
     }
@@ -15976,12 +16099,14 @@ async function wbUpdate() {
 function handleJsonToWbCanvas(config) {
     if (!wbIsOpen) toggleWhiteboard();
     wbIsRedoing = true;
+    wbIsApplyingRemote = true;
 
     // Parse the JSON and load it
     wbCanvas.loadFromJSON(config.wbCanvasJson, function () {
         // After loading, ensure proper scaling is maintained
         setupWhiteboardCanvasSize();
         wbIsRedoing = false;
+        wbIsApplyingRemote = false;
     });
 
     if (!isPresenter && !wbCanvas.isDrawingMode && wbIsLock) {
@@ -17152,7 +17277,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.71',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.80',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
