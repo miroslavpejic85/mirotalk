@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.80
+ * @version 1.9.85
  *
  */
 
@@ -406,6 +406,7 @@ const sockets = {}; // collect sockets
 const peers = {}; // collect peers info grp by channels
 const presenters = {}; // collect presenters grp by channels
 const wbLocks = {}; // server-authoritative whiteboard lock state grp by channels
+const wbParticipantNames = {}; // presenter-controlled whiteboard participant attribution state grp by channels
 
 const roomMetaKeys = new Set(['lock', 'password', 'joinLock']);
 
@@ -2347,6 +2348,17 @@ io.sockets.on('connect', async (socket) => {
         await sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
     });
 
+    /**
+     * Handle whiteboard object updates (upsert/remove) from clients.
+     * Validates the data, checks permissions, and broadcasts to the room.
+     * @param {Object} cfg - The configuration object containing whiteboard object update data.
+     * @param {string} cfg.room_id - The ID of the room.
+     * @param {string} cfg.peer_name - The name of the peer sending the update.
+     * @param {string} cfg.peer_uuid - The UUID of the peer sending the update.
+     * @param {string} cfg.action - The action to perform ('upsert' or 'remove').
+     * @param {string} cfg.object_id - The ID of the whiteboard object.
+     * @param {Object} [cfg.object] - The whiteboard object data (required for 'upsert' action).
+     */
     socket.on('whiteboardObject', async (cfg) => {
         const config = checkXSS(cfg);
 
@@ -2373,11 +2385,47 @@ io.sockets.on('connect', async (socket) => {
             if (canvas.wbCanvasJson.objects.length !== 1) return;
             config.object = canvas.wbCanvasJson.objects[0];
             config.object.wbId = object_id;
+            config.object.wbAuthor = String(peers[room_id][socket.id].peer_name || 'Participant').slice(0, 40);
+            config.object.wbAuthorId = socket.id;
         } else {
             delete config.object;
         }
 
         await sendToRoom(room_id, socket.id, 'whiteboardObject', config);
+    });
+
+    /**
+     * Handle whiteboard pointer updates from clients.
+     * Validates the data, checks permissions, and broadcasts to the room.
+     * @param {Object} cfg - The configuration object containing pointer data.
+     * @param {string} cfg.room_id - The ID of the room.
+     * @param {number} cfg.x - The x-coordinate of the pointer.
+     * @param {number} cfg.y - The y-coordinate of the pointer.
+     * @param {boolean} cfg.active - Whether the pointer is active.
+     */
+    socket.on('whiteboardPointer', async (cfg) => {
+        if (!cfg || typeof cfg !== 'object') return;
+
+        const room_id = cfg.room_id;
+        if (!wbParticipantNames[room_id] || !peers[room_id] || !peers[room_id][socket.id]) return;
+
+        const now = Date.now();
+        if (cfg.active && now - (socket.lastWhiteboardPointerAt || 0) < 25) return;
+        socket.lastWhiteboardPointerAt = now;
+
+        const x = Number(cfg.x);
+        const y = Number(cfg.y);
+        if (!Number.isFinite(x) || !Number.isFinite(y) || Math.abs(x) > 100_000 || Math.abs(y) > 100_000) return;
+        const peer = peers[room_id][socket.id];
+        if (wbLocks[room_id] && !isPeerPresenter(room_id, socket.id, peer.peer_name, peer.peer_uuid)) return;
+
+        await sendToRoom(room_id, socket.id, 'whiteboardPointer', {
+            peer_id: socket.id,
+            peer_name: String(peers[room_id][socket.id].peer_name || 'Participant').slice(0, 40),
+            x,
+            y,
+            active: Boolean(cfg.active),
+        });
     });
 
     socket.on('whiteboardAction', async (cfg) => {
@@ -2426,11 +2474,24 @@ io.sockets.on('connect', async (socket) => {
         // button.
         if (action === 'lock') wbLocks[room_id] = true;
         if (action === 'unlock') delete wbLocks[room_id];
+        if (action === 'participantNames') {
+            config.status = Boolean(config.status);
+            wbParticipantNames[room_id] = config.status;
+        }
 
         log.debug('Whiteboard', config);
         await sendToRoom(room_id, socket.id, 'whiteboardAction', config);
     });
 
+    /**
+     * Handle video drawing updates from clients.
+     * Validates the data, checks permissions, and broadcasts to the room.
+     * @param {Object} cfg - The configuration object containing video drawing data.
+     * @param {string} cfg.room_id - The ID of the room.
+     * @param {string} cfg.screenOwnerId - The ID of the screen owner.
+     * @param {Array} cfg.points - The array of points representing the drawing.
+     * @param {boolean} cfg.end - Whether this is the end of the drawing.
+     */
     socket.on('videoDrawing', async (cfg) => {
         const config = checkXSS(cfg);
         if (!Validate.isValidData(config)) return;
@@ -2516,6 +2577,7 @@ io.sockets.on('connect', async (socket) => {
                 delete presenters[channel];
                 delete channels[channel]; // Clean up channels to prevent memory leak
                 delete wbLocks[channel]; // Clean up whiteboard lock state
+                delete wbParticipantNames[channel]; // Clean up whiteboard participant attribution state
             }
         } catch (err) {
             log.error('Remove Peer', toJson(err));

@@ -382,6 +382,8 @@
         "Output volume:": "Output volume:",
         "Packet Lost": "Packet Lost",
         "Participant view": "Participant view",
+        "Participant names": "Participant names",
+        "Show participant names on the whiteboard": "Show participant names on the whiteboard",
         "participantName": "participantName",
         "Participants": "Participants",
         "Participants will appear here when other people join the room.": "Participants will appear here when other people join the room.",
@@ -602,7 +604,7 @@
         "Unlock room": "Unlock room",
         "Unlock room?": "Unlock room?",
         "Username": "Username",
-        "WebRTC P2P v1.9.80": "WebRTC P2P v1.9.80",
+        "WebRTC P2P v1.9.85": "WebRTC P2P v1.9.85",
         "Whiteboard Shortcuts": "Whiteboard Shortcuts",
         "Yes": "Yes",
         "Your microphone is off": "Your microphone is off"

@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.80
+ * @version 1.9.85
  *
  */
 
@@ -467,6 +467,8 @@ const whiteboardRedoBtn = getId('whiteboardRedoBtn');
 const whiteboardResponsiveActionsMenu = getId('whiteboardResponsiveActionsMenu');
 const whiteboardDropDownMenuBtn = getId('whiteboardDropDownMenuBtn');
 const whiteboardDropdownMenu = getId('whiteboardDropdownMenu');
+const whiteboardParticipantNamesControl = getId('whiteboardParticipantNamesControl');
+const whiteboardParticipantNamesSwitch = getId('whiteboardParticipantNamesSwitch');
 const whiteboardImgFileBtn = getId('whiteboardImgFileBtn');
 const whiteboardPdfFileBtn = getId('whiteboardPdfFileBtn');
 const whiteboardImgUrlBtn = getId('whiteboardImgUrlBtn');
@@ -793,8 +795,11 @@ let wbIsPencil = false;
 let wbIsVanishing = false;
 let wbIsBgTransparent = false;
 let wbIsApplyingRemote = false;
+let wbShowParticipantNames = false;
 let wbObjectIdCounter = 0;
+let wbLastPointerEmitAt = 0;
 const wbTextSyncTimers = new Map();
+const wbParticipantLabels = new Map();
 let wbPop = [];
 let wbVanishingObjects = [];
 let wbGridLines = [];
@@ -1540,6 +1545,7 @@ async function initClientPeer() {
     signalingSocket.on('videoPlayer', handleVideoPlayer);
     signalingSocket.on('wbCanvasToJson', handleJsonToWbCanvas);
     signalingSocket.on('whiteboardObject', handleWhiteboardObject);
+    signalingSocket.on('whiteboardPointer', handleWhiteboardPointer);
     signalingSocket.on('whiteboardAction', handleWhiteboardAction);
     signalingSocket.on('videoDrawing', (data) => VideoDrawingOverlay.receive(data));
     signalingSocket.on('fileInfo', handleFileInfo);
@@ -1861,6 +1867,7 @@ function handleButtonsRule() {
         buttons.whiteboard.whiteboardLockBtn,
         buttons.whiteboard.whiteboardLockBtn ? 'flex' : undefined
     );
+    elemDisplay(whiteboardParticipantNamesControl, isPresenter, isPresenter ? 'flex' : undefined);
 }
 
 /**
@@ -7587,6 +7594,15 @@ function setMyWhiteboardBtn() {
     });
     whiteboardCleanBtn.addEventListener('click', (e) => {
         confirmCleanBoard();
+    });
+    whiteboardParticipantNamesControl.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+    whiteboardParticipantNamesSwitch.addEventListener('change', (event) => {
+        if (!isPresenter) return setWhiteboardParticipantNames(wbShowParticipantNames);
+        const status = event.currentTarget.checked;
+        setWhiteboardParticipantNames(status);
+        whiteboardAction({ ...getWhiteboardAction('participantNames'), status });
     });
     whiteboardLockBtn.addEventListener('click', (e) => {
         toggleLockUnlockWhiteboard();
@@ -14945,6 +14961,7 @@ function setupWhiteboardCanvasSize() {
     // Recalculate offsets and render
     wbCanvas.calcOffset();
     wbCanvas.renderAll();
+    wbRepositionParticipantLabels();
 }
 
 /**
@@ -15775,11 +15792,11 @@ function setupWhiteboardLocalListeners() {
     wbCanvas.on('mouse:dblclick', function (e) {
         if (!isMobileDevice) editWhiteboardGroupedText(e);
     });
-    wbCanvas.on('mouse:up', function () {
-        mouseUp();
+    wbCanvas.on('mouse:up', function (event) {
+        mouseUp(event);
     });
-    wbCanvas.on('mouse:move', function () {
-        mouseMove();
+    wbCanvas.on('mouse:move', function (event) {
+        mouseMove(event);
     });
     wbCanvas.on('object:added', function (event) {
         objectAdded(event.target);
@@ -15793,8 +15810,35 @@ function setupWhiteboardLocalListeners() {
     wbCanvas.on('text:changed', function (event) {
         wbScheduleTextSync(event.target);
     });
+    wbCanvas.on('mouse:over', function (event) {
+        wbShowAuthorLabel(event.target);
+    });
+    wbCanvas.on('mouse:out', function () {
+        if (!wbCanvas.getActiveObject()) wbHideAuthorLabel();
+    });
+    wbCanvas.on('selection:created', function (event) {
+        wbShowAuthorLabel(event.selected?.[0]);
+    });
+    wbCanvas.on('selection:updated', function (event) {
+        wbShowAuthorLabel(event.selected?.[0]);
+    });
+    wbCanvas.on('selection:cleared', wbHideAuthorLabel);
+    wbCanvas.on('object:moving', function (event) {
+        wbShowAuthorLabel(event.target);
+    });
+    wbCanvas.on('object:scaling', function (event) {
+        wbShowAuthorLabel(event.target);
+    });
+    wbCanvas.on('object:rotating', function (event) {
+        wbShowAuthorLabel(event.target);
+    });
 }
 
+/**
+ * Edit the title of a grouped text object on the whiteboard.
+ * @param {object} e event
+ * @returns {Promise<void>}
+ */
 async function editWhiteboardGroupedText(e) {
     const group = e.target;
     if (!group || group.type !== 'group' || typeof group.getObjects !== 'function') return;
@@ -15831,6 +15875,7 @@ async function editWhiteboardGroupedText(e) {
  */
 function mouseDown(e) {
     wbIsDrawing = true;
+    wbSyncParticipantPointer(e, true);
     if (wbIsEraser && e.target) {
         // Don't add vanishing objects to redo stack
         if (!wbVanishingObjects.includes(e.target)) {
@@ -15844,7 +15889,8 @@ function mouseDown(e) {
 /**
  * Whiteboard: mouse up
  */
-function mouseUp() {
+function mouseUp(e) {
+    wbSyncParticipantPointer(e, false, true);
     wbIsDrawing = false;
 }
 
@@ -15852,14 +15898,14 @@ function mouseUp() {
  * Whiteboard: mouse move
  * @returns
  */
-function mouseMove() {
+function mouseMove(e) {
     if (wbIsEraser) {
         wbCanvas.hoverCursor = 'not-allowed';
-        return;
     } else {
         wbCanvas.hoverCursor = 'move';
     }
     if (!wbIsDrawing) return;
+    wbSyncParticipantPointer(e, true);
 }
 
 /**
@@ -15872,7 +15918,7 @@ function objectAdded(obj) {
     wbHandleVanishingObjects();
     const duplicateId =
         obj?.wbId && wbCanvas.getObjects().some((candidate) => candidate !== obj && candidate.wbId === obj.wbId);
-    if (duplicateId) obj.set('wbId', null);
+    if (duplicateId) obj.set({ wbId: null, wbAuthor: null, wbAuthorId: null });
     wbEmitObjectUpsert(obj);
 }
 
@@ -15899,19 +15945,204 @@ function wbCanSyncObjects() {
 }
 
 /**
+ * Get the pointer coordinates from a whiteboard event, clamped to the whiteboard's reference dimensions.
+ * @param {object} event The whiteboard event.
+ * @returns {{x: number, y: number}|null} The clamped pointer coordinates, or null if the pointer is invalid.
+ */
+function wbGetEventPointer(event) {
+    const pointer = event?.absolutePointer || event?.pointer;
+    if (!pointer || !Number.isFinite(pointer.x) || !Number.isFinite(pointer.y)) return null;
+    return {
+        x: Math.max(0, Math.min(wbReferenceWidth, pointer.x)),
+        y: Math.max(0, Math.min(wbReferenceHeight, pointer.y)),
+    };
+}
+
+/**
+ * Synchronize the participant's pointer position on the whiteboard with other peers.
+ * @param {object} event The whiteboard event containing the pointer information.
+ * @param {boolean} active Whether the pointer is active (e.g., the participant is currently interacting with the whiteboard).
+ * @param {boolean} [force=false] Whether to force the synchronization regardless of the last emit time.
+ */
+function wbSyncParticipantPointer(event, active, force = false) {
+    const pointer = wbGetEventPointer(event);
+    if (!pointer || !wbShowParticipantNames || wbIsApplyingRemote || (wbIsLock && !isPresenter)) return;
+
+    const now = Date.now();
+    if (!force && now - wbLastPointerEmitAt < 50) return;
+    wbLastPointerEmitAt = now;
+
+    const config = {
+        room_id: roomId,
+        peer_id: myPeerId,
+        peer_name: myPeerName,
+        x: pointer.x,
+        y: pointer.y,
+        active,
+    };
+    wbUpdateParticipantLabel(config);
+    if (thereArePeerConnections()) sendToServer('whiteboardPointer', config);
+}
+
+/**
+ * Update the visual label for a participant on the whiteboard.
+ * @param {object} config The configuration object containing participant information and pointer coordinates.
+ */
+function wbUpdateParticipantLabel(config) {
+    const labelsContainer = getId('whiteboardParticipantLabels');
+    if (
+        !wbShowParticipantNames ||
+        !labelsContainer ||
+        !config?.peer_id ||
+        !Number.isFinite(config.x) ||
+        !Number.isFinite(config.y)
+    )
+        return;
+
+    let entry = wbParticipantLabels.get(config.peer_id);
+    if (!entry) {
+        const element = document.createElement('div');
+        element.className = 'whiteboard-participant-label';
+        labelsContainer.appendChild(element);
+        entry = { element, x: config.x, y: config.y, hideTimer: null, fadeTimer: null };
+        wbParticipantLabels.set(config.peer_id, entry);
+    }
+
+    clearTimeout(entry.hideTimer);
+    clearTimeout(entry.fadeTimer);
+    entry.x = config.x;
+    entry.y = config.y;
+    entry.element.textContent = String(config.peer_name || 'Participant')
+        .trim()
+        .slice(0, 40);
+    entry.element.classList.remove('hidden', 'is-hiding');
+    entry.element.classList.toggle('is-active', Boolean(config.active));
+    wbPositionParticipantLabel(entry);
+
+    if (!config.active) {
+        entry.hideTimer = setTimeout(() => {
+            entry.element.classList.add('is-hiding');
+            entry.fadeTimer = setTimeout(() => entry.element.classList.add('hidden'), 180);
+        }, 2000);
+    }
+}
+
+/**
+ * Position the visual label for a participant on the whiteboard based on its coordinates.
+ * @param {object} entry The participant label entry containing the element and coordinates.
+ */
+function wbPositionParticipantLabel(entry) {
+    if (!entry?.element || !wbCanvas?.upperCanvasEl) return;
+    const labelsContainer = getId('whiteboardParticipantLabels');
+    const canvasRect = wbCanvas.upperCanvasEl.getBoundingClientRect();
+    const containerRect = labelsContainer.getBoundingClientRect();
+    const left = canvasRect.left - containerRect.left + (entry.x / wbReferenceWidth) * canvasRect.width;
+    const top = canvasRect.top - containerRect.top + (entry.y / wbReferenceHeight) * canvasRect.height;
+
+    entry.element.style.left = `${Math.max(12, Math.min(labelsContainer.clientWidth - 12, left))}px`;
+    entry.element.style.top = `${Math.max(24, Math.min(labelsContainer.clientHeight, top))}px`;
+}
+
+/**
+ * Reposition all participant labels on the whiteboard.
+ */
+function wbRepositionParticipantLabels() {
+    wbParticipantLabels.forEach(wbPositionParticipantLabel);
+}
+
+/**
+ * Reposition all participant labels on the whiteboard.
+ * This should be called whenever the whiteboard or its container is resized or moved.
+ */
+function wbUpdateParticipantLabelFromObject(obj) {
+    if (!obj?.wbAuthorId || !obj.wbAuthor) return;
+    const bounds = obj.getBoundingRect(true, true);
+    wbUpdateParticipantLabel({
+        peer_id: obj.wbAuthorId,
+        peer_name: obj.wbAuthor,
+        x: bounds.left + bounds.width / 2,
+        y: bounds.top + bounds.height,
+        active: false,
+    });
+}
+
+/**
+ * Clear all participant labels from the whiteboard.
+ */
+function wbClearParticipantLabels() {
+    wbParticipantLabels.forEach(({ element, hideTimer, fadeTimer }) => {
+        clearTimeout(hideTimer);
+        clearTimeout(fadeTimer);
+        element.remove();
+    });
+    wbParticipantLabels.clear();
+    wbHideAuthorLabel();
+}
+
+/**
+ * Set whether participant names should be displayed on the whiteboard.
+ * @param {boolean} status True to show participant names, false to hide them.
+ */
+function setWhiteboardParticipantNames(status) {
+    wbShowParticipantNames = Boolean(status);
+    whiteboardParticipantNamesSwitch.checked = wbShowParticipantNames;
+    whiteboardParticipantNamesSwitch.setAttribute('aria-checked', String(wbShowParticipantNames));
+    if (!wbShowParticipantNames) wbClearParticipantLabels();
+}
+
+/**
+ * Handle a pointer event on the whiteboard and update the corresponding participant label.
+ * @param {object} config The configuration object containing participant information and pointer coordinates.
+ */
+function handleWhiteboardPointer(config) {
+    if (!config || !wbCanvas) return;
+    if (!wbIsOpen) toggleWhiteboard();
+    wbUpdateParticipantLabel(config);
+}
+
+/**
+ * Show the author label for a specific whiteboard object.
+ * @param {object} obj The whiteboard object for which to show the author label.
+ */
+function wbShowAuthorLabel(obj) {
+    const label = getId('whiteboardAuthorLabel');
+    if (!wbShowParticipantNames || !label || !obj?.wbAuthor || obj.type === 'activeSelection') {
+        return wbHideAuthorLabel();
+    }
+
+    const canvasArea = label.parentElement;
+    const canvasRect = wbCanvas.upperCanvasEl.getBoundingClientRect();
+    const areaRect = canvasArea.getBoundingClientRect();
+    const bounds = obj.getBoundingRect(true, true);
+    const left = canvasRect.left - areaRect.left + bounds.left + bounds.width / 2;
+    const top = canvasRect.top - areaRect.top + bounds.top;
+
+    label.textContent = String(obj.wbAuthor).trim().slice(0, 40);
+    label.style.left = `${Math.max(12, Math.min(canvasRect.width - 12, left))}px`;
+    label.style.top = `${Math.max(24, top)}px`;
+    label.classList.remove('hidden');
+}
+
+function wbHideAuthorLabel() {
+    getId('whiteboardAuthorLabel')?.classList.add('hidden');
+}
+
+/**
  * Emit an upsert event for a whiteboard object to synchronize it with other peers.
  * @param {object} obj The whiteboard object to upsert.
  * @returns {void}
  */
 function wbEmitObjectUpsert(obj) {
     if (!obj || !wbCanSyncObjects()) return;
+    obj.set({ wbAuthor: myPeerName, wbAuthorId: myPeerId });
+    wbUpdateParticipantLabelFromObject(obj);
     sendToServer('whiteboardObject', {
         room_id: roomId,
         peer_name: myPeerName,
         peer_uuid: myPeerUUID,
         action: 'upsert',
         object_id: wbGetObjectId(obj),
-        object: obj.toObject(['wbId']),
+        object: obj.toObject(['wbId', 'wbAuthor', 'wbAuthorId']),
     });
 }
 
@@ -15974,7 +16205,11 @@ function handleWhiteboardObject(config) {
         if (!updated) return;
         const existing = wbCanvas.getObjects().find((obj) => obj.wbId === config.object_id);
         wbIsApplyingRemote = true;
-        updated.set('wbId', config.object_id);
+        updated.set({
+            wbId: config.object_id,
+            wbAuthor: config.object.wbAuthor,
+            wbAuthorId: config.object.wbAuthorId,
+        });
         if (existing) {
             const index = wbCanvas.getObjects().indexOf(existing);
             wbCanvas.remove(existing);
@@ -15984,6 +16219,7 @@ function handleWhiteboardObject(config) {
         }
         wbCanvas.requestRenderAll();
         wbIsApplyingRemote = false;
+        wbUpdateParticipantLabelFromObject(updated);
     });
 }
 
@@ -16027,6 +16263,7 @@ function wbCanvasRedo() {
  */
 function wbCanvasClear() {
     wbCanvas.clear();
+    wbClearParticipantLabels();
     wbCanvas.renderAll();
 }
 
@@ -16071,12 +16308,16 @@ function saveDataToFile(dataURL, fileName) {
 function wbCanvasToJson() {
     if (!isPresenter && wbIsLock) return;
     if (thereArePeerConnections()) {
-        wbCanvas.getObjects().forEach(wbGetObjectId);
+        wbCanvas.getObjects().forEach((obj) => {
+            wbGetObjectId(obj);
+            if (!obj.wbAuthor) obj.set('wbAuthor', myPeerName);
+            if (!obj.wbAuthorId) obj.set('wbAuthorId', myPeerId);
+        });
         const config = {
             room_id: roomId,
             peer_name: myPeerName,
             peer_uuid: myPeerUUID,
-            wbCanvasJson: JSON.stringify(wbCanvas.toJSON(['wbId'])),
+            wbCanvasJson: JSON.stringify(wbCanvas.toJSON(['wbId', 'wbAuthor', 'wbAuthorId'])),
         };
         sendToServer('wbCanvasToJson', config);
     }
@@ -16089,6 +16330,7 @@ async function wbUpdate() {
     if (wbIsOpen && thereArePeerConnections()) {
         wbCanvasToJson();
         whiteboardAction(getWhiteboardAction(wbIsLock ? 'lock' : 'unlock'));
+        whiteboardAction({ ...getWhiteboardAction('participantNames'), status: wbShowParticipantNames });
     }
 }
 
@@ -16183,7 +16425,9 @@ function handleWhiteboardAction(config, logMe = true) {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
-        userLog('toast', `${icons.user} ${safePeerName} \n whiteboard action: ${action}`);
+        if (action !== 'participantNames') {
+            userLog('toast', `${icons.user} ${safePeerName} \n whiteboard action: ${action}`);
+        }
     }
     switch (action) {
         case 'bgcolor':
@@ -16198,6 +16442,9 @@ function handleWhiteboardAction(config, logMe = true) {
         case 'clear':
             wbCanvasClear();
             removeCanvasGrid();
+            break;
+        case 'participantNames':
+            setWhiteboardParticipantNames(config.status);
             break;
         case 'open':
             if (!wbIsOpen) toggleWhiteboard();
@@ -17277,7 +17524,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.80',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.85',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

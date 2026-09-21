@@ -1627,6 +1627,16 @@
                             aria-labelledby="whiteboardDropDownMenu"
                         >
                             <div id="whiteboardResponsiveActionsMenu"></div>
+                            <label id="whiteboardParticipantNamesControl" class="whiteboard-menu-switch hidden">
+                                <span><i class="fas fa-user-tag"></i> Participant names</span>
+                                <input
+                                    id="whiteboardParticipantNamesSwitch"
+                                    class="toggle"
+                                    type="checkbox"
+                                    role="switch"
+                                    aria-label="Show participant names on the whiteboard"
+                                />
+                            </label>
                             <button id="whiteboardImgFileBtn" class="app-dropdown-action">
                                 <i class="far fa-image"></i> Add image file
                             </button>
@@ -1696,8 +1706,10 @@
                     ></button>
                 </div>
             </header>
-            <main>
+            <main class="whiteboard-canvas-area">
                 <canvas id="wbCanvas"></canvas>
+                <div id="whiteboardParticipantLabels" class="whiteboard-participant-labels" aria-live="polite"></div>
+                <div id="whiteboardAuthorLabel" class="whiteboard-author-label hidden" aria-live="polite"></div>
                 <div id="whiteboardShortcutsContent">
                     <div class="wb-shortcuts-container">
                         <h3 class="wb-shortcuts-title"><i class="fas fa-keyboard"></i> General Shortcuts</h3>
