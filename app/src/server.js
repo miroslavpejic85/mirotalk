@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.86
+ * @version 1.9.87
  *
  */
 
@@ -1482,6 +1482,7 @@ io.sockets.on('connect', async (socket) => {
         }
 
         let is_presenter = true;
+        let authenticatedUsername = null;
 
         // Is this join opening a brand new room (no presenter/host yet)? Computed from
         // current state BEFORE any room structure is created, so a rejected join never
@@ -1517,6 +1518,7 @@ io.sockets.on('connect', async (socket) => {
                     }
 
                     // Presenter if token 'presenter' is '1'/'true' or first to join room
+                    authenticatedUsername = username;
                     is_presenter = presenter === '1' || presenter === 'true' || isRoomNew;
 
                     log.debug('[' + socket.id + '] JOIN ROOM - USER AUTH check peer', {
@@ -1556,15 +1558,14 @@ io.sockets.on('connect', async (socket) => {
             is_presenter: is_presenter,
         };
 
-        // Recover presenter status on reconnect: if a stale presenter entry
-        // exists for this user (same peer_name AND same peer_uuid) under a
-        // previous socket.id, migrate it to the current socket.id. peer_uuid
-        // is never broadcast to other peers, so it cannot be spoofed by
-        // someone who only learned the display name.
+        // Recover presenter status only from a disconnected socket. A live
+        // presenter must never lose the role to another connection.
         for (const [existingPeerID, existingPresenter] of Object.entries(presenters[channel])) {
             if (
                 existingPeerID !== socket.id &&
+                !sockets[existingPeerID]?.connected &&
                 existingPresenter &&
+                existingPresenter.is_presenter === true &&
                 existingPresenter.peer_name === peer_name &&
                 existingPresenter.peer_uuid === peer_uuid
             ) {
@@ -1578,8 +1579,9 @@ io.sockets.on('connect', async (socket) => {
             }
         }
 
-        // first we check if the username match the presenters username
-        if (roomPresenters && roomPresenters.includes(peer_name)) {
+        // Match configured presenters against authenticated account names,
+        // never client-selected display names.
+        if (authenticatedUsername && roomPresenters && roomPresenters.includes(authenticatedUsername)) {
             presenters[channel][socket.id] = presenter;
         } else {
             // if not match the presenters username, the first one join room is the presenter
@@ -1897,11 +1899,11 @@ io.sockets.on('connect', async (socket) => {
         if (send_to_all) {
             log.debug('[' + socket.id + '] emit cmd to [room_id: ' + room_id + ']', config);
 
-            await sendToRoom(room_id, socket.id, 'cmd', config);
+            await sendToRoom(room_id, socket.id, 'cmd', omitPeerUuid(config));
         } else {
             log.debug('[' + socket.id + '] emit cmd to [' + to_peer_id + '] from room_id [' + room_id + ']');
 
-            await sendToPeer(to_peer_id, sockets, 'cmd', config);
+            await sendToPeer(to_peer_id, sockets, 'cmd', omitPeerUuid(config));
         }
     });
 
@@ -2345,7 +2347,7 @@ io.sockets.on('connect', async (socket) => {
         // https://, http:// to public hosts, and data:image/ are allowed.
         Validate.sanitizeWbCanvasJson(config, (msg, ctx) => log.debug(msg, ctx));
 
-        await sendToRoom(room_id, socket.id, 'wbCanvasToJson', config);
+        await sendToRoom(room_id, socket.id, 'wbCanvasToJson', omitPeerUuid(config));
     });
 
     /**
@@ -2391,7 +2393,7 @@ io.sockets.on('connect', async (socket) => {
             delete config.object;
         }
 
-        await sendToRoom(room_id, socket.id, 'whiteboardObject', config);
+        await sendToRoom(room_id, socket.id, 'whiteboardObject', omitPeerUuid(config));
     });
 
     /**
@@ -2428,6 +2430,15 @@ io.sockets.on('connect', async (socket) => {
         });
     });
 
+    /**
+     * Handle whiteboard actions from clients.
+     * Validates the data, checks permissions, and broadcasts to the room.
+     * @param {Object} cfg - The configuration object containing action data.
+     * @param {string} cfg.room_id - The ID of the room.
+     * @param {string} cfg.peer_name - The name of the peer.
+     * @param {string} cfg.peer_uuid - The UUID of the peer.
+     * @param {string} cfg.action - The action to perform (e.g., lock, unlock).
+     */
     socket.on('whiteboardAction', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
@@ -2480,7 +2491,7 @@ io.sockets.on('connect', async (socket) => {
         }
 
         log.debug('Whiteboard', config);
-        await sendToRoom(room_id, socket.id, 'whiteboardAction', config);
+        await sendToRoom(room_id, socket.id, 'whiteboardAction', omitPeerUuid(config));
     });
 
     /**
@@ -2705,6 +2716,23 @@ function isPeerInRoom(room_id, socket_id) {
 }
 
 /**
+ * Omit the peer_uuid from the broadcast configuration and its nested data object if present.
+ * @param {object} config broadcast configuration object
+ * @returns {object} broadcast configuration object with peer_uuid omitted
+ */
+function omitPeerUuid(config) {
+    const broadcast = { ...config };
+    delete broadcast.peer_uuid;
+
+    if (broadcast.data && typeof broadcast.data === 'object' && !Array.isArray(broadcast.data)) {
+        broadcast.data = { ...broadcast.data };
+        delete broadcast.data.peer_uuid;
+    }
+
+    return broadcast;
+}
+
+/**
  * Check if peer is Presenter
  * @param {string} room_id
  * @param {string} peer_id
@@ -2731,7 +2759,7 @@ function isPeerPresenter(room_id, peer_id, peer_name, peer_uuid) {
 
         const isPresenter =
             typeof stored === 'object' &&
-            Object.keys(stored).length > 1 &&
+            stored.is_presenter === true &&
             stored.peer_name === peer_name &&
             stored.peer_uuid === peer_uuid;
 
