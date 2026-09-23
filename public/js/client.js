@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.89
+ * @version 1.9.95
  *
  */
 
@@ -4546,6 +4546,7 @@ async function loadLocalMedia(stream, kind) {
             const myScreenZoomOutBtn = document.createElement('button');
             const myScreenPiPBtn = document.createElement('button');
             const myScreenDrawingBtn = document.createElement('button');
+            const myScreenTextBtn = document.createElement('button');
             const myScreenAvatarImage = document.createElement('img');
 
             // my screen peer name
@@ -4585,6 +4586,11 @@ async function loadLocalMedia(stream, kind) {
             myScreenDrawingBtn.setAttribute('aria-label', 'Enable screen drawing');
             myScreenDrawingBtn.setAttribute('aria-pressed', 'false');
 
+            myScreenTextBtn.setAttribute('id', 'myScreenTextBtn');
+            myScreenTextBtn.className = 'fas fa-font';
+            myScreenTextBtn.setAttribute('aria-label', 'Enable screen text');
+            myScreenTextBtn.setAttribute('aria-pressed', 'false');
+
             // no mobile devices
             if (!isMobileDevice) {
                 setTippy(myScreenToImgBtn, 'Take a snapshot', 'bottom');
@@ -4595,6 +4601,7 @@ async function loadLocalMedia(stream, kind) {
                 setTippy(myScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(myScreenPinBtn, 'Toggle Pin screen', 'bottom');
                 setTippy(myScreenDrawingBtn, 'Enable screen drawing', 'bottom');
+                setTippy(myScreenTextBtn, 'Enable screen text', 'bottom');
             }
 
             // my screen avatar image
@@ -4612,6 +4619,7 @@ async function loadLocalMedia(stream, kind) {
             buttons.local.showSnapShotBtn && myScreenNavBar.appendChild(myScreenToImgBtn);
 
             myScreenNavBar.appendChild(myScreenDrawingBtn);
+            myScreenNavBar.appendChild(myScreenTextBtn);
 
             myScreenNavBar.appendChild(myScreenPiPBtn);
 
@@ -4650,7 +4658,9 @@ async function loadLocalMedia(stream, kind) {
             attachMediaStream(myScreenMedia, stream);
 
             const myScreenDrawing = VideoDrawingOverlay.getOrCreate(myPeerId, myScreenWrap, myScreenMedia);
-            myScreenDrawingBtn.addEventListener('click', () => myScreenDrawing.toggle(myScreenDrawingBtn));
+            const myScreenDrawingButtons = { pen: myScreenDrawingBtn, text: myScreenTextBtn };
+            myScreenDrawingBtn.addEventListener('click', () => myScreenDrawing.toggle('pen', myScreenDrawingButtons));
+            myScreenTextBtn.addEventListener('click', () => myScreenDrawing.toggle('text', myScreenDrawingButtons));
 
             adaptAspectRatio();
 
@@ -5142,6 +5152,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenFileShareBtn = document.createElement('button');
             const remoteScreenPrivateMsgBtn = document.createElement('button');
             const remoteScreenDrawingBtn = document.createElement('button');
+            const remoteScreenTextBtn = document.createElement('button');
             const remoteScreenAvatarImage = document.createElement('img');
 
             // IDs and classes
@@ -5184,6 +5195,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenDrawingBtn.setAttribute('aria-label', 'Enable screen drawing');
             remoteScreenDrawingBtn.setAttribute('aria-pressed', 'false');
 
+            remoteScreenTextBtn.setAttribute('id', peer_id + '_screen_text');
+            remoteScreenTextBtn.className = 'fas fa-font';
+            remoteScreenTextBtn.setAttribute('aria-label', 'Enable screen text');
+            remoteScreenTextBtn.setAttribute('aria-pressed', 'false');
+
             if (!isMobileDevice) {
                 setTippy(remoteScreenPeerName, 'Participant screen', 'bottom');
                 setTippy(remoteScreenVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
@@ -5197,6 +5213,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 setTippy(remoteScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(remoteScreenPinBtn, 'Toggle Pin screen', 'bottom');
                 setTippy(remoteScreenDrawingBtn, 'Enable screen drawing', 'bottom');
+                setTippy(remoteScreenTextBtn, 'Enable screen text', 'bottom');
             }
 
             remoteScreenAvatarImage.setAttribute('id', peer_id + '_screen_avatar');
@@ -5210,6 +5227,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             buttons.remote.showSnapShotBtn && remoteScreenNavBar.appendChild(remoteScreenToImgBtn);
 
             remoteScreenNavBar.appendChild(remoteScreenDrawingBtn);
+            remoteScreenNavBar.appendChild(remoteScreenTextBtn);
 
             remoteScreenNavBar.appendChild(remoteScreenPiPBtn);
             if (buttons.remote.showZoomInOutBtn) {
@@ -5247,7 +5265,13 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             videoMediaContainer.appendChild(remoteScreenWrap);
             attachMediaStream(remoteScreenMedia, stream);
             const remoteScreenDrawing = VideoDrawingOverlay.getOrCreate(peer_id, remoteScreenWrap, remoteScreenMedia);
-            remoteScreenDrawingBtn.addEventListener('click', () => remoteScreenDrawing.toggle(remoteScreenDrawingBtn));
+            const remoteScreenDrawingButtons = { pen: remoteScreenDrawingBtn, text: remoteScreenTextBtn };
+            remoteScreenDrawingBtn.addEventListener('click', () =>
+                remoteScreenDrawing.toggle('pen', remoteScreenDrawingButtons)
+            );
+            remoteScreenTextBtn.addEventListener('click', () =>
+                remoteScreenDrawing.toggle('text', remoteScreenDrawingButtons)
+            );
             // Explicitly play – required on mobile Safari where autoplay alone is not enough
             remoteScreenMedia.play().catch(() => {});
             adaptAspectRatio();
@@ -17524,7 +17548,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.89',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.95',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
