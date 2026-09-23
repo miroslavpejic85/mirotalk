@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.97
+ * @version 1.9.98
  *
  */
 
@@ -3422,6 +3422,10 @@ function handleDisconnect(reason) {
 
         if (peerScreenMediaElements[peerScreenId] && peerScreenMediaElements[peerScreenId].parentNode) {
             VideoDrawingOverlay.destroyById(peer_id);
+            const screenDropdownBtn = getId(peer_id + '_screenDropdownBtn');
+            if (screenDropdownBtn && screenDropdownBtn._dropdownContent) {
+                screenDropdownBtn._dropdownContent.remove();
+            }
             peerScreenMediaElements[peerScreenId].parentNode.removeChild(peerScreenMediaElements[peerScreenId]);
         }
         if (peerVideoMediaElements[peerVideoId] && peerVideoMediaElements[peerVideoId].parentNode) {
@@ -3484,6 +3488,10 @@ function handleRemovePeer(config) {
 
     if (peerScreenId in peerScreenMediaElements) {
         VideoDrawingOverlay.destroyById(peer_id);
+        const screenDropdownBtn = getId(peer_id + '_screenDropdownBtn');
+        if (screenDropdownBtn && screenDropdownBtn._dropdownContent) {
+            screenDropdownBtn._dropdownContent.remove();
+        }
         const peerScreen = getId(peerScreenId);
         if (peerScreen) {
             // Peer screen in focus mode
@@ -4547,6 +4555,9 @@ async function loadLocalMedia(stream, kind) {
             const myScreenPiPBtn = document.createElement('button');
             const myScreenDrawingBtn = document.createElement('button');
             const myScreenTextBtn = document.createElement('button');
+            const myScreenDropdownDiv = document.createElement('div');
+            const myScreenDropdownBtn = document.createElement('button');
+            const myScreenDropdownContent = document.createElement('div');
             const myScreenAvatarImage = document.createElement('img');
 
             // my screen peer name
@@ -4615,6 +4626,34 @@ async function loadLocalMedia(stream, kind) {
             // my screen nav bar
             myScreenNavBar.className = 'navbar fadein';
 
+            myScreenDropdownDiv.className = 'navbar-dropdown';
+            myScreenDropdownBtn.id = 'myScreenDropdownBtn';
+            myScreenDropdownBtn.className = 'fas fa-ellipsis-vertical';
+            myScreenDropdownContent.className = 'navbar-dropdown-content';
+
+            !isMobileDevice &&
+                myScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(myScreenPinBtn, 'Pin Screen', 'compact')
+                );
+            buttons.local.showVideoFocusBtn &&
+                myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenFocusBtn, 'Focus Mode'));
+            buttons.local.showSnapShotBtn &&
+                myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenToImgBtn, 'Take Snapshot'));
+            myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenDrawingBtn, 'Draw on Screen'));
+            myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenTextBtn, 'Add Text'));
+            myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenPiPBtn, 'Picture in Picture'));
+            if (buttons.local.showZoomInOutBtn) {
+                myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenZoomInBtn, 'Zoom In'));
+                myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenZoomOutBtn, 'Zoom Out'));
+            }
+            isVideoFullScreenSupported &&
+                myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenFullScreenBtn, 'Full Screen'));
+
+            myScreenDropdownDiv.appendChild(myScreenDropdownBtn);
+            document.body.appendChild(myScreenDropdownContent);
+            myScreenDropdownBtn._dropdownContent = myScreenDropdownContent;
+            handleDropdownEvents(myScreenDropdownDiv, myScreenDropdownBtn, myScreenDropdownContent);
+
             // attach to screen nav bar
             !isMobileDevice && myScreenNavBar.appendChild(myScreenPinBtn);
 
@@ -4633,6 +4672,8 @@ async function loadLocalMedia(stream, kind) {
             }
 
             isVideoFullScreenSupported && myScreenNavBar.appendChild(myScreenFullScreenBtn);
+
+            myScreenNavBar.appendChild(myScreenDropdownDiv);
 
             myScreenMedia.setAttribute('id', 'myScreen');
             myScreenMedia.setAttribute('playsinline', true);
@@ -5157,6 +5198,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenPrivateMsgBtn = document.createElement('button');
             const remoteScreenDrawingBtn = document.createElement('button');
             const remoteScreenTextBtn = document.createElement('button');
+            const remoteScreenDropdownDiv = document.createElement('div');
+            const remoteScreenDropdownBtn = document.createElement('button');
+            const remoteScreenDropdownContent = document.createElement('div');
             const remoteScreenAvatarImage = document.createElement('img');
 
             // IDs and classes
@@ -5228,6 +5272,59 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenAvatarImage.className = 'videoAvatarImage';
 
             remoteScreenNavBar.className = 'navbar fadein';
+
+            remoteScreenDropdownDiv.className = 'navbar-dropdown';
+            remoteScreenDropdownBtn.id = peer_id + '_screenDropdownBtn';
+            remoteScreenDropdownBtn.className = 'fas fa-ellipsis-vertical';
+            remoteScreenDropdownContent.className = 'navbar-dropdown-content';
+
+            !isMobileDevice &&
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenPinBtn, 'Pin Screen', 'compact')
+                );
+            buttons.remote.showVideoFocusBtn &&
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenFocusBtn, 'Focus Mode')
+                );
+            buttons.remote.showSnapShotBtn &&
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenToImgBtn, 'Take Snapshot')
+                );
+            remoteScreenDropdownContent.appendChild(
+                createResponsiveDropdownItem(remoteScreenDrawingBtn, 'Draw on Screen')
+            );
+            remoteScreenDropdownContent.appendChild(createResponsiveDropdownItem(remoteScreenTextBtn, 'Add Text'));
+            remoteScreenDropdownContent.appendChild(
+                createResponsiveDropdownItem(remoteScreenPiPBtn, 'Picture in Picture')
+            );
+            if (buttons.remote.showZoomInOutBtn) {
+                remoteScreenDropdownContent.appendChild(createResponsiveDropdownItem(remoteScreenZoomInBtn, 'Zoom In'));
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenZoomOutBtn, 'Zoom Out')
+                );
+            }
+            isVideoFullScreenSupported &&
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenFullScreenBtn, 'Full Screen')
+                );
+            buttons.remote.showPrivateMessageBtn &&
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenPrivateMsgBtn, 'Private Message')
+                );
+            buttons.remote.showFileShareBtn &&
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenFileShareBtn, 'Send File')
+                );
+            buttons.remote.showShareVideoAudioBtn &&
+                remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownItem(remoteScreenVideoAudioUrlBtn, 'Send Video/Audio')
+                );
+
+            remoteScreenDropdownDiv.appendChild(remoteScreenDropdownBtn);
+            document.body.appendChild(remoteScreenDropdownContent);
+            remoteScreenDropdownBtn._dropdownContent = remoteScreenDropdownContent;
+            handleDropdownEvents(remoteScreenDropdownDiv, remoteScreenDropdownBtn, remoteScreenDropdownContent);
+
             !isMobileDevice && remoteScreenNavBar.appendChild(remoteScreenPinBtn);
 
             buttons.remote.showVideoFocusBtn && remoteScreenNavBar.appendChild(remoteScreenFocusBtn);
@@ -5247,6 +5344,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             buttons.remote.showPrivateMessageBtn && remoteScreenNavBar.appendChild(remoteScreenPrivateMsgBtn);
             buttons.remote.showFileShareBtn && remoteScreenNavBar.appendChild(remoteScreenFileShareBtn);
             buttons.remote.showShareVideoAudioBtn && remoteScreenNavBar.appendChild(remoteScreenVideoAudioUrlBtn);
+
+            remoteScreenNavBar.appendChild(remoteScreenDropdownDiv);
 
             remoteScreenMedia.setAttribute('id', peer_id + '___screen');
             remoteScreenMedia.setAttribute('playsinline', true);
@@ -9713,6 +9812,10 @@ async function stopScreenSharing(init) {
     }
     if (!init && myScreenWrap) {
         VideoDrawingOverlay.destroyById(myPeerId);
+        const myScreenDropdownBtn = getId('myScreenDropdownBtn');
+        if (myScreenDropdownBtn && myScreenDropdownBtn._dropdownContent) {
+            myScreenDropdownBtn._dropdownContent.remove();
+        }
         myScreenWrap.remove();
     }
     if (localScreenMediaStream) {
@@ -17556,7 +17659,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.97',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.98',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
