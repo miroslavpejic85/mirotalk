@@ -378,6 +378,9 @@ class VideoDrawingOverlay {
     positionTextAnnotation(annotation) {
         const canvasWidth = this.canvas.clientWidth;
         const canvasHeight = this.canvas.clientHeight;
+        const annotationScale = Math.max(0.8, Math.min(1, canvasWidth / 640));
+        annotation.element.style.setProperty('--video-drawing-annotation-scale', annotationScale);
+        annotation.element.style.maxWidth = `${Math.max(1, Math.min(280 * annotationScale, canvasWidth - 16))}px`;
         const x = Math.min(annotation.x * canvasWidth, Math.max(0, canvasWidth - annotation.element.offsetWidth));
         const y = Math.min(annotation.y * canvasHeight, Math.max(0, canvasHeight - annotation.element.offsetHeight));
         annotation.element.classList.toggle('video-drawing-text-author-below', annotation.y < 0.15);

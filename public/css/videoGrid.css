@@ -157,17 +157,17 @@
 }
 
 .video-drawing-text-annotation {
+    --video-drawing-annotation-scale: 1;
     position: absolute;
     z-index: 8;
     box-sizing: border-box;
-    max-width: min(280px, calc(100% - 16px));
     min-height: 32px;
     border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.82);
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.32);
     color: #fff;
-    font-size: 14px;
+    font-size: calc(14px * var(--video-drawing-annotation-scale));
     font-weight: 600;
     line-height: 1.3;
     overflow-wrap: anywhere;
@@ -178,11 +178,12 @@
 
 .video-drawing-text-content {
     display: block;
-    padding: 7px 30px 7px 9px;
+    padding: calc(7px * var(--video-drawing-annotation-scale)) 30px calc(7px * var(--video-drawing-annotation-scale))
+        calc(9px * var(--video-drawing-annotation-scale));
 }
 
 .video-drawing-text-annotation:not(.video-drawing-text-manageable) > .video-drawing-text-content {
-    padding-right: 9px;
+    padding-right: calc(9px * var(--video-drawing-annotation-scale));
 }
 
 .video-drawing-text-author {
@@ -196,7 +197,7 @@
     border-radius: 4px;
     background: rgba(0, 0, 0, 0.9);
     color: rgba(255, 255, 255, 0.9);
-    font-size: 11px;
+    font-size: calc(11px * var(--video-drawing-annotation-scale));
     font-weight: 500;
     line-height: 1.2;
     overflow: hidden;
