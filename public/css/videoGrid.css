@@ -161,9 +161,9 @@
     position: absolute;
     z-index: 8;
     box-sizing: border-box;
-    min-height: 32px;
+    min-height: calc(32px * var(--video-drawing-annotation-scale));
     border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 6px;
+    border-radius: calc(6px * var(--video-drawing-annotation-scale));
     background: rgba(0, 0, 0, 0.82);
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.32);
     color: #fff;
@@ -178,8 +178,8 @@
 
 .video-drawing-text-content {
     display: block;
-    padding: calc(7px * var(--video-drawing-annotation-scale)) 30px calc(7px * var(--video-drawing-annotation-scale))
-        calc(9px * var(--video-drawing-annotation-scale));
+    padding: calc(7px * var(--video-drawing-annotation-scale)) calc(30px * var(--video-drawing-annotation-scale))
+        calc(7px * var(--video-drawing-annotation-scale)) calc(9px * var(--video-drawing-annotation-scale));
 }
 
 .video-drawing-text-annotation:not(.video-drawing-text-manageable) > .video-drawing-text-content {
@@ -245,19 +245,19 @@
 
 .video-drawing-text-delete {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: calc(3px * var(--video-drawing-annotation-scale));
+    right: calc(3px * var(--video-drawing-annotation-scale));
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: calc(24px * var(--video-drawing-annotation-scale));
+    height: calc(24px * var(--video-drawing-annotation-scale));
     padding: 0;
     border: 0;
-    border-radius: 4px;
+    border-radius: calc(4px * var(--video-drawing-annotation-scale));
     background: transparent;
     color: rgba(255, 255, 255, 0.78);
-    font-size: 12px;
+    font-size: calc(12px * var(--video-drawing-annotation-scale));
     cursor: pointer;
 }
 
