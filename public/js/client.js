@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.95
+ * @version 1.9.96
  *
  */
 
@@ -4588,7 +4588,11 @@ async function loadLocalMedia(stream, kind) {
 
             myScreenTextBtn.setAttribute('id', 'myScreenTextBtn');
             myScreenTextBtn.className = 'fas fa-font';
-            myScreenTextBtn.setAttribute('aria-label', 'Enable screen text');
+            myScreenTextBtn['__i18nAttr_aria-label'] = 'Enable screen text';
+            myScreenTextBtn.setAttribute(
+                'aria-label',
+                window.i18n?.t('Enable screen text', 'tooltips') || 'Enable screen text'
+            );
             myScreenTextBtn.setAttribute('aria-pressed', 'false');
 
             // no mobile devices
@@ -5197,7 +5201,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             remoteScreenTextBtn.setAttribute('id', peer_id + '_screen_text');
             remoteScreenTextBtn.className = 'fas fa-font';
-            remoteScreenTextBtn.setAttribute('aria-label', 'Enable screen text');
+            remoteScreenTextBtn['__i18nAttr_aria-label'] = 'Enable screen text';
+            remoteScreenTextBtn.setAttribute(
+                'aria-label',
+                window.i18n?.t('Enable screen text', 'tooltips') || 'Enable screen text'
+            );
             remoteScreenTextBtn.setAttribute('aria-pressed', 'false');
 
             if (!isMobileDevice) {
@@ -17548,7 +17556,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.95',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.96',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

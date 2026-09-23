@@ -102,7 +102,9 @@
         "Change participant view": "Résztvevői nézet módosítása",
         "Leave room": "Leave room",
         "Share the video or audio URL": "Share the video or audio URL",
-        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
+        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
+        "Disable screen text": "Képernyőszöveg kikapcsolása",
+        "Enable screen text": "Képernyőszöveg bekapcsolása"
     },
     "buttons": {
         "Add arrow": "Nyíl hozzáadása",
@@ -210,7 +212,22 @@
         "Share": "Share",
         "Share media": "Share media",
         "Start recording": "Start recording",
-        "Test": "Test"
+        "Test": "Test",
+        "Close whiteboard": "Close whiteboard",
+        "Delete text annotation": "Szöveges megjegyzés törlése",
+        "Eraser": "Eraser",
+        "Eraser tool": "Eraser tool",
+        "Lock whiteboard": "Lock whiteboard",
+        "Pencil tool": "Pencil tool",
+        "Redo": "Redo",
+        "Select objects": "Select objects",
+        "Share room link": "Share room link",
+        "Toggle canvas grid": "Toggle canvas grid",
+        "Toggle transparent background": "Toggle transparent background",
+        "Transparency": "Transparency",
+        "Undo": "Undo",
+        "Unlock whiteboard": "Unlock whiteboard",
+        "Vanishing pen": "Vanishing pen"
     },
     "labels": {
         "= Arrow": "= Nyíl",
@@ -515,7 +532,19 @@
         "The Username is already in use. Please try with another one": "The Username is already in use. Please try with another one",
         "users. Please try again later": "users. Please try again later",
         "Video aspect ratio": "Video aspect ratio",
-        "Whisper mode": "Whisper mode"
+        "Whisper mode": "Whisper mode",
+        "Annotated by": "Megjegyzést készítette",
+        "Background color": "Background color",
+        "Canvas": "Canvas",
+        "Canvas appearance": "Canvas appearance",
+        "Drawing color": "Drawing color",
+        "Drawing tools": "Drawing tools",
+        "Edit history": "Edit history",
+        "Ink": "Ink",
+        "Room Emoji": "Room Emoji",
+        "Screen text annotation": "Képernyőn megjelenő szöveges megjegyzés",
+        "Type annotation": "Írjon be egy megjegyzést",
+        "Whiteboard": "Whiteboard"
     },
     "dialogs": {
         "Edit frame title": "Keret címének szerkesztése",
@@ -578,7 +607,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v1.9.95": "WebRTC P2P v1.9.95",
+        "WebRTC P2P v1.9.96": "WebRTC P2P v1.9.96",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",

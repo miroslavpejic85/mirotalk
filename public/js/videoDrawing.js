@@ -83,6 +83,14 @@ class VideoDrawingOverlay {
             const selected = this.isActive && buttonTool === this.tool;
             button.classList.toggle('video-drawing-tool-active', selected);
             button.setAttribute('aria-pressed', String(selected));
+            const label = `${selected ? 'Disable' : 'Enable'} screen ${buttonTool === 'pen' ? 'drawing' : 'text'}`;
+            const translatedLabel = window.i18n?.t(label, 'tooltips') || label;
+            button['__i18nAttr_aria-label'] = label;
+            button.setAttribute('aria-label', translatedLabel);
+            if (button._tippy) {
+                button._tippy.__i18nSrc = label;
+                button._tippy.setContent(translatedLabel);
+            }
         }
         if (this.tool !== 'text') this.textInput?.remove();
         return this.isActive;
@@ -144,8 +152,12 @@ class VideoDrawingOverlay {
         input.type = 'text';
         input.maxLength = 80;
         input.className = 'video-drawing-text-input';
-        input.placeholder = 'Type annotation';
-        input.setAttribute('aria-label', 'Screen text annotation');
+        const placeholder = 'Type annotation';
+        const ariaLabel = 'Screen text annotation';
+        input['__i18nAttr_placeholder'] = placeholder;
+        input['__i18nAttr_aria-label'] = ariaLabel;
+        input.placeholder = window.i18n?.t(placeholder, 'labels') || placeholder;
+        input.setAttribute('aria-label', window.i18n?.t(ariaLabel, 'labels') || ariaLabel);
         const canvasWidth = this.canvas.clientWidth;
         const canvasHeight = this.canvas.clientHeight;
         const inputWidth = Math.min(240, Math.max(40, canvasWidth - 16));
@@ -242,7 +254,6 @@ class VideoDrawingOverlay {
         element.tabIndex = 0;
 
         const drawerName = String(VideoDrawingOverlay.resolveDrawerName?.(annotation.drawerId) || 'Participant').trim();
-        element.setAttribute('aria-label', `${annotation.text}, annotated by ${drawerName}`);
 
         const text = document.createElement('span');
         text.className = 'video-drawing-text-content';
@@ -251,7 +262,10 @@ class VideoDrawingOverlay {
 
         const author = document.createElement('span');
         author.className = 'video-drawing-text-author';
-        author.textContent = `Annotated by ${drawerName}`;
+        const authorLabel = 'Annotated by';
+        const authorLabelNode = document.createTextNode(window.i18n?.t(authorLabel, 'labels') || authorLabel);
+        authorLabelNode.__i18nSrc = authorLabel;
+        author.append(authorLabelNode, document.createTextNode(` ${drawerName}`));
         element.appendChild(author);
 
         annotation.element = element;
@@ -263,7 +277,9 @@ class VideoDrawingOverlay {
             const deleteButton = document.createElement('button');
             deleteButton.type = 'button';
             deleteButton.className = 'video-drawing-text-delete fas fa-times';
-            deleteButton.setAttribute('aria-label', 'Delete text annotation');
+            const deleteLabel = 'Delete text annotation';
+            deleteButton['__i18nAttr_aria-label'] = deleteLabel;
+            deleteButton.setAttribute('aria-label', window.i18n?.t(deleteLabel, 'buttons') || deleteLabel);
             deleteButton.addEventListener('click', (event) => {
                 event.stopPropagation();
                 this.deleteTextAnnotation(annotation.annotationId);

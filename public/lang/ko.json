@@ -102,7 +102,9 @@
         "Change participant view": "참가자 보기 변경",
         "Leave room": "Leave room",
         "Share the video or audio URL": "Share the video or audio URL",
-        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
+        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
+        "Disable screen text": "화면 텍스트 비활성화",
+        "Enable screen text": "화면 텍스트 활성화"
     },
     "buttons": {
         "Add arrow": "화살표 추가",
@@ -210,7 +212,22 @@
         "Share": "Share",
         "Share media": "Share media",
         "Start recording": "Start recording",
-        "Test": "Test"
+        "Test": "Test",
+        "Close whiteboard": "Close whiteboard",
+        "Delete text annotation": "텍스트 주석 삭제",
+        "Eraser": "Eraser",
+        "Eraser tool": "Eraser tool",
+        "Lock whiteboard": "Lock whiteboard",
+        "Pencil tool": "Pencil tool",
+        "Redo": "Redo",
+        "Select objects": "Select objects",
+        "Share room link": "Share room link",
+        "Toggle canvas grid": "Toggle canvas grid",
+        "Toggle transparent background": "Toggle transparent background",
+        "Transparency": "Transparency",
+        "Undo": "Undo",
+        "Unlock whiteboard": "Unlock whiteboard",
+        "Vanishing pen": "Vanishing pen"
     },
     "labels": {
         "= Arrow": "= 화살표",
@@ -515,7 +532,19 @@
         "The Username is already in use. Please try with another one": "The Username is already in use. Please try with another one",
         "users. Please try again later": "users. Please try again later",
         "Video aspect ratio": "Video aspect ratio",
-        "Whisper mode": "Whisper mode"
+        "Whisper mode": "Whisper mode",
+        "Annotated by": "작성자",
+        "Background color": "Background color",
+        "Canvas": "Canvas",
+        "Canvas appearance": "Canvas appearance",
+        "Drawing color": "Drawing color",
+        "Drawing tools": "Drawing tools",
+        "Edit history": "Edit history",
+        "Ink": "Ink",
+        "Room Emoji": "Room Emoji",
+        "Screen text annotation": "화면 텍스트 주석",
+        "Type annotation": "주석 입력",
+        "Whiteboard": "Whiteboard"
     },
     "dialogs": {
         "Edit frame title": "프레임 제목 편집",
@@ -578,7 +607,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v1.9.95": "WebRTC P2P v1.9.95",
+        "WebRTC P2P v1.9.96": "WebRTC P2P v1.9.96",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",

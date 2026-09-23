@@ -102,7 +102,9 @@
         "Change participant view": "Katılımcı görünümünü değiştir",
         "Leave room": "Leave room",
         "Share the video or audio URL": "Share the video or audio URL",
-        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
+        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
+        "Disable screen text": "Ekran metnini devre dışı bırak",
+        "Enable screen text": "Ekran metnini etkinleştir"
     },
     "buttons": {
         "Add arrow": "Ok ekle",
@@ -210,7 +212,22 @@
         "Share": "Share",
         "Share media": "Share media",
         "Start recording": "Start recording",
-        "Test": "Test"
+        "Test": "Test",
+        "Close whiteboard": "Close whiteboard",
+        "Delete text annotation": "Metin ek açıklamasını sil",
+        "Eraser": "Eraser",
+        "Eraser tool": "Eraser tool",
+        "Lock whiteboard": "Lock whiteboard",
+        "Pencil tool": "Pencil tool",
+        "Redo": "Redo",
+        "Select objects": "Select objects",
+        "Share room link": "Share room link",
+        "Toggle canvas grid": "Toggle canvas grid",
+        "Toggle transparent background": "Toggle transparent background",
+        "Transparency": "Transparency",
+        "Undo": "Undo",
+        "Unlock whiteboard": "Unlock whiteboard",
+        "Vanishing pen": "Vanishing pen"
     },
     "labels": {
         "= Arrow": "= Ok",
@@ -515,7 +532,19 @@
         "The Username is already in use. Please try with another one": "The Username is already in use. Please try with another one",
         "users. Please try again later": "users. Please try again later",
         "Video aspect ratio": "Video aspect ratio",
-        "Whisper mode": "Whisper mode"
+        "Whisper mode": "Whisper mode",
+        "Annotated by": "Ekleyen",
+        "Background color": "Background color",
+        "Canvas": "Canvas",
+        "Canvas appearance": "Canvas appearance",
+        "Drawing color": "Drawing color",
+        "Drawing tools": "Drawing tools",
+        "Edit history": "Edit history",
+        "Ink": "Ink",
+        "Room Emoji": "Room Emoji",
+        "Screen text annotation": "Ekran metni ek açıklaması",
+        "Type annotation": "Ek açıklama yazın",
+        "Whiteboard": "Whiteboard"
     },
     "dialogs": {
         "Edit frame title": "Çerçeve başlığını düzenle",
@@ -578,7 +607,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v1.9.95": "WebRTC P2P v1.9.95",
+        "WebRTC P2P v1.9.96": "WebRTC P2P v1.9.96",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",

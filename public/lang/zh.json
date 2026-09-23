@@ -102,7 +102,9 @@
         "Change participant view": "更改参与者视图",
         "Leave room": "Leave room",
         "Share the video or audio URL": "Share the video or audio URL",
-        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription"
+        "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
+        "Disable screen text": "禁用屏幕文本",
+        "Enable screen text": "启用屏幕文本"
     },
     "buttons": {
         "Add arrow": "添加箭头",
@@ -210,7 +212,22 @@
         "Share": "Share",
         "Share media": "Share media",
         "Start recording": "Start recording",
-        "Test": "Test"
+        "Test": "Test",
+        "Close whiteboard": "Close whiteboard",
+        "Delete text annotation": "删除文本批注",
+        "Eraser": "Eraser",
+        "Eraser tool": "Eraser tool",
+        "Lock whiteboard": "Lock whiteboard",
+        "Pencil tool": "Pencil tool",
+        "Redo": "Redo",
+        "Select objects": "Select objects",
+        "Share room link": "Share room link",
+        "Toggle canvas grid": "Toggle canvas grid",
+        "Toggle transparent background": "Toggle transparent background",
+        "Transparency": "Transparency",
+        "Undo": "Undo",
+        "Unlock whiteboard": "Unlock whiteboard",
+        "Vanishing pen": "Vanishing pen"
     },
     "labels": {
         "= Arrow": "= 箭头",
@@ -515,7 +532,19 @@
         "The Username is already in use. Please try with another one": "The Username is already in use. Please try with another one",
         "users. Please try again later": "users. Please try again later",
         "Video aspect ratio": "Video aspect ratio",
-        "Whisper mode": "Whisper mode"
+        "Whisper mode": "Whisper mode",
+        "Annotated by": "批注者",
+        "Background color": "Background color",
+        "Canvas": "Canvas",
+        "Canvas appearance": "Canvas appearance",
+        "Drawing color": "Drawing color",
+        "Drawing tools": "Drawing tools",
+        "Edit history": "Edit history",
+        "Ink": "Ink",
+        "Room Emoji": "Room Emoji",
+        "Screen text annotation": "屏幕文本批注",
+        "Type annotation": "输入批注",
+        "Whiteboard": "Whiteboard"
     },
     "dialogs": {
         "Edit frame title": "编辑框架标题",
@@ -578,7 +607,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v1.9.95": "WebRTC P2P v1.9.95",
+        "WebRTC P2P v1.9.96": "WebRTC P2P v1.9.96",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",
