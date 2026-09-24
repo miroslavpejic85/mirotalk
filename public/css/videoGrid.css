@@ -122,6 +122,19 @@
     cursor: pointer;
 }
 
+#videoPinMediaContainer .navbar {
+    padding: 5px 10px 5px 5px;
+    gap: 3px;
+}
+
+#videoPinMediaContainer .navbar button {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 8px;
+    margin: 2px;
+    font-size: 0.8rem;
+}
+
 .navbar div {
     display: inline;
 }
