@@ -84,6 +84,7 @@ class VideoDrawingOverlay {
         this.canvas.height = Math.max(1, Math.round(height * pixelRatio));
         this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
         this.positionTextAnnotations();
+        this.constrainToolbarPosition();
         this.render();
     }
 
@@ -94,9 +95,12 @@ class VideoDrawingOverlay {
         this.width = 0.004;
         this.lastDrawingTool = 'pencil';
         const translateTooltip = (label) => window.i18n?.t(label, 'tooltips') || label;
+        const setTranslatedAttribute = (element, attribute, label, namespace) => {
+            element[`__i18nAttr_${attribute}`] = label;
+            element.setAttribute(attribute, window.i18n?.t(label, namespace) || label);
+        };
         const setAccessibleLabel = (element, label) => {
-            element['__i18nAttr_aria-label'] = label;
-            element.setAttribute('aria-label', translateTooltip(label));
+            setTranslatedAttribute(element, 'aria-label', label, 'tooltips');
         };
 
         const annotationTooltipLabels = [
@@ -121,7 +125,9 @@ class VideoDrawingOverlay {
 
         const toolbar = document.createElement('div');
         toolbar.className = 'video-drawing-toolbar';
-        toolbar.setAttribute('aria-label', 'Screen annotation tools');
+        toolbar.setAttribute('role', 'toolbar');
+        toolbar.setAttribute('aria-orientation', 'horizontal');
+        setTranslatedAttribute(toolbar, 'aria-label', 'Screen annotation tools', 'labels');
 
         const dragHandle = document.createElement('button');
         dragHandle.type = 'button';
@@ -129,6 +135,7 @@ class VideoDrawingOverlay {
         setAccessibleLabel(dragHandle, 'Move annotation toolbar');
         toolbar.appendChild(dragHandle);
 
+        const drawingTools = this.createToolbarGroup('Drawing tools', setTranslatedAttribute);
         const tools = [
             ['pencil', 'fas fa-pencil-alt', 'Pencil'],
             ['highlighter', 'fas fa-highlighter', 'Highlighter'],
@@ -149,10 +156,12 @@ class VideoDrawingOverlay {
                 this.lastDrawingTool = tool;
                 this.setTool(tool);
             });
-            toolbar.appendChild(button);
+            drawingTools.appendChild(button);
             this.toolButtons[tool] = button;
         }
+        toolbar.appendChild(drawingTools);
 
+        const appearanceTools = this.createToolbarGroup('Annotation appearance', setTranslatedAttribute);
         const color = document.createElement('input');
         color.type = 'color';
         color.value = this.color;
@@ -161,7 +170,7 @@ class VideoDrawingOverlay {
         color.addEventListener('input', () => {
             this.color = color.value;
         });
-        toolbar.appendChild(color);
+        appearanceTools.appendChild(color);
 
         const width = document.createElement('input');
         width.type = 'range';
@@ -174,15 +183,17 @@ class VideoDrawingOverlay {
         width.addEventListener('input', () => {
             this.width = Number(width.value);
         });
-        toolbar.appendChild(width);
+        appearanceTools.appendChild(width);
+        toolbar.appendChild(appearanceTools);
 
+        const historyTools = this.createToolbarGroup('Annotation history', setTranslatedAttribute);
         const undoButton = document.createElement('button');
         undoButton.type = 'button';
         undoButton.className = 'fas fa-undo';
         setAccessibleLabel(undoButton, 'Undo annotation');
         undoButton.disabled = true;
         undoButton.addEventListener('click', () => this.undo());
-        toolbar.appendChild(undoButton);
+        historyTools.appendChild(undoButton);
         this.undoButton = undoButton;
 
         const redoButton = document.createElement('button');
@@ -191,7 +202,7 @@ class VideoDrawingOverlay {
         setAccessibleLabel(redoButton, 'Redo annotation');
         redoButton.disabled = true;
         redoButton.addEventListener('click', () => this.redo());
-        toolbar.appendChild(redoButton);
+        historyTools.appendChild(redoButton);
         this.redoButton = redoButton;
 
         const deleteButton = document.createElement('button');
@@ -200,7 +211,8 @@ class VideoDrawingOverlay {
         setAccessibleLabel(deleteButton, 'Delete selected annotation');
         deleteButton.disabled = true;
         deleteButton.addEventListener('click', () => this.deleteSelectedAnnotation());
-        toolbar.appendChild(deleteButton);
+        historyTools.appendChild(deleteButton);
+        toolbar.appendChild(historyTools);
         this.deleteButton = deleteButton;
 
         const clearButton = document.createElement('button');
@@ -219,7 +231,12 @@ class VideoDrawingOverlay {
         closeButton.className = 'video-drawing-close fas fa-times';
         setAccessibleLabel(closeButton, 'Hide annotation toolbar');
         closeButton.addEventListener('click', () => this.setToolbarCollapsed(true));
+        const scrollArea = document.createElement('div');
+        scrollArea.className = 'video-drawing-toolbar-scroll';
+        while (toolbar.firstChild) scrollArea.appendChild(toolbar.firstChild);
+        toolbar.appendChild(scrollArea);
         toolbar.appendChild(closeButton);
+        toolbar.addEventListener('keydown', (event) => this.handleToolbarKeyDown(event));
 
         this.toolbar = toolbar;
         this.screenWrap.appendChild(toolbar);
@@ -238,7 +255,7 @@ class VideoDrawingOverlay {
                 setTippy(element, label, 'bottom');
             }
         }
-        if (!isMobileDevice && typeof dragElement === 'function') dragElement(toolbar, dragHandle);
+        this.bindToolbarDrag(toolbar, dragHandle);
 
         drawingButton.addEventListener('click', () => {
             const isDrawingTool = this.isActive && this.tool !== 'text';
@@ -249,9 +266,103 @@ class VideoDrawingOverlay {
         textButton.addEventListener('click', () => this.setTool(this.isActive && this.tool === 'text' ? null : 'text'));
     }
 
+    createToolbarGroup(label, setTranslatedAttribute) {
+        const group = document.createElement('div');
+        group.className = 'video-drawing-toolbar-group';
+        group.setAttribute('role', 'group');
+        setTranslatedAttribute(group, 'aria-label', label, 'labels');
+        return group;
+    }
+
+    handleToolbarKeyDown(event) {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key) || event.target.tagName !== 'BUTTON') {
+            return;
+        }
+        const buttons = [...this.toolbar.querySelectorAll('button:not(:disabled)')].filter(
+            (button) => button.offsetParent !== null
+        );
+        const currentIndex = buttons.indexOf(event.target);
+        if (currentIndex === -1) return;
+        event.preventDefault();
+        const nextIndex =
+            event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                  ? buttons.length - 1
+                  : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
+        buttons[nextIndex].focus();
+    }
+
+    bindToolbarDrag(toolbar, dragHandle) {
+        let drag = null;
+        const moveToolbar = (left, top) => this.setToolbarPosition(left, top);
+        dragHandle.addEventListener('pointerdown', (event) => {
+            if (event.button > 0) return;
+            event.preventDefault();
+            const toolbarRect = toolbar.getBoundingClientRect();
+            const parentRect = this.screenWrap.getBoundingClientRect();
+            const scaleX = this.screenWrap.offsetWidth ? parentRect.width / this.screenWrap.offsetWidth : 1;
+            const scaleY = this.screenWrap.offsetHeight ? parentRect.height / this.screenWrap.offsetHeight : 1;
+            const left = (toolbarRect.left - parentRect.left) / scaleX;
+            const top = (toolbarRect.top - parentRect.top) / scaleY;
+
+            moveToolbar(left, top);
+            drag = { pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY, left, top };
+            dragHandle.setPointerCapture(event.pointerId);
+        });
+        dragHandle.addEventListener('pointermove', (event) => {
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            const parentRect = this.screenWrap.getBoundingClientRect();
+            const scaleX = this.screenWrap.offsetWidth ? parentRect.width / this.screenWrap.offsetWidth : 1;
+            const scaleY = this.screenWrap.offsetHeight ? parentRect.height / this.screenWrap.offsetHeight : 1;
+            const left = drag.left + (event.clientX - drag.clientX) / scaleX;
+            const top = drag.top + (event.clientY - drag.clientY) / scaleY;
+
+            moveToolbar(left, top);
+        });
+        const finishDrag = (event) => {
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            drag = null;
+        };
+        dragHandle.addEventListener('pointerup', finishDrag);
+        dragHandle.addEventListener('pointercancel', finishDrag);
+        dragHandle.addEventListener('keydown', (event) => {
+            if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const step = event.shiftKey ? 24 : 8;
+            const left = Number.parseFloat(toolbar.style.left) || toolbar.offsetLeft;
+            const top = Number.parseFloat(toolbar.style.top) || toolbar.offsetTop;
+            moveToolbar(
+                left + (event.key === 'ArrowRight' ? step : event.key === 'ArrowLeft' ? -step : 0),
+                top + (event.key === 'ArrowDown' ? step : event.key === 'ArrowUp' ? -step : 0)
+            );
+        });
+    }
+
+    setToolbarPosition(left, top) {
+        if (!this.toolbar) return;
+        const maxLeft = Math.max(0, this.screenWrap.clientWidth - this.toolbar.offsetWidth);
+        const maxTop = Math.max(0, this.screenWrap.clientHeight - this.toolbar.offsetHeight);
+        this.toolbar.style.left = `${Math.max(0, Math.min(maxLeft, left))}px`;
+        this.toolbar.style.top = `${Math.max(0, Math.min(maxTop, top))}px`;
+        this.toolbar.style.transform = 'none';
+    }
+
+    constrainToolbarPosition() {
+        if (!this.toolbar || this.toolbar.style.transform !== 'none') return;
+        this.setToolbarPosition(
+            Number.parseFloat(this.toolbar.style.left) || 0,
+            Number.parseFloat(this.toolbar.style.top) || 0
+        );
+    }
+
     setToolbarCollapsed(collapsed) {
         this.isToolbarCollapsed = collapsed;
         this.toolbar.classList.toggle('video-drawing-toolbar-collapsed', collapsed);
+        if (collapsed && this.toolbar.contains(document.activeElement) && !this.drawingButton.hidden) {
+            this.drawingButton.focus();
+        }
         this.updateModeButtons();
     }
 

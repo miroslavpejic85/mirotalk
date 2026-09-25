@@ -166,17 +166,42 @@
     left: 50%;
     display: none !important;
     align-items: center;
-    justify-content: center;
-    gap: 4px;
+    justify-content: flex-start;
+    gap: 3px;
     box-sizing: border-box;
     width: max-content;
     max-width: calc(100% - 16px);
-    padding: 5px;
+    padding: 4px;
     border: var(--border);
     border-radius: 8px;
     background: rgba(18, 18, 18, 0.92);
     box-shadow: var(--box-shadow);
+    overflow: hidden;
     transform: translateX(-50%);
+}
+
+.video-drawing-toolbar-scroll {
+    display: inline-flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    gap: 3px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+
+.video-drawing-toolbar-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.video-drawing-toolbar-group {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 3px;
+    padding-right: 3px;
+    border-right: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .video-drawing-toolbar.video-drawing-toolbar-active {
@@ -189,10 +214,11 @@
 
 .video-drawing-toolbar button {
     display: inline-flex;
+    flex: 0 0 36px;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     border: 0;
     border-radius: 5px;
@@ -217,6 +243,13 @@
     cursor: move;
 }
 
+.video-drawing-toolbar button.video-drawing-close {
+    z-index: 1;
+    flex-shrink: 0;
+    background: rgba(18, 18, 18, 0.96);
+    box-shadow: -8px 0 8px rgba(18, 18, 18, 0.96);
+}
+
 .video-drawing-toolbar button.video-drawing-delete:not(:disabled):hover,
 .video-drawing-toolbar button.video-drawing-delete:not(:disabled):focus-visible,
 .video-drawing-toolbar button.video-drawing-close:hover,
@@ -225,8 +258,9 @@
 }
 
 .video-drawing-color {
-    width: 34px;
-    height: 34px;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
     padding: 3px;
     border: 0;
     border-radius: 5px;
@@ -245,21 +279,13 @@
     cursor: pointer;
 }
 
-@media (max-width: 768px) {
+@container camera (max-width: 720px) {
     .video-drawing-toolbar {
         top: 48px !important;
         left: 50% !important;
-        justify-content: flex-start;
         width: calc(100% - 16px);
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scrollbar-width: none;
         touch-action: pan-x;
-        transform: translateX(-50%);
-    }
-
-    .video-drawing-toolbar::-webkit-scrollbar {
-        display: none;
+        transform: translateX(-50%) !important;
     }
 
     .video-drawing-toolbar .video-drawing-drag-handle {
@@ -272,13 +298,6 @@
         flex: 0 0 40px;
         width: 40px;
         height: 40px;
-    }
-
-    .video-drawing-toolbar button.video-drawing-close {
-        position: sticky;
-        right: 0;
-        background: rgba(18, 18, 18, 0.96);
-        box-shadow: -8px 0 8px rgba(18, 18, 18, 0.96);
     }
 }
 
