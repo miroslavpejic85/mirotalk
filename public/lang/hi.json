@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "स्क्रीन टेक्स्ट अक्षम करें",
-        "Enable screen text": "स्क्रीन टेक्स्ट सक्षम करें"
+        "Enable screen text": "स्क्रीन टेक्स्ट सक्षम करें",
+        "Annotation width": "एनोटेशन की मोटाई",
+        "Arrow": "तीर",
+        "Rectangle": "आयत",
+        "Redo annotation": "एनोटेशन फिर से करें",
+        "Undo annotation": "एनोटेशन पूर्ववत करें"
     },
     "buttons": {
         "Add arrow": "तीर जोड़ें",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",

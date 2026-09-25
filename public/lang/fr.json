@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "Désactiver le texte à l’écran",
-        "Enable screen text": "Activer le texte à l’écran"
+        "Enable screen text": "Activer le texte à l’écran",
+        "Annotation width": "Épaisseur de l’annotation",
+        "Arrow": "Flèche",
+        "Rectangle": "Rectangle",
+        "Redo annotation": "Rétablir l’annotation",
+        "Undo annotation": "Annuler l’annotation"
     },
     "buttons": {
         "Add arrow": "Ajouter une flèche",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "Limite de temps atteinte",
         "Unlock room?": "Déverrouiller la salle ?",
         "Username": "Nom d'utilisateur",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "Raccourcis du tableau blanc",
         "Yes": "Oui",
         "Schedule email invitation": "Planifier l’invitation par e-mail",

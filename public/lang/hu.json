@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "Képernyőszöveg kikapcsolása",
-        "Enable screen text": "Képernyőszöveg bekapcsolása"
+        "Enable screen text": "Képernyőszöveg bekapcsolása",
+        "Annotation width": "Jegyzet vastagsága",
+        "Arrow": "Nyíl",
+        "Rectangle": "Téglalap",
+        "Redo annotation": "Jegyzet újra alkalmazása",
+        "Undo annotation": "Jegyzet visszavonása"
     },
     "buttons": {
         "Add arrow": "Nyíl hozzáadása",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",

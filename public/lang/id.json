@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "Nonaktifkan teks layar",
-        "Enable screen text": "Aktifkan teks layar"
+        "Enable screen text": "Aktifkan teks layar",
+        "Annotation width": "Ketebalan anotasi",
+        "Arrow": "Panah",
+        "Rectangle": "Persegi panjang",
+        "Redo annotation": "Ulangi anotasi",
+        "Undo annotation": "Urungkan anotasi"
     },
     "buttons": {
         "Add arrow": "Tambah panah",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",

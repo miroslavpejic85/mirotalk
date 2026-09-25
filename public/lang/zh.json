@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "禁用屏幕文本",
-        "Enable screen text": "启用屏幕文本"
+        "Enable screen text": "启用屏幕文本",
+        "Annotation width": "批注线宽",
+        "Arrow": "箭头",
+        "Rectangle": "矩形",
+        "Redo annotation": "重做批注",
+        "Undo annotation": "撤销批注"
     },
     "buttons": {
         "Add arrow": "添加箭头",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",

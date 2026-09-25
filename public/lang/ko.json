@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "화면 텍스트 비활성화",
-        "Enable screen text": "화면 텍스트 활성화"
+        "Enable screen text": "화면 텍스트 활성화",
+        "Annotation width": "주석 두께",
+        "Arrow": "화살표",
+        "Rectangle": "사각형",
+        "Redo annotation": "주석 다시 실행",
+        "Undo annotation": "주석 실행 취소"
     },
     "buttons": {
         "Add arrow": "화살표 추가",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",

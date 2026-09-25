@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "Онемогући текст на екрану",
-        "Enable screen text": "Омогући текст на екрану"
+        "Enable screen text": "Омогући текст на екрану",
+        "Annotation width": "Дебљина напомене",
+        "Arrow": "Стрелица",
+        "Rectangle": "Правоугаоник",
+        "Redo annotation": "Понови напомену",
+        "Undo annotation": "Опозови напомену"
     },
     "buttons": {
         "Add arrow": "Dodaj strelicu",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",

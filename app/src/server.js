@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.11
+ * @version 2.0.15
  *
  */
 
@@ -2514,7 +2514,7 @@ io.sockets.on('connect', async (socket) => {
      * @param {string} cfg.room_id - The ID of the room.
      * @param {string} cfg.screenOwnerId - The ID of the screen owner.
      * @param {'pen'|'text'|'annotation'} cfg.type - The annotation type.
-     * @param {'create'|'move'|'delete'|'clear'} [cfg.action] - The annotation action.
+     * @param {'create'|'restore'|'move'|'delete'|'clear'} [cfg.action] - The annotation action.
      * @param {string} [cfg.annotationId] - The text annotation identifier.
      * @param {Array} [cfg.points] - The array of points representing a pen stroke.
      * @param {string} [cfg.text] - The text annotation content.
@@ -2524,8 +2524,22 @@ io.sockets.on('connect', async (socket) => {
         const config = checkXSS(cfg);
         if (!Validate.isValidData(config)) return;
 
-        const { room_id, screenOwnerId, type, action, annotationId, points, text, x, y, end, tool, color, width } =
-            config;
+        const {
+            room_id,
+            screenOwnerId,
+            type,
+            action,
+            annotationId,
+            drawerId,
+            points,
+            text,
+            x,
+            y,
+            end,
+            tool,
+            color,
+            width,
+        } = config;
         if (!isPeerInRoom(room_id, socket.id) || !peers[room_id]?.[screenOwnerId]) return;
 
         if (type === 'annotation') {
@@ -2597,11 +2611,14 @@ io.sockets.on('connect', async (socket) => {
                 return;
             }
 
-            const validTool = ['pencil', 'highlighter', 'circle'].includes(tool);
+            const validTool = ['pencil', 'highlighter', 'circle', 'rectangle', 'arrow'].includes(tool);
             const validColor = typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
             const validWidth = Number.isFinite(width) && width >= 0.001 && width <= 0.05;
+            const restoring = action === 'restore';
+            const validDrawerId = typeof drawerId === 'string' && drawerId.length > 0 && drawerId.length <= 100;
             if (
-                action !== 'create' ||
+                (action !== 'create' && !restoring) ||
+                (restoring && (socket.id !== screenOwnerId || !validDrawerId)) ||
                 !validId ||
                 !validTool ||
                 !validColor ||
@@ -2615,7 +2632,7 @@ io.sockets.on('connect', async (socket) => {
 
             const newAnnotation = {
                 annotationId,
-                drawerId: socket.id,
+                drawerId: restoring ? drawerId : socket.id,
                 screenOwnerId,
                 tool,
                 color,
@@ -2623,7 +2640,7 @@ io.sockets.on('connect', async (socket) => {
                 points,
             };
             roomAnnotations.set(annotationKey, newAnnotation);
-            await sendToRoom(room_id, socket.id, 'videoDrawing', { type, action, ...newAnnotation });
+            await sendToRoom(room_id, socket.id, 'videoDrawing', { type, action: 'create', ...newAnnotation });
             return;
         }
 

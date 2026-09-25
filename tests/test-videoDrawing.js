@@ -122,7 +122,7 @@ describe('persistent screen annotations', function () {
         if (serverProcess) serverProcess.kill('SIGKILL');
     });
 
-    it('broadcasts, moves, replays, deletes, and clears permanent annotations', async () => {
+    it('broadcasts, moves, replays, restores, deletes, and clears permanent annotations', async () => {
         const annotation = {
             room_id: ROOM,
             type: 'annotation',
@@ -192,6 +192,43 @@ describe('persistent screen annotations', function () {
             });
         });
         cleared.should.containEql({ type: 'annotation', action: 'clear', clearAll: true });
+
+        const restored = await receiveOnce(drawer, 'videoDrawing', () => {
+            owner.emit('videoDrawing', {
+                ...annotation,
+                action: 'restore',
+                annotationId: 'rectangle-1',
+                drawerId: drawer.id,
+                tool: 'rectangle',
+            });
+        });
+        restored.should.containEql({
+            type: 'annotation',
+            action: 'create',
+            annotationId: 'rectangle-1',
+            drawerId: drawer.id,
+            tool: 'rectangle',
+        });
+
+        const arrow = await receiveOnce(owner, 'videoDrawing', () => {
+            drawer.emit('videoDrawing', { ...annotation, annotationId: 'arrow-1', tool: 'arrow' });
+        });
+        arrow.should.containEql({
+            type: 'annotation',
+            action: 'create',
+            annotationId: 'arrow-1',
+            drawerId: drawer.id,
+            tool: 'arrow',
+        });
+
+        await receiveOnce(drawer, 'videoDrawing', () => {
+            owner.emit('videoDrawing', {
+                room_id: ROOM,
+                type: 'annotation',
+                action: 'clear',
+                screenOwnerId: owner.id,
+            });
+        });
 
         const afterClear = await connectSocket();
         let replayed = false;

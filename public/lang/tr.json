@@ -115,7 +115,12 @@
         "Share the video or audio URL": "Share the video or audio URL",
         "When enabled, uses server-side Whisper for higher accuracy transcription": "When enabled, uses server-side Whisper for higher accuracy transcription",
         "Disable screen text": "Ekran metnini devre dışı bırak",
-        "Enable screen text": "Ekran metnini etkinleştir"
+        "Enable screen text": "Ekran metnini etkinleştir",
+        "Annotation width": "Ek açıklama kalınlığı",
+        "Arrow": "Ok",
+        "Rectangle": "Dikdörtgen",
+        "Redo annotation": "Ek açıklamayı yinele",
+        "Undo annotation": "Ek açıklamayı geri al"
     },
     "buttons": {
         "Add arrow": "Ok ekle",
@@ -618,7 +623,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
+        "WebRTC P2P v2.0.15": "WebRTC P2P v2.0.15",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",
