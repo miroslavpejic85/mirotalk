@@ -1,5 +1,16 @@
 {
     "tooltips": {
+        "Annotation color": "Annotation color",
+        "Circle": "Circle",
+        "Clear my screen annotations": "Clear my screen annotations",
+        "Clear screen annotations": "Clear screen annotations",
+        "Delete selected annotation": "Delete selected annotation",
+        "Hide annotation toolbar": "Hide annotation toolbar",
+        "Highlighter": "Highlighter",
+        "Move annotation toolbar": "Move annotation toolbar",
+        "Pencil": "Pencil",
+        "Select and move": "Select and move",
+        "Vanishing pen": "Vanishing pen",
         "🔊 Volume": "🔊 Volume",
         "Background color": "Background color",
         "Change name": "Change name",
@@ -633,7 +644,7 @@
         "Unlock room": "Unlock room",
         "Unlock room?": "Unlock room?",
         "Username": "Username",
-        "WebRTC P2P v2.0.10": "WebRTC P2P v2.0.10",
+        "WebRTC P2P v2.0.11": "WebRTC P2P v2.0.11",
         "Whiteboard Shortcuts": "Whiteboard Shortcuts",
         "Yes": "Yes",
         "Your microphone is off": "Your microphone is off"
