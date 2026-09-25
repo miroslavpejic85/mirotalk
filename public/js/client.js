@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.99
+ * @version 2.0.10
  *
  */
 
@@ -4703,9 +4703,7 @@ async function loadLocalMedia(stream, kind) {
             attachMediaStream(myScreenMedia, stream);
 
             const myScreenDrawing = VideoDrawingOverlay.getOrCreate(myPeerId, myScreenWrap, myScreenMedia);
-            const myScreenDrawingButtons = { pen: myScreenDrawingBtn, text: myScreenTextBtn };
-            myScreenDrawingBtn.addEventListener('click', () => myScreenDrawing.toggle('pen', myScreenDrawingButtons));
-            myScreenTextBtn.addEventListener('click', () => myScreenDrawing.toggle('text', myScreenDrawingButtons));
+            myScreenDrawing.bindControls(myScreenDrawingBtn, myScreenTextBtn);
 
             adaptAspectRatio();
 
@@ -5372,13 +5370,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             videoMediaContainer.appendChild(remoteScreenWrap);
             attachMediaStream(remoteScreenMedia, stream);
             const remoteScreenDrawing = VideoDrawingOverlay.getOrCreate(peer_id, remoteScreenWrap, remoteScreenMedia);
-            const remoteScreenDrawingButtons = { pen: remoteScreenDrawingBtn, text: remoteScreenTextBtn };
-            remoteScreenDrawingBtn.addEventListener('click', () =>
-                remoteScreenDrawing.toggle('pen', remoteScreenDrawingButtons)
-            );
-            remoteScreenTextBtn.addEventListener('click', () =>
-                remoteScreenDrawing.toggle('text', remoteScreenDrawingButtons)
-            );
+            remoteScreenDrawing.bindControls(remoteScreenDrawingBtn, remoteScreenTextBtn);
             // Explicitly play – required on mobile Safari where autoplay alone is not enough
             remoteScreenMedia.play().catch(() => {});
             adaptAspectRatio();
@@ -17659,7 +17651,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v1.9.99',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.10',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

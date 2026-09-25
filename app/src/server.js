@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.9.99
+ * @version 2.0.10
  *
  */
 
@@ -408,6 +408,7 @@ const presenters = {}; // collect presenters grp by channels
 const wbLocks = {}; // server-authoritative whiteboard lock state grp by channels
 const wbParticipantNames = {}; // presenter-controlled whiteboard participant attribution state grp by channels
 const videoTextAnnotations = {}; // persistent screen text annotation state grp by channels
+const videoDrawingAnnotations = {}; // persistent screen drawing annotation state grp by channels
 
 const roomMetaKeys = new Set(['lock', 'password', 'joinLock']);
 
@@ -1947,6 +1948,17 @@ io.sockets.on('connect', async (socket) => {
                         case 'screen':
                             peers[room_id][peer_id]['peer_screen_status'] = status;
                             if (extras) peers[room_id][peer_id]['extras'] = extras;
+                            if (!status) {
+                                for (const [key, annotation] of videoTextAnnotations[room_id]?.entries() || []) {
+                                    if (annotation.screenOwnerId === socket.id)
+                                        videoTextAnnotations[room_id].delete(key);
+                                }
+                                for (const [key, annotation] of videoDrawingAnnotations[room_id]?.entries() || []) {
+                                    if (annotation.screenOwnerId === socket.id) {
+                                        videoDrawingAnnotations[room_id].delete(key);
+                                    }
+                                }
+                            }
                             break;
                         case 'hand':
                             peers[room_id][peer_id]['peer_hand_status'] = status;
@@ -2501,8 +2513,8 @@ io.sockets.on('connect', async (socket) => {
      * @param {Object} cfg - The configuration object containing video drawing data.
      * @param {string} cfg.room_id - The ID of the room.
      * @param {string} cfg.screenOwnerId - The ID of the screen owner.
-     * @param {'pen'|'text'} cfg.type - The annotation type.
-     * @param {'create'|'move'|'delete'|'clear'} [cfg.action] - The text annotation action.
+     * @param {'pen'|'text'|'annotation'} cfg.type - The annotation type.
+     * @param {'create'|'move'|'delete'|'clear'} [cfg.action] - The annotation action.
      * @param {string} [cfg.annotationId] - The text annotation identifier.
      * @param {Array} [cfg.points] - The array of points representing a pen stroke.
      * @param {string} [cfg.text] - The text annotation content.
@@ -2512,8 +2524,108 @@ io.sockets.on('connect', async (socket) => {
         const config = checkXSS(cfg);
         if (!Validate.isValidData(config)) return;
 
-        const { room_id, screenOwnerId, type, action, annotationId, points, text, x, y, end } = config;
+        const { room_id, screenOwnerId, type, action, annotationId, points, text, x, y, end, tool, color, width } =
+            config;
         if (!isPeerInRoom(room_id, socket.id) || !peers[room_id]?.[screenOwnerId]) return;
+
+        if (type === 'annotation') {
+            const roomAnnotations = (videoDrawingAnnotations[room_id] ||= new Map());
+            if (action === 'clear') {
+                const clearAll = socket.id === screenOwnerId;
+                for (const [key, annotation] of roomAnnotations) {
+                    if (annotation.screenOwnerId === screenOwnerId && (clearAll || annotation.drawerId === socket.id)) {
+                        roomAnnotations.delete(key);
+                    }
+                }
+                await sendToRoom(room_id, socket.id, 'videoDrawing', {
+                    type,
+                    action,
+                    screenOwnerId,
+                    drawerId: socket.id,
+                    clearAll,
+                });
+                return;
+            }
+
+            const validId = typeof annotationId === 'string' && annotationId.length > 0 && annotationId.length <= 100;
+            const validPoints =
+                Array.isArray(points) &&
+                points.length >= 2 &&
+                points.length <= 2048 &&
+                points.every(
+                    (point) =>
+                        point &&
+                        Number.isFinite(point.x) &&
+                        Number.isFinite(point.y) &&
+                        point.x >= 0 &&
+                        point.x <= 1 &&
+                        point.y >= 0 &&
+                        point.y <= 1
+                );
+            const annotationKey = `${screenOwnerId}:${annotationId}`;
+            const annotation = roomAnnotations.get(annotationKey);
+            if (action === 'move') {
+                if (
+                    !validId ||
+                    !validPoints ||
+                    !annotation ||
+                    (socket.id !== annotation.drawerId && socket.id !== screenOwnerId)
+                ) {
+                    return;
+                }
+                annotation.points = points;
+                await sendToRoom(room_id, socket.id, 'videoDrawing', {
+                    type,
+                    action,
+                    screenOwnerId,
+                    annotationId,
+                    points,
+                });
+                return;
+            }
+            if (action === 'delete') {
+                if (!validId || !annotation || (socket.id !== annotation.drawerId && socket.id !== screenOwnerId)) {
+                    return;
+                }
+                roomAnnotations.delete(annotationKey);
+                await sendToRoom(room_id, socket.id, 'videoDrawing', {
+                    type,
+                    action,
+                    screenOwnerId,
+                    annotationId,
+                });
+                return;
+            }
+
+            const validTool = ['pencil', 'highlighter', 'circle'].includes(tool);
+            const validColor = typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
+            const validWidth = Number.isFinite(width) && width >= 0.001 && width <= 0.05;
+            if (
+                action !== 'create' ||
+                !validId ||
+                !validTool ||
+                !validColor ||
+                !validWidth ||
+                !validPoints ||
+                roomAnnotations.has(annotationKey) ||
+                roomAnnotations.size >= 500
+            ) {
+                return;
+            }
+
+            const newAnnotation = {
+                annotationId,
+                drawerId: socket.id,
+                screenOwnerId,
+                tool,
+                color,
+                width,
+                points,
+            };
+            roomAnnotations.set(annotationKey, newAnnotation);
+            await sendToRoom(room_id, socket.id, 'videoDrawing', { type, action, ...newAnnotation });
+            return;
+        }
 
         if (type === 'text') {
             if (typeof annotationId !== 'string' || annotationId.length === 0 || annotationId.length > 100) {
@@ -2625,6 +2737,9 @@ io.sockets.on('connect', async (socket) => {
         for (const annotation of videoTextAnnotations[channel]?.values() || []) {
             socket.emit('videoDrawing', { type: 'text', action: 'create', ...annotation });
         }
+        for (const annotation of videoDrawingAnnotations[channel]?.values() || []) {
+            socket.emit('videoDrawing', { type: 'annotation', action: 'create', ...annotation });
+        }
     }
 
     /**
@@ -2667,6 +2782,14 @@ io.sockets.on('connect', async (socket) => {
                     }
                 }
             }
+            const roomDrawingAnnotations = videoDrawingAnnotations[channel];
+            if (roomDrawingAnnotations) {
+                for (const [key, annotation] of roomDrawingAnnotations) {
+                    if (annotation.screenOwnerId === socket.id) {
+                        roomDrawingAnnotations.delete(key);
+                    }
+                }
+            }
 
             delete socket.channels[channel];
             delete channels[channel][socket.id];
@@ -2679,6 +2802,7 @@ io.sockets.on('connect', async (socket) => {
                 delete wbLocks[channel]; // Clean up whiteboard lock state
                 delete wbParticipantNames[channel]; // Clean up whiteboard participant attribution state
                 delete videoTextAnnotations[channel]; // Clean up persistent screen annotation state
+                delete videoDrawingAnnotations[channel]; // Clean up persistent screen drawing state
             }
         } catch (err) {
             log.error('Remove Peer', toJson(err));
