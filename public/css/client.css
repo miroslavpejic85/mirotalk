@@ -769,6 +769,7 @@ body {
     width: max-content;
     min-width: 210px;
     max-width: calc(100vw - 24px);
+    overflow-x: hidden;
     padding: 8px 6px;
 }
 
@@ -822,6 +823,15 @@ body {
         max-height: 60vh;
         border-radius: 12px;
         box-shadow: var(--box-shadow);
+    }
+
+    #bottomButtons #participantsActionsMenu {
+        position: fixed !important;
+        right: auto !important;
+        bottom: 70px !important;
+        left: 50% !important;
+        max-width: calc(100vw - 24px);
+        transform: translateX(-50%) !important;
     }
 }
 
