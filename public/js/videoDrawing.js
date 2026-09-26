@@ -1072,11 +1072,10 @@ class VideoDrawingOverlay {
         const start = annotation.points[0];
         this.context.save();
         this.context.beginPath();
-        this.context.strokeStyle = annotation.color;
+        this.context.strokeStyle = annotation.tool === 'highlighter' ? `${annotation.color}59` : annotation.color;
         this.context.lineWidth = Math.max(2, annotation.width * rect.width);
         this.context.lineCap = 'round';
         this.context.lineJoin = 'round';
-        this.context.globalAlpha = annotation.tool === 'highlighter' ? 0.35 : 1;
         if (annotation.tool === 'circle') {
             const end = annotation.points[1] || start;
             const startX = start.x * rect.width;
