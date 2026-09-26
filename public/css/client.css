@@ -574,6 +574,7 @@ body {
 /* Let the dropdown menu anchor to the whole split button (not only the arrow). */
 #bottomButtons #audioDropdown,
 #bottomButtons #videoDropdown,
+#bottomButtons #participantsActionsDropdown,
 #bottomButtons #settingsExtraDropdown {
     position: static;
 }
@@ -762,6 +763,27 @@ body {
     min-width: 220px;
     max-width: calc(100vw - 24px);
     text-align: left;
+}
+
+#bottomButtons #participantsActionsMenu {
+    width: max-content;
+    min-width: 210px;
+    max-width: calc(100vw - 24px);
+    padding: 8px 6px;
+}
+
+#bottomButtons #participantsActionsMenu button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+#bottomButtons #participantsActionsMenu button i {
+    width: 18px;
+    text-align: center;
 }
 
 #bottomButtons #settingsExtraMenu .device-menu-header.extra-menu-group {

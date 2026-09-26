@@ -226,15 +226,41 @@
                 aria-label="Toggle chat"
                 aria-pressed="false"
             ></button>
-            <button
-                id="participantsBtn"
-                class="fas fa-users"
-                type="button"
-                aria-label="Show participants"
-                aria-expanded="false"
-            >
-                <span id="participantsCountBadge"></span>
-            </button>
+            <div id="participantsSplit" class="split-btn">
+                <button
+                    id="participantsBtn"
+                    class="fas fa-users"
+                    type="button"
+                    aria-label="Show participants"
+                    aria-expanded="false"
+                >
+                    <span id="participantsCountBadge"></span>
+                </button>
+                <div id="participantsActionsDropdown" class="dropdown dropup">
+                    <button
+                        id="participantsActionsButton"
+                        class="dropdown-toggle device-dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="Participant actions"
+                    >
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <div
+                        id="participantsActionsMenu"
+                        class="dropdown-menu text-start app-dropdown-menu"
+                        aria-labelledby="participantsActionsButton"
+                    >
+                        <button id="participantsInviteBtn" class="app-dropdown-action" type="button">
+                            <i class="fas fa-user-plus"></i> Invite...
+                        </button>
+                        <button id="participantsCopyInviteLinkBtn" class="app-dropdown-action" type="button">
+                            <i class="fas fa-link"></i> Copy invite link
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div id="participantViewDropdown" class="dropdown dropup hidden">
                 <button

@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.17
+ * @version 2.0.18
  *
  */
 
@@ -193,8 +193,14 @@ const shareRoomBtn = getId('shareRoomBtn');
 const recordStreamBtn = getId('recordStreamBtn');
 const fullScreenBtn = getId('fullScreenBtn');
 const chatRoomBtn = getId('chatRoomBtn');
+const participantsSplit = getId('participantsSplit');
 const participantsBtn = getId('participantsBtn');
 const participantsCountBadge = getId('participantsCountBadge');
+const participantsActionsDropdown = getId('participantsActionsDropdown');
+const participantsActionsButton = getId('participantsActionsButton');
+const participantsActionsMenu = getId('participantsActionsMenu');
+const participantsInviteBtn = getId('participantsInviteBtn');
+const participantsCopyInviteLinkBtn = getId('participantsCopyInviteLinkBtn');
 const captionBtn = getId('captionBtn');
 const roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
 const whiteboardBtn = getId('whiteboardBtn');
@@ -1789,7 +1795,7 @@ function handleButtonsRule() {
         { element: recordStreamBtn, display: buttons.main.showRecordStreamBtn },
         { element: recordingActionBtn, display: buttons.main.showRecordStreamBtn },
         { element: chatRoomBtn, display: buttons.main.showChatRoomBtn },
-        { element: participantsBtn, display: buttons.main.showParticipantsBtn },
+        { element: participantsSplit, display: buttons.main.showParticipantsBtn, mode: 'inline-flex' },
         {
             element: captionBtn,
             display: buttons.main.showCaptionRoomBtn && (speechRecognition || isWhisperAvailable()),
@@ -7143,6 +7149,51 @@ function setChatRoomBtn() {
  * Participants room buttons click event
  */
 function setParticipantsBtn() {
+    if (participantsActionsDropdown && participantsActionsButton && participantsActionsMenu) {
+        let closeTimeout;
+        const openMenu = () => {
+            clearTimeout(closeTimeout);
+            participantsActionsMenu.classList.add('show');
+            participantsActionsButton.setAttribute('aria-expanded', 'true');
+        };
+        const closeMenu = () => {
+            clearTimeout(closeTimeout);
+            participantsActionsMenu.classList.remove('show');
+            participantsActionsButton.setAttribute('aria-expanded', 'false');
+        };
+        const scheduleClose = () => {
+            clearTimeout(closeTimeout);
+            closeTimeout = setTimeout(closeMenu, 180);
+        };
+
+        participantsActionsButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            participantsActionsMenu.classList.contains('show') ? closeMenu() : openMenu();
+        });
+
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+            participantsActionsButton.addEventListener('mouseenter', openMenu);
+            participantsActionsButton.addEventListener('mouseleave', scheduleClose);
+            participantsActionsMenu.addEventListener('mouseenter', openMenu);
+            participantsActionsMenu.addEventListener('mouseleave', scheduleClose);
+        }
+
+        participantsActionsMenu.addEventListener('click', closeMenu);
+        document.addEventListener('click', (e) => {
+            if (!participantsActionsDropdown.contains(e.target)) closeMenu();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMenu();
+        });
+    }
+
+    participantsInviteBtn.addEventListener('click', () => {
+        shareRoomUrl();
+    });
+    participantsCopyInviteLinkBtn.addEventListener('click', () => {
+        copyRoomURL();
+    });
     participantsBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         const openedChatForParticipants = !isChatRoomVisible;
@@ -17651,7 +17702,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.17',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.18',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

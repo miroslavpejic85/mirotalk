@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "2.0.17",
+    "version": "2.0.18",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
