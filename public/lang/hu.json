@@ -243,7 +243,10 @@
         "Transparency": "Transparency",
         "Undo": "Undo",
         "Unlock whiteboard": "Unlock whiteboard",
-        "Vanishing pen": "Vanishing pen"
+        "Vanishing pen": "Vanishing pen",
+        "Copy invite link": "Meghívó hivatkozás másolása",
+        "Invite...": "Meghívás...",
+        "Participant actions": "Résztvevői műveletek"
     },
     "labels": {
         "= Arrow": "= Nyíl",

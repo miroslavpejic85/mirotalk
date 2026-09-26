@@ -243,7 +243,10 @@
         "Transparency": "Transparency",
         "Undo": "Undo",
         "Unlock whiteboard": "Unlock whiteboard",
-        "Vanishing pen": "Vanishing pen"
+        "Vanishing pen": "Vanishing pen",
+        "Copy invite link": "Copia link di invito",
+        "Invite...": "Invita...",
+        "Participant actions": "Azioni partecipanti"
     },
     "labels": {
         "= Arrow": "= Freccia",
