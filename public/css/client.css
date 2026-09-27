@@ -808,31 +808,36 @@ body {
     margin: 6px 12px;
 }
 
-/* Mobile: keep settingsExtraMenu inside viewport and scrollable */
+/* Mobile: keep toolbar dropdowns inside the viewport and scrollable. */
 @media (max-width: 600px) {
     #bottomButtons #audioMenu,
     #bottomButtons #videoMenu,
-    #bottomButtons #settingsExtraMenu {
+    #bottomButtons #settingsExtraMenu,
+    #bottomButtons #participantsActionsMenu {
         min-width: unset;
-        max-width: 90vw;
+        width: auto !important;
+        max-width: 90vw !important;
         left: 5vw !important;
         right: 5vw !important;
         position: fixed !important;
         bottom: 70px !important;
         z-index: 9999;
         overflow-y: auto;
-        max-height: 60vh;
+        max-height: calc(100vh - 100px);
+        max-height: calc(100dvh - 100px);
         border-radius: 12px;
         box-shadow: var(--box-shadow);
     }
 
+    #bottomButtons #audioMenu,
+    #bottomButtons #videoMenu,
+    #bottomButtons #settingsExtraMenu,
     #bottomButtons #participantsActionsMenu {
-        position: fixed !important;
+        width: max-content !important;
         right: auto !important;
-        bottom: 70px !important;
         left: 50% !important;
-        max-width: calc(100vw - 24px);
         transform: translateX(-50%) !important;
+        translate: 0;
     }
 }
 
@@ -3419,6 +3424,7 @@ button {
     border: var(--border);
     border-radius: 10px;
     box-shadow: var(--box-shadow);
+    pointer-events: none;
 }
 
 #qrText {
@@ -3551,6 +3557,24 @@ button {
     }
     .mySettingsMain {
         flex-direction: column;
+    }
+    #bottomButtons {
+        gap: 0.3rem;
+        padding: 4px;
+    }
+    #bottomButtons button {
+        width: 42px;
+        height: 42px;
+        padding: 8px;
+        margin: 0 1px;
+        font-size: 1.1rem;
+    }
+    #bottomButtons .device-dropdown-toggle {
+        width: 24px;
+        height: 42px;
+    }
+    #bottomButtons .device-dropdown-toggle i {
+        font-size: 0.8rem;
     }
 }
 
