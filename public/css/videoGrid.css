@@ -174,7 +174,7 @@
     padding: 4px;
     border: var(--border);
     border-radius: 8px;
-    background: rgba(18, 18, 18, 0.92);
+    background: var(--body-bg);
     box-shadow: var(--box-shadow);
     overflow: hidden;
     transform: translateX(-50%);
@@ -246,8 +246,7 @@
 .video-drawing-toolbar button.video-drawing-close {
     z-index: 1;
     flex-shrink: 0;
-    background: rgba(18, 18, 18, 0.96);
-    box-shadow: -8px 0 8px rgba(18, 18, 18, 0.96);
+    background: var(--body-bg);
 }
 
 .video-drawing-toolbar button.video-drawing-delete:not(:disabled):hover,
