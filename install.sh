@@ -6,6 +6,7 @@
 set -Eeuo pipefail
 
 readonly NODE_MAJOR=24
+readonly DOCKER_IMAGE='mirotalk/p2p:latest'
 readonly CONFIG_FILE='app/src/config.js'
 readonly CONFIG_TEMPLATE='app/src/config.template.js'
 readonly ENV_FILE='.env'
@@ -172,10 +173,10 @@ if confirm 'Use Docker?' y; then
 
     if confirm 'Use the official Docker image?' y; then
         log info 'Pulling the latest official image'
-        docker pull mirotalk/p2p:latest
+        docker pull "$DOCKER_IMAGE"
     else
         log info 'Building the image from this checkout'
-        docker build --tag mirotalk/p2p:latest .
+        docker build --tag "$DOCKER_IMAGE" .
     fi
 
     log info 'Starting MiroTalk P2P in the background'
