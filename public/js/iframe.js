@@ -35,8 +35,20 @@ class IframeApi {
         const params = this.buildParams();
         const iframe = this.createIframe(params);
 
+        this.iframe = iframe;
+        this.iframeOrigin = new URL(iframe.src).origin;
+        this.handleMessage = this.handleMessage.bind(this);
+        window.addEventListener('message', this.handleMessage);
+
         this.clearParentNode();
         this.appendIframeToParentNode(iframe);
+    }
+
+    handleMessage(event) {
+        if (event.source !== this.iframe.contentWindow || event.origin !== this.iframeOrigin) return;
+        if (event.data?.type !== 'mirotalk:redirect' || typeof event.data.url !== 'string') return;
+
+        window.location.href = event.data.url;
     }
 
     isValidParentNode() {

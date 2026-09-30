@@ -46,6 +46,10 @@ class MiroTalkWidget {
         this.roomId = roomId;
         this.userName = userName;
         this.options = this.mergeDeep(MiroTalkWidget.DEFAULT_OPTIONS, options);
+        this.meetingOrigin = new URL(`${this.protocol}://${this.domain}`).origin;
+        this.meetingWindows = new Set();
+        this.handleMessage = this.handleMessage.bind(this);
+        window.addEventListener('message', this.handleMessage);
 
         // Initialize widget state and status
         this.widgetState = this.options.widgetState;
@@ -570,7 +574,8 @@ class MiroTalkWidget {
     joinRoom() {
         if (this.isOnline) {
             console.log('Joining room...');
-            window.open(`${this.protocol}://${this.domain}/join?room=${this.roomId}`, '_blank');
+            const queryParams = new URLSearchParams({ room: this.roomId, mirotalk_widget: '1' });
+            this.openWidgetMeeting(queryParams);
         } else {
             this.supportOffline();
         }
@@ -584,9 +589,22 @@ class MiroTalkWidget {
         const queryParams = new URLSearchParams({
             room: this.roomId,
             name: this.userName,
+            mirotalk_widget: '1',
             ...params,
         });
-        window.open(`${this.protocol}://${this.domain}/join?${queryParams}`, '_blank');
+        this.openWidgetMeeting(queryParams);
+    }
+
+    openWidgetMeeting(queryParams) {
+        const meetingWindow = window.open(`${this.protocol}://${this.domain}/join?${queryParams}`, '_blank');
+        if (meetingWindow) this.meetingWindows.add(meetingWindow);
+    }
+
+    handleMessage(event) {
+        if (event.origin !== this.meetingOrigin || !this.meetingWindows.has(event.source)) return;
+        if (event.data?.type !== 'mirotalk:redirect' || typeof event.data.url !== 'string') return;
+
+        window.location.href = event.data.url;
     }
 
     supportOffline() {
@@ -717,6 +735,8 @@ class MiroTalkWidget {
     }
 
     destroy() {
+        window.removeEventListener('message', this.handleMessage);
+        this.meetingWindows.clear();
         this.removeAllWidgetElements();
 
         const parentNode = this.getParentNode();
