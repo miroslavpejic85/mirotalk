@@ -786,10 +786,12 @@ class VideoDrawingOverlay {
             input.style.textAlign = textAlign;
             input.style.backgroundColor =
                 backgroundToggle.getAttribute('aria-pressed') === 'true' ? backgroundColor.value : 'transparent';
-            backgroundColor.disabled = backgroundToggle.getAttribute('aria-pressed') !== 'true';
         };
         textColor.addEventListener('input', updatePreview);
-        backgroundColor.addEventListener('input', updatePreview);
+        backgroundColor.addEventListener('input', () => {
+            backgroundToggle.setAttribute('aria-pressed', 'true');
+            updatePreview();
+        });
         fontSize.addEventListener('change', updatePreview);
         const canvasWidth = this.canvas.clientWidth;
         const canvasHeight = this.canvas.clientHeight;

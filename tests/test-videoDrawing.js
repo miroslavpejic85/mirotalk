@@ -611,7 +611,7 @@ describe('screen annotation text toolbar', () => {
         const panel = editor.querySelector('.video-drawing-text-more-panel');
         panel.hidden.should.be.true();
         panel.getAttribute('aria-label').should.equal('labels:More text options');
-        panel.querySelector('.video-drawing-text-background-color').disabled.should.be.true();
+        panel.querySelector('.video-drawing-text-background-color').disabled.should.be.false();
         should(panel.querySelector('.video-drawing-text-rotation')).be.ok();
         for (const control of editor.querySelectorAll('button, input, select')) {
             control.getAttribute('aria-label').should.not.be.empty();
@@ -658,6 +658,26 @@ describe('screen annotation text toolbar', () => {
             rotation: 30,
         });
         editor.isConnected.should.be.false();
+    });
+
+    it('enables the background by selecting a color and allows toggling it off and on', () => {
+        input.value = 'Colored background';
+        editor.querySelector('[aria-expanded]').click();
+        const background = editor.querySelector('.video-drawing-text-background-color');
+        const toggle = editor.querySelector('.fa-fill-drip');
+        toggle.getAttribute('aria-pressed').should.equal('false');
+        background.disabled.should.be.false();
+        background.value = '#00ff00';
+        background.dispatchEvent(new dom.window.Event('input'));
+        toggle.getAttribute('aria-pressed').should.equal('true');
+        input.style.backgroundColor.should.equal('rgb(0, 255, 0)');
+        toggle.click();
+        input.style.backgroundColor.should.equal('transparent');
+        background.disabled.should.be.false();
+        toggle.click();
+        input.style.backgroundColor.should.equal('rgb(0, 255, 0)');
+        editor.querySelector('.video-drawing-text-save').click();
+        overlay.savedAnnotation.backgroundColor.should.equal('#00ff00');
     });
 
     it('dismisses More without cancelling, then supports Escape and Cancel from toolbar controls', () => {
