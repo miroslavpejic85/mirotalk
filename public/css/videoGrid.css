@@ -300,18 +300,113 @@
     }
 }
 
-.video-drawing-text-input {
+.video-drawing-text-editor {
     position: absolute;
-    z-index: 9;
+    z-index: 11;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     box-sizing: border-box;
-    height: 34px;
-    padding: 6px 8px;
+    min-width: 160px;
+    max-width: calc(100% - 16px);
+    padding: 5px;
     border: 2px solid #4caf50;
     border-radius: 6px;
-    outline: none;
     background: rgba(0, 0, 0, 0.86);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.42);
+    overflow: auto;
+    resize: horizontal;
+}
+
+.video-drawing-text-editor-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px;
+    min-width: 0;
+}
+
+.video-drawing-text-editor-controls button,
+.video-drawing-text-editor-controls input,
+.video-drawing-text-editor-controls select {
+    box-sizing: border-box;
+    height: 30px;
+    border: 0;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
-    font: 600 14px inherit;
+}
+
+.video-drawing-text-editor-controls button {
+    flex: 0 0 30px;
+    width: 30px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.video-drawing-text-editor-controls button:hover,
+.video-drawing-text-editor-controls button:focus-visible,
+.video-drawing-text-editor-controls button[aria-pressed='true'] {
+    background: rgba(255, 255, 255, 0.22);
+    color: #4caf50;
+}
+
+.video-drawing-text-color {
+    flex: 0 0 32px;
+    width: 32px;
+    padding: 3px;
+    cursor: pointer;
+}
+
+.video-drawing-text-size {
+    min-width: 62px;
+    padding: 0 5px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.video-drawing-text-editor-controls .video-drawing-text-cancel {
+    margin-left: auto;
+}
+
+.video-drawing-text-editor-controls .video-drawing-text-cancel:hover,
+.video-drawing-text-editor-controls .video-drawing-text-cancel:focus-visible {
+    color: #ef5350;
+}
+
+.video-drawing-text-editor-controls .video-drawing-text-save {
+    background: #2e7d32;
+}
+
+.video-drawing-text-editor-controls .video-drawing-text-save:hover,
+.video-drawing-text-editor-controls .video-drawing-text-save:focus-visible {
+    background: #388e3c;
+    color: #fff;
+}
+
+.video-drawing-text-input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 150px;
+    min-height: 70px;
+    max-height: 180px;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 4px;
+    outline: none;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.35;
+    resize: none;
+}
+
+.video-drawing-text-input:focus {
+    border-color: #66bb6a;
 }
 
 .video-drawing-text-annotation {
@@ -320,16 +415,20 @@
     z-index: 8;
     box-sizing: border-box;
     min-height: calc(32px * var(--video-drawing-annotation-scale));
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 1px solid transparent;
     border-radius: calc(6px * var(--video-drawing-annotation-scale));
-    background: rgba(0, 0, 0, 0.82);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.32);
-    color: #fff;
+    background: transparent;
+    box-shadow: none;
+    color: var(--video-drawing-text-color, #fff);
     font-size: calc(14px * var(--video-drawing-annotation-scale));
     font-weight: 600;
     line-height: 1.3;
     overflow-wrap: anywhere;
     pointer-events: auto;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
     touch-action: none;
     user-select: none;
 }
@@ -338,6 +437,16 @@
     display: block;
     padding: calc(7px * var(--video-drawing-annotation-scale)) calc(54px * var(--video-drawing-annotation-scale))
         calc(7px * var(--video-drawing-annotation-scale)) calc(9px * var(--video-drawing-annotation-scale));
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+    white-space: pre-wrap;
+}
+
+.video-drawing-text-bold {
+    font-weight: 700;
+}
+
+.video-drawing-text-italic {
+    font-style: italic;
 }
 
 .video-drawing-text-annotation:not(.video-drawing-text-manageable) > .video-drawing-text-content {
@@ -387,10 +496,14 @@
 }
 
 .video-drawing-text-annotation:hover,
+.video-drawing-text-annotation:focus,
 .video-drawing-text-annotation:focus-visible,
 .video-drawing-text-annotation:focus-within,
 .video-drawing-text-dragging {
     z-index: 10;
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(0, 0, 0, 0.72);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.32);
 }
 
 .video-drawing-text-manageable {
@@ -420,7 +533,20 @@
     background: transparent;
     color: rgba(255, 255, 255, 0.78);
     font-size: calc(12px * var(--video-drawing-annotation-scale));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
     cursor: pointer;
+}
+
+.video-drawing-text-annotation:hover > .video-drawing-text-edit,
+.video-drawing-text-annotation:hover > .video-drawing-text-delete,
+.video-drawing-text-annotation:focus > .video-drawing-text-edit,
+.video-drawing-text-annotation:focus > .video-drawing-text-delete,
+.video-drawing-text-annotation:focus-within > .video-drawing-text-edit,
+.video-drawing-text-annotation:focus-within > .video-drawing-text-delete {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .video-drawing-text-edit {
@@ -432,7 +558,11 @@
 }
 
 .video-drawing-text-edit:hover,
-.video-drawing-text-edit:focus-visible,
+.video-drawing-text-edit:focus-visible {
+    background: rgba(76, 175, 80, 0.24);
+    color: #fff;
+}
+
 .video-drawing-text-delete:hover,
 .video-drawing-text-delete:focus-visible {
     background: rgba(255, 82, 82, 0.24);
