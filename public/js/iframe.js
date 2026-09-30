@@ -48,6 +48,9 @@ class IframeApi {
         if (event.source !== this.iframe.contentWindow || event.origin !== this.iframeOrigin) return;
         if (event.data?.type !== 'mirotalk:redirect' || typeof event.data.url !== 'string') return;
 
+        if (typeof event.data.id === 'string') {
+            event.source.postMessage({ type: 'mirotalk:redirect-ack', id: event.data.id }, event.origin);
+        }
         window.location.href = event.data.url;
     }
 

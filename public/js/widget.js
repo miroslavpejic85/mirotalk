@@ -604,6 +604,9 @@ class MiroTalkWidget {
         if (event.origin !== this.meetingOrigin || !this.meetingWindows.has(event.source)) return;
         if (event.data?.type !== 'mirotalk:redirect' || typeof event.data.url !== 'string') return;
 
+        if (typeof event.data.id === 'string') {
+            event.source.postMessage({ type: 'mirotalk:redirect-ack', id: event.data.id }, event.origin);
+        }
         window.location.href = event.data.url;
     }
 
