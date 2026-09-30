@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.30
+ * @version 2.0.35
  *
  */
 
@@ -2652,8 +2652,11 @@ io.sockets.on('connect', async (socket) => {
             const annotationKey = `${screenOwnerId}:${annotationId}`;
             const validPosition = Number.isFinite(x) && Number.isFinite(y) && x >= 0 && x <= 1 && y >= 0 && y <= 1;
 
-            if (action === 'create') {
+            if (action === 'create' || action === 'restore') {
+                const restoring = action === 'restore';
+                const validDrawerId = typeof drawerId === 'string' && drawerId.length > 0 && drawerId.length <= 100;
                 if (
+                    (restoring && (socket.id !== screenOwnerId || !validDrawerId)) ||
                     typeof text !== 'string' ||
                     text.length === 0 ||
                     text.length > 80 ||
@@ -2663,9 +2666,20 @@ io.sockets.on('connect', async (socket) => {
                 ) {
                     return;
                 }
-                const annotation = { annotationId, drawerId: socket.id, screenOwnerId, text, x, y };
+                const annotation = {
+                    annotationId,
+                    drawerId: restoring ? drawerId : socket.id,
+                    screenOwnerId,
+                    text,
+                    x,
+                    y,
+                };
                 roomAnnotations.set(annotationKey, annotation);
-                await sendToRoom(room_id, socket.id, 'videoDrawing', { type: 'text', action, ...annotation });
+                await sendToRoom(room_id, socket.id, 'videoDrawing', {
+                    type: 'text',
+                    action: 'create',
+                    ...annotation,
+                });
                 return;
             }
 
@@ -2680,6 +2694,18 @@ io.sockets.on('connect', async (socket) => {
 
             const annotation = roomAnnotations.get(annotationKey);
             if (!annotation || (socket.id !== annotation.drawerId && socket.id !== screenOwnerId)) return;
+            if (action === 'update') {
+                if (typeof text !== 'string' || text.length === 0 || text.length > 80) return;
+                annotation.text = text;
+                await sendToRoom(room_id, socket.id, 'videoDrawing', {
+                    type: 'text',
+                    action,
+                    screenOwnerId,
+                    annotationId,
+                    text,
+                });
+                return;
+            }
             if (action === 'move') {
                 if (!validPosition) return;
                 annotation.x = x;

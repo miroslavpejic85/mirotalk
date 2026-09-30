@@ -336,7 +336,7 @@
 
 .video-drawing-text-content {
     display: block;
-    padding: calc(7px * var(--video-drawing-annotation-scale)) calc(30px * var(--video-drawing-annotation-scale))
+    padding: calc(7px * var(--video-drawing-annotation-scale)) calc(54px * var(--video-drawing-annotation-scale))
         calc(7px * var(--video-drawing-annotation-scale)) calc(9px * var(--video-drawing-annotation-scale));
 }
 
@@ -397,14 +397,18 @@
     cursor: grab;
 }
 
+.video-drawing-text-editing {
+    visibility: hidden;
+}
+
 .video-drawing-text-dragging {
     cursor: grabbing;
 }
 
+.video-drawing-text-edit,
 .video-drawing-text-delete {
     position: absolute;
     top: calc(3px * var(--video-drawing-annotation-scale));
-    right: calc(3px * var(--video-drawing-annotation-scale));
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -419,6 +423,16 @@
     cursor: pointer;
 }
 
+.video-drawing-text-edit {
+    right: calc(27px * var(--video-drawing-annotation-scale));
+}
+
+.video-drawing-text-delete {
+    right: calc(3px * var(--video-drawing-annotation-scale));
+}
+
+.video-drawing-text-edit:hover,
+.video-drawing-text-edit:focus-visible,
 .video-drawing-text-delete:hover,
 .video-drawing-text-delete:focus-visible {
     background: rgba(255, 82, 82, 0.24);

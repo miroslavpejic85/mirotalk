@@ -239,4 +239,69 @@ describe('persistent screen annotations', function () {
         await sleep(250);
         replayed.should.be.false();
     });
+
+    it('broadcasts, edits, replays, moves, and deletes text annotations', async () => {
+        const annotation = {
+            room_id: ROOM,
+            type: 'text',
+            action: 'create',
+            screenOwnerId: owner.id,
+            annotationId: 'text-1',
+            text: 'Original text',
+            x: 0.2,
+            y: 0.3,
+        };
+
+        const created = await receiveOnce(owner, 'videoDrawing', () => drawer.emit('videoDrawing', annotation));
+        created.should.containEql({
+            type: 'text',
+            action: 'create',
+            annotationId: 'text-1',
+            drawerId: drawer.id,
+            text: 'Original text',
+        });
+
+        const updated = await receiveOnce(owner, 'videoDrawing', () => {
+            drawer.emit('videoDrawing', { ...annotation, action: 'update', text: 'Corrected text' });
+        });
+        updated.should.containEql({ type: 'text', action: 'update', text: 'Corrected text' });
+
+        const lateJoiner = await connectSocket();
+        const replayPromise = receiveOnce(lateJoiner, 'videoDrawing', () => join(lateJoiner, joinCfg('text-reader')));
+        const replay = await replayPromise;
+        replay.should.containEql({ annotationId: 'text-1', text: 'Corrected text' });
+
+        const moved = await receiveOnce(owner, 'videoDrawing', () => {
+            drawer.emit('videoDrawing', { ...annotation, action: 'move', x: 0.4, y: 0.5 });
+        });
+        moved.should.containEql({ type: 'text', action: 'move', x: 0.4, y: 0.5 });
+
+        const deleted = await receiveOnce(owner, 'videoDrawing', () => {
+            drawer.emit('videoDrawing', { ...annotation, action: 'delete' });
+        });
+        deleted.should.containEql({ type: 'text', action: 'delete', annotationId: 'text-1' });
+
+        const restored = await receiveOnce(drawer, 'videoDrawing', () => {
+            owner.emit('videoDrawing', {
+                ...annotation,
+                action: 'restore',
+                drawerId: drawer.id,
+                text: 'Corrected text',
+                x: 0.4,
+                y: 0.5,
+            });
+        });
+        restored.should.containEql({
+            type: 'text',
+            action: 'create',
+            annotationId: 'text-1',
+            drawerId: drawer.id,
+            text: 'Corrected text',
+        });
+
+        const cleared = await receiveOnce(drawer, 'videoDrawing', () => {
+            owner.emit('videoDrawing', { ...annotation, action: 'clear' });
+        });
+        cleared.should.containEql({ type: 'text', action: 'clear', screenOwnerId: owner.id });
+    });
 });
