@@ -136,7 +136,10 @@
         "Text color": "टेक्स्ट का रंग",
         "Text rotation": "टेक्स्ट रोटेशन",
         "Text size": "टेक्स्ट का आकार",
-        "Underline text": "टेक्स्ट को रेखांकित करें"
+        "Underline text": "टेक्स्ट को रेखांकित करें",
+        "Diamond": "हीराकार",
+        "Download annotated screen (PDF)": "टिप्पणी सहित स्क्रीन डाउनलोड करें (PDF)",
+        "Download annotated screen (PNG)": "टिप्पणी सहित स्क्रीन डाउनलोड करें (PNG)"
     },
     "buttons": {
         "Add arrow": "तीर जोड़ें",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "स्क्रीन टेक्स्ट एनोटेशन में बदलाव करें",
         "More text options": "टेक्स्ट के और विकल्प",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "टेक्स्ट फ़ॉर्मेटिंग"
+        "Text formatting": "टेक्स्ट फ़ॉर्मेटिंग",
+        "Annotation downloads": "टिप्पणी डाउनलोड"
     },
     "dialogs": {
         "Edit frame title": "फ़्रेम शीर्षक संपादित करें",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper इस सर्वर पर ट्रांसक्रिप्शन सक्षम नहीं है",
         "Whisper transcription started": "Whisper प्रतिलेखन प्रारंभ हुआ",
         "Whisper transcription stopped": "Whisper प्रतिलेखन बंद हो गया",
-        "Speech recognition started": "वाक् पहचान प्रारंभ हुई"
+        "Speech recognition started": "वाक् पहचान प्रारंभ हुई",
+        "Unable to download screen annotations": "स्क्रीन की टिप्पणियाँ डाउनलोड नहीं हो सकीं"
     }
 }

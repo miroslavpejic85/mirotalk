@@ -122,6 +122,7 @@ class VideoDrawingOverlay {
             'Vanishing pen',
             'Circle',
             'Rectangle',
+            'Diamond',
             'Arrow',
             'Text',
             'Select and move',
@@ -132,6 +133,8 @@ class VideoDrawingOverlay {
             'Delete selected annotation',
             'Clear my screen annotations',
             'Clear screen annotations',
+            'Download annotated screen (PNG)',
+            'Download annotated screen (PDF)',
             'Hide annotation toolbar',
         ];
         annotationTooltipLabels.forEach(translateTooltip);
@@ -155,6 +158,7 @@ class VideoDrawingOverlay {
             ['vanishing', 'fas fa-wand-magic-sparkles', 'Vanishing pen'],
             ['circle', 'far fa-circle', 'Circle'],
             ['rectangle', 'far fa-square', 'Rectangle'],
+            ['diamond', 'video-drawing-diamond far fa-square', 'Diamond'],
             ['arrow', 'fas fa-arrow-right-long', 'Arrow'],
             ['text', 'fas fa-font', 'Text'],
             ['select', 'fas fa-mouse-pointer', 'Select and move'],
@@ -240,6 +244,22 @@ class VideoDrawingOverlay {
         clearButton.addEventListener('click', () => this.clearAnnotations(true));
         toolbar.appendChild(clearButton);
 
+        const exportTools = this.createToolbarGroup('Annotation downloads', setTranslatedAttribute);
+        this.downloadButtons = [];
+        for (const [format, icon, label] of [
+            ['png', 'fas fa-download', 'Download annotated screen (PNG)'],
+            ['pdf', 'fas fa-file-pdf', 'Download annotated screen (PDF)'],
+        ]) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = icon;
+            setAccessibleLabel(button, label);
+            button.addEventListener('click', () => this.downloadSnapshot(format));
+            exportTools.appendChild(button);
+            this.downloadButtons.push(button);
+        }
+        toolbar.appendChild(exportTools);
+
         const closeButton = document.createElement('button');
         closeButton.type = 'button';
         closeButton.className = 'video-drawing-close fas fa-times';
@@ -264,6 +284,7 @@ class VideoDrawingOverlay {
                 [redoButton, 'Redo annotation'],
                 [deleteButton, 'Delete selected annotation'],
                 [clearButton, clearLabel],
+                ...this.downloadButtons.map((button) => [button, button['__i18nAttr_aria-label']]),
                 [closeButton, 'Hide annotation toolbar'],
             ]) {
                 setTippy(element, label, 'bottom');
@@ -435,7 +456,7 @@ class VideoDrawingOverlay {
         }
         this.canvas.setPointerCapture(event.pointerId);
         this.isDrawing = true;
-        if (['pencil', 'highlighter', 'circle', 'rectangle', 'arrow'].includes(this.tool)) {
+        if (['pencil', 'highlighter', 'circle', 'rectangle', 'diamond', 'arrow'].includes(this.tool)) {
             const point = this.getPoint(event);
             const annotation = {
                 annotationId: crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -483,7 +504,7 @@ class VideoDrawingOverlay {
             return;
         }
         if (this.activeAnnotation) {
-            if (['circle', 'rectangle', 'arrow'].includes(this.activeAnnotation.tool)) {
+            if (['circle', 'rectangle', 'diamond', 'arrow'].includes(this.activeAnnotation.tool)) {
                 this.activeAnnotation.points[1] = point;
             } else if (this.activeAnnotation.points.length < 2048) {
                 this.activeAnnotation.points.push(point);
@@ -1295,6 +1316,17 @@ class VideoDrawingOverlay {
                 const radius = Math.hypot(pixels[1].x - pixels[0].x, pixels[1].y - pixels[0].y);
                 return Math.hypot(pointX - pixels[0].x, pointY - pixels[0].y) <= radius + tolerance;
             }
+            if (annotation.tool === 'diamond' && pixels.length >= 2) {
+                const centerX = (pixels[0].x + pixels[1].x) / 2;
+                const centerY = (pixels[0].y + pixels[1].y) / 2;
+                const radiusX = Math.abs(pixels[1].x - pixels[0].x) / 2;
+                const radiusY = Math.abs(pixels[1].y - pixels[0].y) / 2;
+                return (
+                    Math.abs(pointX - centerX) / (radiusX + tolerance) +
+                        Math.abs(pointY - centerY) / (radiusY + tolerance) <=
+                    1
+                );
+            }
             if (annotation.tool === 'rectangle' && pixels.length >= 2) {
                 const minX = Math.min(pixels[0].x, pixels[1].x) - tolerance;
                 const maxX = Math.max(pixels[0].x, pixels[1].x) + tolerance;
@@ -1610,10 +1642,103 @@ class VideoDrawingOverlay {
         this.drawerNameTimers.delete(annotationId);
     }
 
-    render() {
+    async captureSnapshot() {
+        const width = this.canvas.clientWidth;
+        const height = this.canvas.clientHeight;
+        if (this.video.readyState < 2 || !this.video.videoWidth || !this.video.videoHeight || !width || !height) {
+            throw new Error('No screen video frame is available');
+        }
+        const snapshot = document.createElement('canvas');
+        snapshot.width = this.video.videoWidth;
+        snapshot.height = this.video.videoHeight;
+        const context = snapshot.getContext('2d');
+        context.drawImage(this.video, 0, 0, snapshot.width, snapshot.height);
+        try {
+            this.render(false);
+            context.drawImage(this.canvas, 0, 0, snapshot.width, snapshot.height);
+        } finally {
+            this.render();
+        }
+        if (!this.textAnnotations.size) return snapshot;
+        if (typeof window.html2canvas !== 'function') throw new Error('Screen capture library is unavailable');
+
+        const frame = document.createElement('div');
+        Object.assign(frame.style, {
+            position: 'absolute',
+            left: '-100000px',
+            top: '0',
+            width: `${width}px`,
+            height: `${height}px`,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            fontFamily: getComputedStyle(this.screenWrap).fontFamily,
+        });
+        frame.setAttribute('aria-hidden', 'true');
+        Object.assign(snapshot.style, { width: `${width}px`, height: `${height}px`, display: 'block' });
+        frame.appendChild(snapshot);
+        for (const { element } of this.textAnnotations.values()) {
+            const clone = element.cloneNode(true);
+            clone.classList.remove('video-drawing-text-selected', 'video-drawing-text-select-mode');
+            clone.querySelectorAll('button, .video-drawing-text-author').forEach((control) => control.remove());
+            Object.assign(clone.style, {
+                left: `${element.offsetLeft - this.canvas.offsetLeft}px`,
+                top: `${element.offsetTop - this.canvas.offsetTop}px`,
+                width: `${element.offsetWidth}px`,
+                height: `${element.offsetHeight}px`,
+                borderColor: 'transparent',
+                boxShadow: 'none',
+            });
+            frame.appendChild(clone);
+        }
+        document.body.appendChild(frame);
+        try {
+            return await window.html2canvas(frame, {
+                backgroundColor: null,
+                scale: snapshot.width / width,
+                width,
+                height,
+                logging: false,
+            });
+        } finally {
+            frame.remove();
+        }
+    }
+
+    async downloadSnapshot(format) {
+        if (this.isCapturing) return;
+        this.isCapturing = true;
+        this.downloadButtons.forEach((button) => (button.disabled = true));
+        try {
+            const snapshot = await this.captureSnapshot();
+            const fileName = `screen-annotations-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+            if (format === 'pdf') {
+                if (!window.jspdf?.jsPDF) throw new Error('PDF library is unavailable');
+                const pdf = new window.jspdf.jsPDF({
+                    orientation: snapshot.width >= snapshot.height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [snapshot.width, snapshot.height],
+                    hotfixes: ['px_scaling'],
+                });
+                pdf.addImage(snapshot, 'PNG', 0, 0, snapshot.width, snapshot.height);
+                pdf.save(`${fileName}.pdf`);
+            } else {
+                const blob = await new Promise((resolve) => snapshot.toBlob(resolve, 'image/png'));
+                if (!blob) throw new Error('Screen image could not be encoded');
+                saveBlobToFile(blob, `${fileName}.png`);
+            }
+        } catch (error) {
+            console.error('Screen annotation capture failed', error);
+            if (typeof userLog === 'function') userLog('error', 'Unable to download screen annotations');
+        } finally {
+            this.isCapturing = false;
+            this.downloadButtons.forEach((button) => (button.disabled = false));
+        }
+    }
+
+    render(showDetails = true) {
         const rect = { width: this.canvas.clientWidth, height: this.canvas.clientHeight };
         this.context.clearRect(0, 0, rect.width, rect.height);
-        for (const annotation of this.annotations.values()) this.renderAnnotation(annotation, rect);
+        for (const annotation of this.annotations.values()) this.renderAnnotation(annotation, rect, showDetails);
         const latestStrokesByDrawer = new Map();
         for (const stroke of this.strokes) {
             if (!stroke.points.length) continue;
@@ -1629,12 +1754,12 @@ class VideoDrawingOverlay {
             this.context.stroke();
             latestStrokesByDrawer.set(stroke.drawerId || 'remote', stroke);
         }
-        for (const stroke of latestStrokesByDrawer.values()) {
+        for (const stroke of showDetails ? latestStrokesByDrawer.values() : []) {
             this.renderDrawerName(stroke, rect);
         }
     }
 
-    renderAnnotation(annotation, rect) {
+    renderAnnotation(annotation, rect, showDetails = true) {
         if (!annotation.points?.length) return;
         const start = annotation.points[0];
         this.context.save();
@@ -1657,6 +1782,15 @@ class VideoDrawingOverlay {
                 (end.x - start.x) * rect.width,
                 (end.y - start.y) * rect.height
             );
+        } else if (annotation.tool === 'diamond') {
+            const end = annotation.points[1] || start;
+            const centerX = ((start.x + end.x) / 2) * rect.width;
+            const centerY = ((start.y + end.y) / 2) * rect.height;
+            this.context.moveTo(centerX, start.y * rect.height);
+            this.context.lineTo(end.x * rect.width, centerY);
+            this.context.lineTo(centerX, end.y * rect.height);
+            this.context.lineTo(start.x * rect.width, centerY);
+            this.context.closePath();
         } else if (annotation.tool === 'arrow') {
             const end = annotation.points[1] || start;
             const startX = start.x * rect.width;
@@ -1685,8 +1819,10 @@ class VideoDrawingOverlay {
         }
         this.context.stroke();
         this.context.restore();
-        if (annotation.annotationId === this.selectedAnnotationId) this.renderAnnotationSelection(annotation, rect);
-        if (annotation.showDrawerName) this.renderDrawerName(annotation, rect);
+        if (showDetails && annotation.annotationId === this.selectedAnnotationId) {
+            this.renderAnnotationSelection(annotation, rect);
+        }
+        if (showDetails && annotation.showDrawerName) this.renderDrawerName(annotation, rect);
     }
 
     renderAnnotationSelection(annotation, rect) {

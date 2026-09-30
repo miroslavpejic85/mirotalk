@@ -136,7 +136,10 @@
         "Text color": "Metin rengi",
         "Text rotation": "Metin döndürme",
         "Text size": "Metin boyutu",
-        "Underline text": "Altı çizili metin"
+        "Underline text": "Altı çizili metin",
+        "Diamond": "Eşkenar dörtgen",
+        "Download annotated screen (PDF)": "Açıklama eklenmiş ekranı indir (PDF)",
+        "Download annotated screen (PNG)": "Açıklama eklenmiş ekranı indir (PNG)"
     },
     "buttons": {
         "Add arrow": "Ok ekle",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "Ekran metni ek açıklamasını düzenle",
         "More text options": "Daha fazla metin seçeneği",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "Metin biçimlendirme"
+        "Text formatting": "Metin biçimlendirme",
+        "Annotation downloads": "Açıklama indirmeleri"
     },
     "dialogs": {
         "Edit frame title": "Çerçeve başlığını düzenle",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper Bu sunucuda transkripsiyon etkin değil",
         "Whisper transcription started": "Whisper transkripsiyon başladı",
         "Whisper transcription stopped": "Whisper transkripsiyon durduruldu",
-        "Speech recognition started": "Konuşma tanıma başlatıldı"
+        "Speech recognition started": "Konuşma tanıma başlatıldı",
+        "Unable to download screen annotations": "Ekran açıklamaları indirilemedi"
     }
 }

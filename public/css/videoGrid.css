@@ -243,6 +243,10 @@
     cursor: move;
 }
 
+.video-drawing-toolbar .video-drawing-diamond::before {
+    transform: rotate(45deg);
+}
+
 .video-drawing-toolbar button.video-drawing-close {
     z-index: 1;
     flex-shrink: 0;

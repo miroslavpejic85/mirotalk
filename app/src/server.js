@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.40
+ * @version 2.0.41
  *
  */
 
@@ -2620,7 +2620,7 @@ io.sockets.on('connect', async (socket) => {
                 return;
             }
 
-            const validTool = ['pencil', 'highlighter', 'circle', 'rectangle', 'arrow'].includes(tool);
+            const validTool = ['pencil', 'highlighter', 'circle', 'rectangle', 'diamond', 'arrow'].includes(tool);
             const validColor = typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color);
             const validWidth = Number.isFinite(width) && width >= 0.001 && width <= 0.05;
             const restoring = action === 'restore';

@@ -136,7 +136,10 @@
         "Text color": "Szövegszín",
         "Text rotation": "Szöveg forgatása",
         "Text size": "Szövegméret",
-        "Underline text": "Szöveg aláhúzása"
+        "Underline text": "Szöveg aláhúzása",
+        "Diamond": "Rombusz",
+        "Download annotated screen (PDF)": "Megjegyzésekkel ellátott képernyő letöltése (PDF)",
+        "Download annotated screen (PNG)": "Megjegyzésekkel ellátott képernyő letöltése (PNG)"
     },
     "buttons": {
         "Add arrow": "Nyíl hozzáadása",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "Képernyőszöveg megjegyzéseinek szerkesztése",
         "More text options": "További szövegbeállítások",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "Szövegformázás"
+        "Text formatting": "Szövegformázás",
+        "Annotation downloads": "Annotációk letöltése"
     },
     "dialogs": {
         "Edit frame title": "Keret címének szerkesztése",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "A Whisper átírás nincs engedélyezve ezen a szerveren",
         "Whisper transcription started": "Whisper átírás elindult",
         "Whisper transcription stopped": "Whisper átírás leállt",
-        "Speech recognition started": "A beszédfelismerés elindult"
+        "Speech recognition started": "A beszédfelismerés elindult",
+        "Unable to download screen annotations": "Nem sikerült letölteni a képernyő-annotációkat"
     }
 }

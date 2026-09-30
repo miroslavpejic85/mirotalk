@@ -136,7 +136,10 @@
         "Text color": "Цвет текста",
         "Text rotation": "Поворот текста",
         "Text size": "Размер текста",
-        "Underline text": "Подчеркнутый текст"
+        "Underline text": "Подчеркнутый текст",
+        "Diamond": "Ромб",
+        "Download annotated screen (PDF)": "Скачать экран с аннотациями (PDF)",
+        "Download annotated screen (PNG)": "Скачать экран с аннотациями (PNG)"
     },
     "buttons": {
         "Add arrow": "Добавить стрелку",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "Редактировать текстовую аннотацию экрана",
         "More text options": "Дополнительные текстовые опции",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "Форматирование текста"
+        "Text formatting": "Форматирование текста",
+        "Annotation downloads": "Скачивание аннотаций"
     },
     "dialogs": {
         "Edit frame title": "Изменить заголовок рамки",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "Достигнут лимит времени",
         "Unlock room?": "Разблокировать комнату?",
         "Username": "Имя пользователя",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "Горячие клавиши доски",
         "Yes": "Да",
         "Schedule email invitation": "Запланировать приглашение по электронной почте",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper транскрипция не включена на этом сервере",
         "Whisper transcription started": "Whisper транскрипция началась",
         "Whisper transcription stopped": "Whisper транскрипция остановлена",
-        "Speech recognition started": "Распознавание речи запущено"
+        "Speech recognition started": "Распознавание речи запущено",
+        "Unable to download screen annotations": "Не удалось скачать аннотации экрана"
     }
 }

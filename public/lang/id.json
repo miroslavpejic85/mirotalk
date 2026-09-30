@@ -136,7 +136,10 @@
         "Text color": "Warna teks",
         "Text rotation": "Rotasi teks",
         "Text size": "Ukuran teks",
-        "Underline text": "Teks garis bawah"
+        "Underline text": "Teks garis bawah",
+        "Diamond": "Belah ketupat",
+        "Download annotated screen (PDF)": "Unduh layar beranotasi (PDF)",
+        "Download annotated screen (PNG)": "Unduh layar beranotasi (PNG)"
     },
     "buttons": {
         "Add arrow": "Tambah panah",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "Edit anotasi teks layar",
         "More text options": "Opsi teks lainnya",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "Pemformatan teks"
+        "Text formatting": "Pemformatan teks",
+        "Annotation downloads": "Unduhan anotasi"
     },
     "dialogs": {
         "Edit frame title": "Edit judul bingkai",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper transkripsi tidak diaktifkan di server ini",
         "Whisper transcription started": "Whisper transkripsi dimulai",
         "Whisper transcription stopped": "Whisper transkripsi dihentikan",
-        "Speech recognition started": "Pengenalan ucapan dimulai"
+        "Speech recognition started": "Pengenalan ucapan dimulai",
+        "Unable to download screen annotations": "Tidak dapat mengunduh anotasi layar"
     }
 }

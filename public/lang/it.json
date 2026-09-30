@@ -136,7 +136,10 @@
         "Text color": "Colore del testo",
         "Text rotation": "Rotazione del testo",
         "Text size": "Dimensione del testo",
-        "Underline text": "Testo sottolineato"
+        "Underline text": "Testo sottolineato",
+        "Diamond": "Rombo",
+        "Download annotated screen (PDF)": "Scarica schermata annotata (PDF)",
+        "Download annotated screen (PNG)": "Scarica schermata annotata (PNG)"
     },
     "buttons": {
         "Add arrow": "Aggiungi freccia",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "Modifica annotazione testo schermata",
         "More text options": "Altre opzioni di testo",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "Formattazione del testo"
+        "Text formatting": "Formattazione del testo",
+        "Annotation downloads": "Download annotazioni"
     },
     "dialogs": {
         "Edit frame title": "Modifica titolo cornice",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "Limite di tempo raggiunto",
         "Unlock room?": "Sbloccare la stanza?",
         "Username": "Nome utente",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "Scorciatoie della lavagna",
         "Yes": "Sì",
         "Schedule email invitation": "Pianifica invito via email",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper la trascrizione non è abilitata su questo server",
         "Whisper transcription started": "Whisper iniziata la trascrizione",
         "Whisper transcription stopped": "Whisper trascrizione interrotta",
-        "Speech recognition started": "È iniziato il riconoscimento vocale"
+        "Speech recognition started": "È iniziato il riconoscimento vocale",
+        "Unable to download screen annotations": "Impossibile scaricare le annotazioni dello schermo"
     }
 }

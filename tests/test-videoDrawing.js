@@ -223,6 +223,17 @@ describe('persistent screen annotations', function () {
             tool: 'arrow',
         });
 
+        const diamond = await receiveOnce(owner, 'videoDrawing', () => {
+            drawer.emit('videoDrawing', { ...annotation, annotationId: 'diamond-1', tool: 'diamond' });
+        });
+        diamond.should.containEql({
+            type: 'annotation',
+            action: 'create',
+            annotationId: 'diamond-1',
+            drawerId: drawer.id,
+            tool: 'diamond',
+        });
+
         await receiveOnce(drawer, 'videoDrawing', () => {
             owner.emit('videoDrawing', {
                 room_id: ROOM,
@@ -378,6 +389,170 @@ describe('persistent screen annotations', function () {
             owner.emit('videoDrawing', { ...annotation, action: 'clear' });
         });
         cleared.should.containEql({ type: 'text', action: 'clear', screenOwnerId: owner.id });
+    });
+});
+
+describe('screen annotation snapshots and diamond geometry', () => {
+    let dom;
+    let overlay;
+    let drawnImages;
+    let renderModes;
+
+    beforeEach(() => {
+        dom = new JSDOM('<div id="screen"><video></video><canvas></canvas></div>', { runScripts: 'outside-only' });
+        const source = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'videoDrawing.js'), 'utf8');
+        dom.window.eval(`${source}\nwindow.Overlay = VideoDrawingOverlay;`);
+        drawnImages = [];
+        renderModes = [];
+        dom.window.HTMLCanvasElement.prototype.getContext = () => ({
+            drawImage: (...args) => drawnImages.push(args),
+        });
+        dom.window.HTMLCanvasElement.prototype.toBlob = (callback) => callback(new dom.window.Blob(['png']));
+        overlay = Object.create(dom.window.Overlay.prototype);
+        overlay.screenWrap = dom.window.document.querySelector('#screen');
+        overlay.canvas = dom.window.document.querySelector('canvas');
+        overlay.video = dom.window.document.querySelector('video');
+        for (const [property, value] of Object.entries({
+            clientWidth: 800,
+            clientHeight: 450,
+            offsetLeft: 20,
+            offsetTop: 30,
+        })) {
+            Object.defineProperty(overlay.canvas, property, { value });
+        }
+        for (const [property, value] of Object.entries({ videoWidth: 1920, videoHeight: 1080, readyState: 2 })) {
+            Object.defineProperty(overlay.video, property, { value, configurable: true });
+        }
+        overlay.render = (showDetails = true) => renderModes.push(showDetails);
+        overlay.textAnnotations = new Map();
+        overlay.downloadButtons = [
+            dom.window.document.createElement('button'),
+            dom.window.document.createElement('button'),
+        ];
+    });
+
+    afterEach(() => dom.window.close());
+
+    it('composes the video and drawing canvas at source resolution without selection controls', async () => {
+        const snapshot = await overlay.captureSnapshot();
+        snapshot.width.should.equal(1920);
+        snapshot.height.should.equal(1080);
+        drawnImages[0].should.deepEqual([overlay.video, 0, 0, 1920, 1080]);
+        drawnImages[1].should.deepEqual([overlay.canvas, 0, 0, 1920, 1080]);
+        renderModes.should.deepEqual([false, true]);
+    });
+
+    it('captures formatted text at canvas-relative coordinates and cleans up on renderer failure', async () => {
+        const element = dom.window.document.createElement('div');
+        element.className = 'video-drawing-text-annotation video-drawing-text-selected video-drawing-text-bold';
+        element.innerHTML =
+            '<span class="video-drawing-text-content">Label</span><button>Edit</button><span class="video-drawing-text-author">Author</span>';
+        element.style.transform = 'rotate(15deg)';
+        for (const [property, value] of Object.entries({
+            offsetLeft: 100,
+            offsetTop: 90,
+            offsetWidth: 150,
+            offsetHeight: 60,
+        })) {
+            Object.defineProperty(element, property, { value });
+        }
+        overlay.screenWrap.appendChild(element);
+        overlay.textAnnotations.set('label', { element });
+        dom.window.html2canvas = async (frame, options) => {
+            const clone = frame.querySelector('.video-drawing-text-annotation');
+            clone.style.left.should.equal('80px');
+            clone.style.top.should.equal('60px');
+            clone.style.transform.should.equal('rotate(15deg)');
+            clone.classList.contains('video-drawing-text-bold').should.be.true();
+            clone.classList.contains('video-drawing-text-selected').should.be.false();
+            should(clone.querySelector('button, .video-drawing-text-author')).equal(null);
+            options.scale.should.equal(2.4);
+            throw new Error('renderer failure');
+        };
+        await should(overlay.captureSnapshot()).be.rejectedWith('renderer failure');
+        should(dom.window.document.querySelector('[aria-hidden="true"]')).equal(null);
+        element.querySelector('button').textContent.should.equal('Edit');
+    });
+
+    it('downloads a PNG and restores the download controls', async () => {
+        let saved;
+        dom.window.saveBlobToFile = (blob, name) => (saved = { blob, name });
+        await overlay.downloadSnapshot('png');
+        saved.name.should.match(/^screen-annotations-.*\.png$/);
+        saved.blob.size.should.be.above(0);
+        overlay.isCapturing.should.be.false();
+        overlay.downloadButtons.every((button) => !button.disabled).should.be.true();
+    });
+
+    it('downloads a correctly sized single-page PDF', async () => {
+        let options;
+        let imageArgs;
+        let fileName;
+        dom.window.jspdf = {
+            jsPDF: class {
+                constructor(config) {
+                    options = config;
+                }
+                addImage(...args) {
+                    imageArgs = args;
+                }
+                save(name) {
+                    fileName = name;
+                }
+            },
+        };
+        await overlay.downloadSnapshot('pdf');
+        options.orientation.should.equal('landscape');
+        Array.from(options.format).should.deepEqual([1920, 1080]);
+        imageArgs.slice(1).should.deepEqual(['PNG', 0, 0, 1920, 1080]);
+        fileName.should.match(/\.pdf$/);
+    });
+
+    it('reports an unavailable video frame without leaving downloads disabled', async () => {
+        Object.defineProperty(overlay.video, 'readyState', { value: 0 });
+        let reported;
+        dom.window.console.error = () => {};
+        dom.window.userLog = (type, message) => (reported = { type, message });
+        await overlay.downloadSnapshot('png');
+        reported.type.should.equal('error');
+        overlay.isCapturing.should.be.false();
+        overlay.downloadButtons.every((button) => !button.disabled).should.be.true();
+        drawnImages.length.should.equal(0);
+    });
+
+    it('renders four diamond vertices and selects its interior but not bounding-box corners', () => {
+        const vertices = [];
+        let closed = false;
+        overlay.context = {
+            save() {},
+            beginPath() {},
+            stroke() {},
+            restore() {},
+            moveTo: (...point) => vertices.push(point),
+            lineTo: (...point) => vertices.push(point),
+            closePath: () => (closed = true),
+        };
+        const annotation = {
+            annotationId: 'diamond',
+            tool: 'diamond',
+            color: '#ff0000',
+            width: 0.004,
+            points: [
+                { x: 0.2, y: 0.2 },
+                { x: 0.8, y: 0.8 },
+            ],
+        };
+        overlay.annotations = new Map([['diamond', annotation]]);
+        overlay.renderAnnotation(annotation, { width: 800, height: 450 });
+        vertices.should.deepEqual([
+            [400, 90],
+            [640, 225],
+            [400, 360],
+            [160, 225],
+        ]);
+        closed.should.be.true();
+        overlay.findAnnotationAtPoint({ x: 0.5, y: 0.5 }).should.equal(annotation);
+        should(overlay.findAnnotationAtPoint({ x: 0.2, y: 0.2 })).equal(undefined);
     });
 });
 

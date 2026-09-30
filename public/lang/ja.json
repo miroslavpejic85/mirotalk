@@ -136,7 +136,10 @@
         "Text color": "テキストの色",
         "Text rotation": "テキストの回転",
         "Text size": "文字サイズ",
-        "Underline text": "テキストに下線を引く"
+        "Underline text": "テキストに下線を引く",
+        "Diamond": "ひし形",
+        "Download annotated screen (PDF)": "注釈付き画面をダウンロード (PDF)",
+        "Download annotated screen (PNG)": "注釈付き画面をダウンロード (PNG)"
     },
     "buttons": {
         "Add arrow": "矢印を追加",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "画面テキストの注釈を編集",
         "More text options": "その他のテキストオプション",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "テキストの書式設定"
+        "Text formatting": "テキストの書式設定",
+        "Annotation downloads": "注釈のダウンロード"
     },
     "dialogs": {
         "Edit frame title": "フレームタイトルを編集",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper このサーバーでは文字起こしが有効になっていません",
         "Whisper transcription started": "Whisper 文字起こしを開始しました",
         "Whisper transcription stopped": "Whisper 転写が停止しました",
-        "Speech recognition started": "音声認識を開始しました"
+        "Speech recognition started": "音声認識を開始しました",
+        "Unable to download screen annotations": "画面の注釈をダウンロードできません"
     }
 }

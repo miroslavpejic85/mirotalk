@@ -136,7 +136,10 @@
         "Text color": "Boja teksta",
         "Text rotation": "Rotacija teksta",
         "Text size": "Veličina teksta",
-        "Underline text": "Podvuci tekst"
+        "Underline text": "Podvuci tekst",
+        "Diamond": "Ромб",
+        "Download annotated screen (PDF)": "Преузми екран са напоменама (PDF)",
+        "Download annotated screen (PNG)": "Преузми екран са напоменама (PNG)"
     },
     "buttons": {
         "Add arrow": "Dodaj strelicu",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "Izmenite tekstualnu napomenu na ekranu",
         "More text options": "Više tekstualnih opcija",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "Formatiranje teksta"
+        "Text formatting": "Formatiranje teksta",
+        "Annotation downloads": "Преузимање напомена"
     },
     "dialogs": {
         "Edit frame title": "Izmeni naslov okvira",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v2.0.40": "WebRTC P2P в2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P в2.0.41",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper транскрипција није омогућена на овом серверу",
         "Whisper transcription started": "Whisper транскрипција је почела",
         "Whisper transcription stopped": "Whisper транскрипција је заустављена",
-        "Speech recognition started": "Почело је препознавање говора"
+        "Speech recognition started": "Почело је препознавање говора",
+        "Unable to download screen annotations": "Није могуће преузети напомене на екрану"
     }
 }

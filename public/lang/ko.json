@@ -136,7 +136,10 @@
         "Text color": "텍스트 색상",
         "Text rotation": "텍스트 회전",
         "Text size": "텍스트 크기",
-        "Underline text": "밑줄 텍스트"
+        "Underline text": "밑줄 텍스트",
+        "Diamond": "마름모",
+        "Download annotated screen (PDF)": "주석이 포함된 화면 다운로드 (PDF)",
+        "Download annotated screen (PNG)": "주석이 포함된 화면 다운로드 (PNG)"
     },
     "buttons": {
         "Add arrow": "화살표 추가",
@@ -583,7 +586,8 @@
         "Edit screen text annotation": "화면 텍스트 주석 편집",
         "More text options": "텍스트 옵션 더 보기",
         "Screen annotation tools": "Screen annotation tools",
-        "Text formatting": "텍스트 서식"
+        "Text formatting": "텍스트 서식",
+        "Annotation downloads": "주석 다운로드"
     },
     "dialogs": {
         "Edit frame title": "프레임 제목 편집",
@@ -646,7 +650,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
+        "WebRTC P2P v2.0.41": "WebRTC P2P v2.0.41",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",
@@ -784,6 +788,7 @@
         "Whisper transcription is not enabled on this server": "Whisper 이 서버에서는 텍스트 변환이 활성화되지 않았습니다.",
         "Whisper transcription started": "Whisper 전사가 시작되었습니다.",
         "Whisper transcription stopped": "Whisper 전사가 중지되었습니다.",
-        "Speech recognition started": "음성 인식이 시작되었습니다"
+        "Speech recognition started": "음성 인식이 시작되었습니다",
+        "Unable to download screen annotations": "화면 주석을 다운로드할 수 없습니다"
     }
 }
