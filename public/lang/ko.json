@@ -120,7 +120,23 @@
         "Arrow": "화살표",
         "Rectangle": "사각형",
         "Redo annotation": "주석 다시 실행",
-        "Undo annotation": "주석 실행 취소"
+        "Undo annotation": "주석 실행 취소",
+        "Bold text": "굵은 글씨",
+        "Cancel text annotation": "텍스트 주석 취소",
+        "Italic text": "기울임꼴",
+        "More text options": "텍스트 옵션 더 보기",
+        "Save text annotation": "텍스트 주석 저장",
+        "Strikethrough text": "취소선 텍스트",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "텍스트 정렬: 중앙. 클릭하여 순환",
+        "Text alignment: left. Click to cycle": "텍스트 정렬: 왼쪽. 클릭하여 순환",
+        "Text alignment: right. Click to cycle": "텍스트 정렬: 오른쪽. 클릭하여 순환",
+        "Text background": "텍스트 배경",
+        "Text background color": "텍스트 배경 색상",
+        "Text color": "텍스트 색상",
+        "Text rotation": "텍스트 회전",
+        "Text size": "텍스트 크기",
+        "Underline text": "밑줄 텍스트"
     },
     "buttons": {
         "Add arrow": "화살표 추가",
@@ -563,7 +579,11 @@
         "Room Emoji": "방 이모티콘",
         "Screen text annotation": "화면 텍스트 주석",
         "Type annotation": "주석 입력",
-        "Whiteboard": "화이트보드"
+        "Whiteboard": "화이트보드",
+        "Edit screen text annotation": "화면 텍스트 주석 편집",
+        "More text options": "텍스트 옵션 더 보기",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "텍스트 서식"
     },
     "dialogs": {
         "Edit frame title": "프레임 제목 편집",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",

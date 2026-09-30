@@ -120,7 +120,23 @@
         "Arrow": "तीर",
         "Rectangle": "आयत",
         "Redo annotation": "एनोटेशन फिर से करें",
-        "Undo annotation": "एनोटेशन पूर्ववत करें"
+        "Undo annotation": "एनोटेशन पूर्ववत करें",
+        "Bold text": "बोल्ड टेक्स्ट",
+        "Cancel text annotation": "टेक्स्ट एनोटेशन कैंसिल करें",
+        "Italic text": "इटैलिक टेक्स्ट",
+        "More text options": "टेक्स्ट के और विकल्प",
+        "Save text annotation": "टेक्स्ट एनोटेशन सेव करें",
+        "Strikethrough text": "स्ट्राइकथ्रू टेक्स्ट",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "पाठ संरेखण: केंद्र। चक्र पर क्लिक करें",
+        "Text alignment: left. Click to cycle": "पाठ संरेखण: बाएँ। चक्र पर क्लिक करें",
+        "Text alignment: right. Click to cycle": "पाठ संरेखण: दाएं। चक्र पर क्लिक करें",
+        "Text background": "टेक्स्ट बैकग्राउंड",
+        "Text background color": "टेक्स्ट बैकग्राउंड का रंग",
+        "Text color": "टेक्स्ट का रंग",
+        "Text rotation": "टेक्स्ट रोटेशन",
+        "Text size": "टेक्स्ट का आकार",
+        "Underline text": "टेक्स्ट को रेखांकित करें"
     },
     "buttons": {
         "Add arrow": "तीर जोड़ें",
@@ -563,7 +579,11 @@
         "Room Emoji": "कक्ष इमोजी",
         "Screen text annotation": "स्क्रीन टेक्स्ट टिप्पणी",
         "Type annotation": "टिप्पणी लिखें",
-        "Whiteboard": "व्हाइटबोर्ड"
+        "Whiteboard": "व्हाइटबोर्ड",
+        "Edit screen text annotation": "स्क्रीन टेक्स्ट एनोटेशन में बदलाव करें",
+        "More text options": "टेक्स्ट के और विकल्प",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "टेक्स्ट फ़ॉर्मेटिंग"
     },
     "dialogs": {
         "Edit frame title": "फ़्रेम शीर्षक संपादित करें",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",

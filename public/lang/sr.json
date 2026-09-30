@@ -120,7 +120,23 @@
         "Arrow": "Стрелица",
         "Rectangle": "Правоугаоник",
         "Redo annotation": "Понови напомену",
-        "Undo annotation": "Опозови напомену"
+        "Undo annotation": "Опозови напомену",
+        "Bold text": "Podebljani tekst",
+        "Cancel text annotation": "Otkaži tekstualnu napomenu",
+        "Italic text": "Kurziv",
+        "More text options": "Više tekstualnih opcija",
+        "Save text annotation": "Sačuvajte tekstualnu napomenu",
+        "Strikethrough text": "Precrtani tekst",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Poravnanje teksta: centar. Kliknite za ciklus",
+        "Text alignment: left. Click to cycle": "Poravnanje teksta: levo. Kliknite za ciklus",
+        "Text alignment: right. Click to cycle": "Poravnanje teksta: desno. Kliknite za ciklus",
+        "Text background": "Pozadina teksta",
+        "Text background color": "Boja pozadine teksta",
+        "Text color": "Boja teksta",
+        "Text rotation": "Rotacija teksta",
+        "Text size": "Veličina teksta",
+        "Underline text": "Podvuci tekst"
     },
     "buttons": {
         "Add arrow": "Dodaj strelicu",
@@ -563,7 +579,11 @@
         "Room Emoji": "Собни емоџи",
         "Screen text annotation": "Текстуална напомена на екрану",
         "Type annotation": "Унесите напомену",
-        "Whiteboard": "Бела табла"
+        "Whiteboard": "Бела табла",
+        "Edit screen text annotation": "Izmenite tekstualnu napomenu na ekranu",
+        "More text options": "Više tekstualnih opcija",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Formatiranje teksta"
     },
     "dialogs": {
         "Edit frame title": "Izmeni naslov okvira",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v2.0.38": "WebRTC P2P в2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P в2.0.40",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",

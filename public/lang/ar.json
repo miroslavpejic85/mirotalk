@@ -120,7 +120,23 @@
         "Arrow": "سهم",
         "Rectangle": "مستطيل",
         "Redo annotation": "إعادة إجراء التعليق التوضيحي",
-        "Undo annotation": "التراجع عن التعليق التوضيحي"
+        "Undo annotation": "التراجع عن التعليق التوضيحي",
+        "Bold text": "نص غامق",
+        "Cancel text annotation": "إلغاء التعليق التوضيحي النصي",
+        "Italic text": "نص مائل",
+        "More text options": "المزيد من خيارات النص",
+        "Save text annotation": "حفظ التعليق التوضيحي النصي",
+        "Strikethrough text": "نص خطي",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "محاذاة النص: في المنتصف. انقر للتبديل",
+        "Text alignment: left. Click to cycle": "محاذاة النص: إلى اليسار. انقر للتبديل",
+        "Text alignment: right. Click to cycle": "محاذاة النص: يمين. انقر للتبديل",
+        "Text background": "خلفية النص",
+        "Text background color": "لون خلفية النص",
+        "Text color": "لون النص",
+        "Text rotation": "دوران النص",
+        "Text size": "حجم النص",
+        "Underline text": "نص تحته خط"
     },
     "buttons": {
         "Add arrow": "إضافة سهم",
@@ -563,7 +579,11 @@
         "Room Emoji": "رموز تعبيرية للغرفة",
         "Screen text annotation": "تعليق نصي على الشاشة",
         "Type annotation": "اكتب تعليقًا",
-        "Whiteboard": "السبورة"
+        "Whiteboard": "السبورة",
+        "Edit screen text annotation": "تعديل نص التعليق التوضيحي للشاشة",
+        "More text options": "المزيد من خيارات النص",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "تنسيق النص"
     },
     "dialogs": {
         "Edit frame title": "تعديل عنوان الإطار",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "تم بلوغ الحد الزمني",
         "Unlock room?": "إلغاء قفل الغرفة؟",
         "Username": "اسم المستخدم",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "اختصارات السبورة",
         "Yes": "نعم",
         "Schedule email invitation": "جدولة دعوة عبر البريد الإلكتروني",

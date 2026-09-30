@@ -120,7 +120,23 @@
         "Arrow": "Flecha",
         "Rectangle": "Rectángulo",
         "Redo annotation": "Rehacer anotación",
-        "Undo annotation": "Deshacer anotación"
+        "Undo annotation": "Deshacer anotación",
+        "Bold text": "Texto en negrita",
+        "Cancel text annotation": "Cancelar anotación de texto",
+        "Italic text": "Texto en cursiva\n__mt2__ Texto subrayado",
+        "More text options": "Más opciones de texto",
+        "Save text annotation": "Guardar anotación de texto",
+        "Strikethrough text": "Texto tachado",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Alineación del texto: centro. Haz clic para pedalear",
+        "Text alignment: left. Click to cycle": "Alineación del texto: izquierda. Haz clic para pedalear",
+        "Text alignment: right. Click to cycle": "Alineación del texto: derecha. Haz clic para pedalear",
+        "Text background": "Fondo del texto",
+        "Text background color": "Color de fondo del texto",
+        "Text color": "Color del texto",
+        "Text rotation": "Rotación de texto",
+        "Text size": "Tamaño del texto",
+        "Underline text": "Texto subrayado"
     },
     "buttons": {
         "Add arrow": "Añadir flecha",
@@ -563,7 +579,11 @@
         "Room Emoji": "Emoji de habitación",
         "Screen text annotation": "Anotación de texto en pantalla",
         "Type annotation": "Escribe una anotación",
-        "Whiteboard": "Pizarra"
+        "Whiteboard": "Pizarra",
+        "Edit screen text annotation": "Editar anotación de texto de pantalla",
+        "More text options": "Más opciones de texto",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Formato de texto"
     },
     "dialogs": {
         "Edit frame title": "Editar título del marco",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Límite de tiempo alcanzado",
         "Unlock room?": "¿Desbloquear la sala?",
         "Username": "Nombre de usuario",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Atajos de la pizarra",
         "Yes": "Sí",
         "Schedule email invitation": "Programar invitación por correo electrónico",

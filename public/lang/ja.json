@@ -120,7 +120,23 @@
         "Arrow": "矢印",
         "Rectangle": "長方形",
         "Redo annotation": "注釈をやり直す",
-        "Undo annotation": "注釈を元に戻す"
+        "Undo annotation": "注釈を元に戻す",
+        "Bold text": "太字のテキスト",
+        "Cancel text annotation": "テキストアノテーションをキャンセル",
+        "Italic text": "イタリック体のテキスト",
+        "More text options": "その他のテキストオプション",
+        "Save text annotation": "テキスト注釈を保存",
+        "Strikethrough text": "取り消し線テキスト",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "テキストの配置：中央。クリックしてサイクル",
+        "Text alignment: left. Click to cycle": "テキストの配置：左。クリックしてサイクル",
+        "Text alignment: right. Click to cycle": "テキストの配置：右クリックしてサイクル",
+        "Text background": "テキストの背景",
+        "Text background color": "テキストの背景色",
+        "Text color": "テキストの色",
+        "Text rotation": "テキストの回転",
+        "Text size": "文字サイズ",
+        "Underline text": "テキストに下線を引く"
     },
     "buttons": {
         "Add arrow": "矢印を追加",
@@ -563,7 +579,11 @@
         "Room Emoji": "部屋の絵文字",
         "Screen text annotation": "画面テキスト注釈",
         "Type annotation": "注釈を入力",
-        "Whiteboard": "ホワイトボード"
+        "Whiteboard": "ホワイトボード",
+        "Edit screen text annotation": "画面テキストの注釈を編集",
+        "More text options": "その他のテキストオプション",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "テキストの書式設定"
     },
     "dialogs": {
         "Edit frame title": "フレームタイトルを編集",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",

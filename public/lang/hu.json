@@ -120,7 +120,23 @@
         "Arrow": "Nyíl",
         "Rectangle": "Téglalap",
         "Redo annotation": "Jegyzet újra alkalmazása",
-        "Undo annotation": "Jegyzet visszavonása"
+        "Undo annotation": "Jegyzet visszavonása",
+        "Bold text": "Félkövér szöveg",
+        "Cancel text annotation": "Szöveges kommentár törlése",
+        "Italic text": "Dőlt szöveg",
+        "More text options": "További szövegbeállítások",
+        "Save text annotation": "Szöveges megjegyzések mentése",
+        "Strikethrough text": "Áthúzott szöveg",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Szöveg igazítása: középre. Kattints a ciklushoz",
+        "Text alignment: left. Click to cycle": "Szöveg igazítása: balra. Kattintson a ciklushoz",
+        "Text alignment: right. Click to cycle": "Szöveg igazítása: jobbra. Kattintson a ciklushoz",
+        "Text background": "Szövegháttér",
+        "Text background color": "Szöveg háttérszíne",
+        "Text color": "Szövegszín",
+        "Text rotation": "Szöveg forgatása",
+        "Text size": "Szövegméret",
+        "Underline text": "Szöveg aláhúzása"
     },
     "buttons": {
         "Add arrow": "Nyíl hozzáadása",
@@ -563,7 +579,11 @@
         "Room Emoji": "Szoba Emoji",
         "Screen text annotation": "Képernyőn megjelenő szöveges megjegyzés",
         "Type annotation": "Írjon be egy megjegyzést",
-        "Whiteboard": "Fehértábla"
+        "Whiteboard": "Fehértábla",
+        "Edit screen text annotation": "Képernyőszöveg megjegyzéseinek szerkesztése",
+        "More text options": "További szövegbeállítások",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Szövegformázás"
     },
     "dialogs": {
         "Edit frame title": "Keret címének szerkesztése",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",

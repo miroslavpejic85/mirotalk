@@ -120,7 +120,23 @@
         "Arrow": "Ok",
         "Rectangle": "Dikdörtgen",
         "Redo annotation": "Ek açıklamayı yinele",
-        "Undo annotation": "Ek açıklamayı geri al"
+        "Undo annotation": "Ek açıklamayı geri al",
+        "Bold text": "Kalın metin",
+        "Cancel text annotation": "Metin açıklamasını iptal et",
+        "Italic text": "İtalik metin",
+        "More text options": "Daha fazla metin seçeneği",
+        "Save text annotation": "Metin açıklamasını kaydet",
+        "Strikethrough text": "Üstü çizili metin",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Metin hizalama: merkez. Döngü için tıklayın",
+        "Text alignment: left. Click to cycle": "Metin hizalaması: sol. Döngü için tıklayın",
+        "Text alignment: right. Click to cycle": "Metin hizalama: sağ. Döngü için tıklayın",
+        "Text background": "Metin arka planı",
+        "Text background color": "Metin arka plan rengi",
+        "Text color": "Metin rengi",
+        "Text rotation": "Metin döndürme",
+        "Text size": "Metin boyutu",
+        "Underline text": "Altı çizili metin"
     },
     "buttons": {
         "Add arrow": "Ok ekle",
@@ -563,7 +579,11 @@
         "Room Emoji": "Oda Emojisi",
         "Screen text annotation": "Ekran metni ek açıklaması",
         "Type annotation": "Ek açıklama yazın",
-        "Whiteboard": "Beyaz tahta"
+        "Whiteboard": "Beyaz tahta",
+        "Edit screen text annotation": "Ekran metni ek açıklamasını düzenle",
+        "More text options": "Daha fazla metin seçeneği",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Metin biçimlendirme"
     },
     "dialogs": {
         "Edit frame title": "Çerçeve başlığını düzenle",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",

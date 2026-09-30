@@ -120,7 +120,23 @@
         "Arrow": "Seta",
         "Rectangle": "Retângulo",
         "Redo annotation": "Refazer anotação",
-        "Undo annotation": "Desfazer anotação"
+        "Undo annotation": "Desfazer anotação",
+        "Bold text": "Texto em negrito",
+        "Cancel text annotation": "Cancelar anotação de texto",
+        "Italic text": "Texto em itálico",
+        "More text options": "Mais opções de texto",
+        "Save text annotation": "Guardar anotação de texto",
+        "Strikethrough text": "Texto riscado",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Alinhamento de texto: centro. Clique para pedalar",
+        "Text alignment: left. Click to cycle": "Alinhamento de texto: esquerda. Clique para alternar",
+        "Text alignment: right. Click to cycle": "Alinhamento de texto: certo. Clique para alternar",
+        "Text background": "Fundo do texto",
+        "Text background color": "Cor de fundo do texto",
+        "Text color": "Cor do texto",
+        "Text rotation": "Rotação de texto",
+        "Text size": "Tamanho do texto",
+        "Underline text": "Sublinhar texto"
     },
     "buttons": {
         "Add arrow": "Adicionar seta",
@@ -563,7 +579,11 @@
         "Room Emoji": "Emoji de quarto",
         "Screen text annotation": "Anotação de texto na tela",
         "Type annotation": "Digite uma anotação",
-        "Whiteboard": "Quadro branco"
+        "Whiteboard": "Quadro branco",
+        "Edit screen text annotation": "Editar anotação de texto da tela",
+        "More text options": "Mais opções de texto",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Formatação de texto"
     },
     "dialogs": {
         "Edit frame title": "Editar título da moldura",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Limite de tempo atingido",
         "Unlock room?": "Desbloquear a sala?",
         "Username": "Nome de usuário",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Atalhos do quadro branco",
         "Yes": "Sim",
         "Schedule email invitation": "Agendar convite por e-mail",

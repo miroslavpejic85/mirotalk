@@ -120,7 +120,23 @@
         "Arrow": "Стрелка",
         "Rectangle": "Прямоугольник",
         "Redo annotation": "Повторить аннотацию",
-        "Undo annotation": "Отменить аннотацию"
+        "Undo annotation": "Отменить аннотацию",
+        "Bold text": "Жирный текст",
+        "Cancel text annotation": "Отмена текстовой аннотации",
+        "Italic text": "Курсив",
+        "More text options": "Дополнительные текстовые опции",
+        "Save text annotation": "Сохранить текстовую аннотацию",
+        "Strikethrough text": "Зачеркнутый текст",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Выравнивание текста: по центру. Нажмите, чтобы выполнить цикл",
+        "Text alignment: left. Click to cycle": "Выравнивание текста: слева. Нажмите, чтобы выполнить цикл",
+        "Text alignment: right. Click to cycle": "Выравнивание текста: справа. Нажмите, чтобы выполнить цикл",
+        "Text background": "Фон текста",
+        "Text background color": "Цвет фона текста",
+        "Text color": "Цвет текста",
+        "Text rotation": "Поворот текста",
+        "Text size": "Размер текста",
+        "Underline text": "Подчеркнутый текст"
     },
     "buttons": {
         "Add arrow": "Добавить стрелку",
@@ -563,7 +579,11 @@
         "Room Emoji": "Комната Эмодзи",
         "Screen text annotation": "Текстовая аннотация на экране",
         "Type annotation": "Введите аннотацию",
-        "Whiteboard": "Доска"
+        "Whiteboard": "Доска",
+        "Edit screen text annotation": "Редактировать текстовую аннотацию экрана",
+        "More text options": "Дополнительные текстовые опции",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Форматирование текста"
     },
     "dialogs": {
         "Edit frame title": "Изменить заголовок рамки",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Достигнут лимит времени",
         "Unlock room?": "Разблокировать комнату?",
         "Username": "Имя пользователя",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Горячие клавиши доски",
         "Yes": "Да",
         "Schedule email invitation": "Запланировать приглашение по электронной почте",

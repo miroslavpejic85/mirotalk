@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.38
+ * @version 2.0.40
  *
  */
 
@@ -2543,6 +2543,11 @@ io.sockets.on('connect', async (socket) => {
             bold,
             italic,
             boxWidth,
+            underline,
+            strikethrough,
+            textAlign,
+            backgroundColor,
+            rotation,
         } = config;
         if (!isPeerInRoom(room_id, socket.id) || !peers[room_id]?.[screenOwnerId]) return;
 
@@ -2662,6 +2667,11 @@ io.sockets.on('connect', async (socket) => {
                     bold: bold ?? fallback.bold ?? false,
                     italic: italic ?? fallback.italic ?? false,
                     boxWidth: boxWidth ?? fallback.boxWidth ?? 0.35,
+                    underline: underline ?? fallback.underline ?? false,
+                    strikethrough: strikethrough ?? fallback.strikethrough ?? false,
+                    textAlign: textAlign ?? fallback.textAlign ?? 'left',
+                    backgroundColor: backgroundColor ?? fallback.backgroundColor ?? 'transparent',
+                    rotation: rotation ?? fallback.rotation ?? 0,
                 };
                 return typeof style.color === 'string' &&
                     /^#[0-9a-f]{6}$/i.test(style.color) &&
@@ -2670,7 +2680,12 @@ io.sockets.on('connect', async (socket) => {
                     typeof style.italic === 'boolean' &&
                     Number.isFinite(style.boxWidth) &&
                     style.boxWidth >= 0.15 &&
-                    style.boxWidth <= 0.8
+                    style.boxWidth <= 0.8 &&
+                    typeof style.underline === 'boolean' &&
+                    typeof style.strikethrough === 'boolean' &&
+                    ['left', 'center', 'right'].includes(style.textAlign) &&
+                    (style.backgroundColor === 'transparent' || /^#[0-9a-f]{6}$/i.test(style.backgroundColor)) &&
+                    [-45, -30, -15, 0, 15, 30, 45].includes(style.rotation)
                     ? style
                     : null;
             };

@@ -120,7 +120,23 @@
         "Arrow": "Flèche",
         "Rectangle": "Rectangulaire",
         "Redo annotation": "Rétablir l’annotation",
-        "Undo annotation": "Annuler l’annotation"
+        "Undo annotation": "Annuler l’annotation",
+        "Bold text": "Texte en gras",
+        "Cancel text annotation": "Annuler l'annotation de texte",
+        "Italic text": "Texte en italique",
+        "More text options": "Plus d'options de texte",
+        "Save text annotation": "Enregistrer l'annotation du texte",
+        "Strikethrough text": "Texte barré",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Alignement du texte : au centre. Cliquez pour faire un cycle",
+        "Text alignment: left. Click to cycle": "Alignement du texte : à gauche. Cliquez pour faire un cycle",
+        "Text alignment: right. Click to cycle": "Alignement du texte : à droite. Cliquez pour faire un cycle",
+        "Text background": "Arrière-plan du texte",
+        "Text background color": "Couleur d'arrière-plan du texte",
+        "Text color": "Couleur du texte",
+        "Text rotation": "Rotation du texte",
+        "Text size": "Taille du texte",
+        "Underline text": "Souligner le texte"
     },
     "buttons": {
         "Add arrow": "Ajouter une flèche",
@@ -563,7 +579,11 @@
         "Room Emoji": "Emoji de la chambre",
         "Screen text annotation": "Annotation textuelle à l’écran",
         "Type annotation": "Saisissez une annotation",
-        "Whiteboard": "Tableau blanc"
+        "Whiteboard": "Tableau blanc",
+        "Edit screen text annotation": "Modifier l'annotation du texte de l'écran",
+        "More text options": "Plus d'options de texte",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Mise en forme du texte"
     },
     "dialogs": {
         "Edit frame title": "Modifier le titre du cadre",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Limite de temps atteinte",
         "Unlock room?": "Déverrouiller la salle ?",
         "Username": "Nom d'utilisateur",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Raccourcis du tableau blanc",
         "Yes": "Oui",
         "Schedule email invitation": "Planifier l’invitation par e-mail",

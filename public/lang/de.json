@@ -120,7 +120,23 @@
         "Arrow": "Pfeil",
         "Rectangle": "Rechteck",
         "Redo annotation": "Anmerkung wiederholen",
-        "Undo annotation": "Anmerkung rückgängig machen"
+        "Undo annotation": "Anmerkung rückgängig machen",
+        "Bold text": "Fettgedruckter Text",
+        "Cancel text annotation": "Textanmerkung abbrechen",
+        "Italic text": "Kursiver Text",
+        "More text options": "Weitere Textoptionen",
+        "Save text annotation": "Textanmerkung speichern",
+        "Strikethrough text": "Durchgestrichener Text",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Textausrichtung: Mitte. Klicken, um zu takten",
+        "Text alignment: left. Click to cycle": "Textausrichtung: links. Zum Zyklus klicken",
+        "Text alignment: right. Click to cycle": "Textausrichtung: rechts. Zum Zyklus klicken",
+        "Text background": "Texthintergrund",
+        "Text background color": "Texthintergrundfarbe",
+        "Text color": "Textfarbe",
+        "Text rotation": "Textrotation",
+        "Text size": "Textgröße",
+        "Underline text": "Unterstrichener Text"
     },
     "buttons": {
         "Add arrow": "Pfeil hinzufügen",
@@ -563,7 +579,11 @@
         "Room Emoji": "Raum-Emoji",
         "Screen text annotation": "Textanmerkung auf dem Bildschirm",
         "Type annotation": "Anmerkung eingeben",
-        "Whiteboard": "Whiteboard"
+        "Whiteboard": "Whiteboard",
+        "Edit screen text annotation": "Textanmerkung für Bildschirm bearbeiten",
+        "More text options": "Weitere Textoptionen",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Textformatierung"
     },
     "dialogs": {
         "Edit frame title": "Rahmentitel bearbeiten",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Zeitlimit erreicht",
         "Unlock room?": "Raum entsperren?",
         "Username": "Benutzername",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Whiteboard-Tastenkürzel",
         "Yes": "Ja",
         "Schedule email invitation": "E-Mail-Einladung planen",

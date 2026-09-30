@@ -120,7 +120,23 @@
         "Arrow": "Panah",
         "Rectangle": "Persegi panjang",
         "Redo annotation": "Ulangi anotasi",
-        "Undo annotation": "Urungkan anotasi"
+        "Undo annotation": "Urungkan anotasi",
+        "Bold text": "Teks tebal",
+        "Cancel text annotation": "Batalkan anotasi teks",
+        "Italic text": "Teks miring",
+        "More text options": "Opsi teks lainnya",
+        "Save text annotation": "Simpan anotasi teks",
+        "Strikethrough text": "Teks coretan",
+        "Text": "Text",
+        "Text alignment: center. Click to cycle": "Penyelarasan teks: tengah. Klik untuk bersepeda",
+        "Text alignment: left. Click to cycle": "Penyelarasan teks: kiri. Klik untuk bersepeda",
+        "Text alignment: right. Click to cycle": "Penyelarasan teks: benar. Klik untuk bersepeda",
+        "Text background": "Latar belakang teks",
+        "Text background color": "Warna latar belakang teks",
+        "Text color": "Warna teks",
+        "Text rotation": "Rotasi teks",
+        "Text size": "Ukuran teks",
+        "Underline text": "Teks garis bawah"
     },
     "buttons": {
         "Add arrow": "Tambah panah",
@@ -563,7 +579,11 @@
         "Room Emoji": "Emoji Kamar",
         "Screen text annotation": "Anotasi teks layar",
         "Type annotation": "Ketik anotasi",
-        "Whiteboard": "Papan tulis"
+        "Whiteboard": "Papan tulis",
+        "Edit screen text annotation": "Edit anotasi teks layar",
+        "More text options": "Opsi teks lainnya",
+        "Screen annotation tools": "Screen annotation tools",
+        "Text formatting": "Pemformatan teks"
     },
     "dialogs": {
         "Edit frame title": "Edit judul bingkai",
@@ -626,7 +646,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v2.0.38": "WebRTC P2P v2.0.38",
+        "WebRTC P2P v2.0.40": "WebRTC P2P v2.0.40",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",
