@@ -2606,6 +2606,19 @@ textarea.form-input {
     border-radius: 6px;
 }
 
+.footer-top .brand img {
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
+    transition:
+        filter 0.25s ease,
+        transform 0.25s ease;
+}
+
+.footer-top .brand a:hover img,
+.footer-top .brand a:focus-visible img {
+    filter: brightness(1.12) saturate(1.08) drop-shadow(0 8px 22px rgba(22, 140, 255, 0.35));
+    transform: translateY(-2px);
+}
+
 @media (max-width: 640px) {
     .footer-top > *:not(:last-child) {
         margin-bottom: 16px;
