@@ -1,6 +1,12 @@
 {
     "tooltips": {
         "Annotation color": "주석 색상",
+        "Laser pointer": "레이저 포인터",
+        "Yellow annotation color": "주석 색상: 노란색",
+        "Red annotation color": "주석 색상: 빨간색",
+        "Green annotation color": "주석 색상: 초록색",
+        "Blue annotation color": "주석 색상: 파란색",
+        "White annotation color": "주석 색상: 흰색",
         "Circle": "원",
         "Clear my screen annotations": "내 화면 주석 지우기",
         "Clear screen annotations": "화면 주석 지우기",
@@ -650,7 +656,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v2.0.43": "WebRTC P2P v2.0.43",
+        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",

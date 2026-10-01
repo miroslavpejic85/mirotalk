@@ -9,6 +9,7 @@ const fs = require('fs');
 const { JSDOM } = require('jsdom');
 const { spawn } = require('child_process');
 const { io } = require('socket.io-client');
+const sinon = require('sinon');
 
 const PORT = 3099;
 const BASE = `http://localhost:${PORT}`;
@@ -122,6 +123,31 @@ describe('persistent screen annotations', function () {
     after(() => {
         sockets.forEach((socket) => socket.close());
         if (serverProcess) serverProcess.kill('SIGKILL');
+    });
+
+    it('broadcasts temporary laser positions with the authenticated drawer identity and no late-join replay', async () => {
+        const laser = {
+            room_id: ROOM,
+            type: 'laser',
+            screenOwnerId: owner.id,
+            drawerId: 'spoofed',
+            points: [{ x: 0.25, y: 0.75 }],
+            end: false,
+        };
+        const broadcast = await receiveOnce(owner, 'videoDrawing', () => drawer.emit('videoDrawing', laser));
+        broadcast.should.containEql({
+            type: 'laser',
+            drawerId: drawer.id,
+            points: laser.points,
+            end: false,
+        });
+        const lateJoiner = await connectSocket();
+        const replayed = [];
+        lateJoiner.on('videoDrawing', (data) => replayed.push(data));
+        await join(lateJoiner, joinCfg('laser-late-joiner'));
+        await receiveOnce(lateJoiner, 'videoDrawing', () => drawer.emit('videoDrawing', { ...laser, end: true }));
+        replayed.length.should.equal(1);
+        replayed[0].end.should.be.true();
     });
 
     it('broadcasts, moves, replays, restores, deletes, and clears permanent annotations', async () => {
@@ -389,6 +415,132 @@ describe('persistent screen annotations', function () {
             owner.emit('videoDrawing', { ...annotation, action: 'clear' });
         });
         cleared.should.containEql({ type: 'text', action: 'clear', screenOwnerId: owner.id });
+    });
+});
+
+describe('screen annotation laser pointer and color swatches', () => {
+    let dom;
+    let overlay;
+    let clock;
+    let emitted;
+    let arcs;
+
+    beforeEach(() => {
+        dom = new JSDOM('<div id="screen"><video></video><button id="draw"></button></div>', {
+            runScripts: 'outside-only',
+        });
+        clock = sinon.useFakeTimers({ global: dom.window });
+        dom.window.ResizeObserver = class {
+            observe() {}
+            disconnect() {}
+        };
+        arcs = [];
+        dom.window.HTMLCanvasElement.prototype.getContext = () => ({
+            clearRect() {},
+            save() {},
+            restore() {},
+            beginPath() {},
+            fill() {},
+            stroke() {},
+            fillRect() {},
+            fillText() {},
+            measureText: () => ({ width: 50 }),
+            arc: (...args) => arcs.push(args),
+        });
+        const source = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'videoDrawing.js'), 'utf8');
+        dom.window.eval(`${source}\nwindow.Overlay = VideoDrawingOverlay;`);
+        emitted = [];
+        dom.window.Overlay.getLocalDrawerId = () => 'local';
+        dom.window.Overlay.onEmitDrawing = (data) => emitted.push(data);
+        overlay = new dom.window.Overlay(
+            'owner',
+            dom.window.document.querySelector('#screen'),
+            dom.window.document.querySelector('video')
+        );
+        overlay.bindControls(dom.window.document.querySelector('#draw'));
+        overlay.canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 450 });
+        Object.defineProperty(overlay.canvas, 'clientWidth', { value: 800 });
+        Object.defineProperty(overlay.canvas, 'clientHeight', { value: 450 });
+    });
+
+    afterEach(() => {
+        overlay.destroy();
+        clock.restore();
+        dom.window.close();
+    });
+
+    function move(clientX = 400, clientY = 225) {
+        overlay.canvas.dispatchEvent(new dom.window.MouseEvent('pointermove', { clientX, clientY }));
+    }
+
+    it('follows hover without drawing and throttles updates to the latest position', () => {
+        overlay.toolButtons.laser.click();
+        move();
+        move(600, 300);
+        overlay.laserPointers.size.should.equal(1);
+        overlay.strokes.length.should.equal(0);
+        overlay.annotations.size.should.equal(0);
+        overlay.undoStack.length.should.equal(0);
+        clock.tick(50);
+        emitted.length.should.equal(1);
+        emitted[0].type.should.equal('laser');
+        should(emitted[0].points[0]).containEql({ x: 0.75, y: 0.6667 });
+        arcs.at(-1).slice(0, 3).should.deepEqual([600, 300, 5]);
+    });
+
+    it('clears on leave, tool change, cancellation, and touch release without delayed updates', () => {
+        for (const reason of ['pointerleave', 'tool', 'pointercancel', 'pointerup']) {
+            overlay.setTool('laser');
+            move();
+            if (reason === 'tool') {
+                overlay.setTool('pencil');
+            } else {
+                const event = new dom.window.Event(reason);
+                Object.defineProperty(event, 'pointerType', { value: 'touch' });
+                overlay.canvas.dispatchEvent(event);
+            }
+            overlay.laserPointers.size.should.equal(0);
+            emitted.at(-1).end.should.be.true();
+        }
+        clock.tick(50);
+        emitted.length.should.equal(4);
+    });
+
+    it('replaces remote positions, excludes them from snapshots, and expires stale pointers', () => {
+        const receive = (points, end = false) =>
+            dom.window.Overlay.receive({ type: 'laser', screenOwnerId: 'owner', drawerId: 'remote', points, end });
+        receive([{ x: 0.1, y: 0.2 }]);
+        receive([{ x: 0.3, y: 0.4 }]);
+        overlay.laserPointers.size.should.equal(1);
+        overlay.strokes.length.should.equal(0);
+        const count = arcs.length;
+        overlay.render(false);
+        arcs.length.should.equal(count);
+        clock.tick(1000);
+        overlay.laserPointers.size.should.equal(0);
+        overlay.laserTimers.size.should.equal(0);
+        receive([{ x: 0.5, y: 0.5 }]);
+        receive([], true);
+        overlay.laserPointers.size.should.equal(0);
+    });
+
+    it('keeps swatches and the custom color picker in sync without changing the drawing tool', () => {
+        overlay.setTool('pencil');
+        overlay.colorButtons.length.should.equal(5);
+        overlay.colorButtons[0].getAttribute('aria-pressed').should.equal('true');
+        overlay.colorButtons[1].click();
+        overlay.color.should.equal('#ff1744');
+        overlay.colorInput.value.should.equal('#ff1744');
+        overlay.tool.should.equal('pencil');
+        overlay.colorButtons[0].getAttribute('aria-pressed').should.equal('false');
+        overlay.colorButtons[1].getAttribute('aria-pressed').should.equal('true');
+        overlay.colorInput.value = '#123456';
+        overlay.colorInput.dispatchEvent(new dom.window.Event('input'));
+        overlay.color.should.equal('#123456');
+        overlay.colorButtons.every((button) => button.getAttribute('aria-pressed') === 'false').should.be.true();
+        overlay.colorInput.value = '#ffffff';
+        overlay.colorInput.dispatchEvent(new dom.window.Event('input'));
+        overlay.colorButtons[4].getAttribute('aria-pressed').should.equal('true');
     });
 });
 

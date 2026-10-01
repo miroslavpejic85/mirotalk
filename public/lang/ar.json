@@ -1,6 +1,12 @@
 {
     "tooltips": {
         "Annotation color": "لون التعليقات التوضيحية",
+        "Laser pointer": "مؤشر ليزر",
+        "Yellow annotation color": "لون التعليقات التوضيحية الأصفر",
+        "Red annotation color": "لون التعليقات التوضيحية الأحمر",
+        "Green annotation color": "لون التعليقات التوضيحية الأخضر",
+        "Blue annotation color": "لون التعليقات التوضيحية الأزرق",
+        "White annotation color": "لون التعليقات التوضيحية الأبيض",
         "Circle": "دائرة",
         "Clear my screen annotations": "مسح تعليقاتي التوضيحية على الشاشة",
         "Clear screen annotations": "مسح التعليقات التوضيحية على الشاشة",
@@ -650,7 +656,7 @@
         "Time Limit Reached": "تم بلوغ الحد الزمني",
         "Unlock room?": "إلغاء قفل الغرفة؟",
         "Username": "اسم المستخدم",
-        "WebRTC P2P v2.0.43": "WebRTC P2P v2.0.43",
+        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
         "Whiteboard Shortcuts": "اختصارات السبورة",
         "Yes": "نعم",
         "Schedule email invitation": "جدولة دعوة عبر البريد الإلكتروني",

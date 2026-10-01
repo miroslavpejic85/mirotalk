@@ -1,6 +1,12 @@
 {
     "tooltips": {
         "Annotation color": "批注颜色",
+        "Laser pointer": "激光指示器",
+        "Yellow annotation color": "批注颜色：黄色",
+        "Red annotation color": "批注颜色：红色",
+        "Green annotation color": "批注颜色：绿色",
+        "Blue annotation color": "批注颜色：蓝色",
+        "White annotation color": "批注颜色：白色",
         "Circle": "圆形",
         "Clear my screen annotations": "清除我的屏幕批注",
         "Clear screen annotations": "清除屏幕批注",
@@ -650,7 +656,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v2.0.43": "WebRTCP2Pv2.0.43",
+        "WebRTC P2P v2.0.44": "WebRTCP2Pv2.0.44",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",

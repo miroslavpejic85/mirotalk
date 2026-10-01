@@ -1,6 +1,12 @@
 {
     "tooltips": {
         "Annotation color": "Цвет аннотации",
+        "Laser pointer": "Лазерная указка",
+        "Yellow annotation color": "Жёлтый цвет аннотации",
+        "Red annotation color": "Красный цвет аннотации",
+        "Green annotation color": "Зелёный цвет аннотации",
+        "Blue annotation color": "Синий цвет аннотации",
+        "White annotation color": "Белый цвет аннотации",
         "Circle": "Круг",
         "Clear my screen annotations": "Очистить мои аннотации на экране",
         "Clear screen annotations": "Очистить аннотации на экране",
@@ -650,7 +656,7 @@
         "Time Limit Reached": "Достигнут лимит времени",
         "Unlock room?": "Разблокировать комнату?",
         "Username": "Имя пользователя",
-        "WebRTC P2P v2.0.43": "WebRTC P2P v2.0.43",
+        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
         "Whiteboard Shortcuts": "Горячие клавиши доски",
         "Yes": "Да",
         "Schedule email invitation": "Запланировать приглашение по электронной почте",

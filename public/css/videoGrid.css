@@ -276,6 +276,19 @@
     border-radius: 3px;
 }
 
+.video-drawing-swatch span {
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+}
+
+.video-drawing-swatch[aria-pressed='true'] span {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
 .video-drawing-width {
     width: 64px;
     accent-color: #4caf50;

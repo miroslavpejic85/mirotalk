@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.43
+ * @version 2.0.44
  *
  */
 
@@ -2788,6 +2788,18 @@ io.sockets.on('connect', async (socket) => {
                 point.y <= 1
         );
         if (!validPoints) return;
+
+        if (type === 'laser') {
+            if (points.length !== 1) return;
+            await sendToRoom(room_id, socket.id, 'videoDrawing', {
+                type: 'laser',
+                drawerId: socket.id,
+                screenOwnerId,
+                points,
+                end: Boolean(end),
+            });
+            return;
+        }
 
         await sendToRoom(room_id, socket.id, 'videoDrawing', {
             type: 'pen',

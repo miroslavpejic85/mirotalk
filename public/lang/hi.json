@@ -1,6 +1,12 @@
 {
     "tooltips": {
         "Annotation color": "एनोटेशन का रंग",
+        "Laser pointer": "लेज़र पॉइंटर",
+        "Yellow annotation color": "एनोटेशन का पीला रंग",
+        "Red annotation color": "एनोटेशन का लाल रंग",
+        "Green annotation color": "एनोटेशन का हरा रंग",
+        "Blue annotation color": "एनोटेशन का नीला रंग",
+        "White annotation color": "एनोटेशन का सफ़ेद रंग",
         "Circle": "वृत्त",
         "Clear my screen annotations": "मेरे स्क्रीन एनोटेशन साफ़ करें",
         "Clear screen annotations": "स्क्रीन एनोटेशन साफ़ करें",
@@ -650,7 +656,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.43": "WebRTC P2P v2.0.43",
+        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",

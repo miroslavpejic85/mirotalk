@@ -1,6 +1,12 @@
 {
     "tooltips": {
         "Annotation color": "Ek açıklama rengi",
+        "Laser pointer": "Lazer işaretçisi",
+        "Yellow annotation color": "Sarı ek açıklama rengi",
+        "Red annotation color": "Kırmızı ek açıklama rengi",
+        "Green annotation color": "Yeşil ek açıklama rengi",
+        "Blue annotation color": "Mavi ek açıklama rengi",
+        "White annotation color": "Beyaz ek açıklama rengi",
         "Circle": "Daire",
         "Clear my screen annotations": "Ekran ek açıklamalarımı temizle",
         "Clear screen annotations": "Ekran ek açıklamalarını temizle",
@@ -650,7 +656,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v2.0.43": "WebRTC P2P v2.0.43",
+        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",

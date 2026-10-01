@@ -9,6 +9,8 @@ class VideoDrawingOverlay {
     static resolveDrawerName = null;
     static AUTO_CLEAR_MS = 5000;
     static SYNC_INTERVAL_MS = 50;
+    static LASER_CLEAR_MS = 1000;
+    static LASER_COLOR = '#ff1744';
     static BRUSH_COLOR = 'rgba(255, 255, 0, 0.85)';
     static MAX_TEXT_LENGTH = 1000;
 
@@ -26,6 +28,8 @@ class VideoDrawingOverlay {
         this.clearTimers = new Map();
         this.drawerNameTimers = new Map();
         this.remoteStrokes = new Map();
+        this.laserPointers = new Map();
+        this.laserTimers = new Map();
         this.textAnnotations = new Map();
         this.undoStack = [];
         this.redoStack = [];
@@ -44,6 +48,7 @@ class VideoDrawingOverlay {
         this.canvas.addEventListener('pointermove', this.handlePointerMove);
         this.canvas.addEventListener('pointerup', this.handlePointerUp);
         this.canvas.addEventListener('pointercancel', this.handlePointerUp);
+        this.canvas.addEventListener('pointerleave', () => this.stopLaser());
         document.addEventListener('keydown', this.handleHistoryKeyDown);
 
         this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -120,6 +125,12 @@ class VideoDrawingOverlay {
             'Pencil',
             'Highlighter',
             'Vanishing pen',
+            'Laser pointer',
+            'Yellow annotation color',
+            'Red annotation color',
+            'Green annotation color',
+            'Blue annotation color',
+            'White annotation color',
             'Circle',
             'Rectangle',
             'Diamond',
@@ -156,6 +167,7 @@ class VideoDrawingOverlay {
             ['pencil', 'fas fa-pencil-alt', 'Pencil'],
             ['highlighter', 'fas fa-highlighter', 'Highlighter'],
             ['vanishing', 'fas fa-wand-magic-sparkles', 'Vanishing pen'],
+            ['laser', 'fas fa-bullseye', 'Laser pointer'],
             ['circle', 'far fa-circle', 'Circle'],
             ['rectangle', 'far fa-square', 'Rectangle'],
             ['diamond', 'video-drawing-diamond far fa-square', 'Diamond'],
@@ -186,8 +198,30 @@ class VideoDrawingOverlay {
         color.className = 'video-drawing-color';
         setAccessibleLabel(color, 'Annotation color');
         color.addEventListener('input', () => {
-            this.color = color.value;
+            this.setColor(color.value);
         });
+        this.colorInput = color;
+        this.colorButtons = [];
+        for (const [value, label] of [
+            ['#ffeb3b', 'Yellow annotation color'],
+            ['#ff1744', 'Red annotation color'],
+            ['#4caf50', 'Green annotation color'],
+            ['#2196f3', 'Blue annotation color'],
+            ['#ffffff', 'White annotation color'],
+        ]) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'video-drawing-swatch';
+            button.dataset.color = value;
+            setAccessibleLabel(button, label);
+            const swatch = document.createElement('span');
+            swatch.style.backgroundColor = value;
+            button.appendChild(swatch);
+            button.addEventListener('click', () => this.setColor(value));
+            appearanceTools.appendChild(button);
+            this.colorButtons.push(button);
+        }
+        this.setColor(this.color);
         appearanceTools.appendChild(color);
 
         const width = document.createElement('input');
@@ -279,6 +313,7 @@ class VideoDrawingOverlay {
                 [dragHandle, 'Move annotation toolbar'],
                 ...tools.map(([tool, , label]) => [this.toolButtons[tool], label]),
                 [color, 'Annotation color'],
+                ...this.colorButtons.map((button) => [button, button['__i18nAttr_aria-label']]),
                 [width, 'Annotation width'],
                 [undoButton, 'Undo annotation'],
                 [redoButton, 'Redo annotation'],
@@ -413,7 +448,18 @@ class VideoDrawingOverlay {
         }
     }
 
+    setColor(color) {
+        this.color = color;
+        this.colorInput.value = color;
+        for (const button of this.colorButtons) {
+            const selected = button.dataset.color === color;
+            button.classList.toggle('video-drawing-tool-active', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        }
+    }
+
     setTool(tool) {
+        if (this.tool === 'laser' && tool !== 'laser') this.stopLaser();
         this.isActive = Boolean(tool);
         this.tool = tool;
         this.canvas.classList.toggle('video-drawing-active', this.isActive);
@@ -435,6 +481,10 @@ class VideoDrawingOverlay {
     handlePointerDown(event) {
         if (!this.isActive || event.button > 0) return;
         event.preventDefault();
+        if (this.tool === 'laser') {
+            this.moveLaser(event);
+            return;
+        }
         if (this.tool === 'text') {
             this.beginTextInput(event);
             return;
@@ -486,6 +536,11 @@ class VideoDrawingOverlay {
     }
 
     handlePointerMove(event) {
+        if (this.isActive && this.tool === 'laser') {
+            event.preventDefault();
+            this.moveLaser(event);
+            return;
+        }
         if (!this.isDrawing) return;
         event.preventDefault();
         const point = this.getPoint(event);
@@ -520,6 +575,11 @@ class VideoDrawingOverlay {
     }
 
     handlePointerUp(event) {
+        if (this.tool === 'laser') {
+            if (event.type === 'pointercancel' || (event.pointerType && event.pointerType !== 'mouse'))
+                this.stopLaser();
+            return;
+        }
         if (!this.isDrawing) return;
         event.preventDefault();
         this.isDrawing = false;
@@ -569,6 +629,62 @@ class VideoDrawingOverlay {
         this.scheduleClear(this.activeStroke);
         this.scheduleSync(true);
         this.activeStroke = null;
+    }
+
+    moveLaser(event) {
+        const point = this.getPoint(event);
+        const drawerId = VideoDrawingOverlay.getLocalDrawerId?.() || 'local';
+        this.receiveLaser({ drawerId, points: [point] });
+        this.pendingLaserPoint = point;
+        if (this.laserSyncTimer) return;
+        this.laserSyncTimer = setTimeout(() => {
+            this.laserSyncTimer = null;
+            const pendingPoint = this.pendingLaserPoint;
+            this.pendingLaserPoint = null;
+            if (!pendingPoint) return;
+            VideoDrawingOverlay.onEmitDrawing?.({
+                type: 'laser',
+                screenOwnerId: this.screenOwnerId,
+                points: [{ x: Number(pendingPoint.x.toFixed(4)), y: Number(pendingPoint.y.toFixed(4)) }],
+                end: false,
+            });
+        }, VideoDrawingOverlay.SYNC_INTERVAL_MS);
+    }
+
+    stopLaser() {
+        clearTimeout(this.laserSyncTimer);
+        this.laserSyncTimer = null;
+        this.pendingLaserPoint = null;
+        const drawerId = VideoDrawingOverlay.getLocalDrawerId?.() || 'local';
+        const pointer = this.laserPointers.get(drawerId);
+        if (!pointer) return;
+        this.receiveLaser({ drawerId, end: true });
+        VideoDrawingOverlay.onEmitDrawing?.({
+            type: 'laser',
+            screenOwnerId: this.screenOwnerId,
+            points: pointer.points,
+            end: true,
+        });
+    }
+
+    receiveLaser({ drawerId, points, end }) {
+        const key = drawerId || 'remote';
+        clearTimeout(this.laserTimers.get(key));
+        this.laserTimers.delete(key);
+        if (end) {
+            this.laserPointers.delete(key);
+        } else if (points?.length === 1) {
+            this.laserPointers.set(key, { drawerId, points });
+            this.laserTimers.set(
+                key,
+                setTimeout(() => {
+                    this.laserPointers.delete(key);
+                    this.laserTimers.delete(key);
+                    this.render();
+                }, VideoDrawingOverlay.LASER_CLEAR_MS)
+            );
+        }
+        this.render();
     }
 
     getPoint(event) {
@@ -1759,6 +1875,22 @@ class VideoDrawingOverlay {
         for (const stroke of showDetails ? latestStrokesByDrawer.values() : []) {
             this.renderDrawerName(stroke, rect);
         }
+        for (const pointer of showDetails ? this.laserPointers.values() : []) {
+            const point = pointer.points[0];
+            this.context.save();
+            this.context.beginPath();
+            this.context.fillStyle = VideoDrawingOverlay.LASER_COLOR;
+            this.context.shadowColor = VideoDrawingOverlay.LASER_COLOR;
+            this.context.shadowBlur = 12;
+            this.context.arc(point.x * rect.width, point.y * rect.height, 5, 0, Math.PI * 2);
+            this.context.fill();
+            this.context.shadowBlur = 0;
+            this.context.strokeStyle = '#ffffff';
+            this.context.lineWidth = 1.5;
+            this.context.stroke();
+            this.context.restore();
+            this.renderDrawerName(pointer, rect);
+        }
     }
 
     renderAnnotation(annotation, rect, showDetails = true) {
@@ -1890,6 +2022,7 @@ class VideoDrawingOverlay {
     }
 
     destroy() {
+        this.stopLaser();
         if (VideoDrawingOverlay.getLocalDrawerId?.() === this.screenOwnerId && this.textAnnotations.size) {
             VideoDrawingOverlay.onEmitDrawing?.({
                 type: 'text',
@@ -1900,6 +2033,9 @@ class VideoDrawingOverlay {
         clearTimeout(this.syncTimer);
         for (const timer of this.clearTimers.values()) clearTimeout(timer);
         for (const timer of this.drawerNameTimers.values()) clearTimeout(timer);
+        for (const timer of this.laserTimers.values()) clearTimeout(timer);
+        this.laserTimers.clear();
+        this.laserPointers.clear();
         this.resizeObserver.disconnect();
         document.removeEventListener('keydown', this.handleHistoryKeyDown);
         this.textInput?.remove();
@@ -1919,6 +2055,10 @@ class VideoDrawingOverlay {
 
     static receive(data) {
         const overlay = data && this.overlays.get(data.screenOwnerId);
+        if (data?.type === 'laser') {
+            overlay?.receiveLaser(data);
+            return;
+        }
         if (data?.type === 'text') {
             if (overlay) {
                 overlay.receiveText(data);
