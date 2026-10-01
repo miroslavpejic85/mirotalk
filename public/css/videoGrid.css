@@ -294,7 +294,8 @@
 
 .video-drawing-toolbar button.video-drawing-delete:not(:disabled):hover,
 .video-drawing-toolbar button.video-drawing-delete:not(:disabled):focus-visible,
-.video-drawing-toolbar button.video-drawing-clear:not(:disabled) {
+.video-drawing-toolbar button.video-drawing-clear:not(:disabled),
+.video-drawing-toolbar button.video-drawing-exit {
     color: #ef5350 !important;
 }
 

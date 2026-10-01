@@ -374,7 +374,7 @@ class VideoDrawingOverlay {
         moreTools.appendChild(exportTools);
         const exitButton = document.createElement('button');
         exitButton.type = 'button';
-        exitButton.className = 'fas fa-power-off';
+        exitButton.className = 'video-drawing-exit fas fa-power-off';
         setAccessibleLabel(exitButton, 'Disable screen drawing');
         exitButton.addEventListener('click', () => {
             this.setTool(null);
