@@ -4428,7 +4428,7 @@ button {
 --------------------------------------------------------------*/
 
 .tab {
-    padding: 8px;
+    padding: 8px 18px 8px 8px;
     overflow-x: hidden;
     overflow-y: auto;
     width: max-content;
