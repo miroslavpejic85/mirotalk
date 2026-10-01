@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.44
+ * @version 2.0.45
  *
  */
 
@@ -409,6 +409,7 @@ const wbLocks = {}; // server-authoritative whiteboard lock state grp by channel
 const wbParticipantNames = {}; // presenter-controlled whiteboard participant attribution state grp by channels
 const videoTextAnnotations = {}; // persistent screen text annotation state grp by channels
 const videoDrawingAnnotations = {}; // persistent screen drawing annotation state grp by channels
+const videoDrawingPermissions = {};
 
 const roomMetaKeys = new Set(['lock', 'password', 'joinLock']);
 
@@ -1949,6 +1950,7 @@ io.sockets.on('connect', async (socket) => {
                             peers[room_id][peer_id]['peer_screen_status'] = status;
                             if (extras) peers[room_id][peer_id]['extras'] = extras;
                             if (!status) {
+                                videoDrawingPermissions[room_id]?.delete(socket.id);
                                 for (const [key, annotation] of videoTextAnnotations[room_id]?.entries() || []) {
                                     if (annotation.screenOwnerId === socket.id)
                                         videoTextAnnotations[room_id].delete(key);
@@ -2551,6 +2553,24 @@ io.sockets.on('connect', async (socket) => {
         } = config;
         if (!isPeerInRoom(room_id, socket.id) || !peers[room_id]?.[screenOwnerId]) return;
 
+        if (type === 'permissions') {
+            if (
+                socket.id !== screenOwnerId ||
+                !peers[room_id][screenOwnerId].peer_screen_status ||
+                typeof config.allowed !== 'boolean'
+            ) {
+                return;
+            }
+            const permissions = (videoDrawingPermissions[room_id] ||= new Map());
+            if (config.allowed) permissions.delete(screenOwnerId);
+            else permissions.set(screenOwnerId, false);
+            const data = { type, screenOwnerId, allowed: config.allowed };
+            socket.emit('videoDrawing', data);
+            await sendToRoom(room_id, socket.id, 'videoDrawing', data);
+            return;
+        }
+        if (socket.id !== screenOwnerId && videoDrawingPermissions[room_id]?.get(screenOwnerId) === false) return;
+
         if (type === 'annotation') {
             const roomAnnotations = (videoDrawingAnnotations[room_id] ||= new Map());
             if (action === 'clear') {
@@ -2832,6 +2852,9 @@ io.sockets.on('connect', async (socket) => {
             });
             log.debug('[' + socket.id + '] emit addPeer [' + id + ']');
         }
+        for (const [screenOwnerId, allowed] of videoDrawingPermissions[channel] || []) {
+            socket.emit('videoDrawing', { type: 'permissions', screenOwnerId, allowed });
+        }
         for (const annotation of videoTextAnnotations[channel]?.values() || []) {
             socket.emit('videoDrawing', { type: 'text', action: 'create', ...annotation });
         }
@@ -2864,6 +2887,7 @@ io.sockets.on('connect', async (socket) => {
                     .catch((error) => log.error('Error tracking disconnect event:', error.message));
             }
 
+            videoDrawingPermissions[channel]?.delete(socket.id);
             const roomAnnotations = videoTextAnnotations[channel];
             if (roomAnnotations) {
                 for (const [key, annotation] of roomAnnotations) {
@@ -2901,6 +2925,7 @@ io.sockets.on('connect', async (socket) => {
                 delete wbParticipantNames[channel]; // Clean up whiteboard participant attribution state
                 delete videoTextAnnotations[channel]; // Clean up persistent screen annotation state
                 delete videoDrawingAnnotations[channel]; // Clean up persistent screen drawing state
+                delete videoDrawingPermissions[channel];
             }
         } catch (err) {
             log.error('Remove Peer', toJson(err));

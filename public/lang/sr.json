@@ -1,5 +1,10 @@
 {
     "tooltips": {
+        "Erase my annotations": "Обриши моје напомене",
+        "Hide annotations": "Сакриј напомене",
+        "Show annotations": "Прикажи напомене",
+        "Disable participant annotations": "Онемогући напомене учесника",
+        "Enable participant annotations": "Омогући напомене учесника",
         "Annotation color": "Боја напомене",
         "Laser pointer": "Ласерски показивач",
         "Yellow annotation color": "Жута боја напомене",
@@ -656,7 +661,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v2.0.44": "WebRTC P2P в2.0.44",
+        "WebRTC P2P v2.0.45": "WebRTC P2P в2.0.45",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",

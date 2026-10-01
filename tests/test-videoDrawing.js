@@ -125,6 +125,66 @@ describe('persistent screen annotations', function () {
         if (serverProcess) serverProcess.kill('SIGKILL');
     });
 
+    it('enforces screen-owner permissions across annotation types and replays them to late joiners', async () => {
+        const permission = { room_id: ROOM, type: 'permissions', screenOwnerId: owner.id, allowed: false };
+        await should(
+            receiveOnce(owner, 'videoDrawing', () => drawer.emit('videoDrawing', permission), 200)
+        ).be.rejectedWith('videoDrawing was not received');
+        const locked = await receiveOnce(drawer, 'videoDrawing', () => owner.emit('videoDrawing', permission));
+        locked.should.containEql({ type: 'permissions', screenOwnerId: owner.id, allowed: false });
+        const lateJoiner = await connectSocket();
+        const replay = await receiveOnce(lateJoiner, 'videoDrawing', () =>
+            join(lateJoiner, joinCfg('locked-late-joiner'))
+        );
+        replay.should.containEql({ type: 'permissions', screenOwnerId: owner.id, allowed: false });
+        for (const type of ['annotation', 'text', 'pen', 'laser']) {
+            const update = {
+                room_id: ROOM,
+                type,
+                action: 'create',
+                screenOwnerId: owner.id,
+                annotationId: `locked-${type}`,
+                tool: 'pencil',
+                color: '#ff0000',
+                width: 0.004,
+                text: 'Blocked',
+                x: 0.2,
+                y: 0.2,
+                points:
+                    type === 'laser'
+                        ? [{ x: 0.2, y: 0.2 }]
+                        : [
+                              { x: 0.2, y: 0.2 },
+                              { x: 0.4, y: 0.4 },
+                          ],
+            };
+            await should(
+                receiveOnce(owner, 'videoDrawing', () => drawer.emit('videoDrawing', update), 200)
+            ).be.rejectedWith('videoDrawing was not received');
+        }
+        const ownerPen = { room_id: ROOM, type: 'pen', screenOwnerId: owner.id, points: [{ x: 0.1, y: 0.1 }] };
+        const broadcast = await receiveOnce(drawer, 'videoDrawing', () => owner.emit('videoDrawing', ownerPen));
+        broadcast.drawerId.should.equal(owner.id);
+        await receiveOnce(drawer, 'videoDrawing', () => owner.emit('videoDrawing', { ...permission, allowed: true }));
+        const unlocked = await receiveOnce(owner, 'videoDrawing', () => drawer.emit('videoDrawing', ownerPen));
+        unlocked.drawerId.should.equal(drawer.id);
+        await receiveOnce(drawer, 'videoDrawing', () => owner.emit('videoDrawing', permission));
+        const screenStatus = {
+            room_id: ROOM,
+            peer_name: 'screen-owner',
+            peer_id: owner.id,
+            element: 'screen',
+            status: false,
+        };
+        await receiveOnce(drawer, 'peerStatus', () => owner.emit('peerStatus', screenStatus));
+        await should(
+            receiveOnce(drawer, 'videoDrawing', () => owner.emit('videoDrawing', permission), 200)
+        ).be.rejectedWith('videoDrawing was not received');
+        await receiveOnce(drawer, 'peerStatus', () => owner.emit('peerStatus', { ...screenStatus, status: true }));
+        const restarted = await receiveOnce(owner, 'videoDrawing', () => drawer.emit('videoDrawing', ownerPen));
+        restarted.drawerId.should.equal(drawer.id);
+    });
+
     it('broadcasts temporary laser positions with the authenticated drawer identity and no late-join replay', async () => {
         const laser = {
             room_id: ROOM,
@@ -437,6 +497,8 @@ describe('screen annotation laser pointer and color swatches', () => {
         arcs = [];
         dom.window.HTMLCanvasElement.prototype.getContext = () => ({
             clearRect() {},
+            moveTo() {},
+            lineTo() {},
             save() {},
             restore() {},
             beginPath() {},
@@ -459,6 +521,7 @@ describe('screen annotation laser pointer and color swatches', () => {
         );
         overlay.bindControls(dom.window.document.querySelector('#draw'));
         overlay.canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 450 });
+        overlay.canvas.setPointerCapture = () => {};
         Object.defineProperty(overlay.canvas, 'clientWidth', { value: 800 });
         Object.defineProperty(overlay.canvas, 'clientHeight', { value: 450 });
     });
@@ -522,6 +585,141 @@ describe('screen annotation laser pointer and color swatches', () => {
         receive([{ x: 0.5, y: 0.5 }]);
         receive([], true);
         overlay.laserPointers.size.should.equal(0);
+    });
+
+    it('erases only local shapes and text along a sweep and undoes the sweep as one action', () => {
+        for (const [annotationId, drawerId, center] of [
+            ['mine-first', 'local', 0.25],
+            ['mine-second', 'local', 0.75],
+            ['other', 'remote', 0.25],
+        ]) {
+            overlay.receiveAnnotation({
+                action: 'create',
+                annotationId,
+                drawerId,
+                tool: 'circle',
+                color: '#ff0000',
+                width: 0.004,
+                points: [
+                    { x: center, y: 0.5 },
+                    { x: center + 0.05, y: 0.5 },
+                ],
+            });
+        }
+        for (const [annotationId, drawerId] of [
+            ['my-text', 'local'],
+            ['other-text', 'remote'],
+        ]) {
+            overlay.addTextAnnotation({ annotationId, drawerId, text: 'Label', x: 0.5, y: 0.5 });
+            overlay.textAnnotations.get(annotationId).element.getBoundingClientRect = () => ({
+                left: 390,
+                top: 210,
+                right: 450,
+                bottom: 245,
+            });
+        }
+        overlay.toolButtons.eraser.click();
+        overlay.canvas.dispatchEvent(new dom.window.MouseEvent('pointerdown', { clientX: 80, clientY: 225 }));
+        move(720, 225);
+        overlay.canvas.dispatchEvent(new dom.window.MouseEvent('pointerup', { clientX: 720, clientY: 225 }));
+        Array.from(overlay.annotations.keys()).should.deepEqual(['other']);
+        Array.from(overlay.textAnnotations.keys()).should.deepEqual(['other-text']);
+        overlay.undoStack.length.should.equal(1);
+        emitted.filter((data) => data.action === 'delete').length.should.equal(3);
+        overlay.undo();
+        overlay.annotations.size.should.equal(3);
+        overlay.textAnnotations.size.should.equal(2);
+        overlay.redo();
+        overlay.annotations.size.should.equal(1);
+        overlay.textAnnotations.size.should.equal(1);
+    });
+
+    it('hides overlays locally without losing incoming annotations and restores their visibility', () => {
+        overlay.addTextAnnotation({ annotationId: 'label', drawerId: 'local', text: 'Label', x: 0.2, y: 0.2 });
+        overlay.setTool('laser');
+        move();
+        overlay.visibilityButton.click();
+        overlay.annotationsHidden.should.be.true();
+        overlay.laserPointers.size.should.equal(0);
+        overlay.screenWrap.classList.contains('video-drawing-annotations-hidden').should.be.true();
+        overlay.visibilityButton.getAttribute('aria-label').should.equal('Show annotations');
+        overlay.toolButtons.pencil.disabled.should.be.true();
+        const count = arcs.length;
+        overlay.receiveAnnotation({
+            action: 'create',
+            annotationId: 'incoming',
+            drawerId: 'remote',
+            tool: 'circle',
+            color: '#ff0000',
+            width: 0.004,
+            points: [
+                { x: 0.2, y: 0.2 },
+                { x: 0.3, y: 0.3 },
+            ],
+        });
+        arcs.length.should.equal(count);
+        overlay.textAnnotations.size.should.equal(1);
+        overlay.annotations.size.should.equal(1);
+        emitted.filter((data) => data.type !== 'laser').length.should.equal(0);
+        overlay.visibilityButton.click();
+        overlay.annotationsHidden.should.be.false();
+        overlay.toolButtons.pencil.disabled.should.be.false();
+        arcs.length.should.be.above(count);
+    });
+
+    it('locks participant editing, cancels unfinished drawing, and keeps viewing controls available', () => {
+        should(overlay.permissionsButton).equal(undefined);
+        overlay.toolButtons.pencil.click();
+        overlay.canvas.dispatchEvent(new dom.window.MouseEvent('pointerdown', { clientX: 100, clientY: 100 }));
+        overlay.annotations.size.should.equal(1);
+        dom.window.Overlay.receive({ type: 'permissions', screenOwnerId: 'owner', allowed: false });
+        overlay.annotations.size.should.equal(0);
+        overlay.isDrawing.should.be.false();
+        overlay.tool.should.equal('view');
+        overlay.isActive.should.be.true();
+        overlay.toolButtons.pencil.disabled.should.be.true();
+        overlay.undoButton.disabled.should.be.true();
+        overlay.clearButton.disabled.should.be.true();
+        overlay.visibilityButton.disabled.should.be.false();
+        overlay.downloadButtons.every((button) => !button.disabled).should.be.true();
+        overlay.canvas.dispatchEvent(new dom.window.MouseEvent('pointerdown', { clientX: 100, clientY: 100 }));
+        overlay.annotations.size.should.equal(0);
+        overlay.addTextAnnotation({ annotationId: 'owned', drawerId: 'local', text: 'Label', x: 0.2, y: 0.2 });
+        const text = overlay.textAnnotations.get('owned');
+        overlay.duplicateTextAnnotation(text);
+        overlay.deleteTextAnnotationWithHistory(text);
+        overlay.clearAnnotations(true);
+        overlay.textAnnotations.size.should.equal(1);
+        emitted.length.should.equal(0);
+        dom.window.Overlay.receive({ type: 'permissions', screenOwnerId: 'owner', allowed: true });
+        overlay.tool.should.equal('pencil');
+        overlay.toolButtons.pencil.disabled.should.be.false();
+        overlay.canManageTextAnnotation(text).should.be.true();
+    });
+
+    it('queues permission events before overlay creation and provides owner-only permission controls', () => {
+        dom.window.Overlay.receive({ type: 'permissions', screenOwnerId: 'queued', allowed: false });
+        const queued = new dom.window.Overlay('queued', overlay.screenWrap, overlay.video);
+        queued.bindControls(dom.window.document.createElement('button'));
+        queued.participantsAllowed.should.be.false();
+        queued.toolButtons.pencil.disabled.should.be.true();
+        queued.setTool('pencil');
+        queued.tool.should.equal('view');
+        queued.destroy();
+        dom.window.Overlay.pendingPermissions.size.should.equal(0);
+        dom.window.Overlay.getLocalDrawerId = () => 'owner';
+        const ownerOverlay = new dom.window.Overlay('owner', overlay.screenWrap, overlay.video);
+        ownerOverlay.bindControls(dom.window.document.createElement('button'));
+        ownerOverlay.setTool('eraser');
+        ownerOverlay.permissionsButton.click();
+        should(emitted.at(-1)).containEql({ type: 'permissions', screenOwnerId: 'owner', allowed: false });
+        ownerOverlay.setParticipantsAllowed(false);
+        ownerOverlay.tool.should.equal('eraser');
+        ownerOverlay.permissionsButton.getAttribute('aria-label').should.equal('Enable participant annotations');
+        ownerOverlay.toolButtons.pencil.disabled.should.be.false();
+        ownerOverlay.setTool('pencil');
+        ownerOverlay.tool.should.equal('pencil');
+        ownerOverlay.destroy();
     });
 
     it('keeps swatches and the custom color picker in sync without changing the drawing tool', () => {
@@ -592,6 +790,16 @@ describe('screen annotation snapshots and diamond geometry', () => {
         drawnImages[0].should.deepEqual([overlay.video, 0, 0, 1920, 1080]);
         drawnImages[1].should.deepEqual([overlay.canvas, 0, 0, 1920, 1080]);
         renderModes.should.deepEqual([false, true]);
+    });
+
+    it('exports only the video frame when annotations are locally hidden', async () => {
+        overlay.annotationsHidden = true;
+        overlay.textAnnotations.set('label', {});
+        const snapshot = await overlay.captureSnapshot();
+        snapshot.width.should.equal(1920);
+        drawnImages.length.should.equal(1);
+        should(drawnImages[0][0]).equal(overlay.video);
+        renderModes.length.should.equal(0);
     });
 
     it('captures formatted text at canvas-relative coordinates and cleans up on renderer failure', async () => {

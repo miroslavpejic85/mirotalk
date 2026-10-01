@@ -1,5 +1,10 @@
 {
     "tooltips": {
+        "Erase my annotations": "自分の注釈を消去",
+        "Hide annotations": "注釈を非表示",
+        "Show annotations": "注釈を表示",
+        "Disable participant annotations": "参加者の注釈を無効にする",
+        "Enable participant annotations": "参加者の注釈を有効にする",
         "Annotation color": "注釈の色",
         "Laser pointer": "レーザーポインター",
         "Yellow annotation color": "注釈の色：黄色",
@@ -656,7 +661,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
+        "WebRTC P2P v2.0.45": "WebRTC P2P v2.0.45",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",

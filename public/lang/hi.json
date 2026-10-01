@@ -1,5 +1,10 @@
 {
     "tooltips": {
+        "Erase my annotations": "मेरे एनोटेशन मिटाएँ",
+        "Hide annotations": "एनोटेशन छिपाएँ",
+        "Show annotations": "एनोटेशन दिखाएँ",
+        "Disable participant annotations": "प्रतिभागियों के एनोटेशन अक्षम करें",
+        "Enable participant annotations": "प्रतिभागियों के एनोटेशन सक्षम करें",
         "Annotation color": "एनोटेशन का रंग",
         "Laser pointer": "लेज़र पॉइंटर",
         "Yellow annotation color": "एनोटेशन का पीला रंग",
@@ -656,7 +661,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
+        "WebRTC P2P v2.0.45": "WebRTC P2P v2.0.45",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",

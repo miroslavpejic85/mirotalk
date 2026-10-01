@@ -155,6 +155,23 @@
     cursor: default;
 }
 
+.video-drawing-annotations-hidden .video-drawing-canvas,
+.video-drawing-annotations-hidden .video-drawing-text-annotation,
+.video-drawing-readonly .video-drawing-text-annotation > button {
+    display: none !important;
+}
+
+.video-drawing-erasing .video-drawing-text-annotation,
+.video-drawing-erasing .video-drawing-text-annotation *,
+.video-drawing-readonly .video-drawing-text-annotation,
+.video-drawing-readonly .video-drawing-text-annotation * {
+    pointer-events: none !important;
+}
+
+.video-drawing-erasing .video-drawing-canvas {
+    cursor: cell;
+}
+
 .navbar button.video-drawing-tool-active {
     color: #4caf50;
 }
@@ -232,6 +249,10 @@
 .video-drawing-toolbar button.video-drawing-tool-active {
     background: rgba(255, 255, 255, 0.14);
     color: #4caf50;
+}
+
+.video-drawing-toolbar button.fa-lock {
+    color: #ef5350;
 }
 
 .video-drawing-toolbar button:disabled {

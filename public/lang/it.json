@@ -1,5 +1,10 @@
 {
     "tooltips": {
+        "Erase my annotations": "Cancella le mie annotazioni",
+        "Hide annotations": "Nascondi annotazioni",
+        "Show annotations": "Mostra annotazioni",
+        "Disable participant annotations": "Disabilita le annotazioni dei partecipanti",
+        "Enable participant annotations": "Abilita le annotazioni dei partecipanti",
         "Annotation color": "Colore dell’annotazione",
         "Laser pointer": "Puntatore laser",
         "Yellow annotation color": "Colore giallo dell’annotazione",
@@ -656,7 +661,7 @@
         "Time Limit Reached": "Limite di tempo raggiunto",
         "Unlock room?": "Sbloccare la stanza?",
         "Username": "Nome utente",
-        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
+        "WebRTC P2P v2.0.45": "WebRTC P2P v2.0.45",
         "Whiteboard Shortcuts": "Scorciatoie della lavagna",
         "Yes": "Sì",
         "Schedule email invitation": "Pianifica invito via email",

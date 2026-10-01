@@ -1,5 +1,10 @@
 {
     "tooltips": {
+        "Erase my annotations": "Erase my annotations",
+        "Hide annotations": "Hide annotations",
+        "Show annotations": "Show annotations",
+        "Disable participant annotations": "Disable participant annotations",
+        "Enable participant annotations": "Enable participant annotations",
         "🔊 Volume": "🔊 Volume",
         "Annotation color": "Annotation color",
         "Annotation width": "Annotation width",
@@ -682,7 +687,7 @@
         "Unlock room": "Unlock room",
         "Unlock room?": "Unlock room?",
         "Username": "Username",
-        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
+        "WebRTC P2P v2.0.45": "WebRTC P2P v2.0.45",
         "Whiteboard Shortcuts": "Whiteboard Shortcuts",
         "Yes": "Yes",
         "Your microphone is off": "Your microphone is off"

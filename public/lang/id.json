@@ -1,5 +1,10 @@
 {
     "tooltips": {
+        "Erase my annotations": "Hapus anotasi saya",
+        "Hide annotations": "Sembunyikan anotasi",
+        "Show annotations": "Tampilkan anotasi",
+        "Disable participant annotations": "Nonaktifkan anotasi peserta",
+        "Enable participant annotations": "Aktifkan anotasi peserta",
         "Annotation color": "Warna anotasi",
         "Laser pointer": "Penunjuk laser",
         "Yellow annotation color": "Warna anotasi kuning",
@@ -656,7 +661,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
+        "WebRTC P2P v2.0.45": "WebRTC P2P v2.0.45",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",

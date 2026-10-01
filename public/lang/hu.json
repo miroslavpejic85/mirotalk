@@ -1,5 +1,10 @@
 {
     "tooltips": {
+        "Erase my annotations": "Saját jegyzeteim törlése",
+        "Hide annotations": "Jegyzetek elrejtése",
+        "Show annotations": "Jegyzetek megjelenítése",
+        "Disable participant annotations": "Résztvevők jegyzetelésének letiltása",
+        "Enable participant annotations": "Résztvevők jegyzetelésének engedélyezése",
         "Annotation color": "Jegyzet színe",
         "Laser pointer": "Lézermutató",
         "Yellow annotation color": "Sárga jegyzetszín",
@@ -656,7 +661,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.44": "WebRTC P2P v2.0.44",
+        "WebRTC P2P v2.0.45": "WebRTC P2P v2.0.45",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",
