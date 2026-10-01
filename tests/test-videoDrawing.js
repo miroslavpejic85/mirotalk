@@ -520,6 +520,36 @@ describe('screen annotation snapshots and diamond geometry', () => {
         drawnImages.length.should.equal(0);
     });
 
+    it('surrounds the full circle with its selection border before and after moving', () => {
+        const borders = [];
+        overlay.context = {
+            save() {},
+            beginPath() {},
+            setLineDash() {},
+            stroke() {},
+            restore() {},
+            rect: (...bounds) => borders.push(bounds),
+        };
+        const annotation = {
+            tool: 'circle',
+            points: [
+                { x: 0.5, y: 0.5 },
+                { x: 0.6, y: 0.6 },
+            ],
+        };
+        const rect = { width: 800, height: 600 };
+        overlay.renderAnnotationSelection(annotation, rect);
+        annotation.points = [
+            { x: 0.25, y: 0.25 },
+            { x: 0.35, y: 0.35 },
+        ];
+        overlay.renderAnnotationSelection(annotation, rect);
+        borders.should.deepEqual([
+            [295, 195, 210, 210],
+            [95, 45, 210, 210],
+        ]);
+    });
+
     it('renders four diamond vertices and selects its interior but not bounding-box corners', () => {
         const vertices = [];
         let closed = false;

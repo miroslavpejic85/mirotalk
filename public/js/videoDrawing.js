@@ -1831,6 +1831,13 @@ class VideoDrawingOverlay {
         if (!annotation.points.length) return;
         const pointXs = annotation.points.map(({ x }) => x * rect.width);
         const pointYs = annotation.points.map(({ y }) => y * rect.height);
+        if (annotation.tool === 'circle') {
+            const centerX = pointXs[0];
+            const centerY = pointYs[0];
+            const radius = Math.hypot((pointXs[1] ?? centerX) - centerX, (pointYs[1] ?? centerY) - centerY);
+            pointXs.push(centerX - radius, centerX + radius);
+            pointYs.push(centerY - radius, centerY + radius);
+        }
         const padding = 5;
         const minX = Math.min(...pointXs) - padding;
         const minY = Math.min(...pointYs) - padding;
