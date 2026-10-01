@@ -18335,12 +18335,9 @@ function disable(elem, disabled) {
  */
 function restoreSplitButtonsBorderRadius() {
     // On mobile we skip dropdown behavior, but ensure split buttons still look rounded.
-    document.querySelectorAll('#bottomButtons .split-btn').forEach((group) => {
+    document.querySelectorAll('#bottomButtons #audioSplit, #bottomButtons #videoSplit').forEach((group) => {
         group.querySelectorAll('button').forEach((button) => {
-            // Hack: Exclude settingsExtraToggle extra buttons...
-            if (button.id != 'settingsExtraToggle' && button.id != 'mySettingsBtn') {
-                button.style.setProperty('border-radius', '10px', 'important');
-            }
+            button.style.setProperty('border-radius', '10px', 'important');
         });
         const toggle = group.querySelector('.device-dropdown-toggle');
         if (toggle) toggle.style.setProperty('border-left', 'none', 'important');
