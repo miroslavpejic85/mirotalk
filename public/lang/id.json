@@ -276,7 +276,8 @@
         "Vanishing pen": "Pena yang hilang",
         "Copy invite link": "Salin tautan undangan",
         "Invite...": "Undang...",
-        "Participant actions": "Tindakan peserta"
+        "Participant actions": "Tindakan peserta",
+        "Choose image": "Pilih gambar"
     },
     "labels": {
         "= Arrow": "= Panah",
@@ -598,7 +599,13 @@
         "More text options": "Opsi teks lainnya",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "Pemformatan teks",
-        "Annotation downloads": "Unduhan anotasi"
+        "Annotation downloads": "Unduhan anotasi",
+        "Background image": "Gambar latar belakang",
+        "Background unavailable": "Latar belakang tidak tersedia",
+        "Blur": "Buram",
+        "Image": "Gambar",
+        "Loading background effect": "Memuat efek latar belakang",
+        "Off": "Nonaktif"
     },
     "dialogs": {
         "Edit frame title": "Edit judul bingkai",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper transkripsi dimulai",
         "Whisper transcription stopped": "Whisper transkripsi dihentikan",
         "Speech recognition started": "Pengenalan ucapan dimulai",
-        "Unable to download screen annotations": "Tidak dapat mengunduh anotasi layar"
+        "Unable to download screen annotations": "Tidak dapat mengunduh anotasi layar",
+        "Background effects unavailable. Continuing without effects.": "Efek latar belakang tidak tersedia. Melanjutkan tanpa efek.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "Pilih gambar PNG, JPEG, atau WebP berukuran hingga 10 MB.",
+        "Unable to change camera background.": "Tidak dapat mengubah latar belakang kamera.",
+        "Unable to load background image.": "Tidak dapat memuat gambar latar belakang."
     }
 }

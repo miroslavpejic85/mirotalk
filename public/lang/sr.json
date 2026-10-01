@@ -276,7 +276,8 @@
         "Vanishing pen": "Оловка која нестаје",
         "Copy invite link": "Копирај везу за позив",
         "Invite...": "Позови...",
-        "Participant actions": "Радње учесника"
+        "Participant actions": "Радње учесника",
+        "Choose image": "Izaberi sliku"
     },
     "labels": {
         "= Arrow": "= Strelica",
@@ -598,7 +599,13 @@
         "More text options": "Više tekstualnih opcija",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "Formatiranje teksta",
-        "Annotation downloads": "Преузимање напомена"
+        "Annotation downloads": "Преузимање напомена",
+        "Background image": "Slika pozadine",
+        "Background unavailable": "Pozadina nije dostupna",
+        "Blur": "Zamućenje",
+        "Image": "Slika",
+        "Loading background effect": "Učitavanje efekta pozadine",
+        "Off": "Isključeno"
     },
     "dialogs": {
         "Edit frame title": "Izmeni naslov okvira",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v2.0.47": "WebRTC P2P в2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P в2.0.50",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper транскрипција је почела",
         "Whisper transcription stopped": "Whisper транскрипција је заустављена",
         "Speech recognition started": "Почело је препознавање говора",
-        "Unable to download screen annotations": "Није могуће преузети напомене на екрану"
+        "Unable to download screen annotations": "Није могуће преузети напомене на екрану",
+        "Background effects unavailable. Continuing without effects.": "Efekti pozadine nisu dostupni. Nastavlja se bez efekata.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "Izaberi PNG, JPEG ili WebP sliku veličine do 10 MB.",
+        "Unable to change camera background.": "Nije moguće promeniti pozadinu kamere.",
+        "Unable to load background image.": "Nije moguće učitati sliku pozadine."
     }
 }

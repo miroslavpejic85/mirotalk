@@ -276,7 +276,8 @@
         "Vanishing pen": "消失笔",
         "Copy invite link": "复制邀请链接",
         "Invite...": "邀请...",
-        "Participant actions": "参与者操作"
+        "Participant actions": "参与者操作",
+        "Choose image": "选择图片"
     },
     "labels": {
         "= Arrow": "= 箭头",
@@ -598,7 +599,13 @@
         "More text options": "更多文本选项",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "文本格式",
-        "Annotation downloads": "批注下载"
+        "Annotation downloads": "批注下载",
+        "Background image": "背景图片",
+        "Background unavailable": "背景不可用",
+        "Blur": "模糊",
+        "Image": "图片",
+        "Loading background effect": "正在加载背景效果",
+        "Off": "关闭"
     },
     "dialogs": {
         "Edit frame title": "编辑框架标题",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v2.0.47": "WebRTCP2Pv2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTCP2Pv2.0.50",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper转录开始",
         "Whisper transcription stopped": "Whisper 转录停止",
         "Speech recognition started": "语音识别开始",
-        "Unable to download screen annotations": "无法下载屏幕批注"
+        "Unable to download screen annotations": "无法下载屏幕批注",
+        "Background effects unavailable. Continuing without effects.": "背景效果不可用，将继续使用无效果的视频。",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "请选择不超过 10 MB 的 PNG、JPEG 或 WebP 图片。",
+        "Unable to change camera background.": "无法更改摄像头背景。",
+        "Unable to load background image.": "无法加载背景图片。"
     }
 }

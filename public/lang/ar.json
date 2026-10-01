@@ -276,7 +276,8 @@
         "Vanishing pen": "القلم المختفي",
         "Copy invite link": "نسخ رابط الدعوة",
         "Invite...": "دعوة...",
-        "Participant actions": "إجراءات المشاركين"
+        "Participant actions": "إجراءات المشاركين",
+        "Choose image": "اختيار صورة"
     },
     "labels": {
         "= Arrow": "= سهم",
@@ -598,7 +599,13 @@
         "More text options": "المزيد من خيارات النص",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "تنسيق النص",
-        "Annotation downloads": "تنزيلات التعليقات التوضيحية"
+        "Annotation downloads": "تنزيلات التعليقات التوضيحية",
+        "Background image": "صورة الخلفية",
+        "Background unavailable": "الخلفية غير متاحة",
+        "Blur": "تمويه",
+        "Image": "صورة",
+        "Loading background effect": "جارٍ تحميل تأثير الخلفية",
+        "Off": "إيقاف"
     },
     "dialogs": {
         "Edit frame title": "تعديل عنوان الإطار",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "تم بلوغ الحد الزمني",
         "Unlock room?": "إلغاء قفل الغرفة؟",
         "Username": "اسم المستخدم",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "اختصارات السبورة",
         "Yes": "نعم",
         "Schedule email invitation": "جدولة دعوة عبر البريد الإلكتروني",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper بدأ النسخ",
         "Whisper transcription stopped": "Whisper توقف النسخ",
         "Speech recognition started": "بدأ التعرف على الكلام",
-        "Unable to download screen annotations": "تعذّر تنزيل التعليقات التوضيحية على الشاشة"
+        "Unable to download screen annotations": "تعذّر تنزيل التعليقات التوضيحية على الشاشة",
+        "Background effects unavailable. Continuing without effects.": "تأثيرات الخلفية غير متاحة. ستتم المتابعة بدون تأثيرات.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "اختر صورة PNG أو JPEG أو WebP بحجم لا يتجاوز 10 ميجابايت.",
+        "Unable to change camera background.": "تعذر تغيير خلفية الكاميرا.",
+        "Unable to load background image.": "تعذر تحميل صورة الخلفية."
     }
 }

@@ -276,7 +276,8 @@
         "Vanishing pen": "Verschwindender Stift",
         "Copy invite link": "Einladungslink kopieren",
         "Invite...": "Einladen...",
-        "Participant actions": "Teilnehmeraktionen"
+        "Participant actions": "Teilnehmeraktionen",
+        "Choose image": "Bild auswählen"
     },
     "labels": {
         "= Arrow": "= Pfeil",
@@ -598,7 +599,13 @@
         "More text options": "Weitere Textoptionen",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "Textformatierung",
-        "Annotation downloads": "Anmerkungen herunterladen"
+        "Annotation downloads": "Anmerkungen herunterladen",
+        "Background image": "Hintergrundbild",
+        "Background unavailable": "Hintergrund nicht verfügbar",
+        "Blur": "Weichzeichnen",
+        "Image": "Bild",
+        "Loading background effect": "Hintergrundeffekt wird geladen",
+        "Off": "Aus"
     },
     "dialogs": {
         "Edit frame title": "Rahmentitel bearbeiten",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "Zeitlimit erreicht",
         "Unlock room?": "Raum entsperren?",
         "Username": "Benutzername",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "Whiteboard-Tastenkürzel",
         "Yes": "Ja",
         "Schedule email invitation": "E-Mail-Einladung planen",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper Transkription gestartet",
         "Whisper transcription stopped": "Whisper Transkription gestoppt",
         "Speech recognition started": "Die Spracherkennung wurde gestartet",
-        "Unable to download screen annotations": "Bildschirmanmerkungen konnten nicht heruntergeladen werden"
+        "Unable to download screen annotations": "Bildschirmanmerkungen konnten nicht heruntergeladen werden",
+        "Background effects unavailable. Continuing without effects.": "Hintergrundeffekte sind nicht verfügbar. Es wird ohne Effekte fortgefahren.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "Wähle ein PNG-, JPEG- oder WebP-Bild mit maximal 10 MB.",
+        "Unable to change camera background.": "Der Kamerahintergrund konnte nicht geändert werden.",
+        "Unable to load background image.": "Das Hintergrundbild konnte nicht geladen werden."
     }
 }

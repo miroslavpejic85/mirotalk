@@ -973,6 +973,32 @@
                                 <option value="8k">🎥 8K</option>
                             </select>
                         </div>
+                        <div id="backgroundEffectsSection" class="settings-field" hidden>
+                            <div class="title">
+                                <i class="fas fa-image"></i>
+                                <label for="backgroundEffectSelect">Background</label>
+                                <span
+                                    id="backgroundEffectLoading"
+                                    role="status"
+                                    aria-label="Loading background effect"
+                                    hidden
+                                >
+                                    <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                                </span>
+                            </div>
+                            <select id="backgroundEffectSelect">
+                                <option value="off">Off</option>
+                                <option value="blur">Blur</option>
+                                <option value="image">Image</option>
+                            </select>
+                            <input
+                                id="backgroundImageInput"
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                aria-label="Background image"
+                                hidden
+                            />
+                        </div>
                         <div id="videoFitDiv" class="settings-field">
                             <div class="title">
                                 <i class="fa-solid fa-film"></i>
@@ -2224,6 +2250,7 @@ Note</textarea>
         <script defer src="../js/screenReader.js"></script>
         <script defer src="../js/wakeLock.js"></script>
         <script defer src="../js/roomTemplate.js"></script>
+        <script defer src="../js/background-effects.js"></script>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/networkStats.js"></script>
         <script defer src="../js/speechRecognition.js"></script>

@@ -276,7 +276,8 @@
         "Vanishing pen": "Stylo disparu",
         "Copy invite link": "Copier le lien d’invitation",
         "Invite...": "Inviter...",
-        "Participant actions": "Actions des participants"
+        "Participant actions": "Actions des participants",
+        "Choose image": "Choisir une image"
     },
     "labels": {
         "= Arrow": "= Flèche",
@@ -598,7 +599,13 @@
         "More text options": "Plus d'options de texte",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "Mise en forme du texte",
-        "Annotation downloads": "Téléchargements d'annotations"
+        "Annotation downloads": "Téléchargements d'annotations",
+        "Background image": "Image d'arrière-plan",
+        "Background unavailable": "Arrière-plan indisponible",
+        "Blur": "Flou",
+        "Image": "Image",
+        "Loading background effect": "Chargement de l'effet d'arrière-plan",
+        "Off": "Désactivé"
     },
     "dialogs": {
         "Edit frame title": "Modifier le titre du cadre",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "Limite de temps atteinte",
         "Unlock room?": "Déverrouiller la salle ?",
         "Username": "Nom d'utilisateur",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "Raccourcis du tableau blanc",
         "Yes": "Oui",
         "Schedule email invitation": "Planifier l’invitation par e-mail",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper transcription commencée",
         "Whisper transcription stopped": "Whisper transcription arrêtée",
         "Speech recognition started": "La reconnaissance vocale a commencé",
-        "Unable to download screen annotations": "Impossible de télécharger les annotations de l'écran"
+        "Unable to download screen annotations": "Impossible de télécharger les annotations de l'écran",
+        "Background effects unavailable. Continuing without effects.": "Les effets d'arrière-plan sont indisponibles. La vidéo continue sans effets.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "Choisissez une image PNG, JPEG ou WebP de 10 Mo maximum.",
+        "Unable to change camera background.": "Impossible de modifier l'arrière-plan de la caméra.",
+        "Unable to load background image.": "Impossible de charger l'image d'arrière-plan."
     }
 }

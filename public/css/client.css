@@ -954,6 +954,16 @@ body {
     white-space: nowrap;
 }
 
+#bottomButtons #videoMenu .device-menu-background-filename {
+    contain: inline-size;
+    padding: 6px 12px;
+    overflow: hidden;
+    color: var(--dd-color, #fff);
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .device-menu-audio-meter {
     display: inline-flex;
     align-items: center;
@@ -4293,6 +4303,49 @@ button {
 
 .settings-field:last-child {
     margin-bottom: 0;
+}
+
+#backgroundEffectsSection[hidden],
+#backgroundEffectLoading[hidden],
+#backgroundImageInput[hidden] {
+    display: none;
+}
+
+#mySettings #backgroundImageInput {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 10px;
+    overflow: hidden;
+    border: none;
+    background: transparent;
+    color: var(--dd-color, #fff);
+    font: inherit;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+#mySettings #backgroundImageInput::file-selector-button {
+    margin-right: 12px;
+    padding: 10px 14px;
+    border: var(--border);
+    border-radius: 8px;
+    background: var(--select-bg);
+    color: var(--dd-color, #fff);
+    font: inherit;
+    cursor: pointer;
+}
+
+#mySettings #backgroundImageInput:hover::file-selector-button {
+    background: var(--tab-btn-active);
+}
+
+#mySettings #backgroundImageInput:focus-visible {
+    outline: 2px solid var(--dd-color, #fff);
+    outline-offset: 3px;
+    border-radius: 8px;
 }
 
 #mySettings .settings-field-hint {

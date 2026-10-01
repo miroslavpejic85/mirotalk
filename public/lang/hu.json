@@ -276,7 +276,8 @@
         "Vanishing pen": "Eltűnő toll",
         "Copy invite link": "Meghívó hivatkozás másolása",
         "Invite...": "Meghívás...",
-        "Participant actions": "Résztvevői műveletek"
+        "Participant actions": "Résztvevői műveletek",
+        "Choose image": "Kép kiválasztása"
     },
     "labels": {
         "= Arrow": "= Nyíl",
@@ -598,7 +599,13 @@
         "More text options": "További szövegbeállítások",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "Szövegformázás",
-        "Annotation downloads": "Annotációk letöltése"
+        "Annotation downloads": "Annotációk letöltése",
+        "Background image": "Háttérkép",
+        "Background unavailable": "A háttér nem érhető el",
+        "Blur": "Elmosás",
+        "Image": "Kép",
+        "Loading background effect": "Háttéreffekt betöltése",
+        "Off": "Kikapcsolva"
     },
     "dialogs": {
         "Edit frame title": "Keret címének szerkesztése",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper átírás elindult",
         "Whisper transcription stopped": "Whisper átírás leállt",
         "Speech recognition started": "A beszédfelismerés elindult",
-        "Unable to download screen annotations": "Nem sikerült letölteni a képernyő-annotációkat"
+        "Unable to download screen annotations": "Nem sikerült letölteni a képernyő-annotációkat",
+        "Background effects unavailable. Continuing without effects.": "A háttéreffektek nem érhetők el. Folytatás effektek nélkül.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "Válassz legfeljebb 10 MB méretű PNG, JPEG vagy WebP képet.",
+        "Unable to change camera background.": "Nem sikerült módosítani a kamera hátterét.",
+        "Unable to load background image.": "Nem sikerült betölteni a háttérképet."
     }
 }

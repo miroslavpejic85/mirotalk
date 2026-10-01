@@ -276,7 +276,8 @@
         "Vanishing pen": "消えるペン",
         "Copy invite link": "招待リンクをコピー",
         "Invite...": "招待...",
-        "Participant actions": "参加者の操作"
+        "Participant actions": "参加者の操作",
+        "Choose image": "画像を選択"
     },
     "labels": {
         "= Arrow": "= 矢印",
@@ -598,7 +599,13 @@
         "More text options": "その他のテキストオプション",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "テキストの書式設定",
-        "Annotation downloads": "注釈のダウンロード"
+        "Annotation downloads": "注釈のダウンロード",
+        "Background image": "背景画像",
+        "Background unavailable": "背景を利用できません",
+        "Blur": "ぼかし",
+        "Image": "画像",
+        "Loading background effect": "背景効果を読み込み中",
+        "Off": "オフ"
     },
     "dialogs": {
         "Edit frame title": "フレームタイトルを編集",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper 文字起こしを開始しました",
         "Whisper transcription stopped": "Whisper 転写が停止しました",
         "Speech recognition started": "音声認識を開始しました",
-        "Unable to download screen annotations": "画面の注釈をダウンロードできません"
+        "Unable to download screen annotations": "画面の注釈をダウンロードできません",
+        "Background effects unavailable. Continuing without effects.": "背景効果を利用できません。効果なしで続行します。",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "10 MB 以下の PNG、JPEG、WebP 画像を選択してください。",
+        "Unable to change camera background.": "カメラの背景を変更できませんでした。",
+        "Unable to load background image.": "背景画像を読み込めませんでした。"
     }
 }

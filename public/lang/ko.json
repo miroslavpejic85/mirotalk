@@ -276,7 +276,8 @@
         "Vanishing pen": "사라지는 펜",
         "Copy invite link": "초대 링크 복사",
         "Invite...": "초대...",
-        "Participant actions": "참가자 작업"
+        "Participant actions": "참가자 작업",
+        "Choose image": "이미지 선택"
     },
     "labels": {
         "= Arrow": "= 화살표",
@@ -598,7 +599,13 @@
         "More text options": "텍스트 옵션 더 보기",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "텍스트 서식",
-        "Annotation downloads": "주석 다운로드"
+        "Annotation downloads": "주석 다운로드",
+        "Background image": "배경 이미지",
+        "Background unavailable": "배경을 사용할 수 없습니다",
+        "Blur": "흐리게",
+        "Image": "이미지",
+        "Loading background effect": "배경 효과 로딩 중",
+        "Off": "끄기"
     },
     "dialogs": {
         "Edit frame title": "프레임 제목 편집",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper 전사가 시작되었습니다.",
         "Whisper transcription stopped": "Whisper 전사가 중지되었습니다.",
         "Speech recognition started": "음성 인식이 시작되었습니다",
-        "Unable to download screen annotations": "화면 주석을 다운로드할 수 없습니다"
+        "Unable to download screen annotations": "화면 주석을 다운로드할 수 없습니다",
+        "Background effects unavailable. Continuing without effects.": "배경 효과를 사용할 수 없습니다. 효과 없이 계속합니다.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "10 MB 이하의 PNG, JPEG 또는 WebP 이미지를 선택하세요.",
+        "Unable to change camera background.": "카메라 배경을 변경할 수 없습니다.",
+        "Unable to load background image.": "배경 이미지를 불러올 수 없습니다."
     }
 }

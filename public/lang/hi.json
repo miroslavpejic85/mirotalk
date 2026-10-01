@@ -276,7 +276,8 @@
         "Vanishing pen": "लुप्त होती कलम",
         "Copy invite link": "आमंत्रण लिंक कॉपी करें",
         "Invite...": "आमंत्रित करें...",
-        "Participant actions": "प्रतिभागी कार्रवाइयाँ"
+        "Participant actions": "प्रतिभागी कार्रवाइयाँ",
+        "Choose image": "चित्र चुनें"
     },
     "labels": {
         "= Arrow": "= तीर",
@@ -598,7 +599,13 @@
         "More text options": "टेक्स्ट के और विकल्प",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "टेक्स्ट फ़ॉर्मेटिंग",
-        "Annotation downloads": "टिप्पणी डाउनलोड"
+        "Annotation downloads": "टिप्पणी डाउनलोड",
+        "Background image": "पृष्ठभूमि चित्र",
+        "Background unavailable": "पृष्ठभूमि उपलब्ध नहीं है",
+        "Blur": "धुंधला",
+        "Image": "चित्र",
+        "Loading background effect": "पृष्ठभूमि प्रभाव लोड हो रहा है",
+        "Off": "बंद"
     },
     "dialogs": {
         "Edit frame title": "फ़्रेम शीर्षक संपादित करें",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper प्रतिलेखन प्रारंभ हुआ",
         "Whisper transcription stopped": "Whisper प्रतिलेखन बंद हो गया",
         "Speech recognition started": "वाक् पहचान प्रारंभ हुई",
-        "Unable to download screen annotations": "स्क्रीन की टिप्पणियाँ डाउनलोड नहीं हो सकीं"
+        "Unable to download screen annotations": "स्क्रीन की टिप्पणियाँ डाउनलोड नहीं हो सकीं",
+        "Background effects unavailable. Continuing without effects.": "पृष्ठभूमि प्रभाव उपलब्ध नहीं हैं। प्रभावों के बिना जारी रखा जा रहा है।",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "10 MB तक का PNG, JPEG या WebP चित्र चुनें।",
+        "Unable to change camera background.": "कैमरे की पृष्ठभूमि बदलने में असमर्थ।",
+        "Unable to load background image.": "पृष्ठभूमि चित्र लोड करने में असमर्थ।"
     }
 }

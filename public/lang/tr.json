@@ -276,7 +276,8 @@
         "Vanishing pen": "Kaybolan kalem",
         "Copy invite link": "Davet bağlantısını kopyala",
         "Invite...": "Davet et...",
-        "Participant actions": "Katılımcı işlemleri"
+        "Participant actions": "Katılımcı işlemleri",
+        "Choose image": "Görsel seç"
     },
     "labels": {
         "= Arrow": "= Ok",
@@ -598,7 +599,13 @@
         "More text options": "Daha fazla metin seçeneği",
         "Screen annotation tools": "Screen annotation tools",
         "Text formatting": "Metin biçimlendirme",
-        "Annotation downloads": "Açıklama indirmeleri"
+        "Annotation downloads": "Açıklama indirmeleri",
+        "Background image": "Arka plan görseli",
+        "Background unavailable": "Arka plan kullanılamıyor",
+        "Blur": "Bulanıklaştırma",
+        "Image": "Görsel",
+        "Loading background effect": "Arka plan efekti yükleniyor",
+        "Off": "Kapalı"
     },
     "dialogs": {
         "Edit frame title": "Çerçeve başlığını düzenle",
@@ -661,7 +668,7 @@
         "Time Limit Reached": "Süre sınırına ulaşıldı",
         "Unlock room?": "Oda kilidi açılsın mı?",
         "Username": "Kullanıcı adı",
-        "WebRTC P2P v2.0.47": "WebRTC P2P v2.0.47",
+        "WebRTC P2P v2.0.50": "WebRTC P2P v2.0.50",
         "Whiteboard Shortcuts": "Beyaz Tahta Kısayolları",
         "Yes": "Evet",
         "Schedule email invitation": "E-posta davetini planla",
@@ -800,6 +807,10 @@
         "Whisper transcription started": "Whisper transkripsiyon başladı",
         "Whisper transcription stopped": "Whisper transkripsiyon durduruldu",
         "Speech recognition started": "Konuşma tanıma başlatıldı",
-        "Unable to download screen annotations": "Ekran açıklamaları indirilemedi"
+        "Unable to download screen annotations": "Ekran açıklamaları indirilemedi",
+        "Background effects unavailable. Continuing without effects.": "Arka plan efektleri kullanılamıyor. Efektsiz devam ediliyor.",
+        "Choose a PNG, JPEG or WebP image up to 10 MB.": "En fazla 10 MB boyutunda bir PNG, JPEG veya WebP görseli seçin.",
+        "Unable to change camera background.": "Kamera arka planı değiştirilemedi.",
+        "Unable to load background image.": "Arka plan görseli yüklenemedi."
     }
 }

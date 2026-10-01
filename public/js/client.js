@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.47
+ * @version 2.0.50
  *
  */
 
@@ -415,6 +415,13 @@ const speakerVolume = getId('speakerVolume');
 const speakerVolumeValue = getId('speakerVolumeValue');
 const videoSelect = getId('videoSource');
 const videoQualitySelect = getId('videoQuality');
+const backgroundEffectSelect = getId('backgroundEffectSelect');
+const backgroundImageInput = getId('backgroundImageInput');
+const backgroundEffectsSection = getId('backgroundEffectsSection');
+const backgroundEffectLoading = getId('backgroundEffectLoading');
+let cameraEffects = null;
+let backgroundImage = null;
+let backgroundEffectsBusy = false;
 const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
@@ -2370,6 +2377,122 @@ async function checkInitConfig() {
     }
 }
 
+function updateBackgroundControls() {
+    backgroundEffectSelect.disabled = backgroundEffectsBusy;
+    backgroundImageInput.disabled = backgroundEffectsBusy;
+    backgroundImageInput.hidden = backgroundEffectSelect.value !== 'image';
+    backgroundEffectLoading.hidden = !backgroundEffectsBusy;
+    backgroundEffectsSection.setAttribute('aria-busy', String(backgroundEffectsBusy));
+    backgroundEffectSelect.dispatchEvent(new Event('background-effects-change'));
+}
+
+function attachCameraBackgroundStream(stream, previousStream) {
+    if (localVideoMediaStream !== previousStream) return;
+    localVideoMediaStream = stream;
+    myVideo.srcObject = stream;
+    if (initStream === previousStream) {
+        initStream = stream;
+        initVideo.srcObject = stream;
+    }
+}
+
+async function prepareCameraBackground(stream) {
+    cameraEffects?.stop(false);
+    cameraEffects = null;
+    const mode = backgroundEffectSelect.value;
+    if (mode === 'off' || (mode === 'image' && !backgroundImage)) return stream;
+    const effects = new BackgroundEffects(async (error) => {
+        if (cameraEffects !== effects) return;
+        console.error('Background effects error', error);
+        const previousStream = localVideoMediaStream;
+        const rawStream = new MediaStream([effects.cameraTrack]);
+        effects.stop(false);
+        cameraEffects = null;
+        backgroundEffectSelect.value = 'off';
+        attachCameraBackgroundStream(rawStream, previousStream);
+        updateBackgroundControls();
+        userLog('warning', 'Background effects unavailable. Continuing without effects.');
+        try {
+            await refreshMyStreamToPeers(rawStream);
+        } catch (err) {
+            console.error('Unable to restore camera to peers', err);
+        }
+    });
+    cameraEffects = effects;
+    try {
+        const processedStream = await effects.start(stream);
+        await effects.setMode(mode, backgroundImage);
+        if (effects.stopped) return stream;
+        return processedStream;
+    } catch (error) {
+        effects.stop(false);
+        if (cameraEffects === effects) {
+            cameraEffects = null;
+            backgroundEffectSelect.value = 'off';
+            updateBackgroundControls();
+            userLog('warning', 'Background effects unavailable. Continuing without effects.');
+            console.error('Background effects error', error);
+        }
+        return stream;
+    }
+}
+
+async function applyCameraBackground() {
+    const previousStream = localVideoMediaStream;
+    const cameraTrack = cameraEffects?.cameraTrack || getVideoTrack(previousStream);
+    if (!cameraTrack || cameraTrack.readyState === 'ended') return;
+    const stream = await prepareCameraBackground(new MediaStream([cameraTrack]));
+    attachCameraBackgroundStream(stream, previousStream);
+    await refreshMyStreamToPeers(localVideoMediaStream);
+}
+
+async function changeCameraBackground() {
+    if (backgroundEffectsBusy) return;
+    backgroundEffectsBusy = true;
+    updateBackgroundControls();
+    try {
+        await applyCameraBackground();
+    } catch (error) {
+        console.error('Unable to change camera background', error);
+        userLog('warning', 'Unable to change camera background.');
+    } finally {
+        backgroundEffectsBusy = false;
+        updateBackgroundControls();
+    }
+}
+
+async function loadCameraBackgroundImage() {
+    const file = backgroundImageInput.files[0];
+    if (!file || backgroundEffectsBusy) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+        backgroundImageInput.value = '';
+        userLog('warning', 'Choose a PNG, JPEG or WebP image up to 10 MB.');
+        return;
+    }
+    backgroundEffectsBusy = true;
+    updateBackgroundControls();
+    const url = URL.createObjectURL(file);
+    try {
+        const image = new Image();
+        await new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = () => reject(new Error('Unable to load background image'));
+            image.src = url;
+        });
+        backgroundImage = image;
+        await applyCameraBackground();
+    } catch (error) {
+        console.error('Unable to load background image', error);
+        userLog('warning', 'Unable to load background image.');
+    } finally {
+        URL.revokeObjectURL(url);
+        backgroundEffectsBusy = false;
+        updateBackgroundControls();
+    }
+}
+
+window.addEventListener('pagehide', () => cameraEffects?.stop());
+
 /**
  * Detects whether the camera stream is front-facing ('user') or rear-facing ('environment').
  * Defaults to 'user' (front-facing) if detection fails (e.g., desktop cameras).
@@ -2412,8 +2535,8 @@ async function changeInitCamera(deviceId) {
 
     await navigator.mediaDevices
         .getUserMedia({ video: videoConstraints })
-        .then((camStream) => {
-            updateInitLocalVideoMediaStream(camStream);
+        .then(async (camStream) => {
+            await updateInitLocalVideoMediaStream(camStream);
         })
         .catch(async (err) => {
             console.error('Error accessing init video device', err);
@@ -2426,7 +2549,7 @@ async function changeInitCamera(deviceId) {
                         },
                     },
                 }); // Fallback to default constraints
-                updateInitLocalVideoMediaStream(camStream);
+                await updateInitLocalVideoMediaStream(camStream);
             } catch (fallbackErr) {
                 console.error('Error accessing init video device with default constraints', fallbackErr);
                 reloadBrowser(err);
@@ -2437,11 +2560,12 @@ async function changeInitCamera(deviceId) {
      * Update Init/Local Video Stream
      * @param {MediaStream} camStream
      */
-    function updateInitLocalVideoMediaStream(camStream) {
+    async function updateInitLocalVideoMediaStream(camStream) {
         if (camStream) {
             // Detect camera
             camera = detectCameraFacingMode(camStream);
             console.log('Detect Camera facing mode', camera);
+            camStream = await prepareCameraBackground(camStream);
             // We going to update init video stream
             initVideo.srcObject = camStream;
             // Hide the CSS loader overlay once camera stream is attached
@@ -2530,6 +2654,7 @@ async function changeLocalCamera(deviceId) {
         if (camStream) {
             camera = detectCameraFacingMode(camStream);
             console.log('Detect Camera facing mode', camera);
+            camStream = await prepareCameraBackground(camStream);
             myVideo.srcObject = camStream;
             localVideoMediaStream = camStream;
             logStreamSettingsInfo('Success attached local video stream', camStream);
@@ -3959,6 +4084,10 @@ async function enumerateVideoDevices(stream) {
  * @param {object} stream
  */
 async function stopTracks(stream) {
+    if (cameraEffects && stream.getVideoTracks().includes(cameraEffects.outputTrack)) {
+        cameraEffects.stop();
+        cameraEffects = null;
+    }
     stream.getTracks().forEach((track) => {
         track.stop();
     });
@@ -4162,6 +4291,7 @@ async function setupLocalVideoMedia() {
      */
     async function updateLocalVideoMediaStream(stream) {
         if (stream) {
+            stream = await prepareCameraBackground(stream);
             localVideoMediaStream = stream;
             await loadLocalMedia(stream, 'video');
             console.log('Access granted to video device');
@@ -8484,6 +8614,11 @@ function setupMySettings() {
         refreshLsDevices();
     });
     // select video quality
+    backgroundEffectsSection.hidden = !BackgroundEffects.supported();
+    backgroundEffectSelect.onchange = changeCameraBackground;
+    backgroundImageInput.onchange = loadCameraBackgroundImage;
+    updateBackgroundControls();
+
     videoQualitySelect.addEventListener('change', async (e) => {
         await setLocalVideoQuality();
     });
@@ -9065,12 +9200,12 @@ function getAudioConstraints(deviceId = null) {
 async function setLocalMaxFps(maxFrameRate, type = 'camera') {
     if (!useVideo || isFirefox) return;
 
-    const videoTrack = getVideoTrack(localVideoMediaStream);
+    const videoTrack = cameraEffects?.cameraTrack || getVideoTrack(localVideoMediaStream);
     const screenTrack = getVideoTrack(localScreenMediaStream);
 
     if (!videoTrack && !screenTrack) return;
 
-    (isScreenStreaming ? screenTrack : videoTrack)
+    (type === 'screen' ? screenTrack : videoTrack)
         .applyConstraints({ frameRate: maxFrameRate })
         .then(() => {
             logStreamSettingsInfo('setLocalMaxFps', videoTrack ? localVideoMediaStream : localScreenMediaStream);
@@ -9091,7 +9226,7 @@ async function setLocalMaxFps(maxFrameRate, type = 'camera') {
  * Set local video quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
  */
 async function setLocalVideoQuality() {
-    const videoTrack = getVideoTrack(localVideoMediaStream);
+    const videoTrack = cameraEffects?.cameraTrack || getVideoTrack(localVideoMediaStream);
     const screenTrack = getVideoTrack(localScreenMediaStream);
 
     if (!videoTrack && !screenTrack) return;
@@ -9099,7 +9234,7 @@ async function setLocalVideoQuality() {
     const videoQuality = videoQualitySelect.value ? videoQualitySelect.value : 'default';
     const videoConstraints = getVideoConstraints(videoQuality);
 
-    (isScreenStreaming ? screenTrack : videoTrack)
+    (videoTrack || screenTrack)
         .applyConstraints(videoConstraints)
         .then(() => {
             logStreamSettingsInfo('setLocalVideoQuality', videoTrack ? localVideoMediaStream : localScreenMediaStream);
@@ -9607,7 +9742,7 @@ async function handleVideo(e, init, force = null) {
     }
 
     if (!videoStatus) {
-        if (!isScreenStreaming) {
+        if (!init || !isScreenStreaming) {
             // Stop the video track based on the condition
             init
                 ? await stopVideoTracks(initStream) // Stop init video track (camera LED off)
@@ -9640,6 +9775,10 @@ function initVideoContainerShow(show = true) {
  */
 async function stopVideoTracks(stream) {
     if (!stream) return;
+    if (cameraEffects && stream.getVideoTracks().includes(cameraEffects.outputTrack)) {
+        cameraEffects.stop();
+        cameraEffects = null;
+    }
     stream.getTracks().forEach((track) => {
         if (track.kind === 'video') track.stop();
     });
@@ -9664,8 +9803,11 @@ async function swapCamera() {
 
     try {
         // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-        const camStream = await navigator.mediaDevices.getUserMedia({ video: camVideo });
+        let camStream = await navigator.mediaDevices.getUserMedia({ video: camVideo });
         if (camStream) {
+            camStream = await prepareCameraBackground(camStream);
+            localVideoMediaStream = camStream;
+            myVideo.srcObject = camStream;
             await refreshMyLocalStream(camStream);
             await refreshMyStreamToPeers(camStream);
             await setLocalMaxFps(videoMaxFrameRate);
@@ -9685,6 +9827,8 @@ async function swapCamera() {
  * Stop Local Video Track
  */
 async function stopLocalVideoTrack() {
+    cameraEffects?.stop();
+    cameraEffects = null;
     if (useVideo || !isScreenStreaming) {
         const localVideoTrack = getVideoTrack(localVideoMediaStream);
         if (localVideoTrack) {
@@ -17676,7 +17820,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.47',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.50',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -18543,6 +18687,7 @@ function setupQuickDeviceSwitchDropdowns() {
 
         const text = document.createElement('span');
         text.textContent = window.i18n?.t(title, 'labels') || title;
+        text.firstChild.__i18nSrc = title;
 
         header.appendChild(icon);
         header.appendChild(text);
@@ -18653,9 +18798,10 @@ function setupQuickDeviceSwitchDropdowns() {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'app-dropdown-action';
+            btn.disabled = selectEl.disabled;
 
             const isSelected = opt.value === selectEl.value;
-            const label = opt.textContent || opt.label || opt.value;
+            const label = opt.firstChild?.__i18nSrc || opt.textContent || opt.label || opt.value;
 
             btn.replaceChildren();
             if (isSelected) {
@@ -18699,6 +18845,46 @@ function setupQuickDeviceSwitchDropdowns() {
 
         appendMenuHeader(videoMenu, 'fas fa-video', 'Cameras');
         appendSelectOptions(videoMenu, videoSelect, 'No cameras found', rebuildVideoMenu);
+
+        if (!backgroundEffectsSection.hidden) {
+            appendMenuDivider(videoMenu);
+            const backgroundSection = document.createElement('div');
+            backgroundSection.id = 'videoMenuBackground';
+            backgroundSection.setAttribute('aria-busy', String(backgroundEffectsBusy));
+            backgroundSection.addEventListener('click', (event) => event.stopPropagation());
+            appendMenuHeader(backgroundSection, 'fas fa-image', 'Background');
+            appendSelectOptions(backgroundSection, backgroundEffectSelect, 'Background unavailable', rebuildVideoMenu);
+
+            if (backgroundEffectSelect.value === 'image') {
+                const chooseImageBtn = document.createElement('button');
+                chooseImageBtn.type = 'button';
+                chooseImageBtn.className = 'app-dropdown-action device-menu-action-btn';
+                chooseImageBtn.disabled = backgroundImageInput.disabled;
+                const uploadIcon = document.createElement('i');
+                uploadIcon.className = 'fas fa-upload';
+                uploadIcon.setAttribute('aria-hidden', 'true');
+                chooseImageBtn.appendChild(uploadIcon);
+                const chooseImageText = document.createTextNode(
+                    ` ${window.i18n?.t('Choose image', 'buttons') || 'Choose image'}`
+                );
+                chooseImageText.__i18nSrc = ' Choose image';
+                chooseImageBtn.appendChild(chooseImageText);
+                chooseImageBtn.addEventListener('click', () => backgroundImageInput.click());
+                backgroundSection.appendChild(chooseImageBtn);
+
+                const imageName = backgroundImage && backgroundImageInput.files[0]?.name;
+                if (imageName) {
+                    const filename = document.createElement('div');
+                    filename.className = 'device-menu-background-filename';
+                    filename.setAttribute('translate', 'no');
+                    filename.textContent = imageName;
+                    filename.title = imageName;
+                    backgroundSection.appendChild(filename);
+                }
+            }
+
+            videoMenu.appendChild(backgroundSection);
+        }
 
         // Add settings button
         appendMenuDivider(videoMenu);
@@ -18885,6 +19071,7 @@ function setupQuickDeviceSwitchDropdowns() {
 
     // Keep UI synced when settings panel changes device
     if (videoSelect) videoSelect.addEventListener('change', rebuildVideoMenu);
+    backgroundEffectSelect.addEventListener('background-effects-change', rebuildVideoMenu);
     if (audioInputSelect) audioInputSelect.addEventListener('change', rebuildAudioMenu);
     if (audioOutputSelect) audioOutputSelect.addEventListener('change', rebuildAudioMenu);
 
