@@ -536,6 +536,70 @@ describe('screen annotation laser pointer and color swatches', () => {
         overlay.canvas.dispatchEvent(new dom.window.MouseEvent('pointermove', { clientX, clientY }));
     }
 
+    it('reopens a collapsed toolbar without disabling the selected drawing tool', () => {
+        overlay.toolButtons.highlighter.click();
+        overlay.toolbar.querySelector('.video-drawing-close').click();
+        overlay.isToolbarCollapsed.should.be.true();
+        overlay.drawingButton.click();
+        overlay.isToolbarCollapsed.should.be.false();
+        overlay.isActive.should.be.true();
+        overlay.tool.should.equal('highlighter');
+        overlay.drawingButton.click();
+        overlay.isActive.should.be.false();
+    });
+
+    it('opens only one secondary panel and restores focus when Escape dismisses it', () => {
+        overlay.drawingButton.click();
+        const tools = overlay.toolbarPanels.get('tools');
+        const appearance = overlay.toolbarPanels.get('appearance');
+        tools.panel.hidden.should.be.true();
+        tools.button.click();
+        tools.panel.hidden.should.be.false();
+        tools.button.getAttribute('aria-expanded').should.equal('true');
+        tools.button.getAttribute('aria-controls').should.equal(tools.panel.id);
+        appearance.button.click();
+        tools.panel.hidden.should.be.true();
+        appearance.panel.hidden.should.be.false();
+        overlay.colorInput.focus();
+        overlay.colorInput.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        appearance.panel.hidden.should.be.true();
+        should(dom.window.document.activeElement).equal(appearance.button);
+        overlay.isActive.should.be.true();
+        appearance.button.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        overlay.isToolbarCollapsed.should.be.true();
+        overlay.drawingButton.getAttribute('aria-label').should.equal('Show annotation toolbar');
+    });
+
+    it('dismisses secondary tools after selection and when clicking outside', () => {
+        overlay.drawingButton.click();
+        const tools = overlay.toolbarPanels.get('tools');
+        tools.button.click();
+        overlay.toolButtons.arrow.click();
+        overlay.tool.should.equal('arrow');
+        tools.panel.hidden.should.be.true();
+        tools.button.classList.contains('video-drawing-tool-active').should.be.true();
+        tools.button.classList.contains('fa-arrow-right-long').should.be.true();
+        should(dom.window.document.activeElement).equal(tools.button);
+        tools.button.click();
+        overlay.canvas.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
+        tools.panel.hidden.should.be.true();
+    });
+
+    it('previews the current color and width and offers an explicit exit action', () => {
+        overlay.drawingButton.click();
+        overlay.setColor('#ff1744');
+        overlay.appearanceButton.firstChild.style.backgroundColor.should.equal('rgb(255, 23, 68)');
+        overlay.widthInput.value = '0.008';
+        overlay.widthInput.dispatchEvent(new dom.window.Event('input'));
+        overlay.width.should.equal(0.008);
+        overlay.widthPreview.style.height.should.equal('8px');
+        overlay.toolbarPanels.get('more').button.click();
+        overlay.toolbar.querySelector('[aria-label="Disable screen drawing"]').click();
+        overlay.isActive.should.be.false();
+        overlay.toolbarPanels.get('more').panel.hidden.should.be.true();
+        should(dom.window.document.activeElement).equal(overlay.drawingButton);
+    });
+
     it('follows hover without drawing and throttles updates to the latest position', () => {
         overlay.toolButtons.laser.click();
         move();
