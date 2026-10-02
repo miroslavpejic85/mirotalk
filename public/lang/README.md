@@ -27,7 +27,8 @@ opt-in via `auto` or `native`.
 Notes on behavior:
 
 - In `auto`/`native`, an in-room **Language** picker (Settings → Language) lists English
-  plus every language that has a native file, and switches **live without a page reload**.
+  plus every language registered in `LANG_DISPLAY` in [i18n.js](../js/i18n.js) with a native
+  file, and switches **live without a page reload**.
 - In `google`, the switcher is the Google Translate combo (English needs no translation, so
   the native picker is not shown).
 - The chosen language is remembered per browser (`localStorage`): `uiLanguageOverride` for
@@ -57,7 +58,11 @@ Notes on behavior:
     }
     ```
 
-3. Enable native translation and select the language, then open a room:
+3. Register the language in `LANG_DISPLAY` in [i18n.js](../js/i18n.js) with its flag and
+   native display name. A JSON file alone does **not** add a language to the picker.
+   For right-to-left languages, also add the code to `RTL_LANGS`.
+
+4. Enable native translation and select the language, then open a room:
 
     ```js
     // app/src/config.js
@@ -88,6 +93,8 @@ depending on where it appears (e.g. "Cancel" as a dialog button vs. a tooltip):
 
 - Keys must match the English source **exactly** (including punctuation and casing).
   Surrounding whitespace is ignored.
+- Preserve placeholders such as `{name}` and `{minutes}`, HTML entities, and keyboard
+  shortcuts in translated values.
 - Strings with inline dynamic values (counts, arbitrary names) are not translated and remain
   in English.
 - To exclude an element from translation, add `class="notranslate"`, `translate="no"`, or

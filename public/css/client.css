@@ -3832,13 +3832,13 @@ button {
     box-sizing: border-box;
     border-radius: 10px;
     background: var(--body-bg);
-    text-align: left;
+    text-align: start;
     color: white;
 }
 
 .inline-check-box > .toggle {
     flex-shrink: 0;
-    margin-left: auto;
+    margin-inline-start: auto;
 }
 
 /*--------------------------------------------------------------
@@ -4344,7 +4344,7 @@ button {
 .mySettingsTable td,
 .mySettingsTable th {
     padding: 10px;
-    text-align: left;
+    text-align: start;
     vertical-align: middle;
 }
 
@@ -4569,7 +4569,7 @@ button {
     border-collapse: collapse;
     margin: 20px 0;
     font-size: 16px;
-    text-align: left;
+    text-align: start;
     color: #fff;
     border-radius: 10px;
     background: var(--body-bg);
@@ -4595,7 +4595,8 @@ button {
 --------------------------------------------------------------*/
 
 .tab {
-    padding: 8px 18px 8px 8px;
+    padding: 8px;
+    padding-inline-end: 18px;
     overflow-x: hidden;
     overflow-y: auto;
     width: max-content;
@@ -4608,7 +4609,7 @@ button {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    border-right: var(--border);
+    border-inline-end: var(--border);
 }
 
 .settings-nav-label {
@@ -4669,7 +4670,7 @@ button {
         align-items: center;
         overflow-x: auto;
         overflow-y: hidden;
-        border-right: 0;
+        border-inline-end: 0;
         border-bottom: var(--border);
         border-radius: 10px;
     }
@@ -4721,7 +4722,7 @@ button {
     margin: 2px 3px;
     padding: 7px 11px;
     float: left;
-    text-align: left;
+    text-align: start;
     color: #fff;
     font-size: 1rem;
     border: var(--border);
@@ -4768,7 +4769,7 @@ button {
 .tabcontent button {
     margin-top: 10px;
     width: 100%;
-    text-align: left;
+    text-align: start;
 }
 
 .tabcontent button:hover {

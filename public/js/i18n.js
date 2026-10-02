@@ -43,8 +43,17 @@
         id: { flag: '🇮🇩', name: 'Bahasa Indonesia' },
         ko: { flag: '🇰🇷', name: '한국어' },
         tr: { flag: '🇹🇷', name: 'Türkçe' },
+        bn: { flag: '🇧🇩', name: 'বাংলা' },
+        ur: { flag: '🇵🇰', name: 'اردو' },
+        vi: { flag: '🇻🇳', name: 'Tiếng Việt' },
+        te: { flag: '🇮🇳', name: 'తెలుగు' },
+        mr: { flag: '🇮🇳', name: 'मराठी' },
+        ta: { flag: '🇮🇳', name: 'தமிழ்' },
+        sw: { flag: '🇹🇿', name: 'Kiswahili' },
+        fa: { flag: '🇮🇷', name: 'فارسی' },
     };
 
+    const RTL_LANGS = new Set(['ar', 'ur', 'fa']);
     const ATTR_KEYS = ['title', 'placeholder', 'aria-label', 'data-tippy-content'];
 
     // Elements whose text content must never be translated.
@@ -391,8 +400,15 @@
             }
         }
 
+        updateDocumentLanguage();
         translateTree(document.body);
         refreshTooltips();
+    }
+
+    function updateDocumentLanguage() {
+        const lang = state.native ? state.lang : 'en';
+        document.documentElement.lang = lang;
+        document.documentElement.dir = RTL_LANGS.has(lang) ? 'rtl' : 'ltr';
     }
 
     function getOverride() {
@@ -562,6 +578,8 @@
         if (state.native) console.log(`i18n: native translation active for "${lang}" (mode: ${mode})`);
 
         await whenDomReady();
+
+        if (!googleAllowed) updateDocumentLanguage();
 
         if (state.native) {
             // Native human translation: hooks, static pass, picker, observer.
