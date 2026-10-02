@@ -204,6 +204,10 @@ const lastRoomContainer = document.getElementById('lastRoomContainer');
 const lastRoom = document.getElementById('lastRoom');
 const lastRoomName = window.localStorage.lastRoom ? window.localStorage.lastRoom : '';
 
+if (lastRoomContainer) {
+    lastRoomContainer.style.display = lastRoomName ? '' : 'none';
+}
+
 if (lastRoomContainer && lastRoom && lastRoomName) {
     lastRoom.setAttribute('href', '/join/' + lastRoomName);
     lastRoom.innerText = lastRoomName;
