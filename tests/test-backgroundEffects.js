@@ -104,6 +104,24 @@ describe('camera background effects', () => {
         assert.equal(onError.callCount, 1);
     });
 
+    it('does not request a frame when the error handler stops processing', async () => {
+        await effects.start(effects.input);
+        output.requestFrame.resetHistory();
+        effects.mode = 'blur';
+        effects.segmenter = {
+            close() {},
+            segmentForVideo() {
+                throw new Error('GPU failed');
+            },
+        };
+        effects.onError = () => effects.stop(false);
+        effects.render((effects.lastFrame || 0) + 1000);
+        assert.equal(effects.stopped, true);
+        assert.equal(output.stop.callCount, 1);
+        assert.equal(output.requestFrame.callCount, 0);
+        assert.equal(clock.countTimers(), 0);
+    });
+
     it('cleans up output without stopping the camera when switching off', async () => {
         await effects.start(effects.input);
         effects.stop(false);
