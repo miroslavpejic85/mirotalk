@@ -742,19 +742,21 @@ body {
     background: var(--btns-bg-color);
     border: none !important;
     border-radius: 10px;
-    transition: all 0.3s ease-in-out;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
 }
 
 /* Active state for chat / participants toolbar buttons (theme-aware) */
 #bottomButtons #chatRoomBtn.is-active,
 #bottomButtons #participantsBtn.is-active {
-    background: color-mix(in srgb, var(--dd-color, #4678f9) 18%, transparent) !important;
+    background: color-mix(in srgb, var(--dd-color, #4678f9) 18%, var(--btns-bg-color)) !important;
     box-shadow: inset 0 0 0 1px var(--dd-color, #4678f9);
     color: var(--dd-color, #4678f9) !important;
 }
 #bottomButtons #chatRoomBtn.is-active:hover,
 #bottomButtons #participantsBtn.is-active:hover {
-    background: color-mix(in srgb, var(--dd-color, #4678f9) 28%, transparent) !important;
+    background: color-mix(in srgb, var(--dd-color, #4678f9) 28%, var(--btns-bg-color)) !important;
 }
 
 /* Quick device picker (Start Audio/Video) */
@@ -1141,7 +1143,35 @@ body {
 
 #bottomButtons button:hover {
     background: var(--body-bg);
-    transform: var(--btns-hover-scale);
+    background: color-mix(in srgb, var(--btns-bg-color) 88%, var(--btn-bar-bg-color));
+    transform: none;
+}
+
+#bottomButtons button:focus-visible {
+    outline: 2px solid var(--dd-color, #4678f9);
+    outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #bottomButtons .device-dropdown-toggle:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--btns-bg-color) 75%, var(--btn-bar-bg-color));
+    }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    #bottomButtons .device-dropdown-toggle i {
+        transition: transform 0.15s ease;
+    }
+
+    #bottomButtons .device-dropdown-toggle:hover:not(:disabled) i {
+        transform: translateY(-2px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #bottomButtons button {
+        transition: none;
+    }
 }
 
 #participantsBtn {
