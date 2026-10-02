@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.52
+ * @version 2.0.60
  *
  */
 
@@ -688,6 +688,9 @@ let localScreenDisplayStream; // raw getDisplayMedia stream (may include audio)
 let screenShareAudioContext; // AudioContext used to mix screen audio + microphone
 let localAudioMediaStream; // my microphone
 let noiseProcessor = null; // RNNoise audio processing
+let noiseSuppressionRequest = 0;
+let noiseSuppressionConstraints = Promise.resolve();
+let microphoneRequest = 0;
 let peerScreenMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_screen
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
 let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed by peer_id_audio
@@ -2724,6 +2727,7 @@ async function changeLocalCamera(deviceId) {
  * @param {string} deviceId
  */
 async function changeLocalMicrophone(deviceId) {
+    const request = ++microphoneRequest;
     // If noise suppression is active, localAudioMediaStream may be the processed stream.
     // Stop the RNNoise pipeline first and stop the *original* microphone tracks.
     const oldMicStream = noiseProcessor?.originalStream || noiseProcessor?.mediaStream || localAudioMediaStream;
@@ -2741,16 +2745,20 @@ async function changeLocalMicrophone(deviceId) {
     await navigator.mediaDevices
         .getUserMedia(audioConstraints)
         .then(async (micStream) => {
+            if (request !== microphoneRequest) {
+                await stopAudioTracks(micStream);
+                return;
+            }
+            micStream.getAudioTracks().forEach((track) => {
+                track.enabled = myAudioStatus;
+            });
             myAudio.srcObject = micStream;
             localAudioMediaStream = micStream;
             logStreamSettingsInfo('Success attached local microphone stream', micStream);
             getMicrophoneVolumeIndicator(micStream);
 
             if (lsSettings.mic_noise_suppression && buttons.settings.customNoiseSuppression) {
-                const ok = await enableNoiseSuppression();
-                if (!ok) {
-                    await refreshMyStreamToPeers(micStream, true);
-                }
+                await enableNoiseSuppression();
             } else {
                 await refreshMyStreamToPeers(micStream, true);
             }
@@ -2834,7 +2842,10 @@ function handleRNNoiseNotSupported() {
  * Returns true on success, false on failure.
  */
 async function enableNoiseSuppression() {
-    if (!localAudioMediaStream || localAudioMediaStream.getAudioTracks().length === 0) {
+    const originalStream = noiseProcessor?.originalStream || localAudioMediaStream;
+    stopNoiseSuppressionPipeline();
+    const request = noiseSuppressionRequest;
+    if (!originalStream || !originalStream.getAudioTracks().some((track) => track.readyState !== 'ended')) {
         console.warn('enableNoiseSuppression: no local audio stream available.');
         return false;
     }
@@ -2843,55 +2854,104 @@ async function enableNoiseSuppression() {
     if (typeof RNNoiseProcessor === 'undefined' || !RNNoiseProcessor.isSupported()) {
         console.warn('RNNoise: not available or not supported on this device, skipping.');
         handleRNNoiseNotSupported();
-        return false;
+        return fallbackNoiseSuppression(null, request);
     }
 
-    // Reset any existing pipeline to avoid keeping stale/ended streams.
-    stopNoiseSuppressionPipeline();
-
+    let processor;
     try {
-        noiseProcessor = new RNNoiseProcessor();
-        // Keep a reference to the raw microphone stream for safe restore.
-        noiseProcessor.originalStream = localAudioMediaStream;
-
-        const processedStream = await noiseProcessor.startProcessing(localAudioMediaStream);
-
-        if (!processedStream || processedStream.getAudioTracks().length === 0) {
-            console.warn('Noise suppression returned no usable stream, falling back to raw mic.');
-            stopNoiseSuppressionPipeline();
-            await refreshMyStreamToPeers(localAudioMediaStream, true);
-            toastMessage(
-                'warning',
-                'Noise suppression is not supported on this device. Using default WebRTC noise suppression instead.'
+        processor = new RNNoiseProcessor();
+        noiseProcessor = processor;
+        processor.originalStream = originalStream;
+        processor.onError = () => {
+            fallbackNoiseSuppression(processor, request).catch((error) =>
+                console.error('RNNoise fallback error:', error)
             );
+        };
+        const audioTrack = originalStream.getAudioTracks()[0];
+        await setMicrophoneNoiseSuppression(audioTrack, false, () => request === noiseSuppressionRequest);
+        if (request !== noiseSuppressionRequest || noiseProcessor !== processor) return false;
+
+        const processedStream = await processor.startProcessing(originalStream);
+        if (request !== noiseSuppressionRequest || noiseProcessor !== processor) {
+            processor.stopProcessing();
             return false;
         }
 
-        noiseProcessor.toggleNoiseSuppression();
+        if (!processedStream || processedStream.getAudioTracks().length === 0) {
+            console.warn('Noise suppression returned no usable stream, falling back to raw mic.');
+            return fallbackNoiseSuppression(processor, request);
+        }
+
+        processedStream.getAudioTracks().forEach((track) => {
+            track.enabled = myAudioStatus;
+        });
+        originalStream.getAudioTracks().forEach((track) => {
+            track.enabled = true;
+        });
+        processor.processedStream = processedStream;
+        processor.toggleNoiseSuppression();
         localAudioMediaStream = processedStream;
-        await refreshMyStreamToPeers(localAudioMediaStream, true);
-        return true;
+        await refreshMyStreamToPeers(processedStream, true, () => request === noiseSuppressionRequest);
+        return request === noiseSuppressionRequest && noiseProcessor === processor;
     } catch (err) {
         console.error('enableNoiseSuppression error:', err);
-        stopNoiseSuppressionPipeline();
-        await refreshMyStreamToPeers(localAudioMediaStream, true);
-        return false;
+        return fallbackNoiseSuppression(processor || null, request);
     }
+}
+
+function setMicrophoneNoiseSuppression(track, enabled, isCurrent) {
+    const operation = noiseSuppressionConstraints
+        .catch(() => {})
+        .then(async () => {
+            if (!isCurrent() || !track?.applyConstraints) return false;
+            if (!enabled && !track.getSettings?.().noiseSuppression) return false;
+            await track.applyConstraints({ ...track.getConstraints?.(), noiseSuppression: enabled });
+            return track.getSettings?.().noiseSuppression === enabled;
+        });
+    noiseSuppressionConstraints = operation;
+    return operation;
+}
+
+async function fallbackNoiseSuppression(processor, request) {
+    if (request !== noiseSuppressionRequest || noiseProcessor !== processor) return false;
+    stopNoiseSuppressionPipeline();
+    const fallbackRequest = noiseSuppressionRequest;
+    const stream = localAudioMediaStream;
+    const track = stream?.getAudioTracks()[0];
+    lsSettings.mic_noise_suppression = false;
+    lS.setSettings(lsSettings);
+    syncNoiseSuppressionUI();
+    let nativeSuppressionEnabled = false;
+    try {
+        nativeSuppressionEnabled = await setMicrophoneNoiseSuppression(
+            track,
+            true,
+            () => fallbackRequest === noiseSuppressionRequest
+        );
+    } catch (error) {
+        console.warn('Native noise suppression fallback failed:', error);
+    }
+    if (fallbackRequest !== noiseSuppressionRequest || stream !== localAudioMediaStream) return false;
+    if (track) track.enabled = myAudioStatus;
+    await refreshMyStreamToPeers(stream, true, () => fallbackRequest === noiseSuppressionRequest);
+    if (fallbackRequest !== noiseSuppressionRequest) return false;
+    toastMessage(
+        'warning',
+        nativeSuppressionEnabled
+            ? 'Noise suppression is not supported on this device. Using default WebRTC noise suppression instead.'
+            : 'Noise suppression could not be enabled. Using the microphone without noise suppression.'
+    );
+    return false;
 }
 
 /**
  * Disable RNNoise audio processing for noise suppression
  */
 async function disableNoiseSuppression(restoreOriginalStream = true) {
-    if (noiseProcessor) {
-        const originalStream = noiseProcessor.originalStream || noiseProcessor.mediaStream;
-        if (restoreOriginalStream && originalStream) {
-            localAudioMediaStream = originalStream;
-        }
-        await refreshMyStreamToPeers(localAudioMediaStream, true);
-        stopNoiseSuppressionPipeline();
-    } else {
-        await refreshMyStreamToPeers(localAudioMediaStream, true);
+    stopNoiseSuppressionPipeline();
+    const request = noiseSuppressionRequest;
+    if (restoreOriginalStream) {
+        await refreshMyStreamToPeers(localAudioMediaStream, true, () => request === noiseSuppressionRequest);
     }
 }
 
@@ -2899,15 +2959,27 @@ async function disableNoiseSuppression(restoreOriginalStream = true) {
  * Stop RNNoise audio processing pipeline and release all references.
  */
 function stopNoiseSuppressionPipeline() {
+    noiseSuppressionRequest++;
     if (!noiseProcessor) return;
+    const processor = noiseProcessor;
+    noiseProcessor = null;
+    const originalStream = processor.originalStream || processor.mediaStream;
+    if (
+        originalStream &&
+        (localAudioMediaStream === processor.processedStream || localAudioMediaStream === originalStream)
+    ) {
+        localAudioMediaStream = originalStream;
+        originalStream.getAudioTracks().forEach((track) => {
+            track.enabled = myAudioStatus;
+        });
+    }
     try {
-        noiseProcessor.stopProcessing();
+        processor.stopProcessing();
     } catch (err) {
         console.warn('stopNoiseSuppressionPipeline: cleanup error ignored', err);
     }
     // Drop the reference to the original mic stream so it can be GC'd.
-    noiseProcessor.originalStream = null;
-    noiseProcessor = null;
+    processor.originalStream = null;
 }
 
 /**
@@ -2932,7 +3004,10 @@ async function applyNoiseSuppression(enabled) {
         lsSettings.mic_noise_suppression = true;
         lS.setSettings(lsSettings);
 
-        const ok = await enableNoiseSuppression();
+        const operation = enableNoiseSuppression();
+        const request = noiseSuppressionRequest;
+        const ok = await operation;
+        if (request !== noiseSuppressionRequest) return lsSettings.mic_noise_suppression;
         if (!ok) {
             lsSettings.mic_noise_suppression = false;
             lS.setSettings(lsSettings);
@@ -2942,7 +3017,10 @@ async function applyNoiseSuppression(enabled) {
     } else {
         lsSettings.mic_noise_suppression = false;
         lS.setSettings(lsSettings);
-        await disableNoiseSuppression(true);
+        const operation = disableNoiseSuppression(true);
+        const request = noiseSuppressionRequest;
+        await operation;
+        if (request !== noiseSuppressionRequest) return lsSettings.mic_noise_suppression;
         toastMessage('info', 'Noise suppression disabled');
     }
 
@@ -10274,7 +10352,7 @@ function toggleFullScreen() {
  * @param {MediaStream} stream - Media stream (audio/video) to refresh to peers.
  * @param {boolean} localAudioTrackChange - Indicates whether there's a change in the local audio track (default false).
  */
-async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
+async function refreshMyStreamToPeers(stream, localAudioTrackChange = false, isCurrent = null) {
     if (!thereArePeerConnections()) return;
 
     // Enable/disable local audio as requested by caller
@@ -10354,6 +10432,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false) {
         }
 
         // Audio track management
+        if (isCurrent && !isCurrent()) return;
         if (audioTrack) {
             if (audioSender) {
                 await audioSender.replaceTrack(audioTrack);
@@ -17863,7 +17942,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.52',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.60',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

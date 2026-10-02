@@ -20,11 +20,9 @@ class WasmModuleInitializer {
             if (this.Module.ready) {
                 await this.Module.ready;
             }
-            this.messagePort.postMessage({ type: 'wasm-ready' });
             return this.Module;
         } catch (error) {
             console.error('Sync module initialization error:', error);
-            this.messagePort.postMessage({ type: 'wasm-error', error: error.message });
             throw error;
         }
     }
@@ -41,7 +39,12 @@ class RNNoiseContextManager {
         this.rnnoiseContext = null;
         this.wasmPcmInput = null;
         this.wasmPcmInputF32Index = null;
-        this.setupWasm();
+        try {
+            this.setupWasm();
+        } catch (error) {
+            this.destroy();
+            throw error;
+        }
     }
 
     setupWasm() {
@@ -87,6 +90,7 @@ class RNNoiseContextManager {
             }
         } catch (error) {
             console.error('Frame processing failed:', error);
+            messagePort.postMessage({ type: 'wasm-error', error: error.message });
             for (let i = 0; i < RNNOISE_FRAME_SIZE; i++) {
                 processedBuffer[i] = frameBuffer[i];
             }
@@ -190,15 +194,19 @@ class RNNoiseProcessor extends AudioWorkletProcessor {
 
     setupMessageHandler() {
         this.port.onmessage = async (event) => {
+            if (this._destroyed) return;
             const { type, jsContent, enabled } = event.data;
             switch (type) {
                 case 'sync-module':
                     try {
                         const module = await this.wasmInitializer.initSyncModule(jsContent);
+                        if (this._destroyed) return;
                         this.contextManager = new RNNoiseContextManager(module);
                         this.initialized = true;
+                        this.port.postMessage({ type: 'wasm-ready' });
                     } catch (error) {
                         console.error('Failed to initialize sync module:', error);
+                        if (!this._destroyed) this.port.postMessage({ type: 'wasm-error', error: error.message });
                     }
                     break;
                 case 'enable':
@@ -215,6 +223,7 @@ class RNNoiseProcessor extends AudioWorkletProcessor {
     }
 
     process(inputs, outputs, parameters) {
+        if (this._destroyed) return false;
         const input = inputs[0]?.[0];
         const output = outputs[0]?.[0];
         if (!output) return true;
@@ -260,13 +269,14 @@ class RNNoiseProcessor extends AudioWorkletProcessor {
 
     destroy() {
         if (this._destroyed) return;
+        this._destroyed = true;
+        this.initialized = false;
+        this.enabled = false;
 
         if (this.contextManager) {
             this.contextManager.destroy();
             this.contextManager = null;
         }
-
-        this._destroyed = true;
     }
 }
 
