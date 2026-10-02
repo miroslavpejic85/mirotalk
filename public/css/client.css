@@ -443,11 +443,15 @@ body {
 }
 
 .init-user select {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
     display: block;
     width: 100%;
+    min-width: 0;
     margin-top: 15px;
-    padding: 10px;
-    background: var(--select-bg) !important;
+    padding: 0 40px 0 10px;
+    background-color: var(--select-bg) !important;
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
@@ -459,9 +463,18 @@ body {
         box-shadow 0.2s ease;
 }
 
+.init-user select,
+.init-user select:hover,
+.init-user select:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+}
+
 .init-user select:hover {
     border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.08) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .init-user select:focus {
