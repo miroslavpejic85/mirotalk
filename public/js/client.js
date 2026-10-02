@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.51
+ * @version 2.0.52
  *
  */
 
@@ -419,6 +419,11 @@ const backgroundEffectSelect = getId('backgroundEffectSelect');
 const backgroundImageInput = getId('backgroundImageInput');
 const backgroundEffectsSection = getId('backgroundEffectsSection');
 const backgroundEffectLoading = getId('backgroundEffectLoading');
+const initBackgroundEffectSelect = getId('initBackgroundEffectSelect');
+const initBackgroundImageInput = getId('initBackgroundImageInput');
+const initBackgroundEffectsSection = getId('initBackgroundEffectsSection');
+const initBackgroundEffectLoading = getId('initBackgroundEffectLoading');
+const initBackgroundError = getId('initBackgroundError');
 let cameraEffects = null;
 let backgroundImage = null;
 let backgroundEffectsBusy = false;
@@ -2090,6 +2095,7 @@ async function whoAreYou() {
         initExitMeeting();
     };
 
+    setupBackgroundControls();
     await loadLocalStorage();
 
     // detect low quality bluetooth headset
@@ -2377,13 +2383,47 @@ async function checkInitConfig() {
     }
 }
 
+function setupBackgroundControls() {
+    const supported = BackgroundEffects.supported();
+    backgroundEffectsSection.hidden = !supported;
+    initBackgroundEffectsSection.hidden = !supported || !useVideo || !buttons.main.showVideoBtn;
+    backgroundEffectSelect.onchange = changeCameraBackground;
+    initBackgroundEffectSelect.onchange = changeCameraBackground;
+    backgroundImageInput.onchange = loadCameraBackgroundImage;
+    initBackgroundImageInput.onchange = loadCameraBackgroundImage;
+    updateBackgroundControls();
+}
+
 function updateBackgroundControls() {
-    backgroundEffectSelect.disabled = backgroundEffectsBusy;
-    backgroundImageInput.disabled = backgroundEffectsBusy;
-    backgroundImageInput.hidden = backgroundEffectSelect.value !== 'image';
-    backgroundEffectLoading.hidden = !backgroundEffectsBusy;
-    backgroundEffectsSection.setAttribute('aria-busy', String(backgroundEffectsBusy));
+    initBackgroundEffectSelect.value = backgroundEffectSelect.value;
+    const disabled = backgroundEffectsBusy || !useVideo || !myVideoStatus;
+    for (const select of [backgroundEffectSelect, initBackgroundEffectSelect]) {
+        select.disabled = disabled;
+    }
+    for (const input of [backgroundImageInput, initBackgroundImageInput]) {
+        input.disabled = disabled;
+        input.hidden = backgroundEffectSelect.value !== 'image';
+    }
+    for (const loading of [backgroundEffectLoading, initBackgroundEffectLoading]) {
+        loading.hidden = !backgroundEffectsBusy;
+    }
+    for (const section of [backgroundEffectsSection, initBackgroundEffectsSection]) {
+        section.setAttribute('aria-busy', String(backgroundEffectsBusy));
+    }
     backgroundEffectSelect.dispatchEvent(new Event('background-effects-change'));
+}
+
+function setBackgroundError(message = '') {
+    initBackgroundError.textContent = '';
+    initBackgroundError.hidden = true;
+    if (!message) return;
+    if (Swal.getPopup()?.contains(initUser)) {
+        initBackgroundError.textContent = window.i18n?.t(message, 'toasts') || message;
+        initBackgroundError.firstChild.__i18nSrc = message;
+        initBackgroundError.hidden = false;
+        return;
+    }
+    userLog('warning', message);
 }
 
 function attachCameraBackgroundStream(stream, previousStream) {
@@ -2397,6 +2437,7 @@ function attachCameraBackgroundStream(stream, previousStream) {
 }
 
 async function prepareCameraBackground(stream) {
+    setBackgroundError();
     cameraEffects?.stop(false);
     cameraEffects = null;
     const mode = backgroundEffectSelect.value;
@@ -2411,7 +2452,7 @@ async function prepareCameraBackground(stream) {
         backgroundEffectSelect.value = 'off';
         attachCameraBackgroundStream(rawStream, previousStream);
         updateBackgroundControls();
-        userLog('warning', 'Background effects unavailable. Continuing without effects.');
+        setBackgroundError('Background effects unavailable. Continuing without effects.');
         try {
             await refreshMyStreamToPeers(rawStream);
         } catch (err) {
@@ -2430,7 +2471,7 @@ async function prepareCameraBackground(stream) {
             cameraEffects = null;
             backgroundEffectSelect.value = 'off';
             updateBackgroundControls();
-            userLog('warning', 'Background effects unavailable. Continuing without effects.');
+            setBackgroundError('Background effects unavailable. Continuing without effects.');
             console.error('Background effects error', error);
         }
         return stream;
@@ -2446,27 +2487,31 @@ async function applyCameraBackground() {
     await refreshMyStreamToPeers(localVideoMediaStream);
 }
 
-async function changeCameraBackground() {
+async function changeCameraBackground(event) {
     if (backgroundEffectsBusy) return;
+    setBackgroundError();
+    if (event?.target === initBackgroundEffectSelect) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
     backgroundEffectsBusy = true;
     updateBackgroundControls();
     try {
         await applyCameraBackground();
     } catch (error) {
         console.error('Unable to change camera background', error);
-        userLog('warning', 'Unable to change camera background.');
+        setBackgroundError('Unable to change camera background.');
     } finally {
         backgroundEffectsBusy = false;
         updateBackgroundControls();
     }
 }
 
-async function loadCameraBackgroundImage() {
-    const file = backgroundImageInput.files[0];
+async function loadCameraBackgroundImage(event) {
+    const input = event?.target === initBackgroundImageInput ? initBackgroundImageInput : backgroundImageInput;
+    const file = input.files[0];
     if (!file || backgroundEffectsBusy) return;
+    setBackgroundError();
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
-        backgroundImageInput.value = '';
-        userLog('warning', 'Choose a PNG, JPEG or WebP image up to 10 MB.');
+        input.value = '';
+        setBackgroundError('Choose a PNG, JPEG or WebP image up to 10 MB.');
         return;
     }
     backgroundEffectsBusy = true;
@@ -2483,7 +2528,7 @@ async function loadCameraBackgroundImage() {
         await applyCameraBackground();
     } catch (error) {
         console.error('Unable to load background image', error);
-        userLog('warning', 'Unable to load background image.');
+        setBackgroundError('Unable to load background image.');
     } finally {
         URL.revokeObjectURL(url);
         backgroundEffectsBusy = false;
@@ -8614,10 +8659,7 @@ function setupMySettings() {
         refreshLsDevices();
     });
     // select video quality
-    backgroundEffectsSection.hidden = !BackgroundEffects.supported();
-    backgroundEffectSelect.onchange = changeCameraBackground;
-    backgroundImageInput.onchange = loadCameraBackgroundImage;
-    updateBackgroundControls();
+    setupBackgroundControls();
 
     videoQualitySelect.addEventListener('change', async (e) => {
         await setLocalVideoQuality();
@@ -9713,6 +9755,7 @@ async function handleVideo(e, init, force = null) {
 
     myVideoStatus = videoStatus;
 
+    updateBackgroundControls();
     const videoTrack = getVideoTrack(localVideoMediaStream);
     if (videoTrack) {
         videoTrack.enabled = videoStatus;
@@ -17820,7 +17863,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.51',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.52',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

@@ -343,6 +343,7 @@ body {
 
 .init-video-container {
     position: relative;
+    box-sizing: border-box;
     width: 100%;
     margin-right: 10px;
 }
@@ -361,11 +362,69 @@ body {
 .init-video-container video {
     z-index: 0;
     position: relative;
+    max-width: 100%;
     height: 240px;
 }
 
 .initComands {
     width: 100%;
+    min-width: 0;
+}
+
+#initBackgroundEffectsSection {
+    margin-top: 15px;
+    text-align: left;
+}
+
+#initBackgroundEffectsSection select {
+    margin-top: 0;
+    padding-left: 36px;
+    padding-right: 44px;
+}
+
+.init-background-select {
+    position: relative;
+}
+
+.init-background-select > i,
+#initBackgroundEffectLoading {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--dd-color, #fff);
+    pointer-events: none;
+}
+
+.init-background-select > i {
+    left: 12px;
+}
+
+#initBackgroundEffectLoading {
+    right: 30px;
+}
+
+#initBackgroundError {
+    margin: 10px 0 0;
+    color: var(--dd-color, #fff);
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+}
+
+@media screen and (min-width: 1025px) {
+    .init-user {
+        align-items: center;
+    }
+    .init-video-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .init-video-container video {
+        width: auto;
+        height: auto;
+        max-height: 240px;
+        object-fit: contain;
+    }
 }
 
 @media screen and (max-width: 1024px) {
@@ -4307,11 +4366,16 @@ button {
 
 #backgroundEffectsSection[hidden],
 #backgroundEffectLoading[hidden],
-#backgroundImageInput[hidden] {
+#backgroundImageInput[hidden],
+#initBackgroundEffectsSection[hidden],
+#initBackgroundEffectLoading[hidden],
+#initBackgroundImageInput[hidden],
+#initBackgroundError[hidden] {
     display: none;
 }
 
-#mySettings #backgroundImageInput {
+#mySettings #backgroundImageInput,
+#initBackgroundImageInput {
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
@@ -4327,7 +4391,8 @@ button {
     cursor: pointer;
 }
 
-#mySettings #backgroundImageInput::file-selector-button {
+#mySettings #backgroundImageInput::file-selector-button,
+#initBackgroundImageInput::file-selector-button {
     margin-right: 12px;
     padding: 10px 14px;
     border: var(--border);
@@ -4338,11 +4403,13 @@ button {
     cursor: pointer;
 }
 
-#mySettings #backgroundImageInput:hover::file-selector-button {
+#mySettings #backgroundImageInput:hover::file-selector-button,
+#initBackgroundImageInput:hover::file-selector-button {
     background: var(--tab-btn-active);
 }
 
-#mySettings #backgroundImageInput:focus-visible {
+#mySettings #backgroundImageInput:focus-visible,
+#initBackgroundImageInput:focus-visible {
     outline: 2px solid var(--dd-color, #fff);
     outline-offset: 3px;
     border-radius: 8px;

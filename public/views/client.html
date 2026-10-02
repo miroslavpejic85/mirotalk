@@ -137,6 +137,37 @@
                 <button id="initUsernameEmojiButton" class="fas fa-smile"></button>
                 <button id="initExitBtn" class="fas fa-sign-out-alt red"></button>
                 <select id="initVideoSelect" class="form-select text-light bg-dark"></select>
+                <div id="initBackgroundEffectsSection" hidden>
+                    <div class="init-background-select">
+                        <i class="fas fa-image" aria-hidden="true"></i>
+                        <select
+                            id="initBackgroundEffectSelect"
+                            class="form-select text-light bg-dark"
+                            aria-label="Background"
+                            title="Background"
+                        >
+                            <option value="off">Background: Off</option>
+                            <option value="blur">Background: Blur</option>
+                            <option value="image">Background: Image</option>
+                        </select>
+                        <span
+                            id="initBackgroundEffectLoading"
+                            role="status"
+                            aria-label="Loading background effect"
+                            hidden
+                        >
+                            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <input
+                        id="initBackgroundImageInput"
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        aria-label="Background image"
+                        hidden
+                    />
+                    <p id="initBackgroundError" role="alert" hidden></p>
+                </div>
                 <select id="initMicrophoneSelect" class="form-select text-light bg-dark"></select>
                 <select id="initSpeakerSelect" class="form-select text-light bg-dark"></select>
             </div>

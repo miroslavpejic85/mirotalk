@@ -163,6 +163,9 @@ describe('client camera background integration', () => {
             }
         }
         class BackgroundEffects {
+            static supported() {
+                return true;
+            }
             constructor(onError) {
                 this.onError = onError;
                 this.stop = sinon.spy((stopCamera = true) => {
@@ -190,6 +193,16 @@ describe('client camera background integration', () => {
             backgroundImageInput: {},
             backgroundEffectLoading: {},
             backgroundEffectsSection: { setAttribute() {} },
+            initBackgroundEffectSelect: { value: 'off' },
+            initBackgroundImageInput: {},
+            initBackgroundEffectLoading: {},
+            initBackgroundEffectsSection: { setAttribute() {} },
+            initBackgroundError: { textContent: '', hidden: true, firstChild: {} },
+            window: {},
+            initUser: {},
+            Swal: { getPopup: sinon.stub().returns(null) },
+            buttons: { main: { showVideoBtn: true } },
+            myVideoStatus: true,
             localVideoMediaStream: originalStream,
             localScreenMediaStream: new MediaStream([{ kind: 'video', id: 'screen' }]),
             initStream: originalStream,
@@ -208,10 +221,14 @@ describe('client camera background integration', () => {
         });
         const source = fs.readFileSync(path.join(__dirname, '../public/js/client.js'), 'utf8');
         for (const name of [
+            'setupBackgroundControls',
             'updateBackgroundControls',
+            'setBackgroundError',
             'attachCameraBackgroundStream',
             'prepareCameraBackground',
             'applyCameraBackground',
+            'changeCameraBackground',
+            'loadCameraBackgroundImage',
             'stopVideoTracks',
             'setLocalMaxFps',
         ]) {
@@ -240,6 +257,114 @@ describe('client camera background integration', () => {
         context.updateBackgroundControls();
         assert.equal(context.backgroundEffectSelect.disabled, false);
         assert.equal(context.backgroundEffectSelect.dispatchEvent.callCount, 2);
+    });
+
+    it('connects pre-join controls and hides them when effects are unsupported', () => {
+        context.setupBackgroundControls();
+        assert.equal(context.initBackgroundEffectsSection.hidden, false);
+        assert.equal(context.initBackgroundEffectSelect.onchange, context.changeCameraBackground);
+        assert.equal(context.initBackgroundImageInput.onchange, context.loadCameraBackgroundImage);
+        context.BackgroundEffects.supported = () => false;
+        context.setupBackgroundControls();
+        assert.equal(context.initBackgroundEffectsSection.hidden, true);
+        assert.equal(context.backgroundEffectsSection.hidden, true);
+    });
+
+    it('applies the pre-join selection to both previews and retains it for the room', async () => {
+        context.initBackgroundEffectSelect.value = 'blur';
+        await context.changeCameraBackground({ target: context.initBackgroundEffectSelect });
+        assert.equal(context.backgroundEffectSelect.value, 'blur');
+        assert.equal(context.initStream.getVideoTracks()[0], output);
+        assert.equal(context.initVideo.srcObject, context.localVideoMediaStream);
+        assert.equal(context.myVideo.srcObject, context.localVideoMediaStream);
+        assert.equal(processors[0].setMode.firstCall.args[0], 'blur');
+        assert.equal(context.backgroundEffectsBusy, false);
+        context.setupBackgroundControls();
+        assert.equal(context.initBackgroundEffectSelect.value, 'blur');
+        assert.equal(processors.length, 1);
+    });
+
+    it('syncs room selection, loading and camera-off states to pre-join controls', () => {
+        context.backgroundEffectSelect.value = 'image';
+        context.backgroundEffectsBusy = true;
+        context.updateBackgroundControls();
+        assert.equal(context.initBackgroundEffectSelect.value, 'image');
+        assert.equal(context.initBackgroundImageInput.hidden, false);
+        assert.equal(context.initBackgroundEffectSelect.disabled, true);
+        assert.equal(context.initBackgroundEffectLoading.hidden, false);
+        context.backgroundEffectsBusy = false;
+        context.myVideoStatus = false;
+        context.updateBackgroundControls();
+        assert.equal(context.initBackgroundEffectSelect.disabled, true);
+        assert.equal(context.initBackgroundImageInput.disabled, true);
+        context.myVideoStatus = true;
+        context.updateBackgroundControls();
+        assert.equal(context.initBackgroundEffectSelect.disabled, false);
+        assert.equal(context.initBackgroundEffectLoading.hidden, true);
+    });
+
+    it('validates images selected from the pre-join picker', async () => {
+        context.initBackgroundImageInput.files = [{ type: 'text/plain', size: 1 }];
+        context.initBackgroundImageInput.value = 'invalid.txt';
+        await context.loadCameraBackgroundImage({ target: context.initBackgroundImageInput });
+        assert.equal(context.initBackgroundImageInput.value, '');
+        assert.equal(context.userLog.callCount, 1);
+        assert.equal(processors.length, 0);
+    });
+
+    it('shows invalid image warnings inline without replacing the pre-join popup', async () => {
+        const popup = { contains: sinon.stub().withArgs(context.initUser).returns(true) };
+        context.Swal.getPopup.returns(popup);
+        context.initBackgroundImageInput.files = [{ type: 'text/plain', size: 1 }];
+        await context.loadCameraBackgroundImage({ target: context.initBackgroundImageInput });
+        assert.equal(context.initBackgroundError.hidden, false);
+        assert.match(context.initBackgroundError.textContent, /Choose a PNG/);
+        assert.equal(context.userLog.callCount, 0);
+        assert.equal(context.Swal.getPopup(), popup);
+    });
+
+    it('keeps model startup failures inline and clears the warning on retry', async () => {
+        context.Swal.getPopup.returns({ contains: () => true });
+        context.BackgroundEffects.prototype.start = async () => {
+            throw new Error('Model unavailable');
+        };
+        context.backgroundEffectSelect.value = 'blur';
+        const stream = await context.prepareCameraBackground(originalStream);
+        assert.equal(stream, originalStream);
+        assert.equal(context.backgroundEffectSelect.value, 'off');
+        assert.equal(context.initBackgroundError.hidden, false);
+        assert.match(context.initBackgroundError.textContent, /Continuing without effects/);
+        assert.equal(context.userLog.callCount, 0);
+        await context.changeCameraBackground();
+        assert.equal(context.initBackgroundError.hidden, true);
+        assert.equal(context.initBackgroundError.textContent, '');
+    });
+
+    it('shows pre-join segmentation failures inline while restoring the camera', async () => {
+        context.Swal.getPopup.returns({ contains: () => true });
+        context.backgroundEffectSelect.value = 'blur';
+        await context.applyCameraBackground();
+        await processors[0].onError(new Error('GPU failed'));
+        assert.equal(context.initBackgroundError.hidden, false);
+        assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
+        assert.equal(context.userLog.callCount, 0);
+    });
+
+    it('shows image decoding errors inline and releases loading state', async () => {
+        context.Swal.getPopup.returns({ contains: () => true });
+        context.initBackgroundImageInput.files = [{ type: 'image/png', size: 100 }];
+        context.URL = { createObjectURL: () => 'blob:invalid', revokeObjectURL: sinon.spy() };
+        context.Image = class {
+            set src(value) {
+                this.onerror();
+            }
+        };
+        await context.loadCameraBackgroundImage({ target: context.initBackgroundImageInput });
+        assert.equal(context.initBackgroundError.textContent, 'Unable to load background image.');
+        assert.equal(context.initBackgroundError.hidden, false);
+        assert.equal(context.backgroundEffectsBusy, false);
+        assert.equal(context.userLog.callCount, 0);
+        assert.equal(context.URL.revokeObjectURL.callCount, 1);
     });
 
     it('replaces preview and peer camera tracks without touching the screen', async () => {
