@@ -173,7 +173,7 @@ function updateCountry() {
     for (let i = 1; i < list.length; i++) {
         recognitionDialect.options.add(new Option(list[i][1], list[i][0]));
     }
-    recognitionDialect.style.visibility = list[1].length == 1 ? 'hidden' : 'visible';
+    recognitionDialect.style.display = list[1].length == 1 ? 'none' : '';
 }
 
 /**

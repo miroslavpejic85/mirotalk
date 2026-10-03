@@ -1359,6 +1359,7 @@ body {
 .caption-inputarea {
     display: flex;
     align-items: center;
+    gap: 8px;
     padding: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(0, 0, 0, 0.2);
@@ -1370,8 +1371,9 @@ body {
 }
 
 .caption-inputarea select {
-    min-width: 50px;
-    margin: 0 8px;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
     padding: 8px 12px;
     background: rgba(255, 255, 255, 0.1) !important;
     border-radius: 8px;
@@ -1411,20 +1413,28 @@ body {
 /* Speech Recognition Buttons */
 #speechRecognitionStart,
 #speechRecognitionStop {
-    margin: 0 6px;
-    padding: 8px 16px;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 40px;
+    margin: 0 0 0 auto;
+    padding: 0;
     border: none;
     border-radius: 8px;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--btn-bar-color, #121214);
+    background: var(--room-switch-accent, var(--dd-color, #e8e8ec));
     transition: all 0.25s ease;
     font-weight: 500;
 }
 
 #speechRecognitionStart:hover,
 #speechRecognitionStop:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+#speechRecognitionStart:focus-visible,
+#speechRecognitionStop:focus-visible {
+    outline: 2px solid var(--room-switch-accent, var(--dd-color, #e8e8ec));
+    outline-offset: 3px;
 }
 
 /*--------------------------------------------------------------
@@ -5796,7 +5806,7 @@ input:checked + .slider:before {
     background: var(--select-bg);
     color: #ffffff;
     font-size: small;
-    max-width: 135px;
+    max-width: none;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
     padding: 6px 10px;
