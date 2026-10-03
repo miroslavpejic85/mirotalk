@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.70
+ * @version 2.0.72
  *
  */
 
@@ -426,6 +426,7 @@ const initBackgroundEffectLoading = getId('initBackgroundEffectLoading');
 const initBackgroundError = getId('initBackgroundError');
 let cameraEffects = null;
 let backgroundImage = null;
+let backgroundImageFile = null;
 let backgroundEffectsBusy = false;
 const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
@@ -2404,6 +2405,11 @@ function updateBackgroundControls() {
         select.disabled = disabled;
     }
     for (const input of [backgroundImageInput, initBackgroundImageInput]) {
+        if (backgroundImageFile && input.files[0] !== backgroundImageFile) {
+            const transfer = new DataTransfer();
+            transfer.items.add(backgroundImageFile);
+            input.files = transfer.files;
+        }
         input.disabled = disabled;
         input.hidden = backgroundEffectSelect.value !== 'image';
     }
@@ -2493,7 +2499,16 @@ async function applyCameraBackground() {
 async function changeCameraBackground(event) {
     if (backgroundEffectsBusy) return;
     setBackgroundError();
-    if (event?.target === initBackgroundEffectSelect) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
+    const isPrejoin = event?.target === initBackgroundEffectSelect;
+    const select = isPrejoin ? initBackgroundEffectSelect : backgroundEffectSelect;
+    if (event && select.value === 'image' && !backgroundImage) {
+        if (!isPrejoin) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
+        updateBackgroundControls();
+        const input = isPrejoin ? initBackgroundImageInput : backgroundImageInput;
+        input.click();
+        return;
+    }
+    if (isPrejoin) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
     backgroundEffectsBusy = true;
     updateBackgroundControls();
     try {
@@ -2514,6 +2529,7 @@ async function loadCameraBackgroundImage(event) {
     setBackgroundError();
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
         input.value = '';
+        updateBackgroundControls();
         setBackgroundError('Choose a PNG, JPEG or WebP image up to 10 MB.');
         return;
     }
@@ -2528,8 +2544,11 @@ async function loadCameraBackgroundImage(event) {
             image.src = url;
         });
         backgroundImage = image;
+        backgroundImageFile = file;
+        backgroundEffectSelect.value = 'image';
         await applyCameraBackground();
     } catch (error) {
+        input.value = '';
         console.error('Unable to load background image', error);
         setBackgroundError('Unable to load background image.');
     } finally {
@@ -17942,7 +17961,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.70',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.72',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
