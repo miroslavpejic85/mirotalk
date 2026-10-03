@@ -2499,16 +2499,7 @@ async function applyCameraBackground() {
 async function changeCameraBackground(event) {
     if (backgroundEffectsBusy) return;
     setBackgroundError();
-    const isPrejoin = event?.target === initBackgroundEffectSelect;
-    const select = isPrejoin ? initBackgroundEffectSelect : backgroundEffectSelect;
-    if (event && select.value === 'image' && !backgroundImage) {
-        if (!isPrejoin) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
-        updateBackgroundControls();
-        const input = isPrejoin ? initBackgroundImageInput : backgroundImageInput;
-        input.click();
-        return;
-    }
-    if (isPrejoin) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
+    if (event?.target === initBackgroundEffectSelect) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
     backgroundEffectsBusy = true;
     updateBackgroundControls();
     try {
@@ -2545,7 +2536,6 @@ async function loadCameraBackgroundImage(event) {
         });
         backgroundImage = image;
         backgroundImageFile = file;
-        backgroundEffectSelect.value = 'image';
         await applyCameraBackground();
     } catch (error) {
         input.value = '';

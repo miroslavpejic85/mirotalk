@@ -311,42 +311,19 @@ describe('client camera background integration', () => {
     });
 
     for (const select of ['initBackgroundEffectSelect', 'backgroundEffectSelect']) {
-        for (const mode of ['off', 'blur']) {
-            it(`opens the image picker from ${select} and preserves ${mode} on cancellation`, async () => {
-                context.backgroundImage = null;
-                context.backgroundEffectSelect.value = mode;
-                context.updateBackgroundControls();
-                context[select].value = 'image';
-                const picker =
-                    select === 'initBackgroundEffectSelect' ? 'initBackgroundImageInput' : 'backgroundImageInput';
-                const otherPicker =
-                    picker === 'initBackgroundImageInput' ? 'backgroundImageInput' : 'initBackgroundImageInput';
-
-                const change = context.changeCameraBackground({ target: context[select] });
-                assert.equal(context[picker].click.callCount, 1);
-                await change;
-                await context.loadCameraBackgroundImage({ target: context[picker] });
-
-                assert.equal(context[otherPicker].click.callCount, 0);
-                assert.equal(context.backgroundEffectSelect.value, mode);
-                assert.equal(context.initBackgroundEffectSelect.value, mode);
-                assert.equal(context.backgroundEffectsBusy, false);
-                assert.equal(context.localVideoMediaStream, originalStream);
-                assert.equal(processors.length, 0);
-                assert.equal(context.refreshMyStreamToPeers.callCount, 0);
-            });
-        }
-
-        it(`reuses an existing image from ${select} without opening the picker`, async () => {
+        it(`shows the manual image picker from ${select} without opening a dialog`, async () => {
+            context.backgroundImage = null;
             context[select].value = 'image';
-
             await context.changeCameraBackground({ target: context[select] });
 
             assert.equal(context.backgroundImageInput.click.callCount, 0);
             assert.equal(context.initBackgroundImageInput.click.callCount, 0);
+            assert.equal(context.backgroundImageInput.hidden, false);
+            assert.equal(context.initBackgroundImageInput.hidden, false);
             assert.equal(context.backgroundEffectSelect.value, 'image');
             assert.equal(context.initBackgroundEffectSelect.value, 'image');
-            assert.equal(processors[0].setMode.firstCall.args[0], 'image');
+            assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
+            assert.equal(processors.length, 0);
         });
     }
 
@@ -363,8 +340,7 @@ describe('client camera background integration', () => {
         it(`shares the accepted image filename from ${picker} with both pickers`, async () => {
             const files = [{ name: 'landscape.png', type: 'image/png', size: 100 }];
             context[picker].files = files;
-            context.backgroundImage = null;
-            context.backgroundEffectSelect.value = 'blur';
+            context.backgroundEffectSelect.value = 'image';
             context.URL = { createObjectURL: () => 'blob:landscape', revokeObjectURL: sinon.spy() };
             context.Image = class {
                 set src(value) {
