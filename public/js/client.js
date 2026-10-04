@@ -6568,7 +6568,7 @@ function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap, remoteMedia)
     if (remoteVideoFocusBtn) {
         remoteVideoFocusBtn.addEventListener('click', (e) => {
             if (isHideMeActive) {
-                return userLog('toast', 'To use this feature, please toggle Hide self view before', 'top-end', 6000);
+                return userLog('toast', 'To use this feature, please toggle Hide self view before', 6000);
             }
             isHideALLVideosActive = !isHideALLVideosActive;
             e.target.style.color = isHideALLVideosActive ? 'lime' : 'white';
@@ -6948,7 +6948,7 @@ function setShareRoomBtn() {
 function setHideMeButton() {
     hideMeBtn.addEventListener('click', (e) => {
         if (isHideALLVideosActive) {
-            return userLog('toast', 'To use this feature, please toggle video focus mode', 'top-end', 6000);
+            return userLog('toast', 'To use this feature, please toggle video focus mode', 6000);
         }
         isHideMeActive = !isHideMeActive;
         handleHideMe(isHideMeActive);
@@ -15011,14 +15011,14 @@ function handleRoomStatus(config) {
     switch (action) {
         case 'lock':
             playSound('locked');
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`, 'top-end');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`);
             elemDisplay(lockRoomBtn, false);
             elemDisplay(unlockRoomBtn, true);
             isRoomLocked = true;
             screenReaderAccessibility.announceMessage(`${peer_name} locked the room`);
             break;
         case 'unlock':
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top-end');
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`);
             elemDisplay(unlockRoomBtn, false);
             elemDisplay(lockRoomBtn, true);
             isRoomLocked = false;
