@@ -1,121 +1,57 @@
-# In-room UI translations (native / human)
+# In-room UI translations
 
-Optional, hand-editable translation files for the **in-room video conference UI**.
+## Configuration
 
-When a file `public/lang/<lang>.json` exists for the configured UI language and native
-translation is enabled, MiroTalk uses it to translate the in-room UI **and disables the
-Google Translate widget** for that page. When no such file exists (or the mode forces
-Google), the runtime machine translation (Google, 133+ languages) is used exactly as before.
-This is fully opt-in and non-breaking.
+Set `brand.app.language` and `brand.app.translationMode` in your app
+configuration; see [config.template.js](../../app/src/config.template.js). The
+default language is `en`; the default translation mode is `google`.
 
-The configured language comes from `config.brand.app.language` (default `en`).
-See [app/src/config.template.js](../../app/src/config.template.js).
+| Mode     | Behavior                                                          |
+| -------- | ----------------------------------------------------------------- |
+| `google` | Use Google Translate; ignore native translation files.            |
+| `auto`   | Use a native file when available; otherwise use Google Translate. |
+| `native` | Use native files only; untranslated text remains English.         |
 
-## Translation mode (`translationMode`)
+## Adding a language
 
-`config.brand.app.translationMode` controls the strategy.
-**The default is `google`**, if the value is unset, empty, or invalid, MiroTalk behaves
-exactly as before native translation existed (backward compatible). Native translation is
-opt-in via `auto` or `native`.
-
-| Mode               | Behavior                                                            | In-room language switcher                      |
-| ------------------ | ------------------------------------------------------------------- | ---------------------------------------------- |
-| `google` (default) | Always use Google machine translation; native files are ignored     | Google Translate combo                         |
-| `auto`             | Use the native file if it exists for the language, otherwise Google | Native picker (native/English) or Google combo |
-| `native`           | Human files only — never load Google (missing strings stay English) | Native picker                                  |
-
-Notes on behavior:
-
-- In `auto`/`native`, an in-room **Language** picker (Settings → Language) lists English
-  plus every language registered in `LANG_DISPLAY` in [i18n.js](../js/i18n.js) with a native
-  file, and switches **live without a page reload**.
-- In `google`, the switcher is the Google Translate combo (English needs no translation, so
-  the native picker is not shown).
-- The chosen language is remembered per browser (`localStorage`): `uiLanguageOverride` for
-  the native picker, `googleTransLang` for the Google combo. It overrides the server default
-  on the next load until reset back to it.
-
-## How to add a language
-
-1. Copy the English template to a new file named after the language code used in
-   `config.brand.app.language`, e.g. Hungarian:
-
-    ```bash
-    cp public/lang/en.json public/lang/hu.json
-    ```
-
-2. Open `hu.json` and replace each **value** with the human translation. Leave the **key**
-   (the English source string) unchanged.
-
-    ```json
-    {
-        "tooltips": {
-            "Mute": "Némítás"
-        },
-        "dialogs": {
-            "Cancel": "Mégse"
-        }
-    }
-    ```
-
-3. Register the language in `LANG_DISPLAY` in [i18n.js](../js/i18n.js) with its flag and
-   native display name. A JSON file alone does **not** add a language to the picker.
-   For right-to-left languages, also add the code to `RTL_LANGS`.
-
-4. Enable native translation and select the language, then open a room:
-
-    ```js
-    // app/src/config.js
-    brand.app.language = 'hu';
-    brand.app.translationMode = 'auto'; // or 'native'
-    ```
-
-    With the default `google` mode the native file is ignored, so `auto` or `native` is
-    required to activate it.
-
-Missing or empty values fall back to the original English text — you can translate
-incrementally and ship a partial file.
+1. Copy [en.json](./en.json) to a file named for the language code, such as
+   `hu.json`.
+2. Translate the values, keeping the English keys unchanged.
+3. Add the language code, flag, and native name to `LANG_DISPLAY` in
+   [i18n.js](../js/i18n.js). For right-to-left languages, also add the code to
+   `RTL_LANGS`.
+4. Set `brand.app.language` to the language code and
+   `brand.app.translationMode` to `auto` or `native`.
 
 ## Namespaces
 
-Keys are grouped by UI context so the same English word can be translated differently
-depending on where it appears (e.g. "Cancel" as a dialog button vs. a tooltip):
+| Namespace  | Content                                     |
+| ---------- | ------------------------------------------- |
+| `tooltips` | Hover hints                                 |
+| `buttons`  | Button text and attributes                  |
+| `labels`   | Static text, headings, and label attributes |
+| `dialogs`  | Popup titles, text, buttons, and inputs     |
+| `toasts`   | Notifications                               |
 
-| Namespace  | Covers                                                                |
-| ---------- | --------------------------------------------------------------------- |
-| `tooltips` | Tippy tooltips (hover hints on controls)                              |
-| `buttons`  | Text and `title`/`placeholder`/`aria-label` on `<button>` elements    |
-| `labels`   | All other static UI text, headings, placeholders and label attributes |
-| `dialogs`  | SweetAlert popups: titles, buttons, input placeholders, body text     |
-| `toasts`   | Snackbar / toast notifications                                        |
+## Fallback behavior
 
-## Notes
+Missing namespaces, keys, or empty values use the original English text, so
+translations can be added incrementally. Keep keys, including their punctuation
+and casing, identical to the English source. Preserve placeholders such as
+`{name}` in translated values.
 
-- The survey-enabled leave dialog uses “Leave without rating” as its primary action,
-  “Leave & rate” as an optional survey action, and “Stay in meeting” to cancel.
-  Translate these strings in `dialogs`; keep the optional nature of rating explicit.
-  Recording is stopped only after an exit action is selected.
-- Keys must match the English source **exactly** (including punctuation and casing).
-  Surrounding whitespace is ignored.
-- Preserve placeholders such as `{name}` and `{minutes}`, HTML entities, and keyboard
-  shortcuts in translated values.
-- Strings with inline dynamic values (counts, arbitrary names) are not translated and remain
-  in English.
-- To exclude an element from translation, add `class="notranslate"`, `translate="no"`, or
-  `data-i18n-skip` in the HTML.
-- Out of scope: the marketing/landing site, documentation, and user-generated content
-  (chat messages, transcriptions).
+In `auto` mode, Google Translate is used if the language file is unavailable.
+When a native file is loaded, missing entries remain English; they do not fall
+back individually to Google Translate.
 
-## Regenerating the English template
+## Synchronize translation keys
 
-`en.json` is generated from the in-room source strings and is the starting point for
-translations. Every other language file is synchronized to the same namespace and key
-structure:
+After changing in-room UI strings, run this from the repository root:
 
 ```bash
 node app/src/scripts/extract-ui-lang.js
 ```
 
-The script preserves existing translated values. Missing keys are added to each language
-with the English source text as a fallback, ready for human translation, and stale keys are
-removed. Review the generated changes before committing them.
+The script regenerates `en.json` and synchronizes other language files,
+preserving existing translations, adding missing keys with English values, and
+removing stale keys. Review the changes before committing.
