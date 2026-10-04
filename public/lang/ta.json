@@ -277,7 +277,14 @@
         "Video": "வீடியோ",
         "Whiteboard": "வெள்ளை பலகை",
         "Zoom In": "பெரிதாக்கு",
-        "Zoom Out": "சிறிதாக்கு"
+        "Zoom Out": "சிறிதாக்கு",
+        "Draw on Screen": "திரையில் வரை",
+        "Focus Mode": "கவனநிலை",
+        "Picture in Picture": "படத்தில் படம்",
+        "Pin Screen": "திரையைப் பின் செய்",
+        "Pin Video": "வீடியோவைப் பின் செய்",
+        "Take Snapshot": "ஸ்னாப்ஷாட் எடு",
+        "Video Privacy": "வீடியோ தனியுரிமை"
     },
     "labels": {
         "= Arrow": "= அம்பு",
@@ -310,15 +317,15 @@
         "🎥 Standard (640×480)": "🎥 தரநிலை (640×480)",
         "🔴 REC": "🔴 பதிவு",
         "0s": "0s",
-        "15 - frame-per-second": "15 - frame-per-second",
+        "15 - frame-per-second": "15 fps",
         "15 fps": "15 fps",
         "2k": "2k",
-        "30 - frame-per-second": "30 - frame-per-second",
+        "30 - frame-per-second": "30 fps",
         "30 fps": "30 fps",
         "4K": "4K",
-        "5 - frame-per-second": "5 - frame-per-second",
+        "5 - frame-per-second": "5 fps",
         "5 fps": "5 fps",
-        "60 - frame-per-second": "60 - frame-per-second",
+        "60 - frame-per-second": "60 fps",
         "60 fps": "60 fps",
         "6K": "6K",
         "8K": "8K",
@@ -697,7 +704,7 @@
         "Unlock room": "அறையைத் திறக்கவும்",
         "Unlock room?": "அறையைத் திறக்கவா?",
         "Username": "பயனர் பெயர்:",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "ஒயிட்போர்டு குறுக்குவழிகள்",
         "Yes": "ஆம்",
         "Your microphone is off": "உங்கள் மைக்ரோஃபோன் முடக்கப்பட்டுள்ளது",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "உங்கள் பதிவைப் பதிவிறக்கி, சேமிப்பதை முடித்த பிறகு வெளியேறுவதைத் தொடரவும்.",
         "Recording download failed. Please try again.": "பதிவைப் பதிவிறக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
         "Please wait while your recording is prepared for download.": "உங்கள் பதிவு பதிவிறக்கத்திற்குத் தயாராகும் வரை காத்திருக்கவும்.",
-        "Stay in meeting": "கூட்டத்தில் இரு"
+        "Stay in meeting": "கூட்டத்தில் இரு",
+        "Recording": "பதிவு"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ கோப்புப் பரிமாற்றம் நிறுத்தப்பட்டது",
@@ -829,6 +837,7 @@
         "Zoom in not allowed if video on privacy mode": "தனியுரிமை முறையில் காணொளியைப் பெரிதாக்க முடியாது",
         "Zoom in work when video is on": "காணொளி இயக்கத்தில் இருக்கும்போது பெரிதாக்கலாம்",
         "Zoom out not allowed if video on privacy mode": "தனியுரிமை முறையில் காணொளியைச் சிறிதாக்க முடியாது",
-        "Zoom out work when video is on": "காணொளி இயக்கத்தில் இருக்கும்போது சிறிதாக்கலாம்"
+        "Zoom out work when video is on": "காணொளி இயக்கத்தில் இருக்கும்போது சிறிதாக்கலாம்",
+        "Please wait while your recording is prepared for download.": "பதிவிறக்கத்திற்காக உங்கள் பதிவு தயாராகும் வரை காத்திருக்கவும்."
     }
 }

@@ -138,7 +138,7 @@
         "More text options": "टेक्स्ट के और विकल्प",
         "Save text annotation": "टेक्स्ट एनोटेशन सेव करें",
         "Strikethrough text": "स्ट्राइकथ्रू टेक्स्ट",
-        "Text": "Text",
+        "Text": "पाठ",
         "Text alignment: center. Click to cycle": "पाठ संरेखण: केंद्र। चक्र पर क्लिक करें",
         "Text alignment: left. Click to cycle": "पाठ संरेखण: बाएँ। चक्र पर क्लिक करें",
         "Text alignment: right. Click to cycle": "पाठ संरेखण: दाएं। चक्र पर क्लिक करें",
@@ -277,7 +277,14 @@
         "Copy invite link": "आमंत्रण लिंक कॉपी करें",
         "Invite...": "आमंत्रित करें...",
         "Participant actions": "प्रतिभागी कार्रवाइयाँ",
-        "Choose image": "चित्र चुनें"
+        "Choose image": "चित्र चुनें",
+        "Draw on Screen": "स्क्रीन पर बनाएँ",
+        "Focus Mode": "फोकस मोड",
+        "Picture in Picture": "पिक्चर-इन-पिक्चर",
+        "Pin Screen": "स्क्रीन पिन करें",
+        "Pin Video": "वीडियो पिन करें",
+        "Take Snapshot": "स्नैपशॉट लें",
+        "Video Privacy": "वीडियो गोपनीयता"
     },
     "labels": {
         "= Arrow": "= तीर",
@@ -600,7 +607,7 @@
         "Whiteboard": "व्हाइटबोर्ड",
         "Edit screen text annotation": "स्क्रीन टेक्स्ट एनोटेशन में बदलाव करें",
         "More text options": "टेक्स्ट के और विकल्प",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "स्क्रीन पर टिप्पणी करने के उपकरण",
         "Text formatting": "टेक्स्ट फ़ॉर्मेटिंग",
         "Annotation downloads": "टिप्पणी डाउनलोड",
         "Background image": "पृष्ठभूमि चित्र",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "अपनी रिकॉर्डिंग डाउनलोड करें, उसे सेव करना पूरा करें, फिर बाहर निकलें।",
         "Recording download failed. Please try again.": "रिकॉर्डिंग डाउनलोड नहीं हो सकी। कृपया फिर से प्रयास करें।",
         "Please wait while your recording is prepared for download.": "कृपया प्रतीक्षा करें, आपकी रिकॉर्डिंग डाउनलोड के लिए तैयार की जा रही है।",
-        "Stay in meeting": "मीटिंग में रहें"
+        "Stay in meeting": "मीटिंग में रहें",
+        "Recording": "रिकॉर्डिंग"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "समूह हटाने के लिए समूहित ऑब्जेक्ट चुनें।",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "पृष्ठभूमि प्रभाव उपलब्ध नहीं हैं। प्रभावों के बिना जारी रखा जा रहा है।",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "10 MB तक का PNG, JPEG या WebP चित्र चुनें।",
         "Unable to change camera background.": "कैमरे की पृष्ठभूमि बदलने में असमर्थ।",
-        "Unable to load background image.": "पृष्ठभूमि चित्र लोड करने में असमर्थ।"
+        "Unable to load background image.": "पृष्ठभूमि चित्र लोड करने में असमर्थ।",
+        "Please wait while your recording is prepared for download.": "कृपया प्रतीक्षा करें, आपकी रिकॉर्डिंग डाउनलोड के लिए तैयार की जा रही है।"
     }
 }

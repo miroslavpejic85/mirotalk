@@ -138,7 +138,7 @@
         "More text options": "Mais opções de texto",
         "Save text annotation": "Guardar anotação de texto",
         "Strikethrough text": "Texto riscado",
-        "Text": "Text",
+        "Text": "Texto",
         "Text alignment: center. Click to cycle": "Alinhamento de texto: centro. Clique para pedalar",
         "Text alignment: left. Click to cycle": "Alinhamento de texto: esquerda. Clique para alternar",
         "Text alignment: right. Click to cycle": "Alinhamento de texto: certo. Clique para alternar",
@@ -277,7 +277,14 @@
         "Copy invite link": "Copiar link de convite",
         "Invite...": "Convidar...",
         "Participant actions": "Ações dos participantes",
-        "Choose image": "Escolher imagem"
+        "Choose image": "Escolher imagem",
+        "Draw on Screen": "Desenhar na tela",
+        "Focus Mode": "Modo de foco",
+        "Picture in Picture": "Imagem em imagem",
+        "Pin Screen": "Fixar tela",
+        "Pin Video": "Fixar vídeo",
+        "Take Snapshot": "Tirar uma captura",
+        "Video Privacy": "Privacidade do vídeo"
     },
     "labels": {
         "= Arrow": "= Seta",
@@ -600,7 +607,7 @@
         "Whiteboard": "Quadro branco",
         "Edit screen text annotation": "Editar anotação de texto da tela",
         "More text options": "Mais opções de texto",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "Ferramentas de anotação na tela",
         "Text formatting": "Formatação de texto",
         "Annotation downloads": "Downloads de anotações",
         "Background image": "Imagem de fundo",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "Limite de tempo atingido",
         "Unlock room?": "Desbloquear a sala?",
         "Username": "Nome de usuário",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "Atalhos do quadro branco",
         "Yes": "Sim",
         "Schedule email invitation": "Agendar convite por e-mail",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Baixe sua gravação, termine de salvá-la e depois continue saindo.",
         "Recording download failed. Please try again.": "Não foi possível baixar a gravação. Tente novamente.",
         "Please wait while your recording is prepared for download.": "Aguarde enquanto sua gravação é preparada para download.",
-        "Stay in meeting": "Permanecer na reunião"
+        "Stay in meeting": "Permanecer na reunião",
+        "Recording": "Gravação"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Selecione um objeto agrupado para desagrupar.",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "Efeitos de fundo indisponíveis. Continuando sem efeitos.",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "Escolha uma imagem PNG, JPEG ou WebP de até 10 MB.",
         "Unable to change camera background.": "Não foi possível alterar o fundo da câmera.",
-        "Unable to load background image.": "Não foi possível carregar a imagem de fundo."
+        "Unable to load background image.": "Não foi possível carregar a imagem de fundo.",
+        "Please wait while your recording is prepared for download.": "Aguarde enquanto sua gravação é preparada para download."
     }
 }

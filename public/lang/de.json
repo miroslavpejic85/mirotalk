@@ -277,7 +277,14 @@
         "Copy invite link": "Einladungslink kopieren",
         "Invite...": "Einladen...",
         "Participant actions": "Teilnehmeraktionen",
-        "Choose image": "Bild auswählen"
+        "Choose image": "Bild auswählen",
+        "Draw on Screen": "Auf dem Bildschirm zeichnen",
+        "Focus Mode": "Fokusmodus",
+        "Picture in Picture": "Bild-in-Bild",
+        "Pin Screen": "Bildschirm anheften",
+        "Pin Video": "Video anheften",
+        "Take Snapshot": "Momentaufnahme erstellen",
+        "Video Privacy": "Video-Privatsphäre"
     },
     "labels": {
         "= Arrow": "= Pfeil",
@@ -600,7 +607,7 @@
         "Whiteboard": "Whiteboard",
         "Edit screen text annotation": "Textanmerkung für Bildschirm bearbeiten",
         "More text options": "Weitere Textoptionen",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "Werkzeuge zur Bildschirmanmerkung",
         "Text formatting": "Textformatierung",
         "Annotation downloads": "Anmerkungen herunterladen",
         "Background image": "Hintergrundbild",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "Zeitlimit erreicht",
         "Unlock room?": "Raum entsperren?",
         "Username": "Benutzername",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "Whiteboard-Tastenkürzel",
         "Yes": "Ja",
         "Schedule email invitation": "E-Mail-Einladung planen",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Laden Sie Ihre Aufnahme herunter, schließen Sie das Speichern ab und setzen Sie dann das Verlassen fort.",
         "Recording download failed. Please try again.": "Die Aufnahme konnte nicht heruntergeladen werden. Bitte versuchen Sie es erneut.",
         "Please wait while your recording is prepared for download.": "Bitte warten Sie, während Ihre Aufnahme zum Herunterladen vorbereitet wird.",
-        "Stay in meeting": "Im Meeting bleiben"
+        "Stay in meeting": "Im Meeting bleiben",
+        "Recording": "Aufnahme"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Wählen Sie ein gruppiertes Objekt aus, um die Gruppierung aufzuheben.",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "Hintergrundeffekte sind nicht verfügbar. Es wird ohne Effekte fortgefahren.",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "Wähle ein PNG-, JPEG- oder WebP-Bild mit maximal 10 MB.",
         "Unable to change camera background.": "Der Kamerahintergrund konnte nicht geändert werden.",
-        "Unable to load background image.": "Das Hintergrundbild konnte nicht geladen werden."
+        "Unable to load background image.": "Das Hintergrundbild konnte nicht geladen werden.",
+        "Please wait while your recording is prepared for download.": "Bitte warten Sie, während Ihre Aufnahme für den Download vorbereitet wird."
     }
 }

@@ -277,7 +277,14 @@
         "Video": "व्हिडिओ",
         "Whiteboard": "व्हाईटबोर्ड",
         "Zoom In": "मोठे करा",
-        "Zoom Out": "लहान करा"
+        "Zoom Out": "लहान करा",
+        "Draw on Screen": "स्क्रीनवर काढा",
+        "Focus Mode": "फोकस मोड",
+        "Picture in Picture": "पिक्चर-इन-पिक्चर",
+        "Pin Screen": "स्क्रीन पिन करा",
+        "Pin Video": "व्हिडिओ पिन करा",
+        "Take Snapshot": "स्नॅपशॉट घ्या",
+        "Video Privacy": "व्हिडिओ गोपनीयता"
     },
     "labels": {
         "= Arrow": "= बाण",
@@ -310,15 +317,15 @@
         "🎥 Standard (640×480)": "🎥 मानक (६४०×४८०)",
         "🔴 REC": "🔴 रेकॉर्डिंग",
         "0s": "0s",
-        "15 - frame-per-second": "15 - frame-per-second",
+        "15 - frame-per-second": "15 fps",
         "15 fps": "15 fps",
         "2k": "2k",
-        "30 - frame-per-second": "30 - frame-per-second",
+        "30 - frame-per-second": "30 fps",
         "30 fps": "30 fps",
         "4K": "4K",
-        "5 - frame-per-second": "5 - frame-per-second",
+        "5 - frame-per-second": "5 fps",
         "5 fps": "5 fps",
-        "60 - frame-per-second": "60 - frame-per-second",
+        "60 - frame-per-second": "60 fps",
         "60 fps": "60 fps",
         "6K": "6K",
         "8K": "8K",
@@ -697,7 +704,7 @@
         "Unlock room": "खोली अनलॉक करा",
         "Unlock room?": "खोली अनलॉक करायची?",
         "Username": "वापरकर्तानाव:",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "व्हाईटबोर्ड शॉर्टकट",
         "Yes": "होय",
         "Your microphone is off": "तुमचा मायक्रोफोन बंद आहे",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "तुमचे रेकॉर्डिंग डाउनलोड करा, ते जतन करणे पूर्ण करा, नंतर बाहेर पडा.",
         "Recording download failed. Please try again.": "रेकॉर्डिंग डाउनलोड अयशस्वी झाले. कृपया पुन्हा प्रयत्न करा.",
         "Please wait while your recording is prepared for download.": "तुमचे रेकॉर्डिंग डाउनलोडसाठी तयार होत असताना कृपया थांबा.",
-        "Stay in meeting": "मीटिंगमध्ये राहा"
+        "Stay in meeting": "मीटिंगमध्ये राहा",
+        "Recording": "रेकॉर्डिंग"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ फाइल हस्तांतरण रद्द झाले",
@@ -829,6 +837,7 @@
         "Zoom in not allowed if video on privacy mode": "व्हिडिओ गोपनीयता मोडमध्ये असल्यास मोठा करता येत नाही",
         "Zoom in work when video is on": "व्हिडिओ सुरू असताना मोठा करता येतो",
         "Zoom out not allowed if video on privacy mode": "व्हिडिओ गोपनीयता मोडमध्ये असल्यास लहान करता येत नाही",
-        "Zoom out work when video is on": "व्हिडिओ सुरू असताना लहान करता येतो"
+        "Zoom out work when video is on": "व्हिडिओ सुरू असताना लहान करता येतो",
+        "Please wait while your recording is prepared for download.": "कृपया प्रतीक्षा करा, तुमचे रेकॉर्डिंग डाउनलोडसाठी तयार केले जात आहे."
     }
 }

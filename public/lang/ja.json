@@ -138,7 +138,7 @@
         "More text options": "その他のテキストオプション",
         "Save text annotation": "テキスト注釈を保存",
         "Strikethrough text": "取り消し線テキスト",
-        "Text": "Text",
+        "Text": "テキスト",
         "Text alignment: center. Click to cycle": "テキストの配置：中央。クリックしてサイクル",
         "Text alignment: left. Click to cycle": "テキストの配置：左。クリックしてサイクル",
         "Text alignment: right. Click to cycle": "テキストの配置：右クリックしてサイクル",
@@ -277,7 +277,14 @@
         "Copy invite link": "招待リンクをコピー",
         "Invite...": "招待...",
         "Participant actions": "参加者の操作",
-        "Choose image": "画像を選択"
+        "Choose image": "画像を選択",
+        "Draw on Screen": "画面に描画",
+        "Focus Mode": "フォーカスモード",
+        "Picture in Picture": "ピクチャー イン ピクチャー",
+        "Pin Screen": "画面を固定",
+        "Pin Video": "ビデオを固定",
+        "Take Snapshot": "スナップショットを撮る",
+        "Video Privacy": "ビデオのプライバシー"
     },
     "labels": {
         "= Arrow": "= 矢印",
@@ -600,7 +607,7 @@
         "Whiteboard": "ホワイトボード",
         "Edit screen text annotation": "画面テキストの注釈を編集",
         "More text options": "その他のテキストオプション",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "画面注釈ツール",
         "Text formatting": "テキストの書式設定",
         "Annotation downloads": "注釈のダウンロード",
         "Background image": "背景画像",
@@ -646,7 +653,7 @@
         "Login": "ログイン",
         "No": "いいえ",
         "Ok": "わかりました",
-        "OK": "OK",
+        "OK": "はい",
         "Oops, Room is Locked": "おっと、ルームはロックされています",
         "Oops, Wrong Room Password": "おっと、ルームのパスワードが違います",
         "Ops, Unauthorized": "操作、不正です",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "録画をダウンロードし、保存を完了してから退出を続けてください。",
         "Recording download failed. Please try again.": "録画をダウンロードできませんでした。もう一度お試しください。",
         "Please wait while your recording is prepared for download.": "録画のダウンロードを準備しています。しばらくお待ちください。",
-        "Stay in meeting": "会議に残る"
+        "Stay in meeting": "会議に残る",
+        "Recording": "録画"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "グループ化を解除するオブジェクトを選択してください。",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "背景効果を利用できません。効果なしで続行します。",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "10 MB 以下の PNG、JPEG、WebP 画像を選択してください。",
         "Unable to change camera background.": "カメラの背景を変更できませんでした。",
-        "Unable to load background image.": "背景画像を読み込めませんでした。"
+        "Unable to load background image.": "背景画像を読み込めませんでした。",
+        "Please wait while your recording is prepared for download.": "録画をダウンロードできるよう準備しています。しばらくお待ちください。"
     }
 }

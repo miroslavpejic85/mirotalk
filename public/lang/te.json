@@ -277,7 +277,14 @@
         "Video": "వీడియో",
         "Whiteboard": "వైట్‌బోర్డ్",
         "Zoom In": "పెద్దదిగా చేయండి",
-        "Zoom Out": "చిన్నదిగా చేయండి"
+        "Zoom Out": "చిన్నదిగా చేయండి",
+        "Draw on Screen": "స్క్రీన్‌పై గీయండి",
+        "Focus Mode": "ఫోకస్ మోడ్",
+        "Picture in Picture": "పిక్చర్-ఇన్-పిక్చర్",
+        "Pin Screen": "స్క్రీన్‌ను పిన్ చేయండి",
+        "Pin Video": "వీడియోను పిన్ చేయండి",
+        "Take Snapshot": "స్నాప్‌షాట్ తీసుకోండి",
+        "Video Privacy": "వీడియో గోప్యత"
     },
     "labels": {
         "= Arrow": "= బాణం",
@@ -310,15 +317,15 @@
         "🎥 Standard (640×480)": "🎥 ప్రామాణిక (640×480)",
         "🔴 REC": "🔴 రికార్డింగ్",
         "0s": "0s",
-        "15 - frame-per-second": "15 - frame-per-second",
+        "15 - frame-per-second": "15 fps",
         "15 fps": "15 fps",
         "2k": "2k",
-        "30 - frame-per-second": "30 - frame-per-second",
+        "30 - frame-per-second": "30 fps",
         "30 fps": "30 fps",
         "4K": "4K",
-        "5 - frame-per-second": "5 - frame-per-second",
+        "5 - frame-per-second": "5 fps",
         "5 fps": "5 fps",
-        "60 - frame-per-second": "60 - frame-per-second",
+        "60 - frame-per-second": "60 fps",
         "60 fps": "60 fps",
         "6K": "6K",
         "8K": "8K",
@@ -697,7 +704,7 @@
         "Unlock room": "గదిని అన్‌లాక్ చేయండి",
         "Unlock room?": "గదిని అన్‌లాక్ చేయాలా?",
         "Username": "వినియోగదారు పేరు:",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "వైట్‌బోర్డ్ సత్వరమార్గాలు",
         "Yes": "అవును",
         "Your microphone is off": "మీ మైక్రోఫోన్ ఆఫ్‌లో ఉంది",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "మీ రికార్డింగ్‌ను డౌన్‌లోడ్ చేసి, సేవ్ చేయడం పూర్తి చేసిన తర్వాత నిష్క్రమించండి.",
         "Recording download failed. Please try again.": "రికార్డింగ్ డౌన్‌లోడ్ విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.",
         "Please wait while your recording is prepared for download.": "మీ రికార్డింగ్ డౌన్‌లోడ్ కోసం సిద్ధమవుతున్నప్పుడు దయచేసి వేచి ఉండండి.",
-        "Stay in meeting": "సమావేశంలో ఉండండి"
+        "Stay in meeting": "సమావేశంలో ఉండండి",
+        "Recording": "రికార్డింగ్"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ ఫైల్ బదిలీ రద్దయింది",
@@ -829,6 +837,7 @@
         "Zoom in not allowed if video on privacy mode": "వీడియో గోప్యతా మోడ్‌లో ఉంటే పెద్దదిగా చేయడం అనుమతించబడదు",
         "Zoom in work when video is on": "వీడియో ఆన్‌లో ఉన్నప్పుడు పెద్దదిగా చేయవచ్చు",
         "Zoom out not allowed if video on privacy mode": "వీడియో గోప్యతా మోడ్‌లో ఉంటే చిన్నదిగా చేయడం అనుమతించబడదు",
-        "Zoom out work when video is on": "వీడియో ఆన్‌లో ఉన్నప్పుడు చిన్నదిగా చేయవచ్చు"
+        "Zoom out work when video is on": "వీడియో ఆన్‌లో ఉన్నప్పుడు చిన్నదిగా చేయవచ్చు",
+        "Please wait while your recording is prepared for download.": "మీ రికార్డింగ్ డౌన్‌లోడ్‌కు సిద్ధమవుతోంది, దయచేసి వేచి ఉండండి."
     }
 }

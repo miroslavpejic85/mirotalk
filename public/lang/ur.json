@@ -277,7 +277,14 @@
         "Video": "ویڈیو",
         "Whiteboard": "وائٹ بورڈ",
         "Zoom In": "بڑا کریں",
-        "Zoom Out": "چھوٹا کریں"
+        "Zoom Out": "چھوٹا کریں",
+        "Draw on Screen": "اسکرین پر ڈرائنگ کریں",
+        "Focus Mode": "فوکس موڈ",
+        "Picture in Picture": "تصویر میں تصویر",
+        "Pin Screen": "اسکرین پن کریں",
+        "Pin Video": "ویڈیو پن کریں",
+        "Take Snapshot": "اسنیپ شاٹ لیں",
+        "Video Privacy": "ویڈیو کی رازداری"
     },
     "labels": {
         "= Arrow": "= تیر",
@@ -310,15 +317,15 @@
         "🎥 Standard (640×480)": "🎥 معیاری (640×480)",
         "🔴 REC": "🔴 ریکارڈنگ",
         "0s": "0s",
-        "15 - frame-per-second": "15 - frame-per-second",
+        "15 - frame-per-second": "15 fps",
         "15 fps": "15 fps",
         "2k": "2k",
-        "30 - frame-per-second": "30 - frame-per-second",
+        "30 - frame-per-second": "30 fps",
         "30 fps": "30 fps",
         "4K": "4K",
-        "5 - frame-per-second": "5 - frame-per-second",
+        "5 - frame-per-second": "5 fps",
         "5 fps": "5 fps",
-        "60 - frame-per-second": "60 - frame-per-second",
+        "60 - frame-per-second": "60 fps",
         "60 fps": "60 fps",
         "6K": "6K",
         "8K": "8K",
@@ -697,7 +704,7 @@
         "Unlock room": "کمرے کو غیر مقفل کریں۔",
         "Unlock room?": "کمرے کو غیر مقفل کریں؟",
         "Username": "صارف نام:",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "وائٹ بورڈ شارٹ کٹس",
         "Yes": "جی ہاں",
         "Your microphone is off": "آپ کا مائیکروفون بند ہے۔",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "اپنی ریکارڈنگ ڈاؤن لوڈ کریں، اسے محفوظ کرنا مکمل کریں، پھر چھوڑنا جاری رکھیں۔",
         "Recording download failed. Please try again.": "ریکارڈنگ ڈاؤن لوڈ نہیں ہو سکی۔ براہ کرم دوبارہ کوشش کریں۔",
         "Please wait while your recording is prepared for download.": "براہ کرم انتظار کریں، آپ کی ریکارڈنگ ڈاؤن لوڈ کے لیے تیار کی جا رہی ہے۔",
-        "Stay in meeting": "میٹنگ میں رہیں"
+        "Stay in meeting": "میٹنگ میں رہیں",
+        "Recording": "ریکارڈنگ"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ فائل کی منتقلی منسوخ ہو گئی",
@@ -829,6 +837,7 @@
         "Zoom in not allowed if video on privacy mode": "ویڈیو پرائیویسی موڈ میں ہو تو بڑا کرنے کی اجازت نہیں",
         "Zoom in work when video is on": "ویڈیو چلنے پر بڑا کیا جا سکتا ہے",
         "Zoom out not allowed if video on privacy mode": "ویڈیو پرائیویسی موڈ میں ہو تو چھوٹا کرنے کی اجازت نہیں",
-        "Zoom out work when video is on": "ویڈیو چلنے پر چھوٹا کیا جا سکتا ہے"
+        "Zoom out work when video is on": "ویڈیو چلنے پر چھوٹا کیا جا سکتا ہے",
+        "Please wait while your recording is prepared for download.": "براہِ کرم انتظار کریں، آپ کی ریکارڈنگ ڈاؤن لوڈ کے لیے تیار کی جا رہی ہے۔"
     }
 }

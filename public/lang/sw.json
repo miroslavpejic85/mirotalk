@@ -21,7 +21,7 @@
         "Copy": "Nakili",
         "Delete": "Futa",
         "Delete selected annotation": "Futa ufafanuzi uliochaguliwa",
-        "Diamond": "Diamond",
+        "Diamond": "Almasi",
         "Disable participant annotations": "Zima maelezo ya mshiriki",
         "Disable screen drawing": "Zima kuchora kwenye skrini",
         "Disable screen text": "Zima maandishi kwenye skrini",
@@ -277,7 +277,14 @@
         "Video": "Video",
         "Whiteboard": "Ubao mweupe",
         "Zoom In": "Kuza",
-        "Zoom Out": "Punguza"
+        "Zoom Out": "Punguza",
+        "Draw on Screen": "Chora kwenye skrini",
+        "Focus Mode": "Hali ya umakini",
+        "Picture in Picture": "Picha ndani ya picha",
+        "Pin Screen": "Bandika skrini",
+        "Pin Video": "Bandika video",
+        "Take Snapshot": "Piga picha",
+        "Video Privacy": "Faragha ya video"
     },
     "labels": {
         "= Arrow": "= Mshale",
@@ -310,15 +317,15 @@
         "🎥 Standard (640×480)": "🎥 Kawaida (640×480)",
         "🔴 REC": "🔴 REKODI",
         "0s": "0s",
-        "15 - frame-per-second": "15 - frame-per-second",
+        "15 - frame-per-second": "15 fps",
         "15 fps": "15 fps",
         "2k": "2k",
-        "30 - frame-per-second": "30 - frame-per-second",
+        "30 - frame-per-second": "30 fps",
         "30 fps": "30 fps",
         "4K": "4K",
-        "5 - frame-per-second": "5 - frame-per-second",
+        "5 - frame-per-second": "5 fps",
         "5 fps": "5 fps",
-        "60 - frame-per-second": "60 - frame-per-second",
+        "60 - frame-per-second": "60 fps",
         "60 fps": "60 fps",
         "6K": "6K",
         "8K": "8K",
@@ -364,7 +371,7 @@
         "Checking room status...": "Inakagua hali ya chumba...",
         "Choose the language used by the meeting interface.": "Chagua lugha inayotumiwa na kiolesura cha mkutano.",
         "Choose your camera and balance image quality with performance.": "Chagua kamera yako na usawazishe ubora wa picha na utendakazi.",
-        "Clone:": "Clone:",
+        "Clone:": "Nakili:",
         "Connection lost": "Muunganisho umepotea",
         "Connection restored successfully": "Muunganisho umerejeshwa",
         "Contain": "vyenye",
@@ -697,7 +704,7 @@
         "Unlock room": "Fungua chumba",
         "Unlock room?": "Je, ungependa kufungua chumba?",
         "Username": "Jina la mtumiaji:",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "Njia za mkato za Ubao Mweupe",
         "Yes": "Ndiyo",
         "Your microphone is off": "Maikrofoni yako imezimwa",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Pakua rekodi yako, maliza kuihifadhi, kisha endelea kuondoka.",
         "Recording download failed. Please try again.": "Kupakua rekodi kumeshindikana. Tafadhali jaribu tena.",
         "Please wait while your recording is prepared for download.": "Tafadhali subiri wakati rekodi yako inaandaliwa kwa kupakuliwa.",
-        "Stay in meeting": "Baki kwenye mkutano"
+        "Stay in meeting": "Baki kwenye mkutano",
+        "Recording": "Kurekodi"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ Uhamishaji wa faili umesitishwa",
@@ -829,6 +837,7 @@
         "Zoom in not allowed if video on privacy mode": "Kukuza hairuhusiwi video ikiwa kwenye hali ya faragha",
         "Zoom in work when video is on": "Kukuza hufanya kazi video ikiwa imewashwa",
         "Zoom out not allowed if video on privacy mode": "Kupunguza hairuhusiwi video ikiwa kwenye hali ya faragha",
-        "Zoom out work when video is on": "Kupunguza hufanya kazi video ikiwa imewashwa"
+        "Zoom out work when video is on": "Kupunguza hufanya kazi video ikiwa imewashwa",
+        "Please wait while your recording is prepared for download.": "Tafadhali subiri, rekodi yako inatayarishwa ili kupakuliwa."
     }
 }

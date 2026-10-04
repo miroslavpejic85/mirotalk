@@ -138,7 +138,7 @@
         "More text options": "Više tekstualnih opcija",
         "Save text annotation": "Sačuvajte tekstualnu napomenu",
         "Strikethrough text": "Precrtani tekst",
-        "Text": "Text",
+        "Text": "Tekst",
         "Text alignment: center. Click to cycle": "Poravnanje teksta: centar. Kliknite za ciklus",
         "Text alignment: left. Click to cycle": "Poravnanje teksta: levo. Kliknite za ciklus",
         "Text alignment: right. Click to cycle": "Poravnanje teksta: desno. Kliknite za ciklus",
@@ -277,7 +277,14 @@
         "Copy invite link": "Копирај везу за позив",
         "Invite...": "Позови...",
         "Participant actions": "Радње учесника",
-        "Choose image": "Izaberi sliku"
+        "Choose image": "Izaberi sliku",
+        "Draw on Screen": "Crtaj po ekranu",
+        "Focus Mode": "Režim fokusa",
+        "Picture in Picture": "Slika u slici",
+        "Pin Screen": "Zakači ekran",
+        "Pin Video": "Zakači video",
+        "Take Snapshot": "Napravi snimak",
+        "Video Privacy": "Privatnost videa"
     },
     "labels": {
         "= Arrow": "= Strelica",
@@ -600,7 +607,7 @@
         "Whiteboard": "Бела табла",
         "Edit screen text annotation": "Izmenite tekstualnu napomenu na ekranu",
         "More text options": "Više tekstualnih opcija",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "Alatke za označavanje na ekranu",
         "Text formatting": "Formatiranje teksta",
         "Annotation downloads": "Преузимање напомена",
         "Background image": "Slika pozadine",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v2.0.84": "WebRTC P2P в2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P в2.0.85",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Преузмите снимак, завршите чување, а затим наставите излазак.",
         "Recording download failed. Please try again.": "Преузимање снимка није успело. Покушајте поново.",
         "Please wait while your recording is prepared for download.": "Сачекајте док се ваш снимак припреми за преузимање.",
-        "Stay in meeting": "Остани на састанку"
+        "Stay in meeting": "Остани на састанку",
+        "Recording": "Snimanje"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Izaberite grupisani objekat za razgrupisavanje.",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "Efekti pozadine nisu dostupni. Nastavlja se bez efekata.",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "Izaberi PNG, JPEG ili WebP sliku veličine do 10 MB.",
         "Unable to change camera background.": "Nije moguće promeniti pozadinu kamere.",
-        "Unable to load background image.": "Nije moguće učitati sliku pozadine."
+        "Unable to load background image.": "Nije moguće učitati sliku pozadine.",
+        "Please wait while your recording is prepared for download.": "Sačekajte dok se snimak priprema za preuzimanje."
     }
 }

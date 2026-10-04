@@ -277,7 +277,14 @@
         "Video": "ভিডিও",
         "Whiteboard": "হোয়াইটবোর্ড",
         "Zoom In": "বড় করুন",
-        "Zoom Out": "ছোট করুন"
+        "Zoom Out": "ছোট করুন",
+        "Draw on Screen": "স্ক্রিনে আঁকুন",
+        "Focus Mode": "ফোকাস মোড",
+        "Picture in Picture": "পিকচার-ইন-পিকচার",
+        "Pin Screen": "স্ক্রিন পিন করুন",
+        "Pin Video": "ভিডিও পিন করুন",
+        "Take Snapshot": "স্ন্যাপশট নিন",
+        "Video Privacy": "ভিডিওর গোপনীয়তা"
     },
     "labels": {
         "= Arrow": "= তীর",
@@ -310,15 +317,15 @@
         "🎥 Standard (640×480)": "🎥 স্ট্যান্ডার্ড (640×480)",
         "🔴 REC": "🔴 রেকর্ডিং",
         "0s": "0s",
-        "15 - frame-per-second": "15 - frame-per-second",
+        "15 - frame-per-second": "15 fps",
         "15 fps": "15 fps",
         "2k": "2k",
-        "30 - frame-per-second": "30 - frame-per-second",
+        "30 - frame-per-second": "30 fps",
         "30 fps": "30 fps",
         "4K": "4K",
-        "5 - frame-per-second": "5 - frame-per-second",
+        "5 - frame-per-second": "5 fps",
         "5 fps": "5 fps",
-        "60 - frame-per-second": "60 - frame-per-second",
+        "60 - frame-per-second": "60 fps",
         "60 fps": "60 fps",
         "6K": "6K",
         "8K": "8K",
@@ -697,7 +704,7 @@
         "Unlock room": "রুম আনলক করুন",
         "Unlock room?": "রুম আনলক করবেন?",
         "Username": "ব্যবহারকারীর নাম:",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "হোয়াইটবোর্ড শর্টকাট",
         "Yes": "হ্যাঁ",
         "Your microphone is off": "আপনার মাইক্রোফোন বন্ধ আছে",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "আপনার রেকর্ডিং ডাউনলোড করুন, সংরক্ষণ সম্পন্ন করুন, তারপর বের হওয়া চালিয়ে যান।",
         "Recording download failed. Please try again.": "রেকর্ডিং ডাউনলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
         "Please wait while your recording is prepared for download.": "আপনার রেকর্ডিং ডাউনলোডের জন্য প্রস্তুত হওয়া পর্যন্ত অপেক্ষা করুন।",
-        "Stay in meeting": "মিটিংয়ে থাকুন"
+        "Stay in meeting": "মিটিংয়ে থাকুন",
+        "Recording": "রেকর্ডিং"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ ফাইল স্থানান্তর বাতিল হয়েছে",
@@ -829,6 +837,7 @@
         "Zoom in not allowed if video on privacy mode": "ভিডিও গোপনীয়তা মোডে থাকলে বড় করা যাবে না",
         "Zoom in work when video is on": "ভিডিও চালু থাকলে বড় করা যায়",
         "Zoom out not allowed if video on privacy mode": "ভিডিও গোপনীয়তা মোডে থাকলে ছোট করা যাবে না",
-        "Zoom out work when video is on": "ভিডিও চালু থাকলে ছোট করা যায়"
+        "Zoom out work when video is on": "ভিডিও চালু থাকলে ছোট করা যায়",
+        "Please wait while your recording is prepared for download.": "ডাউনলোডের জন্য আপনার রেকর্ডিং প্রস্তুত করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন।"
     }
 }

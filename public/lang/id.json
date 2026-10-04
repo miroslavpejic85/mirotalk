@@ -138,7 +138,7 @@
         "More text options": "Opsi teks lainnya",
         "Save text annotation": "Simpan anotasi teks",
         "Strikethrough text": "Teks coretan",
-        "Text": "Text",
+        "Text": "Teks",
         "Text alignment: center. Click to cycle": "Penyelarasan teks: tengah. Klik untuk bersepeda",
         "Text alignment: left. Click to cycle": "Penyelarasan teks: kiri. Klik untuk bersepeda",
         "Text alignment: right. Click to cycle": "Penyelarasan teks: benar. Klik untuk bersepeda",
@@ -277,7 +277,14 @@
         "Copy invite link": "Salin tautan undangan",
         "Invite...": "Undang...",
         "Participant actions": "Tindakan peserta",
-        "Choose image": "Pilih gambar"
+        "Choose image": "Pilih gambar",
+        "Draw on Screen": "Menggambar di layar",
+        "Focus Mode": "Mode Fokus",
+        "Picture in Picture": "Gambar dalam Gambar",
+        "Pin Screen": "Sematkan layar",
+        "Pin Video": "Sematkan video",
+        "Take Snapshot": "Ambil cuplikan",
+        "Video Privacy": "Privasi video"
     },
     "labels": {
         "= Arrow": "= Panah",
@@ -600,7 +607,7 @@
         "Whiteboard": "Papan tulis",
         "Edit screen text annotation": "Edit anotasi teks layar",
         "More text options": "Opsi teks lainnya",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "Alat anotasi layar",
         "Text formatting": "Pemformatan teks",
         "Annotation downloads": "Unduhan anotasi",
         "Background image": "Gambar latar belakang",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Unduh rekaman Anda, selesaikan penyimpanannya, lalu lanjutkan keluar.",
         "Recording download failed. Please try again.": "Rekaman gagal diunduh. Silakan coba lagi.",
         "Please wait while your recording is prepared for download.": "Harap tunggu sementara rekaman Anda disiapkan untuk diunduh.",
-        "Stay in meeting": "Tetap di rapat"
+        "Stay in meeting": "Tetap di rapat",
+        "Recording": "Perekaman"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Pilih objek yang dikelompokkan untuk dipisahkan.",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "Efek latar belakang tidak tersedia. Melanjutkan tanpa efek.",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "Pilih gambar PNG, JPEG, atau WebP berukuran hingga 10 MB.",
         "Unable to change camera background.": "Tidak dapat mengubah latar belakang kamera.",
-        "Unable to load background image.": "Tidak dapat memuat gambar latar belakang."
+        "Unable to load background image.": "Tidak dapat memuat gambar latar belakang.",
+        "Please wait while your recording is prepared for download.": "Harap tunggu, rekaman Anda sedang disiapkan untuk diunduh."
     }
 }

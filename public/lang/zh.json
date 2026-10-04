@@ -277,7 +277,14 @@
         "Copy invite link": "复制邀请链接",
         "Invite...": "邀请...",
         "Participant actions": "参与者操作",
-        "Choose image": "选择图片"
+        "Choose image": "选择图片",
+        "Draw on Screen": "在屏幕上绘制",
+        "Focus Mode": "专注模式",
+        "Picture in Picture": "画中画",
+        "Pin Screen": "固定屏幕",
+        "Pin Video": "固定视频",
+        "Take Snapshot": "截取快照",
+        "Video Privacy": "视频隐私"
     },
     "labels": {
         "= Arrow": "= 箭头",
@@ -600,7 +607,7 @@
         "Whiteboard": "白板",
         "Edit screen text annotation": "编辑屏幕文本注释",
         "More text options": "更多文本选项",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "屏幕批注工具",
         "Text formatting": "文本格式",
         "Annotation downloads": "批注下载",
         "Background image": "背景图片",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v2.0.84": "WebRTCP2Pv2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTCP2Pv2.0.85",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "请下载录制文件，完成保存后再继续离开。",
         "Recording download failed. Please try again.": "录制文件下载失败，请重试。",
         "Please wait while your recording is prepared for download.": "正在准备您的录制文件以供下载，请稍候。",
-        "Stay in meeting": "留在会议中"
+        "Stay in meeting": "留在会议中",
+        "Recording": "录制"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "请选择一个已组合的对象以取消组合。",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "背景效果不可用，将继续使用无效果的视频。",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "请选择不超过 10 MB 的 PNG、JPEG 或 WebP 图片。",
         "Unable to change camera background.": "无法更改摄像头背景。",
-        "Unable to load background image.": "无法加载背景图片。"
+        "Unable to load background image.": "无法加载背景图片。",
+        "Please wait while your recording is prepared for download.": "正在准备录制文件以供下载，请稍候。"
     }
 }

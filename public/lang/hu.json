@@ -138,7 +138,7 @@
         "More text options": "További szövegbeállítások",
         "Save text annotation": "Szöveges megjegyzések mentése",
         "Strikethrough text": "Áthúzott szöveg",
-        "Text": "Text",
+        "Text": "Szöveg",
         "Text alignment: center. Click to cycle": "Szöveg igazítása: középre. Kattints a ciklushoz",
         "Text alignment: left. Click to cycle": "Szöveg igazítása: balra. Kattintson a ciklushoz",
         "Text alignment: right. Click to cycle": "Szöveg igazítása: jobbra. Kattintson a ciklushoz",
@@ -277,7 +277,14 @@
         "Copy invite link": "Meghívó hivatkozás másolása",
         "Invite...": "Meghívás...",
         "Participant actions": "Résztvevői műveletek",
-        "Choose image": "Kép kiválasztása"
+        "Choose image": "Kép kiválasztása",
+        "Draw on Screen": "Rajzolás a képernyőre",
+        "Focus Mode": "Fókusz mód",
+        "Picture in Picture": "Kép a képben",
+        "Pin Screen": "Képernyő rögzítése",
+        "Pin Video": "Videó rögzítése",
+        "Take Snapshot": "Pillanatkép készítése",
+        "Video Privacy": "Videó adatvédelme"
     },
     "labels": {
         "= Arrow": "= Nyíl",
@@ -437,7 +444,7 @@
         "Participants will appear here when other people join the room.": "A résztvevők itt jelennek meg, amikor mások csatlakoznak a teremhez.",
         "People here": "Emberek itt",
         "Pick an avatar:": "Válassz egy avatart:",
-        "Pin chat": "Pin chat",
+        "Pin chat": "Csevegés rögzítése",
         "Pin video position": "A videó rögzítésének pozíciója",
         "Please allow the camera or microphone access to use this app.": "Kérjük, engedélyezze a kamera vagy a mikrofon hozzáférését az alkalmazás használatához.",
         "Please try again later": "Kérjük, próbálja újra később",
@@ -538,10 +545,10 @@
         "🎥 Standard (640×480)": "🎥 Normál (640×480)",
         "🎥 HD (720p)": "🎥 HD (720p)",
         "🎥 Full HD (1080p)": "🎥 Full HD (1080p)",
-        "60 fps": "60 fps",
-        "30 fps": "30 fps",
-        "15 fps": "15 fps",
-        "5 fps": "5 fps",
+        "60 fps": "60 képkocka/másodperc",
+        "30 fps": "30 képkocka/másodperc",
+        "15 fps": "15 képkocka/másodperc",
+        "5 fps": "5 képkocka/másodperc",
         "Audio": "Hang",
         "Select your microphone and speakers, then adjust call audio behavior.": "Válassza ki a mikrofont és a hangszórókat, majd állítsa be a hívás hangjának viselkedését.",
         "Recording": "Felvétel",
@@ -600,7 +607,7 @@
         "Whiteboard": "Fehértábla",
         "Edit screen text annotation": "Képernyőszöveg megjegyzéseinek szerkesztése",
         "More text options": "További szövegbeállítások",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "Képernyő-annotációs eszközök",
         "Text formatting": "Szövegformázás",
         "Annotation downloads": "Annotációk letöltése",
         "Background image": "Háttérkép",
@@ -646,7 +653,7 @@
         "Login": "Bejelentkezés",
         "No": "Nem",
         "Ok": "Rendben",
-        "OK": "OK",
+        "OK": "Rendben",
         "Oops, Room is Locked": "Hoppá, a szoba zárolva van",
         "Oops, Wrong Room Password": "Hoppá, hibás szobajelszó",
         "Ops, Unauthorized": "Hoppá, jogosulatlan",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Töltsd le a felvételedet, fejezd be a mentést, majd folytasd a kilépést.",
         "Recording download failed. Please try again.": "A felvétel letöltése sikertelen. Próbáld újra.",
         "Please wait while your recording is prepared for download.": "Kérjük, várj, amíg a felvételed előkészül a letöltésre.",
-        "Stay in meeting": "Maradás a megbeszélésen"
+        "Stay in meeting": "Maradás a megbeszélésen",
+        "Recording": "Felvétel"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Jelöljön ki egy csoportosított objektumot a csoportbontáshoz.",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "A háttéreffektek nem érhetők el. Folytatás effektek nélkül.",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "Válassz legfeljebb 10 MB méretű PNG, JPEG vagy WebP képet.",
         "Unable to change camera background.": "Nem sikerült módosítani a kamera hátterét.",
-        "Unable to load background image.": "Nem sikerült betölteni a háttérképet."
+        "Unable to load background image.": "Nem sikerült betölteni a háttérképet.",
+        "Please wait while your recording is prepared for download.": "Kérjük, várjon, amíg a felvétel letöltésre készül."
     }
 }

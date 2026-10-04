@@ -138,7 +138,7 @@
         "More text options": "Más opciones de texto",
         "Save text annotation": "Guardar anotación de texto",
         "Strikethrough text": "Texto tachado",
-        "Text": "Text",
+        "Text": "Texto",
         "Text alignment: center. Click to cycle": "Alineación del texto: centro. Haz clic para pedalear",
         "Text alignment: left. Click to cycle": "Alineación del texto: izquierda. Haz clic para pedalear",
         "Text alignment: right. Click to cycle": "Alineación del texto: derecha. Haz clic para pedalear",
@@ -277,7 +277,14 @@
         "Copy invite link": "Copiar enlace de invitación",
         "Invite...": "Invitar...",
         "Participant actions": "Acciones de participantes",
-        "Choose image": "Elegir imagen"
+        "Choose image": "Elegir imagen",
+        "Draw on Screen": "Dibujar en pantalla",
+        "Focus Mode": "Modo de enfoque",
+        "Picture in Picture": "Imagen en imagen",
+        "Pin Screen": "Fijar pantalla",
+        "Pin Video": "Fijar video",
+        "Take Snapshot": "Tomar una captura",
+        "Video Privacy": "Privacidad del video"
     },
     "labels": {
         "= Arrow": "= Flecha",
@@ -600,7 +607,7 @@
         "Whiteboard": "Pizarra",
         "Edit screen text annotation": "Editar anotación de texto de pantalla",
         "More text options": "Más opciones de texto",
-        "Screen annotation tools": "Screen annotation tools",
+        "Screen annotation tools": "Herramientas de anotación en pantalla",
         "Text formatting": "Formato de texto",
         "Annotation downloads": "Descargas de anotaciones",
         "Background image": "Imagen de fondo",
@@ -645,7 +652,7 @@
         "Lock room?": "¿Bloquear la sala?",
         "Login": "Acceso",
         "No": "No",
-        "Ok": "Ok",
+        "Ok": "Vale",
         "OK": "bien",
         "Oops, Room is Locked": "Vaya, la sala está bloqueada",
         "Oops, Wrong Room Password": "Vaya, contraseña de sala incorrecta",
@@ -671,7 +678,7 @@
         "Time Limit Reached": "Límite de tiempo alcanzado",
         "Unlock room?": "¿Desbloquear la sala?",
         "Username": "Nombre de usuario",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "Atajos de la pizarra",
         "Yes": "Sí",
         "Schedule email invitation": "Programar invitación por correo electrónico",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Descarga tu grabación, termina de guardarla y luego continúa saliendo.",
         "Recording download failed. Please try again.": "No se pudo descargar la grabación. Inténtalo de nuevo.",
         "Please wait while your recording is prepared for download.": "Espera mientras se prepara tu grabación para descargarla.",
-        "Stay in meeting": "Permanecer en la reunión"
+        "Stay in meeting": "Permanecer en la reunión",
+        "Recording": "Grabación"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Selecciona un objeto agrupado para desagruparlo.",
@@ -829,6 +837,7 @@
         "Background effects unavailable. Continuing without effects.": "Los efectos de fondo no están disponibles. Se continúa sin efectos.",
         "Choose a PNG, JPEG or WebP image up to 10 MB.": "Elige una imagen PNG, JPEG o WebP de hasta 10 MB.",
         "Unable to change camera background.": "No se pudo cambiar el fondo de la cámara.",
-        "Unable to load background image.": "No se pudo cargar la imagen de fondo."
+        "Unable to load background image.": "No se pudo cargar la imagen de fondo.",
+        "Please wait while your recording is prepared for download.": "Espera mientras se prepara tu grabación para descargarla."
     }
 }

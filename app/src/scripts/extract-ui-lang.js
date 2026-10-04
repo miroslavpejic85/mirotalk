@@ -236,8 +236,8 @@ function scanJs(file) {
     const dropdownRe = /getMsgerParticipantDropdownActionMarkup\([^,]*,[^,]*,\s*(['"])((?:\\.|(?!\1).)*)\1/g;
     while ((m = dropdownRe.exec(src))) add('buttons', unescapeJs(m[2]));
 
-    // Video-tile menu items: createDropdownItem(btn, '<label>', ...)
-    const dropdownItemRe = /createDropdownItem\([^,]+,\s*(['"])((?:\\.|(?!\1).)*)\1/g;
+    // Video-tile menu items: createDropdownItem / createResponsiveDropdownItem(btn, '<label>', ...)
+    const dropdownItemRe = /(?:createDropdownItem|createResponsiveDropdownItem)\([^,]+,\s*(['"])((?:\\.|(?!\1).)*)\1/g;
     while ((m = dropdownItemRe.exec(src))) add('buttons', unescapeJs(m[2]));
 
     // Dynamic UI labels passed as object props or default params (participant subtitles, file picker copy).

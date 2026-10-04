@@ -277,7 +277,14 @@
         "Video": "Video",
         "Whiteboard": "Bảng trắng",
         "Zoom In": "Phóng to",
-        "Zoom Out": "Thu nhỏ"
+        "Zoom Out": "Thu nhỏ",
+        "Draw on Screen": "Vẽ trên màn hình",
+        "Focus Mode": "Chế độ tập trung",
+        "Picture in Picture": "Hình trong hình",
+        "Pin Screen": "Ghim màn hình",
+        "Pin Video": "Ghim video",
+        "Take Snapshot": "Chụp ảnh nhanh",
+        "Video Privacy": "Quyền riêng tư video"
     },
     "labels": {
         "= Arrow": "= Mũi tên",
@@ -310,15 +317,15 @@
         "🎥 Standard (640×480)": "🎥 Tiêu chuẩn (640×480)",
         "🔴 REC": "🔴 GHI",
         "0s": "0s",
-        "15 - frame-per-second": "15 - frame-per-second",
+        "15 - frame-per-second": "15 fps",
         "15 fps": "15 fps",
         "2k": "2k",
-        "30 - frame-per-second": "30 - frame-per-second",
+        "30 - frame-per-second": "30 fps",
         "30 fps": "30 fps",
         "4K": "4K",
-        "5 - frame-per-second": "5 - frame-per-second",
+        "5 - frame-per-second": "5 fps",
         "5 fps": "5 fps",
-        "60 - frame-per-second": "60 - frame-per-second",
+        "60 - frame-per-second": "60 fps",
         "60 fps": "60 fps",
         "6K": "6K",
         "8K": "8K",
@@ -697,7 +704,7 @@
         "Unlock room": "Mở khóa phòng",
         "Unlock room?": "Mở khóa phòng?",
         "Username": "Tên người dùng:",
-        "WebRTC P2P v2.0.84": "WebRTC P2P v2.0.84",
+        "WebRTC P2P v2.0.85": "WebRTC P2P v2.0.85",
         "Whiteboard Shortcuts": "Phím tắt bảng trắng",
         "Yes": "Có",
         "Your microphone is off": "Micrô của bạn bị tắt",
@@ -715,7 +722,8 @@
         "Download your recording, finish saving it, then continue leaving.": "Tải bản ghi, hoàn tất việc lưu rồi tiếp tục rời đi.",
         "Recording download failed. Please try again.": "Không thể tải bản ghi. Vui lòng thử lại.",
         "Please wait while your recording is prepared for download.": "Vui lòng chờ trong khi bản ghi của bạn được chuẩn bị để tải xuống.",
-        "Stay in meeting": "Ở lại cuộc họp"
+        "Stay in meeting": "Ở lại cuộc họp",
+        "Recording": "Ghi hình"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ Đã hủy truyền tệp",
@@ -829,6 +837,7 @@
         "Zoom in not allowed if video on privacy mode": "Không được phóng to khi video ở chế độ riêng tư",
         "Zoom in work when video is on": "Có thể phóng to khi video bật",
         "Zoom out not allowed if video on privacy mode": "Không được thu nhỏ khi video ở chế độ riêng tư",
-        "Zoom out work when video is on": "Có thể thu nhỏ khi video bật"
+        "Zoom out work when video is on": "Có thể thu nhỏ khi video bật",
+        "Please wait while your recording is prepared for download.": "Vui lòng đợi trong khi bản ghi được chuẩn bị để tải xuống."
     }
 }
