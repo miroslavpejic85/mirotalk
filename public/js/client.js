@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.80
+ * @version 2.0.81
  *
  */
 
@@ -8818,6 +8818,8 @@ function setupMySettings() {
         });
     }
 
+    let isSelectingParticipantView = false;
+
     function openParticipantViewMenu() {
         participantViewButton._tippy?.hide();
         participantViewButton._tippy?.disable();
@@ -8836,13 +8838,19 @@ function setupMySettings() {
         participantViewMenu.classList.contains('show') ? closeParticipantViewMenu() : openParticipantViewMenu();
     });
     participantViewMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
         const viewButton = e.target.closest('[data-participant-view]');
         if (!viewButton) return;
-        setParticipantViewMode(viewButton.dataset.participantView);
-        closeParticipantViewMenu();
+        isSelectingParticipantView = true;
+        try {
+            setParticipantViewMode(viewButton.dataset.participantView);
+        } finally {
+            isSelectingParticipantView = false;
+        }
     });
     document.addEventListener('click', (e) => {
-        if (!participantViewDropdown.contains(e.target)) {
+        // Layout changes trigger pin/unpin clicks outside the dropdown.
+        if (!isSelectingParticipantView && !participantViewDropdown.contains(e.target)) {
             closeParticipantViewMenu();
         }
     });
@@ -17967,7 +17975,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.80',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.81',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
