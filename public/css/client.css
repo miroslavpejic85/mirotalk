@@ -4904,6 +4904,39 @@ input:checked + .slider:before {
     backdrop-filter: blur(12px);
 }
 
+.swal2-popup.swal2-toast {
+    border-radius: 12px !important;
+    padding: 0.625em 0.75em !important;
+}
+
+.swal2-popup.swal2-toast .swal2-title,
+.swal2-popup.swal2-toast .swal2-html-container {
+    box-sizing: border-box;
+    margin: 0 0.5em;
+    padding-inline-end: 4.5em !important;
+    text-align: start;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}
+
+.swal2-popup.swal2-toast .swal2-close {
+    position: absolute !important;
+    top: 0;
+    right: 0.25em;
+    min-width: var(--ds-touch-min, 44px);
+    min-height: var(--ds-touch-min, 44px);
+    color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .swal2-popup,
+    .swal2-icon,
+    .swal2-icon * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
 .swal2-popup .swal2-styled {
     border-radius: 12px !important;
 }

@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.88
+ * @version 2.0.89
  *
  */
 
@@ -5027,6 +5027,7 @@ function checkShareScreen() {
             background: swBg,
             position: 'center',
             icon: 'question',
+            title: 'Screen/Window',
             text: 'Do you want to share your screen?',
             showDenyButton: true,
             confirmButtonText: `Yes`,
@@ -7359,8 +7360,8 @@ function setChatRoomBtn() {
         playSound('switch');
         showChatOnMessage = e.currentTarget.checked;
         showChatOnMessage
-            ? msgPopup('info', 'Chat will be shown, when you receive a new message', 'top-end', 3000)
-            : msgPopup('info', 'Chat not will be shown, when you receive a new message', 'top-end', 3000);
+            ? userLog('switch', 'Chat will be shown, when you receive a new message')
+            : userLog('switch', 'Chat not will be shown, when you receive a new message');
         lsSettings.show_chat_on_msg = showChatOnMessage;
         lS.setSettings(lsSettings);
     });
@@ -7371,8 +7372,8 @@ function setChatRoomBtn() {
             playSound('switch');
             speechInMessages = e.currentTarget.checked;
             speechInMessages
-                ? msgPopup('info', 'When You receive a new message, it will be converted into speech', 'top-end', 3000)
-                : msgPopup('info', 'You have disabled speech messages', 'top-end', 3000);
+                ? userLog('switch', 'When You receive a new message, it will be converted into speech')
+                : userLog('switch', 'You have disabled speech messages');
             lsSettings.speech_in_msg = speechInMessages;
             lS.setSettings(lsSettings);
         });
@@ -7595,8 +7596,8 @@ function setCaptionRoomBtn() {
             playSound('switch');
             transcriptShowOnMsg = e.currentTarget.checked;
             transcriptShowOnMsg
-                ? msgPopup('info', 'Caption will be shown, when you receive a new transcript', 'top-end', 3000)
-                : msgPopup('info', 'Caption will not be shown, when you receive a new transcript', 'top-end', 3000);
+                ? userLog('switch', 'Caption will be shown, when you receive a new transcript')
+                : userLog('switch', 'Caption will not be shown, when you receive a new transcript');
             lsSettings.transcript_show_on_msg = transcriptShowOnMsg;
             lS.setSettings(lsSettings);
         });
@@ -7606,8 +7607,8 @@ function setCaptionRoomBtn() {
             playSound('switch');
             transcriptSendToAll = e.currentTarget.checked;
             transcriptSendToAll
-                ? msgPopup('info', 'Transcription will be sent to all participants', 'top-end', 3000)
-                : msgPopup('info', 'Transcription will not be sent to participants', 'top-end', 3000);
+                ? userLog('switch', 'Transcription will be sent to all participants')
+                : userLog('switch', 'Transcription will not be sent to participants');
             lsSettings.transcript_send_to_all = transcriptSendToAll;
             lS.setSettings(lsSettings);
         });
@@ -7620,8 +7621,8 @@ function setCaptionRoomBtn() {
             // setWhisperMode may refuse while a transcription is running.
             e.currentTarget.checked = enabled;
             enabled
-                ? msgPopup('info', 'Server-side Whisper transcription enabled', 'top-end', 3000)
-                : msgPopup('info', 'Using browser Web Speech transcription', 'top-end', 3000);
+                ? userLog('switch', 'Server-side Whisper transcription enabled')
+                : userLog('switch', 'Using browser Web Speech transcription');
         });
 
         // close caption box - show left button and status menu if hide
@@ -8356,14 +8357,14 @@ function setMySettingsBtn() {
         notifyBySound = e.currentTarget.checked;
         lsSettings.sounds = notifyBySound;
         lS.setSettings(lsSettings);
-        userLog('toast', `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'));
+        userLog('switch', `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'));
         playSound('switch');
     });
     switchShare.addEventListener('change', (e) => {
         notify = e.currentTarget.checked;
         lsSettings.share_on_join = notify;
         lS.setSettings(lsSettings);
-        userLog('toast', `${icons.share} Share room on join ` + (notify ? 'ON' : 'OFF'));
+        userLog('switch', `${icons.share} Share room on join ` + (notify ? 'ON' : 'OFF'));
         playSound('switch');
     });
     switchKeepButtonsVisible.addEventListener('change', (e) => {
@@ -8371,7 +8372,7 @@ function setMySettingsBtn() {
         lsSettings.keep_buttons_visible = isButtonsBarOver;
         lS.setSettings(lsSettings);
         const status = isButtonsBarOver ? 'enabled' : 'disabled';
-        userLog('toast', `Buttons always visible ${status}`);
+        userLog('switch', `Buttons always visible ${status}`);
         playSound('switch');
     });
 
@@ -8382,7 +8383,7 @@ function setMySettingsBtn() {
             pinChatByDefault = e.currentTarget.checked;
             lsSettings.pin_chat_by_default = pinChatByDefault;
             lS.setSettings(lsSettings);
-            userLog('toast', `Chat opens pinned by default ${pinChatByDefault ? 'ON' : 'OFF'}`);
+            userLog('switch', `Chat opens pinned by default ${pinChatByDefault ? 'ON' : 'OFF'}`);
             playSound('switch');
         });
     }
@@ -8410,7 +8411,7 @@ function setMySettingsBtn() {
             updatePushToTalkUi(isPushToTalkActive);
             const audioMenuPushToTalk = getId('audioMenuPushToTalk');
             if (audioMenuPushToTalk) audioMenuPushToTalk.checked = isPushToTalkActive;
-            userLog('toast', `👆 Push to talk ` + (isPushToTalkActive ? 'ON' : 'OFF'));
+            userLog('switch', `👆 Push to talk ` + (isPushToTalkActive ? 'ON' : 'OFF'));
             playSound('switch');
         });
     }
@@ -8419,7 +8420,7 @@ function setMySettingsBtn() {
         isAudioPitchBar = e.currentTarget.checked;
         lsSettings.pitch_bar = isAudioPitchBar;
         lS.setSettings(lsSettings);
-        userLog('toast', `${icons.pitchBar} Audio pitch bar ` + (isAudioPitchBar ? 'ON' : 'OFF'));
+        userLog('switch', `${icons.pitchBar} Audio pitch bar ` + (isAudioPitchBar ? 'ON' : 'OFF'));
         playSound('switch');
     });
 
@@ -8442,7 +8443,7 @@ function setMySettingsBtn() {
         lsSettings.theme_color = themeCustom.color;
         lS.setSettings(lsSettings);
         setTheme();
-        userLog('toast', `${icons.theme} Custom theme keep ` + (themeCustom.keep ? 'ON' : 'OFF'));
+        userLog('switch', `${icons.theme} Custom theme keep ` + (themeCustom.keep ? 'ON' : 'OFF'));
         playSound('switch');
         e.target.blur();
     };
@@ -8954,7 +8955,7 @@ function handleShortcuts() {
     } else {
         switchShortcuts.addEventListener('change', (e) => {
             const status = setKeyboardShortcuts(e.currentTarget.checked);
-            userLog('toast', `Keyboard shortcuts ${status}`);
+            userLog('switch', `Keyboard shortcuts ${status}`);
             playSound('switch');
         });
 
@@ -11632,8 +11633,8 @@ function cleanMessages() {
     playSound('newMessage');
     Swal.fire({
         background: swBg,
-        position: 'top',
-        title: 'Chat',
+        position: 'center',
+        title: 'Clear chat',
         text: 'Clean up chat messages?',
         imageUrl: images.delete,
         showCancelButton: true,
@@ -11667,7 +11668,7 @@ function cleanCaptions() {
     playSound('newMessage');
     Swal.fire({
         background: swBg,
-        position: 'top',
+        position: 'center',
         title: 'Clean up all caption transcripts?',
         imageUrl: images.delete,
         showCancelButton: true,
@@ -12646,8 +12647,8 @@ function deleteMessage(id) {
     playSound('newMessage');
     Swal.fire({
         background: swBg,
-        position: 'top',
-        title: 'Chat',
+        position: 'center',
+        title: 'Delete',
         text: 'Delete this message?',
         imageUrl: images.delete,
         showCancelButton: true,
@@ -12680,7 +12681,7 @@ function copyToClipboard(id) {
             msgPopup('success', 'Message copied!', 'top-end', 1000);
         })
         .catch((err) => {
-            msgPopup('error', err, 'top', 2000);
+            msgPopup('error', err.message || String(err), 'top-end', 6000);
         });
 }
 
@@ -14028,7 +14029,7 @@ function setPeerHandStatus(peer_id, peer_name, status) {
     const peerHandStatus = getId(peer_id + '_handStatus');
     if (status) {
         elemDisplay(peerHandStatus, true);
-        userLog('toast', `${icons.user} ${peer_name} \n has raised the hand!`);
+        userLog('toast', `${icons.user} ${peer_name} \n has raised the hand!`, 'top', 6000);
         playSound('raiseHand');
     } else {
         elemDisplay(peerHandStatus, false);
@@ -14771,7 +14772,7 @@ function setMyAudioOff(peer_name) {
     }
     audioBtn.className = className.audioOff;
     setMyAudioStatus(myAudioStatus);
-    userLog('toast', `${icons.user} ${peer_name} \n has disabled your audio`);
+    userLog('toast', `${icons.user} ${peer_name} \n has disabled your audio`, 'top', 6000);
     playSound('off');
 }
 
@@ -14790,7 +14791,7 @@ function setMyAudioOn(peer_name) {
     }
     audioBtn.className = className.audioOn;
     setMyAudioStatus(myAudioStatus);
-    userLog('toast', `${icons.user} ${peer_name} \n has enabled your audio`);
+    userLog('toast', `${icons.user} ${peer_name} \n has enabled your audio`, 'top', 6000);
     playSound('on');
 }
 
@@ -14810,7 +14811,7 @@ function setMyVideoOff(peer_name) {
     }
     videoBtn.className = className.videoOff;
     setMyVideoStatus(myVideoStatus);
-    userLog('toast', `${icons.user} ${peer_name} \n has disabled your video`);
+    userLog('toast', `${icons.user} ${peer_name} \n has disabled your video`, 'top', 6000);
     playSound('off');
 }
 
@@ -14821,7 +14822,7 @@ function setMyVideoOff(peer_name) {
 function setMyScreenOff(peer_name) {
     if (isScreenStreaming) {
         toggleScreenSharing();
-        userLog('toast', `${icons.user} ${peer_name} \n has stopped your screen sharing`);
+        userLog('toast', `${icons.user} ${peer_name} \n has stopped your screen sharing`, 'top', 6000);
         playSound('off');
     }
 }
@@ -14832,11 +14833,11 @@ function setMyScreenOff(peer_name) {
  */
 function disableAllPeers(element) {
     if (!thereArePeerConnections()) {
-        return toastMessage('info', 'No participants detected', '', 'top');
+        return toastMessage('info', 'No participants detected');
     }
     Swal.fire({
         background: swBg,
-        position: 'top',
+        position: 'center',
         imageUrl: element == 'audio' ? images.audioOff : images.videoOff,
         title: element == 'audio' ? 'Mute everyone except yourself?' : 'Hide everyone except yourself?',
         text:
@@ -14871,7 +14872,7 @@ function disableAllPeers(element) {
  */
 function ejectEveryone() {
     if (!thereArePeerConnections()) {
-        return toastMessage('info', 'No participants detected', '', 'top');
+        return toastMessage('info', 'No participants detected');
     }
     Swal.fire({
         background: swBg,
@@ -14907,7 +14908,7 @@ function getActiveRooms() {
  */
 function disablePeer(peer_id, element) {
     if (!thereArePeerConnections()) {
-        return toastMessage('info', 'No participants detected', '', 'top');
+        return toastMessage('info', 'No participants detected');
     }
     let text, imageUrl, title, confirmButtonText;
 
@@ -14936,7 +14937,7 @@ function disablePeer(peer_id, element) {
 
     Swal.fire({
         background: swBg,
-        position: 'top',
+        position: 'center',
         imageUrl: imageUrl,
         title: title,
         text: text,
@@ -14993,6 +14994,7 @@ function handleRoomAction(config, emit = false) {
                     showCancelButton: true,
                     background: swBg,
                     imageUrl: images.locked,
+                    title: 'Lock room',
                     input: 'text',
                     inputPlaceholder: 'Set Room password',
                     confirmButtonText: 'Lock room',
@@ -15039,14 +15041,14 @@ function handleRoomStatus(config) {
     switch (action) {
         case 'lock':
             playSound('locked');
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`);
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔒 LOCKED the room by password`, 'top', 6000);
             elemDisplay(lockRoomBtn, false);
             elemDisplay(unlockRoomBtn, true);
             isRoomLocked = true;
             screenReaderAccessibility.announceMessage(`${peer_name} locked the room`);
             break;
         case 'unlock':
-            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`);
+            userLog('toast', `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room`, 'top', 6000);
             elemDisplay(unlockRoomBtn, false);
             elemDisplay(lockRoomBtn, true);
             isRoomLocked = false;
@@ -15061,7 +15063,8 @@ function handleRoomStatus(config) {
             userLog(
                 'toast',
                 `${icons.user} ${peer_name} \n has 🔒 LOCKED the room, no new participants can join`,
-                'top-end'
+                'top',
+                6000
             );
             isJoinLocked = true;
             updateJoinLockButtons();
@@ -15071,7 +15074,8 @@ function handleRoomStatus(config) {
             userLog(
                 'toast',
                 `${icons.user} ${peer_name} \n has 🔓 UNLOCKED the room, new participants can join`,
-                'top-end'
+                'top',
+                6000
             );
             isJoinLocked = false;
             updateJoinLockButtons();
@@ -16852,7 +16856,7 @@ function confirmCleanBoard() {
     Swal.fire({
         background: swBg,
         imageUrl: images.delete,
-        position: 'top',
+        position: 'center',
         title: 'Clean the board',
         text: 'Are you sure you want to clean the board?',
         showCancelButton: true,
@@ -17375,7 +17379,7 @@ function sendFileInformations(file, peer_id, broadcast = false, peerName = '') {
     if (fileToSend && fileToSend.size > 0) {
         // no peers in the room
         if (!thereArePeerConnections()) {
-            return toastMessage('info', 'No participants detected', '', 'top');
+            return toastMessage('info', 'No participants detected');
         }
 
         // prevent XSS injection to remote peer (fileToSend.name is read only)
@@ -17609,7 +17613,7 @@ function shareMediaUrl(url, peer_id = null, peer_name = '', broadcast = !peer_id
     if (!mediaUrl) return false;
 
     if (!thereArePeerConnections()) {
-        toastMessage('info', 'No participants detected', '', 'top');
+        toastMessage('info', 'No participants detected');
         return false;
     }
     console.log('Video URL: ' + mediaUrl);
@@ -17853,7 +17857,7 @@ function kickOut(peer_id) {
 
     Swal.fire({
         background: swBg,
-        position: 'top',
+        position: 'center',
         imageUrl: images.leave,
         title: 'Eject participant',
         text: `Are you sure you want to eject ${pName}?`,
@@ -17939,7 +17943,7 @@ function handleCaptionActions(config) {
                 'warning',
                 'Stop captions',
                 `${peer_name} has stopped the captions for this session`,
-                'top-end',
+                'top',
                 6000
             );
             if (recognitionRunning) {
@@ -18009,7 +18013,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.88',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.89',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -18401,39 +18405,47 @@ function hideDisconnectBanner() {
 
 /**
  * Basic user logging using https://sweetalert2.github.io & https://animate.style/
- * @param {string} type of popup
+ * @param {string} type of popup; use "switch" for immediate settings feedback
  * @param {string} message to popup
- * @param {integer} timer toast duration ms
+ * @param {number|string} timerOrPosition toast duration ms or SweetAlert position
+ * @param {number} timer toast duration when a position is supplied
  */
-function userLog(type, message, timer = 3000) {
+function userLog(type, message, timerOrPosition, timer) {
+    const position = typeof timerOrPosition === 'string' ? timerOrPosition : undefined;
+    const duration = typeof timerOrPosition === 'number' ? timerOrPosition : timer;
     switch (type) {
         case 'warning':
         case 'error':
-            Swal.fire({
+            playSound('alert');
+            if ((type === 'warning' || position) && position !== 'center') {
+                return showSwalToast({
+                    background: swBg,
+                    position: position || 'top-end',
+                    icon: type,
+                    titleText: message,
+                    timer: duration,
+                });
+            }
+            return Swal.fire({
                 background: swBg,
                 position: 'center',
                 icon: type,
-                title: type,
+                title: type === 'warning' ? 'Warning' : 'Error',
                 text: message,
                 showClass: { popup: 'animate__animated animate__fadeInDown' },
                 hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
-            playSound('alert');
-            break;
         case 'info':
         case 'success':
-            Swal.fire({
+            return showSwalToast({
                 background: swBg,
-                position: 'center',
+                position: position || 'top-end',
                 icon: type,
-                title: type,
-                text: message,
-                showClass: { popup: 'animate__animated animate__fadeInDown' },
-                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+                titleText: message,
+                timer: duration,
             });
-            break;
         case 'success-html':
-            Swal.fire({
+            return Swal.fire({
                 background: swBg,
                 position: 'center',
                 icon: 'success',
@@ -18442,22 +18454,21 @@ function userLog(type, message, timer = 3000) {
                 showClass: { popup: 'animate__animated animate__fadeInDown' },
                 hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
-            break;
-        case 'toast':
-            const Toast = Swal.mixin({
+        case 'switch':
+            return showSwalToast({
                 background: swBg,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: timer,
-                timerProgressBar: true,
-            });
-            Toast.fire({
+                position: position || 'top-end',
                 html: message,
-                showClass: { popup: 'animate__animated animate__fadeInDown' },
-                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+                timer: duration ?? 2000,
+                timerProgressBar: false,
             });
-            break;
+        case 'toast':
+            return showSwalToast({
+                background: swBg,
+                position: position || 'top-end',
+                html: message,
+                timer: duration,
+            });
         // ......
         default:
             alert(message);
@@ -18473,23 +18484,16 @@ function userLog(type, message, timer = 3000) {
  * @param {string} position message position
  * @param {integer} duration time popup in ms
  */
-function toastMessage(icon, title, html, position = 'top-end', duration = 3000) {
+function toastMessage(icon, title, html, position = 'top-end', duration) {
     if (['warning', 'error'].includes(icon)) playSound('alert');
 
-    const Toast = Swal.mixin({
+    return showSwalToast({
         background: swBg,
-        position: position,
-        icon: icon,
-        showConfirmButton: false,
-        timerProgressBar: true,
-        toast: true,
+        position,
+        icon,
         timer: duration,
-    });
-    Toast.fire({
-        title: title,
-        html: html,
-        showClass: { popup: 'animate__animated animate__fadeInDown' },
-        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+        title,
+        html,
     });
 }
 
@@ -18530,22 +18534,15 @@ function msgHTML(icon, imageUrl, title, html, position = 'center', redirectURL =
  * @param {string} position of the toast
  * @param {integer} timer ms before to hide
  */
-function msgPopup(icon, message, position, timer = 1000) {
+function msgPopup(icon, message, position = 'top-end', timer) {
     if (['warning', 'error'].includes(icon)) playSound('alert');
 
-    const Toast = Swal.mixin({
+    return showSwalToast({
         background: swBg,
-        toast: true,
-        position: position,
-        showConfirmButton: false,
-        timer: timer,
-        timerProgressBar: true,
-    });
-    Toast.fire({
-        icon: icon,
-        title: message,
-        showClass: { popup: 'animate__animated animate__fadeInDown' },
-        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+        position,
+        timer,
+        icon,
+        titleText: message,
     });
 }
 

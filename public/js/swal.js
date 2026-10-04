@@ -1,11 +1,60 @@
 'use strict';
 
 window.Swal = window.Swal.mixin({
+    position: 'center',
     reverseButtons: true,
     confirmButtonColor: 'var(--swal-confirm-bg, #315bd6)',
     denyButtonColor: 'var(--swal-neutral-bg, #505866)',
     cancelButtonColor: 'var(--swal-neutral-bg, #505866)',
 });
+
+const swalToastQueue = [];
+let swalToastRetry = null;
+
+/**
+ * Queue non-blocking feedback so it never dismisses an input or confirmation dialog.
+ */
+function showSwalToast(options) {
+    return new Promise((resolve, reject) => {
+        swalToastQueue.push({ options, resolve, reject });
+        drainSwalToasts();
+    });
+}
+
+function drainSwalToasts() {
+    if (swalToastRetry !== null || !swalToastQueue.length) return;
+    if (Swal.isVisible()) {
+        swalToastRetry = setTimeout(() => {
+            swalToastRetry = null;
+            drainSwalToasts();
+        }, 250);
+        return;
+    }
+
+    const { options, resolve, reject } = swalToastQueue.shift();
+    const duration = options.timer ?? (['warning', 'error'].includes(options.icon) ? 6000 : 4000);
+    const timerProgressBar = options.timerProgressBar ?? true;
+    Swal.fire({
+        ...options,
+        toast: true,
+        position: options.position || 'top-end',
+        showConfirmButton: false,
+        showCloseButton: true,
+        timer: duration === 0 ? 0 : Math.max(timerProgressBar ? 3000 : 2000, duration),
+        timerProgressBar,
+        didOpen: (popup) => {
+            const resume = () => {
+                if (!popup.matches(':hover') && !popup.contains(document.activeElement)) Swal.resumeTimer();
+            };
+            popup.addEventListener('mouseenter', () => Swal.stopTimer());
+            popup.addEventListener('mouseleave', resume);
+            popup.addEventListener('focusin', () => Swal.stopTimer());
+            popup.addEventListener('focusout', resume);
+            if (typeof options.didOpen === 'function') options.didOpen(popup);
+        },
+    }).then(resolve, reject);
+    drainSwalToasts();
+}
 
 function getSwalLuminance(channels) {
     return channels
