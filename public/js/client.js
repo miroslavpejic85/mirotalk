@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.83
+ * @version 2.0.84
  *
  */
 
@@ -809,6 +809,7 @@ let recordingSavePending = false;
 let resolveRecordingSave;
 let rejectRecordingSave;
 let isLeavingRoom = false;
+let pendingRecordingDownload = null;
 
 // whiteboard
 let wbCanvas = null;
@@ -10662,7 +10663,7 @@ function getSupportedMimeTypes() {
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
  */
 function startStreamRecording() {
-    if (recordingSavePending) {
+    if (recordingSavePending || pendingRecordingDownload) {
         userLog('warning', 'Please wait while your recording is prepared for download.');
         return;
     }
@@ -11111,7 +11112,11 @@ async function downloadRecordedStream() {
     };
 
     const finalBlob = await fixWebmDuration(rawBlob);
-    await saveBlobToFile(finalBlob, recFileName);
+    if (isLeavingRoom && (isMobileDevice || isTabletDevice)) {
+        pendingRecordingDownload = { blob: finalBlob, file: recFileName };
+    } else {
+        await saveBlobToFile(finalBlob, recFileName);
+    }
 }
 
 /**
@@ -18004,7 +18009,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.83',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.84',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -18054,11 +18059,59 @@ async function exitRoom(url = null) {
         }
         await checkRecording();
         if (showRecordingProgress) Swal.close();
+        if (pendingRecordingDownload) {
+            if (!(await confirmRecordingDownload(pendingRecordingDownload))) return;
+            pendingRecordingDownload = null;
+        }
         url ? openURL(url) : redirectOnLeave();
     } catch (err) {
         handleRecordingError('Recording save failed: ' + err);
     } finally {
         isLeavingRoom = false;
+    }
+}
+
+async function confirmRecordingDownload({ blob, file }) {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    elemDisplay(link, false);
+    link.href = url;
+    link.download = file;
+    document.body.appendChild(link);
+    let downloadStarted = false;
+    try {
+        const result = await Swal.fire({
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            background: swBg,
+            position: 'center',
+            title: 'Recording',
+            text: 'Download your recording, finish saving it, then continue leaving.',
+            confirmButtonText: 'Download recording',
+            denyButtonText: 'Continue leaving',
+            showDenyButton: true,
+            didOpen: () => {
+                Swal.getDenyButton().disabled = true;
+            },
+            preConfirm: () => {
+                try {
+                    link.click();
+                    downloadStarted = true;
+                    Swal.getDenyButton().disabled = false;
+                } catch (err) {
+                    console.error('Recording download failed:', err);
+                    Swal.showValidationMessage(translateDialogText('Recording download failed. Please try again.'));
+                }
+                return false;
+            },
+            preDeny: () => downloadStarted,
+            showClass: { popup: 'animate__animated animate__fadeInDown' },
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+        });
+        return result.isDenied && downloadStarted;
+    } finally {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
     }
 }
 

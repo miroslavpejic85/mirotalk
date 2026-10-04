@@ -18,6 +18,7 @@ const source = [
     section('function startStreamRecording()', '/**\n * Starts mobile recording'),
     section('function handleMediaRecorder(mediaRecorder)', '/**\n * Create Chat Room Data Channel'),
     section('function saveBlobToFile(blob, file)', '/**\n * Prefill the settings media URL'),
+    section('function translateDialogText(text)', 'function shareRoomByEmail()'),
     section('function initExitMeeting()', 'function redirectOnLeave()'),
 ].join('\n');
 
@@ -44,6 +45,9 @@ describe('saving recordings before room exit', () => {
     let processing;
     let downloadedBlob;
     let downloadError;
+    let mobilePrompt;
+    let denyButton;
+    let validationMessages;
 
     beforeEach(() => {
         events = [];
@@ -54,6 +58,9 @@ describe('saving recordings before room exit', () => {
         processing = deferred();
         downloadedBlob = null;
         downloadError = null;
+        mobilePrompt = deferred();
+        denyButton = { disabled: false };
+        validationMessages = [];
         const listeners = {};
         recorder = {
             state: 'inactive',
@@ -84,6 +91,8 @@ describe('saving recordings before room exit', () => {
             swBg: '#000',
             images: { feedback: 'feedback.svg' },
             isMobileDevice: false,
+            isTabletDevice: false,
+            swapCameraBtn: {},
             myPeerName: 'Guest',
             myVideoPeerName: { innerText: 'Guest' },
             recordingTime: { innerText: '10s' },
@@ -111,10 +120,13 @@ describe('saving recordings before room exit', () => {
                 fire(options) {
                     popups.push(options);
                     if (options.didOpen) options.didOpen();
+                    if (options.confirmButtonText === 'Download recording') return mobilePrompt.promise;
                     return options.title === 'Leave the meeting?' ? survey.promise : Promise.resolve({});
                 },
                 showLoading: () => events.push('loading'),
                 close: () => events.push('close-progress'),
+                getDenyButton: () => denyButton,
+                showValidationMessage: (message) => validationMessages.push(message),
             },
             document: {
                 createElement: () => ({
@@ -354,5 +366,136 @@ describe('saving recordings before room exit', () => {
         await leaving;
         assert.ok(events.includes('/newcall'));
         assert.ok(!events.includes('redirect'));
+    });
+
+    for (const device of ['isMobileDevice', 'isTabletDevice']) {
+        for (const [label, surveyActive, result, destination] of [
+            ['without rating', true, { isConfirmed: true }, 'redirect'],
+            ['to rate', true, { isDenied: true }, 'https://survey.example/rate'],
+            ['with surveys disabled', false, null, 'redirect'],
+        ]) {
+            it(`${device} waits for explicit download and continue actions when leaving ${label}`, async () => {
+                context[device] = true;
+                context.surveyActive = surveyActive;
+                start();
+                const leaving = context.leaveRoom();
+                if (result) {
+                    survey.resolve(result);
+                    await flush();
+                }
+                finish();
+                await completeDownload();
+                const prompt = popups.at(-1);
+                assert.equal(prompt.confirmButtonText, 'Download recording');
+                assert.equal(prompt.denyButtonText, 'Continue leaving');
+                assert.equal(prompt.allowOutsideClick, false);
+                assert.equal(prompt.allowEscapeKey, false);
+                assert.equal(denyButton.disabled, true);
+                assert.equal(prompt.preDeny(), false);
+                assert.equal(await downloadedBlob.text(), 'initialfinal');
+                assert.ok(!events.includes('download'));
+                assert.ok(!events.includes(destination));
+
+                assert.equal(prompt.preConfirm(), false);
+                assert.equal(events.at(-1), 'download');
+                assert.equal(denyButton.disabled, false);
+                assert.equal(prompt.preDeny(), true);
+                await flush();
+                assert.ok(!events.includes('url-revoked'));
+                assert.ok(!events.includes('anchor-removed'));
+                assert.ok(!events.includes(destination));
+                assert.equal(cleanup.length, 0);
+
+                mobilePrompt.resolve({ isDenied: true });
+                await leaving;
+                assert.deepEqual(events.slice(-3), ['anchor-removed', 'url-revoked', destination]);
+                assert.equal(vm.runInContext('pendingRecordingDownload', context), null);
+                assert.deepEqual(errors, []);
+            });
+        }
+    }
+
+    it('allows retrying a failed mobile download without discarding its blob or leaving', async () => {
+        context.isMobileDevice = true;
+        start();
+        const leaving = context.exitRoom();
+        finish();
+        await completeDownload();
+        const prompt = popups.at(-1);
+        downloadError = new Error('Download blocked');
+        assert.equal(prompt.preConfirm(), false);
+        assert.equal(prompt.preDeny(), false);
+        assert.deepEqual(validationMessages, ['Recording download failed. Please try again.']);
+        assert.ok(!events.includes('redirect'));
+        assert.ok(!events.includes('url-revoked'));
+        assert.ok(vm.runInContext('pendingRecordingDownload.blob.size > 0', context));
+
+        downloadError = null;
+        prompt.preConfirm();
+        assert.equal(prompt.preDeny(), true);
+        mobilePrompt.resolve({ isDenied: true });
+        await leaving;
+        assert.ok(events.includes('redirect'));
+    });
+
+    it('retains mobile recording data if the download dialog is unexpectedly dismissed', async () => {
+        context.isMobileDevice = true;
+        start();
+        const leaving = context.exitRoom();
+        finish();
+        await completeDownload();
+        mobilePrompt.resolve({ isDismissed: true });
+        await leaving;
+        assert.ok(!events.includes('redirect'));
+        assert.ok(vm.runInContext('pendingRecordingDownload.blob.size > 0', context));
+        context.startStreamRecording();
+        assert.equal(errors.at(-1).type, 'warning');
+
+        mobilePrompt = deferred();
+        const retry = context.exitRoom();
+        await flush();
+        const prompt = popups.at(-1);
+        assert.equal(prompt.confirmButtonText, 'Download recording');
+        prompt.preConfirm();
+        mobilePrompt.resolve({ isDenied: true });
+        await retry;
+        assert.equal(recorder.stopCount, 1);
+        assert.ok(events.includes('redirect'));
+    });
+
+    it('keeps mobile manual-stop behavior unchanged when not leaving', async () => {
+        context.isMobileDevice = true;
+        start();
+        const saving = context.stopStreamRecording();
+        finish();
+        await completeDownload();
+        await saving;
+        assert.ok(events.includes('download'));
+        assert.ok(events.includes('recording-info'));
+        assert.equal(vm.runInContext('pendingRecordingDownload', context), null);
+    });
+
+    it('uses the explicit mobile download step when leaving during a manual save', async () => {
+        context.isMobileDevice = true;
+        start();
+        context.stopStreamRecording();
+        finish();
+        const leaving = context.exitRoom();
+        await completeDownload();
+        const prompt = popups.at(-1);
+        assert.equal(prompt.confirmButtonText, 'Download recording');
+        assert.ok(!events.includes('download'));
+        prompt.preConfirm();
+        mobilePrompt.resolve({ isDenied: true });
+        await leaving;
+        assert.equal(recorder.stopCount, 1);
+        assert.ok(events.includes('redirect'));
+    });
+
+    it('does not require download confirmation on mobile without a recording', async () => {
+        context.isMobileDevice = true;
+        await context.exitRoom();
+        assert.deepEqual(events, ['redirect']);
+        assert.deepEqual(popups, []);
     });
 });
