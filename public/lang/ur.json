@@ -697,10 +697,20 @@
         "Unlock room": "کمرے کو غیر مقفل کریں۔",
         "Unlock room?": "کمرے کو غیر مقفل کریں؟",
         "Username": "صارف نام:",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "وائٹ بورڈ شارٹ کٹس",
         "Yes": "جی ہاں",
-        "Your microphone is off": "آپ کا مائیکروفون بند ہے۔"
+        "Your microphone is off": "آپ کا مائیکروفون بند ہے۔",
+        "Clear board": "بورڈ صاف کریں",
+        "Clear captions": "کیپشن مٹائیں",
+        "Clear chat": "چیٹ صاف کریں",
+        "Delete": "حذف کریں",
+        "Delete this message?": "یہ پیغام حذف کریں؟",
+        "Eject everyone": "سب کو باہر نکالیں",
+        "Eject participant": "شریک کو باہر نکالیں",
+        "Leave without rating": "درجہ بندی کیے بغیر نکلیں",
+        "Rate experience": "تجربے کی درجہ بندی کریں",
+        "Stay in meeting": "میٹنگ میں رہیں"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ فائل کی منتقلی منسوخ ہو گئی",

@@ -671,7 +671,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",
@@ -700,7 +700,17 @@
         "Transcription needs your microphone on to capture your speech. Turn it on to start transcribing.": "Az átíráshoz be kell kapcsolni a mikrofont a beszéd rögzítéséhez. Az átírás megkezdéséhez kapcsolja be.",
         "Turn on microphone": "Kapcsolja be a mikrofont",
         "Unlock room": "Nyissa ki a szobát",
-        "Your microphone is off": "A mikrofonja ki van kapcsolva"
+        "Your microphone is off": "A mikrofonja ki van kapcsolva",
+        "Clear board": "Tábla törlése",
+        "Clear captions": "Feliratok törlése",
+        "Clear chat": "Csevegés törlése",
+        "Delete": "Törlés",
+        "Delete this message?": "Törli ezt az üzenetet?",
+        "Eject everyone": "Mindenki eltávolítása",
+        "Eject participant": "Résztvevő eltávolítása",
+        "Leave without rating": "Kilépés értékelés nélkül",
+        "Rate experience": "Élmény értékelése",
+        "Stay in meeting": "Maradás a megbeszélésen"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Jelöljön ki egy csoportosított objektumot a csoportbontáshoz.",

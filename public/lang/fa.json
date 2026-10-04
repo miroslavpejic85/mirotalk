@@ -697,10 +697,20 @@
         "Unlock room": "قفل اتاق را باز کنید",
         "Unlock room?": "باز کردن قفل اتاق؟",
         "Username": "نام کاربری:",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "میانبرهای تخته سفید",
         "Yes": "بله",
-        "Your microphone is off": "میکروفون شما خاموش است"
+        "Your microphone is off": "میکروفون شما خاموش است",
+        "Clear board": "پاک کردن تخته",
+        "Clear captions": "پاک کردن زیرنویس‌ها",
+        "Clear chat": "پاک کردن گفتگو",
+        "Delete": "حذف",
+        "Delete this message?": "این پیام حذف شود؟",
+        "Eject everyone": "اخراج همه",
+        "Eject participant": "اخراج شرکت‌کننده",
+        "Leave without rating": "خروج بدون امتیازدهی",
+        "Rate experience": "امتیازدهی به تجربه",
+        "Stay in meeting": "ماندن در جلسه"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ انتقال فایل لغو شد",

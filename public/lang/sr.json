@@ -671,7 +671,7 @@
         "Time Limit Reached": "Dostignuto vremensko ograničenje",
         "Unlock room?": "Otključati sobu?",
         "Username": "Корисничко име",
-        "WebRTC P2P v2.0.73": "WebRTC P2P в2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P в2.0.80",
         "Whiteboard Shortcuts": "Prečice table",
         "Yes": "Da",
         "Schedule email invitation": "Закажите позивницу е-поштом",
@@ -700,7 +700,17 @@
         "Transcription needs your microphone on to capture your speech. Turn it on to start transcribing.": "За транскрипцију је потребан ваш микрофон да би снимио ваш говор. Укључите га да бисте започели транскрипцију.",
         "Turn on microphone": "Укључите микрофон",
         "Unlock room": "Откључај собу",
-        "Your microphone is off": "Ваш микрофон је искључен"
+        "Your microphone is off": "Ваш микрофон је искључен",
+        "Clear board": "Очисти таблу",
+        "Clear captions": "Обриши титлове",
+        "Clear chat": "Очисти ћаскање",
+        "Delete": "Обриши",
+        "Delete this message?": "Обрисати ову поруку?",
+        "Eject everyone": "Избаци све",
+        "Eject participant": "Избаци учесника",
+        "Leave without rating": "Напусти без оцењивања",
+        "Rate experience": "Оцени искуство",
+        "Stay in meeting": "Остани на састанку"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Izaberite grupisani objekat za razgrupisavanje.",

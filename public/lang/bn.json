@@ -697,10 +697,20 @@
         "Unlock room": "রুম আনলক করুন",
         "Unlock room?": "রুম আনলক করবেন?",
         "Username": "ব্যবহারকারীর নাম:",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "হোয়াইটবোর্ড শর্টকাট",
         "Yes": "হ্যাঁ",
-        "Your microphone is off": "আপনার মাইক্রোফোন বন্ধ আছে"
+        "Your microphone is off": "আপনার মাইক্রোফোন বন্ধ আছে",
+        "Clear board": "বোর্ড মুছুন",
+        "Clear captions": "ক্যাপশন মুছুন",
+        "Clear chat": "চ্যাট মুছুন",
+        "Delete": "মুছুন",
+        "Delete this message?": "এই বার্তাটি মুছবেন?",
+        "Eject everyone": "সবাইকে সরিয়ে দিন",
+        "Eject participant": "অংশগ্রহণকারীকে সরিয়ে দিন",
+        "Leave without rating": "মূল্যায়ন না করে বেরিয়ে যান",
+        "Rate experience": "অভিজ্ঞতার মূল্যায়ন করুন",
+        "Stay in meeting": "মিটিংয়ে থাকুন"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ ফাইল স্থানান্তর বাতিল হয়েছে",

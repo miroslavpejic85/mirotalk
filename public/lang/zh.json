@@ -671,7 +671,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v2.0.73": "WebRTCP2Pv2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTCP2Pv2.0.80",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",
@@ -700,7 +700,17 @@
         "Transcription needs your microphone on to capture your speech. Turn it on to start transcribing.": "转录需要打开麦克风来捕捉您的讲话。打开它开始转录。",
         "Turn on microphone": "打开麦克风",
         "Unlock room": "解锁房间",
-        "Your microphone is off": "你的麦克风已关闭"
+        "Your microphone is off": "你的麦克风已关闭",
+        "Clear board": "清空白板",
+        "Clear captions": "清空字幕",
+        "Clear chat": "清空聊天",
+        "Delete": "删除",
+        "Delete this message?": "删除这条消息？",
+        "Eject everyone": "移除所有人",
+        "Eject participant": "移除参与者",
+        "Leave without rating": "不评价并离开",
+        "Rate experience": "评价体验",
+        "Stay in meeting": "留在会议中"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "请选择一个已组合的对象以取消组合。",

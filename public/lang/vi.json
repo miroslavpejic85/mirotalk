@@ -697,10 +697,20 @@
         "Unlock room": "Mở khóa phòng",
         "Unlock room?": "Mở khóa phòng?",
         "Username": "Tên người dùng:",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "Phím tắt bảng trắng",
         "Yes": "Có",
-        "Your microphone is off": "Micrô của bạn bị tắt"
+        "Your microphone is off": "Micrô của bạn bị tắt",
+        "Clear board": "Xóa bảng",
+        "Clear captions": "Xóa phụ đề",
+        "Clear chat": "Xóa cuộc trò chuyện",
+        "Delete": "Xóa",
+        "Delete this message?": "Xóa tin nhắn này?",
+        "Eject everyone": "Mời tất cả ra khỏi phòng",
+        "Eject participant": "Mời người tham gia ra khỏi phòng",
+        "Leave without rating": "Rời đi mà không đánh giá",
+        "Rate experience": "Đánh giá trải nghiệm",
+        "Stay in meeting": "Ở lại cuộc họp"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ Đã hủy truyền tệp",

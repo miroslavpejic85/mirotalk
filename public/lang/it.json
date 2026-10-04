@@ -671,7 +671,7 @@
         "Time Limit Reached": "Limite di tempo raggiunto",
         "Unlock room?": "Sbloccare la stanza?",
         "Username": "Nome utente",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "Scorciatoie della lavagna",
         "Yes": "Sì",
         "Schedule email invitation": "Pianifica invito via email",
@@ -700,7 +700,17 @@
         "Transcription needs your microphone on to capture your speech. Turn it on to start transcribing.": "La trascrizione richiede l'attivazione del microfono per acquisire il tuo discorso. Accendilo per iniziare a trascrivere.",
         "Turn on microphone": "Accendi il microfono",
         "Unlock room": "Sblocca stanza",
-        "Your microphone is off": "Il tuo microfono è spento"
+        "Your microphone is off": "Il tuo microfono è spento",
+        "Clear board": "Svuota lavagna",
+        "Clear captions": "Cancella sottotitoli",
+        "Clear chat": "Svuota chat",
+        "Delete": "Elimina",
+        "Delete this message?": "Eliminare questo messaggio?",
+        "Eject everyone": "Espelli tutti",
+        "Eject participant": "Espelli partecipante",
+        "Leave without rating": "Esci senza valutare",
+        "Rate experience": "Valuta l'esperienza",
+        "Stay in meeting": "Resta nella riunione"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Seleziona un oggetto raggruppato da separare.",

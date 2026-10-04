@@ -697,10 +697,20 @@
         "Unlock room": "खोली अनलॉक करा",
         "Unlock room?": "खोली अनलॉक करायची?",
         "Username": "वापरकर्तानाव:",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "व्हाईटबोर्ड शॉर्टकट",
         "Yes": "होय",
-        "Your microphone is off": "तुमचा मायक्रोफोन बंद आहे"
+        "Your microphone is off": "तुमचा मायक्रोफोन बंद आहे",
+        "Clear board": "फळा साफ करा",
+        "Clear captions": "उपशीर्षके हटवा",
+        "Clear chat": "चॅट साफ करा",
+        "Delete": "हटवा",
+        "Delete this message?": "हा संदेश हटवायचा?",
+        "Eject everyone": "सर्वांना बाहेर काढा",
+        "Eject participant": "सहभागीला बाहेर काढा",
+        "Leave without rating": "मूल्यांकन न करता बाहेर पडा",
+        "Rate experience": "अनुभवाचे मूल्यांकन करा",
+        "Stay in meeting": "मीटिंगमध्ये राहा"
     },
     "toasts": {
         "⚠️ File transfer aborted": "⚠️ फाइल हस्तांतरण रद्द झाले",

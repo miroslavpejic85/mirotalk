@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.0.73 - Configuration File
+ * MiroTalk P2P v.2.0.80 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -483,6 +483,11 @@ module.exports = {
      * Admins can override individual themes or add new ones.
      * The client merges these with built-in defaults, so you
      * only need to specify the properties you want to change.
+     * Dialog actions use --room-switch-accent / --dd-color and --select-bg.
+     * Override --swal-confirm-bg and --swal-neutral-bg to customize them.
+     * Button text contrast is selected automatically; destructive actions stay red.
+     * Join meeting uses a darker accent with white text. --swal-join-bg and
+     * --swal-join-hover-bg overrides are darkened if needed for text contrast.
      */
     themes: {
         /* Example: override dark theme background

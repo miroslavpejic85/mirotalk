@@ -671,7 +671,7 @@
         "Time Limit Reached": "Batas Waktu Tercapai",
         "Unlock room?": "Buka kunci ruangan?",
         "Username": "Nama belakang",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "Pintasan Papan Tulis",
         "Yes": "Ya",
         "Schedule email invitation": "Jadwalkan undangan email",
@@ -700,7 +700,17 @@
         "Transcription needs your microphone on to capture your speech. Turn it on to start transcribing.": "Transkripsi memerlukan mikrofon untuk merekam ucapan Anda. Aktifkan untuk mulai menyalin.",
         "Turn on microphone": "Nyalakan mikrofon",
         "Unlock room": "Buka kunci ruangan",
-        "Your microphone is off": "Mikrofon Anda mati"
+        "Your microphone is off": "Mikrofon Anda mati",
+        "Clear board": "Bersihkan papan",
+        "Clear captions": "Hapus takarir",
+        "Clear chat": "Bersihkan obrolan",
+        "Delete": "Hapus",
+        "Delete this message?": "Hapus pesan ini?",
+        "Eject everyone": "Keluarkan semua orang",
+        "Eject participant": "Keluarkan peserta",
+        "Leave without rating": "Keluar tanpa menilai",
+        "Rate experience": "Nilai pengalaman",
+        "Stay in meeting": "Tetap di rapat"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "Pilih objek yang dikelompokkan untuk dipisahkan.",

@@ -671,7 +671,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v2.0.73": "WebRTC P2P v2.0.73",
+        "WebRTC P2P v2.0.80": "WebRTC P2P v2.0.80",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",
@@ -700,7 +700,17 @@
         "Transcription needs your microphone on to capture your speech. Turn it on to start transcribing.": "文字起こしでは、音声をキャプチャするためにマイクがオンになっている必要があります。オンにすると文字起こしが始まります。",
         "Turn on microphone": "マイクをオンにする",
         "Unlock room": "部屋のロックを解除する",
-        "Your microphone is off": "マイクがオフになっています"
+        "Your microphone is off": "マイクがオフになっています",
+        "Clear board": "ボードを消去",
+        "Clear captions": "字幕を消去",
+        "Clear chat": "チャットを消去",
+        "Delete": "削除",
+        "Delete this message?": "このメッセージを削除しますか？",
+        "Eject everyone": "全員を退出させる",
+        "Eject participant": "参加者を退出させる",
+        "Leave without rating": "評価せずに退出",
+        "Rate experience": "利用体験を評価",
+        "Stay in meeting": "会議に残る"
     },
     "toasts": {
         "Select a grouped object to ungroup.": "グループ化を解除するオブジェクトを選択してください。",
