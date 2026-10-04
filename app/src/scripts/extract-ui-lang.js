@@ -174,6 +174,13 @@ function scanJs(file) {
     const logRe = /(?:userLog|toastMessage|msgPopup)\(\s*[^,]+?,\s*(['"])((?:\\.|(?!\1).)*)\1/g;
     while ((m = logRe.exec(src))) add('toasts', unescapeJs(m[2]));
 
+    const logTernRe =
+        /(?:userLog|toastMessage|msgPopup)\(\s*[^,]+?,\s*[^,?'"`]*\?\s*(['"])((?:\\.|(?!\1).)*)\1\s*:\s*(['"])((?:\\.|(?!\3).)*)\3/g;
+    while ((m = logTernRe.exec(src))) {
+        add('toasts', unescapeJs(m[2]));
+        add('toasts', unescapeJs(m[4]));
+    }
+
     // Dialogs: Swal.fire fields (string literals)
     const fieldRe = new RegExp(`\\b(${DIALOG_FIELDS.join('|')})\\s*:\\s*(['"])((?:\\\\.|(?!\\2).)*)\\2`, 'g');
     while ((m = fieldRe.exec(src))) add('dialogs', unescapeJs(m[3]));

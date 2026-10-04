@@ -169,6 +169,20 @@ describe('native language picker', () => {
             assert.equal(window.i18n.googleAllowed, false);
             assert.equal(window.document.getElementById('i18nLanguageSelect').value, lang);
         });
+
+        it(`translates both whiteboard lock states with source line breaks in ${lang}`, async () => {
+            await load(lang);
+            const dict = readLanguage(lang);
+            for (const key of [
+                'The whiteboard is locked. The participants cannot interact with it.',
+                'The whiteboard is unlocked. The participants can interact with it.',
+                'Noise suppression could not be enabled. Using the microphone without noise suppression.',
+            ]) {
+                assert.notEqual(dict.toasts[key], key);
+                const message = `  ${key.replace('. ', '. \n ')}  `;
+                assert.equal(window.i18n.t(message, 'toasts'), `  ${dict.toasts[key]}  `);
+            }
+        });
     }
 
     for (const lang of ['ar', 'ur', 'fa']) {

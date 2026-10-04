@@ -77,7 +77,7 @@
     function lookup(key, namespace) {
         const table = state.dict && state.dict[namespace];
         if (table) {
-            const value = table[key];
+            const value = table[key] || table[key.replace(/\s+/g, ' ')];
             if (typeof value === 'string' && value.length > 0 && value !== key) return value;
         }
         return null;
