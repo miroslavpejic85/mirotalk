@@ -697,7 +697,7 @@
         "Unlock room": "Fungua chumba",
         "Unlock room?": "Je, ungependa kufungua chumba?",
         "Username": "Jina la mtumiaji:",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "Njia za mkato za Ubao Mweupe",
         "Yes": "Ndiyo",
         "Your microphone is off": "Maikrofoni yako imezimwa",
@@ -710,6 +710,7 @@
         "Eject participant": "Ondoa mshiriki",
         "Leave without rating": "Ondoka bila kutathmini",
         "Leave & rate": "Ondoka na utathmini",
+        "Please wait while your recording is prepared for download.": "Tafadhali subiri wakati rekodi yako inaandaliwa kwa kupakuliwa.",
         "Stay in meeting": "Baki kwenye mkutano"
     },
     "toasts": {

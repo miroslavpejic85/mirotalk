@@ -697,7 +697,7 @@
         "Unlock room": "அறையைத் திறக்கவும்",
         "Unlock room?": "அறையைத் திறக்கவா?",
         "Username": "பயனர் பெயர்:",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "ஒயிட்போர்டு குறுக்குவழிகள்",
         "Yes": "ஆம்",
         "Your microphone is off": "உங்கள் மைக்ரோஃபோன் முடக்கப்பட்டுள்ளது",
@@ -710,6 +710,7 @@
         "Eject participant": "பங்கேற்பாளரை வெளியேற்று",
         "Leave without rating": "மதிப்பிடாமல் வெளியேறு",
         "Leave & rate": "வெளியேறி மதிப்பிடு",
+        "Please wait while your recording is prepared for download.": "உங்கள் பதிவு பதிவிறக்கத்திற்குத் தயாராகும் வரை காத்திருக்கவும்.",
         "Stay in meeting": "கூட்டத்தில் இரு"
     },
     "toasts": {

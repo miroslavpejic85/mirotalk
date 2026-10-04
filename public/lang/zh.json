@@ -671,7 +671,7 @@
         "Time Limit Reached": "已达到时间限制",
         "Unlock room?": "解锁房间？",
         "Username": "用户名",
-        "WebRTC P2P v2.0.82": "WebRTCP2Pv2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTCP2Pv2.0.83",
         "Whiteboard Shortcuts": "白板快捷键",
         "Yes": "是",
         "Schedule email invitation": "安排电子邮件邀请",
@@ -710,6 +710,7 @@
         "Eject participant": "移除参与者",
         "Leave without rating": "不评价并离开",
         "Leave & rate": "离开并评价",
+        "Please wait while your recording is prepared for download.": "正在准备您的录制文件以供下载，请稍候。",
         "Stay in meeting": "留在会议中"
     },
     "toasts": {

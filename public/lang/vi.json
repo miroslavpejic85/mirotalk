@@ -697,7 +697,7 @@
         "Unlock room": "Mở khóa phòng",
         "Unlock room?": "Mở khóa phòng?",
         "Username": "Tên người dùng:",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "Phím tắt bảng trắng",
         "Yes": "Có",
         "Your microphone is off": "Micrô của bạn bị tắt",
@@ -710,6 +710,7 @@
         "Eject participant": "Mời người tham gia ra khỏi phòng",
         "Leave without rating": "Rời đi mà không đánh giá",
         "Leave & rate": "Rời đi và đánh giá",
+        "Please wait while your recording is prepared for download.": "Vui lòng chờ trong khi bản ghi của bạn được chuẩn bị để tải xuống.",
         "Stay in meeting": "Ở lại cuộc họp"
     },
     "toasts": {

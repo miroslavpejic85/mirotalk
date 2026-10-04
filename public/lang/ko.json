@@ -671,7 +671,7 @@
         "Time Limit Reached": "시간 제한 도달",
         "Unlock room?": "방 잠금을 해제하시겠습니까?",
         "Username": "사용자 이름",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "화이트보드 단축키",
         "Yes": "예",
         "Schedule email invitation": "이메일 초대 예약",
@@ -710,6 +710,7 @@
         "Eject participant": "참가자 퇴장시키기",
         "Leave without rating": "평가 없이 나가기",
         "Leave & rate": "나가기 및 평가",
+        "Please wait while your recording is prepared for download.": "녹화 파일을 다운로드할 수 있도록 준비하는 동안 잠시 기다려 주세요.",
         "Stay in meeting": "회의에 남기"
     },
     "toasts": {

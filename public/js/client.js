@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.82
+ * @version 2.0.83
  *
  */
 
@@ -804,6 +804,11 @@ let recStartTs = null;
 let isStreamRecording = false;
 let isStreamRecordingPaused = false;
 let isRecScreenStream = false;
+let recordingSavePromise = null;
+let recordingSavePending = false;
+let resolveRecordingSave;
+let rejectRecordingSave;
+let isLeavingRoom = false;
 
 // whiteboard
 let wbCanvas = null;
@@ -10572,6 +10577,7 @@ function checkRecording() {
         console.log('Going to save recording');
         stopStreamRecording();
     }
+    return recordingSavePromise;
 }
 
 /**
@@ -10656,6 +10662,10 @@ function getSupportedMimeTypes() {
  * https://developer.mozilla.org/en-US/docs/Web/API/MediaStream
  */
 function startStreamRecording() {
+    if (recordingSavePending) {
+        userLog('warning', 'Please wait while your recording is prepared for download.');
+        return;
+    }
     recordedBlobs = [];
 
     // Get supported MIME types and set options
@@ -10875,6 +10885,15 @@ function handleMediaRecorder(mediaRecorder) {
     // in renderer memory. This makes long (>1h) recordings stable and
     // avoids MediaRecorder auto-stops caused by memory pressure.
     mediaRecorder.start(1000);
+    recordingSavePending = true;
+    recordingSavePromise = new Promise((resolve, reject) => {
+        resolveRecordingSave = resolve;
+        rejectRecordingSave = reject;
+    });
+    recordingSavePromise.catch((err) => {
+        console.error('Recording save failed:', err);
+        if (!isLeavingRoom) userLog('error', 'Recording save failed: ' + err);
+    });
     mediaRecorder.addEventListener('start', handleMediaRecorderStart);
     mediaRecorder.addEventListener('dataavailable', handleMediaRecorderData);
     mediaRecorder.addEventListener('stop', handleMediaRecorderStop);
@@ -10913,48 +10932,59 @@ function handleMediaRecorderData(event) {
  * Handle Media Recorder onstop event
  * @param {object} event of media recorder
  */
-function handleMediaRecorderStop(event) {
-    toggleVideoAudioTabs(false);
-    console.log('MediaRecorder stopped: ', event);
-    console.log('MediaRecorder Blobs: ', recordedBlobs);
-    stopRecordingTimer();
-    emitPeersAction('recStop');
-    emitPeerStatus('rec', false);
-    isStreamRecording = false;
-    myVideoPeerName.innerText = myPeerName + ' (me)';
-    if (isRecScreenStream) {
-        recScreenStream.getTracks().forEach((track) => {
-            if (track.kind === 'video') track.stop();
-        });
-        isRecScreenStream = false;
-    }
-    // Stop system/tab audio capture and its mixer, if used
-    if (recScreenAudioTracks.length) {
-        recScreenAudioTracks.forEach((track) => track.stop());
-        recScreenAudioTracks = [];
-    }
-    if (screenAudioRecorder) {
-        screenAudioRecorder.stopMixedAudioStream();
-        screenAudioRecorder = null;
-    }
+async function handleMediaRecorderStop(event) {
+    try {
+        toggleVideoAudioTabs(false);
+        console.log('MediaRecorder stopped: ', event);
+        console.log('MediaRecorder Blobs: ', recordedBlobs);
+        stopRecordingTimer();
+        emitPeersAction('recStop');
+        emitPeerStatus('rec', false);
+        isStreamRecording = false;
+        myVideoPeerName.innerText = myPeerName + ' (me)';
+        if (isRecScreenStream) {
+            recScreenStream.getTracks().forEach((track) => {
+                if (track.kind === 'video') track.stop();
+            });
+            isRecScreenStream = false;
+        }
+        // Stop system/tab audio capture and its mixer, if used
+        if (recScreenAudioTracks.length) {
+            recScreenAudioTracks.forEach((track) => track.stop());
+            recScreenAudioTracks = [];
+        }
+        if (screenAudioRecorder) {
+            screenAudioRecorder.stopMixedAudioStream();
+            screenAudioRecorder = null;
+        }
 
-    const recordStreamIcon = recordStreamBtn.querySelector('i');
-    recordStreamIcon.style.setProperty('color', '#ffffff');
-    setRecordStreamBtnLabel('Start Recording');
-    downloadRecordedStream();
+        const recordStreamIcon = recordStreamBtn.querySelector('i');
+        recordStreamIcon.style.setProperty('color', '#ffffff');
+        setRecordStreamBtnLabel('Start Recording');
 
-    if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
+        if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
 
-    playSound('recStop');
-    screenReaderAccessibility.announceMessage('Recording stopped');
+        playSound('recStop');
+        screenReaderAccessibility.announceMessage('Recording stopped');
+
+        await downloadRecordedStream();
+        resolveRecordingSave();
+    } catch (err) {
+        rejectRecordingSave(err);
+    } finally {
+        recordingSavePending = false;
+    }
 }
 
 /**
  * Stop recording
  */
 function stopStreamRecording() {
-    mediaRecorder.stop();
-    audioRecorder.stopMixedAudioStream();
+    if (mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        audioRecorder.stopMixedAudioStream();
+    }
+    return recordingSavePromise;
 }
 
 /**
@@ -11022,21 +11052,18 @@ function getWebmFixerFn() {
  * Download recorded stream
  */
 async function downloadRecordedStream() {
-    try {
-        // Check if we have recorded data
-        if (!recordedBlobs || recordedBlobs.length === 0) {
-            console.error('No recorded data available');
-            userLog('error', 'Recording failed: No data was recorded', 6000);
-            return;
-        }
+    // Check if we have recorded data
+    if (!recordedBlobs || recordedBlobs.length === 0) {
+        throw new Error('Recording failed: No data was recorded');
+    }
 
-        const type = recordedBlobs[0].type.includes('mp4') ? 'mp4' : 'webm';
-        const rawBlob = new Blob(recordedBlobs, { type: 'video/' + type });
-        const recFileName = getDataTimeString() + '-REC.' + type;
-        const currentDevice = isMobileDevice ? 'MOBILE' : 'PC';
-        const blobFileSize = bytesToSize(rawBlob.size);
+    const type = recordedBlobs[0].type.includes('mp4') ? 'mp4' : 'webm';
+    const rawBlob = new Blob(recordedBlobs, { type: 'video/' + type });
+    const recFileName = getDataTimeString() + '-REC.' + type;
+    const currentDevice = isMobileDevice ? 'MOBILE' : 'PC';
+    const blobFileSize = bytesToSize(rawBlob.size);
 
-        const recordingInfo = `
+    const recordingInfo = `
         <br/>
         <br/>
             <ul>
@@ -11047,13 +11074,14 @@ async function downloadRecordedStream() {
             </ul>
         <br/>
         `;
-        lastRecordingInfo.innerHTML = renderRoomTemplate('tpl-last-recording-info', {
-            html: {
-                recordingInfo,
-            },
-        });
-        recordingTime.innerText = '';
+    lastRecordingInfo.innerHTML = renderRoomTemplate('tpl-last-recording-info', {
+        html: {
+            recordingInfo,
+        },
+    });
+    recordingTime.innerText = '';
 
+    if (!isLeavingRoom)
         msgHTML(
             null,
             null,
@@ -11066,29 +11094,24 @@ async function downloadRecordedStream() {
             'top'
         );
 
-        // Fix WebM duration to make it seekable
-        const fixWebmDuration = async (blob) => {
-            if (type !== 'webm') return blob;
-            try {
-                const fix = getWebmFixerFn();
-                const durationMs = recStartTs ? performance.now() - recStartTs : undefined;
-                const fixed = await fix(blob, durationMs);
-                return fixed || blob;
-            } catch (e) {
-                console.warn('WEBM duration fix failed, saving original blob:', e);
-                return blob;
-            } finally {
-                recStartTs = null;
-            }
-        };
+    // Fix WebM duration to make it seekable
+    const fixWebmDuration = async (blob) => {
+        if (type !== 'webm') return blob;
+        try {
+            const fix = getWebmFixerFn();
+            const durationMs = recStartTs ? performance.now() - recStartTs : undefined;
+            const fixed = await fix(blob, durationMs);
+            return fixed || blob;
+        } catch (e) {
+            console.warn('WEBM duration fix failed, saving original blob:', e);
+            return blob;
+        } finally {
+            recStartTs = null;
+        }
+    };
 
-        (async () => {
-            const finalBlob = await fixWebmDuration(rawBlob);
-            saveBlobToFile(finalBlob, recFileName);
-        })();
-    } catch (err) {
-        userLog('error', 'Recording save failed: ' + err);
-    }
+    const finalBlob = await fixWebmDuration(rawBlob);
+    await saveBlobToFile(finalBlob, recFileName);
 }
 
 /**
@@ -17525,10 +17548,17 @@ function saveBlobToFile(blob, file) {
     a.download = file;
     document.body.appendChild(a);
     a.click();
-    setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    }, 100);
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            try {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                resolve();
+            } catch (err) {
+                reject(err);
+            }
+        }, 100);
+    });
 }
 
 /**
@@ -17959,8 +17989,7 @@ function handleKickedOut(config) {
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then(() => {
-        checkRecording();
-        openURL('/newcall');
+        return exitRoom('/newcall');
     });
 }
 
@@ -17975,7 +18004,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.82',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.83',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -17992,29 +18021,52 @@ function showAbout() {
  * Init Exit Meeting
  */
 function initExitMeeting() {
-    openURL('/newcall');
+    return exitRoom('/newcall');
 }
 
 /**
  * Leave the Room and create a new one
  */
 function leaveRoom() {
-    surveyActive ? leaveFeedback() : exitRoom();
+    if (isLeavingRoom) return;
+    return surveyActive ? leaveFeedback() : exitRoom();
 }
 
 /**
  * Exit the Room
  */
-function exitRoom() {
-    checkRecording();
-    redirectOnLeave();
+async function exitRoom(url = null) {
+    if (isLeavingRoom) return;
+    isLeavingRoom = true;
+    const showRecordingProgress = recordingSavePending;
+    try {
+        if (showRecordingProgress) {
+            Swal.fire({
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                background: swBg,
+                position: 'center',
+                title: 'Recording',
+                text: 'Please wait while your recording is prepared for download.',
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading(),
+            });
+        }
+        await checkRecording();
+        if (showRecordingProgress) Swal.close();
+        url ? openURL(url) : redirectOnLeave();
+    } catch (err) {
+        handleRecordingError('Recording save failed: ' + err);
+    } finally {
+        isLeavingRoom = false;
+    }
 }
 
 /**
  * Ask for feedback when room exit
  */
 function leaveFeedback() {
-    Swal.fire({
+    return Swal.fire({
         allowOutsideClick: false,
         allowEscapeKey: false,
         showDenyButton: true,
@@ -18034,10 +18086,9 @@ function leaveFeedback() {
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
-            exitRoom();
+            return exitRoom();
         } else if (result.isDenied) {
-            checkRecording();
-            openURL(surveyURL);
+            return exitRoom(surveyURL);
         }
     });
 }

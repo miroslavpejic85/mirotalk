@@ -671,7 +671,7 @@
         "Time Limit Reached": "समय सीमा पर पहुँच गए",
         "Unlock room?": "रूम अनलॉक करें?",
         "Username": "उपयोगकर्ता नाम",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "व्हाइटबोर्ड शॉर्टकट",
         "Yes": "हाँ",
         "Schedule email invitation": "ईमेल आमंत्रण शेड्यूल करें",
@@ -710,6 +710,7 @@
         "Eject participant": "प्रतिभागी को बाहर करें",
         "Leave without rating": "रेटिंग दिए बिना छोड़ें",
         "Leave & rate": "छोड़ें और रेटिंग दें",
+        "Please wait while your recording is prepared for download.": "कृपया प्रतीक्षा करें, आपकी रिकॉर्डिंग डाउनलोड के लिए तैयार की जा रही है।",
         "Stay in meeting": "मीटिंग में रहें"
     },
     "toasts": {

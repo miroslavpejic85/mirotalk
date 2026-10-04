@@ -671,7 +671,7 @@
         "Time Limit Reached": "Limite di tempo raggiunto",
         "Unlock room?": "Sbloccare la stanza?",
         "Username": "Nome utente",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "Scorciatoie della lavagna",
         "Yes": "Sì",
         "Schedule email invitation": "Pianifica invito via email",
@@ -710,6 +710,7 @@
         "Eject participant": "Espelli partecipante",
         "Leave without rating": "Esci senza valutare",
         "Leave & rate": "Esci e valuta",
+        "Please wait while your recording is prepared for download.": "Attendi mentre la registrazione viene preparata per il download.",
         "Stay in meeting": "Resta nella riunione"
     },
     "toasts": {

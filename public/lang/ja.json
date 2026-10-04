@@ -671,7 +671,7 @@
         "Time Limit Reached": "制限時間に達しました",
         "Unlock room?": "ルームのロックを解除しますか？",
         "Username": "ユーザー名",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "ホワイトボードのショートカット",
         "Yes": "はい",
         "Schedule email invitation": "メール招待をスケジュール",
@@ -710,6 +710,7 @@
         "Eject participant": "参加者を退出させる",
         "Leave without rating": "評価せずに退出",
         "Leave & rate": "退出して評価",
+        "Please wait while your recording is prepared for download.": "録画のダウンロードを準備しています。しばらくお待ちください。",
         "Stay in meeting": "会議に残る"
     },
     "toasts": {

@@ -697,7 +697,7 @@
         "Unlock room": "खोली अनलॉक करा",
         "Unlock room?": "खोली अनलॉक करायची?",
         "Username": "वापरकर्तानाव:",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "व्हाईटबोर्ड शॉर्टकट",
         "Yes": "होय",
         "Your microphone is off": "तुमचा मायक्रोफोन बंद आहे",
@@ -710,6 +710,7 @@
         "Eject participant": "सहभागीला बाहेर काढा",
         "Leave without rating": "मूल्यांकन न करता बाहेर पडा",
         "Leave & rate": "बाहेर पडा आणि मूल्यांकन करा",
+        "Please wait while your recording is prepared for download.": "तुमचे रेकॉर्डिंग डाउनलोडसाठी तयार होत असताना कृपया थांबा.",
         "Stay in meeting": "मीटिंगमध्ये राहा"
     },
     "toasts": {

@@ -671,7 +671,7 @@
         "Time Limit Reached": "Időkorlát elérve",
         "Unlock room?": "Feloldja a szobát?",
         "Username": "Felhasználónév",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "Tábla gyorsbillentyűi",
         "Yes": "Igen",
         "Schedule email invitation": "E-mail-meghívó ütemezése",
@@ -710,6 +710,7 @@
         "Eject participant": "Résztvevő eltávolítása",
         "Leave without rating": "Kilépés értékelés nélkül",
         "Leave & rate": "Kilépés és értékelés",
+        "Please wait while your recording is prepared for download.": "Kérjük, várj, amíg a felvételed előkészül a letöltésre.",
         "Stay in meeting": "Maradás a megbeszélésen"
     },
     "toasts": {

@@ -697,7 +697,7 @@
         "Unlock room": "గదిని అన్‌లాక్ చేయండి",
         "Unlock room?": "గదిని అన్‌లాక్ చేయాలా?",
         "Username": "వినియోగదారు పేరు:",
-        "WebRTC P2P v2.0.82": "WebRTC P2P v2.0.82",
+        "WebRTC P2P v2.0.83": "WebRTC P2P v2.0.83",
         "Whiteboard Shortcuts": "వైట్‌బోర్డ్ సత్వరమార్గాలు",
         "Yes": "అవును",
         "Your microphone is off": "మీ మైక్రోఫోన్ ఆఫ్‌లో ఉంది",
@@ -710,6 +710,7 @@
         "Eject participant": "పాల్గొనేవారిని బయటకు పంపండి",
         "Leave without rating": "రేటింగ్ ఇవ్వకుండా నిష్క్రమించండి",
         "Leave & rate": "నిష్క్రమించి రేటింగ్ ఇవ్వండి",
+        "Please wait while your recording is prepared for download.": "మీ రికార్డింగ్ డౌన్‌లోడ్ కోసం సిద్ధమవుతున్నప్పుడు దయచేసి వేచి ఉండండి.",
         "Stay in meeting": "సమావేశంలో ఉండండి"
     },
     "toasts": {
