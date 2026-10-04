@@ -4938,8 +4938,11 @@ input:checked + .slider:before {
     color: #fff !important;
     background: var(--swal-join-bg, #294da8) !important;
     border: var(--border) !important;
-    padding: 0.75em 1.5em;
-    font-size: 1.125rem;
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 0.6875rem 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 .swal2-popup .swal2-actions .swal2-styled.init-join-button:not([disabled]):hover,
