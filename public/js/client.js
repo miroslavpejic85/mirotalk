@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.92
+ * @version 2.0.93
  *
  */
 
@@ -6883,6 +6883,7 @@ function refreshMyVideoStatus(localVideoMediaStream) {
             myVideoStatus = track.enabled;
         }
     });
+    syncWakeLockDebounced();
 }
 
 /**
@@ -6897,6 +6898,7 @@ function refreshMyAudioStatus(localAudioMediaStream) {
             myAudioStatus = track.enabled;
         }
     });
+    syncWakeLockDebounced();
 }
 
 /**
@@ -8422,7 +8424,7 @@ function setMySettingsBtn() {
     // WakeLock for mobile/tablet
     if (!isDesktopDevice && isWakeLockSupported()) {
         switchKeepAwake.addEventListener('change', (e) => {
-            applyKeepAwake(e.currentTarget.checked);
+            applyKeepAwake(e.currentTarget.checked, true);
             playSound('switch');
         });
     } else {
@@ -9873,8 +9875,6 @@ function handleAudio(e, init, force = null, playStatusSound = true) {
         initMicrophoneSelect.disabled = !audioStatus;
         initSpeakerSelect.disabled = !audioStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.audio, audioStatus);
-    } else {
-        applyKeepAwake(myAudioStatus);
     }
 
     setMyAudioStatus(myAudioStatus, playStatusSound);
@@ -9933,8 +9933,6 @@ async function handleVideo(e, init, force = null) {
         initVideoSelect.disabled = !videoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
         initVideoContainerShow(videoStatus);
-    } else {
-        applyKeepAwake(myVideoStatus);
     }
 
     if (!videoStatus) {
@@ -10118,6 +10116,7 @@ async function startScreenSharing(constraints, init) {
         : new MediaStream([screenVideoTrack]);
     isScreenStreaming = true;
     myScreenStatus = true;
+    syncWakeLockDebounced();
     const extras = getLocalScreenExtras();
     if (extras) {
         try {
@@ -10192,6 +10191,7 @@ async function stopScreenSharing(init) {
     if (!init) adaptAspectRatio();
     isScreenStreaming = false;
     myScreenStatus = false;
+    syncWakeLockDebounced();
     if (!init) {
         emitPeersAction('screenStop');
         try {
@@ -10320,6 +10320,7 @@ async function handleToggleScreenException(reason, init) {
         // Toggle screen streaming status
         isScreenStreaming = !isScreenStreaming;
         myScreenStatus = isScreenStreaming;
+        syncWakeLockDebounced();
 
         // Update screen sharing status
         setScreenSharingStatus(isScreenStreaming);
@@ -10376,6 +10377,7 @@ async function setMyVideoStatusTrue() {
     }
 
     myVideoStatus = true;
+    syncWakeLockDebounced();
 
     // Update multiple buttons
     setMediaButtonsClass([
@@ -13978,6 +13980,7 @@ function setMyHandStatus() {
  * @param {boolean} playStatusSound play the standard microphone status sound
  */
 function setMyAudioStatus(status, playStatusSound = true) {
+    syncWakeLockDebounced();
     console.log('My audio status', status);
     const audioClassName = status ? className.audioOn : className.audioOff;
     audioBtn.className = audioClassName;
@@ -13997,6 +14000,7 @@ function setMyAudioStatus(status, playStatusSound = true) {
  * @param {boolean} status of my video
  */
 function setMyVideoStatus(status) {
+    syncWakeLockDebounced();
     console.log('My video status', status);
 
     // On video OFF display my video avatar name
@@ -18070,7 +18074,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.92',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.93',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
