@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.90
+ * @version 2.0.91
  *
  */
 
@@ -8042,6 +8042,7 @@ function setMyWhiteboardBtn() {
         const status = event.currentTarget.checked;
         setWhiteboardParticipantNames(status);
         whiteboardAction({ ...getWhiteboardAction('participantNames'), status });
+        userLog('switch', `Whiteboard participant names ${status ? 'ON' : 'OFF'}`, undefined, undefined, status);
     });
     whiteboardLockBtn.addEventListener('click', (e) => {
         toggleLockUnlockWhiteboard();
@@ -15272,8 +15273,16 @@ function toggleLockUnlockWhiteboard() {
 
     whiteboardAction(getWhiteboardAction(action));
 
+    userLog(
+        'switch',
+        wbIsLock
+            ? 'The whiteboard is locked. \n The participants cannot interact with it.'
+            : 'The whiteboard is unlocked. \n The participants can interact with it.',
+        undefined,
+        undefined,
+        wbIsLock
+    );
     if (wbIsLock) {
-        userLog('toast', 'The whiteboard is locked. \n The participants cannot interact with it.');
         playSound('locked');
     }
 }
@@ -18061,7 +18070,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.90',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.91',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -19292,7 +19301,10 @@ function setupQuickDeviceSwitchDropdowns() {
         testIcon.className = 'fa-solid fa-circle-play';
         testBtn.appendChild(testIcon);
         testBtn.appendChild(document.createTextNode(` ${window.i18n?.t('Test speaker', 'buttons') || 'Test speaker'}`));
-        testBtn.addEventListener('click', () => playSpeaker(audioOutputSelect?.value, 'speaker'));
+        testBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            playSpeaker(audioOutputSelect?.value, 'speaker');
+        });
         audioMenu.appendChild(testBtn);
 
         // Settings button
