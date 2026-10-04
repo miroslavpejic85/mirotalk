@@ -53,5 +53,6 @@ node app/src/scripts/extract-ui-lang.js
 ```
 
 The script regenerates `en.json` and synchronizes other language files,
-preserving existing translations, adding missing keys with English values, and
-removing stale keys. Review the changes before committing.
+preserving existing translations, keeping keys in the same order as `en.json`,
+adding missing keys with English values, and removing stale keys. Review the
+changes before committing.

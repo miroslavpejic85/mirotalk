@@ -325,11 +325,9 @@ for (const file of localeFiles) {
     const synced = {};
     for (const [namespace, englishEntries] of Object.entries(output)) {
         synced[namespace] = {};
-        for (const [key, translated] of Object.entries(existing[namespace] || {})) {
-            if (Object.hasOwn(englishEntries, key)) synced[namespace][key] = translated;
-        }
+        const existingEntries = existing[namespace] || {};
         for (const key of Object.keys(englishEntries)) {
-            if (!Object.hasOwn(synced[namespace], key)) synced[namespace][key] = key;
+            synced[namespace][key] = Object.hasOwn(existingEntries, key) ? existingEntries[key] : key;
         }
     }
     fs.writeFileSync(filePath, JSON.stringify(synced, null, 4) + '\n', 'utf8');
