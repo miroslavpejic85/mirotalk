@@ -294,7 +294,7 @@ describe('RNNoise client lifecycle', () => {
             myAudio: {},
             logStreamSettingsInfo() {},
             getMicrophoneVolumeIndicator() {},
-            userLog() {},
+            userLog: sinon.spy(),
         });
         for (const name of [
             'enableNoiseSuppression',
@@ -365,7 +365,42 @@ describe('RNNoise client lifecycle', () => {
         assert.equal(rawTrack.enabled, false);
         assert.equal(context.noiseProcessor, null);
         assert.equal(context.lsSettings.mic_noise_suppression, false);
-        assert.equal(context.toastMessage.calledWith('success'), false);
+        sinon.assert.calledOnceWithExactly(
+            context.userLog,
+            'switch',
+            'Noise suppression disabled',
+            undefined,
+            undefined,
+            false
+        );
+    });
+
+    it('reports successful noise suppression changes through immediate switch feedback', async () => {
+        const operation = context.applyNoiseSuppression(true);
+        await new Promise((resolve) => setImmediate(resolve));
+        sinon.assert.notCalled(context.userLog);
+        pending[0].resolve(stream());
+        assert.equal(await operation, true);
+        sinon.assert.calledWithExactly(
+            context.userLog,
+            'switch',
+            'Noise suppression enabled',
+            undefined,
+            undefined,
+            true
+        );
+        assert.equal(context.switchNoiseSuppression.checked, true);
+        assert.equal(await context.applyNoiseSuppression(false), false);
+        sinon.assert.calledWithExactly(
+            context.userLog,
+            'switch',
+            'Noise suppression disabled',
+            undefined,
+            undefined,
+            false
+        );
+        assert.equal(context.switchNoiseSuppression.checked, false);
+        sinon.assert.notCalled(context.toastMessage);
     });
 
     it('applies native suppression and preserves other constraints after startup failure', async () => {

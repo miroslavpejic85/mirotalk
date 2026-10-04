@@ -4905,6 +4905,7 @@ input:checked + .slider:before {
 }
 
 .swal2-popup.swal2-toast {
+    grid-template-columns: auto minmax(0, 1fr) var(--ds-touch-min, 44px);
     border-radius: 12px !important;
     padding: 0.625em 0.75em !important;
 }
@@ -4913,19 +4914,32 @@ input:checked + .slider:before {
 .swal2-popup.swal2-toast .swal2-html-container {
     box-sizing: border-box;
     margin: 0 0.5em;
-    padding-inline-end: 4.5em !important;
+    min-width: 0;
+    padding: 0 !important;
     text-align: start;
     overflow-wrap: anywhere;
     line-height: 1.35;
 }
 
+.swal2-popup.swal2-toast .swal2-title:empty ~ .swal2-html-container,
+.swal2-popup.swal2-toast:has(.swal2-html-container:empty) .swal2-title {
+    grid-row: 1 / 99;
+    align-self: center;
+}
+
 .swal2-popup.swal2-toast .swal2-close {
-    position: absolute !important;
-    top: 0;
-    right: 0.25em;
+    position: static !important;
     min-width: var(--ds-touch-min, 44px);
     min-height: var(--ds-touch-min, 44px);
     color: white;
+}
+
+.swal2-popup.swal2-toast .swal2-close:hover {
+    color: #f27474;
+}
+
+.swal2-popup.swal2-toast .swal2-close:focus {
+    box-shadow: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

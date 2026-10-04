@@ -12,9 +12,12 @@ const swalToastQueue = [];
 let swalToastRetry = null;
 
 /**
- * Queue non-blocking feedback so it never dismisses an input or confirmation dialog.
+ * Queue feedback without dismissing dialogs; immediate feedback may replace an active toast.
  */
-function showSwalToast(options) {
+function showSwalToast(options, { immediate = false } = {}) {
+    if (immediate && (!Swal.isVisible() || Swal.getPopup()?.classList.contains('swal2-toast'))) {
+        return fireSwalToast(options);
+    }
     return new Promise((resolve, reject) => {
         swalToastQueue.push({ options, resolve, reject });
         drainSwalToasts();
@@ -32,9 +35,14 @@ function drainSwalToasts() {
     }
 
     const { options, resolve, reject } = swalToastQueue.shift();
+    fireSwalToast(options).then(resolve, reject);
+    drainSwalToasts();
+}
+
+function fireSwalToast(options) {
     const duration = options.timer ?? (['warning', 'error'].includes(options.icon) ? 6000 : 4000);
     const timerProgressBar = options.timerProgressBar ?? true;
-    Swal.fire({
+    return Swal.fire({
         ...options,
         toast: true,
         position: options.position || 'top-end',
@@ -52,8 +60,7 @@ function drainSwalToasts() {
             popup.addEventListener('focusout', resume);
             if (typeof options.didOpen === 'function') options.didOpen(popup);
         },
-    }).then(resolve, reject);
-    drainSwalToasts();
+    });
 }
 
 function getSwalLuminance(channels) {

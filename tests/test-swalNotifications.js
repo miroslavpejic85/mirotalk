@@ -19,6 +19,7 @@ describe('SweetAlert notification UX', () => {
     let context;
     let swal;
     let visible;
+    let popup;
     let close;
     let sound;
 
@@ -26,14 +27,17 @@ describe('SweetAlert notification UX', () => {
         dom = new JSDOM('<!doctype html><body><button id="outside">Outside</button></body>');
         clock = sinon.useFakeTimers();
         visible = false;
+        popup = dom.window.document.createElement('div');
         sound = sinon.spy();
         swal = {
             mixin: sinon.stub(),
             isVisible: () => visible,
+            getPopup: () => popup,
             stopTimer: sinon.spy(),
             resumeTimer: sinon.spy(),
-            fire: sinon.stub().callsFake(() => {
+            fire: sinon.stub().callsFake((options) => {
                 visible = true;
+                popup.classList.toggle('swal2-toast', !!options.toast);
                 return new Promise((resolve) => {
                     close = (result = { isDismissed: true }) => {
                         visible = false;
@@ -149,12 +153,64 @@ describe('SweetAlert notification UX', () => {
         assert.equal(swal.fire.firstCall.args[0].timerProgressBar, false);
     });
 
+    for (const enabled of [true, false]) {
+        it(`uses the ${enabled ? 'success' : 'info'} icon for a switch that is ${enabled ? 'ON' : 'OFF'}`, () => {
+            context.userLog('info', 'Previous toast');
+            context.userLog('switch', 'Setting changed', undefined, undefined, enabled);
+            const options = swal.fire.lastCall.args[0];
+            assert.equal(swal.fire.callCount, 2);
+            assert.equal(options.icon, enabled ? 'success' : 'info');
+            assert.equal(options.timer, 2000);
+            assert.equal(options.timerProgressBar, false);
+        });
+    }
+
+    it('uses the explicit switch state rather than guessing from message wording', () => {
+        context.userLog('switch', 'ON appears in this label', undefined, undefined, false);
+        assert.equal(swal.fire.lastCall.args[0].icon, 'info');
+        context.userLog('switch', 'Caption will be shown', undefined, undefined, true);
+        assert.equal(swal.fire.lastCall.args[0].icon, 'success');
+    });
+
+    it('shows the latest microphone switch feedback immediately ahead of queued toasts', async () => {
+        context.userLog('info', 'Meeting update');
+        const queued = context.userLog('info', 'Queued update');
+        context.userLog('switch', 'Push to talk ON');
+        assert.equal(swal.fire.callCount, 2);
+        assert.equal(swal.fire.lastCall.args[0].html, 'Push to talk ON');
+        context.userLog('switch', 'Push to talk OFF');
+        assert.equal(swal.fire.callCount, 3);
+        assert.equal(swal.fire.lastCall.args[0].html, 'Push to talk OFF');
+        close();
+        await clock.tickAsync(250);
+        assert.equal(swal.fire.lastCall.args[0].titleText, 'Queued update');
+        close();
+        await queued;
+        await clock.tickAsync(250);
+        assert.equal(clock.countTimers(), 0);
+    });
+
+    it('does not replace an active confirmation with microphone switch feedback', async () => {
+        context.userLog('error', 'Please acknowledge');
+        const feedback = context.userLog('switch', 'Push to talk ON');
+        await clock.tickAsync(1000);
+        assert.equal(swal.fire.callCount, 1);
+        close();
+        await clock.tickAsync(250);
+        assert.equal(swal.fire.callCount, 2);
+        assert.equal(swal.fire.lastCall.args[0].html, 'Push to talk ON');
+        close();
+        await feedback;
+    });
+
     for (const label of [
         'Notify & sounds',
         'Share room on join',
         'Buttons always visible',
         'Chat opens pinned by default',
         'Push to talk',
+        'Noise suppression enabled',
+        'Noise suppression disabled',
         'Audio pitch bar',
         'Custom theme keep',
         'Keyboard shortcuts',
@@ -165,22 +221,44 @@ describe('SweetAlert notification UX', () => {
         'Server-side Whisper transcription enabled',
     ]) {
         it(`uses immediate feedback for ${label}`, () => {
-            const line = client.split('\n').find((line) => line.includes('userLog(') && line.includes(label));
-            assert.ok(line?.includes("userLog('switch',"), `Missing switch feedback for ${label}`);
+            const calls = client.match(/userLog\(\s*'switch',\s*(?:'[^']*'|`[^`]*`)/g) || [];
+            assert.ok(
+                calls.some((call) => call.includes(label)),
+                `Missing switch feedback for ${label}`
+            );
         });
     }
 
     it('reserves room for the close button beside multi-line toast messages', () => {
         assert.match(
             swalStyles,
-            /\.swal2-popup\.swal2-toast \.swal2-title,\s*\.swal2-popup\.swal2-toast \.swal2-html-container \{[^}]*box-sizing:\s*border-box;[^}]*padding-inline-end:\s*4\.5em !important;/s
+            /\.swal2-popup\.swal2-toast \{[^}]*grid-template-columns:\s*auto minmax\(0, 1fr\) var\(--ds-touch-min, 44px\);/
         );
-        assert.match(swalStyles, /\.swal2-popup\.swal2-toast \.swal2-close \{[^}]*position:\s*absolute !important;/);
+        assert.match(
+            swalStyles,
+            /\.swal2-popup\.swal2-toast \.swal2-title,\s*\.swal2-popup\.swal2-toast \.swal2-html-container \{[^}]*min-width:\s*0;[^}]*padding:\s*0 !important;[^}]*overflow-wrap:\s*anywhere;/s
+        );
+        assert.match(swalStyles, /\.swal2-popup\.swal2-toast \.swal2-close \{[^}]*position:\s*static !important;/);
     });
 
     it('preserves an explicitly persistent toast', () => {
         context.toastMessage('info', 'Status', '', 'top', 0);
         assert.equal(swal.fire.firstCall.args[0].timer, 0);
+    });
+
+    it('centers single-message toast text alongside its icon and close button', () => {
+        assert.match(
+            swalStyles,
+            /\.swal2-popup\.swal2-toast \.swal2-title:empty ~ \.swal2-html-container,\s*\.swal2-popup\.swal2-toast:has\(\.swal2-html-container:empty\) \.swal2-title \{[^}]*grid-row:\s*1 \/ 99;[^}]*align-self:\s*center;/s
+        );
+    });
+
+    it('makes the toast close button red on hover and removes its focus shadow', () => {
+        assert.match(swalStyles, /\.swal2-popup\.swal2-toast \.swal2-close:hover \{[^}]*color:\s*#f27474;/);
+        assert.match(
+            swalStyles,
+            /\.swal2-popup\.swal2-toast \.swal2-close:focus \{[^}]*box-shadow:\s*none !important;/
+        );
     });
 
     it('retains titled rich toast content and longer warning defaults', () => {

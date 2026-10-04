@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.89
+ * @version 2.0.90
  *
  */
 
@@ -3027,7 +3027,7 @@ async function applyNoiseSuppression(enabled) {
             lsSettings.mic_noise_suppression = false;
             lS.setSettings(lsSettings);
         } else {
-            toastMessage('success', 'Noise suppression enabled');
+            userLog('switch', 'Noise suppression enabled', undefined, undefined, true);
         }
     } else {
         lsSettings.mic_noise_suppression = false;
@@ -3036,7 +3036,7 @@ async function applyNoiseSuppression(enabled) {
         const request = noiseSuppressionRequest;
         await operation;
         if (request !== noiseSuppressionRequest) return lsSettings.mic_noise_suppression;
-        toastMessage('info', 'Noise suppression disabled');
+        userLog('switch', 'Noise suppression disabled', undefined, undefined, false);
     }
 
     syncNoiseSuppressionUI();
@@ -7360,8 +7360,8 @@ function setChatRoomBtn() {
         playSound('switch');
         showChatOnMessage = e.currentTarget.checked;
         showChatOnMessage
-            ? userLog('switch', 'Chat will be shown, when you receive a new message')
-            : userLog('switch', 'Chat not will be shown, when you receive a new message');
+            ? userLog('switch', 'Chat will be shown, when you receive a new message', undefined, undefined, true)
+            : userLog('switch', 'Chat not will be shown, when you receive a new message', undefined, undefined, false);
         lsSettings.show_chat_on_msg = showChatOnMessage;
         lS.setSettings(lsSettings);
     });
@@ -7372,8 +7372,14 @@ function setChatRoomBtn() {
             playSound('switch');
             speechInMessages = e.currentTarget.checked;
             speechInMessages
-                ? userLog('switch', 'When You receive a new message, it will be converted into speech')
-                : userLog('switch', 'You have disabled speech messages');
+                ? userLog(
+                      'switch',
+                      'When You receive a new message, it will be converted into speech',
+                      undefined,
+                      undefined,
+                      true
+                  )
+                : userLog('switch', 'You have disabled speech messages', undefined, undefined, false);
             lsSettings.speech_in_msg = speechInMessages;
             lS.setSettings(lsSettings);
         });
@@ -7596,8 +7602,20 @@ function setCaptionRoomBtn() {
             playSound('switch');
             transcriptShowOnMsg = e.currentTarget.checked;
             transcriptShowOnMsg
-                ? userLog('switch', 'Caption will be shown, when you receive a new transcript')
-                : userLog('switch', 'Caption will not be shown, when you receive a new transcript');
+                ? userLog(
+                      'switch',
+                      'Caption will be shown, when you receive a new transcript',
+                      undefined,
+                      undefined,
+                      true
+                  )
+                : userLog(
+                      'switch',
+                      'Caption will not be shown, when you receive a new transcript',
+                      undefined,
+                      undefined,
+                      false
+                  );
             lsSettings.transcript_show_on_msg = transcriptShowOnMsg;
             lS.setSettings(lsSettings);
         });
@@ -7607,8 +7625,8 @@ function setCaptionRoomBtn() {
             playSound('switch');
             transcriptSendToAll = e.currentTarget.checked;
             transcriptSendToAll
-                ? userLog('switch', 'Transcription will be sent to all participants')
-                : userLog('switch', 'Transcription will not be sent to participants');
+                ? userLog('switch', 'Transcription will be sent to all participants', undefined, undefined, true)
+                : userLog('switch', 'Transcription will not be sent to participants', undefined, undefined, false);
             lsSettings.transcript_send_to_all = transcriptSendToAll;
             lS.setSettings(lsSettings);
         });
@@ -7621,8 +7639,8 @@ function setCaptionRoomBtn() {
             // setWhisperMode may refuse while a transcription is running.
             e.currentTarget.checked = enabled;
             enabled
-                ? userLog('switch', 'Server-side Whisper transcription enabled')
-                : userLog('switch', 'Using browser Web Speech transcription');
+                ? userLog('switch', 'Server-side Whisper transcription enabled', undefined, undefined, true)
+                : userLog('switch', 'Using browser Web Speech transcription', undefined, undefined, false);
         });
 
         // close caption box - show left button and status menu if hide
@@ -8357,14 +8375,20 @@ function setMySettingsBtn() {
         notifyBySound = e.currentTarget.checked;
         lsSettings.sounds = notifyBySound;
         lS.setSettings(lsSettings);
-        userLog('switch', `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'));
+        userLog(
+            'switch',
+            `${icons.sounds} Notify & sounds ` + (notifyBySound ? 'ON' : 'OFF'),
+            undefined,
+            undefined,
+            notifyBySound
+        );
         playSound('switch');
     });
     switchShare.addEventListener('change', (e) => {
         notify = e.currentTarget.checked;
         lsSettings.share_on_join = notify;
         lS.setSettings(lsSettings);
-        userLog('switch', `${icons.share} Share room on join ` + (notify ? 'ON' : 'OFF'));
+        userLog('switch', `${icons.share} Share room on join ` + (notify ? 'ON' : 'OFF'), undefined, undefined, notify);
         playSound('switch');
     });
     switchKeepButtonsVisible.addEventListener('change', (e) => {
@@ -8372,7 +8396,7 @@ function setMySettingsBtn() {
         lsSettings.keep_buttons_visible = isButtonsBarOver;
         lS.setSettings(lsSettings);
         const status = isButtonsBarOver ? 'enabled' : 'disabled';
-        userLog('switch', `Buttons always visible ${status}`);
+        userLog('switch', `Buttons always visible ${status}`, undefined, undefined, isKeepButtonsVisible);
         playSound('switch');
     });
 
@@ -8383,7 +8407,13 @@ function setMySettingsBtn() {
             pinChatByDefault = e.currentTarget.checked;
             lsSettings.pin_chat_by_default = pinChatByDefault;
             lS.setSettings(lsSettings);
-            userLog('switch', `Chat opens pinned by default ${pinChatByDefault ? 'ON' : 'OFF'}`);
+            userLog(
+                'switch',
+                `Chat opens pinned by default ${pinChatByDefault ? 'ON' : 'OFF'}`,
+                undefined,
+                undefined,
+                pinChatByDefault
+            );
             playSound('switch');
         });
     }
@@ -8411,7 +8441,13 @@ function setMySettingsBtn() {
             updatePushToTalkUi(isPushToTalkActive);
             const audioMenuPushToTalk = getId('audioMenuPushToTalk');
             if (audioMenuPushToTalk) audioMenuPushToTalk.checked = isPushToTalkActive;
-            userLog('switch', `👆 Push to talk ` + (isPushToTalkActive ? 'ON' : 'OFF'));
+            userLog(
+                'switch',
+                `👆 Push to talk ` + (isPushToTalkActive ? 'ON' : 'OFF'),
+                undefined,
+                undefined,
+                isPushToTalkActive
+            );
             playSound('switch');
         });
     }
@@ -8420,7 +8456,13 @@ function setMySettingsBtn() {
         isAudioPitchBar = e.currentTarget.checked;
         lsSettings.pitch_bar = isAudioPitchBar;
         lS.setSettings(lsSettings);
-        userLog('switch', `${icons.pitchBar} Audio pitch bar ` + (isAudioPitchBar ? 'ON' : 'OFF'));
+        userLog(
+            'switch',
+            `${icons.pitchBar} Audio pitch bar ` + (isAudioPitchBar ? 'ON' : 'OFF'),
+            undefined,
+            undefined,
+            isAudioPitchBar
+        );
         playSound('switch');
     });
 
@@ -8443,7 +8485,13 @@ function setMySettingsBtn() {
         lsSettings.theme_color = themeCustom.color;
         lS.setSettings(lsSettings);
         setTheme();
-        userLog('switch', `${icons.theme} Custom theme keep ` + (themeCustom.keep ? 'ON' : 'OFF'));
+        userLog(
+            'switch',
+            `${icons.theme} Custom theme keep ` + (themeCustom.keep ? 'ON' : 'OFF'),
+            undefined,
+            undefined,
+            themeCustom.keep
+        );
         playSound('switch');
         e.target.blur();
     };
@@ -8955,7 +9003,7 @@ function handleShortcuts() {
     } else {
         switchShortcuts.addEventListener('change', (e) => {
             const status = setKeyboardShortcuts(e.currentTarget.checked);
-            userLog('switch', `Keyboard shortcuts ${status}`);
+            userLog('switch', `Keyboard shortcuts ${status}`, undefined, undefined, isShortcutsEnabled);
             playSound('switch');
         });
 
@@ -18013,7 +18061,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.89',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.90',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -18409,8 +18457,9 @@ function hideDisconnectBanner() {
  * @param {string} message to popup
  * @param {number|string} timerOrPosition toast duration ms or SweetAlert position
  * @param {number} timer toast duration when a position is supplied
+ * @param {boolean} enabled switch state; ON uses success, OFF uses info
  */
-function userLog(type, message, timerOrPosition, timer) {
+function userLog(type, message, timerOrPosition, timer, enabled) {
     const position = typeof timerOrPosition === 'string' ? timerOrPosition : undefined;
     const duration = typeof timerOrPosition === 'number' ? timerOrPosition : timer;
     switch (type) {
@@ -18455,13 +18504,17 @@ function userLog(type, message, timerOrPosition, timer) {
                 hideClass: { popup: 'animate__animated animate__fadeOutUp' },
             });
         case 'switch':
-            return showSwalToast({
-                background: swBg,
-                position: position || 'top-end',
-                html: message,
-                timer: duration ?? 2000,
-                timerProgressBar: false,
-            });
+            return showSwalToast(
+                {
+                    background: swBg,
+                    position: position || 'top-end',
+                    icon: enabled ? 'success' : 'info',
+                    html: message,
+                    timer: duration ?? 2000,
+                    timerProgressBar: false,
+                },
+                { immediate: true }
+            );
         case 'toast':
             return showSwalToast({
                 background: swBg,
