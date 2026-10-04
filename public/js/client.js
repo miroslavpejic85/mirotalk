@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.0.81
+ * @version 2.0.82
  *
  */
 
@@ -17975,7 +17975,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.81',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.0.82',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -17999,8 +17999,7 @@ function initExitMeeting() {
  * Leave the Room and create a new one
  */
 function leaveRoom() {
-    checkRecording();
-    surveyActive ? leaveFeedback() : redirectOnLeave();
+    surveyActive ? leaveFeedback() : exitRoom();
 }
 
 /**
@@ -18021,21 +18020,24 @@ function leaveFeedback() {
         showDenyButton: true,
         showCancelButton: true,
         reverseButtons: true,
+        focusConfirm: false,
+        focusCancel: true,
         background: swBg,
         imageUrl: images.feedback,
-        position: 'top',
-        title: 'Leave a feedback',
-        text: 'Do you want to rate your MiroTalk experience?',
-        confirmButtonText: 'Rate experience',
-        denyButtonText: 'Leave without rating',
+        position: 'center',
+        title: 'Leave the meeting?',
+        text: 'You can optionally rate your MiroTalk experience before you go.',
+        confirmButtonText: 'Leave without rating',
+        denyButtonText: 'Leave & rate',
         cancelButtonText: 'Stay in meeting',
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
-            openURL(surveyURL);
+            exitRoom();
         } else if (result.isDenied) {
-            redirectOnLeave();
+            checkRecording();
+            openURL(surveyURL);
         }
     });
 }
