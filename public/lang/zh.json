@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "选择会议界面使用的语言。",
         "Choose your camera and balance image quality with performance.": "选择摄像头，并在画质与性能之间取得平衡。",
         "Clone:": "克隆：",
+        "Collecting bitrate samples...": "正在采集码率样本...",
+        "Collecting latency samples...": "正在采集延迟样本...",
         "Collecting...": "正在采集...",
         "Connection lost": "连接已断开",
         "Connection restored successfully": "连接恢复成功",
@@ -490,6 +492,8 @@
         "No microphones found": "未找到麦克风",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "无需应用，只需使用您的手机摄像头扫描二维码，或通过发送以下网址邀请他人加入",
         "No speakers found": "未找到扬声器",
+        "No traffic": "无流量",
+        "No traffic yet": "暂无流量",
         "Noise Suppression": "噪声抑制",
         "None": "无",
         "Note": "笔记",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "您需要启用 JavaScript 才能运行此应用。",
         "You were removed from the room by": "将您移出房间的用户：",
         "You'll join automatically when the host opens the room.": "主持人打开房间后，您将自动加入。",
-        "Your profile": "您的个人资料",
-        "No traffic": "无流量",
-        "No traffic yet": "暂无流量",
-        "Collecting bitrate samples...": "正在采集码率样本...",
-        "Collecting latency samples...": "正在采集延迟样本..."
+        "Your profile": "您的个人资料"
     },
     "dialogs": {
         "All messages": "所有消息",

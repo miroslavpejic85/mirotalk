@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Chagua lugha inayotumiwa na kiolesura cha mkutano.",
         "Choose your camera and balance image quality with performance.": "Chagua kamera yako na usawazishe ubora wa picha na utendakazi.",
         "Clone:": "Nakili:",
+        "Collecting bitrate samples...": "Inakusanya sampuli za bitrate...",
+        "Collecting latency samples...": "Inakusanya sampuli za ucheleweshaji...",
         "Collecting...": "Inakusanya...",
         "Connection lost": "Muunganisho umepotea",
         "Connection restored successfully": "Muunganisho umerejeshwa",
@@ -490,6 +492,8 @@
         "No microphones found": "Hakuna maikrofoni zilizopatikana",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Hakuna haja ya programu, nasa tu msimbo wa QR ukitumia kamera ya simu yako au mwalike mtu mwingine ajiunge kwa kumtumia URL ifuatayo.",
         "No speakers found": "Hakuna wazungumzaji waliopatikana",
+        "No traffic": "Hakuna trafiki",
+        "No traffic yet": "Bado hakuna trafiki",
         "Noise Suppression": "Ukandamizaji wa Kelele",
         "None": "Hakuna",
         "Note": "Kumbuka",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Unahitaji kuwezesha JavaScript ili kuendesha programu hii.",
         "You were removed from the room by": "Umeondolewa kwenye chumba na",
         "You'll join automatically when the host opens the room.": "Utajiunga kiotomatiki mwenyeji akifungua chumba.",
-        "Your profile": "Wasifu wako",
-        "No traffic": "Hakuna trafiki",
-        "No traffic yet": "Bado hakuna trafiki",
-        "Collecting bitrate samples...": "Inakusanya sampuli za bitrate...",
-        "Collecting latency samples...": "Inakusanya sampuli za ucheleweshaji..."
+        "Your profile": "Wasifu wako"
     },
     "dialogs": {
         "All messages": "Ujumbe wote",

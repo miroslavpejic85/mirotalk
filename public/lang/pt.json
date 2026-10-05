@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Escolha o idioma usado pela interface da reunião.",
         "Choose your camera and balance image quality with performance.": "Escolha sua câmera e equilibre qualidade de imagem com desempenho.",
         "Clone:": "Clonar:",
+        "Collecting bitrate samples...": "A recolher amostras de taxa de bits...",
+        "Collecting latency samples...": "A recolher amostras de latência...",
         "Collecting...": "A recolher...",
         "Connection lost": "Conexão perdida",
         "Connection restored successfully": "Conexão restaurada com sucesso",
@@ -490,6 +492,8 @@
         "No microphones found": "Nenhum microfone encontrado",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Não é preciso aplicativo, basta escanear o código QR com a câmera do celular ou convidar outra pessoa a entrar enviando a seguinte URL",
         "No speakers found": "Nenhum alto-falante encontrado",
+        "No traffic": "Sem tráfego",
+        "No traffic yet": "Ainda não há tráfego",
         "Noise Suppression": "Supressão de ruído",
         "None": "Nenhum",
         "Note": "Nota",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Você precisa ativar o JavaScript para executar este aplicativo.",
         "You were removed from the room by": "Você foi removido da sala por",
         "You'll join automatically when the host opens the room.": "Você entrará automaticamente quando o anfitrião abrir a sala.",
-        "Your profile": "Seu perfil",
-        "No traffic": "Sem tráfego",
-        "No traffic yet": "Ainda não há tráfego",
-        "Collecting bitrate samples...": "A recolher amostras de taxa de bits...",
-        "Collecting latency samples...": "A recolher amostras de latência..."
+        "Your profile": "Seu perfil"
     },
     "dialogs": {
         "All messages": "Todas as mensagens",

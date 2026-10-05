@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "زبان مورد استفاده رابط جلسه را انتخاب کنید.",
         "Choose your camera and balance image quality with performance.": "دوربین خود را انتخاب کنید و کیفیت تصویر را با عملکرد متعادل کنید.",
         "Clone:": "کلون:",
+        "Collecting bitrate samples...": "جمع‌آوری نمونه‌های بیت‌ریت...",
+        "Collecting latency samples...": "جمع‌آوری نمونه‌های تأخیر...",
         "Collecting...": "در حال جمع‌آوری...",
         "Connection lost": "اتصال قطع شد",
         "Connection restored successfully": "اتصال با موفقیت بازیابی شد",
@@ -490,6 +492,8 @@
         "No microphones found": "میکروفونی پیدا نشد",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "نیازی به برنامه نیست، کافی است کد QR را با دوربین موبایل خود اسکن کنید یا با فرستادن نشانی زیر، شخص دیگری را برای پیوستن دعوت کنید",
         "No speakers found": "بلندگو پیدا نشد",
+        "No traffic": "بدون ترافیک",
+        "No traffic yet": "هنوز ترافیکی وجود ندارد",
         "Noise Suppression": "حذف نویز",
         "None": "هیچ‌کدام",
         "Note": "توجه داشته باشید",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "برای اجرای این برنامه باید جاوا اسکریپت را فعال کنید.",
         "You were removed from the room by": "شما از اتاق حذف شدید توسط",
         "You'll join automatically when the host opens the room.": "وقتی میزبان اتاق را باز کند، خودکار وارد می‌شوید.",
-        "Your profile": "نمایه شما",
-        "No traffic": "بدون ترافیک",
-        "No traffic yet": "هنوز ترافیکی وجود ندارد",
-        "Collecting bitrate samples...": "جمع‌آوری نمونه‌های بیت‌ریت...",
-        "Collecting latency samples...": "جمع‌آوری نمونه‌های تأخیر..."
+        "Your profile": "نمایه شما"
     },
     "dialogs": {
         "All messages": "همهٔ پیام‌ها",

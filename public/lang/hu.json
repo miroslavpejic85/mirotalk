@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Válassza ki az értekezlet felületén használt nyelvet.",
         "Choose your camera and balance image quality with performance.": "Válassza ki a fényképezőgépét, és egyensúlyozza ki a képminőséget a teljesítménnyel.",
         "Clone:": "Klónozás:",
+        "Collecting bitrate samples...": "Bitrátaminták gyűjtése...",
+        "Collecting latency samples...": "Késleltetési minták gyűjtése...",
         "Collecting...": "Adatgyűjtés...",
         "Connection lost": "Kapcsolat megszakadt",
         "Connection restored successfully": "A kapcsolat sikeresen helyreállt",
@@ -490,6 +492,8 @@
         "No microphones found": "Nem található mikrofon",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Nincs szükség alkalmazásra, egyszerűen olvasd be a QR-kódot a mobilkameráddal, vagy hívd meg mást a következő URL elküldésével",
         "No speakers found": "Nem található hangszóró",
+        "No traffic": "Nincs forgalom",
+        "No traffic yet": "Még nincs forgalom",
         "Noise Suppression": "Zajszűrés",
         "None": "Egyik sem",
         "Note": "Jegyzet",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Az alkalmazás futtatásához engedélyezned kell a JavaScriptet.",
         "You were removed from the room by": "Eltávolított a szobából:",
         "You'll join automatically when the host opens the room.": "Automatikusan csatlakozol, amikor a házigazda megnyitja a szobát.",
-        "Your profile": "A profilod",
-        "No traffic": "Nincs forgalom",
-        "No traffic yet": "Még nincs forgalom",
-        "Collecting bitrate samples...": "Bitrátaminták gyűjtése...",
-        "Collecting latency samples...": "Késleltetési minták gyűjtése..."
+        "Your profile": "A profilod"
     },
     "dialogs": {
         "All messages": "Minden üzenet",

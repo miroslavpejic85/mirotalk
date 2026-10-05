@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Изаберите језик који користи интерфејс састанка.",
         "Choose your camera and balance image quality with performance.": "Изаберите своју камеру и балансирајте квалитет слике са перформансама.",
         "Clone:": "Клонирај:",
+        "Collecting bitrate samples...": "Prikupljanje uzoraka brzine protoka...",
+        "Collecting latency samples...": "Prikupljanje uzoraka kašnjenja...",
         "Collecting...": "Prikupljanje...",
         "Connection lost": "Веза је изгубљена",
         "Connection restored successfully": "Веза је успешно обновљена",
@@ -490,6 +492,8 @@
         "No microphones found": "Ниједан микрофон није пронађен",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Нису потребне апликације, само скенирај QR код камером мобилног телефона или позови неког другог слањем следећег URL-а",
         "No speakers found": "Ниједан звучник није пронађен",
+        "No traffic": "Bez saobraćaja",
+        "No traffic yet": "Još uvek nema saobraćaja",
         "Noise Suppression": "Потискивање буке",
         "None": "Ниједан",
         "Note": "Белешка",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Морате омогућити JavaScript да бисте покренули ову апликацију.",
         "You were removed from the room by": "Уклонио вас је из собе",
         "You'll join automatically when the host opens the room.": "Аутоматски ћете се придружити када домаћин отвори собу.",
-        "Your profile": "Ваш профил",
-        "No traffic": "Bez saobraćaja",
-        "No traffic yet": "Još uvek nema saobraćaja",
-        "Collecting bitrate samples...": "Prikupljanje uzoraka brzine protoka...",
-        "Collecting latency samples...": "Prikupljanje uzoraka kašnjenja..."
+        "Your profile": "Ваш профил"
     },
     "dialogs": {
         "All messages": "Све поруке",

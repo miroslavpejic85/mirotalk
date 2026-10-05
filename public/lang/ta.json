@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "சந்திப்பு இடைமுகம் பயன்படுத்தும் மொழியைத் தேர்ந்தெடுக்கவும்.",
         "Choose your camera and balance image quality with performance.": "உங்கள் கேமராவைத் தேர்ந்தெடுத்து, செயல்திறனுடன் படத்தின் தரத்தை சமநிலைப்படுத்தவும்.",
         "Clone:": "குளோன்:",
+        "Collecting bitrate samples...": "பிட்ரேட் மாதிரிகள் சேகரிக்கப்படுகிறது...",
+        "Collecting latency samples...": "தாமத மாதிரிகள் சேகரிக்கப்படுகிறது...",
         "Collecting...": "சேகரித்து வருகிறது...",
         "Connection lost": "இணைப்பு துண்டிக்கப்பட்டது",
         "Connection restored successfully": "இணைப்பு வெற்றிகரமாக மீட்டமைக்கப்பட்டது",
@@ -490,6 +492,8 @@
         "No microphones found": "மைக்ரோஃபோன்கள் எதுவும் இல்லை",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "பயன்பாடுகள் தேவையில்லை, உங்கள் மொபைல் கேமரா மூலம் QR குறியீட்டைப் பிடிக்கவும் அல்லது பின்வரும் URL ஐ அனுப்புவதன் மூலம் வேறு யாரையாவது சேர அழைக்கவும்",
         "No speakers found": "ஸ்பீக்கர்கள் இல்லை",
+        "No traffic": "டிராஃபிக் இல்லை",
+        "No traffic yet": "இன்னும் டிராஃபிக் இல்லை",
         "Noise Suppression": "சத்தம் அடக்குதல்",
         "None": "ஏதுமில்லை",
         "Note": "குறிப்பு",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "இந்தப் பயன்பாட்டை இயக்க, நீங்கள் JavaScript ஐ இயக்க வேண்டும்.",
         "You were removed from the room by": "உங்களை அறையிலிருந்து வெளியேற்றியவர்",
         "You'll join automatically when the host opens the room.": "நடத்துநர் அறையைத் திறக்கும்போது தானாக இணைவீர்கள்.",
-        "Your profile": "உங்கள் சுயவிவரம்",
-        "No traffic": "டிராஃபிக் இல்லை",
-        "No traffic yet": "இன்னும் டிராஃபிக் இல்லை",
-        "Collecting bitrate samples...": "பிட்ரேட் மாதிரிகள் சேகரிக்கப்படுகிறது...",
-        "Collecting latency samples...": "தாமத மாதிரிகள் சேகரிக்கப்படுகிறது..."
+        "Your profile": "உங்கள் சுயவிவரம்"
     },
     "dialogs": {
         "All messages": "அனைத்துச் செய்திகள்",

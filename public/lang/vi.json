@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Chọn ngôn ngữ được sử dụng bởi giao diện cuộc họp.",
         "Choose your camera and balance image quality with performance.": "Chọn máy ảnh của bạn và cân bằng chất lượng hình ảnh với hiệu suất.",
         "Clone:": "Bản sao:",
+        "Collecting bitrate samples...": "Đang thu thập mẫu bitrate...",
+        "Collecting latency samples...": "Đang thu thập mẫu độ trễ...",
         "Collecting...": "Đang thu thập...",
         "Connection lost": "Mất kết nối",
         "Connection restored successfully": "Đã khôi phục kết nối thành công",
@@ -490,6 +492,8 @@
         "No microphones found": "Không tìm thấy micrô",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Không cần ứng dụng, chỉ cần quét mã QR bằng camera điện thoại của bạn hoặc mời người khác tham gia bằng cách gửi cho họ URL sau",
         "No speakers found": "Không tìm thấy loa",
+        "No traffic": "Không có lưu lượng",
+        "No traffic yet": "Chưa có lưu lượng",
         "Noise Suppression": "Khử tiếng ồn",
         "None": "Không có",
         "Note": "Lưu ý",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Bạn cần kích hoạt JavaScript để chạy ứng dụng này.",
         "You were removed from the room by": "Bạn đã bị loại khỏi phòng bởi",
         "You'll join automatically when the host opens the room.": "Bạn sẽ tự động tham gia khi chủ phòng mở phòng.",
-        "Your profile": "Hồ sơ của bạn",
-        "No traffic": "Không có lưu lượng",
-        "No traffic yet": "Chưa có lưu lượng",
-        "Collecting bitrate samples...": "Đang thu thập mẫu bitrate...",
-        "Collecting latency samples...": "Đang thu thập mẫu độ trễ..."
+        "Your profile": "Hồ sơ của bạn"
     },
     "dialogs": {
         "All messages": "Tất cả tin nhắn",

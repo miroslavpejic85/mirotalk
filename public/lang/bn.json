@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "মিটিং ইন্টারফেসে ব্যবহৃত ভাষা নির্বাচন করুন.",
         "Choose your camera and balance image quality with performance.": "আপনার ক্যামেরা বেছে নিন এবং ছবির মান ও পারফরম্যান্সের মধ্যে ভারসাম্য রাখুন.",
         "Clone:": "ক্লোন:",
+        "Collecting bitrate samples...": "বিটরেট নমুনা সংগ্রহ করা হচ্ছে...",
+        "Collecting latency samples...": "লেটেন্সি নমুনা সংগ্রহ করা হচ্ছে...",
         "Collecting...": "সংগ্রহ করা হচ্ছে...",
         "Connection lost": "সংযোগ বিচ্ছিন্ন",
         "Connection restored successfully": "সংযোগ সফলভাবে পুনরুদ্ধার হয়েছে",
@@ -490,6 +492,8 @@
         "No microphones found": "কোন মাইক্রোফোন পাওয়া যায়নি",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "অ্যাপের প্রয়োজন নেই, কেবল আপনার মোবাইল ক্যামেরা দিয়ে QR কোড ক্যাপচার করুন অথবা অন্য কাউকে নিম্নলিখিত URL পাঠিয়ে যোগদানের জন্য আমন্ত্রণ জানান",
         "No speakers found": "কোনো স্পিকার পাওয়া যায়নি",
+        "No traffic": "কোনও ট্র্যাফিক নেই",
+        "No traffic yet": "এখনও কোনও ট্র্যাফিক নেই",
         "Noise Suppression": "শব্দ দমন",
         "None": "কোনোটিই নয়",
         "Note": "নোট",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "এই অ্যাপটি চালানোর জন্য আপনাকে JavaScript সক্রিয় করতে হবে.",
         "You were removed from the room by": "আপনাকে রুম থেকে সরিয়েছেন",
         "You'll join automatically when the host opens the room.": "হোস্ট রুম খুললে আপনি স্বয়ংক্রিয়ভাবে যোগ দেবেন.",
-        "Your profile": "আপনার প্রোফাইল",
-        "No traffic": "কোনও ট্র্যাফিক নেই",
-        "No traffic yet": "এখনও কোনও ট্র্যাফিক নেই",
-        "Collecting bitrate samples...": "বিটরেট নমুনা সংগ্রহ করা হচ্ছে...",
-        "Collecting latency samples...": "লেটেন্সি নমুনা সংগ্রহ করা হচ্ছে..."
+        "Your profile": "আপনার প্রোফাইল"
     },
     "dialogs": {
         "All messages": "সব বার্তা",

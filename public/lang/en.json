@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Choose the language used by the meeting interface.",
         "Choose your camera and balance image quality with performance.": "Choose your camera and balance image quality with performance.",
         "Clone:": "Clone:",
+        "Collecting bitrate samples...": "Collecting bitrate samples...",
+        "Collecting latency samples...": "Collecting latency samples...",
         "Collecting...": "Collecting...",
         "Connection lost": "Connection lost",
         "Connection restored successfully": "Connection restored successfully",
@@ -490,6 +492,8 @@
         "No microphones found": "No microphones found",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL",
         "No speakers found": "No speakers found",
+        "No traffic": "No traffic",
+        "No traffic yet": "No traffic yet",
         "Noise Suppression": "Noise Suppression",
         "None": "None",
         "Note": "Note",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "You need to enable JavaScript to run this app.",
         "You were removed from the room by": "You were removed from the room by",
         "You'll join automatically when the host opens the room.": "You'll join automatically when the host opens the room.",
-        "Your profile": "Your profile",
-        "No traffic": "No traffic",
-        "No traffic yet": "No traffic yet",
-        "Collecting bitrate samples...": "Collecting bitrate samples...",
-        "Collecting latency samples...": "Collecting latency samples..."
+        "Your profile": "Your profile"
     },
     "dialogs": {
         "All messages": "All messages",

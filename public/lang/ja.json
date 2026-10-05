@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "会議画面で使用する言語を選択します。",
         "Choose your camera and balance image quality with performance.": "カメラを選択して、画質とパフォーマンスのバランスを取りましょう。",
         "Clone:": "複製：",
+        "Collecting bitrate samples...": "ビットレートサンプルを収集しています...",
+        "Collecting latency samples...": "レイテンシサンプルを収集しています...",
         "Collecting...": "収集中...",
         "Connection lost": "接続が切断されました",
         "Connection restored successfully": "接続が正常に復元されました",
@@ -490,6 +492,8 @@
         "No microphones found": "マイクが見つかりません",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "アプリは不要です。モバイルのカメラで QR コードを読み取るか、次の URL を送って他の人を参加に招待してください",
         "No speakers found": "スピーカーが見つかりません",
+        "No traffic": "トラフィックなし",
+        "No traffic yet": "トラフィックはまだありません",
         "Noise Suppression": "ノイズ抑制",
         "None": "なし",
         "Note": "メモ",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "このアプリを実行するには JavaScript を有効にする必要があります。",
         "You were removed from the room by": "次のユーザーによってルームから退出させられました",
         "You'll join automatically when the host opens the room.": "ホストがルームを開くと自動的に参加します。",
-        "Your profile": "あなたのプロフィール",
-        "No traffic": "トラフィックなし",
-        "No traffic yet": "トラフィックはまだありません",
-        "Collecting bitrate samples...": "ビットレートサンプルを収集しています...",
-        "Collecting latency samples...": "レイテンシサンプルを収集しています..."
+        "Your profile": "あなたのプロフィール"
     },
     "dialogs": {
         "All messages": "すべてのメッセージ",

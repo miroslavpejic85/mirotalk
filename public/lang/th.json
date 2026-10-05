@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "เลือกภาษาที่ใช้โดยอินเทอร์เฟซการประชุม",
         "Choose your camera and balance image quality with performance.": "เลือกกล้องของคุณและทำให้คุณภาพของภาพสมดุลกับประสิทธิภาพ",
         "Clone:": "โคลน:",
+        "Collecting bitrate samples...": "กำลังเก็บตัวอย่างบิตเรต...",
+        "Collecting latency samples...": "กำลังเก็บตัวอย่างความหน่วง...",
         "Collecting...": "กำลังรวบรวม...",
         "Connection lost": "การเชื่อมต่อขาดหาย",
         "Connection restored successfully": "กู้คืนการเชื่อมต่อได้สำเร็จ",
@@ -490,6 +492,8 @@
         "No microphones found": "ไม่พบไมโครโฟน",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "ไม่จำเป็นต้องใช้แอป เพียงจับภาพโค้ด QR ด้วยกล้องมือถือของคุณ หรือเชิญบุคคลอื่นให้เข้าร่วมโดยส่ง URL ต่อไปนี้",
         "No speakers found": "ไม่พบผู้พูด",
+        "No traffic": "ไม่มีทราฟฟิก",
+        "No traffic yet": "ยังไม่มีทราฟฟิก",
         "Noise Suppression": "การลดเสียงรบกวน",
         "None": "ไม่มี",
         "Note": "หมายเหตุ",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "คุณต้องเปิดใช้งาน JavaScript เพื่อเรียกใช้แอปนี้",
         "You were removed from the room by": "คุณถูกลบออกจากห้องภายในวันที่",
         "You'll join automatically when the host opens the room.": "คุณจะเข้าร่วมโดยอัตโนมัติเมื่อโฮสต์เปิดห้อง",
-        "Your profile": "โปรไฟล์ของคุณ",
-        "No traffic": "ไม่มีทราฟฟิก",
-        "No traffic yet": "ยังไม่มีทราฟฟิก",
-        "Collecting bitrate samples...": "กำลังเก็บตัวอย่างบิตเรต...",
-        "Collecting latency samples...": "กำลังเก็บตัวอย่างความหน่วง..."
+        "Your profile": "โปรไฟล์ของคุณ"
     },
     "dialogs": {
         "All messages": "ข้อความทั้งหมด",

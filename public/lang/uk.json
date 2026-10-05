@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Виберіть мову інтерфейсу зустрічі.",
         "Choose your camera and balance image quality with performance.": "Виберіть свою камеру та збалансуйте якість зображення з продуктивністю.",
         "Clone:": "Клон:",
+        "Collecting bitrate samples...": "Збирання зразків бітрейту...",
+        "Collecting latency samples...": "Збирання зразків затримки...",
         "Collecting...": "Збирання...",
         "Connection lost": "З’єднання втрачено",
         "Connection restored successfully": "З’єднання успішно відновлено",
@@ -490,6 +492,8 @@
         "No microphones found": "Мікрофони не знайдено",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Немає потреби в програмах, просто захопіть QR-код за допомогою камери мобільного телефону. Або запросіть когось приєднатися, надіславши їм таку URL-адресу",
         "No speakers found": "Динаміки не знайдено",
+        "No traffic": "Немає трафіку",
+        "No traffic yet": "Трафіку поки немає",
         "Noise Suppression": "Придушення шуму",
         "None": "Немає",
         "Note": "Примітка",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Щоб запустити цю програму, потрібно увімкнути JavaScript.",
         "You were removed from the room by": "Ви були вилучені з кімнати",
         "You'll join automatically when the host opens the room.": "Ви приєднаєтеся автоматично, коли господар відкриє кімнату.",
-        "Your profile": "Інформація про учасника",
-        "No traffic": "Немає трафіку",
-        "No traffic yet": "Трафіку поки немає",
-        "Collecting bitrate samples...": "Збирання зразків бітрейту...",
-        "Collecting latency samples...": "Збирання зразків затримки..."
+        "Your profile": "Інформація про учасника"
     },
     "dialogs": {
         "All messages": "Усі повідомлення",

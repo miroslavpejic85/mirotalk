@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Choisissez la langue utilisée par l'interface de réunion.",
         "Choose your camera and balance image quality with performance.": "Choisissez votre appareil photo et équilibrez qualité d’image et performances.",
         "Clone:": "Cloner :",
+        "Collecting bitrate samples...": "Collecte d'échantillons de débit...",
+        "Collecting latency samples...": "Collecte des échantillons de latence...",
         "Collecting...": "Collecte en cours...",
         "Connection lost": "Connexion perdue",
         "Connection restored successfully": "Connexion restaurée avec succès",
@@ -490,6 +492,8 @@
         "No microphones found": "Aucun microphone trouvé",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Pas besoin d'application, scannez simplement le code QR avec la caméra de votre mobile ou invitez quelqu'un d'autre à rejoindre en lui envoyant l'URL suivante",
         "No speakers found": "Aucun haut-parleur trouvé",
+        "No traffic": "Pas de trafic",
+        "No traffic yet": "Pas encore de trafic",
         "Noise Suppression": "Suppression du bruit",
         "None": "Aucun",
         "Note": "Remarque",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Vous devez activer JavaScript pour exécuter cette application.",
         "You were removed from the room by": "Vous avez été retiré de la salle par",
         "You'll join automatically when the host opens the room.": "Vous rejoindrez automatiquement lorsque l'hôte ouvrira la salle.",
-        "Your profile": "Votre profil",
-        "No traffic": "Pas de trafic",
-        "No traffic yet": "Pas encore de trafic",
-        "Collecting bitrate samples...": "Collecte d'échantillons de débit...",
-        "Collecting latency samples...": "Collecte des échantillons de latence..."
+        "Your profile": "Votre profil"
     },
     "dialogs": {
         "All messages": "Tous les messages",

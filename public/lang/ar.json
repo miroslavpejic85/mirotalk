@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "اختر اللغة التي تستخدمها واجهة الاجتماع.",
         "Choose your camera and balance image quality with performance.": "اختر الكاميرا الخاصة بك ووازن بين جودة الصورة والأداء.",
         "Clone:": "استنساخ:",
+        "Collecting bitrate samples...": "جارٍ جمع عينات معدل البت...",
+        "Collecting latency samples...": "جارٍ جمع عينات زمن الانتقال...",
         "Collecting...": "جارٍ جمع البيانات...",
         "Connection lost": "انقطع الاتصال",
         "Connection restored successfully": "تمت استعادة الاتصال بنجاح",
@@ -490,6 +492,8 @@
         "No microphones found": "لم يتم العثور على ميكروفونات",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "لا حاجة إلى تطبيقات، فقط امسح رمز QR بكاميرا هاتفك المحمول أو ادعُ شخصًا آخر للانضمام عبر إرسال الرابط التالي له",
         "No speakers found": "لم يتم العثور على مكبرات صوت",
+        "No traffic": "لا توجد حركة مرور",
+        "No traffic yet": "لا توجد حركة مرور حتى الآن",
         "Noise Suppression": "كبح الضوضاء",
         "None": "لا أحد",
         "Note": "ملاحظة",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "يجب تفعيل JavaScript لتشغيل هذا التطبيق.",
         "You were removed from the room by": "تمت إزالتك من الغرفة بواسطة",
         "You'll join automatically when the host opens the room.": "ستنضم تلقائيًا عندما يفتح المضيف الغرفة.",
-        "Your profile": "ملفك الشخصي",
-        "No traffic": "لا توجد حركة مرور",
-        "No traffic yet": "لا توجد حركة مرور حتى الآن",
-        "Collecting bitrate samples...": "جارٍ جمع عينات معدل البت...",
-        "Collecting latency samples...": "جارٍ جمع عينات زمن الانتقال..."
+        "Your profile": "ملفك الشخصي"
     },
     "dialogs": {
         "All messages": "جميع الرسائل",

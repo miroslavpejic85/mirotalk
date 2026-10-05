@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "సమావేశ ఇంటర్‌ఫేస్‌లో ఉపయోగించే భాషను ఎంచుకోండి.",
         "Choose your camera and balance image quality with performance.": "మీ కెమెరాను ఎంచుకోండి మరియు పనితీరుతో చిత్ర నాణ్యతను సమతుల్యం చేయండి.",
         "Clone:": "క్లోన్:",
+        "Collecting bitrate samples...": "బిట్‌రేట్ నమూనాలను సేకరిస్తోంది...",
+        "Collecting latency samples...": "లేటెన్సీ నమూనాలను సేకరిస్తోంది...",
         "Collecting...": "సేకరిస్తోంది...",
         "Connection lost": "కనెక్షన్ పోయింది",
         "Connection restored successfully": "కనెక్షన్ విజయవంతంగా పునరుద్ధరించబడింది",
@@ -490,6 +492,8 @@
         "No microphones found": "మైక్రోఫోన్‌లు ఏవీ కనుగొనబడలేదు",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "యాప్‌లు అవసరం లేదు, మీ మొబైల్ కెమెరాతో QR కోడ్‌ను స్కాన్ చేయండి లేదా క్రింది URLను పంపి మరొకరిని ఆహ్వానించండి",
         "No speakers found": "స్పీకర్లు కనుగొనబడలేదు",
+        "No traffic": "ట్రాఫిక్ లేదు",
+        "No traffic yet": "ఇంకా ట్రాఫిక్ లేదు",
         "Noise Suppression": "నాయిస్ సప్రెషన్",
         "None": "ఏదీ లేదు",
         "Note": "గమనిక",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "ఈ యాప్‌ని అమలు చేయడానికి మీరు జావాస్క్రిప్ట్‌ని ప్రారంభించాలి.",
         "You were removed from the room by": "మిమ్మల్ని గది నుండి తొలగించినవారు",
         "You'll join automatically when the host opens the room.": "హోస్ట్ గదిని తెరిచినప్పుడు మీరు స్వయంచాలకంగా చేరుతారు.",
-        "Your profile": "మీ ప్రొఫైల్",
-        "No traffic": "ట్రాఫిక్ లేదు",
-        "No traffic yet": "ఇంకా ట్రాఫిక్ లేదు",
-        "Collecting bitrate samples...": "బిట్‌రేట్ నమూనాలను సేకరిస్తోంది...",
-        "Collecting latency samples...": "లేటెన్సీ నమూనాలను సేకరిస్తోంది..."
+        "Your profile": "మీ ప్రొఫైల్"
     },
     "dialogs": {
         "All messages": "అన్ని సందేశాలు",

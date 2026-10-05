@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Pilih bahasa yang digunakan oleh antarmuka rapat.",
         "Choose your camera and balance image quality with performance.": "Pilih kamera Anda dan seimbangkan kualitas gambar dengan performa.",
         "Clone:": "Klon:",
+        "Collecting bitrate samples...": "Mengumpulkan sampel bitrate...",
+        "Collecting latency samples...": "Mengumpulkan sampel latensi...",
         "Collecting...": "Mengumpulkan...",
         "Connection lost": "Koneksi terputus",
         "Connection restored successfully": "Koneksi berhasil dipulihkan",
@@ -490,6 +492,8 @@
         "No microphones found": "Tidak ada mikrofon ditemukan",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Tidak perlu aplikasi, cukup pindai kode QR dengan kamera ponsel Anda atau undang orang lain untuk bergabung dengan mengirimkan URL berikut",
         "No speakers found": "Tidak ada speaker ditemukan",
+        "No traffic": "Tidak ada trafik",
+        "No traffic yet": "Belum ada trafik",
         "Noise Suppression": "Peredam Kebisingan",
         "None": "Tidak ada",
         "Note": "Catatan",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Anda perlu mengaktifkan JavaScript untuk menjalankan aplikasi ini.",
         "You were removed from the room by": "Anda dikeluarkan dari ruangan oleh",
         "You'll join automatically when the host opens the room.": "Anda akan bergabung secara otomatis saat tuan rumah membuka ruang.",
-        "Your profile": "Profil Anda",
-        "No traffic": "Tidak ada trafik",
-        "No traffic yet": "Belum ada trafik",
-        "Collecting bitrate samples...": "Mengumpulkan sampel bitrate...",
-        "Collecting latency samples...": "Mengumpulkan sampel latensi..."
+        "Your profile": "Profil Anda"
     },
     "dialogs": {
         "All messages": "Semua pesan",

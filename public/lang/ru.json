@@ -380,6 +380,8 @@
         "Choose the language used by the meeting interface.": "Выберите язык, используемый интерфейсом собрания.",
         "Choose your camera and balance image quality with performance.": "Выберите свою камеру и сбалансируйте качество изображения и производительность.",
         "Clone:": "Клонировать:",
+        "Collecting bitrate samples...": "Сбор образцов битрейта...",
+        "Collecting latency samples...": "Сбор образцов задержки...",
         "Collecting...": "Сбор данных...",
         "Connection lost": "Соединение потеряно",
         "Connection restored successfully": "Соединение успешно восстановлено",
@@ -490,6 +492,8 @@
         "No microphones found": "Микрофоны не найдены",
         "No need for apps, simply capture the QR code with your mobile camera Or Invite someone else to join by sending them the following URL": "Приложения не нужны, просто отсканируйте QR-код камерой мобильного устройства или пригласите кого-то ещё, отправив следующий URL",
         "No speakers found": "Динамики не найдены",
+        "No traffic": "Нет трафика",
+        "No traffic yet": "Трафика пока нет",
         "Noise Suppression": "Шумоподавление",
         "None": "Нет",
         "Note": "Заметка",
@@ -653,11 +657,7 @@
         "You need to enable JavaScript to run this app.": "Чтобы запустить это приложение, включите JavaScript.",
         "You were removed from the room by": "Вас удалил из комнаты",
         "You'll join automatically when the host opens the room.": "Вы автоматически присоединитесь, когда организатор откроет комнату.",
-        "Your profile": "Ваш профиль",
-        "No traffic": "Нет трафика",
-        "No traffic yet": "Трафика пока нет",
-        "Collecting bitrate samples...": "Сбор образцов битрейта...",
-        "Collecting latency samples...": "Сбор образцов задержки..."
+        "Your profile": "Ваш профиль"
     },
     "dialogs": {
         "All messages": "Все сообщения",
