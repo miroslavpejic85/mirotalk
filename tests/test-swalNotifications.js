@@ -307,6 +307,26 @@ describe('SweetAlert notification UX', () => {
         await feedback;
     });
 
+    it('queues centered-by-default errors while the pre-join dialog is active', async () => {
+        const initUser = dom.window.document.createElement('div');
+        popup.appendChild(initUser);
+        context.initUser = initUser;
+        visible = true;
+
+        const feedback = context.userLog('error', 'Microphone setup failed');
+        await clock.tickAsync(500);
+        sinon.assert.notCalled(swal.fire);
+
+        visible = false;
+        await clock.tickAsync(250);
+        const options = swal.fire.firstCall.args[0];
+        assert.equal(options.toast, true);
+        assert.equal(options.position, 'top-end');
+        assert.equal(options.titleText, 'Microphone setup failed');
+        close();
+        await feedback;
+    });
+
     it('pauses on hover or focus and resumes after leaving', () => {
         context.msgPopup('info', 'Readable feedback');
         const popup = dom.window.document.createElement('div');
