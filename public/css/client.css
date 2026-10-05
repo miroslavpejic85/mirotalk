@@ -4484,6 +4484,22 @@ button {
     margin-bottom: 0;
 }
 
+.settings-subsection + .settings-subsection {
+    margin-top: 24px;
+}
+
+.settings-subsection-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
 #mySettings .settings-field :is(#mySettingsTable, .mySettingsTable) {
     border-radius: 8px;
 }
@@ -5085,8 +5101,8 @@ button {
 /* Create an active/current tablink class */
 .tab button.active {
     background-color: var(--tab-btn-active);
-    border-color: rgba(125, 160, 255, 0.45);
-    box-shadow: inset 2px 0 0 rgba(125, 160, 255, 0.95);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 2px 0 0 rgba(255, 255, 255, 0.28);
 }
 
 /* Style the tab content */
