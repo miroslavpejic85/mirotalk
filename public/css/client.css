@@ -3646,22 +3646,24 @@ button {
     position: absolute;
     display: none;
     margin: auto;
-    padding: 10px;
+    padding: 12px;
     width: min(900px, calc(100vw - 32px));
     height: auto;
-    max-height: calc(100vh - 24px);
+    max-height: calc(100vh - 12px);
     box-sizing: border-box;
     background: var(--body-bg);
     box-shadow: var(--box-shadow);
     border: var(--border);
     border-radius: 16px;
+    backdrop-filter: blur(10px);
     overflow: hidden;
 }
 
 .mySettingsMain {
     display: flex;
+    gap: 10px;
     width: 100%;
-    height: min(720px, calc(100vh - 64px));
+    height: min(760px, calc(100vh - 66px));
     min-height: 0;
 }
 
@@ -3767,11 +3769,12 @@ button {
     align-items: center;
     justify-content: flex-end;
     position: relative;
+    min-height: 52px;
+    padding: 0 4px 10px;
     cursor: move;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
-    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 #mySettingsNavToggleBtn {
@@ -3785,18 +3788,19 @@ button {
 #mySettings i,
 #mySettings p {
     display: inline-flex;
-    margin: auto;
+    align-items: center;
+    margin: 0;
     color: #fff;
-    padding: 5px;
+    padding: 0;
     background: transparent;
 }
 
 #mySettings select {
     display: block;
+    width: min(100%, 340px);
     padding: 10px;
-    min-width: 150px;
-    max-width: 310px;
-    margin-top: 10px;
+    min-width: 170px;
+    margin-top: 12px;
     background: var(--select-bg) !important;
     color: #fff;
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -3820,6 +3824,11 @@ button {
     box-shadow: 0 0 0 2px rgba(70, 120, 249, 0.15);
 }
 
+#mySettings :is(button, select, input, .toggle):focus-visible {
+    outline: 2px solid rgba(95, 152, 255, 0.9);
+    outline-offset: 2px;
+}
+
 #mySettingsCloseBtn {
     display: inline-flex;
     align-items: center;
@@ -3833,13 +3842,12 @@ button {
     border: none;
     border-radius: 12px;
     float: right;
-    background: var(--body-bg);
+    background: rgba(255, 255, 255, 0.06);
     transition: all 0.25s ease;
 }
 
 #mySettingsCloseBtn:hover {
-    background: var(--right-msg-bg);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.14);
 }
 
 .form-check-input {
@@ -4240,11 +4248,16 @@ button {
 #joinLockBtn,
 #joinUnlockBtn {
     padding: 10px;
+    min-height: 44px;
     font-size: 0.9rem;
     border: var(--border);
     border-radius: 8px;
     color: #fff;
     background-color: transparent;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 #activeRoomsBtn {
@@ -4268,29 +4281,26 @@ button {
 #unlockRoomBtn:hover,
 #joinLockBtn:hover,
 #joinUnlockBtn:hover {
-    background: var(--body-bg);
-    transform: translateY(-3px);
-    transition: all 0.3s ease-in-out;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
 }
 
 #captionEveryoneStopBtn:hover {
     color: orange;
-    transform: translateY(-3px);
-    transition: all 0.3s ease-in-out;
+    transform: translateY(-1px);
 }
 #muteEveryoneBtn:hover,
 #hideEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {
     color: red;
-    transform: translateY(-3px);
-    transition: all 0.3s ease-in-out;
+    transform: translateY(-1px);
 }
 
 #activeRoomsBtn:hover,
 #captionEveryoneBtn:hover {
     color: green;
-    transform: translateY(-3px);
-    transition: all 0.3s ease-in-out;
+    transform: translateY(-1px);
 }
 
 #myProfileAvatarUploadBtn,
@@ -4389,16 +4399,20 @@ button {
     table-layout: auto;
     border-collapse: collapse;
     border-radius: 10px;
-    background: var(--body-bg);
+    background: transparent;
 }
 
 #mySettingsTable td,
 #mySettingsTable th,
 .mySettingsTable td,
 .mySettingsTable th {
-    padding: 10px;
+    padding: 12px 10px;
     text-align: start;
     vertical-align: middle;
+}
+
+#mySettings :is(#mySettingsTable, .mySettingsTable) tr + tr {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 #mySettingsTable td:first-child,
@@ -4457,11 +4471,19 @@ button {
 }
 
 .settings-field {
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--select-bg) 40%, transparent);
     margin-bottom: 22px;
 }
 
 .settings-field:last-child {
     margin-bottom: 0;
+}
+
+#mySettings .settings-field :is(#mySettingsTable, .mySettingsTable) {
+    border-radius: 8px;
 }
 
 #backgroundEffectsSection[hidden],
@@ -4583,10 +4605,27 @@ button {
 
 .settings-block {
     margin-top: 22px;
+    padding: 8px 0;
 }
 
 .network-ice-section-title {
     margin-bottom: 12px;
+}
+
+#tabConnectivity .network-ice-section-title + #mySettingsTable td:last-child {
+    width: 56px;
+    padding-inline: 4px 0;
+    text-align: end;
+}
+
+#tabConnectivity :is(#networkHost, #networkStun, #networkTurn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.4em;
+    line-height: 1;
+    font-size: 1.5rem;
+    margin: 0;
 }
 
 #tabNetwork .title.settings-block {
@@ -4785,8 +4824,9 @@ button {
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     border-inline-end: var(--border);
+    border-radius: 12px;
 }
 
 .settings-nav-label {
@@ -4805,6 +4845,9 @@ button {
     margin: 0 -12px 18px;
     padding: 14px 18px 16px;
     border-bottom: var(--border);
+    background: color-mix(in srgb, var(--select-bg) 32%, transparent);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 .settings-section-intro h3 {
@@ -4825,7 +4868,7 @@ button {
 
 .tabActions {
     position: relative;
-    padding: 0px 20px 0px 0px; /* top right bottom left */
+    padding: 0 12px 10px 0; /* top right bottom left */
     width: auto;
     flex: 1;
     min-width: 0;
@@ -4945,30 +4988,50 @@ button {
         font-size: 0.9rem;
         border-radius: 8px;
     }
+
+    #tabConnectivity .network-ice-section-title + #mySettingsTable td:last-child {
+        width: 42px;
+        padding-inline: 2px 0;
+    }
+
+    #tabConnectivity .network-ice-section-title + #mySettingsTable .title {
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    #tabConnectivity :is(#networkHost, #networkStun, #networkTurn) {
+        font-size: 1.35rem;
+    }
 }
 
 /* Style the buttons inside the tab */
 .tab button {
     display: flex;
     align-items: center;
+    gap: 8px;
     margin: 2px 3px;
-    padding: 7px 11px;
+    min-height: 44px;
+    padding: 9px 12px;
     float: left;
     text-align: start;
     color: #fff;
-    font-size: 1rem;
-    border: var(--border);
+    font-size: 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: 8px;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.14);
     outline: none;
     cursor: pointer;
-    transition: 0.3s;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .tab button::before {
     flex: 0 0 1.25rem;
     width: 1.25rem;
     text-align: center;
+    opacity: 0.86;
 }
 
 .tabButtonText {
@@ -4978,13 +5041,20 @@ button {
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-    background: var(--body-bg);
-    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.24);
+}
+
+.tab button:focus-visible {
+    border-color: rgba(95, 152, 255, 0.85);
+    box-shadow: 0 0 0 2px rgba(95, 152, 255, 0.2);
 }
 
 /* Create an active/current tablink class */
 .tab button.active {
     background-color: var(--tab-btn-active);
+    border-color: rgba(125, 160, 255, 0.45);
+    box-shadow: inset 2px 0 0 rgba(125, 160, 255, 0.95);
 }
 
 /* Style the tab content */
@@ -4995,7 +5065,7 @@ button {
     box-sizing: border-box;
     min-height: 480px;
     border-top: none;
-    background-color: var(--body-bg);
+    background-color: transparent;
 }
 
 .tabcontent button {
