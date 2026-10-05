@@ -4614,6 +4614,11 @@ button {
     margin-bottom: 12px;
 }
 
+#tabConnectivity > #mySettingsTable:first-of-type td:last-child {
+    width: 104px;
+    padding-inline: 8px 0;
+}
+
 #tabConnectivity .network-ice-section-title + #mySettingsTable td:last-child {
     width: 56px;
     padding-inline: 4px 0;
@@ -5009,6 +5014,11 @@ button {
         padding: 0 10px;
         font-size: 0.9rem;
         border-radius: 8px;
+    }
+
+    #tabConnectivity > #mySettingsTable:first-of-type td:last-child {
+        width: 84px;
+        padding-inline: 4px 0;
     }
 
     #tabConnectivity .network-ice-section-title + #mySettingsTable td:last-child {
