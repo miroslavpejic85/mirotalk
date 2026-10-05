@@ -3650,6 +3650,7 @@ button {
     width: min(900px, calc(100vw - 32px));
     height: auto;
     max-height: calc(100vh - 12px);
+    max-height: calc(100dvh - 12px);
     box-sizing: border-box;
     background: var(--body-bg);
     box-shadow: var(--box-shadow);
@@ -3664,6 +3665,7 @@ button {
     gap: 10px;
     width: 100%;
     height: min(760px, calc(100vh - 66px));
+    height: min(760px, calc(100dvh - 66px));
     min-height: 0;
 }
 
@@ -4977,6 +4979,10 @@ button {
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
         touch-action: pan-y;
+    }
+    .tabcontent {
+        min-height: 0;
+        padding-bottom: 14px;
     }
     .tabButtonText {
         display: inline-flex !important;
