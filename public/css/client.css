@@ -4884,7 +4884,9 @@ button {
     }
     .mySettingsMain {
         position: relative;
-        display: block;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
     }
     #mySettingsNavToggleBtn {
         display: inline-flex;
@@ -4963,10 +4965,18 @@ button {
         background: var(--body-bg);
     }
     .tabActions {
+        flex: 1;
+        min-height: 0;
+        height: auto;
         width: 100%;
         margin: 0;
         padding: 0;
         border-radius: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
     }
     .tabButtonText {
         display: inline-flex !important;
