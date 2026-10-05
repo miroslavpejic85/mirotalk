@@ -67,12 +67,15 @@
         dict: null,
         lang: 'en',
         mode: 'google',
+        modeSource: 'server',
         googleActive: false,
     };
 
     const NS_ORDER = ['tooltips', 'buttons', 'labels', 'dialogs', 'toasts'];
 
-    const OVERRIDE_KEY = 'uiLanguageOverride';
+    const LANGUAGE_OVERRIDE_KEY = 'uiLanguageOverride';
+    const MODE_OVERRIDE_KEY = 'uiTranslationModeOverride';
+    const VALID_MODES = new Set(['auto', 'native', 'google']);
 
     /**
      * Resolve a translation for a given source string within a namespace.
@@ -374,8 +377,8 @@
     async function applyLanguage(lang) {
         state.lang = lang;
         try {
-            if (lang === configLang()) localStorage.removeItem(OVERRIDE_KEY);
-            else localStorage.setItem(OVERRIDE_KEY, lang);
+            if (lang === configLang()) localStorage.removeItem(LANGUAGE_OVERRIDE_KEY);
+            else localStorage.setItem(LANGUAGE_OVERRIDE_KEY, lang);
         } catch (e) {
             console.warn('i18n: cannot persist language choice', e.message);
         }
@@ -414,7 +417,19 @@
 
     function getOverride() {
         try {
-            return localStorage.getItem(OVERRIDE_KEY);
+            return localStorage.getItem(LANGUAGE_OVERRIDE_KEY);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function normalizeMode(mode) {
+        return VALID_MODES.has(mode) ? mode : null;
+    }
+
+    function getModeOverride() {
+        try {
+            return normalizeMode(localStorage.getItem(MODE_OVERRIDE_KEY));
         } catch (e) {
             return null;
         }
@@ -438,8 +453,13 @@
     // Backward compatible: if unset/absent, use Google machine translation (pre-native behavior).
     function configMode() {
         const b = getBrand();
-        const m = b.app && b.app.translationMode;
-        return m === 'native' || m === 'auto' || m === 'google' ? m : 'google';
+        return normalizeMode(b.app && b.app.translationMode) || 'google';
+    }
+
+    function resolveMode() {
+        const override = getModeOverride();
+        if (override) return { mode: override, source: 'browser' };
+        return { mode: configMode(), source: 'server' };
     }
 
     // Per-browser override (set via the in-room picker) wins over the server language.
@@ -447,6 +467,146 @@
         const override = getOverride();
         if (override && (override === 'en' || LANG_DISPLAY[override])) return override;
         return configLang();
+    }
+
+    async function applyMode(chosen, currentMode) {
+        const mode = normalizeMode(chosen);
+        if (!mode || mode === currentMode) return false;
+
+        const confirmTitle =
+            window.i18n?.t('Apply translation mode change?', 'dialogs') || 'Apply translation mode change?';
+        const confirmText =
+            window.i18n?.t('Changing translation mode requires reloading the page. Continue?', 'dialogs') ||
+            'Changing translation mode requires reloading the page. Continue?';
+        const confirmButton =
+            window.i18n?.t('Apply and reload', 'dialogs') ||
+            window.i18n?.t('Apply and reload', 'buttons') ||
+            'Apply and reload';
+        const cancelButton = window.i18n?.t('Cancel', 'dialogs') || window.i18n?.t('Cancel', 'buttons') || 'Cancel';
+
+        let confirmed = false;
+        if (window.Swal && typeof window.Swal.fire === 'function') {
+            const result = await window.Swal.fire({
+                icon: 'question',
+                title: confirmTitle,
+                text: confirmText,
+                background: 'var(--body-bg, rgba(0, 0, 0, 0.7))',
+                color: 'var(--white, #fff)',
+                showClass: { popup: 'animate__animated animate__fadeInDown' },
+                hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+                showCancelButton: true,
+                confirmButtonText: confirmButton,
+                cancelButtonText: cancelButton,
+            });
+            confirmed = !!result?.isConfirmed;
+        } else {
+            confirmed = window.confirm(`${confirmTitle}\n\n${confirmText}`);
+        }
+
+        if (!confirmed) return false;
+
+        try {
+            const cfgMode = configMode();
+            if (mode === cfgMode) localStorage.removeItem(MODE_OVERRIDE_KEY);
+            else localStorage.setItem(MODE_OVERRIDE_KEY, mode);
+        } catch (e) {
+            console.warn('i18n: cannot persist translation mode override', e.message);
+        }
+
+        const message =
+            window.i18n?.t('Translation mode changed. Reloading the page...', 'toasts') ||
+            'Translation mode changed. Reloading the page...';
+
+        if (typeof userLog === 'function') {
+            userLog('info', message, 'top-end', 1800);
+            setTimeout(() => location.reload(), 700);
+            return;
+        }
+
+        if (window.Swal && typeof window.Swal.fire === 'function') {
+            window.Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: message,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            });
+            setTimeout(() => location.reload(), 700);
+            return true;
+        }
+
+        location.reload();
+        return true;
+    }
+
+    function renderModeSelect(currentMode, currentSource) {
+        const container = document.getElementById('tabLanguages');
+        if (!container || document.getElementById('i18nModeSelect')) return;
+
+        const section = document.createElement('div');
+        section.className = 'notranslate';
+        section.style.cssText = 'margin-top:12px;';
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        const titleIcon = document.createElement('i');
+        titleIcon.className = 'fa-solid fa-language';
+        const titleText = document.createElement('p');
+        titleText.textContent = window.i18n?.t('Translation mode:', 'labels') || 'Translation mode:';
+        title.appendChild(titleIcon);
+        title.appendChild(titleText);
+        section.appendChild(title);
+
+        const modeSelect = document.createElement('select');
+        modeSelect.id = 'i18nModeSelect';
+        modeSelect.className = 'form-select text-light bg-dark notranslate';
+        modeSelect.style.cssText = 'max-width:280px;margin-top:4px;';
+
+        const autoOption = document.createElement('option');
+        autoOption.value = 'auto';
+        autoOption.textContent =
+            window.i18n?.t('Auto (native when available)', 'labels') || 'Auto (native when available)';
+        modeSelect.appendChild(autoOption);
+
+        const nativeOption = document.createElement('option');
+        nativeOption.value = 'native';
+        nativeOption.textContent = window.i18n?.t('Native only', 'labels') || 'Native only';
+        modeSelect.appendChild(nativeOption);
+
+        const googleOption = document.createElement('option');
+        googleOption.value = 'google';
+        googleOption.textContent = window.i18n?.t('Google Translate', 'labels') || 'Google Translate';
+        modeSelect.appendChild(googleOption);
+
+        modeSelect.value = currentMode;
+        section.appendChild(modeSelect);
+
+        const source = document.createElement('small');
+        source.className = 'notranslate';
+        source.style.cssText =
+            'display:block;margin-top:6px;color:var(--white,#fff);font-size:0.82rem;line-height:1.4;';
+        const sourceLabel =
+            currentSource === 'browser'
+                ? window.i18n?.t('Current source: saved browser preference', 'labels') ||
+                  'Current source: saved browser preference'
+                : window.i18n?.t('Current source: default setting', 'labels') || 'Current source: default setting';
+        source.textContent = sourceLabel;
+        section.appendChild(source);
+
+        let previousMode = currentMode;
+        modeSelect.addEventListener('change', async () => {
+            const chosen = modeSelect.value;
+            const applied = await applyMode(chosen, previousMode);
+            if (!applied) {
+                modeSelect.value = previousMode;
+                return;
+            }
+            previousMode = chosen;
+        });
+
+        container.appendChild(section);
     }
 
     // In-room language picker (human-translated languages + English). Switches live without reload.
@@ -493,8 +653,8 @@
             const needsGoogle = chosen !== 'en' && !LANG_DISPLAY[chosen];
             if (state.googleActive || needsGoogle) {
                 try {
-                    if (chosen === configLang()) localStorage.removeItem(OVERRIDE_KEY);
-                    else localStorage.setItem(OVERRIDE_KEY, chosen);
+                    if (chosen === configLang()) localStorage.removeItem(LANGUAGE_OVERRIDE_KEY);
+                    else localStorage.setItem(LANGUAGE_OVERRIDE_KEY, chosen);
                 } catch (e) {
                     console.warn('i18n: cannot persist language choice', e.message);
                 }
@@ -548,8 +708,9 @@
     window.i18n.ready = (async function init() {
         await whenBrandReady();
 
-        const mode = configMode();
+        const { mode, source } = resolveMode();
         state.mode = mode;
+        state.modeSource = source;
         const lang = resolveLang();
         state.lang = lang;
 
@@ -579,6 +740,7 @@
         if (state.native) console.log(`i18n: native translation active for "${lang}" (mode: ${mode})`);
 
         await whenDomReady();
+        renderModeSelect(mode, source);
 
         if (!googleAllowed) updateDocumentLanguage();
 

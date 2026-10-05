@@ -12,6 +12,14 @@ default language is `en`; the default translation mode is `google`.
 | `auto`   | Use a native file when available; otherwise use Google Translate. |
 | `native` | Use native files only; untranslated text remains English.         |
 
+In a room, users can override the translation mode from **Settings > Language**.
+The mode override is persisted in browser local storage and reused in
+subsequent rooms on the same browser.
+When users change translation mode, the app shows a short notice and reloads
+the page so the selected mode can be fully applied.
+
+Mode override precedence is: `browser override` → server config default.
+
 ## Adding a language
 
 1. Copy [en.json](./en.json) to a file named for the language code, such as
