@@ -57,7 +57,7 @@ back individually to Google Translate.
 After changing in-room UI strings, run this from the repository root:
 
 ```bash
-node app/src/scripts/extract-ui-lang.js
+npm run lang
 ```
 
 The script regenerates `en.json` and synchronizes other language files,
