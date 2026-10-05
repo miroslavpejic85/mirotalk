@@ -461,6 +461,7 @@ const noiseSuppressionBtn = getId('noiseSuppressionBtn');
 const isPeerPresenter = getId('isPeerPresenter');
 const peersCount = getId('peersCount');
 const screenFpsDiv = getId('screenFpsDiv');
+const screenSharingTitle = getId('screenSharingTitle');
 const switchShortcuts = getId('switchShortcuts');
 
 // Audio options
@@ -7078,6 +7079,7 @@ function setScreenShareBtn() {
         displayElements([
             { element: initScreenShareBtn, display: false },
             { element: screenShareBtn, display: false },
+            { element: screenSharingTitle, display: false },
             { element: screenFpsDiv, display: false },
         ]);
     }
