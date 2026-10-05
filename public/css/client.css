@@ -3766,11 +3766,20 @@ button {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    position: relative;
     cursor: move;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
     backdrop-filter: blur(10px);
+}
+
+#mySettingsNavToggleBtn {
+    display: none;
+}
+
+.settings-nav-backdrop {
+    display: none;
 }
 
 #mySettings i,
@@ -4752,7 +4761,7 @@ button {
     max-width: 42%;
     flex: 0 0 auto;
     box-sizing: border-box;
-    background-color: var(--body-bg);
+    background: var(--body-bg);
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -4807,37 +4816,92 @@ button {
 }
 
 @media screen and (max-width: 830px) {
+    #mySettingsHeader {
+        justify-content: flex-end;
+    }
+    .mySettingsMain {
+        position: relative;
+        display: block;
+    }
+    #mySettingsNavToggleBtn {
+        display: inline-flex;
+        position: absolute;
+        inset-inline-start: 0;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        font-size: 1rem;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        background: var(--body-bg);
+        transition: all 0.25s ease;
+    }
+    #mySettingsNavToggleBtn:hover {
+        background: var(--right-msg-bg);
+        transform: translateY(-1px);
+    }
+    .settings-nav-backdrop {
+        display: block;
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        border: 0;
+        margin: 0;
+        padding: 0;
+        opacity: 0;
+        pointer-events: none;
+        background: rgba(0, 0, 0, 0.45);
+        transition: opacity 0.2s ease;
+    }
+    #mySettings.settings-nav-open .settings-nav-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+    }
     .tab {
-        width: 100%;
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline-start: 0;
+        z-index: 3;
+        width: min(320px, calc(100vw - 56px));
         min-width: 0;
         max-width: 100%;
-        min-height: 62px;
-        height: 62px;
-        padding: 6px;
-        flex-direction: row;
-        align-items: center;
-        overflow-x: auto;
-        overflow-y: hidden;
-        border-inline-end: 0;
-        border-bottom: var(--border);
+        height: 100%;
+        min-height: 0;
+        padding: 8px;
+        flex-direction: column;
+        align-items: stretch;
+        overflow-x: hidden;
+        overflow-y: auto;
+        border-inline-end: var(--border);
+        border-bottom: 0;
         border-radius: 10px;
+        background: var(--body-bg);
+        transform: translateX(-105%);
+        transition: transform 0.2s ease;
+    }
+    #mySettings.settings-nav-open .tab {
+        transform: translateX(0);
     }
     .tab button {
-        width: auto;
-        min-width: max-content;
+        width: 100%;
+        min-width: 0;
         height: 46px;
-        margin: 0;
+        margin: 1px 0;
         gap: 6px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        text-align: center;
+        justify-content: flex-start;
+        text-align: start;
         padding: 0 12px;
         font-size: 1rem;
+        background: var(--body-bg);
     }
     .tabActions {
         width: 100%;
-        margin: 6px 0 0;
+        margin: 0;
         padding: 0;
         border-radius: 10px;
     }

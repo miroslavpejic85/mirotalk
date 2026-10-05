@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.21
+ * @version 2.1.22
  *
  */
 
@@ -396,6 +396,9 @@ const roomSendEmailBtn = getId('roomSendEmailBtn');
 const tabStylingBtn = getId('tabStylingBtn');
 const tabLanguagesBtn = getId('tabLanguagesBtn');
 const mySettingsCloseBtn = getId('mySettingsCloseBtn');
+const mySettingsNav = getId('mySettingsNav');
+const mySettingsNavToggleBtn = getId('mySettingsNavToggleBtn');
+const mySettingsNavBackdrop = getId('mySettingsNavBackdrop');
 const myPeerNameSet = getId('myPeerNameSet');
 const myPeerNameSetBtn = getId('myPeerNameSetBtn');
 const myProfileAvatarUploadBtn = getId('myProfileAvatarUploadBtn');
@@ -960,6 +963,7 @@ function setButtonsToolTip() {
     setTippy(speechRecognitionStop, 'Stop caption', 'top');
     // Settings
     setTippy(mySettingsCloseBtn, 'Close', 'bottom');
+    if (mySettingsNavToggleBtn) setTippy(mySettingsNavToggleBtn, 'Settings navigation', 'bottom');
     setTippy(myPeerNameSetBtn, 'Change name', 'top');
     const copyRoomUrlLabel = 'Share room link';
     const translatedCopyRoomUrlLabel =
@@ -8346,6 +8350,16 @@ function setMySettingsBtn() {
     mySettingsCloseBtn.addEventListener('click', (e) => {
         hideShowMySettings();
     });
+    if (mySettingsNavToggleBtn) {
+        mySettingsNavToggleBtn.addEventListener('click', () => {
+            toggleMobileSettingsNav();
+        });
+    }
+    if (mySettingsNavBackdrop) {
+        mySettingsNavBackdrop.addEventListener('click', () => {
+            closeMobileSettingsNav();
+        });
+    }
     speakerTestBtn.addEventListener('click', (e) => {
         playSpeaker(audioOutputSelect?.value, 'speaker');
     });
@@ -13631,6 +13645,7 @@ function downloadCaptions() {
 function hideShowMySettings() {
     if (!isMySettingsVisible) {
         playSound('newMessage');
+        closeMobileSettingsNav();
         // adapt it for mobile
         if (isMobileDevice) {
             mySettings.style.setProperty('width', '100%');
@@ -13650,6 +13665,7 @@ function hideShowMySettings() {
         return;
     }
     elemDisplay(mySettings, false);
+    closeMobileSettingsNav();
     setTippy(mySettingsBtn, 'Open the settings', bottomButtonsPlacement);
     isMySettingsVisible = false;
     videoMediaContainer.style.opacity = 1;
@@ -13675,6 +13691,31 @@ function openTab(evt, tabName) {
     }
     elemDisplay(tabN, true, 'block');
     evt.currentTarget.className += ' active';
+    closeMobileSettingsNav();
+}
+
+function setMobileSettingsNavState(open) {
+    if (!mySettings) return;
+    const compactSettingsLayout = window.matchMedia('(max-width: 830px)').matches;
+    const shouldOpen = compactSettingsLayout && open;
+    mySettings.classList.toggle('settings-nav-open', shouldOpen);
+    if (mySettingsNavToggleBtn) {
+        mySettingsNavToggleBtn.setAttribute('aria-expanded', String(shouldOpen));
+        mySettingsNavToggleBtn.setAttribute(
+            'aria-label',
+            shouldOpen ? 'Close settings navigation' : 'Open settings navigation'
+        );
+    }
+}
+
+function toggleMobileSettingsNav() {
+    if (!mySettingsNav || !window.matchMedia('(max-width: 830px)').matches) return;
+    const isOpen = mySettings.classList.contains('settings-nav-open');
+    setMobileSettingsNavState(!isOpen);
+}
+
+function closeMobileSettingsNav() {
+    setMobileSettingsNavState(false);
 }
 
 /**
@@ -18088,7 +18129,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.21',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.22',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

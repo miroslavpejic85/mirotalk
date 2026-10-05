@@ -803,10 +803,24 @@
 
         <section id="mySettings" class="center fadein">
             <header id="mySettingsHeader">
+                <button
+                    id="mySettingsNavToggleBtn"
+                    class="fa-solid fa-bars panel-close-button"
+                    type="button"
+                    aria-label="Open settings navigation"
+                    aria-controls="mySettingsNav"
+                    aria-expanded="false"
+                ></button>
                 <button id="mySettingsCloseBtn" class="fas fa-times panel-close-button"></button>
             </header>
             <main class="mySettingsMain">
-                <div class="tab">
+                <button
+                    id="mySettingsNavBackdrop"
+                    class="settings-nav-backdrop"
+                    type="button"
+                    aria-label="Close settings navigation"
+                ></button>
+                <div id="mySettingsNav" class="tab">
                     <span class="settings-nav-label">Meeting</span>
                     <button id="tabRoomBtn" class="fas fa-home tablinks">
                         <p class="tabButtonText">Room</p>
