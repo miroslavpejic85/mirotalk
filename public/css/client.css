@@ -4166,11 +4166,15 @@ button {
 #tabRoomSecurity button {
     width: 100%;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
 }
 
 #tabRoomSecurity {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 10px;
     margin-top: 10px;
 }
@@ -4181,6 +4185,10 @@ button {
 
 #tabEmailInvitation button {
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
 }
 
 #myProfileAvatarContainer {
@@ -4237,6 +4245,18 @@ button {
     border-radius: 8px;
     color: #fff;
     background-color: transparent;
+}
+
+#activeRoomsBtn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+#activeRoomsBtn p {
+    margin: 0;
+    white-space: nowrap;
 }
 
 #myPeerNameSetBtn:hover,
