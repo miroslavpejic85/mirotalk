@@ -398,13 +398,19 @@
                         <!-- VIEW & SETTINGS -->
                         <div
                             class="device-menu-header extra-menu-group"
-                            data-buttons="hideMeBtn,fullScreenBtn,aboutBtn"
+                            data-buttons="hideMeBtn,fullScreenBtn,openConnectivitySettingsBtn,openNetworkSettingsBtn,aboutBtn"
                         >
                             VIEW & SETTINGS
                         </div>
                         <button id="hideMeBtn" class="app-dropdown-action"><i class="fas fa-user"></i> Hide Me</button>
                         <button id="fullScreenBtn" class="app-dropdown-action">
                             <i class="fas fa-expand-alt"></i> Full Screen
+                        </button>
+                        <button id="openConnectivitySettingsBtn" class="app-dropdown-action">
+                            <i class="fas fa-project-diagram"></i> Connectivity
+                        </button>
+                        <button id="openNetworkSettingsBtn" class="app-dropdown-action">
+                            <i class="fas fa-network-wired"></i> Network
                         </button>
                         <button id="aboutBtn" class="app-dropdown-action">
                             <i class="fas fa-info-circle"></i> About
@@ -825,6 +831,9 @@
                     </button>
                     <button id="tabShortcutsBtn" class="fas fa-keyboard tablinks">
                         <p class="tabButtonText">Shortcuts</p>
+                    </button>
+                    <button id="tabConnectivityBtn" class="fa-solid fa-diagram-project tablinks">
+                        <p class="tabButtonText">Connectivity</p>
                     </button>
                     <button id="tabNetworkBtn" class="fa-solid fa-network-wired tablinks">
                         <p class="tabButtonText">Network</p>
@@ -1364,26 +1373,40 @@
                         </div>
                     </div>
 
-                    <div id="tabNetwork" class="tabcontent">
+                    <div id="tabConnectivity" class="tabcontent">
                         <div class="settings-section-intro">
-                            <h3>Network status</h3>
-                            <p>Review connection details and real-time transport statistics.</p>
+                            <h3>Connectivity</h3>
+                            <p>Check detected connection paths and relay availability.</p>
                         </div>
                         <table id="mySettingsTable">
                             <tr>
                                 <td>
                                     <div class="title">
                                         <i class="fa-solid fa-location-dot"></i>
-                                        <p>IP</p>
+                                        <span class="settings-option-copy">
+                                            <strong>IP</strong>
+                                            <small>Active address detected from ICE candidates.</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><p id="networkIP"></p></td>
                             </tr>
+                        </table>
+
+                        <div class="title settings-block network-ice-section-title">
+                            <i class="fa-solid fa-diagram-project"></i>
+                            <p>ICE path discovery</p>
+                        </div>
+
+                        <table id="mySettingsTable">
                             <tr>
                                 <td>
                                     <div class="title">
                                         <i class="fa-solid fa-house-signal"></i>
-                                        <p>Host</p>
+                                        <span class="settings-option-copy">
+                                            <strong>Host candidate</strong>
+                                            <small>Direct local network route between peers.</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><p id="networkHost">🔴</p></td>
@@ -1392,51 +1415,66 @@
                                 <td>
                                     <div class="title">
                                         <i class="fa-solid fa-globe"></i>
-                                        <p>Stun</p>
+                                        <span class="settings-option-copy">
+                                            <strong>STUN candidate</strong>
+                                            <small>Public address discovered through STUN.</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><p id="networkStun">🔴</p></td>
                             </tr>
-                            <tr id="shareOnJoinButton">
+                            <tr>
                                 <td>
                                     <div class="title">
                                         <i class="fa-solid fa-tower-cell"></i>
-                                        <p>Turn</p>
+                                        <span class="settings-option-copy">
+                                            <strong>TURN relay</strong>
+                                            <small>Fallback relay when direct connectivity fails.</small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><p id="networkTurn">🔴</p></td>
                             </tr>
                         </table>
+                    </div>
 
-                        <hr class="hr" />
+                    <div id="tabNetwork" class="tabcontent">
+                        <div class="settings-section-intro">
+                            <h3>Network monitor</h3>
+                            <p>Review real-time transport statistics and bitrate trends.</p>
+                        </div>
+                        <div class="title settings-block">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <p>Live network monitor</p>
+                        </div>
 
                         <table id="mySettingsTable">
                             <tr>
                                 <td>
                                     <div class="title">
                                         <i class="fa-solid fa-upload"></i>
-                                        <p>Sent</p>
+                                        <p>Sent bitrate</p>
                                     </div>
                                 </td>
-                                <td><p id="networkSent"></p></td>
+                                <td><p id="networkSentValue">0 b</p></td>
                             </tr>
                             <tr>
                                 <td>
                                     <div class="title">
                                         <i class="fa-solid fa-download"></i>
-                                        <p>Received</p>
+                                        <p>Received bitrate</p>
                                     </div>
                                 </td>
-                                <td><p id="networkReceived"></p></td>
+                                <td><p id="networkReceivedValue">0 b</p></td>
                             </tr>
                             <tr>
                                 <td>
                                     <div class="title">
                                         <i class="fa-solid fa-circle-exclamation"></i>
-                                        <p>Packet Lost</p>
+                                        <p>Packet loss rate</p>
                                     </div>
                                 </td>
-                                <td><p id="networkPacketLost"></p></td>
+                                <td><p id="networkPacketLossValue">0.00%</p></td>
                             </tr>
                             <tr>
                                 <td>
@@ -1445,7 +1483,7 @@
                                         <p>Jitter</p>
                                     </div>
                                 </td>
-                                <td><p id="networkJitter"></p></td>
+                                <td><p id="networkJitterValue">0.00 ms</p></td>
                             </tr>
                             <tr>
                                 <td>
@@ -1454,9 +1492,81 @@
                                         <p>RTT</p>
                                     </div>
                                 </td>
-                                <td><p id="networkRtt"></p></td>
+                                <td><p id="networkRttValue">0.00 ms</p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-gauge-high"></i>
+                                        <p>Upload quality</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkUploadQuality">N/A</p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                                        <p>Download quality</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkDownloadQuality">N/A</p></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="title">
+                                        <i class="fa-solid fa-star-half-stroke"></i>
+                                        <p>Overall quality</p>
+                                    </div>
+                                </td>
+                                <td><p id="networkOverallQuality">N/A</p></td>
                             </tr>
                         </table>
+
+                        <div class="network-graph-panel">
+                            <div class="network-graph-header">
+                                <strong>Live bitrate graph</strong>
+                                <small>Last 60 seconds</small>
+                            </div>
+                            <canvas
+                                id="networkBitrateChart"
+                                class="network-graph-canvas"
+                                aria-label="Network bitrate chart"
+                            ></canvas>
+                            <div class="network-graph-legend" aria-hidden="true">
+                                <span class="network-legend-item">
+                                    <span class="network-legend-dot network-legend-dot--sent"></span>
+                                    Sent
+                                </span>
+                                <span class="network-legend-item">
+                                    <span class="network-legend-dot network-legend-dot--received"></span>
+                                    Received
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="network-graph-panel">
+                            <div class="network-graph-header">
+                                <strong>Latency graph</strong>
+                                <small>Last 60 seconds (ms)</small>
+                            </div>
+                            <canvas
+                                id="networkLatencyChart"
+                                class="network-graph-canvas"
+                                aria-label="Network latency chart"
+                            ></canvas>
+                            <div class="network-graph-legend" aria-hidden="true">
+                                <span class="network-legend-item">
+                                    <span class="network-legend-dot network-legend-dot--jitter"></span>
+                                    Jitter
+                                </span>
+                                <span class="network-legend-item">
+                                    <span class="network-legend-dot network-legend-dot--rtt"></span>
+                                    RTT
+                                </span>
+                            </div>
+                        </div>
+                        <div class="network-tab-bottom-spacer" aria-hidden="true"></div>
                     </div>
 
                     <div id="tabStyling" class="tabcontent">

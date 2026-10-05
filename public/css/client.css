@@ -927,6 +927,7 @@ body {
     height: 35px;
     align-items: center;
     justify-content: flex-start;
+    gap: 10px;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
@@ -938,7 +939,8 @@ body {
     width: 20px;
     min-width: 20px;
     text-align: center;
-    margin-right: 10px;
+    flex-shrink: 0;
+    margin-right: 0;
     font-size: 1.1em;
     display: inline-block;
 }
@@ -4554,6 +4556,14 @@ button {
     margin-top: 22px;
 }
 
+.network-ice-section-title {
+    margin-bottom: 12px;
+}
+
+#tabNetwork .title.settings-block {
+    margin-bottom: 10px;
+}
+
 #mySettings #mySettingsTable td.w-80,
 #mySettings .mySettingsTable td.w-80 {
     width: auto !important;
@@ -4580,6 +4590,122 @@ button {
 
 #mySettingsTable select {
     width: 100px !important;
+}
+
+.network-graph-panel {
+    margin-top: 12px;
+    padding: 12px;
+    border: var(--border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--select-bg) 50%, transparent);
+}
+
+.network-graph-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.network-graph-header strong {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.network-graph-header small {
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.72rem;
+}
+
+.network-graph-canvas {
+    display: block;
+    width: 100%;
+    height: 120px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.36);
+}
+
+.network-graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.network-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.network-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+}
+
+.network-legend-dot--sent {
+    background: #4ecb71;
+}
+
+.network-legend-dot--received {
+    background: #5aa8ff;
+}
+
+.network-legend-dot--jitter {
+    background: #f6c453;
+}
+
+.network-legend-dot--rtt {
+    background: #ff8f5a;
+}
+
+.network-quality {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 92px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    font-weight: 700;
+    font-size: 0.8rem;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.network-quality--excellent {
+    color: #4ecb71;
+    border-color: rgba(78, 203, 113, 0.45);
+    background: rgba(78, 203, 113, 0.14);
+}
+
+.network-quality--good {
+    color: #5aa8ff;
+    border-color: rgba(90, 168, 255, 0.45);
+    background: rgba(90, 168, 255, 0.14);
+}
+
+.network-quality--fair {
+    color: #f6c453;
+    border-color: rgba(246, 196, 83, 0.45);
+    background: rgba(246, 196, 83, 0.14);
+}
+
+.network-quality--poor {
+    color: #ff7f7f;
+    border-color: rgba(255, 127, 127, 0.45);
+    background: rgba(255, 127, 127, 0.14);
+}
+
+#tabNetwork .network-tab-bottom-spacer {
+    height: 16px;
 }
 
 /*--------------------------------------------------------------
