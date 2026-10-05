@@ -52,7 +52,7 @@ async function requestWakeLock() {
     } catch (err) {
         pendingManualWakeLockNotification = null;
         switchKeepAwake.checked = false;
-        userLog('error', '🔴 Failed to request Wake Lock: ' + err.message);
+        userLog('error', '🔴 Failed to request Wake Lock: ' + err.message, 'top-end');
     } finally {
         wakeLockRequestPending = false;
         notifyManualWakeLockChange();

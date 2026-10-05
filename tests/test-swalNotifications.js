@@ -291,6 +291,22 @@ describe('SweetAlert notification UX', () => {
         assert.equal(clock.countTimers(), 0);
     });
 
+    it('queues Wake Lock errors behind an active pre-join dialog', async () => {
+        visible = true;
+        const feedback = context.userLog('error', 'Wake Lock permission denied', 'top-end');
+        await clock.tickAsync(1000);
+        sinon.assert.notCalled(swal.fire);
+
+        visible = false;
+        await clock.tickAsync(250);
+        const options = swal.fire.firstCall.args[0];
+        assert.equal(options.toast, true);
+        assert.equal(options.position, 'top-end');
+        assert.equal(options.titleText, 'Wake Lock permission denied');
+        close();
+        await feedback;
+    });
+
     it('pauses on hover or focus and resumes after leaving', () => {
         context.msgPopup('info', 'Readable feedback');
         const popup = dom.window.document.createElement('div');

@@ -266,6 +266,7 @@ describe('mobile screen wake lock', () => {
         assert.equal(logs.length, 1);
         assert.equal(logs[0][0], 'error');
         assert.match(logs[0][1], /Permission denied/);
+        assert.equal(logs[0][2], 'top-end');
     });
 
     it('preserves actual lock state and reports manual release failure', async () => {
