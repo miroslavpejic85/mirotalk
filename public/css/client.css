@@ -4831,6 +4831,10 @@ button {
     border-radius: 12px;
 }
 
+#mySettingsNav {
+    background: var(--body-bg);
+}
+
 .settings-nav-label {
     margin: 12px 10px 4px;
     color: rgba(255, 255, 255, 0.55);
@@ -4974,14 +4978,16 @@ button {
         margin: 0;
         padding: 0;
         border-radius: 10px;
+        overflow: hidden;
+        touch-action: pan-y pinch-zoom;
+    }
+    .tabcontent {
+        height: 100%;
+        min-height: 0;
         overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
-        touch-action: pan-y;
-    }
-    .tabcontent {
-        min-height: 0;
         padding-bottom: 14px;
     }
     .tabButtonText {
