@@ -5541,6 +5541,10 @@ input:checked + .slider:before {
     text-align: left;
 }
 
+.mirotalk-file-preview[hidden] {
+    display: none;
+}
+
 .mirotalk-file-preview-icon {
     display: inline-flex;
     align-items: center;
