@@ -5304,6 +5304,21 @@ input:checked + .slider:before {
     --swal-button-hover: rgba(0, 0, 0, 0.1);
 }
 
+.swal2-popup.mirotalk-leave-feedback-popup .swal2-styled {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+}
+
+.swal2-popup.mirotalk-leave-feedback-popup .swal2-actions {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.swal2-popup.mirotalk-leave-feedback-popup .swal2-actions .swal2-styled {
+    width: 100%;
+    max-width: 100%;
+}
+
 .swal2-popup .swal2-actions .swal2-styled:not([disabled]):hover,
 .swal2-popup .swal2-actions .swal2-styled:not([disabled]):active {
     background-image: linear-gradient(var(--swal-button-hover), var(--swal-button-hover)) !important;
