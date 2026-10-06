@@ -32,6 +32,7 @@ const appleTouchIcon = document.getElementById('appleTouchIcon');
 const appTitle = document.getElementById('appTitle');
 const appDescription = document.getElementById('appDescription');
 const appJoinDescription = document.getElementById('appJoinDescription');
+const customizeRoomBrandName = document.getElementById('customizeRoomBrandName');
 const joinRoomBtn = document.getElementById('joinRoomButton');
 const customizeRoomBtn = document.getElementById('customizeRoomButton');
 const appJoinLastRoom = document.getElementById('appJoinLastRoom');
@@ -109,7 +110,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v2.1.28',
+        title: 'WebRTC P2P v2.1.29',
         html: `
             <button 
                 id="support-button" 
@@ -286,6 +287,7 @@ function handleBrand() {
     if (appTitle && brand.app?.title) appTitle.innerHTML = brand.app.title;
     if (appDescription && brand.app?.description) appDescription.textContent = brand.app.description;
     if (appJoinDescription && brand.app?.joinDescription) appJoinDescription.innerHTML = brand.app.joinDescription;
+    if (customizeRoomBrandName && brand.app?.name) customizeRoomBrandName.textContent = brand.app.name;
     if (joinRoomBtn && brand.app?.joinButtonLabel) joinRoomBtn.innerText = brand.app.joinButtonLabel;
     if (customizeRoomBtn && brand.app?.customizeRoomButtonLabel)
         customizeRoomBtn.innerText = brand.app.customizeRoomButtonLabel;
