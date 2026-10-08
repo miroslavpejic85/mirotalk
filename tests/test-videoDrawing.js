@@ -1076,6 +1076,46 @@ describe('screen annotation text toolbar', () => {
         }
     });
 
+    it('streams a live draft while typing and clears it when the editor closes', () => {
+        const emitted = [];
+        dom.window.Overlay.onEmitDrawing = (data) => emitted.push(data);
+        overlay.canInteract = () => true;
+        overlay.screenOwnerId = 'owner';
+        input.value = 'Hello';
+        input.dispatchEvent(new dom.window.Event('input'));
+        input.value = 'Hello world';
+        input.dispatchEvent(new dom.window.Event('input'));
+        emitted.length.should.equal(0);
+        editor.querySelector('.video-drawing-text-cancel').click();
+        emitted.length.should.equal(1);
+        should(emitted[0].action).equal('draft');
+        should(emitted[0].text).equal('');
+    });
+
+    it('shows remote drafts as unmanageable temporary text and removes them when emptied', () => {
+        overlay.textAnnotations = new Map();
+        overlay.addTextAnnotation = dom.window.Overlay.prototype.addTextAnnotation;
+        overlay.ownsAnnotation = () => true;
+        overlay.positionTextAnnotation = () => {};
+        const draft = { action: 'draft', drawerId: 'peer', annotationId: 'draft', text: 'Hi', x: 0.1, y: 0.1 };
+        overlay.receiveText(draft);
+        should(overlay.textAnnotations.get('draft:peer').element.querySelector('button')).be.null();
+        overlay.receiveText({ ...draft, text: 'Hi there' });
+        overlay.textAnnotations.size.should.equal(1);
+        overlay.textAnnotations.get('draft:peer').text.should.equal('Hi there');
+        overlay.textAnnotations
+            .get('draft:peer')
+            .element.classList.contains('video-drawing-text-highlight')
+            .should.be.true();
+        overlay.receiveText({ ...draft, text: '' });
+        overlay.textAnnotations.size.should.equal(0);
+        overlay.receiveText({ ...draft, action: 'create', annotationId: 'saved' });
+        overlay.textAnnotations
+            .get('saved')
+            .element.classList.contains('video-drawing-text-highlight')
+            .should.be.true();
+    });
+
     it('cycles alignment and saves primary formatting, background, and rotation', () => {
         input.value = 'Formatted annotation';
         const alignment = editor.querySelector('.video-drawing-text-alignment');

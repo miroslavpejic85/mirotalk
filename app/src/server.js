@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.31
+ * @version 2.1.32
  *
  */
 
@@ -2516,7 +2516,7 @@ io.sockets.on('connect', async (socket) => {
      * @param {string} cfg.room_id - The ID of the room.
      * @param {string} cfg.screenOwnerId - The ID of the screen owner.
      * @param {'pen'|'text'|'annotation'} cfg.type - The annotation type.
-     * @param {'create'|'restore'|'move'|'delete'|'clear'} [cfg.action] - The annotation action.
+     * @param {'create'|'restore'|'draft'|'move'|'delete'|'clear'} [cfg.action] - The annotation action.
      * @param {string} [cfg.annotationId] - The text annotation identifier.
      * @param {Array} [cfg.points] - The array of points representing a pen stroke.
      * @param {string} [cfg.text] - The text annotation content.
@@ -2710,6 +2710,24 @@ io.sockets.on('connect', async (socket) => {
                     : null;
             };
 
+            if (action === 'draft') {
+                // Live typing preview: relayed only, never stored
+                const textStyle = getTextStyle();
+                if (typeof text !== 'string' || text.length > 1000 || !textStyle || !validPosition) return;
+                await sendToRoom(room_id, socket.id, 'videoDrawing', {
+                    type: 'text',
+                    action,
+                    screenOwnerId,
+                    drawerId: socket.id,
+                    annotationId,
+                    text,
+                    x,
+                    y,
+                    ...textStyle,
+                });
+                return;
+            }
+
             if (action === 'create' || action === 'restore') {
                 const restoring = action === 'restore';
                 const validDrawerId = typeof drawerId === 'string' && drawerId.length > 0 && drawerId.length <= 100;
@@ -2763,6 +2781,7 @@ io.sockets.on('connect', async (socket) => {
                     type: 'text',
                     action,
                     screenOwnerId,
+                    drawerId: socket.id,
                     annotationId,
                     text,
                     ...textStyle,

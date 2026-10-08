@@ -1278,12 +1278,8 @@ class VideoDrawingOverlay {
         this.textInput = editor;
         annotation?.element.classList.add('video-drawing-text-editing');
 
-        let finished = false;
-        const finish = (commit) => {
-            if (finished) return;
-            finished = true;
-            const text = input.value.trim();
-            const style = this.getTextStyle({
+        const readStyle = () =>
+            this.getTextStyle({
                 color: textColor.value,
                 fontSize: Number(fontSize.value),
                 bold: bold.getAttribute('aria-pressed') === 'true',
@@ -1296,6 +1292,38 @@ class VideoDrawingOverlay {
                 rotation: Number(rotation.value),
                 boxWidth: editor.offsetWidth / canvasWidth,
             });
+
+        // Live draft: others see the text while it is typed; empty text removes the draft
+        let draftTimer = null;
+        let draftSent = false;
+        const sendDraft = (draftText) => {
+            clearTimeout(draftTimer);
+            draftTimer = null;
+            if (!this.canInteract()) return;
+            draftSent = Boolean(draftText);
+            const origin = annotation || point;
+            VideoDrawingOverlay.onEmitDrawing?.({
+                type: 'text',
+                action: 'draft',
+                screenOwnerId: this.screenOwnerId,
+                annotationId: annotation?.annotationId || 'draft',
+                text: draftText,
+                ...readStyle(),
+                x: Number(origin.x.toFixed(4)),
+                y: Number(origin.y.toFixed(4)),
+            });
+        };
+        input.addEventListener('input', () => {
+            draftTimer ||= setTimeout(() => sendDraft(input.value), 150);
+        });
+
+        let finished = false;
+        const finish = (commit) => {
+            if (finished) return;
+            finished = true;
+            if (draftSent || draftTimer) sendDraft('');
+            const text = input.value.trim();
+            const style = readStyle();
             editor.__destroyTooltips();
             editor.remove();
             if (this.textInput === editor) this.textInput = null;
@@ -1435,6 +1463,7 @@ class VideoDrawingOverlay {
         annotation.element = element;
         this.applyTextAnnotationStyle(annotation);
         element.classList.toggle('video-drawing-text-select-mode', this.tool === 'select');
+        element.classList.toggle('video-drawing-text-highlight', Boolean(annotation.draft));
 
         const author = document.createElement('span');
         author.className = 'video-drawing-text-author';
@@ -1447,7 +1476,7 @@ class VideoDrawingOverlay {
         this.textAnnotations.set(annotation.annotationId, annotation);
         this.screenWrap.appendChild(element);
 
-        if (this.ownsAnnotation(annotation)) {
+        if (!annotation.draft && this.ownsAnnotation(annotation)) {
             element.classList.add('video-drawing-text-manageable');
             const editButton = document.createElement('button');
             editButton.type = 'button';
@@ -1673,13 +1702,17 @@ class VideoDrawingOverlay {
     deleteTextAnnotation(annotationId) {
         const annotation = this.textAnnotations.get(annotationId);
         if (!annotation) return;
+        clearTimeout(annotation.timer);
         annotation.element.remove();
         this.textAnnotations.delete(annotationId);
         if (this.selectedTextAnnotationId === annotationId) this.selectTextAnnotation(null);
     }
 
     clearTextAnnotations() {
-        for (const annotation of this.textAnnotations.values()) annotation.element.remove();
+        for (const annotation of this.textAnnotations.values()) {
+            clearTimeout(annotation.timer);
+            annotation.element.remove();
+        }
         this.textAnnotations.clear();
         if (this.selectedTextAnnotationId) this.selectTextAnnotation(null);
     }
@@ -1704,12 +1737,42 @@ class VideoDrawingOverlay {
         annotation.element.style.top = `${this.canvas.offsetTop + y}px`;
     }
 
+    receiveTextDraft(data) {
+        const draftId = `draft:${data.drawerId}`;
+        const draft = this.textAnnotations.get(draftId);
+        clearTimeout(draft?.timer);
+        if (!data.text.trim()) {
+            this.deleteTextAnnotation(draftId);
+            // Lets the saved annotation that follows keep the author label visible for a moment
+            (this.recentDrafters ||= new Set()).add(data.drawerId);
+            setTimeout(() => this.recentDrafters.delete(data.drawerId), 1000);
+            return;
+        }
+        if (draft) this.updateTextAnnotation(draftId, data);
+        else this.addTextAnnotation({ ...data, annotationId: draftId, draft: true });
+        // Drop stale drafts if the drawer disconnects without closing the editor
+        this.textAnnotations.get(draftId).timer = setTimeout(() => this.deleteTextAnnotation(draftId), 15000);
+    }
+
+    highlightSavedText(data) {
+        const element = this.textAnnotations.get(data.annotationId)?.element;
+        if (!element || !this.recentDrafters?.delete(data.drawerId)) return;
+        element.classList.add('video-drawing-text-highlight');
+        setTimeout(() => element.classList.remove('video-drawing-text-highlight'), 3000);
+    }
+
     receiveText(data) {
-        if (data.action === 'move') this.moveTextAnnotation(data.annotationId, data.x, data.y);
-        else if (data.action === 'update') this.updateTextAnnotation(data.annotationId, data);
-        else if (data.action === 'delete') this.deleteTextAnnotation(data.annotationId);
+        if (data.action === 'draft') this.receiveTextDraft(data);
+        else if (data.action === 'move') this.moveTextAnnotation(data.annotationId, data.x, data.y);
+        else if (data.action === 'update') {
+            this.updateTextAnnotation(data.annotationId, data);
+            this.highlightSavedText(data);
+        } else if (data.action === 'delete') this.deleteTextAnnotation(data.annotationId);
         else if (data.action === 'clear') this.clearTextAnnotations();
-        else this.addTextAnnotation(data);
+        else {
+            this.addTextAnnotation(data);
+            this.highlightSavedText(data);
+        }
     }
 
     receiveAnnotation(data) {

@@ -683,7 +683,8 @@
 
 .video-drawing-text-annotation:hover > .video-drawing-text-author,
 .video-drawing-text-annotation:focus-visible > .video-drawing-text-author,
-.video-drawing-text-annotation:focus-within > .video-drawing-text-author {
+.video-drawing-text-annotation:focus-within > .video-drawing-text-author,
+.video-drawing-text-highlight > .video-drawing-text-author {
     opacity: 1;
     transform: translateY(0);
 }
@@ -692,6 +693,7 @@
 .video-drawing-text-annotation:focus,
 .video-drawing-text-annotation:focus-visible,
 .video-drawing-text-annotation:focus-within,
+.video-drawing-text-highlight,
 .video-drawing-text-dragging {
     z-index: 10;
     border-color: rgba(255, 255, 255, 0.28);
@@ -703,6 +705,7 @@
 .video-drawing-text-has-background:focus,
 .video-drawing-text-has-background:focus-visible,
 .video-drawing-text-has-background:focus-within,
+.video-drawing-text-has-background.video-drawing-text-highlight,
 .video-drawing-text-has-background.video-drawing-text-dragging {
     background: var(--video-drawing-text-background);
 }
