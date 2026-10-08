@@ -1,12 +1,12 @@
 {
     "name": "mirotalk",
-    "version": "2.1.32",
+    "version": "2.1.33",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
         "prestart": "test -f app/src/config.js || cp app/src/config.template.js app/src/config.js",
         "start": "node app/src/server.js",
-        "start-dev": "nodemon app/src/server.js",
+        "dev": "node --watch app/src/server.js",
         "test": "mocha tests/*.js",
         "lang": "node app/src/scripts/extract-ui-lang.js",
         "lint": "npx prettier --write .",
@@ -75,7 +75,6 @@
     "devDependencies": {
         "mocha": "^12.0.3",
         "node-fetch": "^3.3.2",
-        "nodemon": "^3.1.14",
         "prettier": "3.9.9",
         "proxyquire": "^2.1.3",
         "should": "^13.2.3",
