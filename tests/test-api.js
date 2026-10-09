@@ -9,7 +9,6 @@ const proxyquire = require('proxyquire');
 const jwt = require('jsonwebtoken');
 const CryptoJS = require('crypto-js');
 const ServerApi = require('../app/src/api');
-const config = require('../app/src/config');
 const { getJwtKeys } = require('../app/src/jwtSecret');
 
 describe('test-api', () => {
@@ -178,7 +177,12 @@ describe('test-api', () => {
 
     describe('getToken', () => {
         it('should return an encrypted JWT token', () => {
-            const jwtKeys = getJwtKeys(config.jwt.key);
+            const jwtSecret = 'test-jwt-secret-0123456789-abcdefghijkl';
+            const jwtKeys = getJwtKeys(jwtSecret);
+            const ServerApi = proxyquire('../app/src/api', {
+                './config': { jwt: { key: jwtSecret, exp: '1h' }, '@noCallThru': true },
+            });
+            const serverApi = new ServerApi(host, authorization, apiKeySecret);
             const tokenData = { username: 'user', password: 'pass', presenter: true, expire: '1h' };
             const signStub = sinon.stub(jwt, 'sign').returns('jwtToken');
             const encryptStub = sinon.stub(CryptoJS.AES, 'encrypt').returns({ toString: () => 'encryptedPayload' });
