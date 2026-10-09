@@ -18294,17 +18294,8 @@ function redirectOnLeave() {
         target.postMessage({ type: 'mirotalk:redirect', url, id: requestId }, '*');
         setTimeout(() => {
             window.removeEventListener('message', handleAcknowledgment);
-            if (acknowledged) return;
-            // Host did not ack: leave the iframe instead of loading the destination inside it
-            if (isEmbedded) {
-                try {
-                    window.top.location.href = url;
-                    return;
-                } catch (error) {
-                    console.warn('Top navigation blocked, navigating inside the frame', error);
-                }
-            }
-            openURL(url);
+            // Host did not ack: stay inside the frame and load the destination there
+            if (!acknowledged) openURL(url);
         }, 500);
         return;
     }
