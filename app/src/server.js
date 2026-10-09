@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.35
+ * @version 2.1.36
  *
  */
 
@@ -163,6 +163,24 @@ if (
     (!Array.isArray(hostCfg.users) || hostCfg.users.some((user) => !user || !Validate.isValidPassword(user.password)))
 ) {
     throw new Error('HOST_USERS passwords must contain between 1 and 36 characters');
+}
+
+// Fail closed: refuse to start host protection with publicly known credentials
+const PUBLIC_DEFAULT_CREDENTIALS = [
+    { username: 'admin', password: 'admin' },
+    { username: 'guest', password: 'guest' },
+    { username: 'MiroTalk', password: 'P2P' },
+];
+if (
+    (hostCfg.protected || hostCfg.user_auth) &&
+    hostCfg.users.some((u) =>
+        PUBLIC_DEFAULT_CREDENTIALS.some((d) => u.username === d.username && u.password === d.password)
+    )
+) {
+    log.error(
+        'HOST_USERS contains publicly known default credentials (admin/admin, guest/guest, MiroTalk/P2P). Set your own in .env'
+    );
+    process.exit(1);
 }
 
 // JWT config - fail closed: refuse to start with a missing, weak or publicly known JWT key
@@ -1272,21 +1290,8 @@ server.listen(port, null, async () => {
     if (api_key_secret === 'mirotalkp2p_default_secret') {
         log.warn('WARNING: API_KEY_SECRET is set to the default value. Change it before deploying!');
     }
-    if (hostCfg.protected || hostCfg.user_auth) {
-        const defaultCreds = [
-            { username: 'admin', password: 'admin' },
-            { username: 'guest', password: 'guest' },
-        ];
-        const usesDefaultUsers =
-            Array.isArray(hostCfg.users) &&
-            hostCfg.users.some(
-                (u) => u && defaultCreds.some((d) => u.username === d.username && u.password === d.password)
-            );
-        if (usesDefaultUsers) {
-            log.warn(
-                'WARNING: HOST_USERS still contains default credentials (e.g. admin/admin, guest/guest). Change them!'
-            );
-        }
+    if ((hostCfg.protected || hostCfg.user_auth) && !hostCfg.users.length && !OIDC.enabled) {
+        log.warn('WARNING: HOST_USERS is empty, nobody will be able to log in. Set HOST_USERS in .env');
     }
 });
 

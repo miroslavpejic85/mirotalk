@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.35 - Configuration File
+ * MiroTalk P2P v.2.1.36 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -95,7 +95,8 @@ module.exports = {
         protected: getEnvBoolean(process.env.HOST_PROTECTED),
         userAuth: getEnvBoolean(process.env.HOST_USER_AUTH),
         // HOST_USERS passwords must contain between 1 and 36 characters.
-        users: parseJsonEnv(process.env.HOST_USERS, [{ username: 'MiroTalk', password: 'P2P' }]),
+        // Empty by default: a shipped username/password is a public credential, set your own.
+        users: parseJsonEnv(process.env.HOST_USERS, []),
         maxLoginAttempts: process.env.HOST_MAX_LOGIN_ATTEMPTS || 5,
         minLoginBlockTime: process.env.HOST_MIN_LOGIN_BLOCK_TIME || 15, // in minutes
         maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 1000,
