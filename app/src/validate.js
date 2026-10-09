@@ -79,15 +79,16 @@ function isPrivateOrLoopbackHost(host) {
     }
     // IPv6 (rough — block the well-known unsafe ranges)
     if (host.includes(':')) {
-        if (host === '::' || host === '::1') return true;
-        if (host.startsWith('fe80:') || host.startsWith('fe80::')) return true; // link-local
-        if (/^f[cd][0-9a-f]{2}:/.test(host)) return true; // ULA fc00::/7
-        if (host.startsWith('ff')) return true; // multicast
+        const cleanHost = host.replace(/^\[|\]$/g, '').toLowerCase();
+        if (cleanHost === '::' || cleanHost === '::1') return true;
+        if (cleanHost.startsWith('fe80:') || cleanHost.startsWith('fe80::')) return true; // link-local
+        if (/^f[cd][0-9a-f]{2}:/.test(cleanHost)) return true; // ULA fc00::/7
+        if (cleanHost.startsWith('ff')) return true; // multicast
         // IPv4-mapped: ::ffff:127.0.0.1
-        const v4 = host.match(/:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+        const v4 = cleanHost.match(/:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
         if (v4) return isPrivateOrLoopbackHost(v4[1]);
         // IPv4-mapped hex: ::ffff:7f00:1
-        const hexV4 = host.match(/(?:^|:)ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+        const hexV4 = cleanHost.match(/(?:^|:)ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
         if (hexV4) {
             const high = parseInt(hexV4[1], 16);
             const low = parseInt(hexV4[2], 16);

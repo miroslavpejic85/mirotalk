@@ -230,6 +230,8 @@ describe('test-Validator', () => {
             checkValidator.isSafeImageSrc('http://[fe80::1]/x').should.be.false();
             checkValidator.isSafeImageSrc('http://[::ffff:7f00:1]/x').should.be.false();
             checkValidator.isSafeImageSrc('http://[::ffff:a9fe:a9fe]/x').should.be.false();
+            checkValidator.isPrivateOrLoopbackHost('[::1]').should.be.true();
+            checkValidator.isPrivateOrLoopbackHost('[0:0:0:0:0:0:0:1]').should.be.false();
         });
     });
 
