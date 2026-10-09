@@ -6,7 +6,7 @@ const CryptoJS = require('crypto-js');
 const { v4: uuidV4 } = require('uuid');
 
 const config = require('./config');
-const JWT_KEY = config.jwt.key;
+const { getJwtKeys } = require('./jwtSecret');
 const JWT_EXP = config.jwt.exp;
 module.exports = class ServerApi {
     constructor(host = null, authorization = null, api_key_secret = null) {
@@ -102,6 +102,7 @@ module.exports = class ServerApi {
         const { username = 'username', password = 'password', presenter = false, expire } = token;
 
         const expireValue = expire || JWT_EXP;
+        const jwtKeys = getJwtKeys(config.jwt.key);
 
         // Constructing payload
         const payload = {
@@ -112,10 +113,10 @@ module.exports = class ServerApi {
 
         // Encrypt payload using AES encryption
         const payloadString = JSON.stringify(payload);
-        const encryptedPayload = CryptoJS.AES.encrypt(payloadString, JWT_KEY).toString();
+        const encryptedPayload = CryptoJS.AES.encrypt(payloadString, jwtKeys.encrypt).toString();
 
         // Constructing JWT token
-        const jwtToken = jwt.sign({ data: encryptedPayload }, JWT_KEY, { expiresIn: expireValue });
+        const jwtToken = jwt.sign({ data: encryptedPayload }, jwtKeys.sign, { expiresIn: expireValue });
 
         return jwtToken;
     }

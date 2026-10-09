@@ -104,6 +104,7 @@ describe('presenter identity security', function () {
             env: {
                 ...process.env,
                 PORT: String(PORT),
+                JWT_KEY: 'test-jwt-key-0123456789-abcdefghijklmnop',
                 PRESENTERS: JSON.stringify(['AllowlistedAccount']),
                 HOST_PROTECTED: 'false',
                 HOST_USER_AUTH: 'false',

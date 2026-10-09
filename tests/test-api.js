@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 const CryptoJS = require('crypto-js');
 const ServerApi = require('../app/src/api');
 const config = require('../app/src/config');
+const { getJwtKeys } = require('../app/src/jwtSecret');
 
 describe('test-api', () => {
     let serverApi;
@@ -177,6 +178,7 @@ describe('test-api', () => {
 
     describe('getToken', () => {
         it('should return an encrypted JWT token', () => {
+            const jwtKeys = getJwtKeys(config.jwt.key);
             const tokenData = { username: 'user', password: 'pass', presenter: true, expire: '1h' };
             const signStub = sinon.stub(jwt, 'sign').returns('jwtToken');
             const encryptStub = sinon.stub(CryptoJS.AES, 'encrypt').returns({ toString: () => 'encryptedPayload' });
@@ -184,9 +186,9 @@ describe('test-api', () => {
             const result = serverApi.getToken(tokenData);
             result.should.equal('jwtToken');
 
-            signStub.calledWith({ data: 'encryptedPayload' }, config.jwt.key, { expiresIn: '1h' }).should.be.true();
+            signStub.calledWith({ data: 'encryptedPayload' }, jwtKeys.sign, { expiresIn: '1h' }).should.be.true();
             encryptStub
-                .calledWith(JSON.stringify({ username: 'user', password: 'pass', presenter: 'true' }), config.jwt.key)
+                .calledWith(JSON.stringify({ username: 'user', password: 'pass', presenter: 'true' }), jwtKeys.encrypt)
                 .should.be.true();
 
             signStub.restore();

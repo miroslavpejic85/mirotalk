@@ -112,7 +112,7 @@ describe('test-hostProtection (GHSA-8cwh-jg4g-8jg6)', function () {
                 HOST_PROTECTED: 'true',
                 HOST_USER_AUTH: 'false',
                 HOST_USERS: JSON.stringify([{ username: HOST_USER, password: HOST_PASS }]),
-                JWT_KEY: 'mirotalk_jwt_secret',
+                JWT_KEY: 'test-jwt-key-0123456789-abcdefghijklmnop',
                 NGROK_ENABLED: 'false',
                 SENTRY_ENABLED: 'false',
                 IP_LOOKUP_ENABLED: 'false',

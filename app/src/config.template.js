@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.34 - Configuration File
+ * MiroTalk P2P v.2.1.35 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -106,7 +106,7 @@ module.exports = {
     // JWT
     // ==========================================
     jwt: {
-        key: process.env.JWT_KEY || 'mirotalk_jwt_secret',
+        key: process.env.JWT_KEY, // Required: min 32 chars (openssl rand -hex 32), server won't start without it
         exp: process.env.JWT_EXP || '1h',
     },
 

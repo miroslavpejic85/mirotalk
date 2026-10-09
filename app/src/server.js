@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.34
+ * @version 2.1.35
  *
  */
 
@@ -67,6 +67,7 @@ const app = express();
 const fs = require('fs');
 const checkXSS = require('./xss.js');
 const ServerApi = require('./api');
+const { getJwtKeys } = require('./jwtSecret');
 const MattermostController = require('./mattermost');
 const Validate = require('./validate');
 const HtmlInjector = require('./htmlInjector');
@@ -164,11 +165,20 @@ if (
     throw new Error('HOST_USERS passwords must contain between 1 and 36 characters');
 }
 
-// JWT config
+// JWT config - fail closed: refuse to start with a missing, weak or publicly known JWT key
+let jwtKeys;
+try {
+    jwtKeys = getJwtKeys(config.jwt.key);
+} catch (err) {
+    log.error('Invalid JWT configuration', err.message);
+    process.exit(1);
+}
+
 const jwtCfg = {
-    JWT_KEY: config.jwt.key,
     JWT_EXP: config.jwt.exp,
 };
+
+const JWT_VERIFY_OPTIONS = { algorithms: ['HS256'] };
 
 // Room presenters
 const roomPresenters = config.presenters;
@@ -360,7 +370,7 @@ const mattermostCfg = {
     password: config.mattermost.password,
     token: config.mattermost.token,
     roomTokenExpire: config.mattermost.roomTokenExpire,
-    encryptionKey: config.jwt.key,
+    encryptionKey: jwtKeys.mattermost,
     security: hostCfg.protected || OIDC.enabled,
     api_disabled: api_disabled,
 };
@@ -1261,9 +1271,6 @@ server.listen(port, null, async () => {
     // Warn if default secrets are still in use
     if (api_key_secret === 'mirotalkp2p_default_secret') {
         log.warn('WARNING: API_KEY_SECRET is set to the default value. Change it before deploying!');
-    }
-    if (jwtCfg.JWT_KEY === 'mirotalk_jwt_secret') {
-        log.warn('WARNING: JWT_SECRET is set to the default value. Change it before deploying!');
     }
     if (hostCfg.protected || hostCfg.user_auth) {
         const defaultCreds = [
@@ -3145,7 +3152,7 @@ function isAuthPeer(username, password) {
  */
 async function isValidToken(token) {
     return new Promise((resolve, reject) => {
-        jwt.verify(token, jwtCfg.JWT_KEY, (err, decoded) => {
+        jwt.verify(token, jwtKeys.sign, JWT_VERIFY_OPTIONS, (err, decoded) => {
             if (err) {
                 // Token is invalid
                 resolve(false);
@@ -3178,10 +3185,10 @@ function encodeToken(token) {
 
     // Encrypt payload using AES encryption
     const payloadString = JSON.stringify(payload);
-    const encryptedPayload = CryptoJS.AES.encrypt(payloadString, jwtCfg.JWT_KEY).toString();
+    const encryptedPayload = CryptoJS.AES.encrypt(payloadString, jwtKeys.encrypt).toString();
 
     // Constructing JWT token
-    const jwtToken = jwt.sign({ data: encryptedPayload }, jwtCfg.JWT_KEY, { expiresIn: expireValue });
+    const jwtToken = jwt.sign({ data: encryptedPayload }, jwtKeys.sign, { expiresIn: expireValue });
 
     return jwtToken;
 }
@@ -3195,13 +3202,13 @@ function decodeToken(jwtToken) {
     if (!jwtToken) return null;
 
     // Verify and decode the JWT token
-    const decodedToken = jwt.verify(jwtToken, jwtCfg.JWT_KEY);
+    const decodedToken = jwt.verify(jwtToken, jwtKeys.sign, JWT_VERIFY_OPTIONS);
     if (!decodedToken || !decodedToken.data) {
         throw new Error('Invalid token');
     }
 
     // Decrypt the payload using AES decryption
-    const decryptedPayload = CryptoJS.AES.decrypt(decodedToken.data, jwtCfg.JWT_KEY).toString(CryptoJS.enc.Utf8);
+    const decryptedPayload = CryptoJS.AES.decrypt(decodedToken.data, jwtKeys.encrypt).toString(CryptoJS.enc.Utf8);
 
     // Parse the decrypted payload as JSON
     const payload = JSON.parse(decryptedPayload);
