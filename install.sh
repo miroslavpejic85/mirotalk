@@ -91,6 +91,32 @@ copy_if_missing() {
     log info "Created ${destination_file} from ${source_file}"
 }
 
+# JWT_KEY is required (min 32 chars): generate one unless a valid value is already set,
+# so re-running the installer never invalidates existing tokens.
+ensure_jwt_key() {
+    local current
+
+    current="$(grep -E '^JWT_KEY=' "$ENV_FILE" | tail -n 1 | sed -E 's/^JWT_KEY=//; s/[[:space:]]*#.*$//' || true)"
+    if [[ "${#current}" -ge 32 && "$current" != 'mirotalk_jwt_secret' && "$current" != 'mirotalkp2p_jwt_secret' ]]; then
+        log info "Keeping existing JWT_KEY in ${ENV_FILE}"
+        return
+    fi
+
+    log info 'Generating JWT_KEY...'
+    local secret
+    secret="$(openssl rand -hex 32)"
+
+    if grep -qE '^JWT_KEY=' "$ENV_FILE"; then
+        sed -i -E "s|^JWT_KEY=.*|JWT_KEY=${secret}|" "$ENV_FILE"
+    else
+        printf '\nJWT_KEY=%s\n' "$secret" >> "$ENV_FILE"
+    fi
+
+    if [[ -n "${SUDO_UID:-}" && -n "${SUDO_GID:-}" ]]; then
+        chown "$SUDO_UID:$SUDO_GID" "$ENV_FILE"
+    fi
+}
+
 run_as_project_user() {
     if [[ -n "${SUDO_USER:-}" && "$SUDO_USER" != 'root' ]]; then
         sudo -u "$SUDO_USER" -- "$@"
@@ -113,7 +139,7 @@ install_nodejs() {
 
     log info "Installing Node.js ${NODE_MAJOR}.x"
     apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl gnupg
+    DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl gnupg openssl
     install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
         | gpg --dearmor --yes -o /etc/apt/keyrings/nodesource.gpg
@@ -131,7 +157,7 @@ install_docker() {
 
     log info 'Installing Docker Engine and Compose v2'
     apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl gnupg
+    DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates curl gnupg openssl
     install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     chmod a+r /etc/apt/keyrings/docker.asc
@@ -165,10 +191,12 @@ if confirm 'Use Docker?' y; then
     fi
 
     require_command docker
+    require_command openssl
     docker compose version >/dev/null 2>&1 || \
         die "Docker Compose v2 is required (the command is 'docker compose')."
 
     copy_if_missing "$ENV_TEMPLATE" "$ENV_FILE"
+    ensure_jwt_key
     copy_if_missing "$COMPOSE_TEMPLATE" "$COMPOSE_FILE"
 
     if confirm 'Use the official Docker image?' y; then
@@ -189,12 +217,14 @@ else
 
     require_command node
     require_command npm
+    require_command openssl
     node_major="$(node --version | sed -E 's/^v([0-9]+).*/\1/')"
     (( node_major >= NODE_MAJOR )) || \
         die "Node.js ${NODE_MAJOR} or newer is required; found $(node --version)."
 
     copy_if_missing "$CONFIG_TEMPLATE" "$CONFIG_FILE"
     copy_if_missing "$ENV_TEMPLATE" "$ENV_FILE"
+    ensure_jwt_key
 
     log info 'Installing npm dependencies from the lockfile'
     run_as_project_user npm ci
