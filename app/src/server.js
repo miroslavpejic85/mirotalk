@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.38
+ * @version 2.1.39
  *
  */
 
@@ -1714,6 +1714,12 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
         const { peer_id, ice_candidate } = config;
 
+        // Security: sender and target must be joined peers of the same room.
+        if (!isPeerInSameRoom(socket, peer_id)) {
+            log.debug('relayICE blocked: peers do not share a room', { from: socket.id, to: peer_id });
+            return;
+        }
+
         // log.debug('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
         //     address: config.ice_candidate,
         // });
@@ -1730,6 +1736,12 @@ io.sockets.on('connect', async (socket) => {
     socket.on('relaySDP', async (config) => {
         if (!Validate.isValidData(config)) return;
         const { peer_id, session_description } = config;
+
+        // Security: sender and target must be joined peers of the same room.
+        if (!isPeerInSameRoom(socket, peer_id) || !session_description || typeof session_description !== 'object') {
+            log.debug('relaySDP blocked: peers do not share a room', { from: socket.id, to: peer_id });
+            return;
+        }
 
         log.debug('[' + socket.id + '] relay SessionDescription to [' + peer_id + '] ', {
             type: session_description.type,
@@ -1940,6 +1952,7 @@ io.sockets.on('connect', async (socket) => {
 
             await sendToRoom(room_id, socket.id, 'cmd', omitPeerUuid(config));
         } else {
+            if (!isPeerInRoom(room_id, to_peer_id)) return;
             log.debug('[' + socket.id + '] emit cmd to [' + to_peer_id + '] from room_id [' + room_id + ']');
 
             await sendToPeer(to_peer_id, sockets, 'cmd', omitPeerUuid(config));
@@ -2073,6 +2086,7 @@ io.sockets.on('connect', async (socket) => {
 
             await sendToRoom(room_id, socket.id, 'peerAction', data);
         } else {
+            if (!isPeerInRoom(room_id, peer_id)) return;
             log.debug('[' + socket.id + '] emit peerAction to [' + peer_id + '] from room_id [' + room_id + ']');
 
             await sendToPeer(peer_id, sockets, 'peerAction', data);
@@ -2210,7 +2224,7 @@ io.sockets.on('connect', async (socket) => {
         const isPresenter = isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
 
         // Only the presenter can kickOut others
-        if (isPresenter) {
+        if (isPresenter && isPeerInRoom(room_id, peer_id)) {
             log.debug('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
 
             await sendToPeer(peer_id, sockets, 'kickOut', {
@@ -2263,6 +2277,7 @@ io.sockets.on('connect', async (socket) => {
         if (broadcast) {
             await sendToRoom(room_id, socket.id, 'fileInfo', config);
         } else {
+            if (!isPeerInRoom(room_id, peer_id)) return;
             await sendToPeer(peer_id, sockets, 'fileInfo', config);
         }
     });
@@ -2338,6 +2353,7 @@ io.sockets.on('connect', async (socket) => {
         };
 
         if (peer_id) {
+            if (!isPeerInRoom(room_id, peer_id)) return;
             log.debug('[' + socket.id + '] emit videoPlayer to [' + peer_id + '] from room_id [' + room_id + ']', data);
 
             await sendToPeer(peer_id, sockets, 'videoPlayer', data);
@@ -3104,7 +3120,30 @@ async function getPeerGeoLocation(ip) {
  * @returns {boolean}
  */
 function isPeerInRoom(room_id, socket_id) {
-    return !!(room_id && peers[room_id] && peers[room_id][socket_id]);
+    return !!(
+        room_id &&
+        typeof room_id === 'string' &&
+        typeof socket_id === 'string' &&
+        Object.hasOwn(peers, room_id) &&
+        !roomMetaKeys.has(socket_id) &&
+        Object.hasOwn(peers[room_id], socket_id)
+    );
+}
+
+/**
+ * Check that the caller and the target peer are both joined peers of the same room.
+ * Used to authorize 1:1 relays so a socket cannot reach peers of other rooms
+ * (or peers it shares no room with) by guessing/learning their socket id.
+ * @param {object} socket caller socket
+ * @param {string} target_id client-supplied target peer id
+ * @param {string} [room_id] client-supplied room id; when omitted any room joined by the caller is considered
+ * @returns {boolean}
+ */
+function isPeerInSameRoom(socket, target_id, room_id) {
+    if (room_id) {
+        return isPeerInRoom(room_id, socket.id) && isPeerInRoom(room_id, target_id);
+    }
+    return Object.keys(socket.channels).some((ch) => isPeerInRoom(ch, socket.id) && isPeerInRoom(ch, target_id));
 }
 
 /**
