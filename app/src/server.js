@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.37
+ * @version 2.1.38
  *
  */
 
@@ -70,6 +70,7 @@ const ServerApi = require('./api');
 const { getJwtKeys } = require('./jwtSecret');
 const MattermostController = require('./mattermost');
 const Validate = require('./validate');
+const RoomPassword = require('./roomPassword');
 const HtmlInjector = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
@@ -1560,9 +1561,17 @@ io.sockets.on('connect', async (socket) => {
         if (!(channel in presenters)) presenters[channel] = {};
 
         // room locked by the participants can't join
-        if (peers[channel]['lock'] === true && peers[channel]['password'] != channel_password) {
-            log.debug('[' + socket.id + '] [Warning] Room Is Locked', channel);
-            return socket.emit('roomIsLocked');
+        if (peers[channel]['lock'] === true) {
+            if (RoomPassword.isBlocked(peer_ip, channel)) {
+                log.warn('[' + socket.id + '] [Warning] Room password attempts blocked', { ip: peer_ip, channel });
+                return socket.emit('roomIsLocked');
+            }
+            if (!RoomPassword.passwordMatches(channel_password, peers[channel]['password'])) {
+                RoomPassword.recordFailure(peer_ip, channel);
+                log.debug('[' + socket.id + '] [Warning] Room Is Locked', channel);
+                return socket.emit('roomIsLocked');
+            }
+            RoomPassword.recordSuccess(peer_ip, channel);
         }
 
         // Set the presenters
@@ -1795,21 +1804,36 @@ io.sockets.on('connect', async (socket) => {
                         action: action,
                     });
                     break;
-                case 'checkPassword':
+                case 'checkPassword': {
+                    // Pre-join check, so the sender is not a room member: throttle guesses per IP + room
+                    const ip = getSocketIP(socket);
+                    const locked = peers[room_id]['lock'] === true;
+                    let result = 'OK';
+                    if (locked) {
+                        if (RoomPassword.isBlocked(ip, room_id)) {
+                            result = 'KO';
+                        } else if (RoomPassword.passwordMatches(password, peers[room_id]['password'])) {
+                            RoomPassword.recordSuccess(ip, room_id);
+                        } else {
+                            RoomPassword.recordFailure(ip, room_id);
+                            result = 'KO';
+                        }
+                    }
                     const data = {
                         peer_name: peer_name,
                         action: action,
-                        password: password == peers[room_id]['password'] ? 'OK' : 'KO',
+                        password: result,
                     };
                     await sendToPeer(socket.id, sockets, 'roomAction', data);
                     break;
+                }
                 default:
                     break;
             }
         } catch (err) {
             log.error('Room action', toJson(err));
         }
-        log.debug('[' + socket.id + '] Room ' + room_id, { locked: room_is_locked, password: password });
+        log.debug('[' + socket.id + '] Room ' + room_id, { locked: room_is_locked });
     });
 
     /**
