@@ -24,5 +24,6 @@ We would like to extend our gratitude to the following individuals for their res
 | `Vishal Shukla`     | [GitHub](https://github.com/shukla304)                 |
 | `Mutsumi Safe`      | [GitHub](https://github.com/nakasakisoyorin99-ship-it) |
 | `mansurmavlankulov` | [GitHub](https://github.com/mansurmavlankulov)         |
+| `28Hus`             | [GitHub](https://github.com/28Hus)                     |
 
 Their dedication to security has contributed to the continuous improvement of our systems, ensuring the safety and privacy of our users and data.
