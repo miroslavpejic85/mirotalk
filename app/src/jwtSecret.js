@@ -9,7 +9,12 @@ const KNOWN_DEFAULT_SECRETS = ['mirotalk_jwt_secret', 'mirotalkp2p_jwt_secret'];
 
 // Each purpose gets an independent key derived from the master secret (HKDF), so signing,
 // payload encryption and Mattermost tokens never share the same key material.
-const PURPOSES = { sign: 'jwt-sign', encrypt: 'payload-encrypt', mattermost: 'mattermost-encrypt' };
+const PURPOSES = {
+    sign: 'jwt-sign',
+    encrypt: 'payload-encrypt',
+    mattermost: 'mattermost-encrypt',
+    createRoom: 'create-room',
+};
 
 let cached = null;
 
@@ -43,6 +48,7 @@ function getJwtKeys(rawSecret = process.env.JWT_KEY) {
                 sign: deriveKey(secret, PURPOSES.sign),
                 encrypt: deriveKey(secret, PURPOSES.encrypt),
                 mattermost: deriveKey(secret, PURPOSES.mattermost),
+                createRoom: deriveKey(secret, PURPOSES.createRoom),
             }),
         };
     }

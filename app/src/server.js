@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.40
+ * @version 2.1.41
  *
  */
 
@@ -198,6 +198,38 @@ const jwtCfg = {
 };
 
 const JWT_VERIFY_OPTIONS = { algorithms: ['HS256'] };
+
+// Short-lived token bound to a room, issued by GET /createRoomToken only to requesters the HTTP
+// policy allows to create rooms. The Socket.IO `join` event requires it to open a new room when
+// OIDC is enabled, because the socket carries no OIDC session of its own.
+const CREATE_ROOM_TOKEN_EXP = '2m';
+
+/**
+ * Creates a short-lived JWT token for creating a room.
+ * @param {string} roomId
+ * @returns {string} JWT token for creating a room
+ */
+function createCreateRoomToken(roomId) {
+    return jwt.sign({ scope: 'create-room', roomId: String(roomId) }, jwtKeys.createRoom, {
+        expiresIn: CREATE_ROOM_TOKEN_EXP,
+    });
+}
+
+/**
+ * Validates a short-lived JWT token for creating a room.
+ * @param {string} token JWT token to validate
+ * @param {string} roomId Room ID to check against the token
+ * @returns {boolean} True if the token is valid for the given room ID, false otherwise
+ */
+function isCreateRoomTokenValid(token, roomId) {
+    if (!token || typeof token !== 'string') return false;
+    try {
+        const decoded = jwt.verify(token, jwtKeys.createRoom, JWT_VERIFY_OPTIONS);
+        return decoded?.scope === 'create-room' && decoded.roomId === String(roomId);
+    } catch {
+        return false;
+    }
+}
 
 // Room presenters
 const roomPresenters = config.presenters;
@@ -710,6 +742,32 @@ app.post('/isWidgetRoomActive', (req, res) => {
         roomId && roomId === config.brand?.widget?.roomId && Object.prototype.hasOwnProperty.call(peers, roomId);
     log.debug('isWidgetRoomActive', { roomId, roomWidgetActive });
     res.status(200).json({ message: roomWidgetActive });
+});
+
+// Issue a short-lived token that authorizes the Socket.IO `join` event to open this room.
+// It applies the same room creation policy as the HTTP join routes (OIDC session).
+app.get('/createRoomToken', (req, res) => {
+    const { room } = checkXSS(req.query);
+
+    if (!room || !Validate.isValidRoomName(room)) {
+        return res.status(400).json({ message: 'Invalid room' });
+    }
+
+    res.set('Cache-Control', 'no-store');
+
+    if (!OIDC.enabled) {
+        return res.json({ required: false, token: null });
+    }
+
+    // Creation policy only: ignore whether the room currently exists
+    const creationPeers = Object.fromEntries(Object.entries(peers).filter(([id]) => id !== room));
+
+    if (!isAllowedRoomAccess('/createRoomToken', req, hostCfg, creationPeers, room)) {
+        log.warn('Room creation token denied', { room });
+        return res.status(403).json({ required: true, token: null });
+    }
+
+    return res.json({ required: true, token: createCreateRoomToken(room) });
 });
 
 // Handle Direct join room with params
@@ -1479,6 +1537,7 @@ io.sockets.on('connect', async (socket) => {
             peer_name,
             peer_avatar,
             peer_token,
+            create_room_token,
             peer_video,
             peer_audio,
             peer_video_status,
@@ -1513,6 +1572,13 @@ io.sockets.on('connect', async (socket) => {
         // a new room. The last case stops unauthenticated Socket.IO clients from creating
         // protected rooms and becoming presenter, bypassing the HTTP login/waiting-room.
         const authRequired = hostCfg.user_auth || peer_token || (hostCfg.protected && isRoomNew);
+
+        // Security: enforce the OIDC room creation policy that the HTTP routes apply. A valid
+        // peer_token is validated below, otherwise opening a new room needs a create-room token.
+        if (OIDC.enabled && isRoomNew && !peer_token && !isCreateRoomTokenValid(create_room_token, channel)) {
+            log.warn('[' + socket.id + '] Room creation not authorized', { ip: peer_ip, channel });
+            return socket.emit('unauthorized');
+        }
 
         // User Auth required, we check if peer valid
         if (authRequired) {

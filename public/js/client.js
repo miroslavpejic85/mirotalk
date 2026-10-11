@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.40
+ * @version 2.1.41
  *
  */
 
@@ -3068,10 +3068,30 @@ async function whoAreYouJoin() {
 }
 
 /**
+ * Short-lived token proving the HTTP room creation policy (e.g. OIDC) allows this user to open the room
+ * @param {string} room_id
+ * @returns {Promise<string|null>} token or null
+ */
+async function getCreateRoomToken(room_id) {
+    try {
+        const response = await fetch(`/createRoomToken?room=${encodeURIComponent(room_id)}`, {
+            credentials: 'same-origin',
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data?.token || null;
+    } catch (err) {
+        console.warn('Create room token not available', err);
+        return null;
+    }
+}
+
+/**
  * join to channel and send some peer info
  */
 async function joinToChannel() {
     console.log('12. join to channel', roomId);
+    const createRoomToken = await getCreateRoomToken(roomId);
     sendToServer('join', {
         join_data_time: getDataTimeString(),
         channel: roomId,
@@ -3081,6 +3101,7 @@ async function joinToChannel() {
         peer_name: myPeerName,
         peer_avatar: myPeerAvatar,
         peer_token: myToken,
+        create_room_token: createRoomToken,
         peer_video: useVideo,
         peer_audio: useAudio,
         peer_video_status: myVideoStatus,
@@ -18130,7 +18151,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.40',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.41',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
