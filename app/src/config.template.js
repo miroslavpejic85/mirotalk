@@ -256,6 +256,8 @@ module.exports = {
         allowRoomCreationForAuthUsers: process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS
             ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
             : false,
+        // Authenticated OIDC users join with the name verified by the identity provider and cannot change it
+        lockUsername: process.env.OIDC_LOCK_USERNAME ? getEnvBoolean(process.env.OIDC_LOCK_USERNAME) : true,
         baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
         /*
          * When `baseUrlDynamic` is true, the OIDC baseURL (and therefore the redirect_uri

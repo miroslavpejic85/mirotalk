@@ -221,6 +221,25 @@ function createCreateRoomToken(roomId) {
  * @param {string} roomId Room ID to check against the token
  * @returns {boolean} True if the token is valid for the given room ID, false otherwise
  */
+// Short-lived token carrying the display name verified by the OIDC provider, issued by
+// GET /oidcIdentity when OIDC_LOCK_USERNAME is enabled. The Socket.IO `join` event trusts the
+// name inside it instead of the client-supplied one.
+const IDENTITY_TOKEN_EXP = '2m';
+
+function createIdentityToken(name) {
+    return jwt.sign({ scope: 'oidc-identity', name }, jwtKeys.identity, { expiresIn: IDENTITY_TOKEN_EXP });
+}
+
+function getVerifiedIdentityName(token) {
+    if (!OIDC.enabled || !OIDC.lockUsername || !token || typeof token !== 'string') return null;
+    try {
+        const decoded = jwt.verify(token, jwtKeys.identity, JWT_VERIFY_OPTIONS);
+        return decoded?.scope === 'oidc-identity' && decoded.name ? String(decoded.name) : null;
+    } catch {
+        return null;
+    }
+}
+
 function isCreateRoomTokenValid(token, roomId) {
     if (!token || typeof token !== 'string') return false;
     try {
@@ -768,6 +787,24 @@ app.get('/createRoomToken', (req, res) => {
     }
 
     return res.json({ required: true, token: createCreateRoomToken(room) });
+});
+
+// Issue a short-lived token with the display name verified by the OIDC provider, so the client
+// can show it read-only and the Socket.IO `join` event can enforce it (OIDC_LOCK_USERNAME).
+app.get('/oidcIdentity', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+
+    if (!OIDC.enabled || !OIDC.lockUsername || !req.oidc?.isAuthenticated()) {
+        return res.json({ locked: false });
+    }
+
+    const user = req.oidc.user || {};
+    const rawName = [user.name, user.nickname, user.email].find((v) => typeof v === 'string' && v.trim());
+    const name = rawName ? String(checkXSS(rawName.trim())).slice(0, 254) : '';
+
+    if (!name) return res.json({ locked: false });
+
+    return res.json({ locked: true, name, token: createIdentityToken(name) });
 });
 
 // Handle Direct join room with params
@@ -1534,10 +1571,11 @@ io.sockets.on('connect', async (socket) => {
             channel,
             channel_password,
             peer_uuid,
-            peer_name,
+            peer_name: requested_peer_name,
             peer_avatar,
             peer_token,
             create_room_token,
+            identity_token,
             peer_video,
             peer_audio,
             peer_video_status,
@@ -1556,6 +1594,14 @@ io.sockets.on('connect', async (socket) => {
 
         if (channel in socket.channels) {
             return log.debug('[' + socket.id + '] [Warning] already joined', channel);
+        }
+
+        // Security: an OIDC-authenticated peer joins with the name verified by the identity provider
+        const verifiedPeerName = getVerifiedIdentityName(identity_token);
+        const peer_name = verifiedPeerName || requested_peer_name;
+        if (verifiedPeerName) {
+            socket.verifiedPeerName = verifiedPeerName;
+            config.peer_name = verifiedPeerName;
         }
 
         let is_presenter = true;
@@ -1928,6 +1974,10 @@ io.sockets.on('connect', async (socket) => {
         // log.debug('Peer name', config);
         const { room_id, peer_name_old, peer_name_new, peer_avatar } = config;
 
+        if (socket.verifiedPeerName) {
+            return log.debug('[' + socket.id + '] peerName change blocked: name is verified by OIDC');
+        }
+
         let peer_id_to_update = null;
 
         for (let peer_id in peers[room_id]) {
@@ -1977,6 +2027,8 @@ io.sockets.on('connect', async (socket) => {
             });
             return;
         }
+
+        if (socket.verifiedPeerName && data.peer_name) data.peer_name = socket.verifiedPeerName;
 
         await sendToRoom(data.room_id, socket.id, 'message', data);
     });

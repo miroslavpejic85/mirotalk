@@ -2032,11 +2032,37 @@ function mergeConfig(target, source) {
     return output;
 }
 
+// Name verified by the OIDC provider (OIDC_LOCK_USERNAME); the server enforces it, the UI shows it read-only
+let oidcIdentity = { checked: false, name: null, token: null };
+
+/**
+ * Load the verified OIDC identity (fresh token on every call while the lock is active)
+ */
+async function loadOidcIdentity() {
+    if (oidcIdentity.checked && !oidcIdentity.name) return;
+    try {
+        const response = await fetch('/oidcIdentity', { credentials: 'same-origin' });
+        const data = response.ok ? await response.json() : null;
+        oidcIdentity = data?.locked
+            ? { checked: true, name: filterXSS(data.name), token: data.token }
+            : { checked: true, name: null, token: null };
+    } catch (err) {
+        console.warn('OIDC identity not available', err);
+        oidcIdentity = { checked: true, name: null, token: null };
+    }
+    if (oidcIdentity.name) {
+        myPeerNameSet.value = oidcIdentity.name;
+        myPeerNameSet.disabled = true;
+        elemDisplay(myPeerNameSetBtn, false);
+    }
+}
+
 /**
  * Get user name from OIDC profile
  * @returns {string} Peer Name
  */
 async function getUserName() {
+    if (oidcIdentity.name) return oidcIdentity.name;
     try {
         const { data: profile } = await axios.get('/profile', { timeout: 5000 });
         if (profile && profile.name) {
@@ -2056,6 +2082,9 @@ async function whoAreYou() {
     console.log('11. Who are you?');
 
     document.body.style.background = 'var(--body-bg)';
+
+    await loadOidcIdentity();
+    if (oidcIdentity.name && myPeerName) myPeerName = oidcIdentity.name;
 
     if (myPeerName) {
         elemDisplay(loadingDiv, false);
@@ -2091,6 +2120,7 @@ async function whoAreYou() {
         getId('usernameInput').value = '';
         toggleUsernameEmoji();
     };
+    if (oidcIdentity.name) elemDisplay(initUsernameEmojiButton, false);
     initExitBtn.onclick = (e) => {
         initExitMeeting();
     };
@@ -2144,7 +2174,7 @@ async function whoAreYou() {
         position: 'center',
         input: 'text',
         inputPlaceholder: 'Enter your email or name',
-        inputAttributes: { maxlength: 254, id: 'usernameInput' },
+        inputAttributes: { maxlength: 254, id: 'usernameInput', ...(oidcIdentity.name && { readonly: 'true' }) },
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
         html: initUser, // inject html
         confirmButtonText: `Join meeting`,
@@ -2155,6 +2185,7 @@ async function whoAreYou() {
             elemDisplay(loadingDiv, false);
         },
         inputValidator: async (value) => {
+            if (oidcIdentity.name) value = oidcIdentity.name;
             if (!value) return 'Please enter your email or name';
 
             // Long email or name
@@ -3091,6 +3122,7 @@ async function getCreateRoomToken(room_id) {
  */
 async function joinToChannel() {
     console.log('12. join to channel', roomId);
+    await loadOidcIdentity();
     const createRoomToken = await getCreateRoomToken(roomId);
     sendToServer('join', {
         join_data_time: getDataTimeString(),
@@ -3102,6 +3134,7 @@ async function joinToChannel() {
         peer_avatar: myPeerAvatar,
         peer_token: myToken,
         create_room_token: createRoomToken,
+        identity_token: oidcIdentity.token,
         peer_video: useVideo,
         peer_audio: useAudio,
         peer_video_status: myVideoStatus,
@@ -13746,6 +13779,8 @@ function closeMobileSettingsNav() {
 async function updateMyPeerName() {
     // myNewPeerName empty
     if (!myPeerNameSet.value) return;
+
+    if (oidcIdentity.name) return userLog('warning', 'Your name is managed by your login');
 
     // check if peer name is already in use in the room
     if (await checkUserName(myPeerNameSet.value)) {

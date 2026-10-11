@@ -119,7 +119,8 @@ describe('test-oidcCreateRoom', function () {
                 OIDC_CLIENT_ID: 'test-client',
                 OIDC_CLIENT_SECRET: 'test-secret',
                 OIDC_BASE_URL: BASE,
-                OIDC_SECRET: 'test-oidc-secret-0123456789-abcdefghijklmnop',
+                OIDC_LOCK_USERNAME: 'true',
+                SESSION_SECRET: 'test-oidc-secret-0123456789-abcdefghijklmnop',
             },
             stdio: ['ignore', 'ignore', 'ignore'],
         });
@@ -166,5 +167,75 @@ describe('test-oidcCreateRoom', function () {
         } finally {
             host.close();
         }
+    });
+    describe('OIDC_LOCK_USERNAME', () => {
+        const identity = (name, key = keys.identity) =>
+            jwt.sign({ scope: 'oidc-identity', name }, key, { expiresIn: '2m' });
+
+        // Join as host (valid create-room token) and resolve the peers map a later guest receives
+        async function peersSeenByGuest(room, hostExtra) {
+            const host = await connectSocket();
+            try {
+                const hostResult = await joinAndAwait(
+                    host,
+                    joinCfg(room, { create_room_token: mint(room), peer_name: 'Mallory', ...hostExtra })
+                );
+                hostResult.event.should.equal('serverInfo');
+
+                const guest = await connectSocket();
+                try {
+                    const added = new Promise((resolve) => guest.once('addPeer', resolve));
+                    await joinAndAwait(guest, joinCfg(room, { peer_name: 'guest' }));
+                    const { peers } = await added;
+                    return Object.values(peers)
+                        .map((p) => p.peer_name)
+                        .filter((n) => n !== undefined);
+                } finally {
+                    guest.close();
+                }
+            } finally {
+                host.close();
+            }
+        }
+
+        it('uses the verified name instead of the client-supplied one', async () => {
+            const names = await peersSeenByGuest('oidc-lock-a', { identity_token: identity('Alice Verified') });
+            names.should.containEql('Alice Verified');
+            names.should.not.containEql('Mallory');
+        });
+
+        it('ignores an identity token signed with another key', async () => {
+            const names = await peersSeenByGuest('oidc-lock-b', { identity_token: identity('Alice', keys.sign) });
+            names.should.containEql('Mallory');
+            names.should.not.containEql('Alice');
+        });
+
+        it('blocks renaming a peer whose name is verified', async () => {
+            const room = 'oidc-lock-c';
+            const host = await connectSocket();
+            const guest = await connectSocket();
+            try {
+                const hostResult = await joinAndAwait(
+                    host,
+                    joinCfg(room, { create_room_token: mint(room), identity_token: identity('Alice Verified') })
+                );
+                hostResult.event.should.equal('serverInfo');
+                await joinAndAwait(guest, joinCfg(room, { peer_name: 'guest' }));
+
+                let renamed = false;
+                guest.on('peerName', () => (renamed = true));
+                host.emit('peerName', {
+                    room_id: room,
+                    peer_name_old: 'Alice Verified',
+                    peer_name_new: 'Mallory',
+                    peer_avatar: '',
+                });
+                await sleep(800);
+                renamed.should.be.false();
+            } finally {
+                host.close();
+                guest.close();
+            }
+        });
     });
 });

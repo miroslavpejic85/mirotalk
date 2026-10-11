@@ -14,6 +14,7 @@ const PURPOSES = {
     encrypt: 'payload-encrypt',
     mattermost: 'mattermost-encrypt',
     createRoom: 'create-room',
+    identity: 'oidc-identity',
 };
 
 let cached = null;
@@ -49,6 +50,7 @@ function getJwtKeys(rawSecret = process.env.JWT_KEY) {
                 encrypt: deriveKey(secret, PURPOSES.encrypt),
                 mattermost: deriveKey(secret, PURPOSES.mattermost),
                 createRoom: deriveKey(secret, PURPOSES.createRoom),
+                identity: deriveKey(secret, PURPOSES.identity),
             }),
         };
     }
