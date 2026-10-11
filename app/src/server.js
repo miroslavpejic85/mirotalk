@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.39
+ * @version 2.1.40
  *
  */
 
@@ -1365,6 +1365,8 @@ io.sockets.on('connect', async (socket) => {
                 break;
             case 'getChatGPT':
                 // https://platform.openai.com/docs/introduction
+                // Security: only a joined peer of the room may use the ChatGPT proxy.
+                if (!isPeerInRoom(room_id, socket.id)) return cb({ message: 'Room not found' });
                 if (!configChatGPT.enabled) return cb({ message: 'ChatGPT seems disabled, try later!' });
                 // https://platform.openai.com/docs/api-reference/completions/create
                 try {
