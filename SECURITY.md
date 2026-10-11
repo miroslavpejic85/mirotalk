@@ -19,12 +19,13 @@ Thanks in advance for your support to make our products safer!
 
 We would like to extend our gratitude to the following individuals for their responsible disclosure of security vulnerabilities:
 
-| Name                | Contact                                                |
-| ------------------- | ------------------------------------------------------ |
-| `Vishal Shukla`     | [GitHub](https://github.com/shukla304)                 |
-| `Mutsumi Safe`      | [GitHub](https://github.com/nakasakisoyorin99-ship-it) |
-| `mansurmavlankulov` | [GitHub](https://github.com/mansurmavlankulov)         |
-| `28Hus`             | [GitHub](https://github.com/28Hus)                     |
-| `xiaxiu555`         | [GitHub](https://github.com/xiaxiu555)                 |
+| Name                  | Contact                                                |
+| --------------------- | ------------------------------------------------------ |
+| `Vishal Shukla`       | [GitHub](https://github.com/shukla304)                 |
+| `Mutsumi Safe`        | [GitHub](https://github.com/nakasakisoyorin99-ship-it) |
+| `mansurmavlankulov`   | [GitHub](https://github.com/mansurmavlankulov)         |
+| `28Hus`               | [GitHub](https://github.com/28Hus)                     |
+| `xiaxiu555`           | [GitHub](https://github.com/xiaxiu555)                 |
+| `waterhunter2000-svg` | [GitHub](https://github.com/waterhunter2000-svg)       |
 
 Their dedication to security has contributed to the continuous improvement of our systems, ensuring the safety and privacy of our users and data.
