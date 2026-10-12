@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.41 - Configuration File
+ * MiroTalk P2P v.2.1.42 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -99,6 +99,9 @@ module.exports = {
         users: parseJsonEnv(process.env.HOST_USERS, []),
         maxLoginAttempts: process.env.HOST_MAX_LOGIN_ATTEMPTS || 5,
         minLoginBlockTime: process.env.HOST_MIN_LOGIN_BLOCK_TIME || 15, // in minutes
+        // /createRoomToken rate limit (per IP)
+        createRoomTokenMaxRequests: parseInt(process.env.CREATE_ROOM_TOKEN_RATE_LIMIT_MAX) || 10,
+        createRoomTokenWindowMinutes: parseInt(process.env.CREATE_ROOM_TOKEN_RATE_LIMIT_WINDOW_MINUTES) || 1,
         maxRoomParticipants: parseInt(process.env.ROOM_MAX_PARTICIPANTS) || 1000,
         showActiveRooms: getEnvBoolean(process.env.SHOW_ACTIVE_ROOMS) || false,
     },

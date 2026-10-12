@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.41
+ * @version 2.1.42
  *
  */
 
@@ -97,6 +97,19 @@ const loginLimiter = rateLimit({
     },
     // Throttle by client IP only. A client-supplied username can be varied per
     // request to get a fresh bucket, defeating the login lockout entirely.
+    keyGenerator: (req) => getIP(req),
+});
+
+// /createRoomToken runs the room creation policy and mints tokens, so cap request volume per IP.
+const createRoomTokenWindowMinutes = config.host.createRoomTokenWindowMinutes || 1;
+const createRoomTokenLimiter = rateLimit({
+    windowMs: createRoomTokenWindowMinutes * 60 * 1000,
+    max: config.host.createRoomTokenMaxRequests || 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        message: `Too many room token requests. Please try again after ${createRoomTokenWindowMinutes} minute${createRoomTokenWindowMinutes == 1 ? '' : 's'}.`,
+    },
     keyGenerator: (req) => getIP(req),
 });
 
@@ -765,7 +778,7 @@ app.post('/isWidgetRoomActive', (req, res) => {
 
 // Issue a short-lived token that authorizes the Socket.IO `join` event to open this room.
 // It applies the same room creation policy as the HTTP join routes (OIDC session).
-app.get('/createRoomToken', (req, res) => {
+app.get('/createRoomToken', createRoomTokenLimiter, (req, res) => {
     const { room } = checkXSS(req.query);
 
     if (!room || !Validate.isValidRoomName(room)) {
