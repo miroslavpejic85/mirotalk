@@ -4191,36 +4191,28 @@ img.has-shadow {
 
 /*Pulse Button*/
 .pulse {
-    box-shadow: 0 0 0 rgba(120, 120, 120, 0.4);
+    box-shadow: 0 0 0 rgba(70, 120, 249, 0.4);
     animation: pulse 4s infinite;
 }
 .pulse:hover {
     animation: none;
 }
 
-@-webkit-keyframes pulse {
-    0% {
-        -webkit-box-shadow: 0 0 0 0 rgba(120, 120, 120, 0.4);
-    }
-    70% {
-        -webkit-box-shadow: 0 0 0 15px rgba(120, 120, 120, 0);
-    }
-    100% {
-        -webkit-box-shadow: 0 0 0 0 rgba(120, 120, 120, 0);
-    }
-}
 @keyframes pulse {
     0% {
-        -moz-box-shadow: 0 0 0 0 rgba(120, 120, 120, 0.4);
-        box-shadow: 0 0 0 0 rgba(120, 120, 120, 0.4);
+        box-shadow:
+            0 10px 26px rgba(70, 120, 249, 0.24),
+            0 0 0 0 rgba(70, 120, 249, 0.4);
     }
     70% {
-        -moz-box-shadow: 0 0 0 10px rgba(120, 120, 120, 0);
-        box-shadow: 0 0 0 15px rgba(120, 120, 120, 0);
+        box-shadow:
+            0 10px 26px rgba(70, 120, 249, 0.24),
+            0 0 0 12px rgba(70, 120, 249, 0);
     }
     100% {
-        -moz-box-shadow: 0 0 0 0 rgba(120, 120, 120, 0);
-        box-shadow: 0 0 0 0 rgba(120, 120, 120, 0);
+        box-shadow:
+            0 10px 26px rgba(70, 120, 249, 0.24),
+            0 0 0 0 rgba(70, 120, 249, 0);
     }
 }
 /*Pulse Button*/

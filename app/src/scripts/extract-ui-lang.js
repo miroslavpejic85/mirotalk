@@ -28,6 +28,7 @@ const DIALOG_FIELDS = [
     'confirmButtonText',
     'cancelButtonText',
     'denyButtonText',
+    'inputLabel',
     'inputPlaceholder',
     'footer',
 ];

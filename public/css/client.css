@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap');
 
 /*--------------------------------------------------------------
 # Root settings
@@ -77,7 +77,12 @@
 
 * {
     outline: none;
-    font-family: 'Montserrat';
+    font-family: var(--ds-font-sans);
+}
+
+/* Some third-party styles force their own heading font; keep headings on the app font. */
+html :is(h1, h2, h3, h4, h5, h6) {
+    font-family: inherit;
 }
 
 /*--------------------------------------------------------------
@@ -258,13 +263,14 @@ body {
     box-shadow: var(--box-shadow);
 }
 #loadingDiv h1 {
-    font-size: 60px;
-    font-family: 'Montserrat';
+    font-size: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 #loadingDiv pre,
 #loadingDiv p {
     padding: 5px;
-    font-family: 'Montserrat';
+    line-height: 1.5;
 }
 #loadingDiv p {
     max-width: 35ch;
@@ -327,25 +333,49 @@ body {
 }
 
 /*--------------------------------------------------------------
-# Init User
+# Init User (pre-join)
 --------------------------------------------------------------*/
 
 .init-modal-size {
-    width: 1024px !important;
+    width: min(1024px, calc(100vw - 32px)) !important;
     height: auto !important;
+}
+
+.init-modal-size .swal2-title {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.625rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
 }
 
 .init-user {
     z-index: 9999;
     display: flex;
-    padding: 5px;
+    align-items: center;
+    gap: var(--ds-space-6, 24px);
+    padding: var(--ds-space-1, 4px);
+    text-align: left;
 }
 
 .init-video-container {
     position: relative;
     box-sizing: border-box;
-    width: 100%;
-    margin-right: 10px;
+    display: flex;
+    flex: 1 1 55%;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--ds-radius-lg, 14px);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Camera off: collapse the preview so the device controls use the full width. */
+.init-video-container.is-off {
+    display: none;
 }
 
 .init-video-loader {
@@ -356,28 +386,39 @@ body {
     justify-content: center;
     z-index: 1;
     background: rgba(0, 0, 0, 0.6);
-    border-radius: 8px;
+    border-radius: inherit;
 }
 
 .init-video-container video {
     z-index: 0;
     position: relative;
-    max-width: 100%;
-    height: 240px;
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .initComands {
+    display: flex;
+    flex: 1 1 45%;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    gap: 10px 8px;
     width: 100%;
     min-width: 0;
 }
 
+.initComands > select,
 #initBackgroundEffectsSection {
-    margin-top: 15px;
+    flex: 1 1 100%;
+}
+
+#initBackgroundEffectsSection {
+    min-width: 0;
     text-align: left;
 }
 
 #initBackgroundEffectsSection select {
-    margin-top: 0;
     padding-left: 36px;
     padding-right: 44px;
 }
@@ -410,38 +451,6 @@ body {
     overflow-wrap: anywhere;
 }
 
-@media screen and (min-width: 1025px) {
-    .init-user {
-        align-items: center;
-    }
-    .init-video-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .init-video-container video {
-        width: auto;
-        height: auto;
-        max-height: 240px;
-        object-fit: contain;
-    }
-}
-
-@media screen and (max-width: 1024px) {
-    .init-modal-size {
-        width: auto !important;
-    }
-    .init-user {
-        display: block;
-    }
-    .init-video-container {
-        padding: 0px;
-    }
-    .init-modal-size {
-        width: 480px !important;
-    }
-}
-
 .init-user select {
     -webkit-appearance: none;
     appearance: none;
@@ -449,12 +458,15 @@ body {
     display: block;
     width: 100%;
     min-width: 0;
-    margin-top: 15px;
-    padding: 0 40px 0 10px;
+    min-height: var(--ds-touch-min, 44px);
+    margin: 0;
+    padding: 0 40px 0 12px;
     background-color: var(--select-bg) !important;
     color: white;
+    font-size: 0.9375rem;
+    text-overflow: ellipsis;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border-radius: var(--ds-radius-md, 10px);
     box-shadow: none;
     cursor: pointer;
     transition:
@@ -479,24 +491,138 @@ body {
 
 .init-user select:focus {
     outline: none;
-    border-color: rgba(70, 120, 249, 0.6);
-    box-shadow: 0 0 0 2px rgba(70, 120, 249, 0.15);
+    border-color: rgba(70, 120, 249, 0.7);
+    box-shadow: 0 0 0 3px rgba(70, 120, 249, 0.28);
+}
+
+.init-user select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 .init-user button {
-    width: 50px;
-    padding: 10px;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    font-size: 1.5rem;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    margin: 0 0 4px;
+    padding: 0;
+    font-size: 1.15rem;
+    line-height: 1;
     color: white;
-    border: var(--border);
-    border-radius: 8px;
-    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--ds-radius-md, 10px);
+    background-color: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.12s ease;
 }
 
 .init-user button:hover {
-    background: var(--body-bg);
+    border-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
+}
+
+.init-user button:active {
+    transform: translateY(0);
+}
+
+/* Muted camera / microphone */
+.init-user button:is(.fa-microphone-slash, .fa-video-slash) {
+    border-color: rgba(255, 69, 58, 0.45);
+    background-color: rgba(255, 69, 58, 0.14);
+}
+
+/* Screen sharing active */
+.init-user button.fa-stop-circle {
+    border-color: rgba(70, 120, 249, 0.55);
+    background-color: rgba(70, 120, 249, 0.18);
+}
+
+.init-user #initExitBtn:hover {
+    border-color: rgba(255, 69, 58, 0.45);
+    background-color: rgba(255, 69, 58, 0.14);
+}
+
+.init-modal-size .swal2-input-label {
+    margin: var(--ds-space-6, 24px) auto 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.init-modal-size #usernameInput {
+    height: 48px;
+    margin-top: var(--ds-space-2, 8px);
+    font-size: 1rem;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.init-modal-size #usernameInput:focus {
+    border-color: rgba(70, 120, 249, 0.7) !important;
+    box-shadow: 0 0 0 3px rgba(70, 120, 249, 0.28) !important;
+}
+
+/* Tablet portrait & phones: stack preview above the controls. */
+@media screen and (max-width: 768px) {
+    .init-modal-size {
+        width: min(520px, calc(100vw - 24px)) !important;
+    }
+    .init-user {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--ds-space-4, 16px);
+    }
+    .init-video-container {
+        flex: 0 0 auto;
+        width: 100%;
+        max-height: 34vh;
+    }
+    .initComands {
+        flex: 0 0 auto;
+        justify-content: center;
+    }
+    .init-user button {
+        width: 42px;
+        height: 42px;
+        font-size: 1.05rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .init-modal-size .swal2-html-container {
+        margin: 12px 12px 0;
+    }
+    .init-modal-size .swal2-input-label {
+        margin-top: var(--ds-space-4, 16px);
+    }
+    .init-modal-size #usernameInput {
+        width: calc(100% - 32px);
+        margin-inline: 16px;
+    }
+    .swal2-popup.init-modal-size:not(.swal2-toast) .swal2-actions {
+        width: calc(100% - 32px);
+        margin-inline: 16px;
+    }
+}
+
+/* Short landscape screens (phones turned sideways): keep it compact. */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .init-modal-size .swal2-title {
+        padding-top: 0.5em;
+    }
+    .init-video-container {
+        max-height: 56vh;
+    }
+    .init-modal-size .swal2-input-label {
+        margin-top: var(--ds-space-3, 12px);
+    }
 }
 
 .fa-phone-slash,
@@ -3217,7 +3343,7 @@ button {
     border-radius: 8px;
     --rgb-background: var(--body-bg) !important;
     --color-border-over: var(--body-bg) !important;
-    --font-family: 'Montserrat';
+    --font-family: var(--ds-font-sans);
 }
 
 .chatEmojiPicker {
@@ -3233,7 +3359,7 @@ button {
     box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
     --rgb-background: var(--body-bg) !important;
     --color-border-over: var(--body-bg) !important;
-    --font-family: 'Montserrat';
+    --font-family: var(--ds-font-sans);
 }
 
 @media (max-width: 820px) {
@@ -3268,7 +3394,7 @@ button {
     overflow: hidden;
     --rgb-background: var(--body-bg);
     --color-border-over: var(--body-bg);
-    --font-family: 'Montserrat';
+    --font-family: var(--ds-font-sans);
 }
 
 .room-emoji-header {
@@ -3547,9 +3673,11 @@ button {
 }
 
 .share-room-modal-description {
+    max-width: 440px;
+    margin-inline: auto;
     background: transparent;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
 }
 
 #qrRoomPopupContainer {

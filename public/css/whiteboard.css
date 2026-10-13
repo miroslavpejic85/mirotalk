@@ -377,7 +377,7 @@
 
 .wb-shortcuts-container {
     text-align: left;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: var(--ds-font-sans);
     background: var(--body-bg);
     padding: 0.5rem 0.7rem;
     border-radius: 10px;
@@ -490,7 +490,7 @@
     background: rgba(255, 235, 59, 0.07);
     color: var(--text-color, #ffffff);
     font-size: 1rem;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: var(--ds-font-sans);
     resize: vertical;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(255, 215, 0, 0.08);

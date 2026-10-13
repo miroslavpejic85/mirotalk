@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.45
+ * @version 2.1.46
  *
  */
 
@@ -1041,6 +1041,7 @@ function refreshMainButtonsToolTipPlacement() {
  * @param {string} placement position
  */
 function setTippy(element, content, placement) {
+    if (element) syncTooltipAriaLabel(element, content);
     if (isMobileDevice) return;
     if (element) {
         if (element._tippy) {
@@ -1057,6 +1058,25 @@ function setTippy(element, content, placement) {
     } else {
         console.warn('setTippy element not found with content', content);
     }
+}
+
+/**
+ * Give icon-only controls an accessible name that follows their tooltip text
+ * (also on mobile, where tooltips are not rendered).
+ * @param {HTMLElement} element
+ * @param {string} content tooltip text
+ */
+function syncTooltipAriaLabel(element, content) {
+    if (!element || typeof element.matches !== 'function') return;
+    if (typeof content !== 'string' || !content.trim()) return;
+    if (!element.matches('button, a[href], input, select, textarea, [role="button"]')) return;
+    const ownedByTooltip = element.dataset.ariaFromTooltip === 'true';
+    if (!ownedByTooltip && (element.hasAttribute('aria-label') || element.textContent.trim())) return;
+    const label = window.i18n?.t ? window.i18n.t(content, 'tooltips') : content;
+    element.setAttribute('aria-label', label);
+    // Keep the English source so a live language switch re-translates the current state.
+    element['__i18nAttr_aria-label'] = content;
+    element.dataset.ariaFromTooltip = 'true';
 }
 
 /**
@@ -2173,6 +2193,7 @@ async function whoAreYou() {
         title: brand.app?.name || 'MiroTalk P2P',
         position: 'center',
         input: 'text',
+        inputLabel: 'Display name',
         inputPlaceholder: 'Enter your email or name',
         inputAttributes: { maxlength: 254, id: 'usernameInput', ...(oidcIdentity.name && { readonly: 'true' }) },
         inputValue: window.localStorage.peer_name ? window.localStorage.peer_name : '',
@@ -2181,8 +2202,15 @@ async function whoAreYou() {
         customClass: { popup: 'init-modal-size', confirmButton: 'init-join-button' },
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-        willOpen: () => {
+        willOpen: (popup) => {
             elemDisplay(loadingDiv, false);
+            // SweetAlert2 replaces the input id when inputLabel is set; restore it for existing lookups.
+            const usernameInput = Swal.getInput();
+            if (usernameInput) {
+                usernameInput.id = 'usernameInput';
+                const label = popup.querySelector('.swal2-input-label');
+                if (label) label.htmlFor = 'usernameInput';
+            }
         },
         inputValidator: async (value) => {
             if (oidcIdentity.name) value = oidcIdentity.name;
@@ -4737,6 +4765,7 @@ async function loadLocalMedia(stream, kind) {
             myDropdownDiv.className = 'navbar-dropdown';
             myDropdownBtn.id = 'myVideoDropdownBtn';
             myDropdownBtn.className = 'fas fa-ellipsis-vertical';
+            myDropdownBtn.setAttribute('aria-label', 'More options');
             myDropdownContent.className = 'navbar-dropdown-content';
 
             !isMobileDevice &&
@@ -4939,6 +4968,7 @@ async function loadLocalMedia(stream, kind) {
             myScreenDropdownDiv.className = 'navbar-dropdown';
             myScreenDropdownBtn.id = 'myScreenDropdownBtn';
             myScreenDropdownBtn.className = 'fas fa-ellipsis-vertical';
+            myScreenDropdownBtn.setAttribute('aria-label', 'More options');
             myScreenDropdownContent.className = 'navbar-dropdown-content';
 
             !isMobileDevice &&
@@ -5269,6 +5299,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteDropdownDiv.className = 'navbar-dropdown';
             remoteDropdownBtn.id = peer_id + '_videoDropdownBtn';
             remoteDropdownBtn.className = 'fas fa-ellipsis-vertical';
+            remoteDropdownBtn.setAttribute('aria-label', 'More options');
             remoteDropdownContent.className = 'navbar-dropdown-content';
 
             // Build dropdown items
@@ -5573,6 +5604,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenDropdownDiv.className = 'navbar-dropdown';
             remoteScreenDropdownBtn.id = peer_id + '_screenDropdownBtn';
             remoteScreenDropdownBtn.className = 'fas fa-ellipsis-vertical';
+            remoteScreenDropdownBtn.setAttribute('aria-label', 'More options');
             remoteScreenDropdownContent.className = 'navbar-dropdown-content';
 
             !isMobileDevice &&
@@ -10042,8 +10074,7 @@ async function handleVideo(e, init, force = null) {
  * @param {boolean} show
  */
 function initVideoContainerShow(show = true) {
-    initVideoContainer.style.width = show ? '100%' : 'auto';
-    initVideoContainer.style.padding = show ? '10px' : '0px';
+    initVideoContainer.classList.toggle('is-off', !show);
 }
 
 /**
@@ -18186,7 +18217,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.45',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.46',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

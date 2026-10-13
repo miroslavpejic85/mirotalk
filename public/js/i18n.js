@@ -167,6 +167,7 @@
             'confirmButtonText',
             'cancelButtonText',
             'denyButtonText',
+            'inputLabel',
             'inputPlaceholder',
             'footer',
         ];

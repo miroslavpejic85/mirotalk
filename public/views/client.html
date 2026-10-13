@@ -129,14 +129,46 @@
                 </div>
                 <video id="initVideo" playsinline="true" autoplay="" class="mirror"></video>
             </div>
-            <div class="initComands">
-                <button id="initVideoBtn" class="fas fa-video"></button>
-                <button id="initAudioBtn" class="fas fa-microphone"></button>
-                <button id="initScreenShareBtn" class="fas fa-desktop"></button>
-                <button id="initVideoMirrorBtn" class="fas fa-arrow-right-arrow-left"></button>
-                <button id="initUsernameEmojiButton" class="fas fa-smile"></button>
-                <button id="initExitBtn" class="fas fa-sign-out-alt red"></button>
-                <select id="initVideoSelect" class="form-select text-light bg-dark"></select>
+            <div class="initComands" role="group" aria-label="Devices">
+                <button
+                    id="initVideoBtn"
+                    class="fas fa-video"
+                    type="button"
+                    aria-label="Stop the video"
+                    data-aria-from-tooltip="true"
+                ></button>
+                <button
+                    id="initAudioBtn"
+                    class="fas fa-microphone"
+                    type="button"
+                    aria-label="Stop the audio"
+                    data-aria-from-tooltip="true"
+                ></button>
+                <button
+                    id="initScreenShareBtn"
+                    class="fas fa-desktop"
+                    type="button"
+                    aria-label="Toggle screen sharing"
+                ></button>
+                <button
+                    id="initVideoMirrorBtn"
+                    class="fas fa-arrow-right-arrow-left"
+                    type="button"
+                    aria-label="Toggle video mirror"
+                ></button>
+                <button
+                    id="initUsernameEmojiButton"
+                    class="fas fa-smile"
+                    type="button"
+                    aria-label="Toggle username emoji"
+                ></button>
+                <button
+                    id="initExitBtn"
+                    class="fas fa-sign-out-alt red"
+                    type="button"
+                    aria-label="Leave meeting"
+                ></button>
+                <select id="initVideoSelect" class="form-select text-light bg-dark" aria-label="Select camera"></select>
                 <div id="initBackgroundEffectsSection" hidden>
                     <div class="init-background-select">
                         <i class="fas fa-image" aria-hidden="true"></i>
@@ -168,8 +200,12 @@
                     />
                     <p id="initBackgroundError" role="alert" hidden></p>
                 </div>
-                <select id="initMicrophoneSelect" class="form-select text-light bg-dark"></select>
-                <select id="initSpeakerSelect" class="form-select text-light bg-dark"></select>
+                <select
+                    id="initMicrophoneSelect"
+                    class="form-select text-light bg-dark"
+                    aria-label="Select microphone"
+                ></select>
+                <select id="initSpeakerSelect" class="form-select text-light bg-dark" aria-label="Speakers"></select>
             </div>
         </div>
 
@@ -464,6 +500,7 @@
                                 class="dropdown-toggle-custom"
                                 type="button"
                                 id="msgerDropDownMenuBtn"
+                                aria-label="More options"
                                 data-bs-toggle="dropdown-custom"
                                 aria-expanded="false"
                             >
@@ -531,6 +568,7 @@
                                         class="dropdown-toggle-custom"
                                         type="button"
                                         id="msgerSidebarDropDownMenuBtn"
+                                        aria-label="More options"
                                         data-bs-toggle="dropdown-custom"
                                         aria-expanded="false"
                                     >
@@ -542,7 +580,12 @@
                                         aria-labelledby="msgerSidebarDropDownMenuBtn"
                                     ></ul>
                                 </div>
-                                <button id="msgerSidebarCloseBtn" class="fas fa-times panel-close-button"></button>
+                                <button
+                                    id="msgerSidebarCloseBtn"
+                                    class="fas fa-times panel-close-button"
+                                    type="button"
+                                    aria-label="Close"
+                                ></button>
                             </div>
                         </div>
 
@@ -663,6 +706,7 @@
                                         class="dropdown-toggle-custom"
                                         type="button"
                                         id="msgerCPDropDownMenuBtn"
+                                        aria-label="More options"
                                         data-bs-toggle="dropdown-custom"
                                         aria-expanded="false"
                                     >
@@ -717,6 +761,7 @@
                                 class="dropdown-toggle-custom"
                                 type="button"
                                 id="captionDropDownMenuBtn"
+                                aria-label="More options"
                                 data-bs-toggle="dropdown-custom"
                                 aria-expanded="false"
                             >
@@ -1835,6 +1880,7 @@
                             class="whiteboard-dropdown-toggle"
                             type="button"
                             id="whiteboardDropDownMenuBtn"
+                            aria-label="More options"
                             data-bs-toggle="whiteboard-dropdown"
                             aria-expanded="false"
                         >
