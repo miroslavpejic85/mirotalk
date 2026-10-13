@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.47
+ * @version 2.1.48
  *
  */
 
@@ -586,6 +586,20 @@ const isRulesActive = true; // Presenter can do anything, guest is slightly mode
 const forceCamMaxResolutionAndFps = false; // This force the webCam to max resolution as default, up to 8k and 60fps (very high bandwidth are required) if false, you can set it from settings
 const useAvatarSvg = true; // if false the cam-Off avatar = images.avatar
 
+// Gravatar URL -> initials avatar, used when the email has no Gravatar (see genGravatar)
+const gravatarFallbacks = new Map();
+
+document.addEventListener(
+    'error',
+    (e) => {
+        const img = e.target;
+        if (!(img instanceof HTMLImageElement)) return;
+        const fallback = gravatarFallbacks.get(img.src);
+        if (fallback) img.src = fallback;
+    },
+    true
+);
+
 /**
  * Determines the video zoom mode.
  * If set to true, the video zooms at the center of the frame.
@@ -693,6 +707,8 @@ let lastStats = null;
 // stream
 let isRNNoiseSupported = true; // Built in noise supression
 let initStream; // initial webcam stream
+let initGravatarTimer = null;
+let initGravatarToken = 0;
 let localVideoMediaStream; // my webcam
 let localScreenMediaStream; // my screen share
 let localScreenDisplayStream; // raw getDisplayMedia stream (may include audio)
@@ -6103,7 +6119,12 @@ function adaptAspectRatio() {
  */
 function genGravatar(email, size = false) {
     const hash = md5(email.toLowerCase().trim());
-    const gravatarURL = `https://www.gravatar.com/avatar/${hash}` + (size ? `?s=${size}` : '?s=250');
+    const avatarSize = size || 250;
+    const gravatarURL = `https://www.gravatar.com/avatar/${hash}?s=${avatarSize}&d=404`;
+    // d=404: no Gravatar for this email -> the image errors and is swapped to the initials avatar
+    if (!gravatarFallbacks.has(gravatarURL)) {
+        gravatarFallbacks.set(gravatarURL, genAvatarSvg(email, avatarSize));
+    }
     return gravatarURL;
     function md5(input) {
         return CryptoJS.MD5(input).toString();
@@ -10145,6 +10166,9 @@ function updateInitVideoOffAvatar() {
     const hasCamera = initVideoSelect.options.length > 0;
     const name = (getId('usernameInput')?.value || '').trim();
 
+    clearTimeout(initGravatarTimer);
+    const gravatarToken = ++initGravatarToken;
+
     initVideoOffAvatar.replaceChildren();
     initVideoOffAvatar.style.backgroundColor = '';
     initVideoOffAvatar.classList.remove('initials');
@@ -10162,6 +10186,18 @@ function updateInitVideoOffAvatar() {
     initVideoOffAvatar.style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
     initVideoOffAvatar.classList.add('initials');
     initVideoOffAvatar.textContent = name.substring(0, 2).toUpperCase();
+
+    // Same as in-room: use the Gravatar for emails, keeping initials until it loads (or if there is none)
+    const isPlaceholderVisible = initVideoOff.style.display === 'flex';
+    if (!useAvatarSvg || !isValidEmail(name) || !isPlaceholderVisible) return;
+    initGravatarTimer = setTimeout(() => {
+        const img = new Image();
+        img.alt = '';
+        img.onload = () => {
+            if (gravatarToken === initGravatarToken) initVideoOffAvatar.replaceChildren(img);
+        };
+        img.src = genGravatar(name, 176);
+    }, 400);
 }
 
 /**
@@ -18313,7 +18349,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.47',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.48',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

@@ -456,6 +456,13 @@ body {
     color: inherit !important;
 }
 
+.init-video-off-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
 .init-video-off.clickable:hover .init-video-off-avatar {
     transform: scale(1.04);
 }
