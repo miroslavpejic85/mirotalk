@@ -5271,7 +5271,7 @@ input:checked + .slider:before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .swal2-popup,
+    .swal2-container .swal2-popup,
     .swal2-icon,
     .swal2-icon * {
         animation: none !important;

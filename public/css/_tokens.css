@@ -100,4 +100,16 @@
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
     }
+
+    /*
+     * SweetAlert2 waits for animationend whenever the computed animation duration is non-zero.
+     * animate.css (loaded later) sets a 1ms duration on .animate__animated, so no animation runs
+     * and the dialog never closes. Higher specificity makes this win regardless of load order.
+     */
+    .swal2-container .swal2-popup,
+    .swal2-icon,
+    .swal2-icon * {
+        animation: none !important;
+        transition: none !important;
+    }
 }
