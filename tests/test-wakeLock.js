@@ -74,6 +74,7 @@ describe('mobile screen wake lock', () => {
             clearTimeout,
         });
         vm.runInContext(source, context);
+        context.document.emit('DOMContentLoaded');
     });
 
     afterEach(() => clock.restore());
@@ -198,6 +199,20 @@ describe('mobile screen wake lock', () => {
         context.window.emit('pageshow');
         await clock.tickAsync(50);
         assert.equal(request.callCount, 2);
+    });
+
+    it('binds page lifecycle listeners only after DOMContentLoaded', async () => {
+        const doc = eventTarget({ visibilityState: 'visible', pictureInPictureElement: null });
+        const win = eventTarget();
+        const early = vm.createContext({ ...context, document: doc, window: win });
+        vm.runInContext(source, early);
+        const syncSpy = sinon.spy(early, 'syncWakeLockDebounced');
+        doc.emit('visibilitychange');
+        win.emit('pageshow');
+        assert.equal(syncSpy.callCount, 0);
+        doc.emit('DOMContentLoaded');
+        doc.emit('visibilitychange');
+        assert.equal(syncSpy.callCount, 1);
     });
 
     it('releases while hidden or in Picture-in-Picture and restores when returning', async () => {

@@ -125,18 +125,21 @@ function applyKeepAwake(enabled, notify = false) {
     syncWakeLockDebounced();
 }
 
-document.addEventListener('visibilitychange', syncWakeLockDebounced);
+// Bind after all deferred scripts ran: isDesktopDevice, media state and switchKeepAwake are defined in client.js (loaded later)
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('visibilitychange', syncWakeLockDebounced);
 
-document.addEventListener('enterpictureinpicture', releaseWakeLock);
-document.addEventListener('leavepictureinpicture', syncWakeLockDebounced);
+    document.addEventListener('enterpictureinpicture', releaseWakeLock);
+    document.addEventListener('leavepictureinpicture', syncWakeLockDebounced);
 
-window.addEventListener('pagehide', () => {
-    wakeLockPageActive = false;
-    pendingManualWakeLockNotification = null;
-    clearTimeout(syncTimeout);
-    releaseWakeLock();
-});
-window.addEventListener('pageshow', () => {
-    wakeLockPageActive = true;
-    syncWakeLockDebounced();
+    window.addEventListener('pagehide', () => {
+        wakeLockPageActive = false;
+        pendingManualWakeLockNotification = null;
+        clearTimeout(syncTimeout);
+        releaseWakeLock();
+    });
+    window.addEventListener('pageshow', () => {
+        wakeLockPageActive = true;
+        syncWakeLockDebounced();
+    });
 });

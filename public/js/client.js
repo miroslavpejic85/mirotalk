@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.46
+ * @version 2.1.47
  *
  */
 
@@ -177,6 +177,9 @@ const qrRoomPopupContainer = getId('qrRoomPopupContainer');
 const initUser = getId('initUser');
 const initVideoContainer = getQs('.init-video-container');
 const initVideo = getId('initVideo');
+const initVideoOff = getId('initVideoOff');
+const initVideoOffAvatar = getId('initVideoOffAvatar');
+const initVideoOffText = getId('initVideoOffText');
 const initVideoBtn = getId('initVideoBtn');
 const initAudioBtn = getId('initAudioBtn');
 const initScreenShareBtn = getId('initScreenShareBtn');
@@ -2138,11 +2141,19 @@ async function whoAreYou() {
     };
     initUsernameEmojiButton.onclick = (e) => {
         getId('usernameInput').value = '';
+        updateInitVideoOffAvatar();
         toggleUsernameEmoji();
     };
     if (oidcIdentity.name) elemDisplay(initUsernameEmojiButton, false);
     initExitBtn.onclick = (e) => {
         initExitMeeting();
+    };
+    initVideoOff.onclick = handleInitVideoOffClick;
+    initVideoOff.onkeydown = (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        e.stopPropagation();
+        handleInitVideoOffClick();
     };
 
     setupBackgroundControls();
@@ -2208,6 +2219,7 @@ async function whoAreYou() {
             const usernameInput = Swal.getInput();
             if (usernameInput) {
                 usernameInput.id = 'usernameInput';
+                usernameInput.addEventListener('input', updateInitVideoOffAvatar);
                 const label = popup.querySelector('.swal2-input-label');
                 if (label) label.htmlFor = 'usernameInput';
             }
@@ -2279,6 +2291,9 @@ async function whoAreYou() {
         initAudioBtn.className = className.audioOff;
         setMyAudioStatus(useAudio);
     }
+
+    // Camera off: keep the preview area with a placeholder (computed once initUser is visible)
+    if (!myVideoStatus) initVideoOffShow();
 
     setTippy(initAudioBtn, 'Stop the audio', 'top');
     setTippy(initVideoBtn, 'Stop the video', 'top');
@@ -2629,6 +2644,7 @@ function detectCameraFacingMode(stream) {
  * @param {string} deviceId
  */
 async function changeInitCamera(deviceId) {
+    initVideoOffShow(false);
     // Show the loader spinner while switching camera
     const initVideoLoader = getId('initVideoLoader');
     if (initVideoLoader) initVideoLoader.style.display = '';
@@ -9373,6 +9389,7 @@ function handleUsernameEmojiPicker() {
 
     function addEmojiToUsername(data) {
         getId('usernameInput').value += data.native;
+        updateInitVideoOffAvatar();
         toggleUsernameEmoji();
     }
 
@@ -10047,7 +10064,12 @@ async function handleVideo(e, init, force = null) {
         ]);
         initVideoSelect.disabled = !videoStatus;
         lS.setInitConfig(lS.MEDIA_TYPE.video, videoStatus);
-        initVideoContainerShow(videoStatus);
+        if (videoStatus) {
+            initVideoOffShow(false);
+            initVideoContainerShow();
+        } else {
+            initVideoOffShow();
+        }
     }
 
     if (!videoStatus) {
@@ -10075,6 +10097,78 @@ async function handleVideo(e, init, force = null) {
  */
 function initVideoContainerShow(show = true) {
     initVideoContainer.classList.toggle('is-off', !show);
+}
+
+/**
+ * Show/hide the pre-join camera-off placeholder
+ * Keep the preview area when video is enabled in config: "Camera is off" if a camera exists, else "No camera available"
+ * @param {boolean} show
+ */
+function initVideoOffShow(show = true) {
+    const canShow = show && buttons.main.showVideoBtn;
+    elemDisplay(initVideoOff, canShow, 'flex');
+    if (show) initVideoContainerShow(canShow);
+    if (canShow) {
+        const initVideoLoader = getId('initVideoLoader');
+        if (initVideoLoader) initVideoLoader.style.display = 'none';
+        updateInitVideoOff();
+    }
+}
+
+/**
+ * Update the pre-join camera-off placeholder text and click-to-enable state
+ */
+function updateInitVideoOff() {
+    const hasCamera = initVideoSelect.options.length > 0;
+    const canToggle =
+        hasCamera && useVideo && !isScreenStreaming && initVideoBtn.offsetParent !== null && !initVideoBtn.disabled;
+
+    initVideoOffText.textContent = hasCamera
+        ? window.i18n?.t('Camera is off', 'labels') || 'Camera is off'
+        : window.i18n?.t('No camera available', 'labels') || 'No camera available';
+
+    initVideoOff.classList.toggle('clickable', canToggle);
+    if (canToggle) {
+        initVideoOff.setAttribute('role', 'button');
+        initVideoOff.setAttribute('tabindex', '0');
+    } else {
+        initVideoOff.removeAttribute('role');
+        initVideoOff.removeAttribute('tabindex');
+    }
+    updateInitVideoOffAvatar();
+}
+
+/**
+ * Show the username initials (same initials and color as the in-room avatar) or a camera-off icon
+ */
+function updateInitVideoOffAvatar() {
+    const hasCamera = initVideoSelect.options.length > 0;
+    const name = (getId('usernameInput')?.value || '').trim();
+
+    initVideoOffAvatar.replaceChildren();
+    initVideoOffAvatar.style.backgroundColor = '';
+    initVideoOffAvatar.classList.remove('initials');
+
+    if (!hasCamera || !name) {
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-video-slash';
+        initVideoOffAvatar.appendChild(icon);
+        return;
+    }
+
+    const red = Math.pow(name.charCodeAt(0), 7) % 200;
+    const green = Math.pow(name.charCodeAt(1) || name.charCodeAt(0), 7) % 200;
+    const blue = (red + green) % 200;
+    initVideoOffAvatar.style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
+    initVideoOffAvatar.classList.add('initials');
+    initVideoOffAvatar.textContent = name.substring(0, 2).toUpperCase();
+}
+
+/**
+ * Turn on the camera by clicking the pre-join camera-off placeholder
+ */
+function handleInitVideoOffClick() {
+    if (initVideoOff.classList.contains('clickable') && !myVideoStatus) initVideoBtn.click();
 }
 
 /**
@@ -10262,6 +10356,7 @@ async function startScreenSharing(constraints, init) {
         } else {
             elemDisplay(initVideo, false);
         }
+        initVideoOffShow(false);
         initVideoContainerShow();
     }
     if (!init) {
@@ -10331,7 +10426,8 @@ async function stopScreenSharing(init) {
     }
     if (init) {
         if (initStream) await stopTracks(initStream);
-        if (useVideo && myVideoStatus) {
+        const restartCamera = useVideo && myVideoStatus;
+        if (restartCamera) {
             try {
                 await changeInitCamera(initVideoSelect.value);
                 initVideo.classList.toggle('mirror');
@@ -10343,10 +10439,10 @@ async function stopScreenSharing(init) {
         } else {
             initStream = null;
             elemDisplay(initVideo, false);
-            initVideoContainerShow(false);
         }
         disable(initVideoSelect, false);
         disable(initVideoBtn, false);
+        if (!restartCamera) initVideoOffShow();
     }
 }
 
@@ -18217,7 +18313,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.46',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.47',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
