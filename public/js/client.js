@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.48
+ * @version 2.1.49
  *
  */
 
@@ -10165,39 +10165,63 @@ function updateInitVideoOff() {
 function updateInitVideoOffAvatar() {
     const hasCamera = initVideoSelect.options.length > 0;
     const name = (getId('usernameInput')?.value || '').trim();
+    const customAvatar = myPeerAvatar && isValidAvatarURL(myPeerAvatar) ? myPeerAvatar : null;
+
+    // Already showing the custom avatar: typing the name must not make it flicker
+    if (hasCamera && customAvatar && initVideoOffAvatar.querySelector('img')?.src === customAvatar) return;
 
     clearTimeout(initGravatarTimer);
-    const gravatarToken = ++initGravatarToken;
+    const avatarToken = ++initGravatarToken;
 
     initVideoOffAvatar.replaceChildren();
     initVideoOffAvatar.style.backgroundColor = '';
     initVideoOffAvatar.classList.remove('initials');
 
-    if (!hasCamera || !name) {
+    if (!hasCamera || (!name && !customAvatar)) {
         const icon = document.createElement('i');
         icon.className = 'fas fa-video-slash';
         initVideoOffAvatar.appendChild(icon);
         return;
     }
 
-    const red = Math.pow(name.charCodeAt(0), 7) % 200;
-    const green = Math.pow(name.charCodeAt(1) || name.charCodeAt(0), 7) % 200;
-    const blue = (red + green) % 200;
-    initVideoOffAvatar.style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
-    initVideoOffAvatar.classList.add('initials');
-    initVideoOffAvatar.textContent = name.substring(0, 2).toUpperCase();
+    if (name) {
+        const red = Math.pow(name.charCodeAt(0), 7) % 200;
+        const green = Math.pow(name.charCodeAt(1) || name.charCodeAt(0), 7) % 200;
+        const blue = (red + green) % 200;
+        initVideoOffAvatar.style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
+        initVideoOffAvatar.classList.add('initials');
+        initVideoOffAvatar.textContent = name.substring(0, 2).toUpperCase();
+    } else {
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-video-slash';
+        initVideoOffAvatar.appendChild(icon);
+    }
 
-    // Same as in-room: use the Gravatar for emails, keeping initials until it loads (or if there is none)
     const isPlaceholderVisible = initVideoOff.style.display === 'flex';
-    if (!useAvatarSvg || !isValidEmail(name) || !isPlaceholderVisible) return;
-    initGravatarTimer = setTimeout(() => {
+    if (!isPlaceholderVisible) return;
+
+    // Keep the fallback (initials/icon) until the image loads, and if it fails
+    const loadAvatarImage = (src, onError) => {
         const img = new Image();
         img.alt = '';
         img.onload = () => {
-            if (gravatarToken === initGravatarToken) initVideoOffAvatar.replaceChildren(img);
+            if (avatarToken !== initGravatarToken) return;
+            initVideoOffAvatar.style.backgroundColor = '';
+            initVideoOffAvatar.classList.remove('initials');
+            initVideoOffAvatar.replaceChildren(img);
         };
-        img.src = genGravatar(name, 176);
-    }, 400);
+        img.onerror = () => {
+            if (avatarToken === initGravatarToken) onError?.();
+        };
+        img.src = src;
+    };
+
+    // Same priority as in-room: custom avatar, then Gravatar for emails, then initials
+    const loadGravatar = () => {
+        if (!useAvatarSvg || !isValidEmail(name)) return;
+        initGravatarTimer = setTimeout(() => loadAvatarImage(genGravatar(name, 176)), 400);
+    };
+    customAvatar ? loadAvatarImage(customAvatar, loadGravatar) : loadGravatar();
 }
 
 /**
@@ -18349,7 +18373,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.48',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.49',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
