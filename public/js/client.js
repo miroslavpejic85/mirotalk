@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.49
+ * @version 2.1.50
  *
  */
 
@@ -4209,7 +4209,17 @@ function setButtonsBarPosition(position) {
         dropdown.classList.toggle('dropend', position === 'horizontal');
     });
     bottomButtons.dataset.position = position;
+    updateButtonsBarPinnedOffset();
     refreshMainButtonsToolTipPlacement();
+}
+
+/**
+ * Center the horizontal buttons bar over the video area (75% wide) when chat/caption is pinned
+ */
+function updateButtonsBarPinnedOffset() {
+    if (isMobileDevice || mainButtonsBarPosition !== 'vertical') return;
+    const isPanelPinned = isChatPinned || isCaptionPinned;
+    setSP('--bottom-btns-left', isPanelPinned ? '37.5%' : buttonsBarPositionMap.vertical['--bottom-btns-left']);
 }
 
 /**
@@ -6627,6 +6637,7 @@ function toggleVideoPin(position) {
 }
 
 function refreshPinnedVideoLayout() {
+    updateButtonsBarPinnedOffset();
     if (!isVideoPinned) return;
     const participantMode = participantViewMode.value;
     toggleVideoPin(participantMode.startsWith('speaker-') ? participantMode : pinVideoPositionSelect.value);
@@ -18373,7 +18384,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.49',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.50',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
