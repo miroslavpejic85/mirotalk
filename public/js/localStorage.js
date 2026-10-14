@@ -25,6 +25,7 @@ class LocalStorage {
             speaker_volume: 100, // master output volume 0-100
             video_fps: 1, // default 30fps
             screen_fps: 1, // default 30fps
+            screen_quality: 0, // default native
             pitch_bar: true,
             sounds: true,
             keep_buttons_visible: false,

@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.55
+ * @version 2.1.56
  *
  */
 
@@ -440,6 +440,7 @@ let backgroundEffectsBusy = false;
 const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
+const screenQualitySelect = getId('screenQuality');
 const pushToTalkDiv = getId('pushToTalkDiv');
 const recordingActionBtn = getId('recordingActionBtn');
 const pauseRecBtn = getId('pauseRecBtn');
@@ -464,6 +465,7 @@ const noiseSuppressionBtn = getId('noiseSuppressionBtn');
 const isPeerPresenter = getId('isPeerPresenter');
 const peersCount = getId('peersCount');
 const screenFpsDiv = getId('screenFpsDiv');
+const screenQualityDiv = getId('screenQualityDiv');
 const screenSharingTitle = getId('screenSharingTitle');
 const switchShortcuts = getId('switchShortcuts');
 
@@ -810,6 +812,7 @@ let screenMaxFrameRate = 30;
 let videoQualitySelectedIndex = 0; // default HD and 30fps
 let videoFpsSelectedIndex = 1; // 30 fps
 let screenFpsSelectedIndex = 1; // 30 fps
+let screenQualitySelectedIndex = 0; // native
 let isMySettingsVisible = false;
 let thisRoomPassword = null;
 let isRoomLocked = false;
@@ -7409,6 +7412,7 @@ function setScreenShareBtn() {
             { element: screenShareBtn, display: false },
             { element: screenSharingTitle, display: false },
             { element: screenFpsDiv, display: false },
+            { element: screenQualityDiv, display: false },
         ]);
     }
 }
@@ -9192,11 +9196,19 @@ function setupMySettings() {
         lsSettings.screen_fps = e.currentTarget.selectedIndex;
         lS.setSettings(lsSettings);
     });
+    // select screen quality
+    screenQualitySelect.addEventListener('change', async (e) => {
+        if (isScreenStreaming) await setLocalScreenQuality();
+        lsSettings.screen_quality = e.currentTarget.selectedIndex;
+        lS.setSettings(lsSettings);
+    });
 
     // Mobile not support screen sharing
     if (isMobileDevice) {
         screenFpsSelect.value = null;
         screenFpsSelect.disabled = true;
+        screenQualitySelect.value = null;
+        screenQualitySelect.disabled = true;
     }
     // select themes
     themeSelect.addEventListener('change', (e) => {
@@ -9523,8 +9535,10 @@ function loadSettingsFromLocalStorage() {
     transcriptShowOnMsgEl.checked = transcriptShowOnMsg;
     transcriptSendToAllEl.checked = transcriptSendToAll;
     screenFpsSelect.selectedIndex = lsSettings.screen_fps;
+    screenQualitySelect.selectedIndex = Number.isInteger(lsSettings.screen_quality) ? lsSettings.screen_quality : 0;
     videoFpsSelect.selectedIndex = lsSettings.video_fps;
     screenFpsSelectedIndex = screenFpsSelect.selectedIndex;
+    screenQualitySelectedIndex = screenQualitySelect.selectedIndex;
     videoFpsSelectedIndex = videoFpsSelect.selectedIndex;
     screenMaxFrameRate = parseInt(getSelectedIndexValue(screenFpsSelect), 10);
     videoMaxFrameRate = parseInt(getSelectedIndexValue(videoFpsSelect), 10);
@@ -9811,6 +9825,27 @@ async function setLocalVideoQuality() {
             videoQualitySelect.selectedIndex = videoQualitySelectedIndex;
             console.error('setLocalVideoQuality', err);
             userLog('toast', "Your device doesn't support the selected video quality, please select the another one.");
+        });
+}
+
+/**
+ * Set local screen quality: https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/applyConstraints
+ */
+async function setLocalScreenQuality() {
+    const screenTrack = getVideoTrack(localScreenMediaStream);
+    if (!screenTrack) return;
+
+    const screenConstraints = getScreenShareVideoConstraints();
+    screenTrack
+        .applyConstraints(screenConstraints)
+        .then(() => {
+            logStreamSettingsInfo('setLocalScreenQuality', localScreenMediaStream);
+            screenQualitySelectedIndex = screenQualitySelect.selectedIndex;
+        })
+        .catch((err) => {
+            screenQualitySelect.selectedIndex = screenQualitySelectedIndex;
+            console.error('setLocalScreenQuality', err);
+            userLog('toast', "Your device doesn't support the selected screen quality, please select another one.");
         });
 }
 
@@ -10561,12 +10596,35 @@ async function toggleScreenSharing(init = false) {
 }
 
 /**
+ * Get screen share video constraints
+ * @returns {object} screen share video constraints
+ */
+function getScreenShareVideoConstraints() {
+    const frameRate = screenMaxFrameRate || 30;
+    const screenQuality = screenQualitySelect.value ? screenQualitySelect.value : 'native';
+    const videoConstraints = {
+        frameRate: { ideal: frameRate },
+    };
+
+    if (screenQuality !== 'native') {
+        const resolutionMap = getResolutionMap();
+        if (resolutionMap[screenQuality]) {
+            const [width, height] = resolutionMap[screenQuality];
+            videoConstraints.width = { max: width };
+            videoConstraints.height = { max: height };
+        }
+    }
+
+    return videoConstraints;
+}
+
+/**
  * Get screen share constraints
  */
 function getScreenShareConstraints() {
     return {
         audio: true,
-        video: { frameRate: screenMaxFrameRate },
+        video: getScreenShareVideoConstraints(),
     };
 }
 
@@ -18618,7 +18676,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.55',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.56',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
