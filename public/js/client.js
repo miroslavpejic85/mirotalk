@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.54
+ * @version 2.1.55
  *
  */
 
@@ -1858,14 +1858,20 @@ function handleButtonsRule() {
         mySettingsBtn.style.borderRadius = '10px';
     }
 
+    // Camera/microphone are shown only when enabled by config and allowed/available in the browser
+    const showAudio = buttons.main.showAudioBtn && useAudio;
+    const showVideo = buttons.main.showVideoBtn && useVideo;
+
     // Main buttons
     displayElements([
         { element: shareRoomBtn, display: buttons.main.showShareRoomBtn },
         { element: hideMeBtn, display: buttons.main.showHideMeBtn },
         { element: fullScreenBtn, display: buttons.main.showFullScreenBtn },
         { element: settingsExtraDropdown, display: showExtraBtn },
-        { element: audioBtn, display: buttons.main.showAudioBtn },
-        { element: videoBtn, display: buttons.main.showVideoBtn },
+        { element: audioBtn, display: showAudio },
+        { element: videoBtn, display: showVideo },
+        { element: getId('audioSplit'), display: showAudio, mode: 'inline-flex' },
+        { element: getId('videoSplit'), display: showVideo, mode: 'inline-flex' },
         //{ element: screenShareBtn, display: buttons.main.showScreenBtn }, // auto-detected
         { element: recordStreamBtn, display: buttons.main.showRecordStreamBtn },
         { element: recordingActionBtn, display: buttons.main.showRecordStreamBtn },
@@ -1917,6 +1923,26 @@ function handleButtonsRule() {
             { element: tabAudioBtn, display: false },
             { element: audioDropdown, display: false },
         ]);
+    }
+
+    // Camera not allowed/available: hide the camera settings, keep the screen sharing ones if supported
+    if (!useVideo) {
+        displayElements([
+            { element: swapCameraBtn, display: false },
+            { element: videoDropdown, display: false },
+            { element: getId('cameraSettingsSection'), display: false },
+        ]);
+        if (!isScreenSharingSupported) elemDisplay(tabVideoBtn, false);
+    }
+    // Microphone not allowed/available: hide the audio settings
+    if (!useAudio) {
+        displayElements([
+            { element: tabAudioBtn, display: false },
+            { element: audioDropdown, display: false },
+        ]);
+    }
+    if (tabVideoBtn.style.display === 'none' && tabAudioBtn.style.display === 'none') {
+        elemDisplay(getId('settingsDevicesLabel'), false);
     }
 
     // Settings buttons
@@ -7351,7 +7377,7 @@ function setVideoBtn() {
 function setSwapCameraBtn() {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
         const videoInput = devices.filter((device) => device.kind === 'videoinput');
-        if (videoInput.length > 1 && isMobileDevice) {
+        if (videoInput.length > 1 && isMobileDevice && useVideo) {
             swapCameraBtn.addEventListener('click', (e) => {
                 swapCamera();
             });
@@ -11474,7 +11500,7 @@ async function handleMediaRecorderStop(event) {
         recordStreamIcon.style.setProperty('color', '#ffffff');
         setRecordStreamBtnLabel('Start Recording');
 
-        if (isMobileDevice) elemDisplay(swapCameraBtn, true, 'block');
+        if (isMobileDevice && useVideo) elemDisplay(swapCameraBtn, true, 'block');
 
         playSound('recStop');
         screenReaderAccessibility.announceMessage('Recording stopped');
@@ -18592,7 +18618,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.54',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.55',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
