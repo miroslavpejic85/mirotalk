@@ -310,6 +310,9 @@ describe('RNNoise client lifecycle', () => {
             'handleAudio',
             'changeLocalMicrophone',
             'stopAudioTracks',
+            'getStreamDeviceId',
+            'selectDeviceInSelects',
+            'selectOptionByValueExist',
         ])
             loadFunction(name);
     });
