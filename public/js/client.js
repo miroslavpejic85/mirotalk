@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.52
+ * @version 2.1.53
  *
  */
 
@@ -529,11 +529,13 @@ const noiseSuppressionOnEveryoneBtnDesktop = getId('noiseSuppressionOnEveryoneBt
 const noiseSuppressionOffEveryoneBtnDesktop = getId('noiseSuppressionOffEveryoneBtnDesktop');
 const muteEveryoneBtn = getId('muteEveryoneBtn');
 const hideEveryoneBtn = getId('hideEveryoneBtn');
+const stopScreenEveryoneBtn = getId('stopScreenEveryoneBtn');
 const ejectEveryoneBtn = getId('ejectEveryoneBtn');
 const captionEveryoneBtnDesktop = getId('captionEveryoneBtnDesktop');
 const captionEveryoneStopBtnDesktop = getId('captionEveryoneStopBtnDesktop');
 const muteEveryoneBtnDesktop = getId('muteEveryoneBtnDesktop');
 const hideEveryoneBtnDesktop = getId('hideEveryoneBtnDesktop');
+const stopScreenEveryoneBtnDesktop = getId('stopScreenEveryoneBtnDesktop');
 const ejectEveryoneBtnDesktop = getId('ejectEveryoneBtnDesktop');
 const activeRoomsBtn = getId('activeRoomsBtn');
 const lockRoomBtn = getId('lockRoomBtn');
@@ -1924,6 +1926,7 @@ function handleButtonsRule() {
         { element: captionEveryoneBtn, display: buttons.settings.showCaptionEveryoneBtn },
         { element: muteEveryoneBtn, display: buttons.settings.showMuteEveryoneBtn },
         { element: hideEveryoneBtn, display: buttons.settings.showHideEveryoneBtn },
+        { element: stopScreenEveryoneBtn, display: buttons.settings.showStopScreenEveryoneBtn !== false },
         { element: ejectEveryoneBtn, display: buttons.settings.showEjectEveryoneBtn },
         { element: lockRoomBtn, display: buttons.settings.showLockRoomBtn },
         { element: unlockRoomBtn, display: buttons.settings.showUnlockRoomBtn },
@@ -9201,6 +9204,9 @@ function setupMySettings() {
     hideEveryoneBtn.addEventListener('click', (e) => {
         disableAllPeers('video');
     });
+    stopScreenEveryoneBtn.addEventListener('click', (e) => {
+        disableAllPeers('screen');
+    });
     ejectEveryoneBtn.addEventListener('click', (e) => {
         ejectEveryone();
     });
@@ -9208,6 +9214,7 @@ function setupMySettings() {
     captionEveryoneStopBtnDesktop?.addEventListener('click', () => captionEveryoneStopBtn.click());
     muteEveryoneBtnDesktop?.addEventListener('click', () => muteEveryoneBtn.click());
     hideEveryoneBtnDesktop?.addEventListener('click', () => hideEveryoneBtn.click());
+    stopScreenEveryoneBtnDesktop?.addEventListener('click', () => stopScreenEveryoneBtn.click());
     ejectEveryoneBtnDesktop?.addEventListener('click', () => ejectEveryoneBtn.click());
     syncCaptionEveryoneButtons(false);
     lockRoomBtn.addEventListener('click', (e) => {
@@ -13208,6 +13215,7 @@ function getMsgerRoomActionsDropdownMarkup(idSuffix = '') {
         ${getMsgerParticipantDropdownDividerMarkup()}
         ${getMsgerParticipantDropdownActionMarkup(`muteEveryoneBtn${idSuffix}`, 'fas fa-microphone', 'Mute everyone', 'danger')}
         ${getMsgerParticipantDropdownActionMarkup(`hideEveryoneBtn${idSuffix}`, 'fas fa-video', 'Hide everyone', 'danger')}
+        ${getMsgerParticipantDropdownActionMarkup(`stopScreenEveryoneBtn${idSuffix}`, 'fas fa-desktop', 'Stop screen everyone', 'danger')}
         ${getMsgerParticipantDropdownActionMarkup(`ejectEveryoneBtn${idSuffix}`, 'fas fa-right-from-bracket', 'Eject everyone', 'danger')}
     `;
 }
@@ -15262,24 +15270,43 @@ function setMyScreenOff(peer_name) {
 }
 
 /**
- * Mute or Hide everyone except yourself
- * @param {string} element type audio/video
+ * Mute, Hide or Stop screen sharing of everyone except yourself
+ * @param {string} element type audio/video/screen
  */
 function disableAllPeers(element) {
     if (!thereArePeerConnections()) {
         return toastMessage('info', 'No participants detected');
     }
+    const dialogs = {
+        audio: {
+            imageUrl: images.audioOff,
+            title: 'Mute everyone except yourself?',
+            text: "Once muted, you won't be able to unmute them, but they can unmute themselves at any time.",
+            confirmButtonText: 'Mute',
+        },
+        video: {
+            imageUrl: images.videoOff,
+            title: 'Hide everyone except yourself?',
+            text: "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+            confirmButtonText: 'Hide',
+        },
+        screen: {
+            imageUrl: images.screenOff,
+            title: 'Stop screen sharing for everyone except yourself?',
+            text: "Once stopped, you won't be able to start them, but they can start screen sharing themselves at any time.",
+            confirmButtonText: 'Stop',
+        },
+    };
+    const dialog = dialogs[element];
+    if (!dialog) return;
     Swal.fire({
         background: swBg,
         position: 'center',
-        imageUrl: element == 'audio' ? images.audioOff : images.videoOff,
-        title: element == 'audio' ? 'Mute everyone except yourself?' : 'Hide everyone except yourself?',
-        text:
-            element == 'audio'
-                ? "Once muted, you won't be able to unmute them, but they can unmute themselves at any time."
-                : "Once hided, you won't be able to unhide them, but they can unhide themselves at any time.",
+        imageUrl: dialog.imageUrl,
+        title: dialog.title,
+        text: dialog.text,
         showCancelButton: true,
-        confirmButtonText: element == 'audio' ? `Mute` : `Hide`,
+        confirmButtonText: dialog.confirmButtonText,
         cancelButtonText: 'Cancel',
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
@@ -15293,6 +15320,10 @@ function disableAllPeers(element) {
                 case 'video':
                     userLog('toast', 'Hide everyone 👍');
                     emitPeersAction('hideVideo');
+                    break;
+                case 'screen':
+                    userLog('toast', 'Stop screen 👍');
+                    emitPeersAction('stopScreen');
                     break;
                 default:
                     break;
@@ -18455,7 +18486,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.52',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.53',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

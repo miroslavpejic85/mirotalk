@@ -52,6 +52,7 @@ let buttons = {
         showCaptionEveryoneBtn: true,
         showMuteEveryoneBtn: true,
         showHideEveryoneBtn: true,
+        showStopScreenEveryoneBtn: true,
         showEjectEveryoneBtn: true,
         showLockRoomBtn: true,
         showUnlockRoomBtn: true,

@@ -1874,7 +1874,7 @@ body {
 
 .msger-sidebar-header {
     position: relative;
-    z-index: 20;
+    z-index: 40;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -4456,6 +4456,7 @@ button {
 #captionEveryoneBtn,
 #muteEveryoneBtn,
 #hideEveryoneBtn,
+#stopScreenEveryoneBtn,
 #ejectEveryoneBtn,
 #roomSendEmailBtn,
 #lockRoomBtn,
@@ -4507,6 +4508,7 @@ button {
 }
 #muteEveryoneBtn:hover,
 #hideEveryoneBtn:hover,
+#stopScreenEveryoneBtn:hover,
 #ejectEveryoneBtn:hover {
     color: red;
     transform: translateY(-1px);
