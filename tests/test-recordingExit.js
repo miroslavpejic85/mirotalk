@@ -93,6 +93,7 @@ describe('saving recordings before room exit', () => {
             isMobileDevice: false,
             isTabletDevice: false,
             swapCameraBtn: {},
+            useVideo: true,
             myPeerName: 'Guest',
             myVideoPeerName: { innerText: 'Guest' },
             recordingTime: { innerText: '10s' },
