@@ -654,6 +654,28 @@ body {
     box-shadow: 0 0 0 3px rgba(70, 120, 249, 0.28) !important;
 }
 
+/* No camera available (any screen size): compact card with the preview stacked above the controls. */
+.init-modal-size:has(.init-user.is-stacked) {
+    width: min(520px, calc(100vw - 24px)) !important;
+}
+
+.init-user.is-stacked {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--ds-space-4, 16px);
+}
+
+.init-user.is-stacked .init-video-container {
+    flex: 0 0 auto;
+    width: 100%;
+    max-height: 34vh;
+}
+
+.init-user.is-stacked .initComands {
+    flex: 0 0 auto;
+    justify-content: center;
+}
+
 /* Tablet portrait & phones: stack preview above the controls. */
 @media screen and (max-width: 768px) {
     .init-modal-size {
