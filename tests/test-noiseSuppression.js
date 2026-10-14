@@ -274,11 +274,12 @@ describe('RNNoise client lifecycle', () => {
             localAudioMediaStream: rawStream,
             myAudioStatus: false,
             useAudio: true,
-            lsSettings: { mic_noise_suppression: true },
+            lsSettings: { mic_noise_suppression: true, mic_noise_suppression_user_set: false },
             lS: { setSettings: sinon.spy() },
-            buttons: { settings: { customNoiseSuppression: true } },
+            buttons: { settings: { customNoiseSuppression: true, customNoiseSuppressionDefault: true } },
             switchNoiseSuppression: { checked: true },
             getId: () => null,
+            getQueryParam: sinon.stub().returns(null),
             getAudioTrack: (input) => input?.getAudioTracks()[0],
             refreshMyStreamToPeers: sinon.stub().resolves(),
             toastMessage: sinon.spy(),
@@ -304,6 +305,7 @@ describe('RNNoise client lifecycle', () => {
             'stopNoiseSuppressionPipeline',
             'restartNoiseSuppression',
             'applyNoiseSuppression',
+            'applyNoiseSuppressionDefault',
             'syncNoiseSuppressionUI',
             'handleAudio',
             'changeLocalMicrophone',
@@ -553,5 +555,31 @@ describe('RNNoise client lifecycle', () => {
         finishCamera();
         await refreshing;
         assert.equal(audioSender.replaceTrack.callCount, 0);
+    });
+
+    it('applies URL noise suppression preference before local or server defaults', () => {
+        context.lsSettings.mic_noise_suppression = true;
+        context.lsSettings.mic_noise_suppression_user_set = true;
+        context.buttons.settings.customNoiseSuppressionDefault = true;
+        context.getQueryParam = sinon.stub().withArgs('noiseSuppression').returns('0');
+
+        context.applyNoiseSuppressionDefault();
+
+        assert.equal(context.lsSettings.mic_noise_suppression, false);
+    });
+
+    it('applies the server default only when the user has not explicitly chosen a value', () => {
+        context.lsSettings.mic_noise_suppression = true;
+        context.lsSettings.mic_noise_suppression_user_set = false;
+        context.buttons.settings.customNoiseSuppressionDefault = false;
+        context.getQueryParam = sinon.stub().withArgs('noiseSuppression').returns(null);
+
+        context.applyNoiseSuppressionDefault();
+        assert.equal(context.lsSettings.mic_noise_suppression, false);
+
+        context.lsSettings.mic_noise_suppression = true;
+        context.lsSettings.mic_noise_suppression_user_set = true;
+        context.applyNoiseSuppressionDefault();
+        assert.equal(context.lsSettings.mic_noise_suppression, true);
     });
 });

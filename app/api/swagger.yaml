@@ -108,6 +108,9 @@ paths:
                           duration:
                               type: string
                               default: 'unlimited'
+                          noiseSuppression:
+                              type: boolean
+                              description: Optional initial noise suppression state, omit to use the server default
                           token:
                               type: object
                               description: |

@@ -173,6 +173,17 @@
                             />
                             <p class="cr-hint">Use HH:MM:SS, or leave blank for no time limit.</p>
                         </div>
+                        <div class="cr-field cr-duration">
+                            <label class="cr-label" for="noiseSuppression">
+                                Noise suppression <span class="cr-optional">Optional</span>
+                            </label>
+                            <select id="noiseSuppression" name="noiseSuppression" class="cr-input">
+                                <option value="">Default (server setting)</option>
+                                <option value="1">On</option>
+                                <option value="0">Off</option>
+                            </select>
+                            <p class="cr-hint">Initial state for participants, they can still change it.</p>
+                        </div>
                     </section>
 
                     <details class="cr-section cr-advanced">

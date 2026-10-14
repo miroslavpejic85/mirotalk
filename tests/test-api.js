@@ -173,6 +173,19 @@ describe('test-api', () => {
                 'https://example.com/join?room=room1&name=User-123456&avatar=false&audio=false&video=false&screen=false&chat=false&hide=false&notify=false&duration=unlimited'
             );
         });
+
+        it('should add noiseSuppression only when provided', () => {
+            const ServerApi = proxyquire('../app/src/api', {
+                uuid: { v4: sinon.stub().returns('room1') },
+            });
+            serverApi = new ServerApi(host, authorization);
+
+            serverApi
+                .getJoinURL({ room: 'room1', noiseSuppression: false })
+                .should.containEql('&noiseSuppression=false');
+            serverApi.getJoinURL({ room: 'room1', noiseSuppression: '1' }).should.containEql('&noiseSuppression=1');
+            serverApi.getJoinURL({ room: 'room1' }).should.not.containEql('noiseSuppression');
+        });
     });
 
     describe('getToken', () => {

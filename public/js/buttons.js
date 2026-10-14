@@ -58,6 +58,7 @@ let buttons = {
         showJoinLockBtn: true,
         showShortcutsBtn: true,
         customNoiseSuppression: true,
+        customNoiseSuppressionDefault: true,
     },
     remote: {
         showAudioVolume: true,

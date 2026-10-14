@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.50
+ * @version 2.1.51
  *
  */
 
@@ -1371,6 +1371,23 @@ function getChat() {
     return chat;
 }
 
+// Priority: URL param (?noiseSuppression=0|1), then the user's own saved choice, then the server default
+function applyNoiseSuppressionDefault() {
+    let enabled;
+    const queryValue = getQueryParam('noiseSuppression');
+    if (queryValue) {
+        const value = queryValue.toLowerCase();
+        enabled = value === '1' || value === 'true';
+    } else if (!lsSettings.mic_noise_suppression_user_set) {
+        enabled = buttons.settings.customNoiseSuppressionDefault !== false;
+    } else {
+        return;
+    }
+
+    lsSettings.mic_noise_suppression = enabled;
+    console.log('Noise suppression default', { enabled });
+}
+
 /**
  * Get Peer JWT
  * @returns {mixed} boolean false or token string
@@ -1654,6 +1671,7 @@ async function handleConnect() {
     console.log('04. My peer id [ ' + myPeerId + ' ]');
 
     await getButtons();
+    applyNoiseSuppressionDefault();
 
     // If reconnecting, force rejoin to properly sync with other peers
     if (localVideoMediaStream && localAudioMediaStream) {
@@ -8944,6 +8962,8 @@ function setupMySettings() {
     // audio options
     switchNoiseSuppression.onchange = async (e) => {
         if (!buttons.settings.customNoiseSuppression) return;
+        lsSettings.mic_noise_suppression_user_set = true;
+        lS.setSettings(lsSettings);
         await applyNoiseSuppression(e.currentTarget.checked);
         switchNoiseSuppression.blur();
     };
@@ -18384,7 +18404,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.50',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.51',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -19372,6 +19392,8 @@ function setupQuickDeviceSwitchDropdowns() {
         row.addEventListener('click', async (e) => {
             e.stopPropagation();
             row.disabled = true;
+            lsSettings.mic_noise_suppression_user_set = true;
+            lS.setSettings(lsSettings);
             await applyNoiseSuppression(!lsSettings.mic_noise_suppression);
             row.disabled = false;
         });
