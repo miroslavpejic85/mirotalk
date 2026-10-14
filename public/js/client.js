@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.51
+ * @version 2.1.52
  *
  */
 
@@ -523,6 +523,10 @@ const whiteboardShortcutsContent = getId('whiteboardShortcutsContent');
 // Room actions buttons
 const captionEveryoneBtn = getId('captionEveryoneBtn');
 const captionEveryoneStopBtn = getId('captionEveryoneStopBtn');
+const noiseSuppressionOnEveryoneBtn = getId('noiseSuppressionOnEveryoneBtn');
+const noiseSuppressionOffEveryoneBtn = getId('noiseSuppressionOffEveryoneBtn');
+const noiseSuppressionOnEveryoneBtnDesktop = getId('noiseSuppressionOnEveryoneBtnDesktop');
+const noiseSuppressionOffEveryoneBtnDesktop = getId('noiseSuppressionOffEveryoneBtnDesktop');
 const muteEveryoneBtn = getId('muteEveryoneBtn');
 const hideEveryoneBtn = getId('hideEveryoneBtn');
 const ejectEveryoneBtn = getId('ejectEveryoneBtn');
@@ -1934,6 +1938,13 @@ function handleButtonsRule() {
         },
     ]);
 
+    [
+        noiseSuppressionOnEveryoneBtn,
+        noiseSuppressionOffEveryoneBtn,
+        noiseSuppressionOnEveryoneBtnDesktop,
+        noiseSuppressionOffEveryoneBtnDesktop,
+    ].forEach((btn) => elemDisplay(btn.closest('li'), !!buttons.settings.customNoiseSuppression, 'list-item'));
+
     updateJoinLockButtons();
 
     // Whiteboard
@@ -3140,6 +3151,36 @@ async function applyNoiseSuppression(enabled) {
 
     syncNoiseSuppressionUI();
     return lsSettings.mic_noise_suppression;
+}
+
+/**
+ * Presenter: enable or disable noise suppression for everyone except yourself.
+ * @param {boolean} enabled
+ */
+function setNoiseSuppressionForAllPeers(enabled) {
+    if (!buttons.settings.customNoiseSuppression) return;
+    if (!thereArePeerConnections()) {
+        return toastMessage('info', 'No participants detected');
+    }
+    emitPeersAction(enabled ? 'noiseSuppressionOn' : 'noiseSuppressionOff');
+    userLog(
+        'toast',
+        enabled ? 'Noise suppression enabled for everyone 👍' : 'Noise suppression disabled for everyone 👍'
+    );
+}
+
+/**
+ * Apply a noise suppression change requested by the presenter.
+ * @param {boolean} enabled
+ */
+async function handleNoiseSuppressionRequest(enabled) {
+    if (!buttons.settings.customNoiseSuppression || !isRNNoiseSupported) return;
+    if (!!lsSettings.mic_noise_suppression === enabled) return;
+    await applyNoiseSuppression(enabled);
+    userLog(
+        'toast',
+        enabled ? 'The presenter enabled noise suppression for you' : 'The presenter disabled noise suppression for you'
+    );
 }
 
 /**
@@ -9150,6 +9191,10 @@ function setupMySettings() {
         });
         syncCaptionEveryoneButtons(false);
     });
+    noiseSuppressionOnEveryoneBtn?.addEventListener('click', () => setNoiseSuppressionForAllPeers(true));
+    noiseSuppressionOffEveryoneBtn?.addEventListener('click', () => setNoiseSuppressionForAllPeers(false));
+    noiseSuppressionOnEveryoneBtnDesktop?.addEventListener('click', () => noiseSuppressionOnEveryoneBtn?.click());
+    noiseSuppressionOffEveryoneBtnDesktop?.addEventListener('click', () => noiseSuppressionOffEveryoneBtn?.click());
     muteEveryoneBtn.addEventListener('click', (e) => {
         disableAllPeers('audio');
     });
@@ -13158,6 +13203,8 @@ function getMsgerRoomActionsDropdownMarkup(idSuffix = '') {
     return `
         ${getMsgerParticipantDropdownActionMarkup(`captionEveryoneBtn${idSuffix}`, 'fas fa-play', 'Start captions')}
         ${getMsgerParticipantDropdownActionMarkup(`captionEveryoneStopBtn${idSuffix}`, 'fas fa-stop', 'Stop captions')}
+        ${getMsgerParticipantDropdownActionMarkup(`noiseSuppressionOnEveryoneBtn${idSuffix}`, 'fas fa-wave-square', 'Enable noise suppression')}
+        ${getMsgerParticipantDropdownActionMarkup(`noiseSuppressionOffEveryoneBtn${idSuffix}`, 'fas fa-volume-xmark', 'Disable noise suppression')}
         ${getMsgerParticipantDropdownDividerMarkup()}
         ${getMsgerParticipantDropdownActionMarkup(`muteEveryoneBtn${idSuffix}`, 'fas fa-microphone', 'Mute everyone', 'danger')}
         ${getMsgerParticipantDropdownActionMarkup(`hideEveryoneBtn${idSuffix}`, 'fas fa-video', 'Hide everyone', 'danger')}
@@ -14804,6 +14851,10 @@ function handlePeerAction(config) {
             break;
         case 'hideVideo':
             setMyVideoOff(peer_name);
+            break;
+        case 'noiseSuppressionOn':
+        case 'noiseSuppressionOff':
+            handleNoiseSuppressionRequest(peer_action === 'noiseSuppressionOn');
             break;
         case 'stopScreen':
             setMyScreenOff(peer_name);
@@ -18404,7 +18455,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.51',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.52',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

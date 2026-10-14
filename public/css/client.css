@@ -6855,7 +6855,9 @@ hr {
 
 .msger-room-actions-menu .msger-participant-action,
 .msger-room-actions-menu .msger-participant-action-label {
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
 }
 
 @media (max-width: 820px) {

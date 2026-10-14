@@ -45,7 +45,7 @@ dependencies: {
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.51
+ * @version 2.1.52
  *
  */
 
@@ -2170,7 +2170,16 @@ io.sockets.on('connect', async (socket) => {
         }
 
         // Only the presenter can do this actions
-        const presenterActions = ['muteAudio', 'hideVideo', 'ejectAll', 'stopScreen', 'recStart', 'recStop'];
+        const presenterActions = [
+            'muteAudio',
+            'hideVideo',
+            'noiseSuppressionOn',
+            'noiseSuppressionOff',
+            'ejectAll',
+            'stopScreen',
+            'recStart',
+            'recStop',
+        ];
         if (presenterActions.some((v) => peer_action === v)) {
             // Authorize using the server-controlled socket.id, not the
             // client-supplied peer_id, to prevent role spoofing.
