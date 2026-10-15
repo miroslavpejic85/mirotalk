@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.58
+ * @version 2.1.59
  *
  */
 
@@ -7816,8 +7816,12 @@ function setParticipantsBtn() {
             // Wait for the panel-slide-in animation to play before overlaying the participants sidebar.
             await sleep(500);
 
-            msgerCPBtn.classList.add('active');
             isOpeningParticipants = false;
+            if (!isChatRoomVisible) {
+                syncChatToolbarButtons();
+                return;
+            }
+            msgerCPBtn.classList.add('active');
             syncChatToolbarButtons();
             searchPeerBarName?.focus();
             screenReaderAccessibility.announceMessage('Participants list opened');
@@ -12005,6 +12009,7 @@ function setChatPinnedLayout(isPinned) {
     }
     msgerCPBtn.classList.toggle('active', false);
     msgerTogglePin.classList.toggle('active', isPinned);
+    syncChatToolbarButtons();
 }
 
 /**
@@ -12376,6 +12381,9 @@ function hideChatRoomAndEmojiPicker() {
     isParticipantsVisible = false;
     isChatOpenedByParticipantsBtn = false;
     isChatEmojiVisible = false;
+    isOpeningParticipants = false;
+    msgerDraggable.classList.remove('msger-pinned-sidebar-open');
+    msgerCPBtn.classList.remove('active');
     setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
     syncChatToolbarButtons();
     screenReaderAccessibility.announceMessage('Chat closed');
@@ -18751,7 +18759,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.58',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.59',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
