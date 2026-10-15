@@ -116,6 +116,41 @@ function resizeVideoMedia() {
     setSP('--vmi-wh', avatarSize + 'px');
 }
 
+let layoutAnimationRaf = null;
+
+/**
+ * Check if the user asked the system to reduce motion
+ * @returns {boolean}
+ */
+function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * Smoothly re-layout the video grid while a side panel (chat, captions) is pinned/unpinned.
+ * The CSS transition (see .layout-animating) glides the containers, and the tiles
+ * are recomputed every frame so they always follow the container's current size.
+ * Call it right BEFORE changing the containers' size, so the transition kicks in.
+ * @param {integer} duration animation length in ms (keep in sync with .layout-animating in videoGrid.css)
+ */
+function animateVideoLayout(duration = 240) {
+    if (prefersReducedMotion()) return;
+    const root = document.documentElement;
+    root.classList.add('layout-animating');
+    cancelAnimationFrame(layoutAnimationRaf);
+    const end = performance.now() + duration + 60;
+    const step = (now) => {
+        resizeVideoMedia();
+        if (now < end) {
+            layoutAnimationRaf = requestAnimationFrame(step);
+        } else {
+            root.classList.remove('layout-animating');
+            resizeVideoMedia();
+        }
+    };
+    layoutAnimationRaf = requestAnimationFrame(step);
+}
+
 /**
  * Reset zoom to avoid incorrect UI on screen resize
  */

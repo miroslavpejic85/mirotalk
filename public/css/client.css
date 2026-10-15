@@ -7244,7 +7244,7 @@ body {
 --------------------------------------------------------------*/
 @keyframes slideInFromRight {
     from {
-        transform: translateX(110vw);
+        transform: translateX(100%);
         opacity: 0;
     }
     to {
@@ -7253,9 +7253,59 @@ body {
     }
 }
 
+@keyframes slideOutToRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
 .panel-slide-in {
-    animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+    animation: slideInFromRight 0.26s var(--ds-ease-out) forwards !important;
     transition: none !important; /* suppress width/size transitions while slide is playing */
+}
+
+/* Keep the duration in sync with PANEL_SLIDE_OUT_MS in client.js */
+.panel-slide-out {
+    animation: slideOutToRight 0.2s var(--ds-ease-in) forwards !important;
+    transition: none !important;
+    pointer-events: none;
+}
+
+/* Floating chat/caption panels pop in instead of appearing abruptly (uses `scale`, so it composes with the centering transform) */
+@keyframes panelPop {
+    from {
+        opacity: 0;
+        scale: 0.96;
+    }
+    to {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+.msger-draggable,
+.caption-draggable {
+    animation: panelPop 0.2s var(--ds-ease-out);
+}
+
+@keyframes sidebarReveal {
+    from {
+        opacity: 0;
+        translate: 24px 0;
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+
+.msger-draggable.msger-pinned.msger-pinned-sidebar-open .msger-sidebar {
+    animation: sidebarReveal 0.24s var(--ds-ease-out);
 }
 
 /*

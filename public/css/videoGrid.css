@@ -65,7 +65,7 @@
     border-radius: 10px;
     container-type: inline-size;
     container-name: camera;
-    animation: show 0.4s ease;
+    animation: show 0.24s var(--ds-ease-out) backwards;
 }
 
 .video-loading-spinner {
@@ -1107,10 +1107,30 @@ video:fullscreen {
 @keyframes show {
     0% {
         opacity: 0;
-        transform: scale(0.4) translateY(20px);
+        transform: scale(0.88) translateY(10px);
     }
     100% {
         opacity: 1;
         transform: scale(1) translateY(0);
     }
+}
+
+/*--------------------------------------------------------------
+# Smooth layout when a side panel (chat, captions) is pinned/unpinned
+# (toggled by animateVideoLayout in videoGrid.js)
+--------------------------------------------------------------*/
+
+.layout-animating #videoMediaContainer,
+.layout-animating #videoPinMediaContainer {
+    transition:
+        width 0.24s var(--ds-ease-out),
+        height 0.24s var(--ds-ease-out),
+        top 0.24s var(--ds-ease-out),
+        left 0.24s var(--ds-ease-out),
+        opacity 500ms,
+        background 0.2s;
+}
+
+.layout-animating #bottomButtons {
+    transition: left 0.24s var(--ds-ease-out);
 }

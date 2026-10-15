@@ -16,7 +16,7 @@
  * @license For commercial use or closed source, contact us at license.mirotalk@gmail.com or purchase directly from CodeCanyon
  * @license CodeCanyon: https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.57
+ * @version 2.1.58
  *
  */
 
@@ -780,6 +780,9 @@ let transcriptShowOnMsg = true;
 let transcriptSendToAll = true;
 let isChatPinned = false;
 let isCaptionPinned = false;
+let chatSlideOutTimer = null;
+let captionSlideOutTimer = null;
+const PANEL_SLIDE_OUT_MS = 200; // keep in sync with .panel-slide-out in client.css
 let isChatRoomVisible = false;
 let isParticipantsVisible = false;
 let isChatOpenedByParticipantsBtn = false;
@@ -11752,6 +11755,7 @@ function setChatRoomAndCaptionForMobile() {
  * Show msger draggable on center screen position
  */
 function showChatRoomDraggable() {
+    cancelChatSlideOut();
     playSound('newMessage');
 
     if (isMobileDevice) {
@@ -11868,6 +11872,7 @@ function syncParticipantsPanelVisibility(forceVisible = null) {
  * Show caption box draggable on center screen position
  */
 function showCaptionDraggable() {
+    cancelCaptionSlideOut();
     playSound('newMessage');
     if (isMobileDevice) {
         elemDisplay(bottomButtons, false);
@@ -12042,6 +12047,7 @@ function toggleChatPin() {
  * Handle chat pin
  */
 function chatPin() {
+    animateVideoLayout();
     videoMediaContainerPin();
     chatPinned();
     isChatPinned = true;
@@ -12060,20 +12066,52 @@ function chatPin() {
 /**
  * Handle chat unpin
  */
-function chatUnpin() {
+function chatUnpin(slideOut = false) {
+    animateVideoLayout();
     videoMediaContainerUnpin();
-    msgerDraggable.classList.remove('panel-slide-in');
+    isChatPinned = false;
+    refreshPinnedVideoLayout();
+    resizeVideoMedia();
+    if (slideOut) {
+        // keep the pinned look while the panel slides away, then finish (and hide it)
+        msgerDraggable.classList.remove('panel-slide-in');
+        msgerDraggable.classList.add('panel-slide-out');
+        chatSlideOutTimer = setTimeout(() => {
+            chatSlideOutTimer = null;
+            finishChatUnpin();
+            if (!isChatRoomVisible) {
+                elemDisplay(msgerDraggable, false);
+                elemDisplay(msgerCP, false);
+            }
+        }, PANEL_SLIDE_OUT_MS);
+        return;
+    }
+    finishChatUnpin();
+}
+
+/**
+ * Cancel a pending chat slide-out (e.g. chat re-opened while it is closing)
+ */
+function cancelChatSlideOut() {
+    if (!chatSlideOutTimer) return;
+    clearTimeout(chatSlideOutTimer);
+    chatSlideOutTimer = null;
+    finishChatUnpin();
+}
+
+/**
+ * Restore the floating (unpinned) chat panel
+ */
+function finishChatUnpin() {
+    msgerDraggable.classList.remove('panel-slide-in', 'panel-slide-out');
     setSP('--msger-width', 'min(1120px, 92vw)');
     setSP('--msger-height', 'min(760px, 92vh)');
     elemDisplay(msgerMinBtn, false);
     buttons.chat.showMaxBtn && elemDisplay(msgerMaxBtn, true);
-    isChatPinned = false;
-    refreshPinnedVideoLayout();
     setChatPinnedLayout(false);
     //chatLeftCenter();
     chatCenter();
     setColor(msgerTogglePin, 'white');
-    resizeVideoMedia();
     if (!isMobileDevice) {
         dragElement(msgerDraggable, msgerHeader);
     }
@@ -12165,6 +12203,7 @@ function toggleCaptionPin() {
  * Handle caption pin
  */
 function captionPin() {
+    animateVideoLayout();
     videoMediaContainerPin();
     captionPinned();
     isCaptionPinned = true;
@@ -12181,20 +12220,49 @@ function captionPin() {
 /**
  * Handle caption unpin
  */
-function captionUnpin() {
+function captionUnpin(slideOut = false) {
+    animateVideoLayout();
     videoMediaContainerUnpin();
-    captionDraggable.classList.remove('panel-slide-in');
+    isCaptionPinned = false;
+    refreshPinnedVideoLayout();
+    resizeVideoMedia();
+    if (slideOut) {
+        // keep the pinned look while the panel slides away, then finish (and hide it)
+        captionDraggable.classList.remove('panel-slide-in');
+        captionDraggable.classList.add('panel-slide-out');
+        captionSlideOutTimer = setTimeout(() => {
+            captionSlideOutTimer = null;
+            finishCaptionUnpin();
+            if (!isCaptionBoxVisible) elemDisplay(captionDraggable, false);
+        }, PANEL_SLIDE_OUT_MS);
+        return;
+    }
+    finishCaptionUnpin();
+}
+
+/**
+ * Cancel a pending caption slide-out (e.g. caption re-opened while it is closing)
+ */
+function cancelCaptionSlideOut() {
+    if (!captionSlideOutTimer) return;
+    clearTimeout(captionSlideOutTimer);
+    captionSlideOutTimer = null;
+    finishCaptionUnpin();
+}
+
+/**
+ * Restore the floating (unpinned) caption panel
+ */
+function finishCaptionUnpin() {
+    captionDraggable.classList.remove('panel-slide-in', 'panel-slide-out');
     setSP('--caption-width', '420px');
     setSP('--caption-height', '680px');
     elemDisplay(captionMinBtn, false);
     buttons.caption.showMaxBtn && elemDisplay(captionMaxBtn, true);
-    isCaptionPinned = false;
-    refreshPinnedVideoLayout();
     captionDraggable.classList.remove('caption-pinned');
     //captionRightCenter();
     captionCenter();
     setColor(captionTogglePin, 'white');
-    resizeVideoMedia();
     if (!isMobileDevice) dragElement(captionDraggable, captionHeader);
 }
 
@@ -12293,11 +12361,15 @@ function cleanCaptions() {
  * Hide chat room and emoji picker
  */
 function hideChatRoomAndEmojiPicker() {
+    // pinned panel slides out while the video grid glides back; it is hidden when done
+    const slideOut = isChatPinned && !isMobileDevice && !prefersReducedMotion();
     if (isChatPinned) {
-        chatUnpin();
+        chatUnpin(slideOut);
     }
-    elemDisplay(msgerDraggable, false);
-    elemDisplay(msgerCP, false);
+    if (!slideOut) {
+        elemDisplay(msgerDraggable, false);
+        elemDisplay(msgerCP, false);
+    }
     elemDisplay(msgerEmojiPicker, false);
     setColor(msgerEmojiBtn, '#FFFFFF');
     isChatRoomVisible = false;
@@ -12313,10 +12385,11 @@ function hideChatRoomAndEmojiPicker() {
  * Hide chat room and emoji picker
  */
 function hideCaptionBox() {
+    const slideOut = isCaptionPinned && !isMobileDevice && !prefersReducedMotion();
     if (isCaptionPinned) {
-        captionUnpin();
+        captionUnpin(slideOut);
     }
-    elemDisplay(captionDraggable, false);
+    if (!slideOut) elemDisplay(captionDraggable, false);
 
     const captionIcon = captionBtn.querySelector('i');
     captionIcon.className = 'fas fa-closed-captioning';
@@ -18678,7 +18751,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.57',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.58',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
