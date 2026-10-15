@@ -4993,6 +4993,27 @@ a:focus-visible {
     background: #0b0e12;
 }
 
+/* Short laptop viewports (e.g. 1366x768 minus browser chrome): keep "Join Room" above the fold. */
+@media (min-width: 641px) and (max-height: 820px) {
+    .hero .hero-inner {
+        padding-top: 16px;
+        padding-bottom: 48px;
+    }
+
+    .hero .hero-inner .split-wrap .split-item {
+        min-height: 0;
+    }
+
+    #appTitle {
+        margin-bottom: 16px;
+        font-size: 40px;
+    }
+
+    #appDescription {
+        font-size: 17px;
+    }
+}
+
 @media (max-width: 640px) {
     .site-header-inner {
         height: 64px;

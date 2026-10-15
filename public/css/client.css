@@ -992,6 +992,36 @@ body {
     background: color-mix(in srgb, var(--dd-color, #4678f9) 28%, var(--btns-bg-color)) !important;
 }
 
+/* Muted mic / camera off: tint the whole button (like the pre-join screen), not only the icon. */
+#bottomButtons #audioBtn.fa-microphone-slash,
+#bottomButtons #videoBtn.fa-video-slash {
+    color: color-mix(in srgb, var(--ds-danger, #e74c3c) 45%, #fff) !important;
+    background: color-mix(in srgb, var(--ds-danger, #e74c3c) 28%, var(--btns-bg-color));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ds-danger, #e74c3c) 45%, transparent);
+}
+
+#bottomButtons #audioBtn.fa-microphone-slash:hover,
+#bottomButtons #videoBtn.fa-video-slash:hover {
+    background: color-mix(in srgb, var(--ds-danger, #e74c3c) 40%, var(--btns-bg-color));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ds-danger, #e74c3c) 65%, transparent);
+}
+
+/* Leave: a distinct red pill so it is instantly recognizable and hard to confuse with mute. */
+#bottomButtons #leaveRoomBtn {
+    color: #fff !important;
+    background: var(--ds-danger, #e74c3c);
+}
+
+#bottomButtons:not([data-position='horizontal']) #leaveRoomBtn {
+    width: 64px;
+}
+
+#bottomButtons #leaveRoomBtn:hover,
+#bottomButtons #exitDropdown:has(> #exitMenu:not(.hidden)) > #leaveRoomBtn {
+    background: color-mix(in srgb, var(--ds-danger, #e74c3c) 82%, #000);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--ds-danger, #e74c3c) 30%, transparent);
+}
+
 /* Quick device picker (Start Audio/Video) */
 #bottomButtons .device-dropdown-toggle {
     width: 35px;
@@ -3955,6 +3985,9 @@ button {
     #bottomButtons .device-dropdown-toggle i {
         font-size: 0.8rem;
     }
+    #bottomButtons:not([data-position='horizontal']) #leaveRoomBtn {
+        width: 54px;
+    }
 }
 
 @media screen and (max-width: 500px) {
@@ -3964,6 +3997,17 @@ button {
     #bottomButtons {
         gap: 0.3rem;
         padding: 3px;
+    }
+    /* Wrap onto a second row instead of squeezing buttons or pushing Leave off-screen. */
+    #bottomButtons:not([data-position='horizontal']) {
+        flex-wrap: wrap;
+        width: max-content;
+        max-width: calc(100vw - 16px);
+        row-gap: 6px;
+    }
+    #bottomButtons > *,
+    #bottomButtons .split-btn > button {
+        flex-shrink: 0;
     }
     #bottomButtons button {
         width: 38px;
@@ -3979,25 +4023,15 @@ button {
     #bottomButtons .device-dropdown-toggle i {
         font-size: 0.8rem;
     }
+    #bottomButtons:not([data-position='horizontal']) #leaveRoomBtn {
+        width: 48px;
+    }
 }
 
 @media screen and (max-width: 360px) {
     #bottomButtons {
         gap: 0.15rem;
         padding: 2px;
-    }
-    #bottomButtons button {
-        width: 28px;
-        font-size: 0.65rem;
-        padding: 6px;
-        margin: 0 1px;
-    }
-    #bottomButtons .device-dropdown-toggle {
-        width: 14px;
-        height: 24px;
-    }
-    #bottomButtons .device-dropdown-toggle i {
-        font-size: 0.7rem;
     }
 }
 
@@ -4906,6 +4940,11 @@ button {
     transform: translateY(2px);
 }
 
+/* Keep ON/OFF switches flush to the row's trailing edge. */
+#mySettings :is(#mySettingsTable, .mySettingsTable) td:last-child:has(> .toggle:only-child) {
+    text-align: end;
+}
+
 /* Optional alternating row background */
 /* #mySettingsTable tr:nth-child(even) {
     background: var(--select-bg);
@@ -5505,6 +5544,18 @@ input:checked + .slider:before {
 
 .swal2-popup.swal2-toast .swal2-close:focus {
     box-shadow: none !important;
+}
+
+/* In-room toasts: top-center keeps them in view and off the right-side chat/participants panels. */
+html body.swal2-toast-shown .swal2-container.swal2-top-end {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+html body.swal2-toast-shown .swal2-container.swal2-top-end > .swal2-popup {
+    grid-column: 2;
+    justify-self: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
