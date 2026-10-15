@@ -546,16 +546,17 @@
         const container = document.getElementById('tabLanguages');
         if (!container || document.getElementById('i18nModeSelect')) return;
 
+        // Same card layout as the "Language" field above.
         const section = document.createElement('div');
-        section.className = 'notranslate';
-        section.style.cssText = 'margin-top:12px;';
+        section.className = 'settings-field notranslate';
 
         const title = document.createElement('div');
         title.className = 'title';
         const titleIcon = document.createElement('i');
         titleIcon.className = 'fa-solid fa-language';
         const titleText = document.createElement('p');
-        titleText.textContent = window.i18n?.t('Translation mode:', 'labels') || 'Translation mode:';
+        const titleLabel = window.i18n?.t('Translation mode:', 'labels') || 'Translation mode:';
+        titleText.textContent = titleLabel.replace(/\s*[:：]\s*$/, '');
         title.appendChild(titleIcon);
         title.appendChild(titleText);
         section.appendChild(title);
@@ -584,10 +585,8 @@
         modeSelect.value = currentMode;
         section.appendChild(modeSelect);
 
-        const source = document.createElement('small');
-        source.className = 'notranslate';
-        source.style.cssText =
-            'display:block;margin-top:6px;color:var(--white,#fff);font-size:0.82rem;line-height:1.4;';
+        const source = document.createElement('p');
+        source.className = 'settings-field-hint notranslate';
         const sourceLabel =
             currentSource === 'browser'
                 ? window.i18n?.t('Current source: saved browser preference', 'labels') ||
