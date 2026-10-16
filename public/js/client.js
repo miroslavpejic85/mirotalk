@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.70
+ * @version 2.1.71
  *
  */
 
@@ -1959,11 +1959,11 @@ function handleButtonsRule() {
     displayElements([
         { element: activeRoomsBtn, display: buttons.settings.showActiveRoomsBtn },
         { element: micOptionsDiv, display: buttons.settings.showMicOptionsBtn || isPresenter, mode: 'block' },
-        { element: captionEveryoneBtn, display: buttons.settings.showCaptionEveryoneBtn },
-        { element: muteEveryoneBtn, display: buttons.settings.showMuteEveryoneBtn },
-        { element: hideEveryoneBtn, display: buttons.settings.showHideEveryoneBtn },
-        { element: stopScreenEveryoneBtn, display: buttons.settings.showStopScreenEveryoneBtn !== false },
-        { element: ejectEveryoneBtn, display: buttons.settings.showEjectEveryoneBtn },
+        { element: captionEveryoneBtn, display: buttons.settings.showCaptionEveryoneBtn, mode: 'grid' },
+        { element: muteEveryoneBtn, display: buttons.settings.showMuteEveryoneBtn, mode: 'grid' },
+        { element: hideEveryoneBtn, display: buttons.settings.showHideEveryoneBtn, mode: 'grid' },
+        { element: stopScreenEveryoneBtn, display: buttons.settings.showStopScreenEveryoneBtn !== false, mode: 'grid' },
+        { element: ejectEveryoneBtn, display: buttons.settings.showEjectEveryoneBtn, mode: 'grid' },
         { element: lockRoomBtn, display: buttons.settings.showLockRoomBtn },
         { element: unlockRoomBtn, display: buttons.settings.showUnlockRoomBtn },
         { element: tabRoomPeerName, display: buttons.settings.showTabRoomPeerName },
@@ -12260,10 +12260,10 @@ function toggleParticipantsDropDownMenu(activeMenu, siblingMenu = null) {
 }
 
 function syncCaptionEveryoneButtons(isActive) {
-    elemDisplay(captionEveryoneBtn, !isActive, 'inline');
-    elemDisplay(captionEveryoneStopBtn, isActive, 'inline');
-    elemDisplay(captionEveryoneBtnDesktop, !isActive, 'inline');
-    elemDisplay(captionEveryoneStopBtnDesktop, isActive, 'inline');
+    elemDisplay(captionEveryoneBtn, !isActive, 'grid');
+    elemDisplay(captionEveryoneStopBtn, isActive, 'grid');
+    elemDisplay(captionEveryoneBtnDesktop, !isActive, 'grid');
+    elemDisplay(captionEveryoneStopBtnDesktop, isActive, 'grid');
 
     elemDisplay(captionEveryoneBtn?.closest('li'), !isActive);
     elemDisplay(captionEveryoneStopBtn?.closest('li'), isActive);
@@ -19071,7 +19071,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.70',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.71',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
