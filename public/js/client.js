@@ -5850,10 +5850,14 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             }
             buttons.remote.showSnapShotBtn &&
                 remoteDropdownContent.appendChild(createResponsiveDropdownItem(remoteVideoToImgBtn, 'Take Snapshot'));
-            if (!isMobileDevice && peer_audio && buttons.remote.showAudioVolume) {
-                remoteDropdownContent.appendChild(
-                    createResponsiveDropdownRangeItem(remoteAudioVolume, 'Volume', 'fa-volume-high')
-                );
+            // Also added when the peer has no mic yet: it can get one later (retry after a blocked permission)
+            if (!isMobileDevice && buttons.remote.showAudioVolume) {
+                const volumeItem = createResponsiveDropdownRangeItem(remoteAudioVolume, 'Volume', 'fa-volume-high');
+                if (!peer_audio) {
+                    volumeItem.style.display = 'none';
+                    remoteAudioVolume._dropdownItem = volumeItem;
+                }
+                remoteDropdownContent.appendChild(volumeItem);
             }
             remoteDropdownContent.appendChild(
                 createDropdownItem(remoteVideoMirrorBtn, 'Mirror', remoteDropdownContent)
@@ -5912,7 +5916,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteVideoNavBar.appendChild(remoteAudioStatusIcon);
 
             // Disabled audio volume control on Mobile devices
-            if (!isMobileDevice && peer_audio && buttons.remote.showAudioVolume) {
+            if (!isMobileDevice && buttons.remote.showAudioVolume) {
+                if (!peer_audio) remoteAudioVolume.style.display = 'none';
                 remoteVideoNavBar.appendChild(remoteAudioVolume);
             }
             remoteVideoNavBar.appendChild(remoteHandStatusIcon);
@@ -15067,7 +15072,10 @@ function setPeerAudioStatus(peer_id, status) {
     }
     if (peerAudioVolume) {
         elemDisplay(peerAudioVolume, status);
+        if (peerAudioVolume._dropdownItem) peerAudioVolume._dropdownItem.style.display = status ? '' : 'none';
     }
+    // Keep the cached status fresh: the audio element may be created after this event
+    if (allPeers?.[peer_id]) allPeers[peer_id].peer_audio_status = status;
 }
 
 /**
