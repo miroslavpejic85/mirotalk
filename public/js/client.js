@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.61
+ * @version 2.1.70
  *
  */
 
@@ -184,6 +184,9 @@ const initScreenShareBtn = getId('initScreenShareBtn');
 const initVideoMirrorBtn = getId('initVideoMirrorBtn');
 const initUsernameEmojiButton = getId('initUsernameEmojiButton');
 const initExitBtn = getId('initExitBtn');
+const initMediaNotice = getId('initMediaNotice');
+const initMediaNoticeText = getId('initMediaNoticeText');
+const initMediaRetryBtn = getId('initMediaRetryBtn');
 const initVideoSelect = getId('initVideoSelect');
 const initMicrophoneSelect = getId('initMicrophoneSelect');
 const initSpeakerSelect = getId('initSpeakerSelect');
@@ -695,6 +698,8 @@ let useAudio = true; // User allow for microphone usage
 let useVideo = true; // User allow for camera usage
 let isEnumerateVideoDevices = false;
 let isEnumerateAudioDevices = false;
+let mediaErrors = { audio: null, video: null }; // last getUserMedia error name per device type
+let isRetryingMedia = false;
 
 // video/audio player
 let isVideoUrlPlayerOpen = false;
@@ -1862,9 +1867,9 @@ function handleButtonsRule() {
         mySettingsBtn.style.borderRadius = '10px';
     }
 
-    // Camera/microphone are shown only when enabled by config and allowed/available in the browser
-    const showAudio = buttons.main.showAudioBtn && useAudio;
-    const showVideo = buttons.main.showVideoBtn && useVideo;
+    // Camera/microphone stay visible when blocked/unavailable (shown as unavailable); only the config hides them
+    const showAudio = buttons.main.showAudioBtn;
+    const showVideo = buttons.main.showVideoBtn;
 
     // Main buttons
     displayElements([
@@ -1948,6 +1953,7 @@ function handleButtonsRule() {
     if (tabVideoBtn.style.display === 'none' && tabAudioBtn.style.display === 'none') {
         elemDisplay(getId('settingsDevicesLabel'), false);
     }
+    updateMediaUnavailableUI();
 
     // Settings buttons
     displayElements([
@@ -2209,9 +2215,11 @@ async function whoAreYou() {
     // init buttons click events
 
     initVideoBtn.onclick = async (e) => {
+        if (!useVideo) return showMediaUnavailable('video');
         await handleVideo(e, true);
     };
     initAudioBtn.onclick = (e) => {
+        if (!useAudio) return showMediaUnavailable('audio');
         handleAudio(e, true);
     };
     initVideoMirrorBtn.onclick = (e) => {
@@ -2226,6 +2234,7 @@ async function whoAreYou() {
     initExitBtn.onclick = (e) => {
         initExitMeeting();
     };
+    initMediaRetryBtn.onclick = () => retryMediaAccess(getUnavailableMediaKinds());
     initVideoOff.onclick = handleInitVideoOffClick;
     initVideoOff.onkeydown = (e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -2243,12 +2252,15 @@ async function whoAreYou() {
     if (!useVideo || !buttons.main.showVideoBtn) {
         displayElements([
             { element: getId('initVideo'), display: false },
-            { element: getId('initVideoBtn'), display: false },
             { element: getId('initVideoMirrorBtn'), display: false },
             { element: getId('initVideoSelect'), display: false },
         ]);
+        // When the camera is only blocked/unavailable the button stays visible as unavailable
         if (!buttons.main.showVideoBtn) {
-            elemDisplay(getId('tabVideoBtn'), false);
+            displayElements([
+                { element: getId('initVideoBtn'), display: false },
+                { element: getId('tabVideoBtn'), display: false },
+            ]);
         }
         // Disable camera settings, keep screen available
         displayElements([
@@ -2260,16 +2272,17 @@ async function whoAreYou() {
     }
     if (!useAudio || !buttons.main.showAudioBtn) {
         displayElements([
-            { element: getId('initAudioBtn'), display: false },
             { element: getId('initMicrophoneSelect'), display: false },
             { element: getId('initSpeakerSelect'), display: false },
             { element: getId('tabAudioBtn'), display: false },
             { element: getId('audioDropdown'), display: false },
         ]);
+        if (!buttons.main.showAudioBtn) elemDisplay(getId('initAudioBtn'), false);
     }
     if (!buttons.main.showScreenBtn) {
         elemDisplay(getId('initScreenShareBtn'), false);
     }
+    updateMediaUnavailableUI();
 
     initVideoContainerShow(myVideoStatus);
 
@@ -2373,8 +2386,8 @@ async function whoAreYou() {
     // Camera off: keep the preview area with a placeholder (computed once initUser is visible)
     if (!myVideoStatus) initVideoOffShow();
 
-    setTippy(initAudioBtn, 'Stop the audio', 'top');
-    setTippy(initVideoBtn, 'Stop the video', 'top');
+    setTippy(initAudioBtn, useAudio ? 'Stop the audio' : 'My audio is disabled', 'top');
+    setTippy(initVideoBtn, useVideo ? 'Stop the video' : 'My video is disabled', 'top');
 }
 
 /**
@@ -4371,10 +4384,12 @@ async function initEnumerateAudioDevices() {
         await enumerateAudioDevices(stream);
         selectDeviceInSelects([audioInputSelect, initMicrophoneSelect], deviceId);
         useAudio = true;
+        mediaErrors.audio = null;
     } catch (err) {
         console.warn('Audio devices not available', err);
         notifyBusyDevice('audio', err);
         useAudio = false;
+        mediaErrors.audio = err?.name || 'Error';
     }
 }
 
@@ -4393,10 +4408,12 @@ async function initEnumerateVideoDevices() {
         await enumerateVideoDevices(stream);
         selectDeviceInSelects([videoSelect, initVideoSelect], deviceId);
         useVideo = true;
+        mediaErrors.video = null;
     } catch (err) {
         console.warn('Video devices not available', err);
         notifyBusyDevice('video', err);
         useVideo = false;
+        mediaErrors.video = err?.name || 'Error';
     }
 }
 
@@ -4833,6 +4850,7 @@ async function setupLocalAudioMedia() {
  */
 function handleMediaError(mediaType, err) {
     let errMessage = err;
+    mediaErrors[mediaType] = err?.name || 'Error';
 
     switch (err.name) {
         case 'NotFoundError':
@@ -4862,6 +4880,282 @@ function handleMediaError(mediaType, err) {
         `Unable to access ${mediaType} device [${err.name}]: ${errMessage} check the common getUserMedia errors: https://blog.addpipe.com/common-getusermedia-errors/`
     );
     userLog('warning', `Unable to use the ${mediaType} device: ${errMessage}`, 6000);
+}
+
+/**
+ * Describe why a device is unavailable, based on the last getUserMedia error
+ * @param {string} kind 'audio' or 'video'
+ * @returns {{type: string, title: string, text: string}}
+ */
+function getMediaUnavailableInfo(kind) {
+    const messages = {
+        audio: {
+            blocked: {
+                title: 'Microphone blocked',
+                text: 'Permission denied. Please allow access to the microphone in your browser settings, then try again.',
+            },
+            missing: {
+                title: 'No microphone found',
+                text: 'No microphone was detected. Connect one, then try again.',
+            },
+            busy: {
+                title: 'Microphone busy',
+                text: 'The microphone may be in use by another app. Close it, then try again.',
+            },
+            error: {
+                title: 'Microphone unavailable',
+                text: 'Unable to access the microphone. Check your browser and system settings, then try again.',
+            },
+        },
+        video: {
+            blocked: {
+                title: 'Camera blocked',
+                text: 'Permission denied. Please allow access to the camera in your browser settings, then try again.',
+            },
+            missing: {
+                title: 'No camera found',
+                text: 'No camera was detected. Connect one, then try again.',
+            },
+            busy: {
+                title: 'Camera busy',
+                text: 'The camera may be in use by another app. Close it, then try again.',
+            },
+            error: {
+                title: 'Camera unavailable',
+                text: 'Unable to access the camera. Check your browser and system settings, then try again.',
+            },
+        },
+    };
+    const types = {
+        NotAllowedError: 'blocked',
+        PermissionDeniedError: 'blocked',
+        SecurityError: 'blocked',
+        NotFoundError: 'missing',
+        DevicesNotFoundError: 'missing',
+        NotReadableError: 'busy',
+        TrackStartError: 'busy',
+        AbortError: 'busy',
+    };
+    const type = types[mediaErrors[kind]] || 'error';
+    return { type, ...messages[kind][type] };
+}
+
+/**
+ * Devices enabled by config but not usable (blocked, missing, busy...)
+ * @returns {Array<string>} 'audio' and/or 'video'
+ */
+function getUnavailableMediaKinds() {
+    const kinds = [];
+    if (buttons.main.showAudioBtn && !useAudio) kinds.push('audio');
+    if (buttons.main.showVideoBtn && !useVideo) kinds.push('video');
+    return kinds;
+}
+
+/**
+ * Mark the mic/camera buttons as unavailable (they stay clickable to explain why)
+ * and refresh the pre-join notice
+ */
+function updateMediaUnavailableUI() {
+    const groups = [
+        { available: useAudio, elements: [audioBtn, initAudioBtn] },
+        { available: useVideo, elements: [videoBtn, initVideoBtn] },
+    ];
+    groups.forEach(({ available, elements }) => {
+        elements.forEach((el) => {
+            if (!el) return;
+            if (available) {
+                el.removeAttribute('data-media-unavailable');
+                el.removeAttribute('aria-disabled');
+            } else {
+                el.setAttribute('data-media-unavailable', 'true');
+                el.setAttribute('aria-disabled', 'true');
+            }
+        });
+    });
+    updateInitMediaNotice();
+}
+
+/**
+ * Show or hide the pre-join notice that explains why camera/microphone are unavailable
+ */
+function updateInitMediaNotice() {
+    if (!initMediaNotice) return;
+    const kinds = getUnavailableMediaKinds();
+    initMediaNotice.hidden = kinds.length === 0;
+    if (!kinds.length) return;
+    const infos = kinds.map(getMediaUnavailableInfo);
+    if (infos.length === 2 && infos.every((info) => info.type === 'blocked')) {
+        initMediaNoticeText.textContent =
+            window.i18n?.t(
+                'Camera and microphone are blocked. Please allow access in your browser settings, then try again. You can still join without them.',
+                'labels'
+            ) ||
+            'Camera and microphone are blocked. Please allow access in your browser settings, then try again. You can still join without them.';
+        return;
+    }
+    initMediaNoticeText.textContent = infos.map((info) => window.i18n?.t(info.text, 'dialogs') || info.text).join(' ');
+}
+
+/**
+ * Explain why the camera/microphone is unavailable and let the user try again.
+ * The pre-join dialog is a modal, so there the explanation is the inline notice instead.
+ * @param {string} kind 'audio' or 'video'
+ */
+function showMediaUnavailable(kind) {
+    const enabledByConfig = kind === 'audio' ? buttons.main.showAudioBtn : buttons.main.showVideoBtn;
+    if (!enabledByConfig || isRetryingMedia) return;
+
+    if (Swal.getPopup()?.contains(initUser)) {
+        updateInitMediaNotice();
+        initMediaNotice.classList.remove('attention');
+        void initMediaNotice.offsetWidth; // restart the highlight animation
+        initMediaNotice.classList.add('attention');
+        initMediaRetryBtn.focus();
+        return;
+    }
+
+    const info = getMediaUnavailableInfo(kind);
+    Swal.fire({
+        background: swBg,
+        position: 'center',
+        icon: 'warning',
+        title: info.title,
+        text: info.text,
+        footer:
+            info.type === 'blocked'
+                ? `<a href="https://blog.addpipe.com/common-getusermedia-errors/" target="_blank" rel="noopener noreferrer">${window.i18n?.t('Check the common getUserMedia errors', 'dialogs') || 'Check the common getUserMedia errors'}</a>`
+                : undefined,
+        showCancelButton: true,
+        confirmButtonText: 'Try again',
+        cancelButtonText: 'Close',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) retryMediaAccess([kind]);
+    });
+}
+
+/**
+ * Show again the settings controls that were hidden while the device was unavailable
+ * @param {string} kind 'audio' or 'video'
+ */
+function restoreMediaSettingsUI(kind) {
+    const isAudio = kind === 'audio';
+    if (!(isAudio ? buttons.main.showAudioBtn : buttons.main.showVideoBtn)) return;
+    const ids = isAudio
+        ? ['initMicrophoneSelect', 'tabAudioBtn', 'audioDropdown']
+        : [
+              'initVideoSelect',
+              'tabVideoBtn',
+              'videoDropdown',
+              'videoSourceDiv',
+              'videoFitDiv',
+              'cameraSettingsSection',
+              ...(isFirefox ? [] : ['videoFpsDiv']),
+          ];
+    ids.forEach((id) => {
+        const el = getId(id);
+        if (el) el.style.display = '';
+    });
+    if (isAudio && sinkId && initSpeakerSelect.options.length > 0) initSpeakerSelect.style.display = '';
+    const devicesLabel = getId('settingsDevicesLabel');
+    if (devicesLabel) devicesLabel.style.display = '';
+}
+
+/**
+ * Ask again for the camera/microphone (after the user fixed the permission or plugged the device)
+ * @param {Array<string>} kinds 'audio' and/or 'video'
+ */
+async function retryMediaAccess(kinds) {
+    if (isRetryingMedia || !kinds.length) return;
+    isRetryingMedia = true;
+    const isPreJoin = !!Swal.getPopup()?.contains(initUser);
+    initMediaRetryBtn.disabled = true;
+    const failed = [];
+    try {
+        for (const kind of kinds) {
+            const ok = kind === 'audio' ? await retryAudioAccess(isPreJoin) : await retryVideoAccess(isPreJoin);
+            if (!ok) failed.push(kind);
+        }
+    } catch (err) {
+        console.error('Retry media access failed', err);
+        failed.push(...kinds.filter((kind) => !failed.includes(kind)));
+    } finally {
+        isRetryingMedia = false;
+        initMediaRetryBtn.disabled = false;
+        handleButtonsRule();
+    }
+
+    if (isPreJoin) return;
+    if (failed.length) return showMediaUnavailable(failed[0]);
+    if (kinds.length > 1) return userLog('success', 'Camera and microphone are ready', 3000);
+    if (kinds[0] === 'audio') return userLog('success', 'Microphone is ready', 3000);
+    userLog('success', 'Camera is ready', 3000);
+}
+
+/**
+ * Retry the microphone
+ * @param {boolean} isPreJoin true while the pre-join dialog is open
+ * @returns {Promise<boolean>} true if the microphone is now usable
+ */
+async function retryAudioAccess(isPreJoin) {
+    [audioInputSelect, initMicrophoneSelect, audioOutputSelect, initSpeakerSelect].forEach((select) => {
+        if (select) select.innerHTML = '';
+    });
+    lS.DEVICES_COUNT.audio = 0;
+    lS.DEVICES_COUNT.speaker = 0;
+    isEnumerateAudioDevices = false;
+    useAudio = true;
+
+    await initEnumerateAudioDevices();
+    if (useAudio) await setupLocalAudioMedia();
+    if (!useAudio || !localAudioMediaStream) {
+        useAudio = false;
+        return false;
+    }
+
+    myAudio = getId('myAudio');
+    restoreMediaSettingsUI('audio');
+    handleAudio(isPreJoin ? initAudioBtn : audioBtn, isPreJoin, true);
+    if (audioOutputSelect.value) await changeAudioDestination();
+    if (!isPreJoin) {
+        await refreshMyStreamToPeers(localAudioMediaStream, true);
+        getMicrophoneVolumeIndicator(localAudioMediaStream);
+    }
+    return true;
+}
+
+/**
+ * Retry the camera
+ * @param {boolean} isPreJoin true while the pre-join dialog is open
+ * @returns {Promise<boolean>} true if the camera is now usable
+ */
+async function retryVideoAccess(isPreJoin) {
+    [videoSelect, initVideoSelect].forEach((select) => {
+        if (select) select.innerHTML = '';
+    });
+    lS.DEVICES_COUNT.video = 0;
+    isEnumerateVideoDevices = false;
+    useVideo = true;
+
+    await initEnumerateVideoDevices();
+    if (!useVideo) return false;
+
+    // Starts the camera (and shares it with the peers when already in the room)
+    await handleVideo(isPreJoin ? initVideoBtn : videoBtn, isPreJoin, true);
+
+    const track = getVideoTrack(isPreJoin ? initStream : localVideoMediaStream);
+    if (!track || track.readyState !== 'live') {
+        useVideo = false;
+        myVideoStatus = false;
+        setMediaButtonsClass([{ element: isPreJoin ? initVideoBtn : videoBtn, status: false, mediaType: 'video' }]);
+        setMyVideoStatus(false);
+        return false;
+    }
+
+    restoreMediaSettingsUI('video');
+    setupBackgroundControls();
+    return true;
 }
 
 /**
@@ -7291,6 +7585,7 @@ function setHideMeButton() {
  */
 function setAudioBtn() {
     audioBtn.addEventListener('click', (e) => {
+        if (!useAudio) return showMediaUnavailable('audio');
         if (isPushToTalkActive) return;
         handleAudio(e, false);
     });
@@ -7371,6 +7666,7 @@ function setPushToTalkPressed(pressed) {
  */
 function setVideoBtn() {
     videoBtn.addEventListener('click', async (e) => {
+        if (!useVideo) return showMediaUnavailable('video');
         await handleVideo(e, false);
     });
 }
@@ -10403,7 +10699,9 @@ function updateInitVideoOff() {
 
     initVideoOffText.textContent = hasCamera
         ? window.i18n?.t('Camera is off', 'labels') || 'Camera is off'
-        : window.i18n?.t('No camera available', 'labels') || 'No camera available';
+        : !useVideo && mediaErrors.video && getMediaUnavailableInfo('video').type === 'blocked'
+          ? window.i18n?.t('Camera access is blocked', 'labels') || 'Camera access is blocked'
+          : window.i18n?.t('No camera available', 'labels') || 'No camera available';
 
     initVideoOff.classList.toggle('clickable', canToggle);
     if (canToggle) {
@@ -14645,7 +14943,11 @@ function setMyAudioStatus(status, playStatusSound = true) {
     emitPeerStatus('audio', status);
     const audioStatusLabel = status ? 'My audio is on' : 'My audio is off';
     setTippy(myAudioStatusIcon, audioStatusLabel, 'bottom');
-    setTippy(audioBtn, status ? 'Stop the audio (A)' : 'Start the audio (A)', bottomButtonsPlacement);
+    setTippy(
+        audioBtn,
+        !useAudio ? 'My audio is disabled' : status ? 'Stop the audio (A)' : 'Start the audio (A)',
+        bottomButtonsPlacement
+    );
     if (audioBtn && audioBtn.setAttribute) audioBtn.setAttribute('aria-pressed', String(!!status));
     if (playStatusSound) status ? playSound('on') : playSound('off');
     screenReaderAccessibility.announceMessage(audioStatusLabel);
@@ -14675,7 +14977,11 @@ function setMyVideoStatus(status) {
 
     if (!isMobileDevice) {
         if (myVideoStatusIcon) setTippy(myVideoStatusIcon, videoStatusLabel, 'bottom');
-        setTippy(videoBtn, status ? 'Stop the video (V)' : 'Start the video (V)', bottomButtonsPlacement);
+        setTippy(
+            videoBtn,
+            !useVideo ? 'My video is disabled' : status ? 'Stop the video (V)' : 'Start the video (V)',
+            bottomButtonsPlacement
+        );
     }
     if (videoBtn && videoBtn.setAttribute) videoBtn.setAttribute('aria-pressed', String(!!status));
 
@@ -18757,7 +19063,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.61',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.70',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -19519,8 +19825,8 @@ function setupQuickDeviceSwitchDropdowns() {
 
     function syncVisibility() {
         // Keep dropdown visible while the corresponding button is visible
-        const showVideo = !!videoBtn && window.getComputedStyle(videoBtn).display !== 'none';
-        const showAudio = !!audioBtn && window.getComputedStyle(audioBtn).display !== 'none';
+        const showVideo = !!videoBtn && useVideo && window.getComputedStyle(videoBtn).display !== 'none';
+        const showAudio = !!audioBtn && useAudio && window.getComputedStyle(audioBtn).display !== 'none';
         videoDropdown.classList.toggle('hidden', !showVideo);
         audioDropdown.classList.toggle('hidden', !showAudio);
     }
@@ -20098,8 +20404,8 @@ function setupQuickDeviceSwitchDropdowns() {
     // Keep arrow buttons visible only when Start buttons are visible
     syncVisibility();
     const observer = new MutationObserver(syncVisibility);
-    observer.observe(videoBtn, { attributes: true, attributeFilter: ['class', 'style'] });
-    observer.observe(audioBtn, { attributes: true, attributeFilter: ['class', 'style'] });
+    observer.observe(videoBtn, { attributes: true, attributeFilter: ['class', 'style', 'data-media-unavailable'] });
+    observer.observe(audioBtn, { attributes: true, attributeFilter: ['class', 'style', 'data-media-unavailable'] });
 
     // Re-enumerate & refresh lists on hardware changes
     if (navigator.mediaDevices) {
