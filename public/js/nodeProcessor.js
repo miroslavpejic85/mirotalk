@@ -49,10 +49,6 @@ class MessageHandler {
             this.uiManager.updateStatus('✅ RNNoise WASM initialized successfully', 'success');
         } else if (event.data.type === 'wasm-error') {
             this.uiManager.updateStatus('❌ RNNoise WASM error: ' + event.data.error, 'error');
-        } else if (event.data.type === 'vad') {
-            if (event.data.isSpeech) {
-                //this.uiManager.updateStatus(`🗣️ Speech detected (VAD: ${event.data.probability.toFixed(2)})`, 'info');
-            }
         }
     }
 }
@@ -72,16 +68,15 @@ class WasmLoader {
                 throw new Error('Worklet node is not available');
             }
 
-            this.uiManager.updateStatus('📦 Loading RNNoise sync module...', 'info');
+            this.uiManager.updateStatus('📦 Loading RNNoise wasm...', 'info');
 
-            const jsResponse = await fetch('../js/rnnoiseSync.js');
+            const wasmResponse = await fetch('../js/rnnoise.wasm');
 
-            if (!jsResponse.ok) {
-                throw new Error('Failed to load rnnoiseSync.js');
+            if (!wasmResponse.ok) {
+                throw new Error('Failed to load rnnoise.wasm');
             }
 
-            const jsContent = await jsResponse.text();
-            this.uiManager.updateStatus('📦 Sending sync module to worklet...', 'info');
+            const wasmBytes = await wasmResponse.arrayBuffer();
 
             const node = this.getWorkletNode();
             if (node !== workletNode) {
@@ -89,15 +84,12 @@ class WasmLoader {
                 throw new Error('Worklet node changed during WASM loading');
             }
 
-            node.port.postMessage({
-                type: 'sync-module',
-                jsContent: jsContent,
-            });
+            node.port.postMessage({ type: 'wasm-module', wasmBytes }, [wasmBytes]);
 
-            this.uiManager.updateStatus('📦 Sync module sent to worklet', 'info');
+            this.uiManager.updateStatus('📦 RNNoise wasm sent to worklet', 'info');
         } catch (error) {
-            this.uiManager.updateStatus('❌ Failed to load sync module: ' + error.message, 'error');
-            console.error('Sync module loading error:', error);
+            this.uiManager.updateStatus('❌ Failed to load RNNoise wasm: ' + error.message, 'error');
+            console.error('RNNoise wasm loading error:', error);
             throw error;
         }
     }

@@ -42,11 +42,12 @@ describe('RNNoise worklet initialization', () => {
             context
         );
         processor = new Processor();
+        processor.wasmInitializer.initModule = async () => context.testModule;
     });
 
     it('reports readiness only after the RNNoise context is created', async () => {
         await processor.port.onmessage({
-            data: { type: 'sync-module', jsContent: 'function createRNNWasmModuleSync() { return testModule; }' },
+            data: { type: 'wasm-module', wasmBytes: new ArrayBuffer(8) },
         });
         assert.equal(processor.initialized, true);
         assert.equal(module._rnnoise_create.callCount, 1);
@@ -56,7 +57,7 @@ describe('RNNoise worklet initialization', () => {
     it('reports context creation failure and frees the allocated buffer', async () => {
         module._rnnoise_create.returns(0);
         await processor.port.onmessage({
-            data: { type: 'sync-module', jsContent: 'function createRNNWasmModuleSync() { return testModule; }' },
+            data: { type: 'wasm-module', wasmBytes: new ArrayBuffer(8) },
         });
         assert.equal(processor.initialized, false);
         assert.equal(
@@ -73,7 +74,7 @@ describe('RNNoise worklet initialization', () => {
             resolveModule = resolve;
         });
         const initialization = processor.port.onmessage({
-            data: { type: 'sync-module', jsContent: 'function createRNNWasmModuleSync() { return testModule; }' },
+            data: { type: 'wasm-module', wasmBytes: new ArrayBuffer(8) },
         });
         processor.destroy();
         resolveModule(module);
@@ -90,7 +91,7 @@ describe('RNNoise worklet initialization', () => {
     it('reports a DSP failure so the main thread can switch to native suppression', async () => {
         module._rnnoise_process_frame = sinon.stub().throws(new Error('WASM processing failed'));
         await processor.port.onmessage({
-            data: { type: 'sync-module', jsContent: 'function createRNNWasmModuleSync() { return testModule; }' },
+            data: { type: 'wasm-module', wasmBytes: new ArrayBuffer(8) },
         });
         processor.enabled = true;
         const input = new Float32Array(480).fill(0.25);
@@ -99,6 +100,58 @@ describe('RNNoise worklet initialization', () => {
         assert.equal(messages.at(-1).type, 'wasm-error');
         assert.match(messages.at(-1).error, /WASM processing failed/);
         assert.equal(output[479], 0.25);
+    });
+});
+
+describe('RNNoise worklet with the real wasm binary', () => {
+    it('instantiates rnnoise.wasm without eval and suppresses background noise', async () => {
+        const messages = [];
+        class AudioWorkletProcessor {
+            constructor() {
+                this.port = { postMessage: (message) => messages.push(message) };
+            }
+        }
+        let Processor;
+        const context = vm.createContext({
+            AudioWorkletProcessor,
+            sampleRate: 48000,
+            currentTime: 0,
+            console: { log() {}, error() {}, warn() {} },
+            registerProcessor: (name, implementation) => {
+                Processor = implementation;
+            },
+        });
+        vm.runInContext(
+            fs.readFileSync(path.join(__dirname, '../public/js/noiseSuppressionProcessor.js'), 'utf8'),
+            context
+        );
+        const processor = new Processor();
+        const wasm = fs.readFileSync(path.join(__dirname, '../public/js/rnnoise.wasm'));
+        const wasmBytes = wasm.buffer.slice(wasm.byteOffset, wasm.byteOffset + wasm.byteLength);
+        await processor.port.onmessage({ data: { type: 'wasm-module', wasmBytes } });
+        assert.equal(messages.at(-1).type, 'wasm-ready');
+        await processor.port.onmessage({ data: { type: 'enable', enabled: true } });
+
+        let seed = 1;
+        const noise = () => (((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff) * 2 - 1) * 0.05;
+        const rms = (values) => Math.sqrt(values.reduce((sum, v) => sum + v * v, 0) / values.length);
+        const inputRms = [];
+        const outputRms = [];
+        // 2 seconds of white noise in 128-sample render quanta
+        for (let block = 0; block < 750; block++) {
+            const input = Float32Array.from({ length: 128 }, noise);
+            const output = new Float32Array(128);
+            assert.equal(processor.process([[input]], [[output]]), true);
+            if (block >= 375) {
+                inputRms.push(rms(input));
+                outputRms.push(rms(output));
+            }
+        }
+        const avg = (values) => values.reduce((sum, v) => sum + v, 0) / values.length;
+        assert.ok(avg(outputRms) < avg(inputRms) * 0.1, `noise not suppressed: ${avg(outputRms)} vs ${avg(inputRms)}`);
+
+        await processor.port.onmessage({ data: { type: 'destroy' } });
+        assert.equal(processor.contextManager, null);
     });
 });
 
@@ -144,7 +197,7 @@ describe('RNNoise main-thread startup', () => {
             clearTimeout,
             document: { getElementById: () => ({ style: {} }) },
             console: { log() {}, info() {}, warn() {}, error() {} },
-            fetch: sinon.stub().resolves({ ok: true, text: async () => 'module' }),
+            fetch: sinon.stub().resolves({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) }),
         });
         vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/js/nodeProcessor.js'), 'utf8'), context);
         processor = vm.runInContext('new RNNoiseProcessor()', context);
