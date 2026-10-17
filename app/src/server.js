@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.71
+ * @version 2.1.72
  *
  */
 
@@ -508,6 +508,9 @@ if (ipWhitelist.enabled && !trustProxy) {
 app.use(helmet.noSniff()); // Enable content type sniffing prevention
 app.use(applyEmbedHeaders); // Apply iframe embedding restrictions (CSP frame-ancestors / X-Frame-Options)
 
+// Compress all HTTP responses (including static files) using GZip; must be registered before express.static
+app.use(compression());
+
 // Use all static files from the public folder
 const staticOptions = {
     setHeaders: (res, filePath) => {
@@ -525,7 +528,6 @@ app.use(express.static(dir.public, staticOptions));
 app.use('/mattermost', express.static(dir.public, staticOptions));
 
 app.use(cors(corsOptions)); // Enable CORS with options
-app.use(compression()); // Compress all HTTP responses using GZip
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: false })); // Parse URL-encoded bodies
 app.use(apiBasePath + '/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // api docs
