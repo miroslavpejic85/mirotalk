@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.73
+ * @version 2.1.74
  *
  */
 
@@ -736,6 +736,9 @@ let peerAudioMediaElements = {}; // keep track of our peer <audio> tags, indexed
 let masterOutputVolume = 1; // 0..1 master speaker volume, multiplied with each per-peer volume
 let elementVolumeWritable; // HTMLMediaElement.volume is read-only on iOS
 let outputAudioContext = null; // used to control the output volume where volume is read-only
+const blockedAudioElements = new Set(); // remote <audio> blocked by the browser autoplay policy (e.g. Safari)
+let audioUnlockPrompt = null;
+let audioUnlockListening = false;
 
 // main and bottom buttons
 let mainButtonsBarPosition = 'vertical'; // vertical - horizontal
@@ -3572,11 +3575,9 @@ async function handleOnTrack(peer_id, peers) {
 
             if (audioElement) {
                 attachMediaStream(audioElement, inbound);
+                audioElement._peerName = peer_name;
                 // Always call play() — srcObject was just assigned so the old check (!srcObject) was always false
-                audioElement.play().catch((err) => {
-                    console.warn('[AUDIO] Autoplay not allowed by device, setting up fallback:', err);
-                    handleAudioFallback(audioElement, peer_name);
-                });
+                playRemoteAudio(audioElement);
             } else {
                 loadRemoteMediaStream(inbound, allPeers || peers, peer_id, 'audio');
             }
@@ -3952,6 +3953,7 @@ function handleDisconnect(reason) {
     }
 
     adaptAspectRatio();
+    updateAudioUnlockPrompt();
 
     chatDataChannels = {};
     fileDataChannels = {};
@@ -4019,6 +4021,7 @@ function handleRemovePeer(config) {
 
     if (peerAudioId in peerAudioMediaElements) {
         peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
+        updateAudioUnlockPrompt();
     }
 
     if (peer_id in peerConnections) peerConnections[peer_id].close();
@@ -6303,11 +6306,17 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             peerAudioMediaElements[remoteAudioMedia.id] = remoteAudioWrap;
             applyOutputVolume(remoteAudioMedia);
 
-            // Explicitly play audio to ensure it starts (handles autoplay policies)
-            remoteAudioMedia.play().catch((err) => {
-                console.warn('[AUDIO] Autoplay prevented for ' + peer_name + ', waiting for user interaction:', err);
-                handleAudioFallback(remoteAudioMedia, peer_name);
+            remoteAudioMedia._peerName = peer_name;
+            // Remote audio is never paused on purpose, so a pause means the browser interrupted it
+            // (iOS call/Siri, autoplay policy). Detaching the element also pauses it: skip that case.
+            remoteAudioMedia.addEventListener('pause', () => {
+                if (!remoteAudioMedia.isConnected || document.hidden || blockedAudioElements.has(remoteAudioMedia)) {
+                    return;
+                }
+                playRemoteAudio(remoteAudioMedia);
             });
+            // autoplay alone fails silently when blocked (e.g. Safari with no active capture)
+            playRemoteAudio(remoteAudioMedia);
 
             // Only wire volume control if the element exists
             if (remoteAudioVolumeEl && !isMobileDevice) {
@@ -6485,28 +6494,132 @@ function handleDropdownEvents(dropdownDiv, dropdownBtn, dropdownContent) {
 }
 
 /**
- * Handle remote audio fallback
- * @param {object} audioMedia
- * @param {string} peer_name
+ * Play a remote audio element, tracking it when blocked by the browser autoplay policy (e.g. Safari)
+ * @param {HTMLAudioElement} elem
+ * @returns {Promise<boolean>} true if playback started
  */
-function handleAudioFallback(audioMedia, peer_name) {
-    if (!audioMedia) return;
-    // Fallback: play audio on first user interaction
-    const playOnInteraction = () => {
-        audioMedia
-            .play()
-            .then(() => {
-                console.log('[AUDIO] Audio started after user interaction for ' + peer_name);
-                document.removeEventListener('click', playOnInteraction);
-                document.removeEventListener('touchstart', playOnInteraction);
-                document.removeEventListener('keydown', playOnInteraction);
-            })
-            .catch((e) => console.error('[AUDIO] Failed to play audio:', e));
-    };
-    document.addEventListener('click', playOnInteraction, { once: true });
-    document.addEventListener('touchstart', playOnInteraction, { once: true });
-    document.addEventListener('keydown', playOnInteraction, { once: true });
+function playRemoteAudio(elem) {
+    if (!elem || !elem.isConnected) return Promise.resolve(false);
+    let playPromise;
+    try {
+        playPromise = elem.play();
+    } catch (err) {
+        playPromise = Promise.reject(err);
+    }
+    return Promise.resolve(playPromise)
+        .then(() => {
+            if (blockedAudioElements.delete(elem)) updateAudioUnlockPrompt();
+            return true;
+        })
+        .catch((err) => {
+            if (err?.name === 'NotAllowedError') {
+                console.warn('[AUDIO] Remote audio playback blocked by the browser autoplay policy', elem._peerName);
+                if (elem.isConnected) {
+                    blockedAudioElements.add(elem);
+                    updateAudioUnlockPrompt();
+                }
+            } else if (err?.name !== 'AbortError') {
+                console.warn('[AUDIO] Remote audio play error', err);
+            }
+            return false;
+        });
 }
+
+/**
+ * Retry the blocked remote audio elements, must run inside a user gesture handler
+ */
+function unlockBlockedAudio() {
+    // play() must be invoked synchronously inside the user gesture handler
+    for (const elem of [...blockedAudioElements]) {
+        if (!elem.isConnected) {
+            blockedAudioElements.delete(elem);
+            continue;
+        }
+        playRemoteAudio(elem);
+    }
+    if (outputAudioContext?.state === 'suspended') {
+        outputAudioContext.resume().catch((err) => console.warn('Output AudioContext resume', err));
+    }
+    updateAudioUnlockPrompt();
+}
+
+/**
+ * Resume remote audio elements paused by the browser (e.g. iOS call/Siri, app in background)
+ */
+function resumeInterruptedAudio() {
+    const audios = audioMediaContainer?.querySelectorAll('audio') || [];
+    for (const elem of audios) {
+        if (elem.paused && elem.srcObject && !blockedAudioElements.has(elem)) {
+            playRemoteAudio(elem);
+        }
+    }
+}
+
+/**
+ * Add or remove the user gesture listeners used to unlock the blocked remote audio
+ * @param {boolean} enabled
+ */
+function setAudioUnlockListeners(enabled) {
+    if (audioUnlockListening === enabled) return;
+    audioUnlockListening = enabled;
+    const method = enabled ? 'addEventListener' : 'removeEventListener';
+    // Events that grant user activation on desktop and touch devices (touchstart/pointerdown don't on iOS)
+    for (const type of ['click', 'touchend', 'pointerup', 'keydown']) {
+        window[method](type, unlockBlockedAudio, true);
+    }
+}
+
+/**
+ * Show, update or hide the prompt asking the user to enable the blocked remote audio
+ */
+function updateAudioUnlockPrompt() {
+    for (const elem of [...blockedAudioElements]) {
+        if (!elem.isConnected) blockedAudioElements.delete(elem);
+    }
+
+    const blocked = blockedAudioElements.size > 0;
+    setAudioUnlockListeners(blocked);
+
+    if (!blocked) {
+        audioUnlockPrompt?.classList.remove('is-visible');
+        return;
+    }
+
+    if (!audioUnlockPrompt) {
+        const btn = document.createElement('button');
+        btn.id = 'audioUnlockPrompt';
+        btn.type = 'button';
+        btn.className = 'audio-unlock-prompt';
+        btn.setAttribute('aria-live', 'polite');
+        btn.setAttribute('data-i18n-skip', '');
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-volume-high';
+        icon.setAttribute('aria-hidden', 'true');
+        const text = document.createElement('span');
+        btn.append(icon, text);
+        // The click is also caught by the capture-phase gesture listener; this keeps the button self-contained
+        btn.addEventListener('click', unlockBlockedAudio);
+        document.body.appendChild(btn);
+        audioUnlockPrompt = btn;
+    }
+
+    const names = [...new Set([...blockedAudioElements].map((elem) => elem._peerName).filter(Boolean))];
+    const label =
+        names.length === 1
+            ? (window.i18n?.t('Enable audio to hear {name}', 'buttons') || 'Enable audio to hear {name}').replace(
+                  '{name}',
+                  () => names[0]
+              )
+            : window.i18n?.t('Enable audio to hear participants', 'buttons') || 'Enable audio to hear participants';
+
+    audioUnlockPrompt.lastChild.textContent = label;
+    audioUnlockPrompt.setAttribute('aria-label', label);
+    audioUnlockPrompt.classList.add('is-visible');
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) resumeInterruptedAudio();
+});
 
 /**
  * Log stream settings info
@@ -19071,7 +19184,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.73',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.74',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

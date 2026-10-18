@@ -7471,6 +7471,77 @@ body {
     animation: sidebarReveal 0.24s var(--ds-ease-out);
 }
 
+/*--------------------------------------------------------------
+# Remote audio blocked by the browser autoplay policy (Safari)
+--------------------------------------------------------------*/
+
+.audio-unlock-prompt {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
+    left: 50%;
+    z-index: 1001;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: calc(100vw - 32px);
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--ds-radius-full);
+    background: var(--ds-brand-600);
+    color: #fff;
+    font-family: var(--ds-font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, -12px);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0.2s;
+}
+.audio-unlock-prompt.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+}
+.audio-unlock-prompt span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.audio-unlock-prompt i {
+    animation: audioUnlockPulse 1.6s ease-in-out infinite;
+}
+.audio-unlock-prompt:hover {
+    background: var(--ds-brand-700);
+}
+.audio-unlock-prompt:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+@keyframes audioUnlockPulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .audio-unlock-prompt {
+        transition: none;
+    }
+    .audio-unlock-prompt i {
+        animation: none;
+    }
+}
+
 /*
 z-index
 6 theme custom picker
@@ -7488,4 +7559,5 @@ z-index
 16 settings
 17 send File Div
 18 room Emoji reaction
+1001 audio unlock prompt
 */
