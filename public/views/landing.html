@@ -13,6 +13,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="darkreader-lock" />
+        <meta name="theme-color" content="#0d0e12" />
+        <meta name="color-scheme" content="dark" />
 
         <meta
             name="description"
@@ -70,10 +72,12 @@
 
         <script defer src="../js/widget.js"></script>
     </head>
-    <body class="has-animations">
+    <body class="has-animations sticky-header landing-page">
+        <a class="skip-link" href="#main">Skip to main content</a>
         <div id="snow-container"></div>
         <div class="body-wrap">
             <header class="site-header reveal-from-top">
+                <div class="scroll-progress" aria-hidden="true"></div>
                 <div class="container">
                     <div class="site-header-inner">
                         <div class="brand">
@@ -90,10 +94,25 @@
                                 </a>
                             </div>
                         </div>
+                        <nav class="landing-nav" aria-label="Primary">
+                            <a class="landing-nav-link" href="#features">Features</a>
+                            <a class="landing-nav-link" href="#supportUs">Support</a>
+                            <a
+                                id="navGithubLink"
+                                class="landing-nav-link landing-nav-icon"
+                                href="https://github.com/miroslavpejic85/mirotalk"
+                                target="_blank"
+                                rel="noopener"
+                                aria-label="MiroTalk P2P on GitHub"
+                            >
+                                <i class="fab fa-github" aria-hidden="true"></i>
+                            </a>
+                            <a id="startMeetingLink" class="landing-nav-cta" href="#roomName">Start a meeting</a>
+                        </nav>
                     </div>
                 </div>
             </header>
-            <main class="site-content">
+            <main id="main" class="site-content">
                 <section class="hero section illustration-section-01">
                     <div class="container">
                         <div class="hero-inner section-inner">
@@ -1087,11 +1106,17 @@
                 </div>
             </footer>
         </div>
+
+        <button id="backToTop" class="back-to-top" type="button" aria-label="Back to top" hidden>
+            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+        </button>
+
         <script defer src="../js/swal.js"></script>
         <script defer src="../js/utils.js"></script>
         <script defer src="../js/common.js"></script>
         <script defer src="../js/brand.js"></script>
         <script defer src="../js/landing.js"></script>
+        <script defer src="../js/landingEffects.js"></script>
         <script async defer src="https://buttons.github.io/buttons.js"></script>
     </body>
 </html>

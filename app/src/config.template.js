@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.76 - Configuration File
+ * MiroTalk P2P v.2.1.77 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -453,10 +453,10 @@ module.exports = {
             enabled: false,
             roomId: 'support-room',
             theme: 'dark',
-            widgetState: 'minimized',
+            widgetState: 'closed',
             widgetType: 'support',
             supportWidget: {
-                position: 'top-right',
+                position: 'bottom-right',
                 expertImages: [
                     'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
                 ],

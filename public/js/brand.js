@@ -48,6 +48,7 @@ const pastSponsors = document.getElementById('pastSponsors');
 const advertisers = document.getElementById('advertisers');
 const supportUs = document.getElementById('supportUs');
 const footer = document.getElementById('footer');
+const navGithubLink = document.getElementById('navGithubLink');
 //...
 
 // Brand customizations...
@@ -110,7 +111,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v2.1.76',
+        title: 'WebRTC P2P v2.1.77',
         html: `
             <button 
                 id="support-button" 
@@ -142,10 +143,10 @@ let brand = {
         enabled: false,
         roomId: 'support-room',
         theme: 'dark',
-        widgetState: 'minimized',
+        widgetState: 'closed',
         widgetType: 'support',
         supportWidget: {
-            position: 'top-right',
+            position: 'bottom-right',
             expertImages: [
                 'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
             ],
@@ -310,6 +311,8 @@ function handleBrand() {
         [supportUs, brand.html?.supportUs],
         [footer, brand.html?.footer],
     ]);
+
+    if (!brand.html?.footer) elementDisplay(navGithubLink, false);
 }
 
 // WIDGET customize

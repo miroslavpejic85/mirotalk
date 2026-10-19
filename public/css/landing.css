@@ -4814,6 +4814,7 @@ body {
 .button:focus-visible,
 .room-gen-btn:focus-visible,
 .past-sponsors-toggle:focus-visible,
+.back-to-top:focus-visible,
 a:focus-visible {
     outline: 3px solid rgba(70, 120, 249, 0.9);
     outline-offset: 3px;
@@ -4854,6 +4855,7 @@ a:focus-visible {
     transition:
         border-color 0.25s ease,
         background-color 0.25s ease,
+        box-shadow 0.25s ease,
         transform 0.25s ease;
 }
 
@@ -4863,14 +4865,19 @@ a:focus-visible {
     top: 0;
     right: 24px;
     left: 24px;
+    z-index: 1;
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(70, 120, 249, 0.72), rgba(255, 95, 160, 0.5), transparent);
     opacity: 0.62;
+    transition: opacity 0.3s ease;
 }
 
 .features-tiles .tiles-item-inner:hover {
     border-color: var(--landing-border-hover);
     background: rgba(32, 39, 49, 0.9);
+    box-shadow:
+        0 18px 44px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     transform: translateY(-4px);
 }
 
@@ -5076,6 +5083,330 @@ a:focus-visible {
 
     .clients-size-logo {
         max-width: 100%;
+    }
+}
+
+/*--------------------------------------------------------------
+# Landing Page UX Polish
+# body.sticky-header: shared sticky header (landing, new call, privacy)
+# body.landing-page: landing-only nav, widget avoidance and effects
+--------------------------------------------------------------*/
+
+:root {
+    --landing-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --landing-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html:has(.sticky-header) {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px;
+}
+
+.sticky-header ::selection {
+    background: rgba(70, 120, 249, 0.45);
+    color: #fff;
+}
+
+.skip-link {
+    position: absolute;
+    top: -64px;
+    left: 16px;
+    z-index: 200;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--landing-primary);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+    text-decoration: none;
+    transition: top 0.2s var(--landing-ease);
+}
+
+.skip-link:focus {
+    top: 12px;
+}
+
+a.skip-link,
+a.skip-link:hover {
+    color: #fff;
+}
+
+/* Sticky glass header: fixed (the base header is already out of flow, so the layout is unchanged).
+   Transparent over the hero with a soft scrim for nav legibility; turns into a glass bar once scrolled. */
+.sticky-header .site-header {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 100 !important;
+    border-bottom: 1px solid transparent;
+    background-color: transparent;
+    transition:
+        background-color 0.3s var(--landing-ease),
+        border-color 0.3s var(--landing-ease),
+        box-shadow 0.3s var(--landing-ease);
+}
+
+.sticky-header .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -24px;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0));
+    pointer-events: none;
+    transition: opacity 0.3s var(--landing-ease);
+}
+
+.sticky-header .site-header.is-scrolled {
+    border-bottom-color: var(--landing-border);
+    background-color: rgba(13, 14, 18, 0.8);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+}
+
+.sticky-header .site-header.is-scrolled::before {
+    opacity: 0;
+}
+
+/* The header also uses reveal-from-top, whose transition rule would otherwise override the glass transition. */
+@media (min-width: 641px) {
+    .has-animations.is-loaded.sticky-header .site-header {
+        transition:
+            opacity 1s cubic-bezier(0.39, 0.575, 0.565, 1),
+            transform 1s cubic-bezier(0.39, 0.575, 0.565, 1),
+            background-color 0.3s var(--landing-ease),
+            border-color 0.3s var(--landing-ease),
+            box-shadow 0.3s var(--landing-ease);
+    }
+}
+
+/* The open support panel is large, so keep it below the sticky header.
+   The small minimized/reopener buttons stay at their original top position;
+   landingEffects.js shifts the header nav/brand so they never overlap. */
+.sticky-header .mirotalk-support-widget.top-right,
+.sticky-header .mirotalk-support-widget.top-left {
+    top: 92px;
+    max-height: calc(100vh - 112px);
+}
+
+.landing-page .landing-nav {
+    margin-right: var(--widget-avoid-right, 0px);
+}
+
+.landing-page .site-header .brand {
+    margin-left: var(--widget-avoid-left, 0px);
+}
+
+.site-header-inner.is-tight .landing-nav-icon {
+    display: none;
+}
+
+.site-header-inner.is-tight .landing-nav-cta {
+    margin-left: 0;
+    padding: 0 12px;
+    font-size: 13px;
+}
+
+.scroll-progress {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--landing-primary), var(--landing-primary-bright), var(--landing-secondary));
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: opacity 0.25s ease;
+}
+
+.is-scrolled .scroll-progress {
+    opacity: 1;
+}
+
+.landing-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.landing-nav a {
+    text-decoration: none;
+}
+
+.landing-nav .landing-nav-link {
+    color: var(--landing-text-muted);
+}
+
+.landing-nav .landing-nav-cta,
+.landing-nav .landing-nav-cta:hover {
+    color: #fff;
+}
+
+.landing-nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--landing-text-muted);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.landing-nav-link[hidden] {
+    display: none;
+}
+
+.landing-nav-link:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+}
+
+.landing-nav-icon {
+    font-size: 20px;
+}
+
+.landing-nav-cta {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    margin-left: 8px;
+    padding: 0 18px;
+    border-radius: 8px;
+    background: linear-gradient(100deg, var(--landing-primary), var(--landing-primary-bright));
+    box-shadow: 0 8px 20px rgba(70, 120, 249, 0.22);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 20px;
+    white-space: nowrap;
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s var(--landing-ease);
+}
+
+.landing-nav-cta:hover {
+    box-shadow: 0 12px 28px rgba(70, 120, 249, 0.36);
+    transform: translateY(-2px);
+}
+
+.landing-nav-cta:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Join card, buttons and inputs */
+.landing-page .button:hover {
+    transform: translateY(-1px);
+}
+
+.landing-page .button:active {
+    transform: translateY(0) scale(0.985);
+}
+
+.landing-page .cta:not(#supportUs) .cta-inner {
+    transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.landing-page .cta:not(#supportUs) .cta-inner:focus-within {
+    border-color: rgba(70, 120, 249, 0.5);
+    box-shadow:
+        0 24px 70px rgba(0, 0, 0, 0.32),
+        0 0 0 4px rgba(70, 120, 249, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Feature cards: pointer spotlight (position set by landingEffects.js) */
+.landing-page .features-tiles .tiles-item-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        300px circle at var(--mx, 50%) var(--my, 0%),
+        rgba(70, 120, 249, 0.14),
+        transparent 62%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.landing-page .features-tiles .tiles-item-inner:hover::before,
+.landing-page .features-tiles .tiles-item-inner:hover::after {
+    opacity: 1;
+}
+
+.landing-page .features-tiles-item-image img {
+    transition:
+        opacity 0.25s ease,
+        transform 0.35s var(--landing-ease-spring);
+}
+
+/* Back to top */
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--landing-border);
+    border-radius: 50%;
+    background: rgba(25, 28, 36, 0.82);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    color: #fff;
+    cursor: pointer;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s var(--landing-ease);
+}
+
+.back-to-top[hidden] {
+    display: none;
+}
+
+.back-to-top:hover {
+    background: var(--landing-primary);
+    transform: translateY(-3px);
+}
+
+@media (max-width: 640px) {
+    html:has(.sticky-header) {
+        scroll-padding-top: 72px;
+    }
+
+    .sticky-header .mirotalk-support-widget.top-right,
+    .sticky-header .mirotalk-support-widget.top-left {
+        top: 76px;
+        max-height: calc(100vh - 96px);
+    }
+
+    .landing-nav-link:not(.landing-nav-icon) {
+        display: none;
+    }
+
+    .landing-nav-cta {
+        height: 38px;
+        padding: 0 14px;
+    }
+
+    .back-to-top {
+        bottom: 16px;
+        left: 16px;
     }
 }
 

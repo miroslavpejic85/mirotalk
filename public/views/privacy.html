@@ -29,9 +29,11 @@
 
         <script async src="../js/stats.js"></script>
     </head>
-    <body class="has-animations">
+    <body class="has-animations sticky-header">
+        <a class="skip-link" href="#main">Skip to main content</a>
         <div class="body-wrap">
             <header class="site-header reveal-from-top">
+                <div class="scroll-progress" aria-hidden="true"></div>
                 <div class="container">
                     <div class="site-header-inner">
                         <div class="brand">
@@ -51,7 +53,7 @@
                     </div>
                 </div>
             </header>
-            <main class="site-content mt-48">
+            <main id="main" class="site-content mt-48">
                 <section class="hero section">
                     <div class="container">
                         <div class="hero-inner section-inner">
@@ -297,8 +299,15 @@
             </footer>
         </div>
 
+        <button id="backToTop" class="back-to-top" type="button" aria-label="Back to top" hidden>
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 2.5 2.75 7.75l1.06 1.06L7.25 5.37V13.5h1.5V5.37l3.44 3.44 1.06-1.06Z" fill="currentColor" />
+            </svg>
+        </button>
+
         <script defer src="../js/brand.js"></script>
         <script defer src="../js/landing.js"></script>
+        <script defer src="../js/landingEffects.js"></script>
         <script async defer src="https://buttons.github.io/buttons.js"></script>
     </body>
 </html>
