@@ -8,6 +8,8 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="color-scheme" content="dark" />
 
         <!-- https://ogp.me -->
 
@@ -25,14 +27,17 @@
         <script src="https://cdn.jsdelivr.net/npm/xss/dist/xss.min.js"></script>
     </head>
     <body>
+        <a class="cr-skip" href="#crMain">Skip to main content</a>
         <header class="cr-header">
-            <a class="cr-brand" href="/" aria-label="MiroTalk home">
-                <img src="../images/logo.svg" alt="" width="36" height="36" />
-                <span id="customizeRoomBrandName">MiroTalk P2P</span>
-            </a>
-            <a class="cr-back" href="/">Back to home</a>
+            <div class="cr-header-inner">
+                <a class="cr-brand" href="/" aria-label="MiroTalk home">
+                    <img src="../images/logo.svg" alt="" width="40" height="40" />
+                    <span id="customizeRoomBrandName">MiroTalk P2P</span>
+                </a>
+                <a class="cr-back" href="/">Back to home</a>
+            </div>
         </header>
-        <main class="cr-page">
+        <main id="crMain" class="cr-page">
             <div class="cr-intro">
                 <p class="cr-eyebrow">Room setup</p>
                 <h1 class="cr-title">Make the room yours</h1>

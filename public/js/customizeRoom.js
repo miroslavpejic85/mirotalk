@@ -313,3 +313,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Header: transparent at the top, glass bar once the page is scrolled (matches the landing page).
+document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('.cr-header');
+    if (!header) return;
+    let ticking = false;
+    const update = () => {
+        ticking = false;
+        header.classList.toggle('is-scrolled', window.scrollY > 8);
+    };
+    window.addEventListener(
+        'scroll',
+        () => {
+            if (ticking) return;
+            ticking = true;
+            window.requestAnimationFrame(update);
+        },
+        { passive: true }
+    );
+    update();
+});
