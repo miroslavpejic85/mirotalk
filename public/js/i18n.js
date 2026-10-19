@@ -689,6 +689,7 @@
                 settled = true;
                 resolve();
             };
+            if (window.brandReady) return finish();
             document.addEventListener('brand:ready', finish, { once: true });
             // Fallback in case brand is already resolved or brand.js is absent.
             setTimeout(finish, 2000);

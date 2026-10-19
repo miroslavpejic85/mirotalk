@@ -110,7 +110,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v2.1.75',
+        title: 'WebRTC P2P v2.1.76',
         html: `
             <button 
                 id="support-button" 
@@ -182,6 +182,8 @@ async function initBrand() {
     handleWidget();
 
     // Signal to i18n.js (and others) that brand config is resolved.
+    // The flag covers listeners attached after the event fired (e.g. cached brandData).
+    window.brandReady = true;
     document.dispatchEvent(new Event('brand:ready'));
 }
 

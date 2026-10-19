@@ -86,7 +86,7 @@ describe('native language picker', () => {
     let fetched;
     let popups;
 
-    async function load(language = 'en', mode = 'native', override) {
+    async function load(language = 'en', mode = 'native', override, brandAlreadyReady = false) {
         dom = new JSDOM(
             `<!doctype html><html lang="en" dir="ltr"><body>
                 <div id="tabLanguages"><p class="title">Language:</p></div>
@@ -113,8 +113,10 @@ describe('native language picker', () => {
         if (override) window.localStorage.setItem('uiLanguageOverride', override);
         const context = dom.getInternalVMContext();
         vm.runInContext(`let brand = ${JSON.stringify({ app: { language, translationMode: mode } })};`, context);
+        // Simulates brand.js resolving (e.g. from cached brandData) before i18n.js attaches its listener.
+        if (brandAlreadyReady) window.brandReady = true;
         vm.runInContext(source, context);
-        window.document.dispatchEvent(new window.Event('brand:ready'));
+        if (!brandAlreadyReady) window.document.dispatchEvent(new window.Event('brand:ready'));
         await window.i18n.ready;
     }
 
@@ -245,5 +247,14 @@ describe('native language picker', () => {
         assert.equal(window.document.documentElement.lang, 'en');
         assert.equal(window.document.documentElement.dir, 'ltr');
         assert.equal(window.document.getElementById('close').textContent, 'Close');
+    });
+
+    it('does not wait for the brand:ready fallback when brand was resolved before i18n.js loaded', async () => {
+        const started = Date.now();
+        await load('it', 'native', undefined, true);
+        assert.ok(Date.now() - started < 1000, 'i18n.ready should not wait for the 2s fallback');
+        assert.equal(window.i18n.isNative(), true);
+        assert.equal(window.i18n.googleAllowed, false);
+        assert.equal(window.document.documentElement.lang, 'it');
     });
 });
