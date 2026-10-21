@@ -29,12 +29,30 @@ function updateElapsedTime() {
     } else {
         const minutes = Math.floor(seconds / 60);
         const template = getWaitingRoomBrand('waitingRoomElapsedMinutes', 'Waiting for {minutes}');
-        waitingElapsedText.textContent = template.replace(
-            '{minutes}',
-            minutes + (minutes === 1 ? ' minute' : ' minutes')
-        );
+        waitingElapsedText.textContent = template.replace('{minutes}', formatMinutes(minutes));
     }
 }
+
+// Unit in the UI language (e.g. "3 minuten" for nl). Stays English when Google Translate is
+// allowed, since Google then translates the page from English.
+function formatMinutes(minutes) {
+    const i18n = window.i18n;
+    const nativeLang = i18n && (i18n.googleAllowed === false || i18n.isNative?.()) ? i18n.getLang?.() : null;
+    const lang = nativeLang || 'en';
+    try {
+        return new Intl.NumberFormat(lang, { style: 'unit', unit: 'minute', unitDisplay: 'long' }).format(minutes);
+    } catch (e) {
+        return minutes + (minutes === 1 ? ' minute' : ' minutes');
+    }
+}
+
+// Show the configured text right away instead of the static HTML fallback until the first tick.
+function onBrandReady(callback) {
+    if (window.brandReady) return callback();
+    document.addEventListener('brand:ready', () => callback(), { once: true });
+}
+
+onBrandReady(updateElapsedTime);
 elapsedTimerId = setInterval(updateElapsedTime, 10000);
 
 // Translate a UI string via the native i18n layer when active (falls back to English).
