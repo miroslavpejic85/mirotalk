@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.80 - Configuration File
+ * MiroTalk P2P v.2.1.81 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -24,6 +24,7 @@
 require('dotenv').config();
 
 const packageJson = require('../../package.json');
+const { parseHostUsers } = require('./hostUsers');
 
 // Helper: parse env string to boolean
 function getEnvBoolean(key, force_true_if_undefined = false) {
@@ -94,9 +95,13 @@ module.exports = {
     host: {
         protected: getEnvBoolean(process.env.HOST_PROTECTED),
         userAuth: getEnvBoolean(process.env.HOST_USER_AUTH),
-        // HOST_USERS passwords must contain between 1 and 36 characters.
+        // HOST_USERS (same format as MiroTalk SFU), passwords must contain between 1 and 36 characters:
+        // - Compact: username:password:displayname:room1,room2|username2:password2:displayname2:*
+        // - JSON:    [{"username":"alice","password":"pw","displayname":"Alice","allowed_rooms":["*"]}]
+        // - displayname   : optional, enforced as the user's name in the room (not editable)
+        // - allowed_rooms : optional, rooms the user can open/join with this login ('*' = all, default)
         // Empty by default: a shipped username/password is a public credential, set your own.
-        users: parseJsonEnv(process.env.HOST_USERS, []),
+        users: parseHostUsers(process.env.HOST_USERS),
         maxLoginAttempts: process.env.HOST_MAX_LOGIN_ATTEMPTS || 5,
         minLoginBlockTime: process.env.HOST_MIN_LOGIN_BLOCK_TIME || 15, // in minutes
         // /createRoomToken rate limit (per IP)

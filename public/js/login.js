@@ -36,6 +36,15 @@ togglePassword.onclick = () => {
     togglePassword.classList.toggle('fa-eye-slash', isPassword);
 };
 
+// From the /login response (HOST_USERS displayname / allowed_rooms); the server enforces both on join
+let loginDisplayName = '';
+let loginAllowedRooms = null;
+
+function isRoomAllowed(room) {
+    if (!Array.isArray(loginAllowedRooms)) return true;
+    return loginAllowedRooms.includes('*') || loginAllowedRooms.includes(room);
+}
+
 function login() {
     const username = filterXSS(document.getElementById('username').value);
     const password = filterXSS(document.getElementById('password').value);
@@ -61,6 +70,14 @@ function login() {
                 // Store in session
                 const token = response.data.message;
                 window.sessionStorage.peer_token = token;
+                loginDisplayName = response.data.displayname || username;
+                loginAllowedRooms = Array.isArray(response.data.allowedRooms) ? response.data.allowedRooms : null;
+
+                const targetRoom = room || (roomPath && roomPath !== 'login' ? roomPath : '');
+                if (targetRoom && !isRoomAllowed(targetRoom)) {
+                    showLoginError('Room not allowed for this user');
+                    return;
+                }
 
                 if (room) {
                     window.location.href = '/join/' + window.location.search;
@@ -166,9 +183,14 @@ function showJoinRoomForm() {
 
     const doJoin = () => {
         const room = roomNameInput ? filterXSS(roomNameInput.value.trim()) : '';
-        const name = filterXSS(document.getElementById('username').value).trim();
+        const name = filterXSS(loginDisplayName || document.getElementById('username').value).trim();
         if (!room) {
             highlightEmpty(roomNameInput);
+            return;
+        }
+        if (!isRoomAllowed(room)) {
+            highlightEmpty(roomNameInput);
+            popup('warning', translateLoginText('Room not allowed for this user'));
             return;
         }
         window.location.href =
