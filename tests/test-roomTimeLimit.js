@@ -189,6 +189,7 @@ describe('test-roomTimeLimit', function () {
                 env: {
                     ...process.env,
                     PORT: String(PORT),
+                    JWT_KEY: 'test-jwt-key-0123456789-abcdefghijklmnop',
                     HOST_PROTECTED: 'false',
                     HOST_USER_AUTH: 'false',
                     NGROK_ENABLED: 'false',
