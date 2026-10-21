@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.81
+ * @version 2.1.82
  *
  */
 
@@ -69,6 +69,7 @@ const { getJwtKeys } = require('./jwtSecret');
 const MattermostController = require('./mattermost');
 const Validate = require('./validate');
 const RoomPassword = require('./roomPassword');
+const RoomTimeLimit = require('./roomTimeLimit');
 const HtmlInjector = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
@@ -1649,6 +1650,7 @@ io.sockets.on('connect', async (socket) => {
             peer_rec_status,
             peer_privacy_status,
             peer_info,
+            room_duration,
         } = config;
 
         if (!Validate.isValidRoomName(channel)) {
@@ -1742,6 +1744,11 @@ io.sockets.on('connect', async (socket) => {
             }
         }
 
+        if (RoomTimeLimit.isReached(channel)) {
+            log.debug('[' + socket.id + '] [Warning] Room has reached its time limit', channel);
+            return socket.emit('roomTimeLimitReached');
+        }
+
         // Auth passed — safe to create the room structures now
         if (!(channel in channels)) channels[channel] = {};
         if (!(channel in peers)) peers[channel] = {};
@@ -1825,6 +1832,18 @@ io.sockets.on('connect', async (socket) => {
             return socket.emit('roomIsJoinLocked');
         }
 
+        // Security: only a presenter can start the room-wide time limit (first one wins, can't be changed later)
+        if (
+            isPresenter &&
+            RoomTimeLimit.start(channel, room_duration, {
+                onReached: () => endRoomTimeLimit(channel),
+                onGraceEnd: () => disconnectRoomPeers(channel),
+            })
+        ) {
+            log.info('[' + socket.id + '] Room time limit started', { channel, duration: room_duration });
+            await sendToRoom(channel, socket.id, 'roomTimeLimit', { action: 'start', ...RoomTimeLimit.get(channel) });
+        }
+
         // Some peer info data
         const { osName, osVersion, browserName, browserVersion, extras } = peer_info;
 
@@ -1877,6 +1896,7 @@ io.sockets.on('connect', async (socket) => {
                 url: redirectURL,
             },
             maxRoomParticipants: hostCfg.maxRoomParticipants,
+            time_limit: RoomTimeLimit.get(channel),
             // Whisper is exposed as a capability flag + segment length only.
             // The API key/basePath are server-side secrets and are never sent.
             whisper: {
@@ -3213,6 +3233,7 @@ io.sockets.on('connect', async (socket) => {
                 delete videoTextAnnotations[channel]; // Clean up persistent screen annotation state
                 delete videoDrawingAnnotations[channel]; // Clean up persistent screen drawing state
                 delete videoDrawingPermissions[channel];
+                RoomTimeLimit.clear(channel);
             }
         } catch (err) {
             log.error('Remove Peer', toJson(err));
@@ -3278,6 +3299,28 @@ io.sockets.on('connect', async (socket) => {
         }
     }
 }); // end [sockets.on-connect]
+
+/**
+ * Room time limit reached: notify all the peers in the room
+ * @param {string} room_id
+ */
+function endRoomTimeLimit(room_id) {
+    const roomSockets = Object.values(channels[room_id] || {});
+    log.info('Room time limit reached', { room_id, peers: roomSockets.length });
+    for (const roomSocket of roomSockets) {
+        roomSocket.emit('roomTimeLimit', { action: 'end' });
+    }
+}
+
+/**
+ * Room time limit grace period over: disconnect the peers still in the room
+ * @param {string} room_id
+ */
+function disconnectRoomPeers(room_id) {
+    for (const roomSocket of Object.values(channels[room_id] || {})) {
+        roomSocket.disconnect(true);
+    }
+}
 
 /**
  * Check if valid filename

@@ -108,6 +108,7 @@ paths:
                           duration:
                               type: string
                               default: 'unlimited'
+                              description: Room time limit (HH:MM:SS or unlimited). Set by the first presenter who joins, shown to all participants as a shared countdown, and the room closes when it expires
                           noiseSuppression:
                               type: boolean
                               description: Optional initial noise suppression state, omit to use the server default

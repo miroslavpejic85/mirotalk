@@ -7546,6 +7546,57 @@ body {
     }
 }
 
+/*--------------------------------------------------------------
+# Room time limit countdown (duration=HH:MM:SS)
+--------------------------------------------------------------*/
+
+.room-time-limit {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: var(--border);
+    border-radius: var(--ds-radius-full);
+    background: var(--btns-bg-color);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--box-shadow);
+    color: #66beff;
+    font-family: var(--ds-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+}
+
+.room-time-limit.hidden {
+    display: none;
+}
+
+.room-time-limit.room-time-limit-warning {
+    color: #ff5252;
+    background: rgba(255, 82, 82, 0.15);
+    animation: pulsate 1s ease-in-out infinite;
+}
+
+@media screen and (max-width: 830px) {
+    .room-time-limit {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .room-time-limit.room-time-limit-warning {
+        animation: none;
+    }
+}
+
 /*
 z-index
 6 theme custom picker
@@ -7563,5 +7614,6 @@ z-index
 16 settings
 17 send File Div
 18 room Emoji reaction
+1000 room time limit countdown
 1001 audio unlock prompt
 */
