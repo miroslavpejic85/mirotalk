@@ -15,6 +15,7 @@ const PURPOSES = {
     mattermost: 'mattermost-encrypt',
     createRoom: 'create-room',
     identity: 'oidc-identity',
+    oidcPresenter: 'oidc-presenter',
 };
 
 let cached = null;
@@ -51,6 +52,7 @@ function getJwtKeys(rawSecret = process.env.JWT_KEY) {
                 mattermost: deriveKey(secret, PURPOSES.mattermost),
                 createRoom: deriveKey(secret, PURPOSES.createRoom),
                 identity: deriveKey(secret, PURPOSES.identity),
+                oidcPresenter: deriveKey(secret, PURPOSES.oidcPresenter),
             }),
         };
     }

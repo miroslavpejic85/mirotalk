@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.79
+ * @version 2.1.80
  *
  */
 
@@ -84,6 +84,7 @@ const nodemailer = require('./lib/nodemailer');
 const packageJson = require('../../package.json');
 
 const { loginLimiter, createRoomTokenLimiter } = require('./middleware/rateLimiter');
+const { isOidcConfiguredPresenter } = require('./oidcPresenter');
 
 const port = config.server.port;
 const host = config.server.host;
@@ -237,6 +238,26 @@ function isCreateRoomTokenValid(token, roomId) {
 
 // Room presenters
 const roomPresenters = config.presenters;
+
+// Short-lived token bound to a room, issued by GET /oidcPresenterToken only to an OIDC session whose
+// verified email or sub is in PRESENTERS. The socket carries no OIDC session, so it proves it at join.
+const OIDC_PRESENTER_TOKEN_EXP = '2m';
+
+function createOidcPresenterToken(roomId) {
+    return jwt.sign({ scope: 'oidc-presenter', roomId: String(roomId) }, jwtKeys.oidcPresenter, {
+        expiresIn: OIDC_PRESENTER_TOKEN_EXP,
+    });
+}
+
+function isOidcPresenterTokenValid(token, roomId) {
+    if (!OIDC.enabled || !token || typeof token !== 'string') return false;
+    try {
+        const decoded = jwt.verify(token, jwtKeys.oidcPresenter, JWT_VERIFY_OPTIONS);
+        return decoded?.scope === 'oidc-presenter' && decoded.roomId === String(roomId);
+    } catch {
+        return false;
+    }
+}
 
 // Swagger config
 const yaml = require('js-yaml');
@@ -774,6 +795,28 @@ app.get('/createRoomToken', createRoomTokenLimiter, (req, res) => {
     }
 
     return res.json({ required: true, token: createCreateRoomToken(room) });
+});
+
+// Issue a short-lived token proving the OIDC session is a configured presenter (PRESENTERS matched
+// against the verified email or sub). The Socket.IO `join` event validates it for this room.
+app.get('/oidcPresenterToken', (req, res) => {
+    const { room } = checkXSS(req.query);
+
+    if (!room || !Validate.isValidRoomName(room)) {
+        return res.status(400).json({ message: 'Invalid room' });
+    }
+
+    res.set('Cache-Control', 'no-store');
+
+    if (!OIDC.enabled || !req.oidc?.isAuthenticated?.()) {
+        return res.json({ token: null });
+    }
+
+    if (!isOidcConfiguredPresenter(req.oidc.user, roomPresenters)) {
+        return res.json({ token: null });
+    }
+
+    return res.json({ token: createOidcPresenterToken(room) });
 });
 
 // Issue a short-lived token with the display name verified by the OIDC provider, so the client
@@ -1563,6 +1606,7 @@ io.sockets.on('connect', async (socket) => {
             peer_token,
             create_room_token,
             identity_token,
+            oidc_presenter_token,
             peer_video,
             peer_audio,
             peer_video_status,
@@ -1661,6 +1705,10 @@ io.sockets.on('connect', async (socket) => {
         if (!(channel in peers)) peers[channel] = {};
         if (!(channel in presenters)) presenters[channel] = {};
 
+        // Proof of an OIDC session listed in PRESENTERS (verified email or sub), bound to this room
+        const oidcPresenter = isOidcPresenterTokenValid(oidc_presenter_token, channel);
+        if (oidcPresenter) is_presenter = true;
+
         // room locked by the participants can't join
         if (peers[channel]['lock'] === true) {
             if (RoomPassword.isBlocked(peer_ip, channel)) {
@@ -1704,9 +1752,12 @@ io.sockets.on('connect', async (socket) => {
             }
         }
 
-        // Match configured presenters against authenticated account names,
-        // never client-selected display names.
-        if (authenticatedUsername && roomPresenters && roomPresenters.includes(authenticatedUsername)) {
+        // Match configured presenters against authenticated account names or the OIDC
+        // verified email/sub, never client-selected display names.
+        if (
+            oidcPresenter ||
+            (authenticatedUsername && roomPresenters && roomPresenters.includes(authenticatedUsername))
+        ) {
             presenters[channel][socket.id] = presenter;
         } else {
             // if not match the presenters username, the first one join room is the presenter

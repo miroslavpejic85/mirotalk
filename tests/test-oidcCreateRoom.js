@@ -168,6 +168,63 @@ describe('test-oidcCreateRoom', function () {
             host.close();
         }
     });
+    describe('OIDC presenters (PRESENTERS by verified email or sub)', () => {
+        const presenterToken = (roomId, key = keys.oidcPresenter, options = {}) =>
+            jwt.sign({ scope: 'oidc-presenter', roomId }, key, { expiresIn: '2m', ...options });
+
+        // Host opens the room, then a second peer joins with the given extra join data
+        async function secondPeerIsPresenter(room, extra) {
+            const host = await connectSocket();
+            try {
+                const hostResult = await joinAndAwait(host, joinCfg(room, { create_room_token: mint(room) }));
+                hostResult.event.should.equal('serverInfo');
+                const result = await join(joinCfg(room, { peer_name: 'second', ...extra }));
+                result.event.should.equal('serverInfo');
+                return result.data.is_presenter;
+            } finally {
+                host.close();
+            }
+        }
+
+        it('makes a peer with a valid OIDC presenter token a presenter', async () => {
+            const room = 'oidc-pres-a';
+            (await secondPeerIsPresenter(room, { oidc_presenter_token: presenterToken(room) })).should.be.true();
+        });
+
+        it('ignores a presenter token minted for another room', async () => {
+            const isPresenter = await secondPeerIsPresenter('oidc-pres-b', {
+                oidc_presenter_token: presenterToken('oidc-pres-other'),
+            });
+            isPresenter.should.be.false();
+        });
+
+        it('ignores a presenter token signed with another key', async () => {
+            const room = 'oidc-pres-c';
+            const isPresenter = await secondPeerIsPresenter(room, {
+                oidc_presenter_token: presenterToken(room, keys.createRoom),
+            });
+            isPresenter.should.be.false();
+        });
+
+        it('ignores an expired presenter token', async () => {
+            const room = 'oidc-pres-d';
+            const isPresenter = await secondPeerIsPresenter(room, {
+                oidc_presenter_token: presenterToken(room, keys.oidcPresenter, { expiresIn: '-10s' }),
+            });
+            isPresenter.should.be.false();
+        });
+
+        it('does not issue a presenter token without an OIDC session', async () => {
+            const res = await fetch(`${BASE}/oidcPresenterToken?room=oidc-pres-e`, { redirect: 'manual' });
+            if (res.status === 200) {
+                const data = await res.json();
+                (data.token === null).should.be.true();
+            } else {
+                res.status.should.not.equal(200);
+            }
+        });
+    });
+
     describe('OIDC_LOCK_USERNAME', () => {
         const identity = (name, key = keys.identity) =>
             jwt.sign({ scope: 'oidc-identity', name }, key, { expiresIn: '2m' });

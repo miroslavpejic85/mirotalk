@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.79 - Configuration File
+ * MiroTalk P2P v.2.1.80 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -117,10 +117,11 @@ module.exports = {
     // ==========================================
     // Presenters
     // ==========================================
-    // WARNING: without host protection / user auth, the peer name is unverified client input,
-    // so each entry acts as a shared secret. Use unique, non-guessable values (never a real
-    // name or email) or anyone who guesses it becomes presenter. Empty by default: a shipped
-    // name is a public credential.
+    // Array of authenticated identities who are always presenters:
+    // - LOGIN usernames for host protection / user auth or a valid JWT token
+    // - verified email or `sub` of the OIDC user when OIDC is enabled
+    // The join-form display name is never matched, so with no auth enabled this list has no
+    // effect (the first participant to join is the presenter). Empty by default.
     presenters: parseJsonEnv(process.env.PRESENTERS, []),
 
     // ==========================================

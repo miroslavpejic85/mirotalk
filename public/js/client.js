@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.79
+ * @version 2.1.80
  *
  */
 
@@ -3319,12 +3319,34 @@ async function getCreateRoomToken(room_id) {
 }
 
 /**
+ * Short-lived token proving the OIDC session is a configured presenter (PRESENTERS), null otherwise
+ * @param {string} room_id
+ * @returns {Promise<string|null>} token or null
+ */
+async function getOidcPresenterToken(room_id) {
+    try {
+        const response = await fetch(`/oidcPresenterToken?room=${encodeURIComponent(room_id)}`, {
+            credentials: 'same-origin',
+        });
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data?.token || null;
+    } catch (err) {
+        console.warn('OIDC presenter token not available', err);
+        return null;
+    }
+}
+
+/**
  * join to channel and send some peer info
  */
 async function joinToChannel() {
     console.log('12. join to channel', roomId);
     await loadOidcIdentity();
-    const createRoomToken = await getCreateRoomToken(roomId);
+    const [createRoomToken, oidcPresenterToken] = await Promise.all([
+        getCreateRoomToken(roomId),
+        getOidcPresenterToken(roomId),
+    ]);
     sendToServer('join', {
         join_data_time: getDataTimeString(),
         channel: roomId,
@@ -3336,6 +3358,7 @@ async function joinToChannel() {
         peer_token: myToken,
         create_room_token: createRoomToken,
         identity_token: oidcIdentity.token,
+        oidc_presenter_token: oidcPresenterToken,
         peer_video: useVideo,
         peer_audio: useAudio,
         peer_video_status: myVideoStatus,
@@ -19184,7 +19207,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.79',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.80',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
