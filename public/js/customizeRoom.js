@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tokenEl = document.getElementById('token');
 
     const durationEl = document.getElementById('duration');
+    const durationCustomEl = document.getElementById('durationCustom');
+    const durationHoursEl = document.getElementById('durationHours');
+    const durationMinutesEl = document.getElementById('durationMinutes');
     const noiseSuppressionEl = document.getElementById('noiseSuppression');
 
     const audioEl = document.getElementById('audio');
@@ -81,16 +84,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
     };
 
-    const normalizeDuration = (raw) => {
-        const value = safe(raw);
-        if (!value) return 'unlimited';
-        if (value.toLowerCase() === 'unlimited') return 'unlimited';
-        // Accept HH:MM:SS format only
-        const re = /^(\d{2}):(\d{2}):(\d{2})$/;
-        if (!re.test(value)) {
-            throw new Error('Duration must be HH:MM:SS (e.g. 00:30:00) or left empty for unlimited');
+    const pad2 = (n) => String(n).padStart(2, '0');
+
+    const parseDurationPart = (raw, max, label) => {
+        const value = (raw ?? '').toString().trim();
+        if (!value) return 0;
+        if (!/^\d+$/.test(value) || Number(value) > max) {
+            throw new Error(`Duration ${label} must be a whole number between 0 and ${max}`);
         }
-        return value;
+        return Number(value);
+    };
+
+    // Converts the duration select (or custom hours/minutes) to HH:MM:SS or 'unlimited'
+    const getDuration = () => {
+        const selected = durationEl?.value || 'unlimited';
+        if (selected !== 'custom') {
+            return /^\d{2}:\d{2}:\d{2}$/.test(selected) ? selected : 'unlimited';
+        }
+        const hours = parseDurationPart(durationHoursEl?.value, 99, 'hours');
+        const minutes = parseDurationPart(durationMinutesEl?.value, 59, 'minutes');
+        if (hours === 0 && minutes === 0) {
+            throw new Error('Custom duration must be at least 1 minute');
+        }
+        return `${pad2(hours)}:${pad2(minutes)}:00`;
+    };
+
+    const syncDurationCustom = (focus = false) => {
+        if (!durationCustomEl) return;
+        const isCustom = durationEl?.value === 'custom';
+        durationCustomEl.hidden = !isCustom;
+        if (focus && isCustom && !durationHoursEl?.value && !durationMinutesEl?.value) {
+            durationHoursEl?.focus();
+        }
     };
 
     const buildJoinUrl = () => {
@@ -103,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const avatarRaw = safe(avatarEl?.value);
         const avatar = avatarRaw ? avatarRaw : '0';
         const token = safe(tokenEl?.value);
-        const duration = normalizeDuration(durationEl?.value);
+        const duration = getDuration();
 
         const url = new URL('/join', window.location.origin);
         url.searchParams.set('room', room);
@@ -255,6 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
         avatarEl,
         tokenEl,
         durationEl,
+        durationHoursEl,
+        durationMinutesEl,
         noiseSuppressionEl,
         audioEl,
         videoEl,
@@ -263,6 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
         hideEl,
         notifyEl,
     ];
+    durationEl?.addEventListener('change', () => syncDurationCustom(true));
+    syncDurationCustom();
     inputs.forEach((el) => {
         if (!el) return;
         el.addEventListener('input', updatePreview);

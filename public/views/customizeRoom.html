@@ -166,17 +166,48 @@
                             <label class="cr-label" for="duration"
                                 >Meeting duration <span class="cr-optional">Optional</span></label
                             >
-                            <input
-                                id="duration"
-                                name="duration"
-                                class="cr-input"
-                                type="text"
-                                inputmode="numeric"
-                                placeholder="00:30:00"
-                                pattern="^\d{2}:\d{2}:\d{2}$"
-                                maxlength="8"
-                            />
-                            <p class="cr-hint">Use HH:MM:SS, or leave blank for no time limit.</p>
+                            <select id="duration" name="duration" class="cr-input">
+                                <option value="unlimited">No time limit</option>
+                                <option value="00:15:00">15 minutes</option>
+                                <option value="00:30:00">30 minutes</option>
+                                <option value="00:45:00">45 minutes</option>
+                                <option value="01:00:00">1 hour</option>
+                                <option value="01:30:00">1 hour 30 minutes</option>
+                                <option value="02:00:00">2 hours</option>
+                                <option value="03:00:00">3 hours</option>
+                                <option value="04:00:00">4 hours</option>
+                                <option value="08:00:00">8 hours</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                            <div id="durationCustom" class="cr-duration-custom" hidden>
+                                <label class="cr-duration-part" for="durationHours">
+                                    <input
+                                        id="durationHours"
+                                        class="cr-input"
+                                        type="number"
+                                        inputmode="numeric"
+                                        min="0"
+                                        max="99"
+                                        step="1"
+                                        placeholder="0"
+                                    />
+                                    <span>hours</span>
+                                </label>
+                                <label class="cr-duration-part" for="durationMinutes">
+                                    <input
+                                        id="durationMinutes"
+                                        class="cr-input"
+                                        type="number"
+                                        inputmode="numeric"
+                                        min="0"
+                                        max="59"
+                                        step="1"
+                                        placeholder="0"
+                                    />
+                                    <span>minutes</span>
+                                </label>
+                            </div>
+                            <p class="cr-hint">The room closes automatically when the time runs out.</p>
                         </div>
                         <div class="cr-field cr-duration">
                             <label class="cr-label" for="noiseSuppression">

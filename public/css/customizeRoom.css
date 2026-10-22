@@ -540,6 +540,29 @@ summary:focus-visible {
     margin-top: 22px;
 }
 
+.cr-duration-custom {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.cr-duration-custom[hidden] {
+    display: none;
+}
+
+.cr-duration-part {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--cr-subtle);
+    font-size: 12px;
+}
+
+.cr-duration-part .cr-input {
+    flex: 1 1 0;
+    width: auto;
+}
+
 .cr-hint,
 .cr-privacy {
     margin: 0;
