@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.83
+ * @version 2.1.84
  *
  */
 
@@ -803,7 +803,7 @@ app.get('/createRoomToken', createRoomTokenLimiter, (req, res) => {
 });
 
 // Issue a short-lived token proving the OIDC session is a configured presenter (PRESENTERS matched
-// against the verified email or sub). The Socket.IO `join` event validates it for this room.
+// against the verified email or sub, or '*' for any authenticated OIDC user). The Socket.IO `join` event validates it for this room.
 app.get('/oidcPresenterToken', (req, res) => {
     const { room } = checkXSS(req.query);
 
