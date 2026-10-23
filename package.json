@@ -9,6 +9,8 @@
         "dev": "node --watch app/src/server.js",
         "test": "mocha tests/*.js",
         "lang": "node app/src/scripts/extract-ui-lang.js",
+        "lang:translate": "node app/src/scripts/translate-missing-lang.js",
+        "lang:auto": "npm run lang && npm run lang:translate",
         "lint": "npx prettier --write .",
         "mailpit:up": "docker-compose -f docker-compose-mailpit.yml up -d",
         "mailpit:down": "docker-compose -f docker-compose-mailpit.yml down",

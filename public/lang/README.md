@@ -64,3 +64,38 @@ The script regenerates `en.json` and synchronizes other language files,
 preserving existing translations, keeping keys in the same order as `en.json`,
 adding missing keys with English values, and removing stale keys. Review the
 changes before committing.
+
+## Auto-translate missing values
+
+Use machine translation to fill only missing/untranslated locale values
+(`""` or values still equal to the English key), while skipping `en.json`.
+No extra dependencies are needed (plain Node `fetch` against the public Google Translate endpoint).
+
+Run translation:
+
+```bash
+npm run lang:translate
+```
+
+Requests are paced and retried with backoff on rate limits. If a run still stops due to temporary
+limits, wait a bit and run `npm run lang:translate` again. Progress is saved after each batch,
+so reruns resume from the already translated values.
+
+`{placeholders}` are protected during translation (a value whose placeholders would not survive
+keeps its English text), and short all-caps acronyms such as `ID`, `OK`, `URL` or `FULL HD` are left untouched.
+
+Optional targeted run:
+
+```bash
+npm run lang:translate -- --locale it          # single locale (or --locale it,de)
+npm run lang:translate -- --max-batches 0      # no per-locale batch limit (default: 30 batches of 5 values)
+npm run lang:translate -- --help
+```
+
+Or run both extraction/sync + translation:
+
+```bash
+npm run lang:auto
+```
+
+Machine translations are a starting point; review them before committing.
