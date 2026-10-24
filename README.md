@@ -299,8 +299,6 @@ This project is tested with [BrowserStack](https://www.browserstack.com).
   Built with ❤️ by <a href="https://www.linkedin.com/in/miroslav-pejic-976a07101/">Miroslav</a> and the open-source community
 </p>
 
-<h2 align="center">Star History</h2>
-
 <p align="center">
   <a href="https://www.star-history.com/#miroslavpejic85/mirotalk&type=date&legend=top-left">
     <picture>
