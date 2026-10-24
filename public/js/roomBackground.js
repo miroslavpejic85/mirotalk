@@ -23,50 +23,55 @@ const ROOM_BG_PRESETS = ['forest', 'beach', 'mountains', 'lake', 'aurora', 'abst
     (name) => `../images/room-background/${name}.webp`
 );
 
-const roomBackgroundDB = {
-    open() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(ROOM_BG_DB_NAME, 1);
-            request.onupgradeneeded = () => {
-                const db = request.result;
-                if (!db.objectStoreNames.contains(ROOM_BG_DB_STORE)) db.createObjectStore(ROOM_BG_DB_STORE);
-            };
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-    },
-
-    async run(mode, action) {
-        const db = await this.open();
-        try {
-            return await new Promise((resolve, reject) => {
-                const tx = db.transaction(ROOM_BG_DB_STORE, mode);
-                const request = action(tx.objectStore(ROOM_BG_DB_STORE));
-                tx.oncomplete = () => resolve(request?.result);
-                tx.onerror = () => reject(tx.error);
-                tx.onabort = () => reject(tx.error);
+// Minimal IndexedDB blob store (room background uploads, camera background upload)
+function createImageStore(dbName, storeName = 'images') {
+    return {
+        open() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+                    if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName);
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
             });
-        } finally {
-            db.close();
-        }
-    },
+        },
 
-    get(id) {
-        return this.run('readonly', (store) => store.get(id));
-    },
+        async run(mode, action) {
+            const db = await this.open();
+            try {
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction(storeName, mode);
+                    const request = action(tx.objectStore(storeName));
+                    tx.oncomplete = () => resolve(request?.result);
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error);
+                });
+            } finally {
+                db.close();
+            }
+        },
 
-    put(id, blob) {
-        return this.run('readwrite', (store) => store.put(blob, id));
-    },
+        get(id) {
+            return this.run('readonly', (store) => store.get(id));
+        },
 
-    remove(id) {
-        return this.run('readwrite', (store) => store.delete(id));
-    },
+        put(id, blob) {
+            return this.run('readwrite', (store) => store.put(blob, id));
+        },
 
-    keys() {
-        return this.run('readonly', (store) => store.getAllKeys());
-    },
-};
+        remove(id) {
+            return this.run('readwrite', (store) => store.delete(id));
+        },
+
+        keys() {
+            return this.run('readonly', (store) => store.getAllKeys());
+        },
+    };
+}
+
+const roomBackgroundDB = createImageStore(ROOM_BG_DB_NAME, ROOM_BG_DB_STORE);
 
 class RoomBackground {
     constructor({
@@ -462,5 +467,5 @@ class RoomBackground {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { RoomBackground, roomBackgroundDB, ROOM_BG_PRESETS };
+    module.exports = { RoomBackground, roomBackgroundDB, createImageStore, ROOM_BG_PRESETS };
 }

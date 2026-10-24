@@ -195,6 +195,10 @@ describe('client camera background integration', () => {
             backgroundImageSource: null,
             backgroundCustomImageUrl: null,
             backgroundEffectsBusy: false,
+            lsSettings: { camera_background: { mode: 'off', image: null } },
+            lS: { setSettings: sinon.spy() },
+            cameraBackgroundDB: null,
+            CAMERA_BG_CUSTOM_KEY: 'custom',
             backgroundEffectSelect: { value: 'off', dispatchEvent: sinon.spy() },
             backgroundImageInput: { files: [], click: sinon.spy() },
             backgroundImageGrid: grid('backgroundImageGrid'),
@@ -217,7 +221,7 @@ describe('client camera background integration', () => {
             myVideo: {},
             initVideo: {},
             userLog: sinon.spy(),
-            console: { error() {} },
+            console: { error() {}, warn() {} },
             refreshMyStreamToPeers: sinon.stub().resolves(),
             getVideoTrack: (stream) => stream?.getVideoTracks()[0],
             useVideo: true,
@@ -242,6 +246,9 @@ describe('client camera background integration', () => {
             'loadCameraBackgroundImageElement',
             'selectCameraBackgroundImage',
             'useCameraBackgroundFile',
+            'saveCameraBackground',
+            'restoreCameraBackground',
+            'storeCameraBackgroundFile',
             'loadCameraBackgroundImage',
             'stopVideoTracks',
             'setLocalMaxFps',
@@ -499,6 +506,163 @@ describe('client camera background integration', () => {
             assert.equal(drop.defaultPrevented, true);
             assert.equal(context.backgroundImage.url, 'blob:dropped');
             assert.equal(context.backgroundImageSource.type, 'custom');
+        });
+    });
+
+    describe('remembered background', () => {
+        const forest = '../images/room-background/forest.webp';
+        const beach = '../images/room-background/beach.webp';
+        let db;
+
+        beforeEach(() => {
+            db = { get: sinon.stub().resolves(undefined), put: sinon.stub().resolves() };
+            context.cameraBackgroundDB = db;
+            context.ROOM_BG_PRESETS = [forest, beach];
+            context.backgroundImage = null;
+            context.URL = { createObjectURL: sinon.stub().returns('blob:saved'), revokeObjectURL: sinon.spy() };
+            context.Image = class {
+                set src(value) {
+                    this.url = value;
+                    this.onload();
+                }
+            };
+            context.setupBackgroundControls();
+        });
+
+        const saved = () => JSON.parse(JSON.stringify(context.lsSettings.camera_background));
+
+        it('remembers Blur, and Off chosen in the pre-join to start without it', async () => {
+            context.initBackgroundEffectSelect.value = 'blur';
+            await context.changeCameraBackground({ target: context.initBackgroundEffectSelect });
+            assert.deepEqual(saved(), { mode: 'blur', image: null });
+
+            context.initBackgroundEffectSelect.value = 'off';
+            await context.changeCameraBackground({ target: context.initBackgroundEffectSelect });
+            assert.deepEqual(saved(), { mode: 'off', image: null });
+            assert.equal(context.lS.setSettings.lastCall.args[0], context.lsSettings);
+        });
+
+        it('remembers the chosen preset, and keeps it as the last image after switching Off', async () => {
+            await context.selectCameraBackgroundImage({ type: 'preset', url: beach });
+            assert.deepEqual(saved().image, { type: 'preset', url: beach });
+            assert.equal(saved().mode, 'image');
+
+            context.backgroundEffectSelect.value = 'off';
+            await context.changeCameraBackground();
+            assert.equal(saved().mode, 'off');
+            assert.equal(saved().image.url, beach);
+        });
+
+        it('stores an uploaded image in this browser and remembers it as custom', async () => {
+            const file = { name: 'me.png', type: 'image/png', size: 100 };
+            context.backgroundImageInput.files = [file];
+            await context.loadCameraBackgroundImage({ target: context.backgroundImageInput });
+
+            assert.deepEqual(db.put.firstCall.args, ['custom', file]);
+            assert.deepEqual(saved(), { mode: 'image', image: { type: 'custom' } });
+        });
+
+        it('keeps the requested mode when effects fail temporarily', async () => {
+            context.BackgroundEffects.prototype.start = async () => {
+                throw new Error('Model unavailable');
+            };
+            context.backgroundEffectSelect.value = 'blur';
+            await context.changeCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'off');
+            assert.equal(saved().mode, 'blur');
+        });
+
+        it('restores Blur before the camera starts so the first stream is processed', async () => {
+            context.lsSettings.camera_background = { mode: 'blur', image: null };
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'blur');
+            assert.equal(context.initBackgroundEffectSelect.value, 'blur');
+
+            const stream = await context.prepareCameraBackground(originalStream);
+            assert.equal(stream.getVideoTracks()[0], output);
+            assert.equal(processors[0].setMode.firstCall.args[0], 'blur');
+            assert.equal(context.lS.setSettings.callCount, 0);
+        });
+
+        it('restores a saved preset image and marks it in the picker', async () => {
+            context.lsSettings.camera_background = { mode: 'image', image: { type: 'preset', url: beach } };
+            await context.restoreCameraBackground();
+
+            assert.equal(context.backgroundEffectSelect.value, 'image');
+            assert.equal(context.backgroundImage.url, beach);
+            const active = context.initBackgroundImageGrid.querySelector('.camera-bg-card.active');
+            assert.equal(active.dataset.bgValue, beach);
+            await context.prepareCameraBackground(originalStream);
+            assert.deepEqual(processors[0].setMode.firstCall.args, ['image', context.backgroundImage]);
+        });
+
+        it('restores a saved upload from IndexedDB, including its picker tile', async () => {
+            db.get.withArgs('custom').resolves({ type: 'image/png' });
+            context.lsSettings.camera_background = { mode: 'image', image: { type: 'custom' } };
+            await context.restoreCameraBackground();
+
+            assert.equal(context.backgroundCustomImageUrl, 'blob:saved');
+            assert.equal(context.backgroundImage.url, 'blob:saved');
+            const custom = context.backgroundImageGrid.querySelector('[data-bg-type="custom"]');
+            assert.equal(custom.hidden, false);
+            assert.equal(custom.getAttribute('aria-pressed'), 'true');
+        });
+
+        it('keeps the last image ready when the saved mode is Off', async () => {
+            context.lsSettings.camera_background = { mode: 'off', image: { type: 'preset', url: beach } };
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'off');
+            assert.equal(context.backgroundImage, null);
+            assert.equal(processors.length, 0);
+
+            context.backgroundEffectSelect.value = 'image';
+            await context.changeCameraBackground();
+            assert.equal(context.backgroundImage.url, beach);
+        });
+
+        for (const [name, setting] of [
+            ['a missing upload', { mode: 'image', image: { type: 'custom' } }],
+            ['an unknown preset', { mode: 'image', image: { type: 'preset', url: 'https://evil.test/x.png' } }],
+            ['an invalid mode', { mode: 'sparkles', image: null }],
+        ]) {
+            it(`starts without effects for ${name}`, async () => {
+                context.lsSettings.camera_background = setting;
+                await context.restoreCameraBackground();
+                assert.equal(context.backgroundEffectSelect.value, 'off');
+                assert.equal(context.backgroundImage, null);
+            });
+        }
+
+        it('starts without effects when the saved image cannot load', async () => {
+            context.Image = class {
+                set src(value) {
+                    this.onerror();
+                }
+            };
+            context.lsSettings.camera_background = { mode: 'image', image: { type: 'preset', url: forest } };
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'off');
+            assert.equal(context.userLog.callCount, 0);
+        });
+
+        it('does nothing when effects are unsupported or the camera is unavailable', async () => {
+            context.lsSettings.camera_background = { mode: 'blur', image: null };
+            context.BackgroundEffects.supported = () => false;
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'off');
+            context.BackgroundEffects.supported = () => true;
+            context.useVideo = false;
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'off');
+            assert.equal(db.get.callCount, 0);
+        });
+
+        it('ignores IndexedDB failures', async () => {
+            db.get.rejects(new Error('blocked'));
+            context.lsSettings.camera_background = { mode: 'blur', image: { type: 'custom' } };
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'blur');
+            assert.equal(context.backgroundImageSource, null);
         });
     });
 

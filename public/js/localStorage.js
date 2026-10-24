@@ -39,6 +39,7 @@ class LocalStorage {
             participant_view: 'grid',
             video_aspect_ratio: 0, // automatic based on participant count
             peer_avatar: '', // persisted avatar URL
+            camera_background: { mode: 'off', image: null }, // last camera background (custom upload lives in IndexedDB)
         };
 
         this.DEVICES_COUNT = {

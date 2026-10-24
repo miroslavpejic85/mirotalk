@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.90
+ * @version 2.1.91
  *
  */
 
@@ -441,6 +441,8 @@ let backgroundImage = null;
 let backgroundImageSource = null; // { type: 'preset' | 'custom', url }
 let backgroundCustomImageUrl = null;
 let backgroundEffectsBusy = false;
+const cameraBackgroundDB = typeof createImageStore === 'function' ? createImageStore('cameraBackgroundDB') : null;
+const CAMERA_BG_CUSTOM_KEY = 'custom';
 const videoFpsSelect = getId('videoFps');
 const videoFpsDiv = getId('videoFpsDiv');
 const screenFpsSelect = getId('screenFps');
@@ -1833,6 +1835,7 @@ async function handleConnect() {
         await joinToChannel();
     } else {
         await initEnumerateDevices();
+        await restoreCameraBackground().catch((error) => console.warn('Unable to restore camera background', error));
         await setupLocalVideoMedia();
         await setupLocalAudioMedia();
         // Create camera tile (even if no camera, to show avatar)
@@ -2939,10 +2942,12 @@ async function changeCameraBackground(event) {
     if (backgroundEffectsBusy) return;
     setBackgroundError();
     if (event?.target === initBackgroundEffectSelect) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
+    const requestedMode = backgroundEffectSelect.value;
     // Choosing "Image" applies something right away: the last image, otherwise the first preset.
     if (backgroundEffectSelect.value === 'image' && !backgroundImage) {
         const [preset] = getCameraBackgroundPresets();
-        if (preset && (await selectCameraBackgroundImage({ type: 'preset', url: preset }))) return;
+        const source = backgroundImageSource || (preset && { type: 'preset', url: preset });
+        if (source && (await selectCameraBackgroundImage(source))) return;
     }
     backgroundEffectsBusy = true;
     updateBackgroundControls();
@@ -2953,7 +2958,67 @@ async function changeCameraBackground(event) {
         setBackgroundError('Unable to change camera background.');
     } finally {
         backgroundEffectsBusy = false;
+        saveCameraBackground(requestedMode);
         updateBackgroundControls();
+    }
+}
+
+/**
+ * Remember the user's background choice, so the next join reapplies it.
+ * Saves the requested mode (not a temporary failure fallback) so a flaky network doesn't erase the preference.
+ */
+function saveCameraBackground(mode = backgroundEffectSelect.value) {
+    const source = backgroundImageSource;
+    let image = null;
+    if (source?.type === 'preset') image = { type: 'preset', url: source.url };
+    if (source?.type === 'custom') image = { type: 'custom' };
+    lsSettings.camera_background = { mode, image };
+    lS.setSettings(lsSettings);
+}
+
+/**
+ * Restore the remembered background before the camera starts, so every camera (pre-join, room, device switch)
+ * comes up with it. The user can still pick Off in the pre-join (or anytime), which is remembered too.
+ */
+async function restoreCameraBackground() {
+    const saved = lsSettings.camera_background;
+    if (!saved || !useVideo || !buttons.main.showVideoBtn || !BackgroundEffects.supported()) return;
+
+    try {
+        const blob = await cameraBackgroundDB?.get(CAMERA_BG_CUSTOM_KEY);
+        if (blob && typeof blob.type === 'string' && blob.type.startsWith('image/')) {
+            backgroundCustomImageUrl = URL.createObjectURL(blob);
+        }
+    } catch (error) {
+        console.warn('Camera background: unable to read the saved image', error);
+    }
+
+    const { image } = saved;
+    if (image?.type === 'preset' && getCameraBackgroundPresets().includes(image.url)) {
+        backgroundImageSource = { type: 'preset', url: image.url };
+    } else if (image?.type === 'custom' && backgroundCustomImageUrl) {
+        backgroundImageSource = { type: 'custom', url: backgroundCustomImageUrl };
+    }
+
+    let mode = ['off', 'blur', 'image'].includes(saved.mode) ? saved.mode : 'off';
+    if (mode === 'image') {
+        try {
+            if (!backgroundImageSource) throw new Error('Saved background image is no longer available');
+            backgroundImage = await loadCameraBackgroundImageElement(backgroundImageSource.url);
+        } catch (error) {
+            console.warn('Camera background: unable to restore the saved image', error);
+            mode = 'off';
+        }
+    }
+    backgroundEffectSelect.value = mode;
+    updateBackgroundControls();
+}
+
+async function storeCameraBackgroundFile(file) {
+    try {
+        await cameraBackgroundDB?.put(CAMERA_BG_CUSTOM_KEY, file);
+    } catch (error) {
+        console.warn('Camera background: unable to save the image in this browser', error);
     }
 }
 
@@ -2997,6 +3062,7 @@ async function selectCameraBackgroundImage(source) {
             console.error('Unable to change camera background', error);
             setBackgroundError('Unable to change camera background.');
         }
+        saveCameraBackground('image');
         return true;
     } finally {
         backgroundEffectsBusy = false;
@@ -3012,7 +3078,11 @@ async function useCameraBackgroundFile(file) {
         return;
     }
     const url = URL.createObjectURL(file);
-    if (!(await selectCameraBackgroundImage({ type: 'custom', url }))) URL.revokeObjectURL(url);
+    if (await selectCameraBackgroundImage({ type: 'custom', url })) {
+        await storeCameraBackgroundFile(file);
+    } else {
+        URL.revokeObjectURL(url);
+    }
 }
 
 async function loadCameraBackgroundImage(event) {
@@ -19537,7 +19607,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.90',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.91',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
