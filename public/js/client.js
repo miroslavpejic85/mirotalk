@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.91
+ * @version 2.1.92
  *
  */
 
@@ -2755,7 +2755,7 @@ function getCameraBackgroundPresets() {
 
 /**
  * Thumbnail picker shared by pre-join, Settings > Video and the video dropdown:
- * Upload, the last uploaded image (if any) and the bundled room background presets.
+ * None (same as Off), Upload, the last uploaded image (if any) and the bundled room background presets.
  */
 function createCameraBackgroundGrid(grid, fileInput) {
     if (!grid) return;
@@ -2780,13 +2780,26 @@ function createCameraBackgroundGrid(grid, fileInput) {
         card.appendChild(img);
     };
 
-    const uploadCard = createCard('upload');
-    const uploadIcon = document.createElement('i');
-    uploadIcon.className = 'fas fa-upload';
-    uploadIcon.setAttribute('aria-hidden', 'true');
-    const uploadLabel = document.createElement('span');
-    uploadLabel.textContent = 'Upload';
-    uploadCard.append(uploadIcon, uploadLabel);
+    const createIconCard = (type, iconClass, label) => {
+        const card = createCard(type);
+        const icon = document.createElement('i');
+        icon.className = iconClass;
+        icon.setAttribute('aria-hidden', 'true');
+        const span = document.createElement('span');
+        span.textContent = label;
+        card.append(icon, span);
+        return card;
+    };
+
+    // "None" is the same as choosing Off in the Background select.
+    const noneCard = createIconCard('none', 'fas fa-ban', 'None');
+    noneCard.addEventListener('click', () => {
+        if (backgroundEffectsBusy || backgroundEffectSelect.value === 'off') return;
+        backgroundEffectSelect.value = 'off';
+        changeCameraBackground();
+    });
+
+    const uploadCard = createIconCard('upload', 'fas fa-upload', 'Upload');
     uploadCard.addEventListener('click', () => fileInput?.click());
 
     const customCard = createCard('custom');
@@ -2832,11 +2845,13 @@ function updateCameraBackgroundGrid(grid) {
         }
         const source = backgroundImageSource;
         const active =
-            imageMode &&
-            !!backgroundImage &&
-            !!source &&
-            source.type === type &&
-            (type === 'custom' || card.dataset.bgValue === source.url);
+            type === 'none'
+                ? backgroundEffectSelect.value === 'off'
+                : imageMode &&
+                  !!backgroundImage &&
+                  !!source &&
+                  source.type === type &&
+                  (type === 'custom' || card.dataset.bgValue === source.url);
         card.classList.toggle('active', active);
         card.setAttribute('aria-pressed', String(active));
         card.disabled = backgroundEffectSelect.disabled;
@@ -19607,7 +19622,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.91',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.92',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

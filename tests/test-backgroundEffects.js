@@ -360,8 +360,10 @@ describe('client camera background integration', () => {
             context.setupBackgroundControls();
         });
 
-        it('renders Upload, a hidden custom slot and the room presets in both static pickers', () => {
+        it('renders None, Upload, a hidden custom slot and the room presets in both static pickers', () => {
             for (const grid of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
+                assert.equal(grid.querySelector('.camera-bg-card').dataset.bgType, 'none');
+                assert.equal(cards(grid, 'none').length, 1);
                 assert.equal(cards(grid, 'upload').length, 1);
                 assert.equal(cards(grid, 'custom').length, 1);
                 assert.equal(cards(grid, 'custom')[0].hidden, true);
@@ -379,6 +381,29 @@ describe('client camera background integration', () => {
             cards(context.backgroundImageGrid, 'upload')[0].click();
             assert.equal(context.backgroundImageInput.click.callCount, 1);
         });
+
+        for (const grid of ['initBackgroundImageGrid', 'backgroundImageGrid']) {
+            it(`turns the background Off from the None tile in ${grid}`, async () => {
+                context.backgroundEffectSelect.value = 'image';
+                await context.changeCameraBackground();
+                assert.equal(context.localVideoMediaStream.getVideoTracks()[0], output);
+                assert.equal(cards(context[grid], 'none')[0].classList.contains('active'), false);
+
+                cards(context[grid], 'none')[0].click();
+                await new Promise((resolve) => setImmediate(resolve));
+
+                assert.equal(context.backgroundEffectSelect.value, 'off');
+                assert.equal(context.initBackgroundEffectSelect.value, 'off');
+                assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
+                assert.equal(context.lsSettings.camera_background.mode, 'off');
+                for (const picker of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
+                    assert.equal(picker.hidden, true);
+                    assert.equal(cards(picker, 'none')[0].getAttribute('aria-pressed'), 'true');
+                    assert.ok(cards(picker, 'preset').every((card) => !card.classList.contains('active')));
+                }
+                assert.equal(context.backgroundEffectsBusy, false);
+            });
+        }
 
         for (const select of ['initBackgroundEffectSelect', 'backgroundEffectSelect']) {
             it(`applies the first preset right away when Image is chosen from ${select}`, async () => {
