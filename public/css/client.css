@@ -996,10 +996,12 @@ body {
     bottom: calc(100% + 8px);
     z-index: 9999;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     width: max-content;
     min-width: 190px;
     max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 96px);
     padding: 8px 6px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
@@ -1043,6 +1045,21 @@ body {
     min-width: 18px;
     flex-shrink: 0;
     text-align: center;
+}
+
+#bottomButtons #participantViewMenu .participant-view-divider {
+    height: 1px;
+    margin: 6px 4px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#bottomButtons #participantViewMenu .participant-view-section {
+    margin: 0;
+    padding: 4px 16px 6px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 #bottomButtons .split-btn > button {

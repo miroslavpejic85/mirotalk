@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.95
+ * @version 2.1.96
  *
  */
 
@@ -7138,6 +7138,19 @@ function syncScreenCameraLayout() {
 }
 
 /**
+ * Reflect the screen share + camera layout in settings and the participant view menu
+ * @param {string} mode separate | pip | split
+ */
+function updateScreenCameraLayoutUI(mode) {
+    if (screenCamLayoutSelect) screenCamLayoutSelect.value = mode;
+    document.querySelectorAll('#participantViewMenu [data-screen-cam-layout]').forEach((button) => {
+        const active = button.dataset.screenCamLayout === mode;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', active);
+    });
+}
+
+/**
  * Set the screen share + camera layout
  * @param {string} requestedMode separate | pip | split
  * @param {boolean} persist save to local storage
@@ -7145,7 +7158,7 @@ function syncScreenCameraLayout() {
  */
 function setScreenCameraLayout(requestedMode, persist = true) {
     const mode = ScreenCameraLayout.setMode(requestedMode);
-    if (screenCamLayoutSelect) screenCamLayoutSelect.value = mode;
+    updateScreenCameraLayoutUI(mode);
     if (persist) {
         lsSettings.screen_cam_layout = mode;
         lS.setSettings(lsSettings);
@@ -10212,6 +10225,11 @@ function setupMySettings() {
     });
     participantViewMenu.addEventListener('click', (e) => {
         e.stopPropagation();
+        const camLayoutButton = e.target.closest('[data-screen-cam-layout]');
+        if (camLayoutButton) {
+            setScreenCameraLayout(camLayoutButton.dataset.screenCamLayout);
+            return;
+        }
         const viewButton = e.target.closest('[data-participant-view]');
         if (!viewButton) return;
         isSelectingParticipantView = true;
@@ -10513,7 +10531,7 @@ function loadSettingsFromLocalStorage() {
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
     participantViewMode.value = lsSettings.participant_view || 'grid';
     BtnAspectRatio.value = String(lsSettings.video_aspect_ratio || 0);
-    screenCamLayoutSelect.value = ScreenCameraLayout.setMode(lsSettings.screen_cam_layout);
+    updateScreenCameraLayoutUI(ScreenCameraLayout.setMode(lsSettings.screen_cam_layout));
     setSP('--video-object-fit', videoObjFitSelect.value);
     setButtonsBarPosition(btnsBarSelect.value);
     setParticipantViewMode(participantViewMode.value, false, false);
@@ -19716,7 +19734,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.95',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.96',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

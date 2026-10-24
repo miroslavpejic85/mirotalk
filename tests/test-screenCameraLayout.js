@@ -213,6 +213,15 @@ describe('screen share camera layout', () => {
     it('is wired into the room client', () => {
         assert.match(html, /<script defer src="\.\.\/js\/screenCameraLayout\.js"><\/script>[\s\S]*client\.js/);
         assert.match(html, /<select id="screenCamLayoutSelect">/);
+        for (const mode of ['separate', 'pip', 'split']) {
+            assert.match(html, new RegExp(`id="participantViewMenu"[\\s\\S]*data-screen-cam-layout="${mode}"`));
+        }
+        assert.match(client, /function setScreenCameraLayout[\s\S]*?updateScreenCameraLayoutUI\(mode\);/);
+        assert.match(
+            client,
+            /updateScreenCameraLayoutUI\(ScreenCameraLayout\.setMode\(lsSettings\.screen_cam_layout\)\);/
+        );
+        assert.match(client, /setScreenCameraLayout\(camLayoutButton\.dataset\.screenCamLayout\);/);
         assert.match(client, /function adaptAspectRatio\(\) \{\n\s+syncScreenCameraLayout\(\);/);
         assert.match(
             client,
