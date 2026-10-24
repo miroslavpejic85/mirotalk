@@ -1104,6 +1104,90 @@ video:fullscreen {
     transform: translate(-50%, -50%) rotateY(180deg) !important;
 }
 
+/*--------------------------------------------------------------
+# Camera inside the screen share tile (screenCameraLayout.js)
+--------------------------------------------------------------*/
+
+.screen-cam-overlay {
+    --vmi-wh: min(40cqw, 96px);
+    position: absolute !important;
+    z-index: 7;
+    left: 12px;
+    bottom: 12px;
+    width: 24% !important;
+    min-width: 120px;
+    max-width: 320px;
+    height: auto !important;
+    aspect-ratio: 16 / 9;
+    margin: 0 !important;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--body-bg);
+    border: var(--elem-border-color);
+    box-shadow: var(--box-shadow);
+    container-type: inline-size;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+.screen-cam-overlay.screen-cam-dragging {
+    cursor: grabbing;
+    opacity: 0.85;
+}
+
+.screen-cam-overlay.screen-cam-dragging video {
+    cursor: grabbing;
+}
+
+.screen-cam-overlay > .navbar {
+    display: none !important;
+}
+
+.screen-cam-overlay video {
+    object-fit: cover !important;
+    border-radius: 0;
+    cursor: grab;
+}
+
+.screen-cam-overlay:fullscreen video {
+    object-fit: contain !important;
+}
+
+.screen-cam-overlay .videoPeerName {
+    margin: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    max-width: calc(100% - 12px);
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+[data-cam-layout='split'] > video {
+    width: 70% !important;
+}
+
+[data-cam-layout='split'] > .screen-cam-overlay {
+    top: 50% !important;
+    right: 8px !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: translateY(-50%);
+    width: calc(30% - 16px) !important;
+    min-width: 0;
+    max-width: none;
+    height: auto !important;
+    max-height: calc(100% - 16px);
+    aspect-ratio: 3 / 4;
+    box-shadow: none;
+    cursor: default;
+}
+
+[data-cam-layout='split'] > .screen-cam-overlay video {
+    cursor: pointer;
+}
+
 @keyframes show {
     0% {
         opacity: 0;

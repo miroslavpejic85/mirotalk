@@ -1836,6 +1836,17 @@
                         </div>
                         <div class="settings-field">
                             <div class="title">
+                                <i class="fa-solid fa-clone"></i>
+                                <p>Camera while screen sharing</p>
+                            </div>
+                            <select id="screenCamLayoutSelect">
+                                <option value="separate">Separate tiles</option>
+                                <option value="pip">Picture in Picture</option>
+                                <option value="split">Split screen</option>
+                            </select>
+                        </div>
+                        <div class="settings-field">
+                            <div class="title">
                                 <i class="fa-solid fa-expand"></i>
                                 <p>Video aspect ratio</p>
                             </div>
@@ -2559,6 +2570,7 @@ Note</textarea>
         <script defer src="../js/buttons.js"></script>
         <script defer src="../js/videoDrawing.js"></script>
         <script defer src="../js/videoGrid.js"></script>
+        <script defer src="../js/screenCameraLayout.js"></script>
         <script defer src="../js/swal.js"></script>
         <script defer src="../js/i18n.js"></script>
         <script defer src="../js/translate.js"></script>

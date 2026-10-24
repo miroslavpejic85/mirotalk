@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.93
+ * @version 2.1.95
  *
  */
 
@@ -89,6 +89,7 @@ const className = {
     speech: 'fas fa-volume-high',
     heart: 'fas fa-heart',
     pip: 'fas fa-images',
+    screenCamLayout: 'fas fa-clone',
     hideAll: 'fas fa-eye',
     up: 'fas fa-chevron-up',
     down: 'fas fa-chevron-down',
@@ -461,6 +462,7 @@ const participantViewDropdown = getId('participantViewDropdown');
 const participantViewButton = getId('participantViewButton');
 const participantViewMenu = getId('participantViewMenu');
 const participantViewMode = getId('participantViewMode');
+const screenCamLayoutSelect = getId('screenCamLayoutSelect');
 const pinUnpinGridDiv = getId('pinUnpinGridDiv');
 const pinVideoPositionSelect = getId('pinVideoPositionSelect');
 const tabRoomPeerName = getId('tabRoomPeerName');
@@ -5879,6 +5881,7 @@ async function loadLocalMedia(stream, kind) {
             const myScreenZoomOutBtn = document.createElement('button');
             const myScreenPiPBtn = document.createElement('button');
             const myScreenDrawingBtn = document.createElement('button');
+            const myScreenCamLayoutBtn = document.createElement('button');
             const myScreenDropdownDiv = document.createElement('div');
             const myScreenDropdownBtn = document.createElement('button');
             const myScreenDropdownContent = document.createElement('div');
@@ -5921,6 +5924,10 @@ async function loadLocalMedia(stream, kind) {
             myScreenDrawingBtn.setAttribute('aria-label', 'Enable screen drawing');
             myScreenDrawingBtn.setAttribute('aria-pressed', 'false');
 
+            myScreenCamLayoutBtn.setAttribute('id', 'myScreenCamLayoutBtn');
+            myScreenCamLayoutBtn.className = className.screenCamLayout;
+            myScreenCamLayoutBtn.setAttribute('aria-label', 'Toggle camera layout');
+
             // no mobile devices
             if (!isMobileDevice) {
                 setTippy(myScreenToImgBtn, 'Take a snapshot', 'bottom');
@@ -5931,6 +5938,7 @@ async function loadLocalMedia(stream, kind) {
                 setTippy(myScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(myScreenPinBtn, 'Toggle Pin screen', 'bottom');
                 setTippy(myScreenDrawingBtn, 'Enable screen drawing', 'bottom');
+                setTippy(myScreenCamLayoutBtn, 'Toggle camera layout', 'bottom');
             }
 
             // my screen avatar image
@@ -5955,6 +5963,7 @@ async function loadLocalMedia(stream, kind) {
             buttons.local.showSnapShotBtn &&
                 myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenToImgBtn, 'Take Snapshot'));
             myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenDrawingBtn, 'Draw on Screen'));
+            myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenCamLayoutBtn, 'Camera Layout'));
             myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenPiPBtn, 'Picture in Picture'));
             if (buttons.local.showZoomInOutBtn) {
                 myScreenDropdownContent.appendChild(createResponsiveDropdownItem(myScreenZoomInBtn, 'Zoom In'));
@@ -5976,6 +5985,8 @@ async function loadLocalMedia(stream, kind) {
             buttons.local.showSnapShotBtn && myScreenNavBar.appendChild(myScreenToImgBtn);
 
             myScreenNavBar.appendChild(myScreenDrawingBtn);
+
+            myScreenNavBar.appendChild(myScreenCamLayoutBtn);
 
             myScreenNavBar.appendChild(myScreenPiPBtn);
 
@@ -6017,6 +6028,8 @@ async function loadLocalMedia(stream, kind) {
 
             const myScreenDrawing = VideoDrawingOverlay.getOrCreate(myPeerId, myScreenWrap, myScreenMedia);
             myScreenDrawing.bindControls(myScreenDrawingBtn);
+
+            handleScreenCameraLayoutBtn(myScreenCamLayoutBtn);
 
             adaptAspectRatio();
 
@@ -6516,6 +6529,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenFileShareBtn = document.createElement('button');
             const remoteScreenPrivateMsgBtn = document.createElement('button');
             const remoteScreenDrawingBtn = document.createElement('button');
+            const remoteScreenCamLayoutBtn = document.createElement('button');
             const remoteScreenDropdownDiv = document.createElement('div');
             const remoteScreenDropdownBtn = document.createElement('button');
             const remoteScreenDropdownContent = document.createElement('div');
@@ -6561,6 +6575,10 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenDrawingBtn.setAttribute('aria-label', 'Enable screen drawing');
             remoteScreenDrawingBtn.setAttribute('aria-pressed', 'false');
 
+            remoteScreenCamLayoutBtn.setAttribute('id', peer_id + '_screen_camLayout');
+            remoteScreenCamLayoutBtn.className = className.screenCamLayout;
+            remoteScreenCamLayoutBtn.setAttribute('aria-label', 'Toggle camera layout');
+
             if (!isMobileDevice) {
                 setTippy(remoteScreenPeerName, 'Participant screen', 'bottom');
                 setTippy(remoteScreenVideoAudioUrlBtn, 'Send Video or Audio', 'bottom');
@@ -6574,6 +6592,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 setTippy(remoteScreenFocusBtn, 'Toggle Focus mode', 'bottom');
                 setTippy(remoteScreenPinBtn, 'Toggle Pin screen', 'bottom');
                 setTippy(remoteScreenDrawingBtn, 'Enable screen drawing', 'bottom');
+                setTippy(remoteScreenCamLayoutBtn, 'Toggle camera layout', 'bottom');
             }
 
             remoteScreenAvatarImage.setAttribute('id', peer_id + '_screen_avatar');
@@ -6601,6 +6620,9 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 );
             remoteScreenDropdownContent.appendChild(
                 createResponsiveDropdownItem(remoteScreenDrawingBtn, 'Draw on Screen')
+            );
+            remoteScreenDropdownContent.appendChild(
+                createResponsiveDropdownItem(remoteScreenCamLayoutBtn, 'Camera Layout')
             );
             remoteScreenDropdownContent.appendChild(
                 createResponsiveDropdownItem(remoteScreenPiPBtn, 'Picture in Picture')
@@ -6641,6 +6663,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             remoteScreenNavBar.appendChild(remoteScreenDrawingBtn);
 
+            remoteScreenNavBar.appendChild(remoteScreenCamLayoutBtn);
+
             remoteScreenNavBar.appendChild(remoteScreenPiPBtn);
             if (buttons.remote.showZoomInOutBtn) {
                 remoteScreenNavBar.appendChild(remoteScreenZoomInBtn);
@@ -6680,6 +6704,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             attachMediaStream(remoteScreenMedia, stream);
             const remoteScreenDrawing = VideoDrawingOverlay.getOrCreate(peer_id, remoteScreenWrap, remoteScreenMedia);
             remoteScreenDrawing.bindControls(remoteScreenDrawingBtn);
+            handleScreenCameraLayoutBtn(remoteScreenCamLayoutBtn);
             // Explicitly play – required on mobile Safari where autoplay alone is not enough
             remoteScreenMedia.play().catch(() => {});
             adaptAspectRatio();
@@ -7090,11 +7115,73 @@ function logStreamSettingsInfo(name, stream) {
 }
 
 /**
+ * Get every camera tile paired with the screen-share tile of the same participant
+ * @returns {Array<{cameraWrap: HTMLElement, screenWrap: HTMLElement}>}
+ */
+function getScreenCameraPairs() {
+    const pairs = [{ cameraWrap: getId('myVideoWrap'), screenWrap: getId('myScreenWrap') }];
+    for (const [videoId, cameraWrap] of Object.entries(peerVideoMediaElements)) {
+        const peer_id = videoId.replace(/___video$/, '');
+        pairs.push({ cameraWrap, screenWrap: getId(peer_id + '_screenWrap') });
+    }
+    return pairs;
+}
+
+/**
+ * Show cameras inside screen-share tiles (picture-in-picture / split) or as separate tiles
+ */
+function syncScreenCameraLayout() {
+    if (typeof ScreenCameraLayout === 'undefined') return;
+    const changed = ScreenCameraLayout.sync(getScreenCameraPairs(), videoMediaContainer);
+    // Split mode resizes the screen video inside an unchanged tile, so realign the drawing canvas
+    if (changed) VideoDrawingOverlay.overlays.forEach((overlay) => overlay.resize());
+}
+
+/**
+ * Set the screen share + camera layout
+ * @param {string} requestedMode separate | pip | split
+ * @param {boolean} persist save to local storage
+ * @returns {string} applied mode
+ */
+function setScreenCameraLayout(requestedMode, persist = true) {
+    const mode = ScreenCameraLayout.setMode(requestedMode);
+    if (screenCamLayoutSelect) screenCamLayoutSelect.value = mode;
+    if (persist) {
+        lsSettings.screen_cam_layout = mode;
+        lS.setSettings(lsSettings);
+    }
+    adaptAspectRatio();
+    return mode;
+}
+
+/**
+ * Cycle the screen share + camera layout from a screen tile button
+ * @param {HTMLElement} button
+ */
+function handleScreenCameraLayoutBtn(button) {
+    button.addEventListener('click', () => {
+        playSound('click');
+        switch (setScreenCameraLayout(ScreenCameraLayout.nextMode())) {
+            case 'pip':
+                userLog('toast', 'Camera layout: Picture in Picture');
+                break;
+            case 'split':
+                userLog('toast', 'Camera layout: Split screen');
+                break;
+            default:
+                userLog('toast', 'Camera layout: Separate tiles');
+                break;
+        }
+    });
+}
+
+/**
  * Handle aspect ratio
  * ['0:0', '4:3', '16:9', '1:1', '1:2'];
  *    0      1       2      3      4
  */
 function adaptAspectRatio() {
+    syncScreenCameraLayout();
     const participantsCount = videoMediaContainer.childElementCount;
     if (peersCount) peersCount.innerText = participantsCount;
     updateLeaveRoomTooltip(participantsCount);
@@ -10163,6 +10250,9 @@ function setupMySettings() {
         lS.setSettings(lsSettings);
         adaptAspectRatio();
     });
+    screenCamLayoutSelect.addEventListener('change', () => {
+        setScreenCameraLayout(screenCamLayoutSelect.value);
+    });
 
     // Mobile not support pin/unpin video
     if (!isMobileDevice) {
@@ -10423,6 +10513,7 @@ function loadSettingsFromLocalStorage() {
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
     participantViewMode.value = lsSettings.participant_view || 'grid';
     BtnAspectRatio.value = String(lsSettings.video_aspect_ratio || 0);
+    screenCamLayoutSelect.value = ScreenCameraLayout.setMode(lsSettings.screen_cam_layout);
     setSP('--video-object-fit', videoObjFitSelect.value);
     setButtonsBarPosition(btnsBarSelect.value);
     setParticipantViewMode(participantViewMode.value, false, false);
@@ -11575,6 +11666,7 @@ async function stopScreenSharing(init) {
         if (myScreenDropdownBtn && myScreenDropdownBtn._dropdownContent) {
             myScreenDropdownBtn._dropdownContent.remove();
         }
+        ScreenCameraLayout.release(myScreenWrap, videoMediaContainer);
         myScreenWrap.remove();
     }
     if (localScreenMediaStream) {
@@ -15457,6 +15549,7 @@ function handleHideMe(isHideMeActive) {
         setColor(hideMeIcon, 'var(--btn-bar-bg-color)');
         playSound('on');
     }
+    syncScreenCameraLayout();
     resizeVideoMedia();
     screenReaderAccessibility.announceMessage(
         isHideMeActive ? 'You are hidden from the room' : 'You are visible in the room'
@@ -16297,6 +16390,7 @@ function handleScreenStop(peer_id, peer_use_video) {
     // Remove dedicated remote screen tile if present
     if (remoteScreenWrap) {
         VideoDrawingOverlay.destroyById(peer_id);
+        ScreenCameraLayout.release(remoteScreenWrap, videoMediaContainer);
         remoteScreenWrap.remove();
         adaptAspectRatio();
     }
@@ -19622,7 +19716,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.93',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.95',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

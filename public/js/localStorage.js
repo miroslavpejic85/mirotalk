@@ -38,6 +38,7 @@ class LocalStorage {
             pin_grid: 0, // speaker left
             participant_view: 'grid',
             video_aspect_ratio: 0, // automatic based on participant count
+            screen_cam_layout: 'separate', // camera while screen sharing: separate | pip | split
             peer_avatar: '', // persisted avatar URL
             camera_background: { mode: 'off', image: null }, // last camera background (custom upload lives in IndexedDB)
         };
