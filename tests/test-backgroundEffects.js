@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const sinon = require('sinon');
+const { JSDOM } = require('jsdom');
 
 describe('camera background effects', () => {
     let effects;
@@ -182,26 +183,26 @@ describe('client camera background integration', () => {
             }
         }
         originalStream = new MediaStream([camera]);
+        const { document } = new JSDOM('<!doctype html><body></body>').window;
+        const grid = (id) => Object.assign(document.createElement('div'), { id, hidden: true });
         context = vm.createContext({
             MediaStream,
             BackgroundEffects,
-            DataTransfer: class {
-                constructor() {
-                    this.files = [];
-                    this.items = { add: (file) => this.files.push(file) };
-                }
-            },
+            document,
             Event,
             cameraEffects: null,
             backgroundImage: {},
-            backgroundImageFile: null,
+            backgroundImageSource: null,
+            backgroundCustomImageUrl: null,
             backgroundEffectsBusy: false,
             backgroundEffectSelect: { value: 'off', dispatchEvent: sinon.spy() },
             backgroundImageInput: { files: [], click: sinon.spy() },
+            backgroundImageGrid: grid('backgroundImageGrid'),
             backgroundEffectLoading: {},
             backgroundEffectsSection: { setAttribute() {} },
             initBackgroundEffectSelect: { value: 'off' },
             initBackgroundImageInput: { files: [], click: sinon.spy() },
+            initBackgroundImageGrid: grid('initBackgroundImageGrid'),
             initBackgroundEffectLoading: {},
             initBackgroundEffectsSection: { setAttribute() {} },
             initBackgroundError: { textContent: '', hidden: true, firstChild: {} },
@@ -229,12 +230,18 @@ describe('client camera background integration', () => {
         const source = fs.readFileSync(path.join(__dirname, '../public/js/client.js'), 'utf8');
         for (const name of [
             'setupBackgroundControls',
+            'getCameraBackgroundPresets',
+            'createCameraBackgroundGrid',
+            'updateCameraBackgroundGrid',
             'updateBackgroundControls',
             'setBackgroundError',
             'attachCameraBackgroundStream',
             'prepareCameraBackground',
             'applyCameraBackground',
             'changeCameraBackground',
+            'loadCameraBackgroundImageElement',
+            'selectCameraBackgroundImage',
+            'useCameraBackgroundFile',
             'loadCameraBackgroundImage',
             'stopVideoTracks',
             'setLocalMaxFps',
@@ -257,7 +264,7 @@ describe('client camera background integration', () => {
         context.backgroundEffectsBusy = true;
         context.updateBackgroundControls();
         assert.equal(context.backgroundEffectSelect.disabled, true);
-        assert.equal(context.backgroundImageInput.hidden, false);
+        assert.equal(context.backgroundImageGrid.hidden, false);
         assert.equal(context.backgroundEffectLoading.hidden, false);
         assert.equal(context.backgroundEffectSelect.dispatchEvent.lastCall.args[0].type, 'background-effects-change');
         context.backgroundEffectsBusy = false;
@@ -296,7 +303,7 @@ describe('client camera background integration', () => {
         context.backgroundEffectsBusy = true;
         context.updateBackgroundControls();
         assert.equal(context.initBackgroundEffectSelect.value, 'image');
-        assert.equal(context.initBackgroundImageInput.hidden, false);
+        assert.equal(context.initBackgroundImageGrid.hidden, false);
         assert.equal(context.initBackgroundEffectSelect.disabled, true);
         assert.equal(context.initBackgroundEffectLoading.hidden, false);
         context.backgroundEffectsBusy = false;
@@ -311,21 +318,189 @@ describe('client camera background integration', () => {
     });
 
     for (const select of ['initBackgroundEffectSelect', 'backgroundEffectSelect']) {
-        it(`shows the manual image picker from ${select} without opening a dialog`, async () => {
+        it(`shows the image picker from ${select} without opening a dialog when no presets exist`, async () => {
             context.backgroundImage = null;
             context[select].value = 'image';
             await context.changeCameraBackground({ target: context[select] });
 
             assert.equal(context.backgroundImageInput.click.callCount, 0);
             assert.equal(context.initBackgroundImageInput.click.callCount, 0);
-            assert.equal(context.backgroundImageInput.hidden, false);
-            assert.equal(context.initBackgroundImageInput.hidden, false);
+            assert.equal(context.backgroundImageGrid.hidden, false);
+            assert.equal(context.initBackgroundImageGrid.hidden, false);
             assert.equal(context.backgroundEffectSelect.value, 'image');
             assert.equal(context.initBackgroundEffectSelect.value, 'image');
             assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
             assert.equal(processors.length, 0);
         });
     }
+
+    describe('preset and uploaded image picker', () => {
+        const presets = ['../images/room-background/forest.webp', '../images/room-background/beach.webp'];
+        const cards = (grid, type) => [...grid.querySelectorAll(`.camera-bg-card[data-bg-type="${type}"]`)];
+        const loadedImages = [];
+
+        beforeEach(() => {
+            loadedImages.length = 0;
+            context.ROOM_BG_PRESETS = presets;
+            context.backgroundImage = null;
+            context.Image = class {
+                set src(value) {
+                    this.url = value;
+                    loadedImages.push(value);
+                    this.onload();
+                }
+            };
+            context.setupBackgroundControls();
+        });
+
+        it('renders Upload, a hidden custom slot and the room presets in both static pickers', () => {
+            for (const grid of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
+                assert.equal(cards(grid, 'upload').length, 1);
+                assert.equal(cards(grid, 'custom').length, 1);
+                assert.equal(cards(grid, 'custom')[0].hidden, true);
+                assert.deepEqual(
+                    cards(grid, 'preset').map((card) => card.dataset.bgValue),
+                    presets
+                );
+                assert.equal(grid.hidden, true);
+            }
+        });
+
+        it('opens the matching file input from each Upload tile', () => {
+            cards(context.initBackgroundImageGrid, 'upload')[0].click();
+            assert.equal(context.initBackgroundImageInput.click.callCount, 1);
+            cards(context.backgroundImageGrid, 'upload')[0].click();
+            assert.equal(context.backgroundImageInput.click.callCount, 1);
+        });
+
+        for (const select of ['initBackgroundEffectSelect', 'backgroundEffectSelect']) {
+            it(`applies the first preset right away when Image is chosen from ${select}`, async () => {
+                context[select].value = 'image';
+                await context.changeCameraBackground({ target: context[select] });
+
+                assert.equal(context.backgroundImage.url, presets[0]);
+                assert.equal(processors[0].setMode.firstCall.args[0], 'image');
+                assert.equal(processors[0].setMode.firstCall.args[1], context.backgroundImage);
+                assert.equal(context.localVideoMediaStream.getVideoTracks()[0], output);
+                for (const grid of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
+                    assert.equal(grid.hidden, false);
+                    assert.equal(cards(grid, 'preset')[0].getAttribute('aria-pressed'), 'true');
+                    assert.equal(cards(grid, 'preset')[1].getAttribute('aria-pressed'), 'false');
+                }
+                assert.equal(context.backgroundEffectsBusy, false);
+            });
+        }
+
+        it('reuses the last image instead of the first preset when switching back to Image', async () => {
+            context.backgroundEffectSelect.value = 'image';
+            await context.changeCameraBackground();
+            cards(context.backgroundImageGrid, 'preset')[1].click();
+            await new Promise((resolve) => setImmediate(resolve));
+            context.backgroundEffectSelect.value = 'blur';
+            await context.changeCameraBackground();
+            context.backgroundEffectSelect.value = 'image';
+            await context.changeCameraBackground();
+
+            assert.equal(context.backgroundImage.url, presets[1]);
+            assert.deepEqual(loadedImages, [presets[0], presets[1]]);
+            assert.equal(cards(context.initBackgroundImageGrid, 'preset')[1].classList.contains('active'), true);
+        });
+
+        it('switches to Image mode from a preset tile and syncs the active tile to both pickers', async () => {
+            context.backgroundEffectSelect.value = 'blur';
+            await context.selectCameraBackgroundImage({ type: 'preset', url: presets[1] });
+
+            assert.equal(context.backgroundEffectSelect.value, 'image');
+            assert.equal(context.initBackgroundEffectSelect.value, 'image');
+            assert.equal(processors.at(-1).setMode.firstCall.args[0], 'image');
+            for (const grid of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
+                assert.deepEqual(
+                    cards(grid, 'preset').map((card) => card.classList.contains('active')),
+                    [false, true]
+                );
+            }
+        });
+
+        it('disables tiles while busy or when the camera is off', () => {
+            context.backgroundEffectSelect.value = 'image';
+            context.myVideoStatus = false;
+            context.updateBackgroundControls();
+            const tiles = context.initBackgroundImageGrid.querySelectorAll('.camera-bg-card');
+            assert.ok([...tiles].every((tile) => tile.disabled));
+            context.myVideoStatus = true;
+            context.updateBackgroundControls();
+            assert.ok([...tiles].every((tile) => !tile.disabled));
+        });
+
+        it('falls back to the plain camera and keeps the picker open when the preset cannot load', async () => {
+            context.Image = class {
+                set src(value) {
+                    this.onerror();
+                }
+            };
+            context.backgroundEffectSelect.value = 'image';
+            await context.changeCameraBackground();
+
+            assert.equal(context.backgroundImage, null);
+            assert.equal(context.backgroundEffectSelect.value, 'image');
+            assert.equal(context.backgroundImageGrid.hidden, false);
+            assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
+            assert.equal(context.userLog.callCount, 1);
+            assert.equal(context.backgroundEffectsBusy, false);
+        });
+
+        it('shows an upload as the active custom tile and keeps it selectable after picking a preset', async () => {
+            context.URL = { createObjectURL: () => 'blob:landscape', revokeObjectURL: sinon.spy() };
+            context.initBackgroundImageInput.files = [{ name: 'landscape.png', type: 'image/png', size: 100 }];
+            context.initBackgroundImageInput.value = 'landscape.png';
+            await context.loadCameraBackgroundImage({ target: context.initBackgroundImageInput });
+
+            assert.equal(context.initBackgroundImageInput.value, '');
+            assert.equal(context.backgroundImage.url, 'blob:landscape');
+            for (const grid of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
+                const [custom] = cards(grid, 'custom');
+                assert.equal(custom.hidden, false);
+                assert.equal(custom.querySelector('img').getAttribute('src'), 'blob:landscape');
+                assert.equal(custom.getAttribute('aria-pressed'), 'true');
+            }
+
+            await context.selectCameraBackgroundImage({ type: 'preset', url: presets[0] });
+            const [custom] = cards(context.backgroundImageGrid, 'custom');
+            assert.equal(custom.hidden, false);
+            assert.equal(custom.getAttribute('aria-pressed'), 'false');
+            assert.equal(context.URL.revokeObjectURL.callCount, 0);
+
+            custom.click();
+            await new Promise((resolve) => setImmediate(resolve));
+            assert.equal(context.backgroundImage.url, 'blob:landscape');
+            assert.equal(custom.getAttribute('aria-pressed'), 'true');
+        });
+
+        it('releases the previous upload when a new image is uploaded', async () => {
+            const urls = ['blob:first', 'blob:second'];
+            context.URL = { createObjectURL: () => urls.shift(), revokeObjectURL: sinon.spy() };
+            for (const name of ['first.png', 'second.png']) {
+                context.backgroundImageInput.files = [{ name, type: 'image/png', size: 100 }];
+                await context.loadCameraBackgroundImage({ target: context.backgroundImageInput });
+            }
+            assert.equal(context.backgroundCustomImageUrl, 'blob:second');
+            assert.deepEqual(context.URL.revokeObjectURL.args, [['blob:first']]);
+        });
+
+        it('accepts images dropped on the picker', async () => {
+            context.URL = { createObjectURL: () => 'blob:dropped', revokeObjectURL: sinon.spy() };
+            context.backgroundEffectSelect.value = 'image';
+            context.updateBackgroundControls();
+            const drop = new context.document.defaultView.Event('drop', { cancelable: true });
+            drop.dataTransfer = { files: [{ name: 'dropped.webp', type: 'image/webp', size: 100 }] };
+            context.initBackgroundImageGrid.dispatchEvent(drop);
+            await new Promise((resolve) => setImmediate(resolve));
+
+            assert.equal(drop.defaultPrevented, true);
+            assert.equal(context.backgroundImage.url, 'blob:dropped');
+            assert.equal(context.backgroundImageSource.type, 'custom');
+        });
+    });
 
     it('validates images selected from the pre-join picker', async () => {
         context.initBackgroundImageInput.files = [{ type: 'text/plain', size: 1 }];
@@ -337,10 +512,9 @@ describe('client camera background integration', () => {
     });
 
     for (const picker of ['initBackgroundImageInput', 'backgroundImageInput']) {
-        it(`shares the accepted image filename from ${picker} with both pickers`, async () => {
-            const files = [{ name: 'landscape.png', type: 'image/png', size: 100 }];
-            context[picker].files = files;
-            context.backgroundEffectSelect.value = 'image';
+        it(`applies an uploaded image from ${picker} to both previews`, async () => {
+            context[picker].files = [{ name: 'landscape.png', type: 'image/png', size: 100 }];
+            context.backgroundEffectSelect.value = 'off';
             context.URL = { createObjectURL: () => 'blob:landscape', revokeObjectURL: sinon.spy() };
             context.Image = class {
                 set src(value) {
@@ -350,37 +524,33 @@ describe('client camera background integration', () => {
 
             await context.loadCameraBackgroundImage({ target: context[picker] });
 
-            assert.equal(context.backgroundImageFile, files[0]);
-            assert.equal(context.backgroundImageInput.files[0], files[0]);
-            assert.equal(context.initBackgroundImageInput.files[0], files[0]);
-            assert.notEqual(context.backgroundImageInput.files, context.initBackgroundImageInput.files);
-            assert.equal(context.backgroundImageInput.files[0].name, 'landscape.png');
+            assert.equal(context.backgroundCustomImageUrl, 'blob:landscape');
+            assert.deepEqual({ ...context.backgroundImageSource }, { type: 'custom', url: 'blob:landscape' });
             assert.equal(context.backgroundEffectSelect.value, 'image');
             assert.equal(context.initBackgroundEffectSelect.value, 'image');
             assert.equal(context.localVideoMediaStream.getVideoTracks()[0], output);
-            context.setupBackgroundControls();
-            assert.equal(context.backgroundImageInput.files[0], files[0]);
-            assert.equal(context.initBackgroundImageInput.files[0], files[0]);
+            assert.equal(context.URL.revokeObjectURL.callCount, 0);
         });
     }
 
-    it('preserves the accepted filename when a replacement is invalid', async () => {
-        const files = [{ name: 'landscape.png', type: 'image/png', size: 100 }];
-        context.backgroundImageFile = files[0];
+    it('keeps the current image when a replacement is invalid', async () => {
+        const image = context.backgroundImage;
+        context.backgroundImageSource = { type: 'preset', url: '../images/room-background/forest.webp' };
         context.backgroundEffectSelect.value = 'image';
         context.initBackgroundImageInput.files = [{ name: 'invalid.txt', type: 'text/plain', size: 1 }];
 
         await context.loadCameraBackgroundImage({ target: context.initBackgroundImageInput });
 
-        assert.equal(context.backgroundImageInput.files[0], files[0]);
-        assert.equal(context.initBackgroundImageInput.files[0], files[0]);
+        assert.equal(context.backgroundImage, image);
+        assert.equal(context.backgroundImageSource.type, 'preset');
+        assert.equal(context.backgroundCustomImageUrl, null);
         assert.equal(context.userLog.callCount, 1);
     });
 
-    it('preserves the accepted image and filename when a replacement cannot decode', async () => {
+    it('keeps the current image when a replacement cannot decode', async () => {
         const image = context.backgroundImage;
-        const files = [{ name: 'landscape.png', type: 'image/png', size: 100 }];
-        context.backgroundImageFile = files[0];
+        context.backgroundCustomImageUrl = 'blob:landscape';
+        context.backgroundImageSource = { type: 'custom', url: 'blob:landscape' };
         context.backgroundEffectSelect.value = 'image';
         context.backgroundImageInput.files = [{ name: 'broken.png', type: 'image/png', size: 100 }];
         context.URL = { createObjectURL: () => 'blob:broken', revokeObjectURL: sinon.spy() };
@@ -393,11 +563,11 @@ describe('client camera background integration', () => {
         await context.loadCameraBackgroundImage({ target: context.backgroundImageInput });
 
         assert.equal(context.backgroundImage, image);
-        assert.equal(context.backgroundImageInput.files[0], files[0]);
-        assert.equal(context.initBackgroundImageInput.files[0], files[0]);
+        assert.equal(context.backgroundCustomImageUrl, 'blob:landscape');
+        assert.equal(context.backgroundImageSource.url, 'blob:landscape');
         assert.equal(context.backgroundEffectsBusy, false);
         assert.equal(context.userLog.callCount, 1);
-        assert.equal(context.URL.revokeObjectURL.callCount, 1);
+        assert.deepEqual(context.URL.revokeObjectURL.args, [['blob:broken']]);
     });
 
     it('shows invalid image warnings inline without replacing the pre-join popup', async () => {

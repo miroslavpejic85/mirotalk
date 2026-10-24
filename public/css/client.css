@@ -1399,14 +1399,11 @@ body {
     white-space: nowrap;
 }
 
-#bottomButtons #videoMenu .device-menu-background-filename {
-    contain: inline-size;
-    padding: 6px 12px;
-    overflow: hidden;
-    color: var(--dd-color, #fff);
-    font-size: 0.75rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+#bottomButtons #videoMenu .camera-bg-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 6px 10px 4px;
 }
 
 .device-menu-audio-meter {
@@ -5003,45 +5000,145 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     display: none;
 }
 
-#mySettings #backgroundImageInput,
-#initBackgroundImageInput {
+/* Camera background image picker (pre-join, Settings > Video, video dropdown) */
+.camera-bg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+    border-radius: 10px;
+    outline: 2px dashed transparent;
+    outline-offset: 2px;
+    transition: outline-color 0.2s ease;
+}
+
+#mySettings .camera-bg-grid {
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+}
+
+.camera-bg-grid.drag-over {
+    outline-color: var(--dd-color, #66beff);
+}
+
+.camera-bg-grid[hidden],
+.camera-bg-card[hidden] {
+    display: none !important;
+}
+
+/* ID prefixes beat the generic `.init-user button`, `.tabcontent button` and `#videoMenu button` styles */
+#initBackgroundEffectsSection .camera-bg-card,
+#mySettings #backgroundEffectsSection .camera-bg-card,
+#bottomButtons #videoMenu .camera-bg-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     box-sizing: border-box;
     width: 100%;
-    max-width: 100%;
+    height: auto;
     min-width: 0;
-    margin-top: 10px;
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
     border: none;
-    background: transparent;
-    color: var(--dd-color, #fff);
-    font: inherit;
-    text-overflow: ellipsis;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1rem;
+    line-height: 1;
+    text-align: center;
     white-space: nowrap;
+    box-shadow: none;
     cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-#mySettings #backgroundImageInput::file-selector-button,
-#initBackgroundImageInput::file-selector-button {
-    margin-right: 12px;
-    padding: 10px 14px;
-    border: var(--border);
-    border-radius: 8px;
-    background: var(--select-bg);
-    color: var(--dd-color, #fff);
-    font: inherit;
-    cursor: pointer;
+/* Frame and check badge are overlays: they paint above the thumbnail and ignore `border: none !important` menus */
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: inherit;
+    pointer-events: none;
+    transition: border-color 0.2s ease;
 }
 
-#mySettings #backgroundImageInput:hover::file-selector-button,
-#initBackgroundImageInput:hover::file-selector-button {
-    background: var(--tab-btn-active);
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card:hover:not(:disabled)::after {
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
-#mySettings #backgroundImageInput:focus-visible,
-#initBackgroundImageInput:focus-visible {
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card.active::after {
+    border-color: var(--dd-color, #66beff);
+}
+
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card.active::before {
+    content: '\f00c';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--dd-color, #66beff);
+    color: #101314;
+    font-family: 'Font Awesome 6 Free';
+    font-size: 0.55rem;
+    font-weight: 900;
+    pointer-events: none;
+}
+
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card span {
+    max-width: 100%;
+    padding: 0 4px;
+    overflow: hidden;
+    font-size: 0.65rem;
+    text-overflow: ellipsis;
+}
+
+#initBackgroundEffectsSection .camera-bg-card:hover:not(:disabled),
+#mySettings #backgroundEffectsSection .camera-bg-card:hover:not(:disabled),
+#bottomButtons #videoMenu .camera-bg-card:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    transform: none;
+}
+
+#initBackgroundEffectsSection .camera-bg-card.active,
+#mySettings #backgroundEffectsSection .camera-bg-card.active,
+#bottomButtons #videoMenu .camera-bg-card.active {
+    color: var(--dd-color, #66beff);
+    box-shadow: 0 0 10px rgba(102, 190, 255, 0.3);
+}
+
+#initBackgroundEffectsSection .camera-bg-card:disabled,
+#mySettings #backgroundEffectsSection .camera-bg-card:disabled,
+#bottomButtons #videoMenu .camera-bg-card:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#initBackgroundEffectsSection .camera-bg-card:focus-visible,
+#mySettings #backgroundEffectsSection .camera-bg-card:focus-visible,
+#bottomButtons #videoMenu .camera-bg-card:focus-visible {
     outline: 2px solid var(--dd-color, #fff);
-    outline-offset: 3px;
-    border-radius: 8px;
+    outline-offset: 2px;
 }
 
 #mySettings .settings-field-hint {
