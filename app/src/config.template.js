@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.92 - Configuration File
+ * MiroTalk P2P v.2.1.93 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -212,9 +212,12 @@ module.exports = {
         enabled: getEnvBoolean(process.env.CHATGPT_ENABLED),
         basePath: process.env.CHATGPT_BASE_PATH,
         apiKey: process.env.CHATGPT_APIKEY,
-        model: process.env.CHATGPT_MODEL,
+        model: process.env.CHATGPT_MODEL || 'gpt-6-luna',
         max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
-        temperature: parseInt(process.env.CHATGPT_TEMPERATURE),
+        temperature: parseFloat(process.env.CHATGPT_TEMPERATURE),
+        // Reasoning models only (none|low|medium|high|xhigh|max), empty for non-reasoning models.
+        // temperature is only sent when reasoning_effort is 'none' or empty.
+        reasoning_effort: process.env.CHATGPT_REASONING_EFFORT ?? 'none',
     },
 
     // ==========================================

@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.92
+ * @version 2.1.93
  *
  */
 
@@ -380,6 +380,21 @@ if (configChatGPT.enabled) {
     } else {
         log.warning('ChatGPT seems enabled, but you missing the apiKey!');
     }
+}
+
+function getChatGPTParams(messages) {
+    const reasoningEffort = configChatGPT.reasoning_effort ?? 'none';
+    const params = {
+        model: configChatGPT.model || 'gpt-6-luna',
+        messages,
+        max_completion_tokens: configChatGPT.max_tokens || 1000,
+    };
+    if (reasoningEffort) params.reasoning_effort = reasoningEffort;
+    // Reasoning models reject temperature unless reasoning effort is 'none'
+    if (!reasoningEffort || reasoningEffort === 'none') {
+        params.temperature = Number.isFinite(configChatGPT.temperature) ? configChatGPT.temperature : 0;
+    }
+    return params;
 }
 
 // Whisper Speech-to-Text (OpenAI-compatible, server-side transcription).
@@ -1548,12 +1563,7 @@ io.sockets.on('connect', async (socket) => {
                     let completion;
                     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
                         try {
-                            completion = await chatGPT.chat.completions.create({
-                                model: configChatGPT.model || 'gpt-3.5-turbo',
-                                messages: context,
-                                max_tokens: configChatGPT.max_tokens || 1000,
-                                temperature: configChatGPT.temperature || 0,
-                            });
+                            completion = await chatGPT.chat.completions.create(getChatGPTParams(context));
                             break; // success
                         } catch (retryError) {
                             const isTransient = retryError.status >= 500 && retryError.status < 600;
