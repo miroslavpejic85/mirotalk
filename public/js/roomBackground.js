@@ -4,6 +4,7 @@
  * Room background (browser-only, zero server cost).
  *
  * Each user can place an image behind the video grid. Nothing is sent to the server or to other peers:
+ * - presets are bundled static images (public/images/room-background)
  * - uploads are downscaled on a canvas and kept in IndexedDB
  * - the selection (per room, or for all rooms) and the dim level live in localStorage
  */
@@ -16,7 +17,11 @@ const ROOM_BG_MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 const ROOM_BG_MAX_ROOMS = 50;
 const ROOM_BG_DEFAULT_DIM = 35;
 const ROOM_BG_MAX_DIM = 80;
+const ROOM_BG_PRESET_PATTERN = /^\.\.\/images\/room-background\/[A-Za-z0-9._-]+\.(?:jpe?g|png|webp)$/i;
 const ROOM_BG_CUSTOM_ID_PATTERN = /^custom-[A-Za-z0-9-]+$/;
+const ROOM_BG_PRESETS = ['forest', 'beach', 'mountains', 'lake', 'aurora', 'abstract'].map(
+    (name) => `../images/room-background/${name}.webp`
+);
 
 const roomBackgroundDB = {
     open() {
@@ -66,12 +71,14 @@ const roomBackgroundDB = {
 class RoomBackground {
     constructor({
         roomId,
+        getPresets = () => ROOM_BG_PRESETS,
         storage = window.localStorage,
         db = roomBackgroundDB,
         userLog = () => {},
         doc = document,
     } = {}) {
         this.roomId = String(roomId || '');
+        this.getPresets = getPresets;
         this.storage = storage;
         this.db = db;
         this.userLog = userLog;
@@ -93,8 +100,13 @@ class RoomBackground {
     isValidSelection(selection) {
         if (!selection || typeof selection !== 'object') return false;
         if (selection.type === 'none') return true;
+        if (selection.type === 'preset') return this.isValidPreset(selection.value);
         if (selection.type === 'custom') return ROOM_BG_CUSTOM_ID_PATTERN.test(selection.value || '');
         return false;
+    }
+
+    isValidPreset(value) {
+        return typeof value === 'string' && ROOM_BG_PRESET_PATTERN.test(value);
     }
 
     clampDim(value) {
@@ -204,6 +216,7 @@ class RoomBackground {
     }
 
     async resolveUrl(selection) {
+        if (selection.type === 'preset') return selection.value;
         if (selection.type !== 'custom') return null;
         const blob = await this.db.get(selection.value);
         if (!blob || typeof blob.type !== 'string' || !blob.type.startsWith('image/')) return null;
@@ -223,12 +236,12 @@ class RoomBackground {
             console.warn('Room background: unable to load image', error);
         }
         if (token !== this.applyToken) {
-            if (url) URL.revokeObjectURL(url);
+            if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
             return;
         }
 
         this.revokeObjectUrl();
-        this.objectUrl = url;
+        if (url?.startsWith('blob:')) this.objectUrl = url;
 
         layer.style.backgroundImage = url ? `url("${url}")` : '';
         this.doc.body.classList.toggle('room-bg-active', !!url);
@@ -347,6 +360,30 @@ class RoomBackground {
         return typeof i18n?.t === 'function' ? i18n.t('Room background', 'labels') : 'Room background';
     }
 
+    createPresetCard(url) {
+        const card = this.doc.createElement('button');
+        card.type = 'button';
+        card.className = 'room-bg-card';
+        card.dataset.bgType = 'preset';
+        card.dataset.bgValue = url;
+        card.setAttribute('aria-label', this.label());
+        const img = this.doc.createElement('img');
+        img.src = url;
+        img.alt = '';
+        img.setAttribute('loading', 'lazy');
+        img.setAttribute('decoding', 'async');
+        card.appendChild(img);
+        card.addEventListener('click', () => this.select({ type: 'preset', value: url }));
+        return card;
+    }
+
+    renderPresets() {
+        const grid = this.dom.grid;
+        grid.querySelectorAll('.room-bg-card[data-bg-type="preset"]').forEach((card) => card.remove());
+        const presets = [...new Set(this.getPresets() || [])].filter((url) => this.isValidPreset(url));
+        presets.forEach((url) => grid.appendChild(this.createPresetCard(url)));
+    }
+
     updateUI() {
         const { grid, customCard, dim, dimValue, allRooms } = this.dom;
         if (!grid) return;
@@ -361,7 +398,9 @@ class RoomBackground {
         grid.querySelectorAll('.room-bg-card').forEach((card) => {
             const type = card.dataset.bgType;
             const active =
-                (type === 'none' && selection.type === 'none') || (type === 'custom' && selection.type === 'custom');
+                (type === 'none' && selection.type === 'none') ||
+                (type === 'custom' && selection.type === 'custom') ||
+                (type === 'preset' && selection.type === 'preset' && card.dataset.bgValue === selection.value);
             card.classList.toggle('active', active);
             card.setAttribute('aria-pressed', String(active));
         });
@@ -387,6 +426,8 @@ class RoomBackground {
         if (!grid) return;
 
         customCard?.setAttribute('aria-label', this.label());
+
+        this.renderPresets();
 
         noneCard?.addEventListener('click', () => this.select({ type: 'none' }));
         customCard?.addEventListener('click', () => {
@@ -421,5 +462,5 @@ class RoomBackground {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { RoomBackground, roomBackgroundDB };
+    module.exports = { RoomBackground, roomBackgroundDB, ROOM_BG_PRESETS };
 }

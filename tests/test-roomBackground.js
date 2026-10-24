@@ -4,9 +4,11 @@ const assert = require('assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
-const { RoomBackground } = require('../public/js/roomBackground.js');
+const { RoomBackground, ROOM_BG_PRESETS } = require('../public/js/roomBackground.js');
 
 const root = path.join(__dirname, '..');
+const PRESET_A = '../images/room-background/forest.webp';
+const PRESET_B = '../images/room-background/beach.webp';
 
 function createStorage(initial = {}) {
     const data = { ...initial };
@@ -45,9 +47,10 @@ describe('Room background (browser-only)', () => {
     let db;
     let logs;
 
-    function create(roomId = 'room-1') {
+    function create(roomId = 'room-1', presets) {
         return new RoomBackground({
             roomId,
+            ...(presets && { getPresets: () => presets }),
             storage,
             db,
             doc,
@@ -137,17 +140,65 @@ describe('Room background (browser-only)', () => {
                 dim: 'abc',
                 global: { type: 'preset', value: 'https://evil.example/track.png' },
                 rooms: {
-                    'room-1': { type: 'custom', value: '../x.jpg") ; background: red; ("' },
+                    'room-1': { type: 'preset', value: '../images/x.jpg") ; background: red; ("' },
                     'room-2': { type: 'custom', value: 'javascript:alert(1)' },
                     'room-3': { type: 'custom', value: 'custom-ok' },
+                    'room-4': { type: 'preset', value: '../images/room-background/../../views/client.html' },
+                    'room-5': { type: 'preset', value: PRESET_A },
                 },
             })
         );
         const rb = create('room-1');
         assert.equal(rb.state.dim, 35);
         assert.equal(rb.state.global, null);
-        assert.deepEqual(Object.keys(rb.state.rooms), ['room-3']);
+        assert.deepEqual(Object.keys(rb.state.rooms), ['room-3', 'room-5']);
         assert.equal(rb.getSelection().type, 'none');
+    });
+
+    it('ships bundled presets that exist on disk and renders them as cards', async () => {
+        assert.ok(ROOM_BG_PRESETS.length >= 1);
+        for (const url of ROOM_BG_PRESETS) {
+            const file = path.join(root, 'public/images', url.replace('../images/', ''));
+            assert.ok(fs.existsSync(file), `${url} exists`);
+            assert.ok(fs.statSync(file).size < 300 * 1024, `${url} stays small`);
+        }
+
+        const rb = create();
+        await rb.init();
+        const cards = [...doc.querySelectorAll('.room-bg-card[data-bg-type="preset"]')];
+        assert.deepEqual(
+            cards.map((card) => card.dataset.bgValue),
+            ROOM_BG_PRESETS
+        );
+        assert.equal(cards[0].querySelector('img').getAttribute('loading'), 'lazy');
+    });
+
+    it('applies the selected preset for this room only', async () => {
+        const rb = create();
+        await rb.init();
+        const cards = doc.querySelectorAll('.room-bg-card[data-bg-type="preset"]');
+
+        cards[1].click();
+        await new Promise((resolve) => setImmediate(resolve));
+
+        assert.ok(doc.body.classList.contains('room-bg-active'));
+        assert.ok(doc.getElementById('roomBackgroundLayer').style.backgroundImage.includes('beach.webp'));
+        assert.ok(cards[1].classList.contains('active'));
+        assert.equal(cards[0].classList.contains('active'), false);
+        assert.equal(rb.objectUrl, null);
+        assert.equal(saved().rooms['room-1'].value, PRESET_B);
+        assert.equal(saved().global, null);
+        assert.equal(create('room-2').getSelection().type, 'none');
+    });
+
+    it('does not render invalid preset paths provided at runtime', async () => {
+        const rb = create('room-1', [PRESET_A, 'https://evil.example/a.png', '../images/avatars/a.png', PRESET_A]);
+        await rb.init();
+        const presets = [...doc.querySelectorAll('.room-bg-card[data-bg-type="preset"]')];
+        assert.deepEqual(
+            presets.map((card) => card.dataset.bgValue),
+            [PRESET_A]
+        );
     });
 
     it('recovers from corrupted localStorage JSON', () => {
