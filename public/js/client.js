@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.87
+ * @version 2.1.88
  *
  */
 
@@ -1843,6 +1843,7 @@ async function handleConnect() {
         handleButtonsRule();
         setupMySettings();
         loadSettingsFromLocalStorage();
+        initRoomBackground();
         setupVideoUrlPlayer();
         handleDropdownHover();
         setupQuickDeviceSwitchDropdowns();
@@ -4456,6 +4457,23 @@ function setCustomTheme() {
         '--toggle-on-ink': '#101314',
         '--swal-neutral-bg': `color-mix(in srgb, ${color} 55%, black)`,
     });
+}
+
+/**
+ * Room background: per-user image behind the video grid, stored only in this browser (see roomBackground.js)
+ */
+let roomBackground = null;
+
+function initRoomBackground() {
+    if (roomBackground || buttons.settings.showRoomBackground === false || typeof RoomBackground === 'undefined') {
+        return;
+    }
+    roomBackground = new RoomBackground({
+        roomId,
+        userLog: (type, message) => userLog(type, message),
+    });
+    getId('roomBackgroundSection').classList.remove('hidden');
+    roomBackground.init();
 }
 
 /**
@@ -19387,7 +19405,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.87',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.88',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

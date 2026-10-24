@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.1.87 - Configuration File
+ * MiroTalk P2P v.2.1.88 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -588,6 +588,7 @@ module.exports = {
             showUnlockRoomBtn: true,
             showJoinLockBtn: true,
             showShortcutsBtn: true,
+            showRoomBackground: getEnvBoolean(process.env.SHOW_ROOM_BACKGROUND, true), // per-user image behind the video grid, stored only in the browser
             customNoiseSuppression: getEnvBoolean(process.env.CUSTOM_NOISE_SUPPRESSION_ENABLED, true),
             customNoiseSuppressionDefault: getEnvBoolean(process.env.CUSTOM_NOISE_SUPPRESSION_DEFAULT, true), // initial state, users can still toggle it
         },

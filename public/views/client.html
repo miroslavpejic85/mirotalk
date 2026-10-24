@@ -1745,6 +1745,60 @@
                                 <input id="keepCustomTheme" class="toggle" type="checkbox" />
                             </div>
                         </div>
+                        <div id="roomBackgroundSection" class="settings-field hidden">
+                            <div class="title">
+                                <i class="fa-solid fa-image"></i>
+                                <p>Room background</p>
+                            </div>
+                            <p class="settings-field-hint">Only you can see it. Saved in this browser.</p>
+                            <div id="roomBackgroundGrid" class="room-bg-grid">
+                                <button id="roomBackgroundNone" type="button" class="room-bg-card" data-bg-type="none">
+                                    <i class="fa-solid fa-ban"></i>
+                                    <span>None</span>
+                                </button>
+                                <button
+                                    id="roomBackgroundUpload"
+                                    type="button"
+                                    class="room-bg-card"
+                                    data-bg-type="upload"
+                                >
+                                    <i class="fa-solid fa-upload"></i>
+                                    <span>Upload</span>
+                                </button>
+                                <button
+                                    id="roomBackgroundCustom"
+                                    type="button"
+                                    class="room-bg-card hidden"
+                                    data-bg-type="custom"
+                                ></button>
+                            </div>
+                            <input id="roomBackgroundFile" type="file" accept="image/*" hidden />
+                            <div class="title room-bg-subtitle">
+                                <i class="fa-solid fa-circle-half-stroke"></i>
+                                <p>Background dim</p>
+                            </div>
+                            <div class="output-volume-row">
+                                <input
+                                    id="roomBackgroundDim"
+                                    class="output-volume-slider"
+                                    type="range"
+                                    min="0"
+                                    max="80"
+                                    step="5"
+                                    value="35"
+                                />
+                                <span id="roomBackgroundDimValue" class="output-volume-value">35%</span>
+                            </div>
+                            <div class="inline-check-box">
+                                <div>
+                                    <div class="title">
+                                        <i class="fa-solid fa-globe"></i>
+                                        <p>Use in all my rooms</p>
+                                    </div>
+                                </div>
+                                <input id="roomBackgroundAllRooms" class="toggle" type="checkbox" />
+                            </div>
+                        </div>
                     </div>
 
                     <div id="tabLayout" class="tabcontent">
@@ -2499,6 +2553,7 @@ Note</textarea>
         <script defer src="../js/wakeLock.js"></script>
         <script defer src="../js/roomTemplate.js"></script>
         <script defer src="../js/background-effects.js"></script>
+        <script defer src="../js/roomBackground.js"></script>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/networkStats.js"></script>
         <script defer src="../js/speechRecognition.js"></script>

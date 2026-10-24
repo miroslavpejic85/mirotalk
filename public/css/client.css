@@ -4400,6 +4400,115 @@ button {
     }
 }
 
+/*--------------------------------------------------------------
+# Room background (browser-only, see roomBackground.js)
+--------------------------------------------------------------*/
+
+#roomBackgroundLayer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: none;
+    pointer-events: none;
+    background-color: #000;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#roomBackgroundLayer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, var(--room-bg-dim, 0.35));
+}
+
+body.room-bg-active #roomBackgroundLayer {
+    display: block;
+}
+
+body.room-bg-active #videoMediaContainer,
+body.room-bg-active #videoMediaContainer.mouse-light {
+    background: transparent;
+}
+
+.room-bg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 8px;
+    margin: 12px 0 16px;
+    padding: 4px;
+    border: 2px dashed transparent;
+    border-radius: 12px;
+    transition: border-color 0.2s ease;
+}
+
+.room-bg-grid.drag-over {
+    border-color: var(--dd-color, #66beff);
+}
+
+.room-bg-subtitle {
+    margin-bottom: 8px;
+}
+
+/* #mySettings prefix: beat the generic `.tabcontent button` and global `.active` styles */
+#mySettings .room-bg-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    background-image: none;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    box-shadow: none;
+    cursor: pointer;
+    transition:
+        border-color 0.25s ease,
+        background-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+#mySettings .room-bg-card.hidden {
+    display: none;
+}
+
+#mySettings .room-bg-card i {
+    font-size: 1.1rem;
+}
+
+#mySettings .room-bg-card span {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#mySettings .room-bg-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+#mySettings .room-bg-card.active {
+    border-color: var(--dd-color, #66beff);
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 12px rgba(102, 190, 255, 0.25);
+    color: var(--dd-color, #66beff);
+}
+
 #themeColorPicker {
     z-index: 6;
     padding: 10px;
