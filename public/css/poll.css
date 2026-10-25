@@ -239,8 +239,15 @@
 
 .poll-form-option-remove {
     flex: 0 0 auto;
-    width: 30px;
-    height: 30px;
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    min-height: 30px;
+    padding: 0;
+    box-sizing: border-box;
+    line-height: 1;
     color: rgba(255, 255, 255, 0.7);
     background: transparent;
     border: none !important;
