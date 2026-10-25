@@ -22,6 +22,7 @@ let buttons = {
         showMyHandBtn: true,
         showWhiteboardBtn: true,
         showEditorBtn: true,
+        showPollBtn: true,
         showSnapshotRoomBtn: true,
         showFileShareBtn: true,
         showDocumentPipBtn: true,

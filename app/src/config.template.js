@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.10 - Configuration File
+ * MiroTalk P2P v.2.2.20 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -557,6 +557,7 @@ module.exports = {
             showCaptionRoomBtn: true,
             showWhiteboardBtn: true,
             showEditorBtn: true,
+            showPollBtn: true,
             showSnapshotRoomBtn: true,
             showFileShareBtn: true,
             showDocumentPipBtn: true,

@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.10
+ * @version 2.2.20
  *
  */
 
@@ -70,6 +70,7 @@ const MattermostController = require('./mattermost');
 const Validate = require('./validate');
 const RoomPassword = require('./roomPassword');
 const RoomTimeLimit = require('./roomTimeLimit');
+const RoomPolls = require('./roomPolls');
 const HtmlInjector = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
@@ -1885,6 +1886,13 @@ io.sockets.on('connect', async (socket) => {
 
         await addPeerTo(channel);
 
+        // Server-bound poll voter identity, never broadcast. peer_uuid is per browser (localStorage), so the
+        // join-time name separates participants sharing a browser while a refresh/reconnect keeps the same vote.
+        socket.pollVoterKey =
+            typeof peer_uuid === 'string' && peer_uuid.length > 0 && peer_uuid.length <= 100
+                ? 'u:' + JSON.stringify([peer_uuid, String(peer_name)])
+                : 's:' + socket.id;
+
         channels[channel][socket.id] = socket;
         socket.channels[channel] = channel;
 
@@ -1914,6 +1922,12 @@ io.sockets.on('connect', async (socket) => {
                 segmentSeconds: configWhisper.segmentSeconds,
             },
             //...
+        });
+
+        // Room polls snapshot (also replaces stale client state after a reconnect)
+        await sendToPeer(socket.id, sockets, 'poll', {
+            action: 'list',
+            polls: RoomPolls.list(channel).map((poll) => RoomPolls.toPublic(poll, socket.pollVoterKey)),
         });
 
         // SCENARIO: Notify when the first user join room and is awaiting assistance...
@@ -2078,6 +2092,106 @@ io.sockets.on('connect', async (socket) => {
         }
         log.debug('[' + socket.id + '] Room ' + room_id, { locked: room_is_locked });
     });
+
+    /**
+     * Handle room polls (server-authoritative state)
+     * @param {Object} cfg
+     * @param {string} cfg.room_id - The ID of the room.
+     * @param {string} cfg.action - 'create' | 'vote' | 'close' | 'delete'.
+     * @param {string} [cfg.poll_id] - Target poll (vote, close, delete).
+     * @param {string} [cfg.question] - Poll question (create).
+     * @param {string[]} [cfg.options] - Poll options (create).
+     * @param {boolean} [cfg.anonymous] - Hide voter names (create).
+     * @param {number} [cfg.option] - Option index, -1 to retract the vote (vote).
+     * @param {string} [cfg.peer_name] - Used with peer_uuid for the presenter check (close, delete).
+     * @param {string} [cfg.peer_uuid] - Used with peer_name for the presenter check (close, delete).
+     */
+    socket.on('poll', async (cfg) => {
+        // Poll texts are plain text (rendered with textContent), normalized by RoomPolls instead of checkXSS
+        if (!Validate.isValidData(cfg) || Array.isArray(cfg)) return;
+
+        const { room_id, action, poll_id } = cfg;
+        // Same sanitization as at join time, so the presenter check compares like with like
+        const peer_name = checkXSS(cfg.peer_name);
+        const peer_uuid = checkXSS(cfg.peer_uuid);
+
+        // Security: only a joined peer of the room may read or change its polls.
+        if (!isPeerInRoom(room_id, socket.id)) {
+            log.debug('poll blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
+            return;
+        }
+
+        // Throttle: every accepted action is broadcast to the whole room
+        const now = Date.now();
+        if (now - (socket.lastPollActionAt || 0) < 100) return;
+        socket.lastPollActionAt = now;
+
+        const voter = {
+            key: socket.pollVoterKey || 's:' + socket.id,
+            name: peers[room_id][socket.id].peer_name,
+        };
+        const replyError = (message) => sendToPeer(socket.id, sockets, 'poll', { action: 'error', message });
+        const canManage = (poll) =>
+            RoomPolls.isCreator(poll, voter.key) || isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
+
+        try {
+            switch (action) {
+                case 'create': {
+                    const { poll, error } = RoomPolls.create(room_id, cfg, voter);
+                    if (error) return await replyError(error);
+                    log.debug('[' + socket.id + '] Poll created', { room_id, poll_id: poll.id });
+                    await broadcastPoll(room_id, poll, { created_by: socket.id });
+                    break;
+                }
+                case 'vote': {
+                    const { poll, error } = RoomPolls.vote(room_id, poll_id, voter, cfg.option);
+                    if (error) return await replyError(error);
+                    await broadcastPoll(room_id, poll);
+                    break;
+                }
+                case 'close': {
+                    const poll = RoomPolls.get(room_id, poll_id);
+                    if (!poll) return await replyError('Poll not found');
+                    if (!canManage(poll)) return;
+                    RoomPolls.close(room_id, poll_id);
+                    await broadcastPoll(room_id, poll, { closed_by: socket.id });
+                    break;
+                }
+                case 'delete': {
+                    const poll = RoomPolls.get(room_id, poll_id);
+                    if (!poll) return await replyError('Poll not found');
+                    if (!canManage(poll)) return;
+                    RoomPolls.remove(room_id, poll_id);
+                    for (const id in channels[room_id]) {
+                        await channels[room_id][id].emit('poll', { action: 'delete', poll_id, deleted_by: socket.id });
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        } catch (err) {
+            log.error('Poll', toJson(err));
+        }
+    });
+
+    /**
+     * Send a poll update to every peer of the room (sender included), serialized per recipient
+     * so each one only learns its own vote and ownership.
+     * @param {string} room_id
+     * @param {object} poll internal poll
+     * @param {object} [extra] extra fields
+     */
+    async function broadcastPoll(room_id, poll, extra = {}) {
+        for (const id in channels[room_id]) {
+            const peerSocket = channels[room_id][id];
+            await peerSocket.emit('poll', {
+                action: 'update',
+                poll: RoomPolls.toPublic(poll, peerSocket.pollVoterKey),
+                ...extra,
+            });
+        }
+    }
 
     /**
      * Relay NAME to peers
@@ -3244,6 +3358,7 @@ io.sockets.on('connect', async (socket) => {
                 delete videoDrawingAnnotations[channel]; // Clean up persistent screen drawing state
                 delete videoDrawingPermissions[channel];
                 RoomTimeLimit.clear(channel);
+                RoomPolls.clear(channel); // Clean up room polls
             }
         } catch (err) {
             log.error('Remove Peer', toJson(err));

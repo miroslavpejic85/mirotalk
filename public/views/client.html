@@ -38,6 +38,7 @@
         <link rel="stylesheet" href="../css/whiteboard.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" />
         <link rel="stylesheet" href="../css/editor.css" />
+        <link rel="stylesheet" href="../css/poll.css" />
         <link rel="stylesheet" href="../css/translate.css" />
 
         <!-- https://cdnjs.com/libraries/font-awesome -->
@@ -451,7 +452,7 @@
                         <!-- TOOLS -->
                         <div
                             class="device-menu-header extra-menu-group"
-                            data-buttons="captionBtn,whiteboardBtn,editorBtn,documentPiPBtn,roomEmojiPickerBtn"
+                            data-buttons="captionBtn,whiteboardBtn,editorBtn,pollBtn,documentPiPBtn,roomEmojiPickerBtn"
                         >
                             TOOLS
                         </div>
@@ -463,6 +464,9 @@
                         </button>
                         <button id="editorBtn" class="app-dropdown-action">
                             <i class="fas fa-file-pen"></i> Editor
+                        </button>
+                        <button id="pollBtn" class="app-dropdown-action">
+                            <i class="fas fa-square-poll-horizontal"></i> Polls
                         </button>
                         <button id="documentPiPBtn" class="app-dropdown-action">
                             <i class="fas fa-images"></i> Document PiP
@@ -2202,6 +2206,55 @@
 
         <!-- End shared editor -->
 
+        <!-- Start polls (state kept by the signaling server) -->
+
+        <section id="pollRoom" class="poll-room hidden" role="dialog" aria-label="Polls">
+            <header id="pollHeader" class="poll-header">
+                <div class="poll-header-title">
+                    <span class="poll-title-mark" aria-hidden="true"
+                        ><i class="fas fa-square-poll-horizontal"></i
+                    ></span>
+                    <span class="poll-title-text">Polls</span>
+                    <span id="pollCount" class="poll-count hidden" aria-label="Open polls"></span>
+                </div>
+                <div class="poll-header-options">
+                    <button id="pollNewBtn" class="fas fa-plus" aria-label="New poll"></button>
+                    <button
+                        id="pollCloseBtn"
+                        class="fas fa-times poll-close-button panel-close-button"
+                        aria-label="Close polls"
+                    ></button>
+                </div>
+            </header>
+            <main class="poll-body">
+                <form id="pollForm" class="poll-form hidden" autocomplete="off">
+                    <label for="pollQuestion" class="poll-form-label">Question</label>
+                    <input id="pollQuestion" type="text" maxlength="300" placeholder="Ask a question" />
+                    <span class="poll-form-label">Options</span>
+                    <div id="pollOptions" class="poll-form-options"></div>
+                    <button id="pollAddOptionBtn" type="button" class="poll-link-btn">
+                        <i class="fas fa-plus"></i> Add option
+                    </button>
+                    <label class="poll-form-check">
+                        <input id="pollAnonymous" type="checkbox" checked />
+                        <span>Anonymous votes</span>
+                    </label>
+                    <div class="poll-form-actions">
+                        <button id="pollCancelBtn" type="button" class="poll-btn">Cancel</button>
+                        <button id="pollCreateBtn" type="submit" class="poll-btn poll-btn-primary">Create poll</button>
+                    </div>
+                </form>
+                <div id="pollEmpty" class="poll-empty">
+                    <i class="fas fa-square-poll-horizontal"></i>
+                    <p>No polls yet</p>
+                    <button id="pollEmptyNewBtn" type="button" class="poll-btn poll-btn-primary">Create a poll</button>
+                </div>
+                <div id="pollList" class="poll-list"></div>
+            </main>
+        </section>
+
+        <!-- End polls -->
+
         <!-- Start File Send -->
 
         <div
@@ -2623,6 +2676,7 @@ Note</textarea>
         <script defer src="../js/buttons.js"></script>
         <script defer src="../js/videoDrawing.js"></script>
         <script defer src="../js/editor.js"></script>
+        <script defer src="../js/poll.js"></script>
         <script defer src="../js/videoGrid.js"></script>
         <script defer src="../js/screenCameraLayout.js"></script>
         <script defer src="../js/swal.js"></script>

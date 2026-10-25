@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.10
+ * @version 2.2.20
  *
  */
 
@@ -210,6 +210,7 @@ const captionBtn = getId('captionBtn');
 const roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
 const whiteboardBtn = getId('whiteboardBtn');
 const editorBtn = getId('editorBtn');
+const pollBtn = getId('pollBtn');
 const snapshotRoomBtn = getId('snapshotRoomBtn');
 const fileShareBtn = getId('fileShareBtn');
 const documentPiPBtn = getId('documentPiPBtn');
@@ -543,6 +544,14 @@ const editorCopyBtn = getId('editorCopyBtn');
 const editorSaveBtn = getId('editorSaveBtn');
 const editorClearBtn = getId('editorClearBtn');
 const editorCloseBtn = getId('editorCloseBtn');
+
+// Polls
+const pollRoom = getId('pollRoom');
+const pollHeader = getId('pollHeader');
+const pollCount = getId('pollCount');
+const pollNewBtn = getId('pollNewBtn');
+const pollCloseBtn = getId('pollCloseBtn');
+const pollEmptyNewBtn = getId('pollEmptyNewBtn');
 
 // Room actions buttons
 const captionEveryoneBtn = getId('captionEveryoneBtn');
@@ -891,6 +900,10 @@ let wbIsBgTransparent = false;
 // shared editor (synced over RTC data channels)
 let roomEditor = null;
 let editorIsOpen = false;
+
+// room polls (state kept by the signaling server)
+let roomPolls = null;
+let pollIsOpen = false;
 let wbIsApplyingRemote = false;
 let wbShowParticipantNames = false;
 let wbObjectIdCounter = 0;
@@ -1062,6 +1075,9 @@ function setButtonsToolTip() {
     setTippy(editorSaveBtn, 'Save as HTML', 'bottom');
     setTippy(editorClearBtn, 'Clear the editor', 'bottom');
     setTippy(editorCloseBtn, 'Close', 'bottom');
+    // Poll buttons
+    setTippy(pollNewBtn, 'New poll', 'bottom');
+    setTippy(pollCloseBtn, 'Close', 'bottom');
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(whiteboardGridBtn, 'Toggle whiteboard grid', 'bottom');
@@ -1791,6 +1807,7 @@ async function initClientPeer() {
     signalingSocket.on('roomTimeLimitReached', handleRoomTimeLimitReached);
     signalingSocket.on('roomTimeLimit', handleRoomTimeLimit);
     signalingSocket.on('roomAction', handleRoomAction);
+    signalingSocket.on('poll', handlePoll);
     signalingSocket.on('addPeer', handleAddPeer);
     signalingSocket.on('serverInfo', handleServerInfo);
     signalingSocket.on('sessionDescription', handleSessionDescription);
@@ -1939,6 +1956,7 @@ function handleServerInfo(config) {
     setPresenterBadge(myVideoPeerName, isPresenter);
     setPresenterBadge(getId('myScreenPeerName'), isPresenter);
     updateEditorLockUI();
+    roomPolls?.render(); // presenter can manage every poll
 
     // Peer identified if presenter or not then....
     handleShortcuts();
@@ -2098,6 +2116,7 @@ function handleButtonsRule() {
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
         { element: whiteboardBtn, display: buttons.main.showWhiteboardBtn },
         { element: editorBtn, display: buttons.main.showEditorBtn && RoomEditor.isSupported() },
+        { element: pollBtn, display: buttons.main.showPollBtn },
         { element: snapshotRoomBtn, display: buttons.main.showSnapshotRoomBtn && !isMobileDevice },
         { element: fileShareBtn, display: buttons.main.showFileShareBtn },
         { element: documentPiPBtn, display: showDocumentPipBtn && buttons.main.showDocumentPipBtn },
@@ -8225,6 +8244,7 @@ function manageButtons() {
     setChatEmojiBtn();
     setMyWhiteboardBtn();
     setEditorBtn();
+    setPollBtn();
     setSnapshotRoomBtn();
     setMyFileShareBtn();
     setDocumentPiPBtn();
@@ -9571,6 +9591,116 @@ function confirmClearEditor() {
             roomEditor.clear();
             playSound('delete');
         }
+    });
+}
+
+/**
+ * Room polls: the signaling server keeps the poll state and counts the votes
+ * (one per participant), this client only sends intents and renders the results.
+ */
+function setPollBtn() {
+    roomPolls = new RoomPolls({
+        elements: {
+            list: getId('pollList'),
+            empty: getId('pollEmpty'),
+            form: getId('pollForm'),
+            question: getId('pollQuestion'),
+            options: getId('pollOptions'),
+            addOptionBtn: getId('pollAddOptionBtn'),
+            anonymous: getId('pollAnonymous'),
+            cancelBtn: getId('pollCancelBtn'),
+            count: pollCount,
+        },
+        send: (action, data) =>
+            sendToServer('poll', {
+                room_id: roomId,
+                peer_name: myPeerName,
+                peer_uuid: myPeerUUID,
+                action,
+                ...data,
+            }),
+        getMyPeerId: () => myPeerId,
+        isPresenter: () => isPresenter,
+        onPollCreated: handlePollCreated,
+        onError: (message) => userLog('warning', message),
+        confirmDelete: confirmDeletePoll,
+    });
+
+    dragElement(pollRoom, pollHeader);
+
+    pollBtn.addEventListener('click', togglePoll);
+    pollCloseBtn.addEventListener('click', togglePoll);
+    pollNewBtn.addEventListener('click', () => roomPolls.showForm());
+    pollEmptyNewBtn.addEventListener('click', () => roomPolls.showForm());
+}
+
+/**
+ * Poll message from the signaling server
+ * @param {object} data
+ */
+function handlePoll(data) {
+    roomPolls?.handle(data);
+}
+
+/**
+ * A new poll was created: bring it to everyone's attention
+ * @param {object} poll public poll
+ * @param {boolean} isMine created by me
+ */
+function handlePollCreated(poll, isMine) {
+    if (isMine) return;
+    playSound('newMessage');
+    userLog(
+        'info',
+        (window.i18n?.t('{name} started a poll', 'toasts') || '{name} started a poll').replace(
+            '{name}',
+            poll.creator_name
+        ),
+        'top-end',
+        4000
+    );
+    if (!pollIsOpen) togglePoll();
+}
+
+/**
+ * Show - Hide polls
+ */
+function togglePoll() {
+    pollIsOpen = !pollIsOpen;
+    if (pollIsOpen) {
+        if (isMobileDevice && settingsExtraMenu) {
+            settingsExtraMenu.classList.remove('show');
+            settingsExtraMenu.classList.add('hidden');
+        }
+        pollRoom.style.top = '50%';
+        pollRoom.style.left = '50%';
+    }
+    pollRoom.classList.toggle('hidden', !pollIsOpen);
+    screenReaderAccessibility.announceMessage(pollIsOpen ? 'Polls opened' : 'Polls closed');
+}
+
+/**
+ * Confirm the deletion of a poll for everyone
+ * @returns {Promise<boolean>} confirmed
+ */
+function confirmDeletePoll() {
+    playSound('newMessage');
+    return Swal.fire({
+        background: swBg,
+        imageUrl: images.delete,
+        position: 'center',
+        title: 'Delete poll',
+        text: 'Are you sure you want to delete this poll for everyone?',
+        showCancelButton: true,
+        focusCancel: true,
+        customClass: { confirmButton: 'mirotalk-swal-destructive' },
+        confirmButtonText: 'Delete poll',
+        cancelButtonText: 'Cancel',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) playSound('delete');
+        return result.isConfirmed;
     });
 }
 
@@ -19940,7 +20070,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.10',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.20',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
