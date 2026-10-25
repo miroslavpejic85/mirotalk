@@ -72,6 +72,7 @@ function create(mainRoom, data, now = Date.now()) {
         mainState: null,
         tickets: new Set(), // ids of the tickets that are still honored
         timers: new Map(),
+        help: new Map(), // breakout room id -> { peer_name, at } pending help request
     };
     sessions.set(mainRoom, session);
     rooms.forEach((room) => breakoutRooms.set(room.id, mainRoom));
@@ -235,6 +236,39 @@ function isTicketValid({ main, sid, room, jti } = {}, now = Date.now()) {
 }
 
 /**
+ * Record a help request from a breakout room (one pending request per room)
+ * @param {string} roomId breakout room asking for help
+ * @param {string} peerName plain-text name of the participant asking
+ * @param {number} [now]
+ * @returns {{ request?: object, pending?: boolean, error?: string }} pending: already requested
+ */
+function requestHelp(roomId, peerName, now = Date.now()) {
+    const session = getByRoom(roomId);
+    if (!session || !isBreakoutRoom(roomId)) return { error: 'Not allowed' };
+    if (session.help.has(roomId)) return { request: session.help.get(roomId), pending: true };
+    const request = { peer_name: peerName, at: now };
+    session.help.set(roomId, request);
+    return { request };
+}
+
+/**
+ * @param {string} roomId
+ * @returns {object|undefined} pending help request { peer_name, at } of a breakout room
+ */
+function getHelp(roomId) {
+    return getByRoom(roomId)?.help.get(roomId);
+}
+
+/**
+ * Drop the pending help request of a breakout room (a presenter came in, or the room emptied)
+ * @param {string} roomId
+ * @returns {boolean} a request was pending
+ */
+function clearHelp(roomId) {
+    return getByRoom(roomId)?.help.delete(roomId) === true;
+}
+
+/**
  * Close a session
  * @param {string} mainRoom
  * @param {number} [now]
@@ -283,6 +317,9 @@ module.exports = {
     addTicket,
     revokeTickets,
     isTicketValid,
+    requestHelp,
+    getHelp,
+    clearHelp,
     end,
     reset,
 };

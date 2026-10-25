@@ -144,6 +144,28 @@ describe('breakout rooms', () => {
             assert.equal(RoomBreakouts.cleanMessage(42), '');
             assert.equal(RoomBreakouts.cleanMessage('x'.repeat(400)).length, RoomBreakouts.LIMITS.MAX_MESSAGE_LENGTH);
         });
+
+        it('keeps one pending help request per breakout room', () => {
+            const { session } = RoomBreakouts.create('main', { rooms: ['A', 'B'] });
+            const [a, b] = session.rooms;
+            assert.equal(RoomBreakouts.requestHelp('main', 'host').error, 'Not allowed', 'only breakout rooms');
+            assert.equal(RoomBreakouts.requestHelp('other', 'x').error, 'Not allowed');
+
+            const first = RoomBreakouts.requestHelp(a.id, 'alice', 1000);
+            assert.deepEqual(first, { request: { peer_name: 'alice', at: 1000 } });
+            const again = RoomBreakouts.requestHelp(a.id, 'bob', 2000);
+            assert.equal(again.pending, true);
+            assert.equal(again.request.peer_name, 'alice', 'the first request is kept');
+            assert.equal(RoomBreakouts.getHelp(b.id), undefined);
+
+            assert.equal(RoomBreakouts.clearHelp(a.id), true);
+            assert.equal(RoomBreakouts.clearHelp(a.id), false);
+            assert.equal(RoomBreakouts.getHelp(a.id), undefined);
+
+            RoomBreakouts.requestHelp(b.id, 'bob');
+            RoomBreakouts.end('main');
+            assert.equal(RoomBreakouts.getHelp(b.id), undefined, 'gone with the session');
+        });
     });
 
     // ####################################################
@@ -497,6 +519,76 @@ describe('breakout rooms', () => {
             const host3 = await follow(host2, last(host2, 'move'));
             assert.equal(host3.isPresenter, true);
         });
+
+        it('messages a single room and calls the presenter over for help', async () => {
+            const MAIN = 'breakout-main-help';
+            const host = await join('host', MAIN);
+            const alice = await join('alice', MAIN);
+            const bob = await join('bob', MAIN);
+            emit(host, 'open', { rooms: ['A', 'B'], assignments: { [alice.id]: 0, [bob.id]: 1 } });
+            await sleep(250);
+            const alice2 = await follow(alice, last(alice, 'move'));
+            const bob2 = await follow(bob, last(bob, 'move'));
+            const count = (socket, action) => socket.breakouts.filter((data) => data.action === action).length;
+
+            // A message to one room reaches only that room
+            emit(host, 'broadcast', { message: 'Only A', room_index: 0 });
+            await sleep(250);
+            assert.equal(last(alice2, 'message').message, 'Only A');
+            assert.equal(last(bob2, 'message'), undefined);
+            assert.equal(last(host, 'message'), undefined, 'the presenter is not in room A');
+            emit(host, 'broadcast', { message: 'Main', room_index: -1 });
+            await sleep(250);
+            assert.equal(last(host, 'message').message, 'Main');
+            assert.equal(last(alice2, 'message').message, 'Only A');
+            emit(host, 'broadcast', { message: 'Nowhere', room_index: 7 });
+            await sleep(250);
+            assert.equal(last(host, 'error').message, 'Room not found');
+
+            // Help: participants only, from a breakout room, notifies the presenters once
+            emit(host, 'help');
+            await sleep(150);
+            assert.equal(last(host, 'help'), undefined, 'presenters do not ask for help');
+            emit(alice2, 'help');
+            await sleep(250);
+            assert.deepEqual(last(host, 'help'), { action: 'help', room_index: 0, room_name: 'A', peer_name: 'alice' });
+            assert.deepEqual(last(host, 'state').rooms[0].help, { peer_name: 'alice' });
+            assert.equal(last(host, 'state').rooms[1].help, null);
+            assert.equal(last(alice2, 'state').help_requested, true);
+            assert.equal(last(alice2, 'state').rooms, undefined, 'participants still see only their room');
+            assert.equal(last(bob2, 'help'), undefined, 'participants are not notified');
+            assert.equal(last(bob2, 'state').help_requested, false);
+            emit(alice2, 'help');
+            await sleep(250);
+            assert.equal(count(host, 'help'), 1, 'one pending request per room');
+
+            // The presenter comes in: the request is settled
+            emit(host, 'join', { room_index: 0 });
+            await sleep(250);
+            const host2 = await follow(host, last(host, 'move'));
+            await sleep(150);
+            assert.equal(last(alice2, 'state').help_requested, false);
+            assert.equal(last(host2, 'state').rooms[0].help, null);
+            emit(alice2, 'help');
+            await sleep(250);
+            assert.equal(last(alice2, 'error').message, 'A presenter is already in this room');
+
+            // A room that empties drops its request
+            emit(bob2, 'help');
+            await sleep(250);
+            assert.deepEqual(last(host2, 'state').rooms[1].help, { peer_name: 'bob' });
+            bob2.close();
+            await sleep(300);
+            assert.equal(last(host2, 'state').rooms[1].help, null);
+
+            // Nobody to call over
+            host2.close();
+            await sleep(300);
+            emit(alice2, 'help');
+            await sleep(250);
+            assert.equal(last(alice2, 'error').message, 'No presenter is available');
+            assert.equal(last(alice2, 'state').help_requested, false);
+        });
     });
 
     // ####################################################
@@ -607,6 +699,7 @@ describe('breakout rooms', () => {
                 </div>
                 <span id="timer"></span>
                 <div id="banner"><span id="bannerName"></span><span id="bannerTimer"></span>
+                <button id="helpBtn" type="button"></button>
                 <button id="returnBtn" type="button"></button></div>`,
                 { runScripts: 'outside-only' }
             );
@@ -615,25 +708,28 @@ describe('breakout rooms', () => {
             const doc = window.document;
             const ids = ['setup', 'roomCount', 'duration', 'allowReturn', 'shuffleBtn', 'names', 'peers', 'active'];
             ids.push('activeRooms', 'broadcastBtn', 'endBtn', 'timer', 'banner', 'bannerName', 'bannerTimer');
-            ids.push('returnBtn');
+            ids.push('returnBtn', 'helpBtn');
             const elements = Object.fromEntries(ids.map((id) => [id, doc.getElementById(id)]));
             const sent = [];
             const moves = [];
             const notices = [];
             const managerChanges = [];
             const tickets = [];
+            const helps = [];
             const breakouts = new window.RoomBreakouts({
                 elements,
                 send: (action, data) => sent.push(JSON.parse(JSON.stringify({ action, ...data }))),
                 getMyPeerId: () => 'me',
                 onMove: (data) => moves.push(data),
                 onTicket: (data) => tickets.push(data),
+                onHelp: (data) => helps.push(data),
                 onNotice: (text) => notices.push(text),
                 onManagerChange: (isManager) => managerChanges.push(isManager),
                 confirmClose: () => Promise.resolve(true),
+                promptBroadcast: (roomName) => Promise.resolve(`hi ${roomName || 'all'}`),
                 translate: (text) => text,
             });
-            return { window, doc, elements, breakouts, sent, moves, notices, managerChanges, tickets };
+            return { window, doc, elements, breakouts, sent, moves, notices, managerChanges, tickets, helps };
         }
 
         const members = [
@@ -679,8 +775,8 @@ describe('breakout rooms', () => {
             assert.deepEqual(Object.values(open.assignments).sort(), [0, 1, 2], 'spread evenly');
         });
 
-        it('renders the live rooms for the presenter and moves peers', () => {
-            const { window, doc, elements, breakouts, sent } = setup();
+        it('renders the live rooms for the presenter and moves peers', async () => {
+            const { window, doc, elements, breakouts, sent, notices, helps } = setup();
             breakouts.handle({
                 action: 'state',
                 active: true,
@@ -691,8 +787,8 @@ describe('breakout rooms', () => {
                 now: Date.now(),
                 main_members: members.slice(0, 1),
                 rooms: [
-                    { index: 0, name: 'Red', members: members.slice(1, 3) },
-                    { index: 1, name: 'Blue', members: [] },
+                    { index: 0, name: 'Red', members: members.slice(1, 3), help: { peer_name: 'Bob' } },
+                    { index: 1, name: 'Blue', members: [], help: null },
                 ],
             });
             assert.equal(elements.setup.classList.contains('hidden'), true);
@@ -708,14 +804,34 @@ describe('breakout rooms', () => {
             select.dispatchEvent(new doc.defaultView.Event('change'));
             assert.deepEqual(sent.at(-1), { action: 'move', peer_id: 'p1', room_index: 1 });
 
-            cards[2].querySelector('button').click();
+            cards[2].querySelector('button[aria-label="Message this room"] + button').click();
             assert.deepEqual(sent.at(-1), { action: 'join', room_index: 1 });
+
+            // Help badge on the room asking for it
+            assert.equal(cards[1].classList.contains('needs-help'), true);
+            assert.equal(cards[1].querySelector('.breakout-card-help').textContent.trim(), 'Help requested');
+            assert.equal(cards[2].querySelector('.breakout-card-help'), null);
+            breakouts.handle({ action: 'help', room_index: 0, room_name: 'Red', peer_name: 'Bob' });
+            breakouts.handle({ action: 'help', room_index: 'x' });
+            assert.deepEqual(helps, [{ action: 'help', room_index: 0, room_name: 'Red', peer_name: 'Bob' }]);
+
+            // Message one room, or every room
+            cards[1].querySelector('button[aria-label="Message this room"]').click();
+            await new Promise((resolve) => window.setTimeout(resolve, 0));
+            assert.deepEqual(sent.at(-1), { action: 'broadcast', message: 'hi Red', room_index: 0 });
+            assert.equal(notices.at(-1), 'Message sent to Red');
+            cards[0].querySelector('button[aria-label="Message this room"]').click();
+            await new Promise((resolve) => window.setTimeout(resolve, 0));
+            assert.deepEqual(sent.at(-1), { action: 'broadcast', message: 'hi Main room', room_index: -1 });
+            elements.broadcastBtn.click();
+            await new Promise((resolve) => window.setTimeout(resolve, 0));
+            assert.deepEqual(sent.at(-1), { action: 'broadcast', message: 'hi all' });
             window.clearInterval(breakouts.clock);
             window.close();
         });
 
         it('shows the banner in a breakout room and forwards moves', () => {
-            const { elements, breakouts, sent, moves, notices, tickets } = setup();
+            const { elements, breakouts, sent, moves, notices, tickets, helps } = setup();
             breakouts.handle({
                 action: 'state',
                 active: true,
@@ -733,6 +849,36 @@ describe('breakout rooms', () => {
             assert.equal(elements.returnBtn.classList.contains('hidden'), false);
             elements.returnBtn.click();
             assert.deepEqual(sent.at(-1), { action: 'return' });
+
+            // Ask for help, once until a presenter comes in
+            assert.equal(elements.helpBtn.classList.contains('hidden'), false);
+            assert.equal(elements.helpBtn.textContent.trim(), 'Ask for help');
+            elements.helpBtn.click();
+            assert.deepEqual(sent.at(-1), { action: 'help' });
+            const helpState = {
+                action: 'state',
+                active: true,
+                is_manager: false,
+                is_main: false,
+                room: { index: 0, name: 'Red' },
+                ends_at: 0,
+                allow_return: true,
+                now: Date.now(),
+            };
+            breakouts.handle({ ...helpState, help_requested: true });
+            assert.equal(elements.helpBtn.disabled, true);
+            assert.equal(elements.helpBtn.textContent.trim(), 'Help requested');
+            assert.equal(notices.at(-1), 'The presenter has been asked for help');
+            const sentCount = sent.length;
+            breakouts.askHelp();
+            assert.equal(sent.length, sentCount, 'no duplicate request');
+            breakouts.handle({ ...helpState, help_requested: true });
+            assert.equal(notices.filter((n) => n === 'The presenter has been asked for help').length, 1);
+            breakouts.handle({ ...helpState, help_requested: false });
+            assert.equal(elements.helpBtn.disabled, false);
+            notices.length = 0;
+            breakouts.handle({ action: 'help', room_index: 0, room_name: 'Red', peer_name: 'x' });
+            assert.deepEqual(helps, [], 'participants ignore help alerts');
 
             breakouts.handle({ action: 'move', room_id: 'main', token: 't', is_main: true, reason: 'closed' });
             breakouts.handle({ action: 'move', room_id: 42, token: 't' });

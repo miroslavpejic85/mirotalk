@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.31
+ * @version 2.2.32
  *
  */
 
@@ -9744,6 +9744,7 @@ function setBreakoutBtn() {
             bannerName: getId('breakoutBannerName'),
             bannerTimer: getId('breakoutBannerTimer'),
             returnBtn: getId('breakoutReturnBtn'),
+            helpBtn: getId('breakoutHelpBtn'),
         },
         send: (action, data) =>
             sendToServer('breakout', {
@@ -9757,6 +9758,7 @@ function setBreakoutBtn() {
         onMove: handleBreakoutMove,
         onTicket: ({ room_id, token }) => saveBreakoutTicket(room_id, token),
         onMessage: handleBreakoutMessage,
+        onHelp: handleBreakoutHelp,
         onNotice: (text) => userLog('info', text, 'top-end', 5000),
         onError: (message) => userLog('warning', message),
         onManagerChange: updateBreakoutBtn,
@@ -9914,7 +9916,7 @@ async function handleBreakoutMove(data) {
 }
 
 /**
- * Message sent by the presenter to every room
+ * Message sent by the presenter to one or every room
  * @param {object} data { message, peer_name }
  */
 function handleBreakoutMessage(data) {
@@ -9932,16 +9934,41 @@ function handleBreakoutMessage(data) {
 }
 
 /**
- * @returns {Promise<string|null>} message to send to all the rooms
+ * Presenters: a breakout room asks for help, offer to join it
+ * @param {object} data { room_index, room_name, peer_name }
  */
-function promptBreakoutMessage() {
+function handleBreakoutHelp(data) {
+    playSound('notify');
+    Swal.fire({
+        background: swBg,
+        position: 'top',
+        imageUrl: images.message,
+        title: 'Help requested',
+        text: translateDialogText('{name} asks for help in {room}')
+            .replace('{name}', data.peer_name || 'A participant')
+            .replace('{room}', data.room_name || ''),
+        showCancelButton: true,
+        confirmButtonText: 'Join room',
+        cancelButtonText: 'Later',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) roomBreakouts?.join(data.room_index);
+    });
+}
+
+/**
+ * @param {string} [roomName] room to message, every room when unset
+ * @returns {Promise<string|null>} message to send
+ */
+function promptBreakoutMessage(roomName) {
     return Swal.fire({
         background: swBg,
         position: 'center',
         imageUrl: images.message,
-        title: 'Message all rooms',
+        title: roomName ? translateDialogText('Message {room}').replace('{room}', roomName) : 'Message all rooms',
         input: 'textarea',
-        inputPlaceholder: 'Type a message for everyone',
+        inputPlaceholder: roomName ? 'Type a message for this room' : 'Type a message for everyone',
         inputAttributes: { maxlength: 300 },
         showCancelButton: true,
         confirmButtonText: 'Send',
@@ -20337,7 +20364,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.31',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.32',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.31
+ * @version 2.2.32
  *
  */
 
@@ -2012,6 +2012,7 @@ io.sockets.on('connect', async (socket) => {
             if (!isBreakoutManager(channel, socket.id)) {
                 await sendToPeer(socket.id, sockets, 'breakout', buildBreakoutState(channel, false));
             }
+            settleBreakoutHelp(channel, socket.id);
         }
         notifyBreakoutManagers(channel);
 
@@ -2288,8 +2289,8 @@ io.sockets.on('connect', async (socket) => {
      * @param {boolean} [cfg.allow_return] - Participants may return to the main room by themselves (open).
      * @param {Object} [cfg.assignments] - { peer_id: room_index } for peers of the main room (open).
      * @param {string} [cfg.peer_id] - Peer to move (move).
-     * @param {number} [cfg.room_index] - Target room, -1 for the main room (move, join).
-     * @param {string} [cfg.message] - Plain-text message for all the rooms (broadcast).
+     * @param {number} [cfg.room_index] - Target room, -1 for the main room (move, join, broadcast: omit for all rooms).
+     * @param {string} [cfg.message] - Plain-text message for one or all the rooms (broadcast).
      * @param {string} [cfg.peer_name] - Used with peer_uuid for the presenter check.
      * @param {string} [cfg.peer_uuid] - Used with peer_name for the presenter check.
      */
@@ -2383,12 +2384,39 @@ io.sockets.on('connect', async (socket) => {
                     if (!isManager || !session) return;
                     const message = RoomBreakouts.cleanMessage(cfg.message);
                     if (!message) return await replyError('The message is required');
+                    // One room when room_index is given, else every room of the session
+                    const toAll = cfg.room_index === undefined || cfg.room_index === null;
+                    const target = toAll ? null : RoomBreakouts.getRoomByIndex(session, Number(cfg.room_index));
+                    if (!toAll && !target) return await replyError('Room not found');
                     const from = RoomPolls.cleanName(peers[room_id][socket.id].peer_name);
-                    for (const roomId of RoomBreakouts.roomIds(session)) {
+                    for (const roomId of target ? [target.id] : RoomBreakouts.roomIds(session)) {
                         for (const peerSocket of Object.values(channels[roomId] || {})) {
                             peerSocket.emit('breakout', { action: 'message', message, peer_name: from });
                         }
                     }
+                    break;
+                }
+                case 'help': {
+                    if (isManager || !session || !RoomBreakouts.isBreakoutRoom(room_id)) return;
+                    const presenterHere = Object.keys(channels[room_id] || {}).some((peerId) =>
+                        isBreakoutManager(room_id, peerId)
+                    );
+                    if (presenterHere) return await replyError('A presenter is already in this room');
+                    if (countBreakoutManagers(session) === 0) return await replyError('No presenter is available');
+                    const name = RoomPolls.cleanName(peers[room_id][socket.id].peer_name);
+                    const { request, pending, error } = RoomBreakouts.requestHelp(room_id, name);
+                    if (error) return await replyError(error);
+                    if (pending) return;
+                    const room = RoomBreakouts.getRoom(session, room_id);
+                    log.info('[' + socket.id + '] Breakout help requested', { room_id: session.mainRoom });
+                    notifyBreakoutManagers(room_id);
+                    notifyBreakoutRoom(room_id);
+                    sendToBreakoutManagers(session, {
+                        action: 'help',
+                        room_index: room.index,
+                        room_name: room.name,
+                        peer_name: request.peer_name,
+                    });
                     break;
                 }
                 case 'close':
@@ -3604,6 +3632,7 @@ io.sockets.on('connect', async (socket) => {
             log.debug('[' + socket.id + '] emit removePeer [' + id + ']');
         }
 
+        settleBreakoutHelp(channel);
         notifyBreakoutManagers(channel);
         scheduleBreakoutIdleCheck(channel);
 
@@ -3743,14 +3772,19 @@ function buildBreakoutState(room_id, isManager) {
         room: room.index < 0 ? null : { index: room.index, name: room.name },
         ends_at: session.endsAt,
         allow_return: session.allowReturn,
+        help_requested: room.index >= 0 && !!RoomBreakouts.getHelp(room_id),
     });
     if (isManager) {
         state.main_members = getBreakoutRoomMembers(session.mainRoom);
-        state.rooms = session.rooms.map((breakoutRoom) => ({
-            index: breakoutRoom.index,
-            name: breakoutRoom.name,
-            members: getBreakoutRoomMembers(breakoutRoom.id),
-        }));
+        state.rooms = session.rooms.map((breakoutRoom) => {
+            const help = RoomBreakouts.getHelp(breakoutRoom.id);
+            return {
+                index: breakoutRoom.index,
+                name: breakoutRoom.name,
+                members: getBreakoutRoomMembers(breakoutRoom.id),
+                help: help ? { peer_name: help.peer_name } : null,
+            };
+        });
     }
     return state;
 }
@@ -3781,6 +3815,52 @@ function notifyBreakoutRooms(session, reason) {
             peerSocket.emit('breakout', { ...buildBreakoutState(roomId, isBreakoutManager(roomId, peer_id)), reason });
         }
     }
+}
+
+/**
+ * Push the breakout state to every peer of one room
+ * @param {string} room_id
+ */
+function notifyBreakoutRoom(room_id) {
+    for (const [peer_id, peerSocket] of Object.entries(channels[room_id] || {})) {
+        peerSocket.emit('breakout', buildBreakoutState(room_id, isBreakoutManager(room_id, peer_id)));
+    }
+}
+
+/**
+ * Send a message to the presenters of every room of the session
+ * @param {object} session
+ * @param {object} data
+ */
+function sendToBreakoutManagers(session, data) {
+    for (const roomId of RoomBreakouts.roomIds(session)) {
+        for (const [peer_id, peerSocket] of Object.entries(channels[roomId] || {})) {
+            if (isBreakoutManager(roomId, peer_id)) peerSocket.emit('breakout', data);
+        }
+    }
+}
+
+/**
+ * @param {object} session
+ * @returns {number} presenters joined to any room of the session
+ */
+function countBreakoutManagers(session) {
+    return RoomBreakouts.roomIds(session).reduce(
+        (count, roomId) =>
+            count + Object.keys(channels[roomId] || {}).filter((peer_id) => isBreakoutManager(roomId, peer_id)).length,
+        0
+    );
+}
+
+/**
+ * A presenter came into the room, or the room emptied: its help request is over
+ * @param {string} room_id
+ * @param {string} [peer_id] peer that joined the room
+ */
+function settleBreakoutHelp(room_id, peer_id) {
+    if (!RoomBreakouts.getHelp(room_id)) return;
+    const settled = peer_id ? isBreakoutManager(room_id, peer_id) : getPeerCount(room_id) === 0;
+    if (settled && RoomBreakouts.clearHelp(room_id)) notifyBreakoutRoom(room_id);
 }
 
 /**

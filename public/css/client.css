@@ -6005,10 +6005,20 @@ html body.swal2-toast-shown .swal2-container.swal2-top-end > .swal2-popup {
     background-color: transparent !important;
 }
 
-.swal2-input {
+.swal2-input,
+.swal2-textarea {
     border: var(--border) !important;
     border-radius: 12px !important;
     box-shadow: none !important;
+}
+
+.swal2-textarea {
+    color: white !important;
+    background-color: transparent !important;
+}
+
+.swal2-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .email-invitation-date-field {

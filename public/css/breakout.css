@@ -189,6 +189,23 @@
     color: var(--poll-accent);
 }
 
+.breakout-card.needs-help {
+    border-color: color-mix(in srgb, #ffb020 70%, transparent);
+}
+
+.breakout-card-help {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border-radius: 9px;
+    color: #ffb020;
+    background: color-mix(in srgb, #ffb020 16%, transparent);
+}
+
 /* Banner shown inside a breakout room */
 
 .breakout-banner {
@@ -248,6 +265,16 @@ body:has(#roomTimeLimit:not(.hidden)) .breakout-banner {
 
 .breakout-banner-btn:hover {
     background: rgba(255, 255, 255, 0.18);
+}
+
+.breakout-banner-btn:disabled {
+    cursor: default;
+}
+
+.breakout-banner-btn.is-requested,
+.breakout-banner-btn.is-requested:hover {
+    color: #ffb020;
+    background: color-mix(in srgb, #ffb020 14%, transparent);
 }
 
 @media screen and (max-width: 830px) {

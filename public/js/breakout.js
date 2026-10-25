@@ -7,10 +7,12 @@
  * User texts are always rendered with textContent.
  *
  * Server -> client messages ('breakout' event):
- *  - { action: 'state', active, is_manager, is_main, room, ends_at, allow_return, main_members, rooms, reason }
+ *  - { action: 'state', active, is_manager, is_main, room, ends_at, allow_return, help_requested,
+ *      main_members, rooms: [{ index, name, members, help }], reason }
  *  - { action: 'move', room_id, room_name, is_main, reason, token }   go to another room
  *  - { action: 'ticket', room_id, token }                              ticket to rejoin my room after a reload
- *  - { action: 'message', message, peer_name }                         presenter broadcast
+ *  - { action: 'message', message, peer_name }                         presenter message (one or all rooms)
+ *  - { action: 'help', room_index, room_name, peer_name }              presenters: a room asks for help
  *  - { action: 'error', message }                                      request rejected
  */
 class RoomBreakouts {
@@ -23,17 +25,18 @@ class RoomBreakouts {
     /**
      * @param {object} options
      * @param {object} options.elements { setup, roomCount, duration, allowReturn, shuffleBtn, names, peers,
-     *   active, activeRooms, broadcastBtn, endBtn, timer, banner, bannerName, bannerTimer, returnBtn }
+     *   active, activeRooms, broadcastBtn, endBtn, timer, banner, bannerName, bannerTimer, returnBtn, helpBtn }
      * @param {function} options.send (action, payload) => void
      * @param {function} options.getMyPeerId () => string
      * @param {function} options.onMove (data) => void
      * @param {function} [options.onTicket] (data) => void
      * @param {function} [options.onMessage] (data) => void
+     * @param {function} [options.onHelp] (data) => void presenters: { room_index, room_name, peer_name }
      * @param {function} [options.onNotice] (text) => void
      * @param {function} [options.onError] (message) => void
      * @param {function} [options.onManagerChange] (isManager) => void
      * @param {function} [options.confirmClose] () => Promise<boolean>
-     * @param {function} [options.promptBroadcast] () => Promise<string|null>
+     * @param {function} [options.promptBroadcast] (roomName) => Promise<string|null> roomName unset for all rooms
      * @param {function} [options.translate] (text) => string
      */
     constructor(options) {
@@ -43,6 +46,7 @@ class RoomBreakouts {
         this.onMove = options.onMove || (() => {});
         this.onTicket = options.onTicket || (() => {});
         this.onMessage = options.onMessage || (() => {});
+        this.onHelp = options.onHelp || (() => {});
         this.onNotice = options.onNotice || (() => {});
         this.onError = options.onError || (() => {});
         this.onManagerChange = options.onManagerChange || (() => {});
@@ -66,6 +70,7 @@ class RoomBreakouts {
         this.el.broadcastBtn.addEventListener('click', () => this.broadcast());
         this.el.endBtn.addEventListener('click', () => this.close());
         this.el.returnBtn.addEventListener('click', () => this.send('return'));
+        this.el.helpBtn.addEventListener('click', () => this.askHelp());
 
         this.setRoomCount(RoomBreakouts.DEFAULT_ROOMS);
         this.render();
@@ -91,6 +96,8 @@ class RoomBreakouts {
             'Room not found': this.t('Room not found'),
             'Not allowed': this.t('Not allowed'),
             'The message is required': this.t('The message is required'),
+            'A presenter is already in this room': this.t('A presenter is already in this room'),
+            'No presenter is available': this.t('No presenter is available'),
         };
         return Object.hasOwn(messages, message) ? messages[message] : message;
     }
@@ -134,6 +141,11 @@ class RoomBreakouts {
             case 'message':
                 if (typeof data.message === 'string' && data.message) this.onMessage(data);
                 break;
+            case 'help':
+                if (this.isManager() && Number.isInteger(data.room_index) && data.room_index >= 0) {
+                    this.onHelp(data);
+                }
+                break;
             case 'error':
                 if (typeof data.message === 'string') this.onError(this.errorMessage(data.message));
                 break;
@@ -145,6 +157,7 @@ class RoomBreakouts {
     setState(data) {
         const wasManager = this.isManager();
         const wasActive = this.isActive();
+        const wasHelpRequested = wasActive && !!this.state?.help_requested;
         this.state = {
             ...data,
             main_members: Array.isArray(data.main_members) ? data.main_members : [],
@@ -157,6 +170,8 @@ class RoomBreakouts {
             this.onNotice(this.t('Breakout rooms are open'));
         } else if (['closed', 'timeout', 'idle'].includes(data.reason) && wasActive && !this.isActive()) {
             this.onNotice(this.t('Breakout rooms have been closed'));
+        } else if (this.isActive() && data.help_requested && !wasHelpRequested && !this.isManager()) {
+            this.onNotice(this.t('The presenter has been asked for help'));
         }
 
         this.render();
@@ -224,10 +239,33 @@ class RoomBreakouts {
         if (await this.confirmClose()) this.send('close');
     }
 
-    async broadcast() {
+    /**
+     * Send a message to one room, or to every room when no room is given
+     * @param {object} [room] { index, name } -1 for the main room
+     */
+    async broadcast(room) {
         if (!this.isManager() || !this.isActive()) return;
-        const message = await this.promptBroadcast();
-        if (typeof message === 'string' && message.trim()) this.send('broadcast', { message: message.trim() });
+        const message = await this.promptBroadcast(room?.name);
+        if (typeof message !== 'string' || !message.trim()) return;
+        if (!room) return this.send('broadcast', { message: message.trim() });
+        this.send('broadcast', { message: message.trim(), room_index: room.index });
+        this.onNotice(this.t('Message sent to {room}').replace('{room}', room.name));
+    }
+
+    /**
+     * Presenter: go to a room of the session
+     * @param {number} index -1 for the main room
+     */
+    join(index) {
+        if (this.isManager() && this.isActive() && Number.isInteger(index)) this.send('join', { room_index: index });
+    }
+
+    /**
+     * Participant in a breakout room: call the presenters over
+     */
+    askHelp() {
+        if (!this.isActive() || this.isManager() || !this.state.room || this.state.help_requested) return;
+        this.send('help');
     }
 
     // ####################################################
@@ -318,18 +356,32 @@ class RoomBreakouts {
             const card = createEl('article', 'breakout-card');
             card.classList.toggle('is-main', room.index < 0);
             card.classList.toggle('is-mine', room.index === myRoomIndex);
+            card.classList.toggle('needs-help', !!room.help);
 
             const head = createEl('div', 'breakout-card-head');
             const title = createEl('h4', 'breakout-card-title notranslate', room.name);
             title.setAttribute('translate', 'no');
             head.append(title, createEl('span', 'breakout-card-count', String(room.members.length)));
+            if (room.help) {
+                const help = createEl('span', 'breakout-card-help');
+                help.append(createEl('i', 'fas fa-hand'), document.createTextNode(' ' + this.t('Help requested')));
+                help.title = `${this.t('Help requested')}: ${room.help.peer_name || ''}`;
+                head.appendChild(help);
+            }
+            const messageBtn = createEl('button', 'poll-btn poll-btn-small');
+            messageBtn.type = 'button';
+            messageBtn.title = this.t('Message this room');
+            messageBtn.setAttribute('aria-label', this.t('Message this room'));
+            messageBtn.appendChild(createEl('i', 'fas fa-envelope'));
+            messageBtn.addEventListener('click', () => this.broadcast({ index: room.index, name: room.name }));
+            head.appendChild(messageBtn);
             if (room.index === myRoomIndex) {
                 head.appendChild(createEl('span', 'breakout-card-here', this.t('You are here')));
             } else {
                 const joinBtn = createEl('button', 'poll-btn poll-btn-small');
                 joinBtn.type = 'button';
                 joinBtn.append(createEl('i', 'fas fa-right-to-bracket'), document.createTextNode(' ' + this.t('Join')));
-                joinBtn.addEventListener('click', () => this.send('join', { room_index: room.index }));
+                joinBtn.addEventListener('click', () => this.join(room.index));
                 head.appendChild(joinBtn);
             }
             card.appendChild(head);
@@ -381,6 +433,16 @@ class RoomBreakouts {
         if (!room) return;
         this.el.bannerName.textContent = room.name;
         this.el.returnBtn.classList.toggle('hidden', !(this.state.allow_return || this.isManager()));
+
+        const requested = !!this.state.help_requested;
+        const { createEl } = RoomBreakouts;
+        this.el.helpBtn.classList.toggle('hidden', this.isManager());
+        this.el.helpBtn.disabled = requested;
+        this.el.helpBtn.classList.toggle('is-requested', requested);
+        this.el.helpBtn.replaceChildren(
+            createEl('i', 'fas fa-hand'),
+            document.createTextNode(' ' + (requested ? this.t('Help requested') : this.t('Ask for help')))
+        );
     }
 
     // ####################################################
