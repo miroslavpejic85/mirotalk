@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.1.96
+ * @version 2.2.10
  *
  */
 
@@ -209,6 +209,7 @@ const participantsCopyInviteLinkBtn = getId('participantsCopyInviteLinkBtn');
 const captionBtn = getId('captionBtn');
 const roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
 const whiteboardBtn = getId('whiteboardBtn');
+const editorBtn = getId('editorBtn');
 const snapshotRoomBtn = getId('snapshotRoomBtn');
 const fileShareBtn = getId('fileShareBtn');
 const documentPiPBtn = getId('documentPiPBtn');
@@ -529,6 +530,19 @@ const whiteboardUnlockBtn = getId('whiteboardUnlockBtn');
 const whiteboardCloseBtn = getId('whiteboardCloseBtn');
 const whiteboardShortcutsBtn = getId('whiteboardShortcutsBtn');
 const whiteboardShortcutsContent = getId('whiteboardShortcutsContent');
+
+// Shared editor
+const editorRoom = getId('editorRoom');
+const editorHeader = getId('editorHeader');
+const editorContainer = getId('editorContainer');
+const editorLockStatus = getId('editorLockStatus');
+const editorShareBtn = getId('editorShareBtn');
+const editorLockBtn = getId('editorLockBtn');
+const editorUnlockBtn = getId('editorUnlockBtn');
+const editorCopyBtn = getId('editorCopyBtn');
+const editorSaveBtn = getId('editorSaveBtn');
+const editorClearBtn = getId('editorClearBtn');
+const editorCloseBtn = getId('editorCloseBtn');
 
 // Room actions buttons
 const captionEveryoneBtn = getId('captionEveryoneBtn');
@@ -873,6 +887,10 @@ let wbIsEraser = false;
 let wbIsPencil = false;
 let wbIsVanishing = false;
 let wbIsBgTransparent = false;
+
+// shared editor (synced over RTC data channels)
+let roomEditor = null;
+let editorIsOpen = false;
 let wbIsApplyingRemote = false;
 let wbShowParticipantNames = false;
 let wbObjectIdCounter = 0;
@@ -1036,6 +1054,14 @@ function setButtonsToolTip() {
     setTippy(whiteboardLockBtn, 'Toggle Lock whiteboard', 'right');
     setTippy(whiteboardUnlockBtn, 'Toggle Lock whiteboard', 'right');
     setTippy(whiteboardCloseBtn, 'Close', 'bottom');
+    // Editor buttons
+    setTippy(editorShareBtn, 'Open the editor for everyone', 'bottom');
+    setTippy(editorLockBtn, 'Lock the editor', 'bottom');
+    setTippy(editorUnlockBtn, 'Unlock the editor', 'bottom');
+    setTippy(editorCopyBtn, 'Copy text', 'bottom');
+    setTippy(editorSaveBtn, 'Save as HTML', 'bottom');
+    setTippy(editorClearBtn, 'Clear the editor', 'bottom');
+    setTippy(editorCloseBtn, 'Close', 'bottom');
     setTippy(wbDrawingColorEl, 'Drawing color', 'bottom');
     setTippy(whiteboardGhostButton, 'Toggle transparent background', 'bottom');
     setTippy(whiteboardGridBtn, 'Toggle whiteboard grid', 'bottom');
@@ -1912,6 +1938,7 @@ function handleServerInfo(config) {
     isPeerPresenter.innerText = isPresenter;
     setPresenterBadge(myVideoPeerName, isPresenter);
     setPresenterBadge(getId('myScreenPeerName'), isPresenter);
+    updateEditorLockUI();
 
     // Peer identified if presenter or not then....
     handleShortcuts();
@@ -2070,6 +2097,7 @@ function handleButtonsRule() {
         { element: roomEmojiPickerBtn, display: buttons.main.showRoomEmojiPickerBtn },
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
         { element: whiteboardBtn, display: buttons.main.showWhiteboardBtn },
+        { element: editorBtn, display: buttons.main.showEditorBtn && RoomEditor.isSupported() },
         { element: snapshotRoomBtn, display: buttons.main.showSnapshotRoomBtn && !isMobileDevice },
         { element: fileShareBtn, display: buttons.main.showFileShareBtn },
         { element: documentPiPBtn, display: showDocumentPipBtn && buttons.main.showDocumentPipBtn },
@@ -2170,6 +2198,9 @@ function handleButtonsRule() {
         buttons.whiteboard.whiteboardLockBtn ? 'flex' : undefined
     );
     elemDisplay(whiteboardParticipantNamesControl, isPresenter, isPresenter ? 'flex' : undefined);
+
+    // Shared editor
+    updateEditorLockUI();
 }
 
 /**
@@ -4100,6 +4131,9 @@ async function handleRTCDataChannels(peer_id) {
                             case 'micVolume':
                                 handlePeerVolume(dataMessage);
                                 break;
+                            case 'editor':
+                                roomEditor?.handleMessage(peer_id, dataMessage);
+                                break;
                             default:
                                 break;
                         }
@@ -4457,6 +4491,8 @@ function handleRemovePeer(config) {
 
     msgerRemovePeer(peer_id);
     removeVideoPinMediaContainer(peer_id);
+
+    roomEditor?.removePeer(peer_id);
 
     delete chatDataChannels[peer_id];
     delete fileDataChannels[peer_id];
@@ -8188,6 +8224,7 @@ function manageButtons() {
     setRoomEmojiButton();
     setChatEmojiBtn();
     setMyWhiteboardBtn();
+    setEditorBtn();
     setSnapshotRoomBtn();
     setMyFileShareBtn();
     setDocumentPiPBtn();
@@ -9365,6 +9402,174 @@ function setMyWhiteboardBtn() {
     document.addEventListener('click', (event) => {
         if (!whiteboardDropDownMenuBtn.contains(event.target) && !whiteboardDropDownMenuBtn.contains(event.target)) {
             elemDisplay(whiteboardDropdownMenu, false);
+        }
+    });
+}
+
+/**
+ * Shared editor (Quill), synced peer-to-peer over the chat data channels:
+ * the document never goes through the signaling server.
+ */
+function setEditorBtn() {
+    if (!RoomEditor.isSupported()) {
+        elemDisplay(editorBtn, false);
+        return;
+    }
+
+    roomEditor = new RoomEditor({
+        container: editorContainer,
+        send: sendEditorData,
+        getMyPeerId: () => myPeerId,
+        isPresenter: () => isPresenter,
+        isPeerPresenter: (peerId) => !!allPeers[peerId]?.peer_presenter,
+        onLockChange: handleEditorLockChange,
+        onOpenRequest: () => {
+            if (!editorIsOpen) toggleEditor();
+        },
+    });
+
+    dragElement(editorRoom, editorHeader);
+
+    editorBtn.addEventListener('click', toggleEditor);
+    editorCloseBtn.addEventListener('click', toggleEditor);
+    editorShareBtn.addEventListener('click', () => {
+        if (!thereArePeerConnections()) {
+            return userLog('info', 'No participants detected');
+        }
+        roomEditor.openForEveryone();
+        userLog('info', 'The editor has been opened for everyone');
+    });
+    editorLockBtn.addEventListener('click', () => roomEditor.setLocked(true));
+    editorUnlockBtn.addEventListener('click', () => roomEditor.setLocked(false));
+    editorCopyBtn.addEventListener('click', copyEditorText);
+    editorSaveBtn.addEventListener('click', saveEditorContent);
+    editorClearBtn.addEventListener('click', confirmClearEditor);
+
+    updateEditorLockUI();
+}
+
+/**
+ * Send editor data through the chat data channels
+ * @param {object} data editor payload
+ * @param {string} [peerId] send only to this peer, otherwise broadcast
+ */
+function sendEditorData(data, peerId) {
+    const message = JSON.stringify(data);
+    const targets = peerId ? [peerId] : Object.keys(chatDataChannels);
+    for (const id of targets) {
+        const channel = chatDataChannels[id];
+        if (channel?.readyState !== 'open') continue;
+        try {
+            channel.send(message);
+        } catch (err) {
+            console.error('Editor data channel send', err);
+        }
+    }
+}
+
+/**
+ * Show - Hide shared editor
+ */
+function toggleEditor() {
+    editorIsOpen = !editorIsOpen;
+    if (editorIsOpen) {
+        playSound('newMessage');
+        if (isMobileDevice && settingsExtraMenu) {
+            settingsExtraMenu.classList.remove('show');
+            settingsExtraMenu.classList.add('hidden');
+        }
+        editorRoom.style.top = '50%';
+        editorRoom.style.left = '50%';
+    }
+    editorRoom.classList.toggle('hidden', !editorIsOpen);
+    if (editorIsOpen && !isMobileDevice && !roomEditor.isReadOnly()) roomEditor.quill.focus();
+    screenReaderAccessibility.announceMessage(editorIsOpen ? 'Editor opened' : 'Editor closed');
+}
+
+/**
+ * Editor lock state changed (locally by the presenter or remotely)
+ * @param {boolean} locked
+ * @param {string} peerId who changed it
+ * @param {boolean} isLocal changed by me
+ */
+function handleEditorLockChange(locked, peerId, isLocal) {
+    updateEditorLockUI();
+    if (isLocal) {
+        userLog(
+            'switch',
+            locked
+                ? 'The editor is locked. \n The participants cannot edit it.'
+                : 'The editor is unlocked. \n The participants can edit it.',
+            undefined,
+            undefined,
+            locked
+        );
+        if (locked) playSound('locked');
+    } else if (editorIsOpen) {
+        userLog('info', locked ? 'The presenter has locked the editor' : 'The presenter has unlocked the editor');
+    }
+}
+
+/**
+ * Update editor header buttons according to presenter role and lock state
+ */
+function updateEditorLockUI() {
+    if (!roomEditor) return;
+    roomEditor.applyReadOnly();
+    const locked = roomEditor.locked;
+    const readOnly = roomEditor.isReadOnly();
+    elemDisplay(editorShareBtn, isPresenter, 'inline-flex');
+    elemDisplay(editorLockBtn, isPresenter && !locked, 'inline-flex');
+    elemDisplay(editorUnlockBtn, isPresenter && locked, 'inline-flex');
+    elemDisplay(editorLockStatus, readOnly, 'inline-flex');
+    elemDisplay(editorClearBtn, !readOnly, 'inline-flex');
+    editorRoom.classList.toggle('is-readonly', readOnly);
+}
+
+/**
+ * Copy the editor plain text to clipboard
+ */
+function copyEditorText() {
+    const text = roomEditor.getText().trim();
+    if (!text) return userLog('info', 'The editor is empty');
+    navigator.clipboard
+        .writeText(text)
+        .then(() => msgPopup('success', 'Editor text copied!', 'top-end', 1000))
+        .catch((err) => msgPopup('error', err.message || String(err), 'top-end', 6000));
+}
+
+/**
+ * Save the editor content as HTML file
+ */
+function saveEditorContent() {
+    if (roomEditor.isEmpty()) return userLog('info', 'The editor is empty');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>MiroTalk Editor</title></head><body>${roomEditor.getHTML()}</body></html>`;
+    saveBlobToFile(new Blob([html], { type: 'text/html' }), `Editor-${getDataTimeString()}.html`);
+}
+
+/**
+ * Confirm and clear the editor for everyone
+ */
+function confirmClearEditor() {
+    if (roomEditor.isReadOnly() || roomEditor.isEmpty()) return;
+    playSound('newMessage');
+    Swal.fire({
+        background: swBg,
+        imageUrl: images.delete,
+        position: 'center',
+        title: 'Clear the editor',
+        text: 'Are you sure you want to clear the editor for everyone?',
+        showCancelButton: true,
+        focusCancel: true,
+        customClass: { confirmButton: 'mirotalk-swal-destructive' },
+        confirmButtonText: 'Clear editor',
+        cancelButtonText: 'Cancel',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            roomEditor.clear();
+            playSound('delete');
         }
     });
 }
@@ -12693,6 +12898,7 @@ function createChatDataChannel(peer_id) {
     chatDataChannels[peer_id] = peerConnections[peer_id].createDataChannel('mirotalk_chat_channel');
     chatDataChannels[peer_id].onopen = (event) => {
         console.log('chatDataChannels created', event);
+        roomEditor?.onPeerChannelOpen(peer_id);
     };
 }
 
@@ -19734,7 +19940,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.1.96',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.10',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

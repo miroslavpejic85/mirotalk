@@ -77,7 +77,7 @@
 <br/>
 
 - 🎥 Video up to **8K @ 60fps** · Screen sharing · Recording · Picture-in-Picture
-- 💬 Chat with Markdown & emoji · Collaborative whiteboard · File sharing
+- 💬 Chat with Markdown & emoji · Collaborative whiteboard · Shared P2P editor · File sharing
 - 🤖 ChatGPT (OpenAI) integration · Speech recognition
 - 🔒 OIDC auth · [Host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) · JWT credentials · Room passwords · Peer-to-peer encryption
 - 🔌 REST API · Slack & Mattermost · Embeddable [iframe](https://docs.mirotalk.com/mirotalk-p2p/integration/#iframe) & [widget](https://docs.mirotalk.com/mirotalk-p2p/integration/#widgets-integration) · 133 languages
@@ -193,6 +193,7 @@ To set up your own instance of `MiroTalk P2P` on a dedicated cloud server, pleas
 - ianramzy (html [template](https://cruip.com/demos/neon/))
 - vasanthv (webrtc-logic)
 - fabric.js (whiteboard)
+- [Quill](https://quilljs.com/) (editor)
 - [DiceBear](https://www.dicebear.com/) (random avatars)
 - [Image by ddraw on Freepik](https://www.freepik.com/free-vector/collection-female-male-avatars_1105371.htm) (avatar illustrations)
 

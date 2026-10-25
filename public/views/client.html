@@ -36,6 +36,8 @@
         <link rel="stylesheet" href="../css/client.css" />
         <link rel="stylesheet" href="../css/videoGrid.css" />
         <link rel="stylesheet" href="../css/whiteboard.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" />
+        <link rel="stylesheet" href="../css/editor.css" />
         <link rel="stylesheet" href="../css/translate.css" />
 
         <!-- https://cdnjs.com/libraries/font-awesome -->
@@ -449,7 +451,7 @@
                         <!-- TOOLS -->
                         <div
                             class="device-menu-header extra-menu-group"
-                            data-buttons="captionBtn,whiteboardBtn,documentPiPBtn,roomEmojiPickerBtn"
+                            data-buttons="captionBtn,whiteboardBtn,editorBtn,documentPiPBtn,roomEmojiPickerBtn"
                         >
                             TOOLS
                         </div>
@@ -458,6 +460,9 @@
                         </button>
                         <button id="whiteboardBtn" class="app-dropdown-action">
                             <i class="fas fa-chalkboard-teacher"></i> Whiteboard
+                        </button>
+                        <button id="editorBtn" class="app-dropdown-action">
+                            <i class="fas fa-file-pen"></i> Editor
                         </button>
                         <button id="documentPiPBtn" class="app-dropdown-action">
                             <i class="fas fa-images"></i> Document PiP
@@ -2161,6 +2166,42 @@
 
         <!-- End whiteboard -->
 
+        <!-- Start shared editor (synced peer-to-peer over RTC data channels) -->
+
+        <section id="editorRoom" class="editor-room hidden" role="dialog" aria-label="Shared editor">
+            <header id="editorHeader" class="editor-header">
+                <div class="editor-header-title">
+                    <span class="editor-title-mark" aria-hidden="true"><i class="fas fa-file-pen"></i></span>
+                    <span class="editor-title-text">Editor</span>
+                    <span id="editorLockStatus" class="editor-lock-status" aria-label="Read only">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                </div>
+                <div class="editor-header-options">
+                    <button
+                        id="editorShareBtn"
+                        class="fas fa-share-from-square"
+                        aria-label="Open the editor for everyone"
+                    ></button>
+                    <button id="editorLockBtn" class="fas fa-lock-open" aria-label="Lock the editor"></button>
+                    <button id="editorUnlockBtn" class="fas fa-lock" aria-label="Unlock the editor"></button>
+                    <button id="editorCopyBtn" class="fas fa-copy" aria-label="Copy text"></button>
+                    <button id="editorSaveBtn" class="fas fa-file-arrow-down" aria-label="Save as HTML"></button>
+                    <button id="editorClearBtn" class="fas fa-trash" aria-label="Clear the editor"></button>
+                    <button
+                        id="editorCloseBtn"
+                        class="fas fa-times editor-close-button panel-close-button"
+                        aria-label="Close editor"
+                    ></button>
+                </div>
+            </header>
+            <main class="editor-body notranslate" translate="no">
+                <div id="editorContainer"></div>
+            </main>
+        </section>
+
+        <!-- End shared editor -->
+
         <!-- Start File Send -->
 
         <div
@@ -2557,6 +2598,7 @@ Note</textarea>
         <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.8"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/fabric@5.3.0-browser/dist/fabric.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
@@ -2580,6 +2622,7 @@ Note</textarea>
         <script defer src="../js/detectSpeaking.js"></script>
         <script defer src="../js/buttons.js"></script>
         <script defer src="../js/videoDrawing.js"></script>
+        <script defer src="../js/editor.js"></script>
         <script defer src="../js/videoGrid.js"></script>
         <script defer src="../js/screenCameraLayout.js"></script>
         <script defer src="../js/swal.js"></script>
