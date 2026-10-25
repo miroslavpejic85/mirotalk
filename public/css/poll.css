@@ -83,7 +83,9 @@
     font-size: 0.7rem;
     font-weight: 600;
     border-radius: 9px;
-    background: var(--poll-accent);
+    color: #fff;
+    background: color-mix(in srgb, var(--poll-accent) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--poll-accent) 60%, transparent);
 }
 
 .poll-header-options button {
@@ -153,13 +155,14 @@
     background: rgba(255, 255, 255, 0.14);
 }
 
+/* Tinted accent: readable whether the theme accent is light or dark */
 .poll-btn-primary {
-    background: var(--poll-accent);
-    border-color: transparent !important;
+    background: color-mix(in srgb, var(--poll-accent) 24%, transparent);
+    border-color: color-mix(in srgb, var(--poll-accent) 55%, transparent) !important;
 }
 
 .poll-btn-primary:hover {
-    background: color-mix(in srgb, var(--poll-accent) 85%, #fff);
+    background: color-mix(in srgb, var(--poll-accent) 36%, transparent);
 }
 
 .poll-btn-small {
