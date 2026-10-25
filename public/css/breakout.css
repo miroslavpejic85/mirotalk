@@ -1,0 +1,263 @@
+/*--------------------------------------------------------------
+# Breakout rooms (panel layout reuses the poll styles)
+--------------------------------------------------------------*/
+
+.breakout-room {
+    width: min(500px, 92vw);
+}
+
+.breakout-room .hidden,
+.breakout-banner.hidden,
+.breakout-banner .hidden {
+    display: none !important;
+}
+
+.breakout-timer {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    border-radius: 9px;
+    color: #fff;
+    background: color-mix(in srgb, var(--poll-accent, #4678f9) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--poll-accent, #4678f9) 60%, transparent);
+}
+
+.breakout-select,
+.breakout-room input[type='number'] {
+    min-width: 0;
+    padding: 6px 8px;
+    box-sizing: border-box;
+    font-size: 0.82rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+}
+
+.breakout-select option {
+    color: #fff;
+    background: #1e1e22;
+}
+
+.breakout-room input:focus-visible,
+.breakout-select:focus-visible {
+    outline: 2px solid var(--poll-accent);
+    outline-offset: 2px;
+}
+
+/* Setup */
+
+.breakout-setup-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 8px 10px;
+}
+
+.breakout-names {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px;
+}
+
+.breakout-setup-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.breakout-setup-head .poll-link-btn {
+    align-self: center;
+}
+
+/* Members */
+
+.breakout-members {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.breakout-member {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 32px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.breakout-member-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.breakout-member-presenter {
+    margin-left: 6px;
+    font-size: 0.7rem;
+    color: #ffd166;
+}
+
+.breakout-member .breakout-select {
+    flex: 0 1 160px;
+}
+
+.breakout-you {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.breakout-empty {
+    margin: 0;
+    padding: 4px 2px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* Active session */
+
+.breakout-active {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.breakout-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.breakout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.breakout-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: var(--poll-surface);
+}
+
+.breakout-card.is-main {
+    border-color: color-mix(in srgb, var(--poll-accent) 45%, transparent);
+}
+
+.breakout-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breakout-card-title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.breakout-card-count {
+    padding: 1px 7px;
+    font-size: 0.7rem;
+    border-radius: 9px;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.breakout-card-here {
+    font-size: 0.72rem;
+    color: var(--poll-accent);
+}
+
+/* Banner shown inside a breakout room */
+
+.breakout-banner {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: calc(100vw - 20px);
+    padding: 6px 8px 6px 16px;
+    box-sizing: border-box;
+    border: var(--border);
+    border-radius: var(--ds-radius-full, 999px);
+    background: var(--btns-bg-color);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--box-shadow);
+    color: #fff;
+    font-family: var(--ds-font-sans);
+    font-size: 14px;
+    user-select: none;
+}
+
+/* Stack below the room time limit countdown when both are shown */
+body:has(#roomTimeLimit:not(.hidden)) .breakout-banner {
+    top: calc(env(safe-area-inset-top, 0px) + 56px);
+}
+
+.breakout-banner > i {
+    color: #66beff;
+}
+
+.breakout-banner-name {
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.breakout-banner-btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: var(--ds-radius-full, 999px);
+    cursor: pointer;
+}
+
+.breakout-banner-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+@media screen and (max-width: 830px) {
+    .breakout-banner {
+        gap: 8px;
+        font-size: 12px;
+        padding: 4px 6px 4px 12px;
+    }
+
+    .breakout-banner-btn {
+        padding: 4px 10px;
+    }
+}

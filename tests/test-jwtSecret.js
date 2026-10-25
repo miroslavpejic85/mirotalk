@@ -34,7 +34,8 @@ describe('test-jwtSecret', () => {
             keys.createRoom,
             keys.identity,
             keys.oidcPresenter,
-        ]).size.should.equal(6);
+            keys.breakout,
+        ]).size.should.equal(7);
         Object.values(keys).forEach((k) => k.should.not.equal(strong));
         getJwtKeys(strong).should.deepEqual(keys);
     });

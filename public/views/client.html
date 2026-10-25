@@ -39,6 +39,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" />
         <link rel="stylesheet" href="../css/editor.css" />
         <link rel="stylesheet" href="../css/poll.css" />
+        <link rel="stylesheet" href="../css/breakout.css" />
         <link rel="stylesheet" href="../css/translate.css" />
 
         <!-- https://cdnjs.com/libraries/font-awesome -->
@@ -452,7 +453,7 @@
                         <!-- TOOLS -->
                         <div
                             class="device-menu-header extra-menu-group"
-                            data-buttons="captionBtn,whiteboardBtn,editorBtn,pollBtn,documentPiPBtn,roomEmojiPickerBtn"
+                            data-buttons="captionBtn,whiteboardBtn,editorBtn,pollBtn,breakoutBtn,documentPiPBtn,roomEmojiPickerBtn"
                         >
                             TOOLS
                         </div>
@@ -467,6 +468,9 @@
                         </button>
                         <button id="pollBtn" class="app-dropdown-action">
                             <i class="fas fa-square-poll-horizontal"></i> Polls
+                        </button>
+                        <button id="breakoutBtn" class="app-dropdown-action">
+                            <i class="fas fa-people-arrows"></i> Breakout rooms
                         </button>
                         <button id="documentPiPBtn" class="app-dropdown-action">
                             <i class="fas fa-images"></i> Document PiP
@@ -2255,6 +2259,84 @@
 
         <!-- End polls -->
 
+        <!-- Start breakout rooms (state kept by the signaling server) -->
+
+        <section id="breakoutRoom" class="poll-room breakout-room hidden" role="dialog" aria-label="Breakout rooms">
+            <header id="breakoutHeader" class="poll-header">
+                <div class="poll-header-title">
+                    <span class="poll-title-mark" aria-hidden="true"><i class="fas fa-people-arrows"></i></span>
+                    <span class="poll-title-text">Breakout rooms</span>
+                    <span id="breakoutTimer" class="breakout-timer hidden" aria-label="Time left"></span>
+                </div>
+                <div class="poll-header-options">
+                    <button
+                        id="breakoutCloseBtn"
+                        class="fas fa-times poll-close-button panel-close-button"
+                        aria-label="Close breakout rooms"
+                    ></button>
+                </div>
+            </header>
+            <main class="poll-body">
+                <form id="breakoutSetup" class="poll-form breakout-setup" autocomplete="off">
+                    <div class="breakout-setup-grid">
+                        <label for="breakoutRoomCount" class="poll-form-label">Number of rooms</label>
+                        <input id="breakoutRoomCount" type="number" min="1" max="20" step="1" value="2" />
+                        <label for="breakoutDuration" class="poll-form-label">Duration</label>
+                        <select id="breakoutDuration" class="breakout-select">
+                            <option value="0">No time limit</option>
+                            <option value="5">5 minutes</option>
+                            <option value="10">10 minutes</option>
+                            <option value="15">15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                    <label class="poll-form-check">
+                        <input id="breakoutAllowReturn" type="checkbox" checked />
+                        <span>Participants can return to the main room</span>
+                    </label>
+                    <span class="poll-form-label">Room names</span>
+                    <div id="breakoutNames" class="breakout-names"></div>
+                    <div class="breakout-setup-head">
+                        <span class="poll-form-label">Participants</span>
+                        <button id="breakoutShuffleBtn" type="button" class="poll-link-btn">
+                            <i class="fas fa-shuffle"></i> Assign automatically
+                        </button>
+                    </div>
+                    <div id="breakoutPeers" class="breakout-members"></div>
+                    <div class="poll-form-actions">
+                        <button id="breakoutOpenBtn" type="submit" class="poll-btn poll-btn-primary">
+                            <i class="fas fa-door-open"></i> Open rooms
+                        </button>
+                    </div>
+                </form>
+                <div id="breakoutActive" class="breakout-active hidden">
+                    <div class="breakout-actions">
+                        <button id="breakoutBroadcastBtn" type="button" class="poll-btn">
+                            <i class="fas fa-bullhorn"></i> Message all rooms
+                        </button>
+                        <button id="breakoutEndBtn" type="button" class="poll-btn poll-btn-danger">
+                            <i class="fas fa-door-closed"></i> Close rooms
+                        </button>
+                    </div>
+                    <div id="breakoutActiveRooms" class="breakout-list"></div>
+                </div>
+            </main>
+        </section>
+
+        <div id="breakoutBanner" class="breakout-banner hidden" role="status" aria-live="polite">
+            <i class="fas fa-people-arrows" aria-hidden="true"></i>
+            <span id="breakoutBannerName" class="breakout-banner-name notranslate" translate="no"></span>
+            <span id="breakoutBannerTimer" class="breakout-timer hidden"></span>
+            <button id="breakoutReturnBtn" type="button" class="breakout-banner-btn hidden">
+                <i class="fas fa-arrow-right-from-bracket"></i> Return to main room
+            </button>
+        </div>
+
+        <!-- End breakout rooms -->
+
         <!-- Start File Send -->
 
         <div
@@ -2677,6 +2759,7 @@ Note</textarea>
         <script defer src="../js/videoDrawing.js"></script>
         <script defer src="../js/editor.js"></script>
         <script defer src="../js/poll.js"></script>
+        <script defer src="../js/breakout.js"></script>
         <script defer src="../js/videoGrid.js"></script>
         <script defer src="../js/screenCameraLayout.js"></script>
         <script defer src="../js/swal.js"></script>

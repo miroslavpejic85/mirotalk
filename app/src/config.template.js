@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.20 - Configuration File
+ * MiroTalk P2P v.2.2.30 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -251,6 +251,15 @@ module.exports = {
         language: process.env.WHISPER_LANGUAGE || '',
         segmentSeconds: parseInt(process.env.WHISPER_SEGMENT_SECONDS) || 3,
         maxAudioBytes: parseInt(process.env.WHISPER_MAX_AUDIO_BYTES) || 25 * 1024 * 1024,
+    },
+
+    // ==========================================
+    // Breakout Rooms
+    // ==========================================
+    // Presenters split the participants into smaller rooms (disabled by default).
+    // When disabled the server ignores every breakout request, so no breakout ticket is ever issued.
+    breakoutRooms: {
+        enabled: getEnvBoolean(process.env.BREAKOUT_ROOMS_ENABLED),
     },
 
     // ==========================================
@@ -558,6 +567,7 @@ module.exports = {
             showWhiteboardBtn: true,
             showEditorBtn: true,
             showPollBtn: true,
+            showBreakoutBtn: true, // Presenters only, shown when breakoutRooms.enabled (BREAKOUT_ROOMS_ENABLED)
             showSnapshotRoomBtn: true,
             showFileShareBtn: true,
             showDocumentPipBtn: true,
