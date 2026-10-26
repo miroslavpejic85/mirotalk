@@ -1,6 +1,7 @@
 const fs = require('fs');
 const chokidar = require('chokidar');
 
+const packageJson = require('../../package.json');
 const Logger = require('./logs');
 const log = new Logger('HtmlInjector');
 
@@ -28,8 +29,14 @@ class HtmlInjector {
                 'MiroTalk P2P is an open-source self-hosted WebRTC video calling and meeting platform. Create fast peer-to-peer video calls with screen sharing, chat, whiteboard and collaboration directly in the browser.',
             OG_IMAGE: this.config?.og?.image || 'https://p2p.mirotalk.com/images/preview.png',
             OG_URL: this.config?.og?.url || 'https://p2p.mirotalk.com',
+            APP_VERSION: this.config?.html?.version === false ? '' : `v${packageJson.version}`,
             // Add more data here as needed with fallbacks
         };
+    }
+
+    // Replace visible placeholders that must never leak as raw {{...}} text
+    replaceAppVersion(html) {
+        return html.replace(/{{APP_VERSION}}/g, this.injectData.APP_VERSION);
     }
 
     // Function to load a file into the cache
@@ -71,11 +78,6 @@ class HtmlInjector {
 
     // Function to inject dynamic data (e.g., OG, TITLE, etc.) into a given file
     injectHtml(filePath, res) {
-        // Check if HTML injection is enabled in the config
-        if (!this.config?.htmlInjection) {
-            return res.send(this.cache[filePath]);
-        }
-
         if (!this.cache[filePath]) {
             log.error(`File not cached: ${filePath}`);
             if (!res.headersSent) {
@@ -84,11 +86,15 @@ class HtmlInjector {
             return;
         }
 
+        // Check if HTML injection is enabled in the config
+        if (!this.config?.htmlInjection) {
+            return res.send(this.replaceAppVersion(this.cache[filePath]));
+        }
+
         try {
             // Replace placeholders with dynamic data (OG, TITLE, etc.)
-            const modifiedHTML = this.cache[filePath].replace(
-                /{{(OG_[A-Z_]+)}}/g,
-                (_, key) => this.injectData[key] || ''
+            const modifiedHTML = this.replaceAppVersion(
+                this.cache[filePath].replace(/{{(OG_[A-Z_]+)}}/g, (_, key) => this.injectData[key] || '')
             );
 
             if (!res.headersSent) {

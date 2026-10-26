@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.32 - Configuration File
+ * MiroTalk P2P v.2.2.33 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -418,6 +418,7 @@ module.exports = {
             advertisers: true,
             supportUs: true,
             footer: true,
+            version: true, // show app version in landing footer
         },
         about: {
             imageUrl: '../images/mirotalk-logo.gif',

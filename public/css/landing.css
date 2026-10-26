@@ -2588,6 +2588,15 @@ textarea.form-input {
     line-height: 20px;
 }
 
+.footer-version {
+    margin-left: 6px;
+    color: #6b7280;
+}
+
+.footer-version:empty {
+    display: none;
+}
+
 .invert-color .footer-nav a {
     text-decoration: none;
 }
