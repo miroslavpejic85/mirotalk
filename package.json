@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "2.2.33",
+    "version": "2.2.34",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
@@ -8,8 +8,8 @@
         "start": "node app/src/server.js",
         "dev": "node --watch app/src/server.js",
         "test": "mocha tests/*.js",
-        "lang": "node app/src/scripts/extract-ui-lang.js",
-        "lang:translate": "node app/src/scripts/translate-missing-lang.js",
+        "lang": "node scripts/extract-ui-lang.js",
+        "lang:translate": "node scripts/translate-missing-lang.js",
         "lang:auto": "npm run lang && npm run lang:translate",
         "lint": "npx prettier --write .",
         "mailpit:up": "docker-compose -f docker-compose-mailpit.yml up -d",
@@ -50,7 +50,7 @@
         "@mattermost/client": "11.9.0",
         "@ngrok/ngrok": "1.7.0",
         "@sentry/node": "^11.9.0",
-        "axios": "^1.20.0",
+        "axios": "^1.21.0",
         "chokidar": "^6.0.0",
         "colors": "^1.4.0",
         "compression": "^1.8.2",
@@ -68,8 +68,8 @@
         "jsdom": "^30.1.3",
         "jsonwebtoken": "^9.0.3",
         "nodemailer": "^10.2.1",
-        "openai": "^7.43.0",
-        "qs": "^6.16.1",
+        "openai": "^7.45.0",
+        "qs": "^6.17.0",
         "socket.io": "^4.8.4",
         "swagger-ui-express": "^5.0.1",
         "uuid": "14.0.3"

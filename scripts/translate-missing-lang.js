@@ -8,10 +8,10 @@
  * Progress is saved after each batch, so reruns resume where the previous run stopped.
  *
  * Usage:
- *   node app/src/scripts/translate-missing-lang.js
- *   node app/src/scripts/translate-missing-lang.js --locale it --locale de   (or --locale it,de)
- *   node app/src/scripts/translate-missing-lang.js --max-batches 0          (0 = unlimited)
- *   node app/src/scripts/translate-missing-lang.js --stop-on-error
+ *   node scripts/translate-missing-lang.js
+ *   node scripts/translate-missing-lang.js --locale it --locale de   (or --locale it,de)
+ *   node scripts/translate-missing-lang.js --max-batches 0          (0 = unlimited)
+ *   node scripts/translate-missing-lang.js --stop-on-error
  *
  * Machine translations are a starting point and should be reviewed before shipping.
  */
@@ -19,7 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.join(__dirname, '../../..');
+const ROOT = path.join(__dirname, '..');
 const LANG_DIR = path.join(ROOT, 'public/lang');
 const ENGLISH_FILE = path.join(LANG_DIR, 'en.json');
 

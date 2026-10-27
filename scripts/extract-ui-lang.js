@@ -7,7 +7,7 @@
  * namespace (tooltips / buttons / labels / dialogs / toasts). Values are the English
  * source itself so translators can copy en.json -> <lang>.json and fill in.
  *
- * Usage: node app/src/scripts/extract-ui-lang.js
+ * Usage: node scripts/extract-ui-lang.js
  *
  * The output is a starting point and should be reviewed by hand before shipping.
  */
@@ -15,7 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.join(__dirname, '../../..');
+const ROOT = path.join(__dirname, '..');
 const HTML_FILE = path.join(ROOT, 'public/views/client.html');
 const LANG_DIR = path.join(ROOT, 'public/lang');
 const OUT_FILE = path.join(LANG_DIR, 'en.json');
