@@ -721,6 +721,33 @@
                         <div class="msger-composer">
                             <section id="msgerEmojiPicker" class="hidden fadein chatEmojiPicker"></section>
 
+                            <!-- CHAT GIF (KLIPY) -->
+                            <section
+                                id="msgerGifPicker"
+                                class="hidden fadein chatGifPicker"
+                                role="dialog"
+                                aria-label="GIF search"
+                            >
+                                <input
+                                    id="msgerGifSearchInput"
+                                    class="chat-gif-search"
+                                    type="search"
+                                    autocomplete="off"
+                                    aria-label="Search GIFs"
+                                    translate="no"
+                                />
+                                <div id="msgerGifResults" class="chat-gif-results"></div>
+                                <div id="msgerGifStatus" class="chat-gif-status hidden" aria-live="polite"></div>
+                                <a
+                                    class="chat-gif-attribution"
+                                    href="https://klipy.com"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    translate="no"
+                                    >Powered by KLIPY</a
+                                >
+                            </section>
+
                             <div class="msger-inputarea">
                                 <textarea
                                     rows="1"
@@ -733,6 +760,15 @@
 
                             <div class="msger-input-buttons">
                                 <button id="msgerEmojiBtn" class="fas fa-smile"></button>
+                                <button
+                                    id="msgerGifBtn"
+                                    type="button"
+                                    aria-label="Choose GIF"
+                                    aria-expanded="false"
+                                    style="display: none"
+                                >
+                                    <span class="chat-gif-btn-label" translate="no">GIF</span>
+                                </button>
                                 <button id="msgerMarkdownBtn" class="fab fa-markdown"></button>
                                 <button id="msgerShareFileBtn" class="fas fa-paperclip"></button>
                                 <button id="msgerVideoUrlBtn" class="fab fa-youtube"></button>
@@ -2774,6 +2810,7 @@ Note</textarea>
         <script defer src="../js/roomTemplate.js"></script>
         <script defer src="../js/background-effects.js"></script>
         <script defer src="../js/roomBackground.js"></script>
+        <script defer src="../js/gifSearch.js"></script>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/networkStats.js"></script>
         <script defer src="../js/speechRecognition.js"></script>

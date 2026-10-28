@@ -36,6 +36,7 @@ let buttons = {
         showMaxBtn: true,
         showSaveMessageBtn: true,
         showMarkDownBtn: true,
+        showGifBtn: true,
         showChatGPTBtn: true,
         showFileShareBtn: true,
         showShareVideoAudioBtn: true,

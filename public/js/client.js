@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.35
+ * @version 2.2.36
  *
  */
 
@@ -272,6 +272,7 @@ const msgerEmptyNotice = getId('msgerEmptyNotice');
 const msgerEmptyParticipantsNotice = getId('msgerEmptyParticipantsNotice');
 const msgerMain = document.querySelector('.msger-main');
 const msgerEmojiBtn = getId('msgerEmojiBtn');
+const msgerGifBtn = getId('msgerGifBtn');
 const msgerMarkdownBtn = getId('msgerMarkdownBtn');
 const msgerShareFileBtn = getId('msgerShareFileBtn');
 const msgerVideoUrlBtn = getId('msgerVideoUrlBtn');
@@ -346,6 +347,12 @@ const roomEmojiBurstState = {
 
 // Chat room emoji picker
 const msgerEmojiPicker = getId('msgerEmojiPicker');
+
+// Chat room GIF picker (KLIPY)
+const msgerGifPicker = getId('msgerGifPicker');
+const msgerGifSearchInput = getId('msgerGifSearchInput');
+const msgerGifResults = getId('msgerGifResults');
+const msgerGifStatus = getId('msgerGifStatus');
 
 // Chat room connected peers
 const msgerCP = getId('msgerCP');
@@ -832,6 +839,9 @@ let isChatOpenedByParticipantsBtn = false;
 let isOpeningParticipants = false;
 let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
+let isChatGifVisible = false;
+let gifSearchConfig = null; // KLIPY client config from serverInfo
+let chatGifSearch = null; // GifSearch instance
 let isChatMarkdownOn = false;
 let isChatPasteTxt = false;
 let pinChatByDefault = false;
@@ -1023,6 +1033,7 @@ function setButtonsToolTip() {
     setTippy(msgerMaxBtn, 'Maximize', 'bottom');
     setTippy(msgerMinBtn, 'Minimize', 'bottom');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
+    setTippy(msgerGifBtn, 'GIF', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerShareFileBtn, 'Share file', 'top');
     setTippy(msgerCPBtn, 'Participants', 'bottom');
@@ -1952,6 +1963,10 @@ function handleServerInfo(config) {
         setWhisperServerConfig(config.whisper);
         applyWhisperUiAvailability();
     }
+
+    // GIF search (KLIPY) is only delivered to joined peers.
+    gifSearchConfig = config.gifSearch?.enabled && config.gifSearch?.apiKey ? config.gifSearch : null;
+    initChatGif();
 
     // Limit room to n peers
     if (maxRoomParticipants) thisMaxRoomParticipants = maxRoomParticipants;
@@ -8258,6 +8273,7 @@ function manageButtons() {
     setCaptionRoomBtn();
     setRoomEmojiButton();
     setChatEmojiBtn();
+    setChatGifBtn();
     setMyWhiteboardBtn();
     setEditorBtn();
     setPollBtn();
@@ -9288,6 +9304,97 @@ function addEmojiToMsg(data) {
     //console.log(data);
     msgerInput.value += data.native;
     hideShowEmojiPicker();
+}
+
+/**
+ * GIF picker (KLIPY) chat room button click event
+ */
+function setChatGifBtn() {
+    if (!msgerGifBtn || !msgerGifPicker) return;
+
+    msgerGifBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleChatGif();
+    });
+
+    msgerGifSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.stopPropagation();
+            setChatGifOpen(false);
+            msgerGifBtn.focus();
+        }
+    });
+
+    handleClickOutside(msgerGifPicker, msgerGifBtn, () => {
+        if (isChatGifVisible) setChatGifOpen(false);
+    });
+
+    initChatGif();
+}
+
+/**
+ * Init the GIF picker. Idempotent: called when the room UI is ready and again once serverInfo arrives.
+ */
+function initChatGif() {
+    if (!msgerGifBtn || chatGifSearch) return;
+    if (!buttons.chat.showGifBtn || !gifSearchConfig || typeof GifSearch === 'undefined') {
+        elemDisplay(msgerGifBtn, false);
+        return;
+    }
+    try {
+        chatGifSearch = new GifSearch({
+            apiKey: gifSearchConfig.apiKey,
+            contentFilter: gifSearchConfig.contentFilter,
+            container: msgerGifPicker,
+            input: msgerGifSearchInput,
+            results: msgerGifResults,
+            status: msgerGifStatus,
+            onSelect: (url) => {
+                setChatGifOpen(false);
+                sendGif(url);
+            },
+        });
+        elemDisplay(msgerGifBtn, true, 'inline-flex');
+    } catch (err) {
+        console.warn('GIF search init failed', err?.message || err);
+        elemDisplay(msgerGifBtn, false);
+    }
+}
+
+function toggleChatGif() {
+    setChatGifOpen(!isChatGifVisible);
+}
+
+function setChatGifOpen(isOpen) {
+    if (!msgerGifPicker || !msgerGifBtn) return;
+    if (isOpen && !chatGifSearch) return;
+    if (isOpen && isChatEmojiVisible) hideChatEmojiPicker();
+    isChatGifVisible = isOpen;
+    msgerGifPicker.classList.toggle('show', isOpen);
+    setColor(msgerGifBtn, isOpen ? '#FFFF00' : '#FFFFFF');
+    msgerGifBtn.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) {
+        chatGifSearch.open();
+        if (!isMobileDevice) msgerGifSearchInput.focus();
+    }
+}
+
+/**
+ * Send the selected GIF through the regular chat pipeline, keeping any draft text.
+ * @param {string} url KLIPY media url
+ */
+function sendGif(url) {
+    if (!url || !isImageURL(url)) return;
+    if (isChatGPTConversationActive()) {
+        return userLog('info', 'GIFs cannot be sent to ChatGPT', 'top-end');
+    }
+    const draft = msgerInput.value;
+    msgerInput.value = url;
+    isChatPasteTxt = false;
+    // Not awaited: the input is consumed synchronously, and the call may resolve only when an alert is dismissed.
+    sendChatMessage();
+    msgerInput.value = draft;
+    checkLineBreaks();
 }
 
 /**
@@ -13969,6 +14076,7 @@ function hideChatRoomAndEmojiPicker() {
     }
     elemDisplay(msgerEmojiPicker, false);
     setColor(msgerEmojiBtn, '#FFFFFF');
+    if (isChatGifVisible) setChatGifOpen(false);
     isChatRoomVisible = false;
     isParticipantsVisible = false;
     isChatOpenedByParticipantsBtn = false;
@@ -15732,6 +15840,7 @@ function hideShowEmojiPicker() {
 }
 
 function showChatEmojiPicker() {
+    if (isChatGifVisible) setChatGifOpen(false);
     elemDisplay(msgerEmojiPicker, true, 'block');
     setColor(msgerEmojiBtn, '#FFFF00');
     isChatEmojiVisible = true;
@@ -20364,7 +20473,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.35',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.36',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.35 - Configuration File
+ * MiroTalk P2P v.2.2.36 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -218,6 +218,33 @@ module.exports = {
         // Reasoning models only (none|low|medium|high|xhigh|max), empty for non-reasoning models.
         // temperature is only sent when reasoning_effort is 'none' or empty.
         reasoning_effort: process.env.CHATGPT_REASONING_EFFORT ?? 'none',
+    },
+
+    // ==========================================
+    // GIF Search in chat (KLIPY)
+    // ==========================================
+    // Optional GIF picker in the chat, powered by KLIPY
+    // (a free, drop-in replacement for the discontinued Tenor API).
+    //
+    // Setup:
+    // 1. Create a free API key at https://partner.klipy.com/ (API Keys)
+    // 2. Set KLIPY_API_ENABLED=true and KLIPY_API_KEY in your .env file
+    // 3. Restart the server
+    //
+    // - enabled       : Enable/disable GIF search [true/false] (default: false)
+    // - apiKey        : KLIPY app key. Per KLIPY's integration requirements, searches are
+    //                   sent directly from the browser, so this key is shared with joined peers.
+    // - contentFilter : Content safety level [off/low/medium/high] (default: 'high')
+    //
+    // Notes:
+    // - Testing-mode keys are limited to 100 requests/hour; request Production access
+    //   in the KLIPY Partner Panel to remove the limit.
+    // - Attribution: the picker uses the required "Search KLIPY" placeholder and shows "Powered by KLIPY".
+    //   See https://docs.klipy.com/attribution and https://docs.klipy.com/integration-requirements
+    gifSearch: {
+        enabled: getEnvBoolean(process.env.KLIPY_API_ENABLED),
+        apiKey: process.env.KLIPY_API_KEY || '',
+        contentFilter: process.env.KLIPY_CONTENT_FILTER || 'high',
     },
 
     // ==========================================
@@ -579,6 +606,7 @@ module.exports = {
             showMaxBtn: true,
             showSaveMessageBtn: true,
             showMarkDownBtn: true,
+            showGifBtn: true, // Shown only when gifSearch (KLIPY) is enabled with an API key
             showChatGPTBtn: getEnvBoolean(process.env.CHATGPT_ENABLED, true),
             showFileShareBtn: true,
             showShareVideoAudioBtn: true,

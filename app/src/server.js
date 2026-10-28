@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.35
+ * @version 2.2.36
  *
  */
 
@@ -447,6 +447,23 @@ function getChatGPTParams(messages) {
         params.temperature = Number.isFinite(configChatGPT.temperature) ? configChatGPT.temperature : 0;
     }
     return params;
+}
+
+// GIF search (KLIPY)
+const GIF_CONTENT_FILTERS = ['off', 'low', 'medium', 'high'];
+const configGifSearch = config.gifSearch || {};
+const gifSearchClientConfig =
+    configGifSearch.enabled && configGifSearch.apiKey
+        ? {
+              enabled: true,
+              apiKey: String(configGifSearch.apiKey).trim(),
+              contentFilter: GIF_CONTENT_FILTERS.includes(configGifSearch.contentFilter)
+                  ? configGifSearch.contentFilter
+                  : 'high',
+          }
+        : false;
+if (configGifSearch.enabled && !configGifSearch.apiKey) {
+    log.warning('GIF search (KLIPY) seems enabled, but you missing the apiKey!');
 }
 
 // Whisper Speech-to-Text (OpenAI-compatible, server-side transcription).
@@ -1997,6 +2014,8 @@ io.sockets.on('connect', async (socket) => {
                 enabled: configWhisper.enabled,
                 segmentSeconds: configWhisper.segmentSeconds,
             },
+            // KLIPY requires searches to originate from the browser, so only joined peers get the app key.
+            gifSearch: gifSearchClientConfig,
             //...
         });
 
