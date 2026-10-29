@@ -982,10 +982,21 @@
                                     rebranding, or commercial use? Get a Regular or Extended license. Every license,
                                     sponsorship, and donation keeps MiroTalk free for everyone.
                                 </p>
+                                <div class="support-intents mt-24" role="navigation" aria-label="Support options">
+                                    <a href="#supportCommercial" class="support-intent-btn smooth-scroll">
+                                        <i class="fas fa-certificate" aria-hidden="true"></i>
+                                        I need a commercial license
+                                    </a>
+                                    <a href="#supportDonation" class="support-intent-btn smooth-scroll">
+                                        <i class="fas fa-heart" aria-hidden="true"></i>
+                                        I want to donate
+                                    </a>
+                                </div>
 
                                 <!-- Commercial License Options -->
-                                <div class="support-group mt-32">
-                                    <span class="support-footer-label">Using it in a closed-source product?</span>
+                                <div id="supportCommercial" class="support-group mt-32">
+                                    <span class="support-group-label">Using it in a closed-source product?</span>
+                                    <p class="support-group-note">Choose your license first, then compare plans.</p>
                                     <div class="support-options support-options-license mt-16">
                                         <!-- Regular License -->
                                         <a
@@ -1046,8 +1057,9 @@
                                 </div>
 
                                 <!-- Donation Options -->
-                                <div class="support-group mt-32">
-                                    <span class="support-footer-label">Or support the project with a donation</span>
+                                <div id="supportDonation" class="support-group mt-32">
+                                    <span class="support-group-label">Or support the project with a donation</span>
+                                    <p class="support-group-note">Secure checkout via PayPal, Stripe, or GitHub.</p>
                                     <div class="support-options mt-16">
                                         <!-- PayPal -->
                                         <a
@@ -1098,6 +1110,7 @@
                                             data-reveal-delay="350"
                                             data-umami-event="GitHubSponsorsSupport"
                                         >
+                                            <span class="support-card-badge">Popular</span>
                                             <div class="support-card-icon">
                                                 <svg height="28" width="28" viewBox="0 0 16 16" fill="#ffffff">
                                                     <path

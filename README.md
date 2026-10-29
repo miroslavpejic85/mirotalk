@@ -229,7 +229,7 @@ To use MiroTalk P2P in a closed-source, rebranded, or commercial product, get a 
 - **Regular License**: private source code and rebranding for one end product where end users are not charged.
 - **Extended License**: private source code and rebranding for one end product where end users can be charged for access.
 
-[Compare licenses & prices](https://docs.mirotalk.com/license/) to choose the one that fits your project.
+Choose your license first, then [compare licenses & prices](https://docs.mirotalk.com/license/) to pick the best fit for your project.
 
 </details>
 
