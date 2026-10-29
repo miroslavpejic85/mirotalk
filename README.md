@@ -55,19 +55,19 @@
 
 <br/>
 
-|                    | MiroTalk P2P                                                                                                                                        | Other Solutions             |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| 💰 **Cost**        | Free & Open Source (AGPLv3). [One-time fee licenses](https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661) available | Paid plans                  |
-| 🏠 **Self-hosted** | ✅ Full control over your data                                                                                                                      | ❌ Cloud only               |
-| 🔒 **Privacy**     | Your server, your rules                                                                                                                             | Third-party data processing |
-| ⏱️ **Time limits** | Unlimited                                                                                                                                           | 40-60 min on free tiers     |
-| 🏢 **Rooms**       | Unlimited concurrent rooms                                                                                                                          | Limited                     |
-| 🎥 **Resolution**  | Up to 8K @ 60fps                                                                                                                                    | Up to 1080p                 |
-| 🌍 **Languages**   | 133 languages                                                                                                                                       | ~30-80                      |
-| 🔌 **API**         | Full REST API included                                                                                                                              | Paid add-on                 |
-| 🤖 **AI Features** | ChatGPT (OpenAI) integration                                                                                                                        | Paid AI add-ons             |
-| 🧩 **Rebrand**     | Full source code, white-label ready                                                                                                                 | Limited branding options    |
-| 📦 **Deploy**      | Docker, Node.js, one-click install                                                                                                                  | N/A (SaaS only)             |
+|                    | MiroTalk P2P                                                                                         | Other Solutions             |
+| ------------------ | ---------------------------------------------------------------------------------------------------- | --------------------------- |
+| 💰 **Cost**        | Free & Open Source (AGPLv3). [One-time fee licenses](https://docs.mirotalk.com/sites/p2p/) available | Paid plans                  |
+| 🏠 **Self-hosted** | ✅ Full control over your data                                                                       | ❌ Cloud only               |
+| 🔒 **Privacy**     | Your server, your rules                                                                              | Third-party data processing |
+| ⏱️ **Time limits** | Unlimited                                                                                            | 40-60 min on free tiers     |
+| 🏢 **Rooms**       | Unlimited concurrent rooms                                                                           | Limited                     |
+| 🎥 **Resolution**  | Up to 8K @ 60fps                                                                                     | Up to 1080p                 |
+| 🌍 **Languages**   | 133 languages                                                                                        | ~30-80                      |
+| 🔌 **API**         | Full REST API included                                                                               | Paid add-on                 |
+| 🤖 **AI Features** | ChatGPT (OpenAI) integration                                                                         | Paid AI add-ons             |
+| 🧩 **Rebrand**     | Full source code, white-label ready                                                                  | Limited branding options    |
+| 📦 **Deploy**      | Docker, Node.js, one-click install                                                                   | N/A (SaaS only)             |
 
 </details>
 
@@ -224,7 +224,12 @@ Have questions? Join our [Discord community](https://discord.gg/rgGYfeYW3N)!
 
 MiroTalk P2P is free and open-source under the terms of AGPLv3 (GNU Affero General Public License v3.0). Please `respect the license conditions`, In particular `modifications need to be free as well and made available to the public`. Get a quick overview of the license at [Choose an open source license](https://choosealicense.com/licenses/agpl-3.0/).
 
-To obtain a [MiroTalk P2P license](https://docs.mirotalk.com/license/licensing-options/) with terms different from the AGPLv3, you can conveniently make your [purchase on CodeCanyon](https://codecanyon.net/item/mirotalk-p2p-webrtc-realtime-video-conferences/38376661). This allows you to tailor the licensing conditions to better suit your specific requirements.
+To use MiroTalk P2P in a closed-source, rebranded, or commercial product, get a one-time fee license from the [MiroTalk P2P page](https://docs.mirotalk.com/sites/p2p/):
+
+- **Regular License**: private source code and rebranding for one end product where end users are not charged.
+- **Extended License**: private source code and rebranding for one end product where end users can be charged for access.
+
+[Compare licenses & prices](https://docs.mirotalk.com/license/) to choose the one that fits your project.
 
 </details>
 
