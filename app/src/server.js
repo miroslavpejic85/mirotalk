@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.39
+ * @version 2.2.40
  *
  */
 
@@ -4365,16 +4365,57 @@ function removeIP(socket) {
 }
 
 /**
- * Cleanup HTML injector when the application is shutting down
+ * Graceful shutdown: notify clients the server is restarting so they auto-reconnect and rejoin
  */
-process.on('SIGINT', () => {
-    log.debug('PROCESS', 'SIGINT');
-    htmlInjector.cleanup();
-    process.exit();
-});
+let isShuttingDown = false;
+let shutdownStartedAt = 0;
+const SHUTDOWN_NOTIFY_DELAY_MS = 1000;
+const SHUTDOWN_FORCE_EXIT_MS = 10000;
+// `npm start` + Ctrl+C delivers SIGINT twice (from the terminal and forwarded by npm) within a few ms
+const SHUTDOWN_DUPLICATE_SIGNAL_WINDOW_MS = 2000;
 
-process.on('SIGTERM', () => {
-    log.debug('PROCESS', 'SIGTERM');
-    htmlInjector.cleanup();
-    process.exit();
-});
+async function gracefulShutdown(signal) {
+    if (isShuttingDown) {
+        if (Date.now() - shutdownStartedAt < SHUTDOWN_DUPLICATE_SIGNAL_WINDOW_MS) {
+            log.debug(`${signal} received again during shutdown, ignoring duplicate signal`);
+            return;
+        }
+        log.warn(`${signal} received again, forcing exit...`);
+        process.exit(1);
+    }
+
+    isShuttingDown = true;
+    shutdownStartedAt = Date.now();
+    log.info(`${signal} received, starting graceful shutdown...`);
+
+    setTimeout(() => {
+        log.warn('Graceful shutdown timed out, forcing exit...');
+        process.exit(1);
+    }, SHUTDOWN_FORCE_EXIT_MS).unref();
+
+    try {
+        // 1. Notify all connected clients the server is restarting,
+        // then give the message time to flush before tearing anything down
+        log.debug('Notifying clients about server shutdown...');
+        io.emit('serverShutdown', { message: 'Server is restarting' });
+        await new Promise((resolve) => setTimeout(resolve, SHUTDOWN_NOTIFY_DELAY_MS));
+
+        // 2. Cleanup HTML injector
+        htmlInjector.cleanup();
+
+        // 3. Close Socket.IO server (and the underlying HTTP server). Do NOT use socket.disconnect(true):
+        // it sends an "io server disconnect" packet, which stops clients from auto-reconnecting.
+        // io.close() only drops the transports, so clients reconnect and rejoin once the server is back.
+        log.debug('Closing Socket.IO and HTTP server...');
+        await io.close();
+
+        log.info('Graceful shutdown completed');
+        process.exit(0);
+    } catch (err) {
+        log.error('Error during graceful shutdown', err.message);
+        process.exit(1);
+    }
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

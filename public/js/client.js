@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.39
+ * @version 2.2.40
  *
  */
 
@@ -633,6 +633,7 @@ const title = getId('disconnectBannerTitle');
 const msg = getId('disconnectBannerMsg');
 const spinner = getId('disconnectBannerSpinner');
 let disconnectBannerRafId = null;
+let isServerRestarting = false; // Set when the server announces a planned shutdown (e.g. update/redeploy)
 
 //....
 
@@ -1855,6 +1856,7 @@ async function initClientPeer() {
     signalingSocket.on('fileReceiveAbort', abortFileTransfer);
     signalingSocket.on('kickOut', handleKickedOut);
     signalingSocket.on('disconnect', handleDisconnect);
+    signalingSocket.on('serverShutdown', handleServerShutdown);
     signalingSocket.on('removePeer', handleRemovePeer);
 
     VideoDrawingOverlay.onEmitDrawing = (data) => {
@@ -1894,6 +1896,7 @@ async function sendToDataChannel(config) {
 async function handleConnect() {
     console.log('03. Connected to signaling server');
 
+    isServerRestarting = false;
     hideDisconnectBanner();
     myPeerId = signalingSocket.id;
     console.log('04. My peer id [ ' + myPeerId + ' ]');
@@ -4417,7 +4420,13 @@ async function flushIceCandidates(peer_id) {
 function handleDisconnect(reason) {
     console.log('Disconnected from signaling server', { reason: reason });
 
-    showDisconnectBanner();
+    if (isServerRestarting) {
+        showServerRestartBanner();
+        // A server-initiated disconnect disables socket.io auto-reconnect, so resume it manually
+        if (reason === 'io server disconnect') signalingSocket.connect();
+    } else {
+        showDisconnectBanner();
+    }
     checkRecording();
 
     for (const peer_id in peerConnections) {
@@ -4481,6 +4490,19 @@ function handleDisconnect(reason) {
     // Set reconnection flag to trigger proper rejoin
     isPeerReconnected = true;
     console.log('Set isPeerReconnected=true, will attempt to rejoin on reconnect');
+}
+
+/**
+ * The signaling server announced a planned shutdown (e.g. update/redeploy).
+ * Socket.IO keeps retrying, and the user rejoins automatically once the server is back.
+ * @param {object} data
+ */
+function handleServerShutdown(data) {
+    console.warn('Signaling server shutdown', data);
+    if (isServerRestarting) return;
+    isServerRestarting = true;
+    playSound('alert');
+    showServerRestartBanner();
 }
 
 /**
@@ -20697,7 +20719,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.39',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.40',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -21063,6 +21085,23 @@ function showDisconnectBanner() {
     icon.className = 'fa-solid fa-wifi-exclamation';
     title.textContent = 'Connection lost';
     msg.innerHTML = 'Reconnecting to signaling server\u2026';
+    spinner.style.opacity = '1';
+    if (disconnectBannerRafId) cancelAnimationFrame(disconnectBannerRafId);
+    disconnectBannerRafId = requestAnimationFrame(() => {
+        disconnectBannerRafId = null;
+        banner.classList.add('visible');
+    });
+}
+
+/**
+ * Show a persistent banner indicating the signaling server is restarting (planned update).
+ */
+function showServerRestartBanner() {
+    if (!banner) return;
+    banner.classList.remove('reconnected');
+    icon.className = 'fa-solid fa-screwdriver-wrench';
+    title.textContent = 'Server restarting';
+    msg.textContent = 'The server is being updated. You will be reconnected automatically.';
     spinner.style.opacity = '1';
     if (disconnectBannerRafId) cancelAnimationFrame(disconnectBannerRafId);
     disconnectBannerRafId = requestAnimationFrame(() => {

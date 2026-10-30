@@ -30,5 +30,6 @@ COPY --chown=node:node ./app/src/config.template.js ./app/src/config.js
 # Run as the non-root "node" user (uid/gid 1000) shipped with the base image
 USER node
 
-# Set default command to start the application
-CMD ["npm", "start"]
+# Default command: run node directly (not via npm) so SIGTERM from `docker stop`
+# reaches the app and triggers the graceful shutdown (clients get notified and auto-reconnect)
+CMD ["node", "app/src/server.js"]
