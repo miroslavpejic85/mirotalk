@@ -28,7 +28,7 @@ const copyRoomUrlBtn = getId('copyRoomUrlBtn');
 const roomSessionDuration = getRoomDuration();
 const BREAKOUT_TICKET_KEY = 'mirotalk_breakout_ticket';
 const roomId = getRoomId();
-const myRoomUrl = window.location.origin + '/join/' + toRoomPath(roomId); // share room url
+const myRoomUrl = window.location.origin + getJoinRoomPath(roomId); // share room url
 
 // Images
 const images = {
@@ -2024,7 +2024,7 @@ function handleUnauthorized() {
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then(() => {
         // Login required to join room
-        openURL(`/login/?room=${toRoomPath(roomId)}`);
+        openURL(`/login/?room=${encodeURIComponent(roomId)}`);
     });
 }
 
