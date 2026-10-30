@@ -2,13 +2,20 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.40 - Configuration File
+ * MiroTalk P2P v.2.2.41 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
  * All environment variables are read here so the
  * rest of the codebase imports config values
  * instead of reading process.env directly.
+ *
+ * Structure (same order as .env.template):
+ *   1. Core                         6. API & Webhook
+ *   2. Security                     7. Integrations
+ *   3. Authentication & Access      8. Monitoring & Notifications
+ *   4. WebRTC (STUN/TURN)           9. UI Customization (Branding)
+ *   5. Rooms & Features            10. UI Buttons
  *
  * Setup:
  *   cp app/src/config.template.js app/src/config.js
@@ -45,6 +52,10 @@ function parseJsonEnv(envValue, fallback) {
 const port = process.env.PORT || 3000;
 
 module.exports = {
+    // ##########################################################
+    // 1. CORE
+    // ##########################################################
+
     // ==========================================
     // Server
     // ==========================================
@@ -81,6 +92,18 @@ module.exports = {
         },
     },
 
+    // ##########################################################
+    // 2. SECURITY
+    // ##########################################################
+
+    // ==========================================
+    // JWT
+    // ==========================================
+    jwt: {
+        key: process.env.JWT_KEY, // Required: min 32 chars (openssl rand -hex 32), server won't start without it
+        exp: process.env.JWT_EXP || '1h',
+    },
+
     // ==========================================
     // CORS
     // ==========================================
@@ -88,6 +111,18 @@ module.exports = {
         origin: parseJsonEnv(process.env.CORS_ORIGIN, '*'),
         methods: parseJsonEnv(process.env.CORS_METHODS, ['GET', 'POST']),
     },
+
+    // ==========================================
+    // IP Whitelist
+    // ==========================================
+    ipWhitelist: {
+        enabled: getEnvBoolean(process.env.IP_WHITELIST_ENABLED),
+        allowed: parseJsonEnv(process.env.IP_WHITELIST_ALLOWED, []),
+    },
+
+    // ##########################################################
+    // 3. AUTHENTICATION & ACCESS
+    // ##########################################################
 
     // ==========================================
     // Host Protection
@@ -112,11 +147,47 @@ module.exports = {
     },
 
     // ==========================================
-    // JWT
+    // OIDC - OpenID Connect
     // ==========================================
-    jwt: {
-        key: process.env.JWT_KEY, // Required: min 32 chars (openssl rand -hex 32), server won't start without it
-        exp: process.env.JWT_EXP || '1h',
+    oidc: {
+        enabled: process.env.OIDC_ENABLED ? getEnvBoolean(process.env.OIDC_ENABLED) : false,
+        allowRoomCreationForAuthUsers: process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS
+            ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
+            : false,
+        // Authenticated OIDC users join with the name verified by the identity provider and cannot change it
+        lockUsername: process.env.OIDC_LOCK_USERNAME ? getEnvBoolean(process.env.OIDC_LOCK_USERNAME) : true,
+        baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
+        /*
+         * When `baseUrlDynamic` is true, the OIDC baseURL (and therefore the redirect_uri
+         * sent to the IdP) is derived from the incoming `Host` header. To prevent
+         * Host-header injection from redirecting authorization codes to an attacker,
+         * list every origin the server is allowed to serve here (full origin, no path).
+         * The static `config.baseURL` is always trusted and does not need to be repeated.
+         * Example: ['https://p2p.mirotalk.com', 'https://meet.example.com']
+         */
+        allowedDynamicBaseURLs: process.env.OIDC_ALLOWED_DYNAMIC_BASE_URLS
+            ? process.env.OIDC_ALLOWED_DYNAMIC_BASE_URLS.split(',')
+                  .map((u) => u.trim())
+                  .filter(Boolean)
+            : [],
+        config: {
+            issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
+            clientID: process.env.OIDC_CLIENT_ID,
+            clientSecret: process.env.OIDC_CLIENT_SECRET,
+            baseURL: process.env.OIDC_BASE_URL,
+            secret: process.env.SESSION_SECRET,
+            authorizationParams: {
+                response_type: 'code',
+                scope: 'openid profile email',
+            },
+            authRequired: process.env.OIDC_AUTH_REQUIRED ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED) : false,
+            auth0Logout: process.env.OIDC_AUTH_LOGOUT ? getEnvBoolean(process.env.OIDC_AUTH_LOGOUT) : true,
+            routes: {
+                callback: '/auth/callback',
+                login: false,
+                logout: '/logout',
+            },
+        },
     },
 
     // ==========================================
@@ -130,21 +201,9 @@ module.exports = {
     // effect (the first participant to join is the presenter). Empty by default.
     presenters: parseJsonEnv(process.env.PRESENTERS, []),
 
-    // ==========================================
-    // API
-    // ==========================================
-    api: {
-        keySecret: process.env.API_KEY_SECRET,
-        disabled: parseJsonEnv(process.env.API_DISABLED, ['token', 'meetings']),
-    },
-
-    // ==========================================
-    // Ngrok
-    // ==========================================
-    ngrok: {
-        enabled: getEnvBoolean(process.env.NGROK_ENABLED),
-        authToken: process.env.NGROK_AUTH_TOKEN,
-    },
+    // ##########################################################
+    // 4. WEBRTC (STUN/TURN)
+    // ##########################################################
 
     // ==========================================
     // WebRTC ICE Servers
@@ -162,11 +221,17 @@ module.exports = {
         },
     },
 
+    // ##########################################################
+    // 5. ROOMS & FEATURES
+    // ##########################################################
+
     // ==========================================
-    // IP Lookup
+    // Breakout Rooms
     // ==========================================
-    ipLookup: {
-        enabled: getEnvBoolean(process.env.IP_LOOKUP_ENABLED),
+    // Presenters split the participants into smaller rooms (disabled by default).
+    // When disabled the server ignores every breakout request, so no breakout ticket is ever issued.
+    breakoutRooms: {
+        enabled: getEnvBoolean(process.env.BREAKOUT_ROOMS_ENABLED),
     },
 
     // ==========================================
@@ -185,16 +250,36 @@ module.exports = {
         url: process.env.REDIRECT_URL || '/newcall',
     },
 
+    // ##########################################################
+    // 6. API & WEBHOOK
+    // ##########################################################
+
     // ==========================================
-    // Sentry
+    // API
     // ==========================================
-    sentry: {
-        enabled: getEnvBoolean(process.env.SENTRY_ENABLED),
-        dsn: process.env.SENTRY_DSN,
-        tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.0'),
-        logLevels: process.env.SENTRY_LOG_LEVELS
-            ? process.env.SENTRY_LOG_LEVELS.split(',').map((level) => level.trim())
-            : ['error'],
+    api: {
+        keySecret: process.env.API_KEY_SECRET,
+        disabled: parseJsonEnv(process.env.API_DISABLED, ['token', 'meetings']),
+    },
+
+    // ==========================================
+    // Webhook
+    // ==========================================
+    webhook: {
+        enabled: getEnvBoolean(process.env.WEBHOOK_ENABLED), // Enable webhook functionality
+        url: process.env.WEBHOOK_URL || 'http://localhost:8888/webhook-endpoint', // Webhook server URL
+    },
+
+    // ##########################################################
+    // 7. INTEGRATIONS
+    // ##########################################################
+
+    // ==========================================
+    // Ngrok
+    // ==========================================
+    ngrok: {
+        enabled: getEnvBoolean(process.env.NGROK_ENABLED),
+        authToken: process.env.NGROK_AUTH_TOKEN,
     },
 
     // ==========================================
@@ -203,6 +288,18 @@ module.exports = {
     slack: {
         enabled: getEnvBoolean(process.env.SLACK_ENABLED),
         signingSecret: process.env.SLACK_SIGNING_SECRET,
+    },
+
+    // ==========================================
+    // Mattermost
+    // ==========================================
+    mattermost: {
+        enabled: getEnvBoolean(process.env.MATTERMOST_ENABLED),
+        serverUrl: process.env.MATTERMOST_SERVER_URL,
+        username: process.env.MATTERMOST_USERNAME,
+        password: process.env.MATTERMOST_PASSWORD,
+        token: process.env.MATTERMOST_TOKEN,
+        roomTokenExpire: process.env.MATTERMOST_ROOM_TOKEN_EXPIRE,
     },
 
     // ==========================================
@@ -281,85 +378,26 @@ module.exports = {
     },
 
     // ==========================================
-    // Breakout Rooms
+    // IP Lookup
     // ==========================================
-    // Presenters split the participants into smaller rooms (disabled by default).
-    // When disabled the server ignores every breakout request, so no breakout ticket is ever issued.
-    breakoutRooms: {
-        enabled: getEnvBoolean(process.env.BREAKOUT_ROOMS_ENABLED),
+    ipLookup: {
+        enabled: getEnvBoolean(process.env.IP_LOOKUP_ENABLED),
     },
 
-    // ==========================================
-    // IP Whitelist
-    // ==========================================
-    ipWhitelist: {
-        enabled: getEnvBoolean(process.env.IP_WHITELIST_ENABLED),
-        allowed: parseJsonEnv(process.env.IP_WHITELIST_ALLOWED, []),
-    },
+    // ##########################################################
+    // 8. MONITORING & NOTIFICATIONS
+    // ##########################################################
 
     // ==========================================
-    // OIDC - OpenID Connect
+    // Sentry
     // ==========================================
-    oidc: {
-        enabled: process.env.OIDC_ENABLED ? getEnvBoolean(process.env.OIDC_ENABLED) : false,
-        allowRoomCreationForAuthUsers: process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS
-            ? getEnvBoolean(process.env.OIDC_ALLOW_ROOMS_CREATION_FOR_AUTH_USERS)
-            : false,
-        // Authenticated OIDC users join with the name verified by the identity provider and cannot change it
-        lockUsername: process.env.OIDC_LOCK_USERNAME ? getEnvBoolean(process.env.OIDC_LOCK_USERNAME) : true,
-        baseUrlDynamic: process.env.OIDC_BASE_URL_DYNAMIC ? getEnvBoolean(process.env.OIDC_BASE_URL_DYNAMIC) : false,
-        /*
-         * When `baseUrlDynamic` is true, the OIDC baseURL (and therefore the redirect_uri
-         * sent to the IdP) is derived from the incoming `Host` header. To prevent
-         * Host-header injection from redirecting authorization codes to an attacker,
-         * list every origin the server is allowed to serve here (full origin, no path).
-         * The static `config.baseURL` is always trusted and does not need to be repeated.
-         * Example: ['https://p2p.mirotalk.com', 'https://meet.example.com']
-         */
-        allowedDynamicBaseURLs: process.env.OIDC_ALLOWED_DYNAMIC_BASE_URLS
-            ? process.env.OIDC_ALLOWED_DYNAMIC_BASE_URLS.split(',')
-                  .map((u) => u.trim())
-                  .filter(Boolean)
-            : [],
-        config: {
-            issuerBaseURL: process.env.OIDC_ISSUER_BASE_URL,
-            clientID: process.env.OIDC_CLIENT_ID,
-            clientSecret: process.env.OIDC_CLIENT_SECRET,
-            baseURL: process.env.OIDC_BASE_URL,
-            secret: process.env.SESSION_SECRET,
-            authorizationParams: {
-                response_type: 'code',
-                scope: 'openid profile email',
-            },
-            authRequired: process.env.OIDC_AUTH_REQUIRED ? getEnvBoolean(process.env.OIDC_AUTH_REQUIRED) : false,
-            auth0Logout: process.env.OIDC_AUTH_LOGOUT ? getEnvBoolean(process.env.OIDC_AUTH_LOGOUT) : true,
-            routes: {
-                callback: '/auth/callback',
-                login: false,
-                logout: '/logout',
-            },
-        },
-    },
-
-    // ==========================================
-    // Mattermost
-    // ==========================================
-    mattermost: {
-        enabled: getEnvBoolean(process.env.MATTERMOST_ENABLED),
-        serverUrl: process.env.MATTERMOST_SERVER_URL,
-        username: process.env.MATTERMOST_USERNAME,
-        password: process.env.MATTERMOST_PASSWORD,
-        token: process.env.MATTERMOST_TOKEN,
-        roomTokenExpire: process.env.MATTERMOST_ROOM_TOKEN_EXPIRE,
-    },
-
-    // ==========================================
-    // Stats / Analytics
-    // ==========================================
-    stats: {
-        enabled: process.env.STATS_ENABLED ? getEnvBoolean(process.env.STATS_ENABLED) : true,
-        src: process.env.STATS_SCR || 'https://stats.mirotalk.com/script.js',
-        id: process.env.STATS_ID || 'c7615aa7-ceec-464a-baba-54cb605d7261',
+    sentry: {
+        enabled: getEnvBoolean(process.env.SENTRY_ENABLED),
+        dsn: process.env.SENTRY_DSN,
+        tracesSampleRate: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.0'),
+        logLevels: process.env.SENTRY_LOG_LEVELS
+            ? process.env.SENTRY_LOG_LEVELS.split(',').map((level) => level.trim())
+            : ['error'],
     },
 
     // ==========================================
@@ -378,77 +416,100 @@ module.exports = {
     },
 
     // ==========================================
+    // Stats / Analytics
+    // ==========================================
+    stats: {
+        enabled: process.env.STATS_ENABLED ? getEnvBoolean(process.env.STATS_ENABLED) : true,
+        src: process.env.STATS_SCR || 'https://stats.mirotalk.com/script.js',
+        id: process.env.STATS_ID || 'c7615aa7-ceec-464a-baba-54cb605d7261',
+    },
+
+    // ##########################################################
+    // 9. UI CUSTOMIZATION (BRANDING)
+    // ##########################################################
+
+    // ==========================================
     // Branding (UI customizations)
     // ==========================================
+    // Every value can be overridden via environment variables (see .env.template),
+    // unset variables keep the defaults below. Set BRAND_HTML_INJECTION=false to
+    // disable HTML injection and use static branding in the public/views folder.
     brand: {
-        htmlInjection: true,
+        htmlInjection: getEnvBoolean(process.env.BRAND_HTML_INJECTION, true),
         app: {
-            language: 'en', // https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
-            translationMode: 'google', // In-room UI: auto (native file else Google) | native (human files only, no Google) | google (default, always Google)
-            name: 'MiroTalk',
-            title: '<h1>MiroTalk</h1>Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
+            language: process.env.UI_LANGUAGE || 'en', // https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
+            translationMode: process.env.UI_TRANSLATION_MODE || 'google', // In-room UI: auto (native file else Google) | native (human files only, no Google) | google (default, always Google)
+            name: process.env.APP_NAME || 'MiroTalk',
+            title:
+                process.env.APP_TITLE ||
+                '<h1>MiroTalk</h1>Free browser based Real-time video calls.<br />Simple, Secure, Fast.',
             description:
+                process.env.APP_DESCRIPTION ||
                 'Start your next video call with a single click. No download, plug-in, or login is required. Just get straight to talking, messaging, and sharing your screen.',
-            joinDescription: 'Pick a room name.<br />How about this one?',
-            joinButtonLabel: 'JOIN ROOM',
-            customizeRoomButtonLabel: 'CUSTOMIZE ROOM',
-            joinLastLabel: 'Your recent room:',
+            joinDescription: process.env.JOIN_DESCRIPTION || 'Pick a room name.<br />How about this one?',
+            joinButtonLabel: process.env.JOIN_BUTTON_LABEL || 'JOIN ROOM',
+            customizeRoomButtonLabel: process.env.CUSTOMIZE_BUTTON_LABEL || 'CUSTOMIZE ROOM',
+            joinLastLabel: process.env.JOIN_LAST_LABEL || 'Your recent room:',
         },
         og: {
-            type: 'app-webrtc',
-            siteName: 'MiroTalk',
-            title: 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
+            type: process.env.OG_TYPE || 'app-webrtc',
+            siteName: process.env.OG_SITE_NAME || 'MiroTalk',
+            title: process.env.OG_TITLE || 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
             description:
+                process.env.OG_DESCRIPTION ||
                 'MiroTalk P2P is an open-source self-hosted WebRTC video calling and meeting platform. Create fast peer-to-peer video calls with screen sharing, chat, whiteboard and collaboration directly in the browser.',
-            image: 'https://p2p.mirotalk.com/images/preview.png',
-            url: 'https://p2p.mirotalk.com',
+            image: process.env.OG_IMAGE_URL || 'https://p2p.mirotalk.com/images/preview.png',
+            url: process.env.OG_URL || 'https://p2p.mirotalk.com',
         },
         site: {
-            shortcutIcon: '../images/logo.svg',
-            appleTouchIcon: '../images/logo.svg',
-            landingTitle: 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
-            newCallTitle: 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
-            newCallRoomTitle: 'Pick name. <br />Share URL. <br />Start conference.',
+            shortcutIcon: process.env.SITE_ICON_PATH || '../images/logo.svg',
+            appleTouchIcon: process.env.APPLE_TOUCH_ICON_PATH || '../images/logo.svg',
+            landingTitle: process.env.SITE_TITLE || 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
+            newCallTitle: process.env.NEW_CALL_TITLE || 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
+            newCallRoomTitle: process.env.NEW_ROOM_TITLE || 'Pick name. <br />Share URL. <br />Start conference.',
             newCallRoomDescription:
+                process.env.NEW_ROOM_DESC ||
                 "Each room has its disposable URL. Just pick a room name and share your custom URL. It's that easy.",
-            loginTitle: 'MiroTalk - Host Protected login required.',
-            loginHeading: 'Welcome back',
-            loginDescription: 'Enter your credentials to continue.',
-            loginButtonLabel: 'Login',
-            joinRoomTitle: 'Pick name.<br />Share URL.<br />Start conference.',
-            joinRoomButtonLabel: 'JOIN ROOM',
-            clientTitle: 'MiroTalk WebRTC Video call, Chat Room & Screen Sharing.',
-            privacyPolicyTitle: 'MiroTalk - privacy and policy.',
-            stunTurnTitle: 'Test Stun/Turn Servers.',
-            notFoundTitle: 'MiroTalk - 404 Page not found.',
-            waitingRoomTitle: 'MiroTalk - Waiting for host to start the meeting',
-            waitingRoomHeading: 'Waiting for host...',
+            loginTitle: process.env.LOGIN_TITLE || 'MiroTalk - Host Protected login required.',
+            loginHeading: process.env.LOGIN_HEADING || 'Welcome back',
+            loginDescription: process.env.LOGIN_DESCRIPTION || 'Enter your credentials to continue.',
+            loginButtonLabel: process.env.LOGIN_BUTTON_LABEL || 'Login',
+            joinRoomTitle: process.env.JOIN_ROOM_TITLE || 'Pick name.<br />Share URL.<br />Start conference.',
+            joinRoomButtonLabel: process.env.JOIN_ROOM_BUTTON_LABEL || 'JOIN ROOM',
+            clientTitle: process.env.CLIENT_TITLE || 'MiroTalk WebRTC Video call, Chat Room & Screen Sharing.',
+            privacyPolicyTitle: process.env.PRIVACY_POLICY_TITLE || 'MiroTalk - privacy and policy.',
+            stunTurnTitle: process.env.STUN_TURN_TITLE || 'Test Stun/Turn Servers.',
+            notFoundTitle: process.env.NOT_FOUND_TITLE || 'MiroTalk - 404 Page not found.',
+            waitingRoomTitle: process.env.WHO_ARE_YOU_TITLE || 'MiroTalk - Waiting for host to start the meeting',
+            waitingRoomHeading: process.env.WHO_ARE_YOU_WAITING_ROOM_HEADING || 'Waiting for host...',
             waitingRoomDescription:
+                process.env.WHO_ARE_YOU_WAITING_ROOM_DESCRIPTION ||
                 "The meeting hasn't started yet.<br />You'll join automatically when the host opens the room.",
-            waitingRoomStatus: 'Checking room status...',
-            waitingRoomReady: 'Room is ready! Joining...',
-            waitingRoomWaiting: 'Waiting for host to start the meeting...',
-            waitingRoomHostLink: 'Are you the host?',
-            waitingRoomLoginLink: 'Login here',
-            waitingRoomElapsedJust: 'Just started waiting',
-            waitingRoomElapsedMinutes: 'Waiting for {minutes}',
-            waitingRoomSongUrl: '../sounds/waiting-music.mp3',
+            waitingRoomStatus: process.env.WHO_ARE_YOU_WAITING_ROOM_STATUS || 'Checking room status...',
+            waitingRoomReady: process.env.WHO_ARE_YOU_WAITING_ROOM_READY || 'Room is ready! Joining...',
+            waitingRoomWaiting:
+                process.env.WHO_ARE_YOU_WAITING_ROOM_WAITING || 'Waiting for host to start the meeting...',
+            waitingRoomHostLink: process.env.WHO_ARE_YOU_WAITING_ROOM_HOST_LINK || 'Are you the host?',
+            waitingRoomLoginLink: process.env.WHO_ARE_YOU_WAITING_ROOM_LOGIN_LINK || 'Login here',
+            waitingRoomElapsedJust: process.env.WHO_ARE_YOU_WAITING_ROOM_ELAPSED_JUST || 'Just started waiting',
+            waitingRoomElapsedMinutes: process.env.WHO_ARE_YOU_WAITING_ROOM_ELAPSED_MINUTES || 'Waiting for {minutes}',
+            waitingRoomSongUrl: process.env.WHO_ARE_YOU_WAITING_ROOM_SONG_URL || '../sounds/waiting-music.mp3',
         },
         html: {
-            topSponsors: true,
-            features: true,
-            teams: true, // please keep me always true ;)
-            tryEasier: true,
-            poweredBy: true,
-            sponsors: true,
-            pastSponsors: true,
-            advertisers: true,
-            supportUs: true,
-            footer: true,
-            version: true, // show app version in landing footer
+            topSponsors: getEnvBoolean(process.env.SHOW_TOP_SPONSORS, true),
+            features: getEnvBoolean(process.env.SHOW_FEATURES, true),
+            teams: getEnvBoolean(process.env.SHOW_TEAMS, true), // please keep me always true ;)
+            tryEasier: getEnvBoolean(process.env.SHOW_TRY_EASIER, true),
+            poweredBy: getEnvBoolean(process.env.SHOW_POWERED_BY, true),
+            sponsors: getEnvBoolean(process.env.SHOW_SPONSORS, true),
+            pastSponsors: getEnvBoolean(process.env.SHOW_PAST_SPONSORS, true),
+            advertisers: getEnvBoolean(process.env.SHOW_ADVERTISERS, true),
+            supportUs: getEnvBoolean(process.env.SHOW_SUPPORT_US, true),
+            footer: getEnvBoolean(process.env.SHOW_FOOTER, true),
+            version: getEnvBoolean(process.env.SHOW_VERSION, true), // show app version in landing footer
         },
         about: {
-            imageUrl: '../images/mirotalk-logo.gif',
+            imageUrl: process.env.ABOUT_IMAGE_URL || '../images/mirotalk-logo.gif',
             title: `WebRTC P2P v${packageJson.version}`,
             html: `
                 <div class="about-content">
@@ -458,76 +519,81 @@ module.exports = {
                     <a
                         class="about-primary-action"
                         data-umami-event="About button"
-                        href="https://docs.mirotalk.com/sites/p2p"
+                        href="${process.env.SUPPORT_URL || 'https://docs.mirotalk.com/sites/p2p'}"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
                         <i class="fas fa-info-circle" aria-hidden="true"></i>
-                        <span>About</span>
+                        <span>${process.env.SUPPORT_TEXT || 'About'}</span>
                     </a>
                     <dl class="about-details">
                         <div>
-                            <dt>Author</dt>
+                            <dt>${process.env.AUTHOR_LABEL || 'Author'}</dt>
                             <dd>
                                 <a
                                     id="linkedin-button"
                                     data-umami-event="Linkedin button"
-                                    href="https://www.linkedin.com/in/miroslav-pejic-976a07101/"
+                                    href="${process.env.LINKEDIN_URL || 'https://www.linkedin.com/in/miroslav-pejic-976a07101/'}"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                >Miroslav Pejic</a>
+                                >${process.env.AUTHOR_NAME || 'Miroslav Pejic'}</a>
                             </dd>
                         </div>
                         <div>
-                            <dt>Email</dt>
+                            <dt>${process.env.EMAIL_LABEL || 'Email'}</dt>
                             <dd>
                                 <a
                                     id="email-button"
                                     data-umami-event="Email button"
-                                    href="mailto:miroslav.pejic.85@gmail.com?subject=MiroTalk P2P info"
-                                >miroslav.pejic.85@gmail.com</a>
+                                    href="mailto:${process.env.CONTACT_EMAIL || 'miroslav.pejic.85@gmail.com'}?subject=${process.env.EMAIL_SUBJECT || 'MiroTalk P2P info'}"
+                                >${process.env.CONTACT_EMAIL || 'miroslav.pejic.85@gmail.com'}</a>
                             </dd>
                         </div>
                     </dl>
                     <footer class="about-footer">
-                        &copy; ${new Date().getFullYear()} MiroTalk P2P. All rights reserved.
+                        &copy; ${new Date().getFullYear()} ${process.env.COPYRIGHT_TEXT || 'MiroTalk P2P. All rights reserved.'}
                     </footer>
                 </div>
             `,
         },
         // https://docs.mirotalk.com/mirotalk-p2p/integration/#widgets-integration
         widget: {
-            enabled: false,
-            roomId: 'support-room',
-            theme: 'dark',
-            widgetState: 'closed',
-            widgetType: 'support',
+            enabled: getEnvBoolean(process.env.WIDGET_ENABLED),
+            roomId: process.env.WIDGET_ROOM_ID || 'support-room',
+            theme: process.env.WIDGET_THEME || 'dark',
+            widgetState: process.env.WIDGET_STATE || 'closed',
+            widgetType: process.env.WIDGET_TYPE || 'support',
             supportWidget: {
-                position: 'bottom-right',
-                expertImages: [
-                    'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
-                ],
+                position: process.env.WIDGET_SUPPORT_POSITION || 'bottom-right',
+                expertImages: process.env.WIDGET_SUPPORT_EXPERT_IMAGES
+                    ? process.env.WIDGET_SUPPORT_EXPERT_IMAGES.split(',')
+                          .map((url) => url.trim())
+                          .filter(Boolean)
+                    : [
+                          'https://photo.cloudron.pocketsolution.net/uploads/original/95/7d/a5f7f7a2c89a5fee7affda5f013c.jpeg',
+                      ],
                 buttons: {
-                    audio: true,
-                    video: true,
-                    screen: true,
-                    chat: true,
-                    join: true,
+                    audio: getEnvBoolean(process.env.WIDGET_SUPPORT_BUTTON_AUDIO, true),
+                    video: getEnvBoolean(process.env.WIDGET_SUPPORT_BUTTON_VIDEO, true),
+                    screen: getEnvBoolean(process.env.WIDGET_SUPPORT_BUTTON_SCREEN, true),
+                    chat: getEnvBoolean(process.env.WIDGET_SUPPORT_BUTTON_CHAT, true),
+                    join: getEnvBoolean(process.env.WIDGET_SUPPORT_BUTTON_JOIN, true),
                 },
-                checkOnlineStatus: false,
-                isOnline: true,
+                checkOnlineStatus: getEnvBoolean(process.env.WIDGET_SUPPORT_CHECK_ONLINE_STATUS),
+                isOnline: getEnvBoolean(process.env.WIDGET_SUPPORT_IS_ONLINE, true),
                 customMessages: {
-                    heading: 'Need Help?',
-                    subheading: 'Get instant support from our expert team!',
-                    connectText: 'connect in < 5 seconds',
-                    onlineText: 'We are online',
-                    offlineText: 'We are offline',
-                    poweredBy: 'Powered by MiroTalk',
+                    heading: process.env.WIDGET_SUPPORT_HEADING || 'Need Help?',
+                    subheading: process.env.WIDGET_SUPPORT_SUBHEADING || 'Get instant support from our expert team!',
+                    connectText: process.env.WIDGET_SUPPORT_CONNECT_TEXT || 'connect in < 5 seconds',
+                    onlineText: process.env.WIDGET_SUPPORT_ONLINE_TEXT || 'We are online',
+                    offlineText: process.env.WIDGET_SUPPORT_OFFLINE_TEXT || 'We are offline',
+                    poweredBy: process.env.WIDGET_SUPPORT_POWERED_BY || 'Powered by MiroTalk',
                 },
             },
         },
         //...
     },
+
     // ==========================================
     // Themes
     // ==========================================
@@ -570,102 +636,105 @@ module.exports = {
         },
         */
     },
+
+    // ##########################################################
+    // 10. UI BUTTONS
+    // ##########################################################
+
+    // ==========================================
+    // UI Buttons
+    // ==========================================
     /**
      * Configuration for controlling the visibility of buttons in the MiroTalk P2P client.
      * Set properties to true to show the corresponding buttons, or false to hide them.
+     * Every button can also be hidden via environment variables (e.g. SHOW_AUDIO_BUTTON=false), see .env.template.
+     * Unset variables keep the defaults below.
      * captionBtn, showSwapCameraBtn, showScreenShareBtn, showFullScreenBtn, showVideoPipBtn, showDocumentPipBtn -> (auto-detected).
      */
     buttons: {
         main: {
-            showAudioBtn: true,
-            showVideoBtn: true,
-            showScreenBtn: true, // autodetected
-            showMyHandBtn: true,
-            showChatRoomBtn: true,
-            showParticipantsBtn: true,
-            showMySettingsBtn: true,
-            showExtraBtn: true,
-            showShareQr: true,
-            showShareRoomBtn: true, // For guests
-            showHideMeBtn: true,
-            showRecordStreamBtn: true,
-            showFullScreenBtn: true,
-            showRoomEmojiPickerBtn: true,
-            showCaptionRoomBtn: true,
-            showWhiteboardBtn: true,
-            showEditorBtn: true,
-            showPollBtn: true,
-            showBreakoutBtn: true, // Presenters only, shown when breakoutRooms.enabled (BREAKOUT_ROOMS_ENABLED)
-            showSnapshotRoomBtn: true,
-            showFileShareBtn: true,
-            showDocumentPipBtn: true,
-            showAboutBtn: true, // Please keep me always true, Thank you!
+            showAudioBtn: getEnvBoolean(process.env.SHOW_AUDIO_BUTTON, true),
+            showVideoBtn: getEnvBoolean(process.env.SHOW_VIDEO_BUTTON, true),
+            showScreenBtn: getEnvBoolean(process.env.SHOW_SCREEN_BUTTON, true), // autodetected
+            showMyHandBtn: getEnvBoolean(process.env.SHOW_RAISE_HAND, true),
+            showChatRoomBtn: getEnvBoolean(process.env.SHOW_CHAT_BUTTON, true),
+            showParticipantsBtn: getEnvBoolean(process.env.SHOW_PARTICIPANTS_BUTTON, true),
+            showMySettingsBtn: getEnvBoolean(process.env.SHOW_SETTINGS, true),
+            showExtraBtn: getEnvBoolean(process.env.SHOW_EXTRA_BUTTON, true),
+            showShareQr: getEnvBoolean(process.env.SHOW_SHARE_ROOM_QR_ON_HOVER, true),
+            showShareRoomBtn: getEnvBoolean(process.env.SHOW_SHARE_BUTTON, true), // For guests
+            showHideMeBtn: getEnvBoolean(process.env.SHOW_HIDE_ME, true),
+            showRecordStreamBtn: getEnvBoolean(process.env.SHOW_RECORD_BUTTON, true),
+            showFullScreenBtn: getEnvBoolean(process.env.SHOW_FULLSCREEN_BUTTON, true),
+            showRoomEmojiPickerBtn: getEnvBoolean(process.env.SHOW_EMOJI, true),
+            showCaptionRoomBtn: getEnvBoolean(process.env.SHOW_CAPTION_BUTTON, true),
+            showWhiteboardBtn: getEnvBoolean(process.env.SHOW_WHITEBOARD, true),
+            showEditorBtn: getEnvBoolean(process.env.SHOW_EDITOR_BUTTON, true),
+            showPollBtn: getEnvBoolean(process.env.SHOW_POLL_BUTTON, true),
+            showBreakoutBtn: getEnvBoolean(process.env.SHOW_BREAKOUT_ROOM_BUTTON, true), // Presenters only, shown when breakoutRooms.enabled (BREAKOUT_ROOMS_ENABLED)
+            showSnapshotRoomBtn: getEnvBoolean(process.env.SHOW_SNAPSHOT, true),
+            showFileShareBtn: getEnvBoolean(process.env.SHOW_FILE_SHARE_BUTTON, true),
+            showDocumentPipBtn: getEnvBoolean(process.env.SHOW_DOCUMENT_PIP, true),
+            showAboutBtn: getEnvBoolean(process.env.SHOW_ABOUT, true), // Please keep me always true, Thank you!
         },
         chat: {
-            showTogglePinBtn: true,
-            showMaxBtn: true,
-            showSaveMessageBtn: true,
-            showMarkDownBtn: true,
-            showGifBtn: true, // Shown only when gifSearch (KLIPY) is enabled with an API key
+            showTogglePinBtn: getEnvBoolean(process.env.SHOW_CHAT_PIN, true),
+            showMaxBtn: getEnvBoolean(process.env.SHOW_CHAT_MAXIMIZE, true),
+            showSaveMessageBtn: getEnvBoolean(process.env.SHOW_CHAT_SAVE, true),
+            showMarkDownBtn: getEnvBoolean(process.env.SHOW_CHAT_MARKDOWN, true),
+            showGifBtn: getEnvBoolean(process.env.SHOW_CHAT_GIF, true), // Shown only when gifSearch (KLIPY) is enabled with an API key
             showChatGPTBtn: getEnvBoolean(process.env.CHATGPT_ENABLED, true),
-            showFileShareBtn: true,
-            showShareVideoAudioBtn: true,
-            showParticipantsBtn: true,
+            showFileShareBtn: getEnvBoolean(process.env.SHOW_CHAT_FILE_SHARE, true),
+            showShareVideoAudioBtn: getEnvBoolean(process.env.SHOW_CHAT_SHARE_VIDEO_AUDIO, true),
+            showParticipantsBtn: getEnvBoolean(process.env.SHOW_CHAT_PARTICIPANTS, true),
         },
         caption: {
-            showTogglePinBtn: true,
-            showMaxBtn: true,
+            showTogglePinBtn: getEnvBoolean(process.env.SHOW_CAPTION_PIN, true),
+            showMaxBtn: getEnvBoolean(process.env.SHOW_CAPTION_MAXIMIZE, true),
         },
         settings: {
-            showActiveRoomsBtn: true,
-            showMicOptionsBtn: true,
-            showTabRoomPeerName: true,
-            showTabRoomParticipants: true,
-            showTabRoomSecurity: true,
-            showTabEmailInvitation: true,
-            showCaptionEveryoneBtn: true,
-            showMuteEveryoneBtn: true,
-            showHideEveryoneBtn: true,
-            showStopScreenEveryoneBtn: true,
-            showEjectEveryoneBtn: true,
-            showLockRoomBtn: true,
-            showUnlockRoomBtn: true,
-            showJoinLockBtn: true,
-            showShortcutsBtn: true,
+            showActiveRoomsBtn: getEnvBoolean(process.env.SHOW_ROOMS, true),
+            showMicOptionsBtn: getEnvBoolean(process.env.SHOW_MIC_OPTIONS, true),
+            showTabRoomPeerName: getEnvBoolean(process.env.SHOW_TAB_ROOM_PEER_NAME, true),
+            showTabRoomParticipants: getEnvBoolean(process.env.SHOW_TAB_ROOM_PARTICIPANTS, true),
+            showTabRoomSecurity: getEnvBoolean(process.env.SHOW_TAB_ROOM_SECURITY, true),
+            showTabEmailInvitation: getEnvBoolean(process.env.SHOW_EMAIL_INVITE, true),
+            showCaptionEveryoneBtn: getEnvBoolean(process.env.SHOW_CAPTION_EVERYONE, true),
+            showMuteEveryoneBtn: getEnvBoolean(process.env.SHOW_MUTE_EVERYONE, true),
+            showHideEveryoneBtn: getEnvBoolean(process.env.SHOW_HIDE_EVERYONE, true),
+            showStopScreenEveryoneBtn: getEnvBoolean(process.env.SHOW_STOP_SCREEN_EVERYONE, true),
+            showEjectEveryoneBtn: getEnvBoolean(process.env.SHOW_EJECT_EVERYONE, true),
+            showLockRoomBtn: getEnvBoolean(process.env.SHOW_LOCK_ROOM, true),
+            showUnlockRoomBtn: getEnvBoolean(process.env.SHOW_UNLOCK_ROOM, true),
+            showJoinLockBtn: getEnvBoolean(process.env.SHOW_JOIN_LOCK, true),
+            showShortcutsBtn: getEnvBoolean(process.env.SHOW_KEYBOARD_SHORTCUTS, true),
             showRoomBackground: getEnvBoolean(process.env.SHOW_ROOM_BACKGROUND, true), // per-user image behind the video grid, stored only in the browser
             customNoiseSuppression: getEnvBoolean(process.env.CUSTOM_NOISE_SUPPRESSION_ENABLED, true),
             customNoiseSuppressionDefault: getEnvBoolean(process.env.CUSTOM_NOISE_SUPPRESSION_DEFAULT, true), // initial state, users can still toggle it
         },
         remote: {
-            showAudioVolume: true,
-            audioBtnClickAllowed: true,
-            videoBtnClickAllowed: true,
-            showVideoPipBtn: true,
-            showKickOutBtn: true,
-            showSnapShotBtn: true,
-            showFileShareBtn: true,
-            showShareVideoAudioBtn: true,
-            showGeoLocationBtn: true,
-            showPrivateMessageBtn: true,
-            showZoomInOutBtn: false,
-            showVideoFocusBtn: true,
+            showAudioVolume: getEnvBoolean(process.env.SHOW_VOLUME_CONTROL, true),
+            audioBtnClickAllowed: getEnvBoolean(process.env.REMOTE_AUDIO_BUTTON_CLICK_ALLOWED, true),
+            videoBtnClickAllowed: getEnvBoolean(process.env.REMOTE_VIDEO_BUTTON_CLICK_ALLOWED, true),
+            showVideoPipBtn: getEnvBoolean(process.env.ENABLE_PIP, true),
+            showKickOutBtn: getEnvBoolean(process.env.SHOW_EJECT_BUTTON, true),
+            showSnapShotBtn: getEnvBoolean(process.env.SHOW_SNAPSHOT_BUTTON, true),
+            showFileShareBtn: getEnvBoolean(process.env.SHOW_SEND_FILE, true),
+            showShareVideoAudioBtn: getEnvBoolean(process.env.SHOW_SEND_VIDEO, true),
+            showGeoLocationBtn: getEnvBoolean(process.env.SHOW_GEO_LOCATION, true),
+            showPrivateMessageBtn: getEnvBoolean(process.env.SHOW_SEND_MESSAGE, true),
+            showZoomInOutBtn: getEnvBoolean(process.env.SHOW_ZOOM_BUTTON),
+            showVideoFocusBtn: getEnvBoolean(process.env.SHOW_FOCUS_BUTTON, true),
         },
         local: {
-            showVideoPipBtn: true,
-            showSnapShotBtn: true,
-            showVideoCircleBtn: true,
-            showZoomInOutBtn: false,
-            showVideoFocusBtn: true,
+            showVideoPipBtn: getEnvBoolean(process.env.ENABLE_PIP, true),
+            showSnapShotBtn: getEnvBoolean(process.env.SHOW_SNAPSHOT_BUTTON, true),
+            showVideoCircleBtn: getEnvBoolean(process.env.SHOW_VIDEO_CIRCLE_BUTTON, true),
+            showZoomInOutBtn: getEnvBoolean(process.env.SHOW_ZOOM_BUTTON),
+            showVideoFocusBtn: getEnvBoolean(process.env.SHOW_FOCUS_BUTTON, true),
         },
         whiteboard: {
-            whiteboardLockBtn: false,
+            whiteboardLockBtn: getEnvBoolean(process.env.SHOW_WB_LOCK),
         },
-    },
-    // ==========================================
-    // Webhook
-    // ==========================================
-    webhook: {
-        enabled: false, // Enable webhook functionality
-        url: 'http://localhost:8888/webhook-endpoint', // Webhook server URL
     },
 };

@@ -903,7 +903,10 @@ describe('breakout rooms', () => {
             assert.match(clientHtml, /id="breakoutRoom"/);
             assert.match(clientHtml, /src="\.\.\/js\/breakout\.js"/);
             assert.match(buttonsJs, /showBreakoutBtn: true/);
-            assert.match(configTemplate, /showBreakoutBtn: true/);
+            assert.match(
+                configTemplate,
+                /showBreakoutBtn: getEnvBoolean\(process\.env\.SHOW_BREAKOUT_ROOM_BUTTON, true\)/
+            );
             assert.match(
                 configTemplate,
                 /breakoutRooms: \{\s*enabled: getEnvBoolean\(process\.env\.BREAKOUT_ROOMS_ENABLED\)/,

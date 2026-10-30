@@ -553,7 +553,7 @@ describe('room polls', () => {
             assert.match(clientHtml, /data-buttons="[^"]*\bpollBtn\b[^"]*"/);
             assert.match(clientHtml, /id="pollRoom"/);
             assert.match(buttonsJs, /showPollBtn: true/);
-            assert.match(configTemplate, /showPollBtn: true/);
+            assert.match(configTemplate, /showPollBtn: getEnvBoolean\(process\.env\.SHOW_POLL_BUTTON, true\)/);
             assert.match(clientJs, /signalingSocket\.on\('poll', handlePoll\)/);
             assert.match(clientJs, /\{ element: pollBtn, display: buttons\.main\.showPollBtn \}/);
         });
