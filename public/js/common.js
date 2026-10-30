@@ -209,7 +209,7 @@ if (lastRoomContainer) {
 }
 
 if (lastRoomContainer && lastRoom && lastRoomName) {
-    lastRoom.setAttribute('href', '/join/' + lastRoomName);
+    lastRoom.setAttribute('href', '/join/' + toRoomPath(lastRoomName));
     lastRoom.innerText = lastRoomName;
 }
 
@@ -272,8 +272,18 @@ function joinRoom() {
         return;
     }
 
-    window.location.href = '/join/' + roomName;
+    // Encode so chars like % # ? / don't produce a malformed URL (nginx 400)
+    window.location.href = '/join/' + encodeURIComponent(roomName);
     window.localStorage.lastRoom = roomName;
+}
+
+function toRoomPath(name) {
+    // lastRoom may already be percent-encoded (stored from the /join/ path) or raw (from ?room=)
+    try {
+        return encodeURIComponent(decodeURIComponent(name));
+    } catch (err) {
+        return encodeURIComponent(name);
+    }
 }
 
 function isValidRoomName(input) {
