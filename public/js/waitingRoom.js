@@ -18,7 +18,12 @@ const waitStartTime = Date.now();
 let elapsedTimerId = null;
 
 if (roomId && roomId !== 'join') {
-    waitingRoomNameText.textContent = roomId;
+    let prettifiedRoomId = roomId;
+    try {
+        prettifiedRoomId = decodeURIComponent(roomId);
+    } catch {} // malformed percent-encoding: show the raw value
+
+    waitingRoomNameText.textContent = prettifiedRoomId;
     waitingRoomNameEl.style.display = '';
 }
 
