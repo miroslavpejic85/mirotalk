@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.37
+ * @version 2.2.38
  *
  */
 
@@ -4170,10 +4170,13 @@ async function handleRTCDataChannels(peer_id) {
                         const dataMessage = JSON.parse(msg.data);
                         switch (dataMessage.type) {
                             case 'chat':
-                                handleDataChannelChat(dataMessage);
+                                handleDataChannelChat(dataMessage, peer_id);
                                 break;
                             case 'chatReaction':
                                 handleDataChannelChatReaction(dataMessage);
+                                break;
+                            case 'chatDelete':
+                                handleDataChannelChatDelete(dataMessage, peer_id);
                                 break;
                             case 'speech':
                                 handleDataChannelSpeechTranscript(dataMessage);
@@ -14131,10 +14134,10 @@ async function sendChatMessage() {
         await getChatGPTmessage(msg);
     } else if (activeConversation.type === 'private' && activeConversation.peerName) {
         emitMsg(myPeerName, myPeerAvatar, activeConversation.peerName, msg, true, myPeerId, msgId);
-        appendMessage(myPeerName, rightChatAvatar, 'right', msg, true, msgId, activeConversation.peerName);
+        appendMessage(myPeerName, rightChatAvatar, 'right', msg, true, msgId, activeConversation.peerName, myPeerId);
     } else {
         emitMsg(myPeerName, myPeerAvatar, 'toAll', msg, false, myPeerId, msgId);
-        appendMessage(myPeerName, rightChatAvatar, 'right', msg, false, msgId);
+        appendMessage(myPeerName, rightChatAvatar, 'right', msg, false, msgId, '', myPeerId);
     }
     cleanMessageInput();
 }
@@ -14142,8 +14145,9 @@ async function sendChatMessage() {
 /**
  * handle Incoming Data Channel Chat Messages
  * @param {object} dataMessage chat messages
+ * @param {string} peer_id sender peer id (data channel owner)
  */
-function handleDataChannelChat(dataMessage) {
+function handleDataChannelChat(dataMessage, peer_id = '') {
     if (!dataMessage) return;
 
     // sanitize all params
@@ -14190,7 +14194,7 @@ function handleDataChannelChat(dataMessage) {
     }
 
     setPeerChatAvatarImgName('left', msgFrom, msgFromAvatar);
-    appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId, msgFrom);
+    appendMessage(msgFrom, leftChatAvatar, 'left', msg, msgPrivate, msgId, msgFrom, peer_id || msgFromId);
     speechInMessages ? speechMessage(true, msgFrom, msg) : playSound('chatMessage');
 
     // Screen reader announcement for incoming chat message
@@ -14527,8 +14531,9 @@ function escapeSpecialChars(regex) {
  * @param {boolean} privateMsg if is private message
  * @param {string} msgId peer id
  * @param {string} to peer name
+ * @param {string} fromId author peer id (set only for messages shared with peers)
  */
-function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') {
+function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '', fromId = '') {
     let time = getFormatDate(new Date());
 
     // sanitize all params
@@ -14547,6 +14552,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') 
     const getMsg = filterXSS(msg);
     const getPrivateMsg = filterXSS(privateMsg);
     const normalizedMsgId = normalizeChatMessageId(msgId);
+    const getFromId = filterXSS(fromId || '');
 
     // collect chat messages to save it later
     const conversationPeer = getPrivateMsg ? (getSide === 'left' ? getFrom : getTo) : '';
@@ -14557,6 +14563,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') 
         msg: getMsg,
         privateMsg: getPrivateMsg,
         conversationPeer: conversationPeer,
+        msgId: normalizedMsgId,
     });
 
     // check if i receive a private message
@@ -14609,6 +14616,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '') 
             chatType: getPrivateMsg ? 'private' : 'public',
             chatPeer: conversationPeer,
             messageId: normalizedMsgId,
+            messageFromId: getFromId || null,
             messageAvatarTmpId: msgAvatarTmpId,
             messageBubbleClass: msgBubble,
             messageTextId: `message-${chatMessagesId}`,
@@ -15021,6 +15029,15 @@ function speechElementText(newMsg = true, from, elemId) {
  * @param {string} id msg id
  */
 function deleteMessage(id) {
+    const msgEl = getId(id);
+    if (!msgEl) return;
+
+    const msgId = msgEl.dataset.msgId || '';
+    const fromId = msgEl.dataset.fromId || '';
+
+    // Only the author can delete for everyone, and only messages actually shared with peers (not AI)
+    const canDeleteForEveryone = !!msgId && !!myPeerId && fromId === myPeerId;
+
     playSound('newMessage');
     Swal.fire({
         background: swBg,
@@ -15029,19 +15046,74 @@ function deleteMessage(id) {
         text: 'Delete this message?',
         imageUrl: images.delete,
         showCancelButton: true,
+        showDenyButton: canDeleteForEveryone,
         focusCancel: true,
-        customClass: { confirmButton: 'mirotalk-swal-destructive' },
-        confirmButtonText: 'Delete',
+        customClass: { confirmButton: 'mirotalk-swal-destructive', denyButton: 'mirotalk-swal-destructive' },
+        confirmButtonText: canDeleteForEveryone ? 'Delete for me' : 'Delete',
+        denyButtonText: 'Delete for everyone',
         cancelButtonText: 'Cancel',
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
-        // clean this message
         if (result.isConfirmed) {
-            getId(id).remove();
-            refreshMessageGrouping();
-            toggleMsgerEmptyNotice();
+            removeChatMessageElement(msgEl);
             playSound('delete');
+        } else if (result.isDenied && canDeleteForEveryone) {
+            sendToDataChannel({
+                type: 'chatDelete',
+                msg_id: msgId,
+                fromId: myPeerId,
+            });
+            removeChatMessageElement(msgEl);
+            playSound('delete');
+        }
+    });
+}
+
+/**
+ * Remove a chat message element and its collected entry
+ * @param {HTMLElement} msgEl
+ */
+function removeChatMessageElement(msgEl) {
+    if (!msgEl) return;
+    const msgId = msgEl.dataset.msgId || '';
+    msgEl.remove();
+    if (msgId) {
+        chatMessages = chatMessages.filter((m) => m.msgId !== msgId);
+    }
+    refreshMessageGrouping();
+    toggleMsgerEmptyNotice();
+}
+
+/**
+ * Handle incoming "delete for everyone" chat requests
+ * @param {object} dataMessage
+ * @param {string} peer_id sender peer id (data channel owner)
+ */
+function handleDataChannelChatDelete(dataMessage, peer_id) {
+    if (!dataMessage || typeof dataMessage.msg_id !== 'string' || !peer_id) return;
+
+    const msgId = dataMessage.msg_id.trim().replace(/[^a-zA-Z0-9:_-]/g, '');
+    if (!msgId || msgId.length > 256) return;
+
+    const msgEls = msgerChat?.querySelectorAll(`.msg[data-msg-id="${msgId}"]`) || [];
+    msgEls.forEach((msgEl) => {
+        // Only remove messages actually authored by the requesting peer
+        if (msgEl.dataset.fromId !== peer_id) return;
+
+        const isPrivate = msgEl.dataset.chatType === 'private';
+        const chatPeer = msgEl.dataset.chatPeer || '';
+
+        removeChatMessageElement(msgEl);
+
+        if (isPrivate) {
+            if (!isConversationCurrentlyVisible('private', chatPeer, peer_id) && unreadMessages.private[peer_id] > 0) {
+                unreadMessages.private[peer_id]--;
+                refreshUnreadBadges();
+            }
+        } else if (!isConversationCurrentlyVisible('public') && unreadMessages.public > 0) {
+            unreadMessages.public--;
+            refreshUnreadBadges();
         }
     });
 }
@@ -15450,7 +15522,7 @@ function addMsgerPrivateBtn(
         const toPeerName = msgerPrivateBtn.dataset.value;
         const msgId = createChatMessageId();
         emitMsg(myPeerName, myPeerAvatar, toPeerName, pMsg, true, myPeerId, msgId);
-        appendMessage(myPeerName, rightChatAvatar, 'right', pMsg, true, msgId, toPeerName);
+        appendMessage(myPeerName, rightChatAvatar, 'right', pMsg, true, msgId, toPeerName, myPeerId);
         msgerPrivateMsgInput.value = '';
         if (!shouldDockParticipantsPanel()) {
             syncParticipantsPanelVisibility(false);
@@ -20473,7 +20545,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.37',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.38',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
