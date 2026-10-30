@@ -18,7 +18,7 @@ const waitStartTime = Date.now();
 let elapsedTimerId = null;
 
 if (roomId && roomId !== 'join') {
-    waitingRoomNameText.textContent = roomId;
+    waitingRoomNameText.textContent = decodeURIComponent(roomId);
     waitingRoomNameEl.style.display = '';
 }
 
