@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.38
+ * @version 2.2.39
  *
  */
 
@@ -86,6 +86,7 @@ const className = {
     undo: 'fas fa-undo',
     captionOn: 'fas fa-closed-captioning',
     trash: 'fas fa-trash',
+    edit: 'fas fa-pen',
     copy: 'fas fa-copy',
     speech: 'fas fa-volume-high',
     heart: 'fas fa-heart',
@@ -849,6 +850,7 @@ let speechInMessages = false;
 let isSpeechSynthesisSupported = 'speechSynthesis' in window;
 let transcripts = []; // collect all the transcripts to save it later if you need
 let chatMessages = []; // collect chat messages to save it later if want
+let chatMessageRaw = new Map(); // msg_id -> original text of my own messages (for editing)
 let chatGPTcontext = []; // keep chatGPT messages context
 
 let activeConversation = {
@@ -4177,6 +4179,9 @@ async function handleRTCDataChannels(peer_id) {
                                 break;
                             case 'chatDelete':
                                 handleDataChannelChatDelete(dataMessage, peer_id);
+                                break;
+                            case 'chatEdit':
+                                handleDataChannelChatEdit(dataMessage, peer_id);
                                 break;
                             case 'speech':
                                 handleDataChannelSpeechTranscript(dataMessage);
@@ -14023,6 +14028,7 @@ function cleanMessages() {
             messages.forEach((msg) => msgerChat.removeChild(msg));
             // clean chat messages
             chatMessages = [];
+            chatMessageRaw.clear();
             // clean chatGPT context
             chatGPTcontext = [];
             // show empty messages
@@ -14135,9 +14141,11 @@ async function sendChatMessage() {
     } else if (activeConversation.type === 'private' && activeConversation.peerName) {
         emitMsg(myPeerName, myPeerAvatar, activeConversation.peerName, msg, true, myPeerId, msgId);
         appendMessage(myPeerName, rightChatAvatar, 'right', msg, true, msgId, activeConversation.peerName, myPeerId);
+        chatMessageRaw.set(msgId, msgerInput.value);
     } else {
         emitMsg(myPeerName, myPeerAvatar, 'toAll', msg, false, myPeerId, msgId);
         appendMessage(myPeerName, rightChatAvatar, 'right', msg, false, msgId, '', myPeerId);
+        chatMessageRaw.set(msgId, msgerInput.value);
     }
     cleanMessageInput();
 }
@@ -14578,7 +14586,17 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '', 
                     class="${className.trash}"
                     style="color:#fff; border:none; background:transparent;"
                     onclick="deleteMessage('msg-${chatMessagesId}')"
-                ></button>
+                ></button>`;
+    if (isOwnSharedChatMessage(getFromId, normalizedMsgId)) {
+        messageActionsHTML += `
+                <button
+                    id="msg-edit-${chatMessagesId}"
+                    class="${className.edit}"
+                    style="color:#fff; border:none; background:transparent;"
+                    onclick="editMessage('msg-${chatMessagesId}')"
+                ></button>`;
+    }
+    messageActionsHTML += `
                 <button
                     id="msg-copy-${chatMessagesId}"
                     class="${className.copy}" 
@@ -14647,6 +14665,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '', 
     refreshMessageGrouping();
     if (!isMobileDevice) {
         setTippy(getId('msg-delete-' + chatMessagesId), 'Delete', 'top');
+        setTippy(getId('msg-edit-' + chatMessagesId), 'Edit', 'top');
         setTippy(getId('msg-copy-' + chatMessagesId), 'Copy', 'top');
         setTippy(getId('msg-reaction-' + chatMessagesId), 'React', 'top');
         setTippy(getId('msg-speech-' + chatMessagesId), 'Speech', 'top');
@@ -15036,7 +15055,7 @@ function deleteMessage(id) {
     const fromId = msgEl.dataset.fromId || '';
 
     // Only the author can delete for everyone, and only messages actually shared with peers (not AI)
-    const canDeleteForEveryone = !!msgId && !!myPeerId && fromId === myPeerId;
+    const canDeleteForEveryone = isOwnSharedChatMessage(fromId, msgId);
 
     playSound('newMessage');
     Swal.fire({
@@ -15080,6 +15099,7 @@ function removeChatMessageElement(msgEl) {
     msgEl.remove();
     if (msgId) {
         chatMessages = chatMessages.filter((m) => m.msgId !== msgId);
+        chatMessageRaw.delete(msgId);
     }
     refreshMessageGrouping();
     toggleMsgerEmptyNotice();
@@ -15115,6 +15135,136 @@ function handleDataChannelChatDelete(dataMessage, peer_id) {
             unreadMessages.public--;
             refreshUnreadBadges();
         }
+    });
+}
+
+/**
+ * Own messages shared with peers (public or private, not AI) can be edited/deleted for everyone
+ * @param {string} fromId author peer id
+ * @param {string} msgId message id
+ * @returns {boolean}
+ */
+function isOwnSharedChatMessage(fromId, msgId) {
+    return !!msgId && !!myPeerId && fromId === myPeerId;
+}
+
+/**
+ * Edit own message for everyone
+ * @param {string} id msg element id
+ */
+function editMessage(id) {
+    const msgEl = getId(id);
+    if (!msgEl) return;
+
+    const msgId = msgEl.dataset.msgId || '';
+    const fromId = msgEl.dataset.fromId || '';
+
+    if (!isOwnSharedChatMessage(fromId, msgId)) return;
+
+    const textEl = msgEl.querySelector('.msg-text > span[id^="message-"]');
+    const currentText = chatMessageRaw.get(msgId) ?? (textEl ? textEl.innerText : '');
+
+    Swal.fire({
+        background: swBg,
+        position: 'center',
+        title: 'Edit message',
+        input: 'textarea',
+        inputValue: currentText,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+        preConfirm: (value) => {
+            const text = (value || '').trim();
+            if (!text) {
+                Swal.showValidationMessage(
+                    window.i18n?.t('The message cannot be empty', 'dialogs') || 'The message cannot be empty'
+                );
+                return false;
+            }
+            return text;
+        },
+    }).then((result) => {
+        if (!result.isConfirmed || !msgEl.isConnected) return;
+
+        const newText = filterXSS(result.value);
+        if (newText === currentText) return;
+
+        const msg = checkMsg(newText);
+        if (!msg) return;
+
+        sendToDataChannel({
+            type: 'chatEdit',
+            msg_id: msgId,
+            fromId: myPeerId,
+            msg: msg,
+        });
+        chatMessageRaw.set(msgId, newText);
+        applyChatMessageEdit(msgEl, msg);
+    });
+}
+
+/**
+ * Replace the rendered text of a chat message and mark it as edited
+ * @param {HTMLElement} msgEl
+ * @param {string} msg new message
+ */
+function applyChatMessageEdit(msgEl, msg) {
+    const textEl = msgEl.querySelector('.msg-text > span[id^="message-"]');
+    if (!textEl) return;
+
+    const getMsg = filterXSS(msg);
+    textEl.innerHTML = processMessage(getMsg);
+    hljs.highlightAll();
+
+    const msgId = msgEl.dataset.msgId || '';
+    const entry = msgId ? chatMessages.find((m) => m.msgId === msgId) : null;
+    if (entry) {
+        entry.msg = getMsg;
+        entry.edited = true;
+    }
+
+    markChatMessageEdited(msgEl);
+}
+
+/**
+ * Add (or refresh) the "edited" badge next to the message time
+ * @param {HTMLElement} msgEl
+ */
+function markChatMessageEdited(msgEl) {
+    const timeEl = msgEl.querySelector('.msg-info-time');
+    if (!timeEl) return;
+    const label = window.i18n?.t('edited', 'labels') || 'edited';
+    let badge = timeEl.querySelector('.msg-edited-badge');
+    if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'msg-edited-badge';
+        badge.textContent = label;
+        timeEl.appendChild(badge);
+    }
+    badge.title = `${label} ${getFormatDate(new Date())}`;
+}
+
+/**
+ * Handle incoming "edit for everyone" chat requests
+ * @param {object} dataMessage
+ * @param {string} peer_id sender peer id (data channel owner)
+ */
+function handleDataChannelChatEdit(dataMessage, peer_id) {
+    if (!dataMessage || typeof dataMessage.msg_id !== 'string' || typeof dataMessage.msg !== 'string' || !peer_id) {
+        return;
+    }
+
+    const msgId = dataMessage.msg_id.trim().replace(/[^a-zA-Z0-9:_-]/g, '');
+    if (!msgId || msgId.length > 256) return;
+    if (!dataMessage.msg.trim() || dataMessage.msg.length > 100000) return;
+
+    const msgEls = msgerChat?.querySelectorAll(`.msg[data-msg-id="${msgId}"]`) || [];
+    msgEls.forEach((msgEl) => {
+        // Only edit messages actually authored by the requesting peer
+        if (msgEl.dataset.fromId !== peer_id) return;
+        applyChatMessageEdit(msgEl, dataMessage.msg);
     });
 }
 
@@ -15523,6 +15673,7 @@ function addMsgerPrivateBtn(
         const msgId = createChatMessageId();
         emitMsg(myPeerName, myPeerAvatar, toPeerName, pMsg, true, myPeerId, msgId);
         appendMessage(myPeerName, rightChatAvatar, 'right', pMsg, true, msgId, toPeerName, myPeerId);
+        chatMessageRaw.set(msgId, msgerPrivateMsgInput.value);
         msgerPrivateMsgInput.value = '';
         if (!shouldDockParticipantsPanel()) {
             syncParticipantsPanelVisibility(false);
@@ -15960,6 +16111,7 @@ function downloadChatMsgs() {
             to: message.to || '',
             msg: message.msg,
             privateMsg: isPrivate,
+            ...(message.edited ? { edited: true } : {}),
         });
     });
 
@@ -20545,7 +20697,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.38',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.39',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

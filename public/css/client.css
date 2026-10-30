@@ -2661,6 +2661,20 @@ body {
     opacity: 0.72;
 }
 
+.msg-edited-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 8px;
+    font-size: 0.68rem;
+    font-style: italic;
+    line-height: 16px;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(59, 130, 246, 0.22);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    cursor: default;
+}
+
 .msg-text {
     display: block;
     overflow-wrap: break-word;
