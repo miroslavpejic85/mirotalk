@@ -1300,7 +1300,7 @@ function getRoomId() {
     let queryRoomId = getQueryParam('room');
 
     // skip /join/
-    let roomId = queryRoomId ? queryRoomId : window.location.pathname.split('/join/')[1];
+    let roomId = queryRoomId ? queryRoomId : decodeRoomPath(window.location.pathname.split('/join/')[1]);
 
     // if not specified room id or 'random', create one random
     if (roomId == '' || roomId === 'random') {
@@ -1328,6 +1328,20 @@ function getRoomId() {
     // Save room name in local storage
     window.localStorage.lastRoom = roomId;
     return roomId;
+}
+
+/**
+ * Decode a /join/<room> path segment back to the original room name (abc%25 -> abc%)
+ * @param {string} roomPath
+ * @returns {string} room name
+ */
+function decodeRoomPath(roomPath) {
+    if (!roomPath) return roomPath;
+    try {
+        return filterXSS(decodeURIComponent(roomPath));
+    } catch {
+        return roomPath; // malformed percent-encoding: keep the raw value
+    }
 }
 
 /**
@@ -10004,8 +10018,7 @@ function getBreakoutTicketRoom(urlRoomId) {
  */
 function getBreakoutRoomURL(targetRoom) {
     const url = new URL(window.location.href);
-    // Room ids read from the path are already percent-encoded: the setter only encodes what a path cannot contain
-    url.pathname = '/join/' + targetRoom;
+    url.pathname = getJoinRoomPath(targetRoom);
     url.hash = '';
     ['room', 'duration', 'name', 'audio', 'video', 'notify'].forEach((param) => url.searchParams.delete(param));
     url.searchParams.set('name', myPeerName);

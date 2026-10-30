@@ -272,16 +272,13 @@ function joinRoom() {
         return;
     }
 
-    // Encode so chars like % # ? / don't produce a malformed URL (nginx 400)
-    window.location.href = '/join/' + encodeURIComponent(roomName);
+    window.location.href = getJoinRoomPath(roomName);
     window.localStorage.lastRoom = roomName;
 }
 
 function getJoinRoomPath(roomId) {
-    // Path ids are read as-is (not decoded): use /join/<id> only if it round-trips, else ?room= (e.g. abc% -> nginx 400)
-    return /^(?:[\w.~!$&'()*+,;=:@-]|%[0-9A-Fa-f]{2})+$/.test(roomId)
-        ? '/join/' + roomId
-        : '/join/?room=' + encodeURIComponent(roomId);
+    // Encode so chars like % # ? / don't produce a malformed URL (nginx 400), client.js decodes it back
+    return '/join/' + encodeURIComponent(roomId);
 }
 
 function isValidRoomName(input) {

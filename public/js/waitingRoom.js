@@ -1,7 +1,11 @@
 'use strict';
 
 const pathParts = window.location.pathname.split('/');
-const roomId = pathParts[pathParts.length - 1];
+const roomPath = pathParts[pathParts.length - 1];
+let roomId = roomPath;
+try {
+    roomId = decodeURIComponent(roomPath); // /join/abc%25 -> abc%
+} catch {} // malformed percent-encoding: keep the raw value
 const statusEl = document.getElementById('waitingStatus');
 const loginLink = document.getElementById('loginLink');
 const waitingRoomNameEl = document.getElementById('waitingRoomName');
@@ -18,12 +22,7 @@ const waitStartTime = Date.now();
 let elapsedTimerId = null;
 
 if (roomId && roomId !== 'join') {
-    let prettifiedRoomId = roomId;
-    try {
-        prettifiedRoomId = decodeURIComponent(roomId);
-    } catch {} // malformed percent-encoding: show the raw value
-
-    waitingRoomNameText.textContent = prettifiedRoomId;
+    waitingRoomNameText.textContent = roomId;
     waitingRoomNameEl.style.display = '';
 }
 

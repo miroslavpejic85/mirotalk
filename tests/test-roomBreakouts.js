@@ -923,19 +923,27 @@ describe('breakout rooms', () => {
                 'myPeerName',
                 'myAudioStatus',
                 'myVideoStatus',
+                'getJoinRoomPath',
                 `${body('getBreakoutRoomURL')}; return getBreakoutRoomURL;`
             );
-            const readRoom = (href) => new URL(href).pathname.split('/join/')[1];
+            const readRoom = (href) => decodeURIComponent(new URL(href).pathname.split('/join/')[1]);
             const resolve = (urlRoom, ticketRoom) =>
                 new Function('readBreakoutTicket', `${body('getBreakoutTicketRoom')}; return getBreakoutTicketRoom;`)(
                     () => ({ room: ticketRoom, token: 't' })
                 )(urlRoom);
             const window = { location: { href: 'https://host/join/old?room=old&duration=1&chat=1#x' } };
-            const build = make(window, 'Ann', true, false);
+            const build = make(window, 'Ann', true, false, (room) => '/join/' + encodeURIComponent(room));
 
-            // Path room ids are already encoded, query room ids are decoded: both must round trip
-            for (const target of ['caf%C3%A9-breakout-1-ab', 'a+b-breakout-1-ab', 'café b-breakout-1-ab', 'plain']) {
+            // The room id is encoded in the path and decoded back by getRoomId: it must round trip
+            for (const target of [
+                'caf%C3%A9-breakout-1-ab',
+                'a+b-breakout-1-ab',
+                'café b-breakout-1-ab',
+                'abc%-breakout-1-ab',
+                'plain',
+            ]) {
                 const href = build(target);
+                assert.equal(readRoom(href), target, href);
                 assert.equal(resolve(readRoom(href), target), target, href);
                 const params = new URL(href).searchParams;
                 assert.equal(params.get('room'), null);
