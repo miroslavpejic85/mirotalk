@@ -127,6 +127,28 @@
             <span id="roomTimeLimitDisplay" class="notranslate">00:00:00</span>
         </div>
 
+        <!-- Lobby: guests waiting to be admitted (presenters only, state kept by the signaling server) -->
+
+        <section id="lobbyPanel" class="lobby-panel hidden" role="region" aria-label="Lobby" aria-live="polite">
+            <header class="lobby-header">
+                <i class="fas fa-user-clock" aria-hidden="true"></i>
+                <span class="lobby-title">Waiting in the lobby</span>
+                <span id="lobbyCount" class="lobby-count notranslate">0</span>
+                <button id="lobbyToggleBtn" class="lobby-toggle-btn" type="button" aria-expanded="true">
+                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                </button>
+            </header>
+            <ul id="lobbyList" class="lobby-list"></ul>
+            <footer class="lobby-actions">
+                <button id="lobbyAcceptAllBtn" class="lobby-accept-all-btn" type="button">
+                    <i class="fas fa-check-double"></i>&nbsp;Accept all
+                </button>
+                <button id="lobbyRejectAllBtn" class="lobby-reject-all-btn" type="button">
+                    <i class="fas fa-xmark"></i>&nbsp;Reject all
+                </button>
+            </footer>
+        </section>
+
         <!-- init user devices -->
 
         <div id="initUser" class="init-user hidden">
@@ -1030,6 +1052,12 @@
                             </button>
                             <button id="joinUnlockBtn" class="red">
                                 <i class="fas fa-door-open red"></i>&nbsp;Unlock room
+                            </button>
+                            <button id="lobbyOnBtn" class="orange">
+                                <i class="fas fa-user-clock orange"></i>&nbsp;Enable lobby
+                            </button>
+                            <button id="lobbyOffBtn" class="red">
+                                <i class="fas fa-user-check red"></i>&nbsp;Disable lobby
                             </button>
                             <button id="lockRoomBtn" class="orange">
                                 <i class="fas fa-lock-open orange"></i>&nbsp;Set room password
@@ -2800,6 +2828,7 @@ Note</textarea>
         <script defer src="../js/editor.js"></script>
         <script defer src="../js/poll.js"></script>
         <script defer src="../js/breakout.js"></script>
+        <script defer src="../js/lobby.js"></script>
         <script defer src="../js/videoGrid.js"></script>
         <script defer src="../js/screenCameraLayout.js"></script>
         <script defer src="../js/swal.js"></script>

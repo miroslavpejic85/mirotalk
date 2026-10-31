@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.42
+ * @version 2.2.50
  *
  */
 
@@ -590,6 +590,8 @@ const lockRoomBtn = getId('lockRoomBtn');
 const unlockRoomBtn = getId('unlockRoomBtn');
 const joinLockBtn = getId('joinLockBtn');
 const joinUnlockBtn = getId('joinUnlockBtn');
+const lobbyOnBtn = getId('lobbyOnBtn');
+const lobbyOffBtn = getId('lobbyOffBtn');
 
 // File send progress
 const sendFileDiv = getId('sendFileDiv');
@@ -876,6 +878,10 @@ let isMySettingsVisible = false;
 let thisRoomPassword = null;
 let isRoomLocked = false;
 let isJoinLocked = false;
+// room lobby (waiting list kept by the signaling server)
+let isLobbyEnabled = false;
+let isWaitingInLobby = false;
+let roomLobby = null;
 let isKeepButtonsVisible = false;
 let isAudioPitchBar = true;
 let isPushToTalkActive = false;
@@ -1844,6 +1850,7 @@ async function initClientPeer() {
     signalingSocket.on('roomNotAllowed', handleRoomNotAllowed);
     signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
     signalingSocket.on('roomIsJoinLocked', handleRoomJoinLocked);
+    signalingSocket.on('lobby', handleLobby);
     signalingSocket.on('roomTimeLimitReached', handleRoomTimeLimitReached);
     signalingSocket.on('roomTimeLimit', handleRoomTimeLimit);
     signalingSocket.on('roomAction', handleRoomAction);
@@ -1962,6 +1969,7 @@ function handleServerInfo(config) {
         redirect,
         maxRoomParticipants,
         join_locked,
+        lobby,
         time_limit,
     } = config;
 
@@ -1998,6 +2006,9 @@ function handleServerInfo(config) {
     // Let start with some basic rules
     isPresenter = is_presenter;
     isJoinLocked = join_locked === true;
+    isLobbyEnabled = lobby === true;
+    closeLobbyWaiting();
+    if (!isPresenter) roomLobby?.clear();
     console.log('New connection - presenter status from server:', isPresenter);
     isPeerPresenter.innerText = isPresenter;
     setPresenterBadge(myVideoPeerName, isPresenter);
@@ -2257,6 +2268,7 @@ function handleButtonsRule() {
     ].forEach((btn) => elemDisplay(btn.closest('li'), !!buttons.settings.customNoiseSuppression, 'list-item'));
 
     updateJoinLockButtons();
+    updateLobbyButtons();
 
     // Whiteboard
     elemDisplay(
@@ -11117,6 +11129,13 @@ function setupMySettings() {
     joinUnlockBtn.addEventListener('click', (e) => {
         confirmJoinLock(false);
     });
+    lobbyOnBtn.addEventListener('click', (e) => {
+        handleRoomAction({ action: 'lobbyOn' }, true);
+    });
+    lobbyOffBtn.addEventListener('click', (e) => {
+        confirmLobbyOff();
+    });
+    setupRoomLobby();
 }
 
 /**
@@ -17730,6 +17749,8 @@ function handleRoomAction(config, emit = false) {
                 break;
             case 'joinLockOn':
             case 'joinLockOff':
+            case 'lobbyOn':
+            case 'lobbyOff':
                 sendToServer('roomAction', thisConfig);
                 handleRoomStatus(thisConfig);
                 break;
@@ -17792,9 +17813,184 @@ function handleRoomStatus(config) {
             updateJoinLockButtons();
             screenReaderAccessibility.announceMessage(`${peer_name} unlocked the room for new participants`);
             break;
+        case 'lobbyOn':
+            playSound('locked');
+            userLog(
+                'toast',
+                `${icons.user} ${peer_name} \n has enabled the lobby, new guests wait to be admitted`,
+                'top',
+                6000
+            );
+            isLobbyEnabled = true;
+            updateLobbyButtons();
+            screenReaderAccessibility.announceMessage(`${peer_name} enabled the lobby`);
+            break;
+        case 'lobbyOff':
+            userLog(
+                'toast',
+                `${icons.user} ${peer_name} \n has disabled the lobby, new guests join directly`,
+                'top',
+                6000
+            );
+            isLobbyEnabled = false;
+            updateLobbyButtons();
+            screenReaderAccessibility.announceMessage(`${peer_name} disabled the lobby`);
+            break;
         default:
             break;
     }
+}
+
+/**
+ * Show the lobby on or lobby off button according to the current room state (presenters only)
+ */
+function updateLobbyButtons() {
+    const canManage = buttons.settings.showLobbyBtn && isPresenter;
+    elemDisplay(lobbyOnBtn, canManage && !isLobbyEnabled);
+    elemDisplay(lobbyOffBtn, canManage && isLobbyEnabled);
+}
+
+/**
+ * Ask the presenter to confirm turning the lobby off, everyone waiting is let in
+ */
+function confirmLobbyOff() {
+    if (!roomLobby?.size) return handleRoomAction({ action: 'lobbyOff' }, true);
+
+    playSound('newMessage');
+    Swal.fire({
+        background: swBg,
+        imageUrl: images.locked,
+        title: 'Disable lobby?',
+        text: translateDialogText('Everyone waiting in the lobby ({count}) will join the room.').replace(
+            '{count}',
+            roomLobby.size
+        ),
+        showCancelButton: true,
+        confirmButtonText: 'Disable lobby',
+        cancelButtonText: 'Cancel',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) handleRoomAction({ action: 'lobbyOff' }, true);
+    });
+}
+
+/**
+ * Presenters: panel with the guests waiting in the lobby
+ */
+function setupRoomLobby() {
+    roomLobby = new RoomLobby({
+        elements: {
+            panel: getId('lobbyPanel'),
+            count: getId('lobbyCount'),
+            toggleBtn: getId('lobbyToggleBtn'),
+            list: getId('lobbyList'),
+            acceptAllBtn: getId('lobbyAcceptAllBtn'),
+            rejectAllBtn: getId('lobbyRejectAllBtn'),
+        },
+        send: (action, peer_id) =>
+            sendToServer('lobby', {
+                room_id: roomId,
+                peer_name: myPeerName,
+                peer_uuid: myPeerUUID,
+                action,
+                peer_id,
+            }),
+        getAvatar: (peer) => {
+            const name = peer.peer_name || 'Guest';
+            if (isValidAvatarURL(peer.peer_avatar)) return peer.peer_avatar;
+            return isValidEmail(name) ? genGravatar(name) : genAvatarSvg(name, 32);
+        },
+        onNewPeers: (peers) => {
+            playSound('notify');
+            const message =
+                peers.length === 1
+                    ? roomLobby.t('{name} is waiting in the lobby').replace('{name}', peers[0].peer_name || 'Guest')
+                    : roomLobby.t('{count} guests are waiting in the lobby').replace('{count}', peers.length);
+            userLog('toast', `${icons.user} ${message}`, 'top', 6000);
+            screenReaderAccessibility.announceMessage(message);
+        },
+    });
+}
+
+/**
+ * Lobby message from the signaling server
+ * @param {object} data { action, peers? }
+ */
+function handleLobby(data) {
+    switch (data?.action) {
+        case 'list':
+            if (isPresenter) roomLobby?.update(data.peers);
+            break;
+        case 'waiting':
+            showLobbyWaiting();
+            break;
+        case 'admitted':
+            closeLobbyWaiting();
+            userLog('toast', 'The host let you in', 'top', 4000);
+            break;
+        case 'rejected':
+            handleLobbyRejected();
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+ * Guest: waiting for a presenter to let it in
+ */
+function showLobbyWaiting() {
+    isWaitingInLobby = true;
+    playSound('notify');
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swBg,
+        position: 'center',
+        icon: 'info',
+        iconHtml: '<i class="fas fa-user-clock"></i>',
+        title: 'Waiting in the lobby',
+        text: 'The host will let you in soon. Please wait...',
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'Leave',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (isWaitingInLobby && result.dismiss === Swal.DismissReason.cancel) {
+            isWaitingInLobby = false;
+            openURL('/newcall');
+        }
+    });
+}
+
+function closeLobbyWaiting() {
+    if (!isWaitingInLobby) return;
+    isWaitingInLobby = false;
+    Swal.close();
+}
+
+/**
+ * Guest: a presenter rejected the request to join
+ */
+function handleLobbyRejected() {
+    isWaitingInLobby = false;
+    playSound('alert');
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swBg,
+        position: 'center',
+        imageUrl: images.forbidden,
+        title: 'Request denied',
+        text: 'The host did not let you join this room.',
+        confirmButtonText: 'Ok',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then(() => {
+        openURL('/newcall');
+    });
 }
 
 /**
@@ -20732,7 +20928,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.42',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.50',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

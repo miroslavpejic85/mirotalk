@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.42 - Configuration File
+ * MiroTalk P2P v.2.2.50 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -232,6 +232,15 @@ module.exports = {
     // When disabled the server ignores every breakout request, so no breakout ticket is ever issued.
     breakoutRooms: {
         enabled: getEnvBoolean(process.env.BREAKOUT_ROOMS_ENABLED),
+    },
+
+    // ==========================================
+    // Lobby
+    // ==========================================
+    // Default lobby state of new rooms: guests wait until a presenter admits them.
+    // Presenters can turn it on/off per room. Presenters and authenticated users never wait.
+    lobby: {
+        enabled: getEnvBoolean(process.env.LOBBY_ENABLED),
     },
 
     // ==========================================
@@ -707,6 +716,7 @@ module.exports = {
             showLockRoomBtn: getEnvBoolean(process.env.SHOW_LOCK_ROOM, true),
             showUnlockRoomBtn: getEnvBoolean(process.env.SHOW_UNLOCK_ROOM, true),
             showJoinLockBtn: getEnvBoolean(process.env.SHOW_JOIN_LOCK, true),
+            showLobbyBtn: getEnvBoolean(process.env.SHOW_LOBBY, true), // Presenters only
             showShortcutsBtn: getEnvBoolean(process.env.SHOW_KEYBOARD_SHORTCUTS, true),
             showRoomBackground: getEnvBoolean(process.env.SHOW_ROOM_BACKGROUND, true), // per-user image behind the video grid, stored only in the browser
             customNoiseSuppression: getEnvBoolean(process.env.CUSTOM_NOISE_SUPPRESSION_ENABLED, true),

@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.42
+ * @version 2.2.50
  *
  */
 
@@ -72,6 +72,7 @@ const RoomPassword = require('./roomPassword');
 const RoomTimeLimit = require('./roomTimeLimit');
 const RoomPolls = require('./roomPolls');
 const RoomBreakouts = require('./roomBreakouts');
+const RoomLobby = require('./roomLobby');
 const HtmlInjector = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
@@ -269,6 +270,10 @@ function isOidcPresenterTokenValid(token, roomId) {
 // Breakout rooms (disabled by default): when disabled every breakout request is ignored.
 // Config files created before this option fall back to the env variable.
 const breakoutRoomsEnabled = (config.breakoutRooms?.enabled ?? process.env.BREAKOUT_ROOMS_ENABLED === 'true') === true;
+
+// Lobby: default state of new rooms (presenters toggle it per room).
+// Config files created before this option fall back to the env variable.
+const lobbyEnabled = (config.lobby?.enabled ?? process.env.LOBBY_ENABLED === 'true') === true;
 
 // Breakout rooms: ticket issued by the server with each move order, proving at join time that
 // the peer was sent to this room (bypasses room creation/lock checks and carries the presenter role).
@@ -1575,6 +1580,8 @@ io.sockets.on('connect', async (socket) => {
      */
     socket.on('disconnect', async (reason) => {
         removeIP(socket);
+        const lobbyRoom = RoomLobby.removePeer(socket.id);
+        if (lobbyRoom) notifyLobbyPresenters(lobbyRoom);
         for (let channel in socket.channels) {
             await removePeerFrom(channel, socket, reason);
         }
@@ -1694,6 +1701,15 @@ io.sockets.on('connect', async (socket) => {
      * On peer join
      */
     socket.on('join', async (cfg) => {
+        await joinRoom(cfg);
+    });
+
+    /**
+     * Join a room
+     * @param {object} cfg join data sent by the peer
+     * @param {boolean} [lobbyAdmitted] admitted from the lobby by a presenter
+     */
+    async function joinRoom(cfg, lobbyAdmitted = false) {
         // Get peer IPv4 (::1 Its the loopback address in ipv6, equal to 127.0.0.1 in ipv4)
         const peer_ip = getSocketIP(socket);
 
@@ -1847,8 +1863,12 @@ io.sockets.on('connect', async (socket) => {
 
         // Auth passed — safe to create the room structures now
         if (!(channel in channels)) channels[channel] = {};
-        // A main room emptied by its breakout rooms gets back its state (lock, password, join lock)
-        if (!(channel in peers)) peers[channel] = { ...(RoomBreakouts.takeMainState(channel) || {}) };
+        if (!(channel in peers)) {
+            // A main room emptied by its breakout rooms gets back its state (lock, password, join lock) and keeps its lobby state
+            const mainState = RoomBreakouts.takeMainState(channel);
+            peers[channel] = { ...(mainState || {}) };
+            if (!mainState) RoomLobby.setEnabled(channel, lobbyEnabled);
+        }
         if (!(channel in presenters)) presenters[channel] = {};
 
         // Security: a host user with a configured displayname joins with it (OIDC verified name wins)
@@ -1923,11 +1943,24 @@ io.sockets.on('connect', async (socket) => {
         // Check if peer is presenter, if token check the presenter key
         const isPresenter = peer_token ? is_presenter : isPeerPresenter(channel, socket.id, peer_name, peer_uuid);
 
-        // Room locked by the host for new participants, only presenters can still join
-        if (peers[channel]['joinLock'] === true && !isPresenter && !breakoutTicket) {
+        // Room locked by the host for new participants, only presenters (or peers they admitted from the lobby) can still join
+        if (peers[channel]['joinLock'] === true && !isPresenter && !breakoutTicket && !lobbyAdmitted) {
             log.debug('[' + socket.id + '] [Warning] Room Is Locked for new participants', channel);
             delete presenters[channel][socket.id];
             return socket.emit('roomIsJoinLocked');
+        }
+
+        // Lobby: guests wait until a presenter admits them, presenters and authenticated users skip it
+        if (
+            RoomLobby.isEnabled(channel) &&
+            !isPresenter &&
+            !breakoutTicket &&
+            !lobbyAdmitted &&
+            !authenticatedUsername &&
+            !verifiedPeerName
+        ) {
+            delete presenters[channel][socket.id];
+            return holdInLobby(channel, cfg, peer_name, peer_avatar);
         }
 
         // Security: only a presenter can start the room-wide time limit (first one wins, can't be changed later)
@@ -1996,6 +2029,7 @@ io.sockets.on('connect', async (socket) => {
             user_auth: hostCfg.user_auth,
             is_presenter: isPresenter,
             join_locked: peers[channel]['joinLock'] === true,
+            lobby: RoomLobby.isEnabled(channel),
             survey: {
                 active: surveyEnabled,
                 url: surveyURL,
@@ -2035,6 +2069,15 @@ io.sockets.on('connect', async (socket) => {
         }
         notifyBreakoutManagers(channel);
 
+        // Lobby: a room without lobby lets the waiting guests in, presenters get the waiting list
+        if (RoomLobby.count(channel) > 0) {
+            if (!RoomLobby.isEnabled(channel)) {
+                await admitAllFromLobby(channel);
+            } else if (isRoomPresenter(channel, socket.id)) {
+                await sendToPeer(socket.id, sockets, 'lobby', { action: 'list', peers: RoomLobby.list(channel) });
+            }
+        }
+
         // SCENARIO: Notify when the first user join room and is awaiting assistance...
         if (peerCounts === 1) {
             nodemailer.sendEmailAlert('join', {
@@ -2055,6 +2098,68 @@ io.sockets.on('connect', async (socket) => {
                 .then((response) => log.debug('Join event tracked:', response.data))
                 .catch((error) => log.error('Error tracking join event:', error.message));
         }
+    }
+
+    /**
+     * Keep a guest in the room lobby until a presenter admits or rejects it
+     * @param {string} channel room id
+     * @param {object} cfg join data, replayed on admission
+     * @param {string} peer_name
+     * @param {string} peer_avatar
+     */
+    function holdInLobby(channel, cfg, peer_name, peer_avatar) {
+        const previousRoom = RoomLobby.add(channel, socket.id, {
+            peer_name,
+            peer_avatar,
+            admit: () => joinRoom(cfg, true),
+        });
+        log.debug('[' + socket.id + '] Waiting in the lobby', { channel, peer_name });
+        socket.emit('lobby', { action: 'waiting' });
+        if (previousRoom) notifyLobbyPresenters(previousRoom);
+        notifyLobbyPresenters(channel);
+    }
+
+    /**
+     * Presenters admit or reject the guests waiting in the room lobby
+     * @param {Object} cfg
+     * @param {string} cfg.room_id
+     * @param {string} cfg.action - 'accept' | 'reject' | 'acceptAll' | 'rejectAll'
+     * @param {string} [cfg.peer_id] - Waiting peer (accept, reject).
+     * @param {string} cfg.peer_name - Used with peer_uuid for the presenter check.
+     * @param {string} cfg.peer_uuid - Used with peer_name for the presenter check.
+     */
+    socket.on('lobby', async (cfg) => {
+        const config = checkXSS(cfg);
+        if (!Validate.isValidData(config)) return;
+
+        const { room_id, peer_id, peer_name, peer_uuid, action } = config;
+
+        if (!isPeerInRoom(room_id, socket.id) || !isPeerPresenter(room_id, socket.id, peer_name, peer_uuid)) {
+            log.warn('[' + socket.id + '] Lobby action not allowed', { room_id, action });
+            return;
+        }
+
+        try {
+            switch (action) {
+                case 'accept':
+                    await admitFromLobby(room_id, peer_id);
+                    break;
+                case 'reject':
+                    rejectFromLobby(room_id, peer_id);
+                    break;
+                case 'acceptAll':
+                    await admitAllFromLobby(room_id);
+                    break;
+                case 'rejectAll':
+                    for (const id of RoomLobby.ids(room_id)) rejectFromLobby(room_id, id);
+                    break;
+                default:
+                    return;
+            }
+        } catch (err) {
+            log.error('Lobby action', toJson(err));
+        }
+        notifyLobbyPresenters(room_id);
     });
 
     /**
@@ -2165,6 +2270,24 @@ io.sockets.on('connect', async (socket) => {
                         peer_name: peer_name,
                         action: action,
                     });
+                    break;
+                case 'lobbyOn':
+                    if (!isPresenter) return;
+                    RoomLobby.setEnabled(room_id, true);
+                    await sendToRoom(room_id, socket.id, 'roomAction', {
+                        peer_name: peer_name,
+                        action: action,
+                    });
+                    break;
+                case 'lobbyOff':
+                    if (!isPresenter) return;
+                    RoomLobby.setEnabled(room_id, false);
+                    await sendToRoom(room_id, socket.id, 'roomAction', {
+                        peer_name: peer_name,
+                        action: action,
+                    });
+                    // Without lobby, everyone waiting is let in
+                    await admitAllFromLobby(room_id);
                     break;
                 case 'checkPassword': {
                     // Pre-join check, so the sender is not a room member: throttle guesses per IP + room
@@ -3631,6 +3754,7 @@ io.sockets.on('connect', async (socket) => {
                 if (!keepMainRoomState) {
                     RoomTimeLimit.clear(channel);
                     RoomPolls.clear(channel); // Clean up room polls
+                    RoomLobby.setEnabled(channel, false); // Waiting guests keep waiting for a presenter
                 }
             }
         } catch (err) {
@@ -3769,7 +3893,70 @@ function getBreakoutRoomMembers(room_id) {
  * @returns {boolean}
  */
 function isBreakoutManager(room_id, peer_id) {
+    return isRoomPresenter(room_id, peer_id);
+}
+
+/**
+ * @param {string} room_id
+ * @param {string} peer_id server-controlled socket.id
+ * @returns {boolean} the peer holds the presenter role in the room
+ */
+function isRoomPresenter(room_id, peer_id) {
     return presenters[room_id]?.[peer_id]?.is_presenter === true;
+}
+
+/**
+ * Push the lobby waiting list to the presenters in the room
+ * @param {string} room_id
+ */
+function notifyLobbyPresenters(room_id) {
+    const data = { action: 'list', peers: RoomLobby.list(room_id) };
+    for (const [peer_id, peerSocket] of Object.entries(channels[room_id] || {})) {
+        if (isRoomPresenter(room_id, peer_id)) peerSocket.emit('lobby', data);
+    }
+}
+
+/**
+ * Let a waiting guest in: its join is replayed, so every other room check still applies
+ * @param {string} room_id
+ * @param {string} peer_id
+ * @returns {Promise<boolean>} admitted
+ */
+async function admitFromLobby(room_id, peer_id) {
+    const entry = RoomLobby.remove(room_id, peer_id);
+    const peerSocket = sockets[peer_id];
+    if (!entry || !peerSocket?.connected) return false;
+    log.debug('[' + peer_id + '] Admitted from the lobby', { room_id });
+    peerSocket.emit('lobby', { action: 'admitted' });
+    try {
+        await entry.admit();
+    } catch (err) {
+        log.error('Lobby admit', err);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @param {string} room_id
+ * @param {string} peer_id
+ * @returns {boolean} rejected
+ */
+function rejectFromLobby(room_id, peer_id) {
+    if (!RoomLobby.remove(room_id, peer_id)) return false;
+    log.debug('[' + peer_id + '] Rejected from the lobby', { room_id });
+    sockets[peer_id]?.emit('lobby', { action: 'rejected' });
+    return true;
+}
+
+/**
+ * @param {string} room_id
+ */
+async function admitAllFromLobby(room_id) {
+    for (const peer_id of RoomLobby.ids(room_id)) {
+        await admitFromLobby(room_id, peer_id);
+    }
+    notifyLobbyPresenters(room_id);
 }
 
 /**
