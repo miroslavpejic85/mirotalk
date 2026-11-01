@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.50
+ * @version 2.2.51
  *
  */
 
@@ -2640,7 +2640,8 @@ io.sockets.on('connect', async (socket) => {
             return;
         }
 
-        if (socket.verifiedPeerName && data.peer_name) data.peer_name = socket.verifiedPeerName;
+        // Bind the sender identity to the sending connection: never trust client supplied identity
+        data.peer_name = peers[data.room_id][socket.id].peer_name;
 
         await sendToRoom(data.room_id, socket.id, 'message', data);
     });
@@ -2659,6 +2660,8 @@ io.sockets.on('connect', async (socket) => {
 
         const { action, send_to_all, data } = config;
 
+        if (!Validate.isValidData(data)) return;
+
         const { room_id, peer_name, peer_uuid, to_peer_id } = data;
 
         log.debug('cmd', config);
@@ -2668,6 +2671,11 @@ io.sockets.on('connect', async (socket) => {
             log.debug('cmd blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
             return;
         }
+
+        // Requester/responder identity must be the real sender (relayed to the peers as is)
+        data.peer_id = socket.id;
+        data.peer_name = peers[room_id][socket.id].peer_name;
+        if (!send_to_all && to_peer_id === socket.id) return;
 
         // Only the presenter can do this actions
         const presenterActions = ['geoLocation'];
@@ -2701,13 +2709,17 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
 
         // log.debug('Peer status', config);
-        const { room_id, peer_name, peer_id, element, status, extras } = config;
+        const { room_id, element, status, extras } = config;
 
         // Security: only a joined peer of the room may broadcast status into it.
         if (!isPeerInRoom(room_id, socket.id)) {
             log.debug('peerStatus blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
             return;
         }
+
+        // Bind the status owner to the sending connection: never trust client supplied identity
+        const peer_id = socket.id;
+        const peer_name = peers[room_id][socket.id].peer_name;
 
         const data = {
             peer_id: peer_id,
@@ -2776,17 +2788,7 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
 
         // log.debug('Peer action', config);
-        const {
-            room_id,
-            peer_id,
-            peer_uuid,
-            peer_name,
-            peer_avatar,
-            peer_use_video,
-            peer_action,
-            extras,
-            send_to_all,
-        } = config;
+        const { room_id, peer_id, peer_uuid, peer_name, peer_use_video, peer_action, extras, send_to_all } = config;
 
         // Security: only a joined peer of the room may relay actions into it.
         if (!isPeerInRoom(room_id, socket.id)) {
@@ -2820,10 +2822,12 @@ io.sockets.on('connect', async (socket) => {
             }
         }
 
+        // The actor identity is the real sender, a targeted action only keeps the target as the destination
+        const sender = peers[room_id][socket.id];
         const data = {
-            peer_id: peer_id,
-            peer_name: peer_name,
-            peer_avatar: peer_avatar,
+            peer_id: send_to_all ? socket.id : peer_id,
+            peer_name: sender.peer_name,
+            peer_avatar: sender.peer_avatar,
             peer_action: peer_action,
             peer_use_video: peer_use_video,
             extras: extras,
@@ -2833,6 +2837,10 @@ io.sockets.on('connect', async (socket) => {
             log.debug('[' + socket.id + '] emit peerAction to [room_id: ' + room_id + ']', data);
 
             await sendToRoom(room_id, socket.id, 'peerAction', data);
+
+            if (peer_action === 'ejectAll') {
+                scheduleForcedDisconnect(room_id, Object.keys(channels[room_id] || {}), socket.id);
+            }
         } else {
             if (!isPeerInRoom(room_id, peer_id)) return;
             log.debug('[' + socket.id + '] emit peerAction to [' + peer_id + '] from room_id [' + room_id + ']');
@@ -2857,6 +2865,8 @@ io.sockets.on('connect', async (socket) => {
             log.debug('caption blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
             return;
         }
+
+        config.peer_name = peers[room_id][socket.id].peer_name;
 
         await sendToRoom(room_id, socket.id, 'caption', config);
     });
@@ -2979,9 +2989,11 @@ io.sockets.on('connect', async (socket) => {
             revokeBreakoutTickets(sockets[peer_id]);
 
             await sendToPeer(peer_id, sockets, 'kickOut', {
-                peer_name: peer_name,
+                peer_name: peers[room_id][socket.id].peer_name,
                 peer_kicked_reason: peer_kicked_reason,
             });
+
+            scheduleForcedDisconnect(room_id, [peer_id], socket.id);
         }
     });
 
@@ -2995,13 +3007,20 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
 
         // log.debug('File info', config);
-        const { room_id, peer_id, peer_name, peer_avatar, broadcast, file } = config;
+        const { room_id, peer_id, broadcast, file } = config;
 
         // Security: only a joined peer of the room may share file info into it.
         if (!isPeerInRoom(room_id, socket.id)) {
             log.debug('fileInfo blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
             return;
         }
+
+        // Bind the sender identity to the sending connection: never trust client supplied identity
+        const { peer_name, peer_avatar } = peers[room_id][socket.id];
+        config.peer_name = peer_name;
+        config.peer_avatar = peer_avatar;
+
+        if (!Validate.isValidData(file)) return;
 
         // check if valid fileName
         if (!isValidFileName(file.fileName)) {
@@ -3042,13 +3061,15 @@ io.sockets.on('connect', async (socket) => {
 
         if (!Validate.isValidData(config)) return;
 
-        const { room_id, peer_name } = config;
+        const { room_id } = config;
 
         // Security: only a joined peer of the room may broadcast into it.
         if (!isPeerInRoom(room_id, socket.id)) {
             log.debug('fileAbort blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
             return;
         }
+
+        const peer_name = peers[room_id][socket.id].peer_name;
 
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileAbort to room_id [' + room_id + ']');
         await sendToRoom(room_id, socket.id, 'fileAbort');
@@ -3059,13 +3080,16 @@ io.sockets.on('connect', async (socket) => {
 
         if (!Validate.isValidData(config)) return;
 
-        const { room_id, peer_name } = config;
+        const { room_id } = config;
 
         // Security: only a joined peer of the room may broadcast into it.
         if (!isPeerInRoom(room_id, socket.id)) {
             log.debug('fileReceiveAbort blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
             return;
         }
+
+        const peer_name = peers[room_id][socket.id].peer_name;
+        config.peer_name = peer_name;
 
         log.debug('[' + socket.id + '] Peer [' + peer_name + '] send fileReceiveAbort to room_id [' + room_id + ']');
         await sendToRoom(room_id, socket.id, 'fileReceiveAbort', config);
@@ -3081,13 +3105,15 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
 
         // log.debug('Video player', config);
-        const { room_id, peer_id, peer_name, video_action, video_src, broadcast } = config;
+        const { room_id, peer_id, video_action, video_src, broadcast } = config;
 
         // Security: only a joined peer of the room may drive the shared video player.
         if (!isPeerInRoom(room_id, socket.id)) {
             log.debug('videoPlayer blocked: sender is not a joined peer', { room_id, socket_id: socket.id });
             return;
         }
+
+        const peer_name = peers[room_id][socket.id].peer_name;
 
         // Check if valid video src url
         if (video_action == 'open' && !isValidHttpURL(video_src)) {
@@ -4259,6 +4285,29 @@ function isPeerInRoom(room_id, socket_id) {
         !roomMetaKeys.has(socket_id) &&
         Object.hasOwn(peers[room_id], socket_id)
     );
+}
+
+const FORCED_EXIT_GRACE_MS = 8000;
+
+/**
+ * A kickOut/ejectAll only asks the target client to leave: a modified client can ignore it and keep its socket.
+ * After a grace period (letting a regular client show its notice and leave on its own) the server drops the
+ * sockets that are still members of the room, running the regular disconnect cleanup.
+ * @param {string} room_id
+ * @param {string[]} peer_ids socket ids to remove (the sender is never removed)
+ * @param {string} sender_id socket id of the presenter performing the action
+ */
+function scheduleForcedDisconnect(room_id, peer_ids, sender_id) {
+    for (const peer_id of peer_ids) {
+        if (peer_id === sender_id || !isPeerInRoom(room_id, peer_id)) continue;
+        const targetSocket = sockets[peer_id];
+        const timer = setTimeout(() => {
+            if (!targetSocket || !isPeerInRoom(room_id, peer_id) || sockets[peer_id] !== targetSocket) return;
+            log.debug('Peer did not leave after kick out, closing its socket', { peer_id, room_id });
+            targetSocket.disconnect(true);
+        }, FORCED_EXIT_GRACE_MS);
+        timer.unref?.();
+    }
 }
 
 /**

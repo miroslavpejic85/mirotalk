@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.50
+ * @version 2.2.51
  *
  */
 
@@ -4204,7 +4204,7 @@ async function handleRTCDataChannels(peer_id) {
                                 handleDataChannelChat(dataMessage, peer_id);
                                 break;
                             case 'chatReaction':
-                                handleDataChannelChatReaction(dataMessage);
+                                handleDataChannelChatReaction(dataMessage, peer_id);
                                 break;
                             case 'chatDelete':
                                 handleDataChannelChatDelete(dataMessage, peer_id);
@@ -4213,10 +4213,11 @@ async function handleRTCDataChannels(peer_id) {
                                 handleDataChannelChatEdit(dataMessage, peer_id);
                                 break;
                             case 'speech':
-                                handleDataChannelSpeechTranscript(dataMessage);
+                                handleDataChannelSpeechTranscript(dataMessage, peer_id);
                                 break;
                             case 'micVolume':
-                                handlePeerVolume(dataMessage);
+                                // The volume belongs to the data channel owner, never to a client supplied peer_id
+                                handlePeerVolume({ ...dataMessage, peer_id });
                                 break;
                             case 'editor':
                                 roomEditor?.handleMessage(peer_id, dataMessage);
@@ -14212,21 +14213,18 @@ async function sendChatMessage() {
 function handleDataChannelChat(dataMessage, peer_id = '') {
     if (!dataMessage) return;
 
+    // The sender identity is the data channel owner, never the one declared in the message body
+    const realPeer = allPeers[peer_id];
+    if (!peer_id || !realPeer?.peer_name) return;
+
     // sanitize all params
-    const msgFrom = filterXSS(dataMessage.from);
-    const msgFromAvatar = filterXSS(dataMessage.fromAvatar);
-    const msgFromId = filterXSS(dataMessage.fromId);
+    const msgFrom = filterXSS(realPeer.peer_name);
+    const msgFromAvatar = filterXSS(realPeer.peer_avatar || dataMessage.fromAvatar);
+    const msgFromId = peer_id;
     const msgTo = filterXSS(dataMessage.to);
     const msg = filterXSS(dataMessage.msg);
     const msgPrivate = filterXSS(dataMessage.privateMsg);
     const msgId = filterXSS(dataMessage.msg_id || '');
-
-    // We check if the message is from real peer
-    const from_peer_name = allPeers[msgFromId]['peer_name'];
-    if (from_peer_name != msgFrom) {
-        console.log('Fake message detected', { realFrom: from_peer_name, fakeFrom: msgFrom, msg: msg });
-        return;
-    }
 
     // private message but not for me return
     if (msgPrivate && msgTo != myPeerName) return;
@@ -14409,23 +14407,14 @@ function sendChatReaction(msgId, emoji, event) {
  * Handle incoming data channel chat reactions.
  * @param {object} dataMessage
  */
-function handleDataChannelChatReaction(dataMessage) {
+function handleDataChannelChatReaction(dataMessage, peer_id = '') {
     if (!dataMessage) return;
 
-    const fromId = filterXSS(dataMessage.fromId || '');
-    const peerName = filterXSS(dataMessage.peer_name || '');
+    // The reactor identity is the data channel owner, never the one declared in the message body
+    const realName = allPeers[peer_id]?.peer_name;
+    if (!realName) return;
 
-    if (fromId && allPeers[fromId]?.peer_name && allPeers[fromId].peer_name !== peerName) {
-        console.log('Fake reaction detected', {
-            realFrom: allPeers[fromId].peer_name,
-            fakeFrom: peerName,
-            msgId: dataMessage.msg_id,
-            emoji: dataMessage.emoji,
-        });
-        return;
-    }
-
-    handleChatReaction(dataMessage);
+    handleChatReaction({ ...dataMessage, peer_name: realName, fromId: peer_id });
 }
 
 /**
@@ -14505,8 +14494,17 @@ function pasteToMessageInput() {
  * Handle text transcript getting from peers
  * @param {object} config data
  */
-function handleDataChannelSpeechTranscript(config) {
-    handleSpeechTranscript(config);
+function handleDataChannelSpeechTranscript(config, peer_id = '') {
+    // The speaker identity is the data channel owner, never the one declared in the message body
+    const realPeer = allPeers[peer_id];
+    if (!config || !realPeer?.peer_name) return;
+
+    handleSpeechTranscript({
+        ...config,
+        peer_id,
+        peer_name: realPeer.peer_name,
+        peer_avatar: realPeer.peer_avatar || config.peer_avatar,
+    });
 }
 
 /**
@@ -20928,7 +20926,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.50',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.51',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
