@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.51
+ * @version 2.2.52
  *
  */
 
@@ -80,6 +80,7 @@ const className = {
     shareFile: 'fas fa-upload',
     shareVideoAudio: 'fab fa-youtube',
     kickOut: 'fas fa-sign-out-alt',
+    ban: 'fas fa-ban',
     chatOn: 'fas fa-comment',
     chatOff: 'fas fa-comment',
     ghost: 'fas fa-ghost',
@@ -880,6 +881,8 @@ let isRoomLocked = false;
 let isJoinLocked = false;
 // room lobby (waiting list kept by the signaling server)
 let isLobbyEnabled = false;
+// presenters can ban an ejected participant from rejoining the room
+let isBanEnabled = false;
 let isWaitingInLobby = false;
 let roomLobby = null;
 let isKeepButtonsVisible = false;
@@ -1850,6 +1853,7 @@ async function initClientPeer() {
     signalingSocket.on('roomNotAllowed', handleRoomNotAllowed);
     signalingSocket.on('roomIsLocked', handleUnlockTheRoom);
     signalingSocket.on('roomIsJoinLocked', handleRoomJoinLocked);
+    signalingSocket.on('roomBanned', handleRoomBanned);
     signalingSocket.on('lobby', handleLobby);
     signalingSocket.on('roomTimeLimitReached', handleRoomTimeLimitReached);
     signalingSocket.on('roomTimeLimit', handleRoomTimeLimit);
@@ -1970,6 +1974,7 @@ function handleServerInfo(config) {
         maxRoomParticipants,
         join_locked,
         lobby,
+        ban,
         time_limit,
     } = config;
 
@@ -2007,6 +2012,7 @@ function handleServerInfo(config) {
     isPresenter = is_presenter;
     isJoinLocked = join_locked === true;
     isLobbyEnabled = lobby === true;
+    isBanEnabled = ban === true;
     closeLobbyWaiting();
     if (!isPresenter) roomLobby?.clear();
     console.log('New connection - presenter status from server:', isPresenter);
@@ -6300,6 +6306,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remotePrivateMsgBtn = document.createElement('button');
             const remoteGeoLocationBtn = document.createElement('button');
             const remotePeerKickOut = document.createElement('button');
+            const remotePeerBan = document.createElement('button');
             const remoteVideoToImgBtn = document.createElement('button');
             const remoteVideoFullScreenBtn = document.createElement('button');
             const remoteVideoPinBtn = document.createElement('button');
@@ -6370,6 +6377,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remotePeerKickOut.setAttribute('id', peer_id + '_kickOut');
             remotePeerKickOut.className = className.kickOut;
             remotePeerKickOut.setAttribute('aria-label', 'Eject participant');
+
+            // remote peer ban
+            remotePeerBan.setAttribute('id', peer_id + '_ban');
+            remotePeerBan.className = className.ban;
+            remotePeerBan.setAttribute('aria-label', 'Ban participant');
 
             // remote video zoomIn/Out
             remoteVideoZoomInBtn.setAttribute('id', peer_id + 'videoZoomIn');
@@ -6491,6 +6503,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 remoteDropdownContent.appendChild(
                     createDropdownItem(remotePeerKickOut, 'Eject participant', remoteDropdownContent, 'red')
                 );
+            buttons.remote.showKickOutBtn &&
+                isBanEnabled &&
+                remoteDropdownContent.appendChild(
+                    createDropdownItem(remotePeerBan, 'Ban participant', remoteDropdownContent, 'red')
+                );
 
             remoteDropdownDiv.appendChild(remoteDropdownBtn);
             // Append dropdown content to body so it escapes overflow:hidden on .Camera
@@ -6591,6 +6608,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
 
             // handle kick out button event
             buttons.remote.showKickOutBtn && handlePeerKickOutBtn(peer_id);
+            buttons.remote.showKickOutBtn && isBanEnabled && handlePeerBanBtn(peer_id);
 
             // set video privacy true
             peer_privacy_status && setVideoPrivacyStatus(remoteMedia.id, peer_privacy_status);
@@ -15504,6 +15522,7 @@ async function msgerAddPeers(peers) {
                 if (peer_presenter) {
                     dropdownOptions = `
                         ${getMsgerParticipantDropdownActionMarkup(`${peer_id}_pKickOut`, 'fas fa-user-slash', 'Eject participant', 'danger')}
+                        ${isBanEnabled ? getMsgerParticipantDropdownActionMarkup(`${peer_id}_pBan`, 'fas fa-ban', 'Ban participant', 'danger') : ''}
                         ${getMsgerParticipantDropdownActionMarkup(`${peer_id}_pToggleAudio`, 'fas fa-microphone', 'Mute microphone', 'danger')}
                         ${getMsgerParticipantDropdownActionMarkup(`${peer_id}_pToggleVideo`, 'fas fa-video', 'Stop video', 'danger')}
                         ${getMsgerParticipantDropdownActionMarkup(`${peer_id}_pToggleScreen`, 'fas fa-desktop', 'Stop screen', 'danger')}
@@ -15552,6 +15571,10 @@ async function msgerAddPeers(peers) {
                 const msgerPrivateBtn = getId(peer_id + '_pMsgBtn');
                 setPresenterBadge(msgerPrivateBtn, peers[peer_id]['peer_presenter']);
                 const msgerPrivateKickOutBtn = getId(peer_id + '_pKickOut');
+                getId(peer_id + '_pBan')?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    kickOut(peer_id, true);
+                });
                 const msgerPrivateToggleAudioBtn = getId(peer_id + '_pToggleAudio');
                 const msgerPrivateToggleVideoBtn = getId(peer_id + '_pToggleVideo');
                 const msgerPrivateToggleScreenBtn = getId(peer_id + '_pToggleScreen');
@@ -18039,6 +18062,29 @@ function handleRoomJoinLocked() {
         imageUrl: images.locked,
         title: 'Oops, Room is Locked',
         text: 'The host has locked the room, new participants are not allowed to join.',
+        confirmButtonText: `Ok`,
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then(() => {
+        openURL('/newcall');
+    });
+}
+
+/**
+ * A presenter banned you from this room, can't join it again
+ */
+function handleRoomBanned() {
+    playSound('eject');
+
+    console.log('Banned from this room');
+    Swal.fire({
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        background: swBg,
+        position: 'center',
+        imageUrl: images.leave,
+        title: 'Oops, You are banned',
+        text: 'A presenter banned you from this room, you are not allowed to join it again.',
         confirmButtonText: `Ok`,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
@@ -20762,18 +20808,34 @@ function handlePeerKickOutBtn(peer_id) {
 }
 
 /**
- * Eject peer, confirm before
+ * Handle peer ban event button
  * @param {string} peer_id socket.id
  */
-function kickOut(peer_id) {
+function handlePeerBanBtn(peer_id) {
+    const peerBanBtn = getId(peer_id + '_ban');
+    peerBanBtn.addEventListener('click', (e) => {
+        isPresenter
+            ? kickOut(peer_id, true)
+            : msgPopup('warning', 'Only the presenter can ban participants', 'top-end', 4000);
+    });
+}
+
+/**
+ * Eject peer, confirm before
+ * @param {string} peer_id socket.id
+ * @param {boolean} ban the peer can't join the room again
+ */
+function kickOut(peer_id, ban = false) {
     const pName = getId(peer_id + '_name').innerText;
 
     Swal.fire({
         background: swBg,
         position: 'center',
         imageUrl: images.leave,
-        title: 'Eject participant',
-        text: `Are you sure you want to eject ${pName}?`,
+        title: ban ? 'Ban participant' : 'Eject participant',
+        text: ban
+            ? `Are you sure you want to ban ${pName}? They will not be able to join this room again.`
+            : `Are you sure you want to eject ${pName}?`,
         input: 'text',
         inputPlaceholder: 'Reason (optional)',
         inputAttributes: {
@@ -20784,7 +20846,7 @@ function kickOut(peer_id) {
         showCancelButton: true,
         focusCancel: true,
         customClass: { confirmButton: 'mirotalk-swal-destructive' },
-        confirmButtonText: 'Eject participant',
+        confirmButtonText: ban ? 'Ban participant' : 'Eject participant',
         cancelButtonText: 'Cancel',
         // SweetAlert 11.4.8 focuses inputs after its initial button focus.
         didOpen: () => Swal.getCancelButton().focus(),
@@ -20792,13 +20854,14 @@ function kickOut(peer_id) {
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
-            // send peer to kick out from room
+            // send peer to kick out from room, a banned peer can't rejoin it
             sendToServer('kickOut', {
                 room_id: roomId,
                 peer_id: peer_id,
                 peer_uuid: myPeerUUID,
                 peer_name: myPeerName,
                 peer_kicked_reason: (result.value || '').trim(),
+                ban,
             });
         }
     });
@@ -20875,7 +20938,7 @@ function handleCaptionActions(config) {
 function handleKickedOut(config) {
     signalingSocket.disconnect();
 
-    const { peer_name, peer_kicked_reason } = config;
+    const { peer_name, peer_kicked_reason, banned } = config;
 
     playSound('eject');
 
@@ -20886,7 +20949,7 @@ function handleKickedOut(config) {
         background: swBg,
         position: 'center',
         imageUrl: images.leave,
-        title: 'Kicked out!',
+        title: banned ? 'Banned!' : 'Kicked out!',
         html: renderRoomTemplate('tpl-kicked-out-modal', {
             text: {
                 peerName: peer_name,
@@ -20926,7 +20989,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.51',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.52',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

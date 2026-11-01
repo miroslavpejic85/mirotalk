@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.51 - Configuration File
+ * MiroTalk P2P v.2.2.52 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -241,6 +241,15 @@ module.exports = {
     // Presenters can turn it on/off per room. Presenters and authenticated users never wait.
     lobby: {
         enabled: getEnvBoolean(process.env.LOBBY_ENABLED),
+    },
+
+    // ==========================================
+    // Ban
+    // ==========================================
+    // Let presenters eject a participant and keep them out of the room until it is closed.
+    // Matches the authenticated identity or the browser peer_uuid (guests can evade it by clearing the browser storage).
+    ban: {
+        enabled: getEnvBoolean(process.env.ROOM_BAN_ENABLED, true),
     },
 
     // ==========================================

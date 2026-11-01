@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.51
+ * @version 2.2.52
  *
  */
 
@@ -73,6 +73,7 @@ const RoomTimeLimit = require('./roomTimeLimit');
 const RoomPolls = require('./roomPolls');
 const RoomBreakouts = require('./roomBreakouts');
 const RoomLobby = require('./roomLobby');
+const RoomBans = require('./roomBans');
 const HtmlInjector = require('./htmlInjector');
 const Host = require('./host');
 const Logs = require('./logs');
@@ -270,6 +271,10 @@ function isOidcPresenterTokenValid(token, roomId) {
 // Breakout rooms (disabled by default): when disabled every breakout request is ignored.
 // Config files created before this option fall back to the env variable.
 const breakoutRoomsEnabled = (config.breakoutRooms?.enabled ?? process.env.BREAKOUT_ROOMS_ENABLED === 'true') === true;
+
+// Room ban (enabled by default): presenters can keep an ejected participant out of the room.
+// Config files created before this option fall back to the env variable.
+const banEnabled = (config.ban?.enabled ?? process.env.ROOM_BAN_ENABLED !== 'false') === true;
 
 // Lobby: default state of new rooms (presenters toggle it per room).
 // Config files created before this option fall back to the env variable.
@@ -1861,6 +1866,18 @@ io.sockets.on('connect', async (socket) => {
             return socket.emit('roomTimeLimitReached');
         }
 
+        // A banned peer can't join the room again (configured presenters are never banned)
+        if (
+            banEnabled &&
+            RoomBans.isBanned(channel, { peer_uuid, identity: authenticatedUsername || verifiedPeerName }) &&
+            !isOidcPresenterTokenValid(oidc_presenter_token, channel) &&
+            !breakoutTicket?.presenter &&
+            !(authenticatedUsername && roomPresenters && roomPresenters.includes(authenticatedUsername))
+        ) {
+            log.warn('[' + socket.id + '] Banned peer tried to join', { ip: peer_ip, channel });
+            return socket.emit('roomBanned');
+        }
+
         // Auth passed — safe to create the room structures now
         if (!(channel in channels)) channels[channel] = {};
         if (!(channel in peers)) {
@@ -2017,6 +2034,7 @@ io.sockets.on('connect', async (socket) => {
         socket.channels[channel] = channel;
         // Breakout tickets are bound to it, and revoked with the socket (kick out)
         socket.peerUuid = typeof peer_uuid === 'string' ? peer_uuid : '';
+        socket.authIdentity = authenticatedUsername || verifiedPeerName || '';
         socket.breakoutTicketIds = new Set(breakoutTicket ? [breakoutTicket.jti] : []);
 
         const peerCounts = getPeerCount(channel);
@@ -2030,6 +2048,7 @@ io.sockets.on('connect', async (socket) => {
             is_presenter: isPresenter,
             join_locked: peers[channel]['joinLock'] === true,
             lobby: RoomLobby.isEnabled(channel),
+            ban: banEnabled,
             survey: {
                 active: surveyEnabled,
                 url: surveyURL,
@@ -2976,7 +2995,7 @@ io.sockets.on('connect', async (socket) => {
 
         // peer_id here is the TARGET to kick; the caller's identity is the
         // server-controlled socket.id, not anything the client supplies.
-        const { room_id, peer_id, peer_uuid, peer_name, peer_kicked_reason } = config;
+        const { room_id, peer_id, peer_uuid, peer_name, peer_kicked_reason, ban } = config;
 
         // Authorize the caller using socket.id to prevent role spoofing.
         const isPresenter = isPeerPresenter(room_id, socket.id, peer_name, peer_uuid);
@@ -2988,9 +3007,20 @@ io.sockets.on('connect', async (socket) => {
             // A kicked peer cannot use its breakout ticket to get past the room lock
             revokeBreakoutTickets(sockets[peer_id]);
 
+            // Presenters can't be banned
+            const banned =
+                ban === true &&
+                banEnabled &&
+                peers[room_id][peer_id]?.peer_presenter !== true &&
+                RoomBans.ban(room_id, {
+                    peer_uuid: sockets[peer_id]?.peerUuid,
+                    identity: sockets[peer_id]?.authIdentity,
+                });
+
             await sendToPeer(peer_id, sockets, 'kickOut', {
                 peer_name: peers[room_id][socket.id].peer_name,
                 peer_kicked_reason: peer_kicked_reason,
+                banned,
             });
 
             scheduleForcedDisconnect(room_id, [peer_id], socket.id);
@@ -3781,6 +3811,7 @@ io.sockets.on('connect', async (socket) => {
                     RoomTimeLimit.clear(channel);
                     RoomPolls.clear(channel); // Clean up room polls
                     RoomLobby.setEnabled(channel, false); // Waiting guests keep waiting for a presenter
+                    RoomBans.clear(channel);
                 }
             }
         } catch (err) {
