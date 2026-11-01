@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-labelledby="title">
+  <title id="title">Banned</title>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#e53935" stroke-width="14"/>
+  <line x1="27" y1="101" x2="101" y2="27" stroke="#e53935" stroke-width="14" stroke-linecap="round"/>
+</svg>

@@ -48,6 +48,7 @@ const images = {
     about: '../images/mirotalk-logo.gif',
     feedback: '../images/feedback.png',
     forbidden: '../images/forbidden.png',
+    banned: '../images/banned.svg',
     avatar: '../images/mirotalk-logo.png',
     recording: '../images/recording.png',
     poster: '../images/loader.gif',
@@ -18082,7 +18083,9 @@ function handleRoomBanned() {
         allowEscapeKey: false,
         background: swBg,
         position: 'center',
-        imageUrl: images.leave,
+        imageUrl: images.banned,
+        imageWidth: 128,
+        imageHeight: 128,
         title: 'Oops, You are banned',
         text: 'A presenter banned you from this room, you are not allowed to join it again.',
         confirmButtonText: `Ok`,
@@ -20831,7 +20834,8 @@ function kickOut(peer_id, ban = false) {
     Swal.fire({
         background: swBg,
         position: 'center',
-        imageUrl: images.leave,
+        imageUrl: ban ? images.banned : images.leave,
+        ...(ban && { imageWidth: 128, imageHeight: 128 }),
         title: ban ? 'Ban participant' : 'Eject participant',
         text: ban
             ? `Are you sure you want to ban ${pName}? They will not be able to join this room again.`
@@ -20948,7 +20952,8 @@ function handleKickedOut(config) {
         allowOutsideClick: false,
         background: swBg,
         position: 'center',
-        imageUrl: images.leave,
+        imageUrl: banned ? images.banned : images.leave,
+        ...(banned && { imageWidth: 128, imageHeight: 128 }),
         title: banned ? 'Banned!' : 'Kicked out!',
         html: renderRoomTemplate('tpl-kicked-out-modal', {
             text: {
