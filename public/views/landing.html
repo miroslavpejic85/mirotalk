@@ -20,6 +20,9 @@
             name="description"
             content="MiroTalk P2P is an open-source self-hosted WebRTC video calling and meeting platform. Create fast peer-to-peer video calls with screen sharing, chat, whiteboard and collaboration directly in the browser."
         />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="author" content="Miroslav Pejic" />
+        <link rel="canonical" href="{{CANONICAL_URL}}" />
 
         <!-- https://ogp.me -->
 
@@ -28,7 +31,9 @@
         <meta property="og:title" content="{{OG_TITLE}}" />
         <meta property="og:description" content="{{OG_DESCRIPTION}}" />
         <meta property="og:image" content="{{OG_IMAGE}}" />
-        <meta property="og:url" content="{{OG_URL}}" />
+        <meta property="og:url" content="{{CANONICAL_URL}}" />
+        <meta property="og:image:alt" content="{{OG_TITLE}}" />
+        <meta property="og:locale" content="en_US" />
 
         <!-- https://developer.x.com/en/docs/x-for-websites/cards/overview/markup -->
 
@@ -36,6 +41,69 @@
         <meta name="twitter:title" content="{{OG_TITLE}}" />
         <meta name="twitter:description" content="{{OG_DESCRIPTION}}" />
         <meta name="twitter:image" content="{{OG_IMAGE}}" />
+        <meta name="twitter:image:alt" content="{{OG_TITLE}}" />
+
+        <!-- Structured data (https://schema.org) -->
+
+        <script type="application/ld+json">
+            {{JSON_LD}}
+        </script>
+        <script id="faqJsonLd" type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "What is MiroTalk P2P?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "MiroTalk P2P is an open-source WebRTC video calling platform where participants connect directly, peer to peer, from the browser. You can try it online or install it on your own infrastructure."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is MiroTalk P2P free?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "The source code is free under the AGPLv3 license. Regular and Extended commercial licenses with a one-time fee are available for closed-source, rebranded or commercial use. Running your own server has its own hosting and maintenance costs."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Do I need to sign up or install anything to join a call?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "On the public demo you just pick a room name and join from your browser, with no download, plug-in or login. Self-hosted instances can add authentication, room passwords, lobby and host protection."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I self-host MiroTalk P2P?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. You can deploy it with Docker or Node.js on your own server, following the self-hosting guide in the official documentation."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Are MiroTalk P2P calls end-to-end encrypted?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Audio and video are encrypted in transit with DTLS-SRTP directly between peers, and no media server sits in the media path. When a direct connection is not possible, a TURN server relays the already encrypted traffic. Privacy and compliance still depend on how you configure and operate your deployment."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How can I embed MiroTalk P2P in my own app?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Use the embeddable iframe or widget, or create rooms from your backend with the REST API. Keep API secrets on the server and never expose them in the browser."
+                        }
+                    }
+                ]
+            }
+        </script>
 
         <!-- xss -->
 
@@ -95,7 +163,9 @@
                             </div>
                         </div>
                         <nav class="landing-nav" aria-label="Primary">
-                            <a class="landing-nav-link" href="#features">Features</a>
+                            <a id="navAboutLink" class="landing-nav-link" href="#about">About</a>
+                            <a id="navFeaturesLink" class="landing-nav-link" href="#features">Features</a>
+                            <a id="navFaqLink" class="landing-nav-link" href="#faq">FAQ</a>
                             <a class="landing-nav-link" href="#supportUs">Support</a>
                             <a
                                 id="navGithubLink"
@@ -228,6 +298,62 @@
                                     </a>
                                 </li>
                             </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="about" class="about section mt-48 mb-48">
+                    <div class="container-sm">
+                        <div class="about-inner tac">
+                            <h2 class="section-title mt-0">What is MiroTalk P2P?</h2>
+                            <p class="section-paragraph">
+                                MiroTalk P2P is an open-source WebRTC video calling platform where participants connect
+                                directly from the browser. Try it right here, or install it on your own infrastructure
+                                to keep control of your data, branding and costs.
+                            </p>
+                            <div class="about-grid">
+                                <div class="about-card">
+                                    <h3 class="about-card-title">Public demo</h3>
+                                    <p class="text-sm mb-0">
+                                        Pick a room name and start talking. No download, plug-in or login required.
+                                    </p>
+                                </div>
+                                <div class="about-card">
+                                    <h3 class="about-card-title">Self-hosted</h3>
+                                    <p class="text-sm mb-0">
+                                        Deploy with Docker or Node.js on your own server and customize it to your needs.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="about-links mt-24">
+                                <a
+                                    class="about-link"
+                                    href="https://docs.mirotalk.com/mirotalk-p2p/self-hosting/"
+                                    target="_blank"
+                                    rel="noopener"
+                                >
+                                    <i class="fas fa-book" aria-hidden="true"></i>
+                                    <span>Documentation</span>
+                                </a>
+                                <a
+                                    class="about-link"
+                                    href="https://github.com/miroslavpejic85/mirotalk"
+                                    target="_blank"
+                                    rel="noopener"
+                                >
+                                    <i class="fab fa-github" aria-hidden="true"></i>
+                                    <span>GitHub repository</span>
+                                </a>
+                                <a
+                                    class="about-link"
+                                    href="https://docs.mirotalk.com/license/"
+                                    target="_blank"
+                                    rel="noopener"
+                                >
+                                    <i class="fas fa-scale-balanced" aria-hidden="true"></i>
+                                    <span>License (AGPLv3)</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -654,6 +780,86 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="faq" class="faq section mt-48 mb-48">
+                    <div class="container-sm">
+                        <h2 class="section-title tac mt-0">Frequently asked questions</h2>
+                        <div class="faq-list mt-24">
+                            <details class="faq-item">
+                                <summary>What is MiroTalk P2P?</summary>
+                                <p>
+                                    MiroTalk P2P is an open-source WebRTC video calling platform where participants
+                                    connect directly, peer to peer, from the browser. You can try it online or install
+                                    it on your own infrastructure.
+                                </p>
+                            </details>
+                            <details class="faq-item">
+                                <summary>Is MiroTalk P2P free?</summary>
+                                <p>
+                                    The source code is free under the
+                                    <a href="https://docs.mirotalk.com/license/" target="_blank" rel="noopener"
+                                        >AGPLv3 license</a
+                                    >. Regular and Extended commercial licenses with a one-time fee are available for
+                                    closed-source, rebranded or commercial use. Running your own server has its own
+                                    hosting and maintenance costs.
+                                </p>
+                            </details>
+                            <details class="faq-item">
+                                <summary>Do I need to sign up or install anything to join a call?</summary>
+                                <p>
+                                    On the public demo you just pick a room name and join from your browser, with no
+                                    download, plug-in or login. Self-hosted instances can add authentication, room
+                                    passwords, lobby and host protection.
+                                </p>
+                            </details>
+                            <details class="faq-item">
+                                <summary>Can I self-host MiroTalk P2P?</summary>
+                                <p>
+                                    Yes. You can deploy it with Docker or Node.js on your own server, following the
+                                    <a
+                                        href="https://docs.mirotalk.com/mirotalk-p2p/self-hosting/"
+                                        target="_blank"
+                                        rel="noopener"
+                                        >self-hosting guide</a
+                                    >.
+                                </p>
+                            </details>
+                            <details class="faq-item">
+                                <summary>Are MiroTalk P2P calls end-to-end encrypted?</summary>
+                                <p>
+                                    Audio and video are encrypted in transit with DTLS-SRTP directly between peers, and
+                                    no media server sits in the media path. When a direct connection is not possible, a
+                                    TURN server relays the already encrypted traffic. Privacy and compliance still
+                                    depend on how you configure and operate your deployment.
+                                </p>
+                            </details>
+                            <details class="faq-item">
+                                <summary>How can I embed MiroTalk P2P in my own app?</summary>
+                                <p>
+                                    Use the embeddable
+                                    <a
+                                        href="https://docs.mirotalk.com/mirotalk-p2p/integration/#iframe"
+                                        target="_blank"
+                                        rel="noopener"
+                                        >iframe or widget</a
+                                    >, or create rooms from your backend with the <a href="/api/v1/docs/">REST API</a>.
+                                    Keep API secrets on the server and never expose them in the browser.
+                                </p>
+                            </details>
+                        </div>
+                        <div class="about-links mt-24 mb-32">
+                            <a
+                                class="about-link"
+                                href="https://docs.mirotalk.com/sites/faq/"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                <i class="fas fa-circle-question" aria-hidden="true"></i>
+                                <span>More answers in the full FAQ</span>
+                            </a>
                         </div>
                     </div>
                 </section>

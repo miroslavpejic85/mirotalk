@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.53
+ * @version 2.2.54
  *
  */
 
@@ -75,6 +75,7 @@ const RoomBreakouts = require('./roomBreakouts');
 const RoomLobby = require('./roomLobby');
 const RoomBans = require('./roomBans');
 const HtmlInjector = require('./htmlInjector');
+const { buildRobotsTxt, buildSitemapXml } = require('./seo');
 const Host = require('./host');
 const Logs = require('./logs');
 const { applyEmbedHeaders, embedAllowedOrigins, embedCsp } = require('./middleware/embedHeaders');
@@ -630,6 +631,17 @@ app.use(applyEmbedHeaders); // Apply iframe embedding restrictions (CSP frame-an
 
 // Compress all HTTP responses (including static files) using GZip; must be registered before express.static
 app.use(compression());
+
+// Crawler files generated from the configured public URL (OG_URL); must precede express.static
+const seoBaseUrl = config.brand?.og?.url || 'https://p2p.mirotalk.com';
+app.get('/robots.txt', (req, res) => {
+    const blockAll = OIDC.enabled || hostCfg.protected;
+    res.type('text/plain').send(buildRobotsTxt(seoBaseUrl, { blockAll }));
+});
+app.get('/sitemap.xml', (req, res) => {
+    if (OIDC.enabled || hostCfg.protected) return res.status(404).sendFile(views.notFound);
+    res.type('application/xml').send(buildSitemapXml(seoBaseUrl));
+});
 
 // Use all static files from the public folder
 const staticOptions = {

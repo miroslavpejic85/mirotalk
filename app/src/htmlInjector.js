@@ -3,6 +3,7 @@ const chokidar = require('chokidar');
 
 const packageJson = require('../../package.json');
 const Logger = require('./logs');
+const { buildJsonLd, normalizeBaseUrl } = require('./seo');
 const log = new Logger('HtmlInjector');
 
 class HtmlInjector {
@@ -20,15 +21,26 @@ class HtmlInjector {
 
     // Function to get dynamic data for injection (e.g., OG data, title, etc.)
     getInjectData() {
+        const ogUrl = this.config?.og?.url || 'https://p2p.mirotalk.com';
+        const ogDescription =
+            this.config?.og?.description ||
+            'MiroTalk P2P is an open-source self-hosted WebRTC video calling and meeting platform. Create fast peer-to-peer video calls with screen sharing, chat, whiteboard and collaboration directly in the browser.';
+        const ogImage = this.config?.og?.image || 'https://p2p.mirotalk.com/images/preview.png';
         return {
-            OG_TYPE: this.config?.og?.type || 'app-webrtc',
+            OG_TYPE: this.config?.og?.type || 'website',
             OG_SITE_NAME: this.config?.og?.siteName || 'MiroTalk',
             OG_TITLE: this.config?.og?.title || 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
-            OG_DESCRIPTION:
-                this.config?.og?.description ||
-                'MiroTalk P2P is an open-source self-hosted WebRTC video calling and meeting platform. Create fast peer-to-peer video calls with screen sharing, chat, whiteboard and collaboration directly in the browser.',
-            OG_IMAGE: this.config?.og?.image || 'https://p2p.mirotalk.com/images/preview.png',
-            OG_URL: this.config?.og?.url || 'https://p2p.mirotalk.com',
+            OG_DESCRIPTION: ogDescription,
+            OG_IMAGE: ogImage,
+            OG_URL: ogUrl,
+            CANONICAL_URL: `${normalizeBaseUrl(ogUrl)}/`,
+            // Pre-serialized JSON-LD, injected raw (not HTML-escaped) inside a <script type="application/ld+json"> tag
+            JSON_LD: buildJsonLd({
+                name: this.config?.og?.siteName || 'MiroTalk',
+                description: ogDescription,
+                url: ogUrl,
+                image: ogImage,
+            }),
             APP_VERSION: this.config?.html?.version === false ? '' : `v${packageJson.version}`,
             // Add more data here as needed with fallbacks
         };
@@ -37,6 +49,18 @@ class HtmlInjector {
     // Replace visible placeholders that must never leak as raw {{...}} text
     replaceAppVersion(html) {
         return html.replace(/{{APP_VERSION}}/g, this.injectData.APP_VERSION);
+    }
+
+    // Replace the SEO placeholders that must resolve even when brand injection is disabled
+    replaceSeoPlaceholders(html) {
+        return html
+            .replace(/{{CANONICAL_URL}}/g, () => this.escapeHtml(this.injectData.CANONICAL_URL))
+            .replace(/{{JSON_LD}}/g, () => this.injectData.JSON_LD);
+    }
+
+    escapeHtml(value) {
+        const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+        return String(value).replace(/[&<>"']/g, (character) => entities[character]);
     }
 
     // Function to load a file into the cache
@@ -88,13 +112,17 @@ class HtmlInjector {
 
         // Check if HTML injection is enabled in the config
         if (!this.config?.htmlInjection) {
-            return res.send(this.replaceAppVersion(this.cache[filePath]));
+            return res.send(this.replaceSeoPlaceholders(this.replaceAppVersion(this.cache[filePath])));
         }
 
         try {
             // Replace placeholders with dynamic data (OG, TITLE, etc.)
-            const modifiedHTML = this.replaceAppVersion(
-                this.cache[filePath].replace(/{{(OG_[A-Z_]+)}}/g, (_, key) => this.injectData[key] || '')
+            const modifiedHTML = this.replaceSeoPlaceholders(
+                this.replaceAppVersion(
+                    this.cache[filePath].replace(/{{(OG_[A-Z_]+)}}/g, (_, key) =>
+                        this.escapeHtml(this.injectData[key] || '')
+                    )
+                )
             );
 
             if (!res.headersSent) {

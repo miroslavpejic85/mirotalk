@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.53 - Configuration File
+ * MiroTalk P2P v.2.2.54 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -470,7 +470,7 @@ module.exports = {
             joinLastLabel: process.env.JOIN_LAST_LABEL || 'Your recent room:',
         },
         og: {
-            type: process.env.OG_TYPE || 'app-webrtc',
+            type: process.env.OG_TYPE || 'website',
             siteName: process.env.OG_SITE_NAME || 'MiroTalk',
             title: process.env.OG_TITLE || 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
             description:
@@ -515,7 +515,9 @@ module.exports = {
         },
         html: {
             topSponsors: getEnvBoolean(process.env.SHOW_TOP_SPONSORS, true),
+            about: getEnvBoolean(process.env.SHOW_LANDING_ABOUT, true),
             features: getEnvBoolean(process.env.SHOW_FEATURES, true),
+            faq: getEnvBoolean(process.env.SHOW_FAQ, true),
             teams: getEnvBoolean(process.env.SHOW_TEAMS, true), // please keep me always true ;)
             tryEasier: getEnvBoolean(process.env.SHOW_TRY_EASIER, true),
             poweredBy: getEnvBoolean(process.env.SHOW_POWERED_BY, true),

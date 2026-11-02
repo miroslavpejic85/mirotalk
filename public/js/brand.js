@@ -38,7 +38,13 @@ const customizeRoomBtn = document.getElementById('customizeRoomButton');
 const appJoinLastRoom = document.getElementById('appJoinLastRoom');
 
 const topSponsors = document.getElementById('topSponsors');
+const about = document.getElementById('about');
 const features = document.getElementById('features');
+const faq = document.getElementById('faq');
+const faqJsonLd = document.getElementById('faqJsonLd');
+const navAboutLink = document.getElementById('navAboutLink');
+const navFeaturesLink = document.getElementById('navFeaturesLink');
+const navFaqLink = document.getElementById('navFaqLink');
 const browsers = document.getElementById('browsers');
 const teams = document.getElementById('teams');
 const tryEasier = document.getElementById('tryEasier');
@@ -99,7 +105,9 @@ let brand = {
     },
     html: {
         topSponsors: true,
+        about: true,
         features: true,
+        faq: true,
         teams: true, // please keep me always true ;)
         tryEasier: true,
         poweredBy: true,
@@ -112,7 +120,7 @@ let brand = {
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v2.2.53',
+        title: 'WebRTC P2P v2.2.54',
         html: `
             <button 
                 id="support-button" 
@@ -302,7 +310,9 @@ function handleBrand() {
 
     displayElements([
         [topSponsors, brand.html?.topSponsors],
+        [about, brand.html?.about],
         [features, brand.html?.features],
+        [faq, brand.html?.faq],
         [teams, brand.html?.teams],
         [tryEasier, brand.html?.tryEasier],
         [poweredBy, brand.html?.poweredBy],
@@ -314,6 +324,12 @@ function handleBrand() {
     ]);
 
     if (!brand.html?.footer) elementDisplay(navGithubLink, false);
+
+    // keep nav links and structured data in sync with the visible sections
+    if (navAboutLink) navAboutLink.hidden = !brand.html?.about;
+    if (navFeaturesLink) navFeaturesLink.hidden = !brand.html?.features;
+    if (navFaqLink) navFaqLink.hidden = !brand.html?.faq;
+    if (!brand.html?.faq && faqJsonLd) faqJsonLd.remove(); // FAQ markup must match visible content
 }
 
 // WIDGET customize
