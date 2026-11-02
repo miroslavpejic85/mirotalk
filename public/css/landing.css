@@ -5676,7 +5676,7 @@ a.skip-link:hover {
 
 .landing-page .about-links {
     display: flex;
-    flex-nowrap: nowrap;
+    flex-wrap: nowrap;
     justify-content: center;
     gap: 12px;
 }
@@ -5691,12 +5691,13 @@ a.skip-link:hover {
     background: var(--landing-surface);
     color: var(--landing-text);
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 500;
+    line-height: 1.2;
     text-decoration: none;
     transition:
         border-color 0.25s ease,
         background-color 0.25s ease,
-        transform 0.25s ease;
+        box-shadow 0.25s ease;
 }
 
 .landing-page .about-link i {
@@ -5731,7 +5732,7 @@ a.skip-link:hover {
     border-color: var(--landing-border-hover);
     background: var(--landing-surface-raised);
     color: var(--landing-text);
-    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--landing-primary-bright) 24%, transparent);
 }
 
 .landing-page .about-link:focus-visible {
