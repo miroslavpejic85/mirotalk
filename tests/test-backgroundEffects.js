@@ -86,6 +86,40 @@ describe('camera background effects', () => {
         assert.equal(effects.canvas.height, 720);
     });
 
+    it('blurs without canvas filters using a downscaled box blur fallback', async () => {
+        await effects.start(effects.input);
+        effects.loadModel = async () => {};
+        effects.backgroundContext = { drawImage: sinon.spy(), clearRect() {} };
+        effects.blurCanvas = { width: 0, height: 0 };
+        effects.blurContext = {
+            clearRect() {},
+            drawImage: sinon.spy(),
+            putImageData: sinon.spy(),
+            getImageData: (x, y, width, height) => {
+                const data = new Uint8ClampedArray(width * height * 4);
+                for (let i = 0; i < width * height; i++) {
+                    const value = i % width < width / 2 ? 0 : 255;
+                    data.set([value, value, value, 255], i * 4);
+                }
+                return { data, width, height };
+            },
+        };
+        effects.drawing = { drawConfidenceMask() {}, close() {} };
+        effects.segmenter = { segmentForVideo() {}, close() {} };
+
+        await effects.setMode('blur');
+        effects.render((effects.lastFrame || 0) + 1000);
+
+        assert.equal(onError.callCount, 0);
+        assert.equal(effects.mode, 'blur');
+        assert.equal(effects.blurCanvas.width, 160);
+        assert.equal(effects.blurCanvas.height, 90);
+        const pixels = effects.blurContext.putImageData.firstCall.args[0].data;
+        const center = (45 * 160 + 80) * 4;
+        assert.ok(pixels[center] > 0 && pixels[center] < 255);
+        assert.equal(effects.backgroundContext.drawImage.calledOnce, true);
+    });
+
     it('requires an image and rejects unknown modes', async () => {
         await assert.rejects(effects.setMode('image'), /Choose a background image/);
         await assert.rejects(effects.setMode('invalid'), /Invalid background mode/);

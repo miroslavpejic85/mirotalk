@@ -40,9 +40,6 @@ class BackgroundEffects {
 
     async setMode(mode, image = this.image) {
         if (!['off', 'blur', 'image'].includes(mode)) throw new Error('Invalid background mode');
-        if (mode === 'blur' && !('filter' in this.backgroundContext)) {
-            throw new Error('Background blur is not supported by this browser');
-        }
         if (mode !== 'off') {
             if (mode === 'image' && !image) throw new Error('Choose a background image first');
             await this.loadModel();
@@ -94,6 +91,66 @@ class BackgroundEffects {
         }
     }
 
+    // Safari lacks CanvasRenderingContext2D.filter: downscale, apply three box blur passes (approximates Gaussian), upscale.
+    drawFallbackBlur(width, height) {
+        if (!this.blurCanvas) {
+            this.blurCanvas = document.createElement('canvas');
+            this.blurContext = this.blurCanvas.getContext('2d', { willReadFrequently: true });
+            if (!this.blurContext) throw new Error('Unable to create a canvas context for background blur');
+        }
+        const scale = 8;
+        const smallWidth = Math.max(1, Math.round(width / scale));
+        const smallHeight = Math.max(1, Math.round(height / scale));
+        if (this.blurCanvas.width !== smallWidth || this.blurCanvas.height !== smallHeight) {
+            this.blurCanvas.width = smallWidth;
+            this.blurCanvas.height = smallHeight;
+        }
+        const blur = this.blurContext;
+        blur.clearRect(0, 0, smallWidth, smallHeight);
+        blur.imageSmoothingEnabled = true;
+        blur.drawImage(this.video, 0, 0, smallWidth, smallHeight);
+        const imageData = blur.getImageData(0, 0, smallWidth, smallHeight);
+        const radius = Math.max(1, Math.round(12 / scale));
+        const divisor = radius * 2 + 1;
+        const boxBlur = (source, horizontal) => {
+            const blurred = new Uint8ClampedArray(source.length);
+            const outerLength = horizontal ? smallHeight : smallWidth;
+            const innerLength = horizontal ? smallWidth : smallHeight;
+            const indexOf = (outer, inner) =>
+                (horizontal ? outer * smallWidth + inner : inner * smallWidth + outer) * 4;
+            for (let outer = 0; outer < outerLength; outer++) {
+                let red = 0;
+                let green = 0;
+                let blue = 0;
+                for (let offset = -radius; offset <= radius; offset++) {
+                    const index = indexOf(outer, Math.min(innerLength - 1, Math.max(0, offset)));
+                    red += source[index];
+                    green += source[index + 1];
+                    blue += source[index + 2];
+                }
+                for (let inner = 0; inner < innerLength; inner++) {
+                    const index = indexOf(outer, inner);
+                    blurred[index] = Math.round(red / divisor);
+                    blurred[index + 1] = Math.round(green / divisor);
+                    blurred[index + 2] = Math.round(blue / divisor);
+                    blurred[index + 3] = source[index + 3];
+                    const removeIndex = indexOf(outer, Math.max(0, inner - radius));
+                    const addIndex = indexOf(outer, Math.min(innerLength - 1, inner + radius + 1));
+                    red += source[addIndex] - source[removeIndex];
+                    green += source[addIndex + 1] - source[removeIndex + 1];
+                    blue += source[addIndex + 2] - source[removeIndex + 2];
+                }
+            }
+            return blurred;
+        };
+        let pixels = imageData.data;
+        for (let pass = 0; pass < 3; pass++) pixels = boxBlur(boxBlur(pixels, true), false);
+        imageData.data.set(pixels);
+        blur.putImageData(imageData, 0, 0);
+        this.backgroundContext.imageSmoothingEnabled = true;
+        this.backgroundContext.drawImage(this.blurCanvas, 0, 0, width, height);
+    }
+
     render(timestamp) {
         if (this.stopped) return;
         const fps = Math.min(60, this.cameraTrack.getSettings().frameRate || 30);
@@ -109,9 +166,13 @@ class BackgroundEffects {
                     const background = this.backgroundContext;
                     background.clearRect(0, 0, width, height);
                     if (this.mode === 'blur') {
-                        background.filter = 'blur(12px)';
-                        background.drawImage(this.video, -24, -24, width + 48, height + 48);
-                        background.filter = 'none';
+                        if ('filter' in background) {
+                            background.filter = 'blur(12px)';
+                            background.drawImage(this.video, -24, -24, width + 48, height + 48);
+                            background.filter = 'none';
+                        } else {
+                            this.drawFallbackBlur(width, height);
+                        }
                     } else {
                         const scale = Math.max(width / this.image.naturalWidth, height / this.image.naturalHeight);
                         const imageWidth = this.image.naturalWidth * scale;

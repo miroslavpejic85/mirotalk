@@ -1,6 +1,6 @@
 {
     "name": "mirotalk",
-    "version": "2.2.52",
+    "version": "2.2.53",
     "description": "A free WebRTC browser-based video call",
     "main": "server.js",
     "scripts": {
@@ -60,7 +60,7 @@
         "dotenv": "^18.0.9",
         "express": "^5.3.0",
         "express-openid-connect": "^3.4.0",
-        "express-rate-limit": "^8.7.2",
+        "express-rate-limit": "^8.7.3",
         "he": "^2.0.0",
         "helmet": "^8.3.0",
         "httpolyglot": "0.1.2",
