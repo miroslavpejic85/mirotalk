@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.56
+ * @version 2.2.60
  *
  */
 
@@ -276,6 +276,10 @@ const msgerEmptyParticipantsNotice = getId('msgerEmptyParticipantsNotice');
 const msgerMain = document.querySelector('.msger-main');
 const msgerEmojiBtn = getId('msgerEmojiBtn');
 const msgerGifBtn = getId('msgerGifBtn');
+const msgerTranslateBtn = getId('msgerTranslateBtn');
+const msgerTranslateBadge = getId('msgerTranslateBadge');
+const msgerTranslatePicker = getId('msgerTranslatePicker');
+const msgerTranslateList = getId('msgerTranslateList');
 const msgerMarkdownBtn = getId('msgerMarkdownBtn');
 const msgerShareFileBtn = getId('msgerShareFileBtn');
 const msgerVideoUrlBtn = getId('msgerVideoUrlBtn');
@@ -851,6 +855,10 @@ let isChatEmojiVisible = false;
 let isChatGifVisible = false;
 let gifSearchConfig = null; // KLIPY client config from serverInfo
 let chatGifSearch = null; // GifSearch instance
+let chatTranslationConfig = null; // chat translation config from serverInfo
+let chatTranslateLang = ''; // language picked by me for my outgoing messages ('' = off)
+let isChatTranslating = false;
+let isChatTranslateVisible = false;
 let isChatMarkdownOn = false;
 let isChatPasteTxt = false;
 let pinChatByDefault = false;
@@ -1050,6 +1058,7 @@ function setButtonsToolTip() {
     setTippy(msgerMinBtn, 'Minimize', 'bottom');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
     setTippy(msgerGifBtn, 'GIF', 'top');
+    setTippy(msgerTranslateBtn, 'Translate my messages', 'top');
     setTippy(msgerMarkdownBtn, 'Markdown', 'top');
     setTippy(msgerShareFileBtn, 'Share file', 'top');
     setTippy(msgerCPBtn, 'Participants', 'bottom');
@@ -2004,6 +2013,10 @@ function handleServerInfo(config) {
     // GIF search (KLIPY) is only delivered to joined peers.
     gifSearchConfig = config.gifSearch?.enabled && config.gifSearch?.apiKey ? config.gifSearch : null;
     initChatGif();
+
+    // Chat translation is only delivered as a capability flag, limits and the language list.
+    chatTranslationConfig = config.chatTranslation?.enabled ? config.chatTranslation : null;
+    initChatTranslate();
 
     // Limit room to n peers
     if (maxRoomParticipants) thisMaxRoomParticipants = maxRoomParticipants;
@@ -8356,6 +8369,7 @@ function manageButtons() {
     setRoomEmojiButton();
     setChatEmojiBtn();
     setChatGifBtn();
+    setChatTranslateBtn();
     setMyWhiteboardBtn();
     setEditorBtn();
     setPollBtn();
@@ -9443,6 +9457,128 @@ function initChatGif() {
     }
 }
 
+/**
+ * Chat translation button: opens the language picker. The picked language applies to my outgoing messages only.
+ */
+function setChatTranslateBtn() {
+    if (!msgerTranslateBtn || !msgerTranslatePicker) return;
+
+    msgerTranslateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        setChatTranslateOpen(!isChatTranslateVisible);
+    });
+
+    msgerTranslatePicker.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.stopPropagation();
+            setChatTranslateOpen(false);
+            msgerTranslateBtn.focus();
+        }
+    });
+
+    msgerTranslatePicker.addEventListener('click', (e) => {
+        const item = e.target.closest('.chat-translate-item');
+        if (!item) return;
+        selectChatTranslateLang(item.dataset.lang || '');
+        setChatTranslateOpen(false);
+        msgerInput.focus();
+    });
+
+    handleClickOutside(msgerTranslatePicker, msgerTranslateBtn, () => {
+        if (isChatTranslateVisible) setChatTranslateOpen(false);
+    });
+
+    initChatTranslate();
+}
+
+/**
+ * Init the chat translation button and language list. Idempotent: called when the room UI is ready
+ * and again once serverInfo arrives. The button stays hidden unless the server enables translation.
+ */
+function initChatTranslate() {
+    if (!msgerTranslateBtn || !msgerTranslateList) return;
+    const languages = chatTranslationConfig?.languages;
+    if (!buttons.chat.showTranslateBtn || !Array.isArray(languages) || !languages.length) {
+        selectChatTranslateLang('');
+        setChatTranslateOpen(false);
+        elemDisplay(msgerTranslateBtn, false);
+        return;
+    }
+    if (!msgerTranslateList.querySelector('[data-lang]:not([data-lang=""])')) {
+        languages.forEach(({ code, name }) => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'chat-translate-item';
+            item.setAttribute('role', 'option');
+            item.setAttribute('translate', 'no');
+            item.dataset.lang = code;
+            item.textContent = name;
+            msgerTranslateList.appendChild(item);
+        });
+    }
+    elemDisplay(msgerTranslateBtn, true, 'inline-flex');
+}
+
+function setChatTranslateOpen(isOpen) {
+    if (!msgerTranslateBtn || !msgerTranslatePicker) return;
+    if (isOpen && !chatTranslationConfig) return;
+    if (isOpen && isChatEmojiVisible) hideChatEmojiPicker();
+    if (isOpen && isChatGifVisible) setChatGifOpen(false);
+    isChatTranslateVisible = isOpen;
+    msgerTranslatePicker.classList.toggle('show', isOpen);
+    msgerTranslateBtn.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) msgerTranslatePicker.querySelector('.chat-translate-item.active')?.scrollIntoView({ block: 'nearest' });
+}
+
+/**
+ * Set the language of my outgoing messages
+ * @param {string} code language code, empty to turn translation off
+ */
+function selectChatTranslateLang(code) {
+    chatTranslateLang = code || '';
+    msgerTranslateBtn?.classList.toggle('active', !!chatTranslateLang);
+    if (msgerTranslateBadge) msgerTranslateBadge.textContent = chatTranslateLang.split('-')[0].toUpperCase();
+    msgerTranslateList?.querySelectorAll('.chat-translate-item').forEach((item) => {
+        item.classList.toggle('active', (item.dataset.lang || '') === chatTranslateLang);
+    });
+}
+
+/**
+ * Translate the text typed in the chat input into the picked language (no-op when translation is off).
+ * On failure the text is kept in the input and nothing is sent, to never leak the untranslated message by mistake.
+ * @returns {Promise<boolean>} true when the message can be sent
+ */
+async function translateChatInput() {
+    const text = msgerInput.value.trim();
+    if (!chatTranslateLang || !chatTranslationConfig || !text || isValidHttpURL(text)) return true;
+
+    isChatTranslating = true;
+    msgerInput.readOnly = true;
+    msgerSendBtn.disabled = true;
+    try {
+        const res = await signalingSocket.request('translateChatMessage', {
+            room_id: roomId,
+            text,
+            language: chatTranslateLang,
+        });
+        if (!res || res.error || !res.text) {
+            userLog('warning', res?.error || 'Translation failed, message not sent');
+            return false;
+        }
+        msgerInput.value = res.text;
+        return true;
+    } catch (err) {
+        console.warn('Chat translation error', err?.message || err);
+        userLog('warning', 'Translation failed, message not sent');
+        return false;
+    } finally {
+        isChatTranslating = false;
+        msgerInput.readOnly = false;
+        msgerSendBtn.disabled = false;
+        msgerInput.focus();
+    }
+}
+
 function toggleChatGif() {
     setChatGifOpen(!isChatGifVisible);
 }
@@ -9451,6 +9587,7 @@ function setChatGifOpen(isOpen) {
     if (!msgerGifPicker || !msgerGifBtn) return;
     if (isOpen && !chatGifSearch) return;
     if (isOpen && isChatEmojiVisible) hideChatEmojiPicker();
+    if (isOpen && isChatTranslateVisible) setChatTranslateOpen(false);
     isChatGifVisible = isOpen;
     msgerGifPicker.classList.toggle('show', isOpen);
     setColor(msgerGifBtn, isOpen ? '#FFFF00' : '#FFFFFF');
@@ -14166,6 +14303,7 @@ function hideChatRoomAndEmojiPicker() {
     elemDisplay(msgerEmojiPicker, false);
     setColor(msgerEmojiBtn, '#FFFFFF');
     if (isChatGifVisible) setChatGifOpen(false);
+    if (isChatTranslateVisible) setChatTranslateOpen(false);
     isChatRoomVisible = false;
     isParticipantsVisible = false;
     isChatOpenedByParticipantsBtn = false;
@@ -14203,6 +14341,11 @@ async function sendChatMessage() {
         isChatPasteTxt = false;
         return userLog('info', "Can't send message, no participants in the room");
     }
+
+    if (isChatTranslating) return;
+
+    // Translate my outgoing message (not for the ChatGPT conversation)
+    if (!isChatGPTConversationActive() && !(await translateChatInput())) return;
 
     msgerInput.value = filterXSS(msgerInput.value.trim());
     const msg = checkMsg(msgerInput.value);
@@ -16146,6 +16289,7 @@ function hideShowEmojiPicker() {
 
 function showChatEmojiPicker() {
     if (isChatGifVisible) setChatGifOpen(false);
+    if (isChatTranslateVisible) setChatTranslateOpen(false);
     elemDisplay(msgerEmojiPicker, true, 'block');
     setColor(msgerEmojiBtn, '#FFFF00');
     isChatEmojiVisible = true;
@@ -21000,7 +21144,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.56',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.60',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

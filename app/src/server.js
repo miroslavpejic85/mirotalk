@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.56
+ * @version 2.2.60
  *
  */
 
@@ -459,6 +459,32 @@ function getChatGPTParams(messages) {
     }
     return params;
 }
+
+// Chat translation (OpenAI-compatible). The API key never leaves the server.
+const chatTranslationLib = require('./lib/chatTranslation');
+const configChatTranslation = config.chatTranslation || {};
+let chatTranslationClient = null;
+let chatTranslationLimiter = null;
+if (configChatTranslation.enabled) {
+    if (configChatTranslation.apiKey) {
+        const { OpenAI } = require('openai');
+        chatTranslationClient = new OpenAI({
+            baseURL: configChatTranslation.basePath || undefined,
+            apiKey: configChatTranslation.apiKey,
+        });
+        chatTranslationLimiter = chatTranslationLib.createRateLimiter(configChatTranslation.rateLimit || 20, 60 * 1000);
+        log.info('Chat translation enabled', { model: configChatTranslation.model });
+    } else {
+        log.warning('Chat translation seems enabled, but you missing the apiKey!');
+    }
+}
+const chatTranslationClientConfig = chatTranslationClient
+    ? {
+          enabled: true,
+          maxChars: configChatTranslation.maxChars || 1000,
+          languages: chatTranslationLib.getPublicLanguages(),
+      }
+    : { enabled: false };
 
 // GIF search (KLIPY)
 const GIF_CONTENT_FILTERS = ['off', 'low', 'medium', 'high'];
@@ -1604,6 +1630,7 @@ io.sockets.on('connect', async (socket) => {
      */
     socket.on('disconnect', async (reason) => {
         removeIP(socket);
+        chatTranslationLimiter?.remove(socket.id);
         const lobbyRoom = RoomLobby.removePeer(socket.id);
         if (lobbyRoom) notifyLobbyPresenters(lobbyRoom);
         for (let channel in socket.channels) {
@@ -2088,7 +2115,8 @@ io.sockets.on('connect', async (socket) => {
             },
             // KLIPY requires searches to originate from the browser, so only joined peers get the app key.
             gifSearch: gifSearchClientConfig,
-            //...
+            // Chat translation: capability flag, limits and the language list only (no credentials).
+            chatTranslation: chatTranslationClientConfig,
         });
 
         // Room polls snapshot (also replaces stale client state after a reconnect)
@@ -3000,6 +3028,45 @@ io.sockets.on('connect', async (socket) => {
                 message: error?.message,
             });
             cb({ error: safeMessage });
+        }
+    });
+
+    /**
+     * Translate an outgoing chat message into the language picked by the sender.
+     * Only a joined peer of the room may use it; the API key stays on the server.
+     */
+    socket.on('translateChatMessage', async ({ room_id, text, language } = {}, cb) => {
+        if (typeof cb !== 'function') return;
+
+        if (!isPeerInRoom(room_id, socket.id)) return cb({ error: 'Room not found' });
+        if (!chatTranslationClient) return cb({ error: 'Chat translation is disabled' });
+
+        const languageName = chatTranslationLib.resolveLanguage(language);
+        if (!languageName) return cb({ error: 'Unsupported language' });
+
+        const input = chatTranslationLib.cleanText(text, configChatTranslation.maxChars || 1000);
+        if (!input) return cb({ error: 'Nothing to translate' });
+
+        if (!chatTranslationLimiter.allow(socket.id)) {
+            return cb({ error: 'Too many translation requests, please slow down' });
+        }
+
+        try {
+            const completion = await chatTranslationClient.chat.completions.create(
+                chatTranslationLib.buildParams(
+                    configChatTranslation,
+                    chatTranslationLib.buildMessages(input, languageName)
+                )
+            );
+            const translation = (completion.choices?.[0]?.message?.content || '').trim();
+            if (!translation) return cb({ error: 'Translation failed' });
+
+            // Never log message content, metadata only.
+            log.debug('Chat translation', { room_id, language, chars: input.length });
+            cb({ text: translation, language });
+        } catch (error) {
+            log.error('Chat translation error', { room_id, status: error?.status, message: error?.message });
+            cb({ error: 'Translation failed' });
         }
     });
 

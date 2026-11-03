@@ -771,6 +771,21 @@
                                 >
                             </section>
 
+                            <!-- CHAT TRANSLATION -->
+                            <section
+                                id="msgerTranslatePicker"
+                                class="fadein chatTranslatePicker"
+                                role="dialog"
+                                aria-label="Translate my messages to"
+                            >
+                                <div class="chat-translate-title">Translate my messages to</div>
+                                <div id="msgerTranslateList" class="chat-translate-list" role="listbox">
+                                    <button type="button" class="chat-translate-item active" data-lang="" role="option">
+                                        Off
+                                    </button>
+                                </div>
+                            </section>
+
                             <div class="msger-inputarea">
                                 <textarea
                                     rows="1"
@@ -791,6 +806,16 @@
                                     style="display: none"
                                 >
                                     <span class="chat-gif-btn-label" translate="no">GIF</span>
+                                </button>
+                                <button
+                                    id="msgerTranslateBtn"
+                                    type="button"
+                                    aria-label="Translate my messages"
+                                    aria-expanded="false"
+                                    style="display: none"
+                                >
+                                    <i class="fas fa-language"></i>
+                                    <span id="msgerTranslateBadge" class="chat-translate-badge" translate="no"></span>
                                 </button>
                                 <button id="msgerMarkdownBtn" class="fab fa-markdown"></button>
                                 <button id="msgerShareFileBtn" class="fas fa-paperclip"></button>

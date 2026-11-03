@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.56 - Configuration File
+ * MiroTalk P2P v.2.2.60 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -333,6 +333,31 @@ module.exports = {
         // Reasoning models only (none|low|medium|high|xhigh|max), empty for non-reasoning models.
         // temperature is only sent when reasoning_effort is 'none' or empty.
         reasoning_effort: process.env.CHATGPT_REASONING_EFFORT ?? 'none',
+    },
+
+    // ==========================================
+    // Chat Translation
+    // ==========================================
+    // Optional: each participant can pick a language in the chat and their outgoing
+    // messages are translated before being sent, so others read them in that language.
+    // Uses any OpenAI-compatible chat completions endpoint (OpenAI, self-hosted, etc.).
+    // The text is sent to that endpoint; the API key stays on the server.
+    //
+    // - enabled         : Enable/disable chat translation [true/false] (default: false)
+    // - basePath/apiKey/model/reasoningEffort : default to the CHATGPT_* values when not set
+    // - maxChars        : Max characters per message to translate (default: 1000)
+    // - maxTokens       : Max tokens of the translated answer (default: 1000)
+    // - rateLimit       : Max translations per peer per minute (default: 20)
+    chatTranslation: {
+        enabled: getEnvBoolean(process.env.CHAT_TRANSLATION_ENABLED),
+        basePath: process.env.CHAT_TRANSLATION_BASE_PATH || process.env.CHATGPT_BASE_PATH,
+        apiKey: process.env.CHAT_TRANSLATION_APIKEY || process.env.CHATGPT_APIKEY,
+        model: process.env.CHAT_TRANSLATION_MODEL || process.env.CHATGPT_MODEL || 'gpt-6-luna',
+        reasoningEffort:
+            process.env.CHAT_TRANSLATION_REASONING_EFFORT ?? process.env.CHATGPT_REASONING_EFFORT ?? 'none',
+        maxChars: parseInt(process.env.CHAT_TRANSLATION_MAX_CHARS) || 1000,
+        maxTokens: parseInt(process.env.CHAT_TRANSLATION_MAX_TOKENS) || 1000,
+        rateLimit: parseInt(process.env.CHAT_TRANSLATION_RATE_LIMIT) || 20,
     },
 
     // ==========================================
@@ -703,6 +728,7 @@ module.exports = {
             showSaveMessageBtn: getEnvBoolean(process.env.SHOW_CHAT_SAVE, true),
             showMarkDownBtn: getEnvBoolean(process.env.SHOW_CHAT_MARKDOWN, true),
             showGifBtn: getEnvBoolean(process.env.SHOW_CHAT_GIF, true), // Shown only when gifSearch (KLIPY) is enabled with an API key
+            showTranslateBtn: getEnvBoolean(process.env.SHOW_CHAT_TRANSLATE, true), // Shown only when chatTranslation is enabled
             showChatGPTBtn: getEnvBoolean(process.env.CHATGPT_ENABLED, true),
             showFileShareBtn: getEnvBoolean(process.env.SHOW_CHAT_FILE_SHARE, true),
             showShareVideoAudioBtn: getEnvBoolean(process.env.SHOW_CHAT_SHARE_VIDEO_AUDIO, true),
