@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.55
+ * @version 2.2.56
  *
  */
 
@@ -4689,7 +4689,10 @@ async function gracefulShutdown(signal) {
         // 1. Notify all connected clients the server is restarting,
         // then give the message time to flush before tearing anything down
         log.debug('Notifying clients about server shutdown...');
-        io.emit('serverShutdown', { message: 'Server is restarting' });
+        io.emit('serverShutdown', {
+            message:
+                'MiroTalk is updating. You may be briefly disconnected while the server restarts. Please reconnect in a moment.',
+        });
         await new Promise((resolve) => setTimeout(resolve, SHUTDOWN_NOTIFY_DELAY_MS));
 
         // 2. Cleanup HTML injector

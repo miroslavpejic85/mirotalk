@@ -108,6 +108,8 @@ body {
     position: fixed;
     top: 18px;
     left: 50%;
+    width: max-content;
+    max-width: min(96vw, 720px);
     transform: translateX(-50%) translateY(calc(-100% - 30px));
     z-index: 99999;
     opacity: 0;
@@ -133,13 +135,13 @@ body {
     backdrop-filter: blur(18px) saturate(160%);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
     border: 1px solid rgba(255, 80, 80, 0.4);
-    border-radius: 50px;
+    border-radius: 22px;
     box-shadow:
         0 4px 24px rgba(0, 0, 0, 0.55),
         0 0 0 1px rgba(255, 80, 80, 0.12) inset,
         0 0 28px rgba(220, 50, 50, 0.18);
     color: #fff;
-    white-space: nowrap;
+    white-space: normal;
     transition:
         border-color 0.4s ease,
         box-shadow 0.4s ease;
@@ -184,6 +186,7 @@ body {
     flex-direction: column;
     gap: 2px;
     line-height: 1.3;
+    min-width: 0;
 }
 
 #disconnectBannerTitle {
@@ -203,6 +206,8 @@ body {
     font-weight: 500;
     color: rgba(220, 220, 230, 0.75);
     letter-spacing: 0.01em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .disconnect-banner-spinner {
