@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.54
+ * @version 2.2.55
  *
  */
 
@@ -886,6 +886,7 @@ app.post('/isWidgetRoomActive', (req, res) => {
 // It applies the same room creation policy as the HTTP join routes (OIDC session).
 app.get('/createRoomToken', createRoomTokenLimiter, (req, res) => {
     const { room } = checkXSS(req.query);
+    const hostRequesterAuthenticated = isHostRequesterAuthenticated(req);
 
     if (!room || !Validate.isValidRoomName(room)) {
         return res.status(400).json({ message: 'Invalid room' });
@@ -899,8 +900,14 @@ app.get('/createRoomToken', createRoomTokenLimiter, (req, res) => {
 
     // Creation policy only: ignore whether the room currently exists
     const creationPeers = Object.fromEntries(Object.entries(peers).filter(([id]) => id !== room));
+    const creationHostCfg = hostCfg.protected
+        ? {
+              ...hostCfg,
+              authenticated: hostRequesterAuthenticated,
+          }
+        : hostCfg;
 
-    if (!isAllowedRoomAccess('/createRoomToken', req, hostCfg, creationPeers, room)) {
+    if (!isAllowedRoomAccess('/createRoomToken', req, creationHostCfg, creationPeers, room)) {
         log.warn('Room creation token denied', { room });
         return res.status(403).json({ required: true, token: null });
     }
@@ -4610,6 +4617,12 @@ function getSocketIP(socket) {
         }
     }
     return socket.handshake.address;
+}
+
+function isHostRequesterAuthenticated(req) {
+    if (!hostCfg.protected) return false;
+    const ip = getIP(req);
+    return Boolean(ip && allowedIP(ip));
 }
 
 /**
