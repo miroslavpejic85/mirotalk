@@ -3811,6 +3811,7 @@ button {
     gap: 2px;
     overflow-y: auto;
     scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
 .chat-translate-item {
