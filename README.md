@@ -146,6 +146,20 @@ Open [http://localhost:3000](http://localhost:3000) - done!
 </details>
 
 <details>
+<summary>🚀 Easypanel</summary>
+
+<br/>
+
+[Easypanel](https://easypanel.io) is a self-hosted Docker deployment platform, and MiroTalk P2P has a one-click deployment template there:
+
+[![Deploy on Easypanel][easypanel-btn]][easypanel-deploy]
+
+[easypanel-btn]: https://easypanel.io/img/deploy-on-easypanel-40.svg
+[easypanel-deploy]: https://easypanel.io/templates/mirotalk
+
+</details>
+
+<details>
 <summary>📚 Documentation</summary>
 
 <br/>
