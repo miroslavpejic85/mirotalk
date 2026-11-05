@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.60
+ * @version 2.2.61
  *
  */
 
@@ -3094,12 +3094,8 @@ async function changeCameraBackground(event) {
     setBackgroundError();
     if (event?.target === initBackgroundEffectSelect) backgroundEffectSelect.value = initBackgroundEffectSelect.value;
     const requestedMode = backgroundEffectSelect.value;
-    // Choosing "Image" applies something right away: the last image, otherwise the first preset.
-    if (backgroundEffectSelect.value === 'image' && !backgroundImage) {
-        const [preset] = getCameraBackgroundPresets();
-        const source = backgroundImageSource || (preset && { type: 'preset', url: preset });
-        if (source && (await selectCameraBackgroundImage(source))) return;
-    }
+    // Choosing "Image" only opens the picker: the camera stays plain until an image tile is picked.
+    if (requestedMode === 'image') backgroundImage = null;
     backgroundEffectsBusy = true;
     updateBackgroundControls();
     try {
@@ -3109,7 +3105,8 @@ async function changeCameraBackground(event) {
         setBackgroundError('Unable to change camera background.');
     } finally {
         backgroundEffectsBusy = false;
-        saveCameraBackground(requestedMode);
+        // Image mode without a picked image is effectively Off, so the next join starts plain.
+        saveCameraBackground(requestedMode === 'image' && !backgroundImage ? 'off' : requestedMode);
         updateBackgroundControls();
     }
 }
@@ -21144,7 +21141,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.60',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.61',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

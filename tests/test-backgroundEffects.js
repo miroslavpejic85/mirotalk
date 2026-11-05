@@ -418,8 +418,7 @@ describe('client camera background integration', () => {
 
         for (const grid of ['initBackgroundImageGrid', 'backgroundImageGrid']) {
             it(`turns the background Off from the None tile in ${grid}`, async () => {
-                context.backgroundEffectSelect.value = 'image';
-                await context.changeCameraBackground();
+                await context.selectCameraBackgroundImage({ type: 'preset', url: presets[0] });
                 assert.equal(context.localVideoMediaStream.getVideoTracks()[0], output);
                 assert.equal(cards(context[grid], 'none')[0].classList.contains('active'), false);
 
@@ -440,26 +439,27 @@ describe('client camera background integration', () => {
         }
 
         for (const select of ['initBackgroundEffectSelect', 'backgroundEffectSelect']) {
-            it(`applies the first preset right away when Image is chosen from ${select}`, async () => {
+            it(`opens the picker without applying an image when Image is chosen from ${select}`, async () => {
+                context.backgroundEffectSelect.value = 'blur';
+                await context.changeCameraBackground();
                 context[select].value = 'image';
                 await context.changeCameraBackground({ target: context[select] });
 
-                assert.equal(context.backgroundImage.url, presets[0]);
-                assert.equal(processors[0].setMode.firstCall.args[0], 'image');
-                assert.equal(processors[0].setMode.firstCall.args[1], context.backgroundImage);
-                assert.equal(context.localVideoMediaStream.getVideoTracks()[0], output);
+                assert.equal(context.backgroundImage, null);
+                assert.deepEqual(loadedImages, []);
+                assert.equal(context.backgroundEffectSelect.value, 'image');
+                assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
                 for (const grid of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
                     assert.equal(grid.hidden, false);
-                    assert.equal(cards(grid, 'preset')[0].getAttribute('aria-pressed'), 'true');
-                    assert.equal(cards(grid, 'preset')[1].getAttribute('aria-pressed'), 'false');
+                    assert.ok(grid.querySelectorAll('.camera-bg-card').length > 0);
+                    assert.equal(grid.querySelector('.camera-bg-card.active'), null);
                 }
+                assert.equal(context.lsSettings.camera_background.mode, 'off');
                 assert.equal(context.backgroundEffectsBusy, false);
             });
         }
 
-        it('reuses the last image instead of the first preset when switching back to Image', async () => {
-            context.backgroundEffectSelect.value = 'image';
-            await context.changeCameraBackground();
+        it('does not reapply the last image when switching back to Image', async () => {
             cards(context.backgroundImageGrid, 'preset')[1].click();
             await new Promise((resolve) => setImmediate(resolve));
             context.backgroundEffectSelect.value = 'blur';
@@ -467,8 +467,15 @@ describe('client camera background integration', () => {
             context.backgroundEffectSelect.value = 'image';
             await context.changeCameraBackground();
 
+            assert.equal(context.backgroundImage, null);
+            assert.deepEqual(loadedImages, [presets[1]]);
+            assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
+            assert.equal(context.initBackgroundImageGrid.querySelector('.camera-bg-card.active'), null);
+
+            cards(context.initBackgroundImageGrid, 'preset')[1].click();
+            await new Promise((resolve) => setImmediate(resolve));
             assert.equal(context.backgroundImage.url, presets[1]);
-            assert.deepEqual(loadedImages, [presets[0], presets[1]]);
+            assert.equal(context.localVideoMediaStream.getVideoTracks()[0], output);
             assert.equal(cards(context.initBackgroundImageGrid, 'preset')[1].classList.contains('active'), true);
         });
 
@@ -506,6 +513,7 @@ describe('client camera background integration', () => {
             };
             context.backgroundEffectSelect.value = 'image';
             await context.changeCameraBackground();
+            await context.selectCameraBackgroundImage({ type: 'preset', url: presets[0] });
 
             assert.equal(context.backgroundImage, null);
             assert.equal(context.backgroundEffectSelect.value, 'image');
@@ -676,7 +684,9 @@ describe('client camera background integration', () => {
 
             context.backgroundEffectSelect.value = 'image';
             await context.changeCameraBackground();
-            assert.equal(context.backgroundImage.url, beach);
+            assert.equal(context.backgroundImage, null);
+            assert.equal(context.backgroundImageSource.url, beach);
+            assert.equal(processors.length, 0);
         });
 
         for (const [name, setting] of [
