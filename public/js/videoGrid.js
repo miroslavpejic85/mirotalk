@@ -69,7 +69,9 @@ function resizeVideoMedia() {
 
     const Margin = 5;
     let Width = videoMediaContainer.offsetWidth - Margin * 2;
-    let Height = videoMediaContainer.offsetHeight - Margin * 2;
+    // The bottom padding is the space reserved for the buttons bar (see syncButtonsBarReserve)
+    let reservedHeight = parseFloat(getComputedStyle(videoMediaContainer).paddingBottom) || 0;
+    let Height = videoMediaContainer.offsetHeight - reservedHeight - Margin * 2;
     let max = 0;
     let optional = isHideMeActive && videoMediaContainer.childElementCount <= 2 ? 1 : 0;
     let isOneVideoElement = videoMediaContainer.childElementCount - optional == 1 ? true : false;
@@ -144,7 +146,8 @@ function layoutScreenStage(container, Margin) {
     }
 
     const Width = container.offsetWidth - Margin * 2;
-    const Height = container.offsetHeight - Margin * 2;
+    const reservedHeight = parseFloat(getComputedStyle(container).paddingBottom) || 0;
+    const Height = container.offsetHeight - reservedHeight - Margin * 2;
     const others = Tiles.filter((c) => c !== stage);
     const landscape = Width > Height;
     const showStrip = !landscape && others.length > 0;

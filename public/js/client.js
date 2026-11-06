@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.70
+ * @version 2.2.71
  *
  */
 
@@ -4959,7 +4959,22 @@ function setButtonsBarPosition(position) {
     });
     bottomButtons.dataset.position = position;
     updateButtonsBarPinnedOffset();
+    syncButtonsBarReserve();
     refreshMainButtonsToolTipPlacement();
+}
+
+// Reserve room under the video grid while the bottom bar is shown, so tiles never sit behind the buttons
+let buttonsBarReserve = 0;
+
+function syncButtonsBarReserve() {
+    const isBottomBar = bottomButtons.dataset.position !== 'horizontal';
+    const barHeight = isBottomBar ? bottomButtons.offsetHeight : 0;
+    const reserve = barHeight ? Math.ceil(barHeight + parseFloat(getComputedStyle(bottomButtons).marginBottom) + 6) : 0;
+    if (reserve === buttonsBarReserve) return;
+    buttonsBarReserve = reserve;
+    animateVideoLayout();
+    setSP('--buttons-bar-reserve', `${reserve}px`);
+    if (prefersReducedMotion()) resizeVideoMedia();
 }
 
 /**
@@ -7938,18 +7953,22 @@ function toggleVideoPin(position) {
     videoPinMediaContainer.style.left = 0;
     videoPinMediaContainer.style.width = participantAreaWidth + '%';
     videoPinMediaContainer.style.height = '100%';
+    videoPinMediaContainer.classList.remove('no-bar-reserve');
     elemDisplay(videoMediaContainer, true, 'flex');
     videoMediaContainer.style.top = 0;
     videoMediaContainer.style.left = 0;
     videoMediaContainer.style.right = '';
     videoMediaContainer.style.width = participantAreaWidth + '%';
     videoMediaContainer.style.height = '100%';
+    // Only the container touching the bottom of the screen reserves room for the buttons bar
+    videoMediaContainer.classList.remove('no-bar-reserve');
     switch (position) {
         case 'speaker-bottom':
         case 'top':
             videoPinMediaContainer.style.top = '25%';
             videoPinMediaContainer.style.height = '75%';
             videoMediaContainer.style.height = '25%';
+            videoMediaContainer.classList.add('no-bar-reserve');
             break;
         case 'speaker-left':
         case 'vertical':
@@ -7962,6 +7981,7 @@ function toggleVideoPin(position) {
             videoPinMediaContainer.style.height = '75%';
             videoMediaContainer.style.top = '75%';
             videoMediaContainer.style.height = '25%';
+            videoPinMediaContainer.classList.add('no-bar-reserve');
             break;
         case 'speaker-right':
             videoPinMediaContainer.style.left = thumbnailWidth + '%';
@@ -8268,6 +8288,8 @@ function videoMediaContainerUnpin() {
         videoMediaContainer.style.right = '';
         videoMediaContainer.style.width = '100%';
         videoMediaContainer.style.height = '100%';
+        videoMediaContainer.classList.remove('no-bar-reserve');
+        videoPinMediaContainer.classList.remove('no-bar-reserve');
     }
 }
 
@@ -10988,6 +11010,9 @@ function handleBodyOnMouseMove() {
     bottomButtons.addEventListener('mouseout', () => {
         isButtonsBarOver = false;
     });
+
+    // Show/hide, wrapping on small screens and position changes all resize the bar
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(syncButtonsBarReserve).observe(bottomButtons);
 
     checkButtonsBarAndMenu();
 }
@@ -21159,7 +21184,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.70',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.71',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

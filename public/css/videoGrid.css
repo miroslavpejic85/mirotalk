@@ -20,6 +20,17 @@
     transition: opacity 500ms;
 }
 
+/* Keep the tiles above the bottom buttons bar instead of sitting under it (--buttons-bar-reserve is set in client.js) */
+#videoMediaContainer,
+#videoPinMediaContainer {
+    box-sizing: border-box;
+}
+
+#videoMediaContainer:not(.no-bar-reserve),
+#videoPinMediaContainer:not(.no-bar-reserve) {
+    padding-bottom: var(--buttons-bar-reserve, 0px);
+}
+
 /* Video container with mouse light effect */
 #videoMediaContainer.mouse-light {
     background:
@@ -1256,6 +1267,7 @@ video:fullscreen {
         height 0.24s var(--ds-ease-out),
         top 0.24s var(--ds-ease-out),
         left 0.24s var(--ds-ease-out),
+        padding-bottom 0.24s var(--ds-ease-out),
         opacity 500ms,
         background 0.2s;
 }
