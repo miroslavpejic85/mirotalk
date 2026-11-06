@@ -3955,7 +3955,8 @@ async function handleAddPeer(config) {
     // As P2P check who I am connected with
     let connectedPeersName = [];
     for (const id in peerConnections) {
-        connectedPeersName.push(peers[id]['peer_name']);
+        // A connection left behind for a peer no longer in the room must not abort the join
+        if (peers[id]) connectedPeersName.push(peers[id]['peer_name']);
     }
     console.log('[RTCPeerConnection] - CONNECTED TO PEERS', JSON.stringify(connectedPeersName));
     // userLog('info', 'Connected to: ' + JSON.stringify(connectedPeersName));
@@ -4582,7 +4583,7 @@ function handleRemovePeer(config) {
                 }
             }
         }
-        peerVideoMediaElements[peerVideoId].parentNode.removeChild(peerVideoMediaElements[peerVideoId]);
+        peerVideoMediaElements[peerVideoId].remove();
         adaptAspectRatio();
     }
 
@@ -4602,12 +4603,13 @@ function handleRemovePeer(config) {
                 }
             }
         }
-        peerScreenMediaElements[peerScreenId].parentNode.removeChild(peerScreenMediaElements[peerScreenId]);
+        // handleScreenStop may have already taken this tile off the page: remove() is a no-op then
+        peerScreenMediaElements[peerScreenId].remove();
         adaptAspectRatio();
     }
 
     if (peerAudioId in peerAudioMediaElements) {
-        peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
+        peerAudioMediaElements[peerAudioId].remove();
         updateAudioUnlockPrompt();
     }
 
