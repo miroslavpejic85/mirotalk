@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.63 - Configuration File
+ * MiroTalk P2P v.2.2.65 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -552,6 +552,7 @@ module.exports = {
             supportUs: getEnvBoolean(process.env.SHOW_SUPPORT_US, true),
             footer: getEnvBoolean(process.env.SHOW_FOOTER, true),
             version: getEnvBoolean(process.env.SHOW_VERSION, true), // show app version in landing footer
+            appSwitcher: getEnvBoolean(process.env.SHOW_APP_SWITCHER), // MiroTalk apps switcher in landing nav (default hidden)
         },
         about: {
             imageUrl: process.env.ABOUT_IMAGE_URL || '../images/mirotalk-logo.gif',
@@ -600,6 +601,23 @@ module.exports = {
                     </footer>
                 </div>
             `,
+        },
+        // MiroTalk apps switcher links (visibility: html.appSwitcher / SHOW_APP_SWITCHER)
+        appSwitcher: {
+            domain: process.env.APP_SWITCHER_DOMAIN || 'mirotalk.com', // links default to https://{app}.{domain}/
+            apps: process.env.APP_SWITCHER_APPS || 'sfu,p2p,c2c,bro,cme,cloud', // shown apps, in order (rnd and admin are opt-in)
+            // Optional full URL per app, overrides the domain-based link (admin defaults to its docs page)
+            urls: {
+                sfu: process.env.APP_SWITCHER_SFU_URL || '',
+                p2p: process.env.APP_SWITCHER_P2P_URL || '',
+                c2c: process.env.APP_SWITCHER_C2C_URL || '',
+                bro: process.env.APP_SWITCHER_BRO_URL || '',
+                cme: process.env.APP_SWITCHER_CME_URL || '',
+                rnd: process.env.APP_SWITCHER_RND_URL || '',
+                cloud: process.env.APP_SWITCHER_CLOUD_URL || '',
+                admin: process.env.APP_SWITCHER_ADMIN_URL || '',
+            },
+            docsUrl: process.env.APP_SWITCHER_DOCS_URL ?? 'https://docs.mirotalk.com/', // footer link, empty hides it
         },
         // https://docs.mirotalk.com/mirotalk-p2p/integration/#widgets-integration
         widget: {

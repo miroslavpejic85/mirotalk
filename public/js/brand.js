@@ -55,6 +55,7 @@ const advertisers = document.getElementById('advertisers');
 const supportUs = document.getElementById('supportUs');
 const footer = document.getElementById('footer');
 const navGithubLink = document.getElementById('navGithubLink');
+const appSwitcher = document.getElementById('appSwitcher');
 //...
 
 // Brand customizations...
@@ -117,10 +118,11 @@ let brand = {
         supportUs: true,
         footer: true,
         version: true,
+        appSwitcher: false,
     },
     about: {
         imageUrl: '../images/mirotalk-logo.gif',
-        title: 'WebRTC P2P v2.2.63',
+        title: 'WebRTC P2P v2.2.65',
         html: `
             <button 
                 id="support-button" 
@@ -147,6 +149,12 @@ let brand = {
             <span>&copy; 2025 MiroTalk P2P, all rights reserved</span>
             <hr />
         `,
+    },
+    appSwitcher: {
+        domain: 'mirotalk.com',
+        apps: 'sfu,p2p,c2c,bro,cme,cloud',
+        urls: {},
+        docsUrl: 'https://docs.mirotalk.com/',
     },
     widget: {
         enabled: false,
@@ -329,7 +337,21 @@ function handleBrand() {
     if (navAboutLink) navAboutLink.hidden = !brand.html?.about;
     if (navFeaturesLink) navFeaturesLink.hidden = !brand.html?.features;
     if (navFaqLink) navFaqLink.hidden = !brand.html?.faq;
+    if (appSwitcher) {
+        appSwitcher.hidden = !brand.html?.appSwitcher;
+        handleAppSwitcher();
+    }
     if (!brand.html?.faq && faqJsonLd) faqJsonLd.remove(); // FAQ markup must match visible content
+}
+
+// APP SWITCHER customize (attributes work even before appSwitcher.js upgrades the element)
+function handleAppSwitcher() {
+    const { domain, apps, urls, docsUrl } = brand.appSwitcher || {};
+    if (typeof domain === 'string' && domain.trim()) appSwitcher.setAttribute('domain', domain.trim());
+    const appList = Array.isArray(apps) ? apps.join(',') : apps;
+    if (typeof appList === 'string' && appList.trim()) appSwitcher.setAttribute('apps', appList);
+    if (urls && typeof urls === 'object') appSwitcher.setAttribute('urls', JSON.stringify(urls));
+    if (typeof docsUrl === 'string') appSwitcher.setAttribute('docs-url', docsUrl.trim());
 }
 
 // WIDGET customize
