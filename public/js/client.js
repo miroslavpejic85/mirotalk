@@ -643,7 +643,7 @@ const spinner = getId('disconnectBannerSpinner');
 let disconnectBannerRafId = null;
 let isServerRestarting = false; // Set when the server announces a planned shutdown (e.g. update/redeploy)
 const defaultServerRestartBannerMessage =
-    'MiroTalk is updating. You may be briefly disconnected while the server restarts. Please reconnect in a moment.';
+    'MiroTalk is updating.\nYou may be briefly disconnected while the server restarts.\nPlease reconnect in a moment.';
 let serverRestartBannerMessage = defaultServerRestartBannerMessage;
 
 //....

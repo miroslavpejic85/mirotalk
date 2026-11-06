@@ -109,7 +109,7 @@ body {
     top: 18px;
     left: 50%;
     width: max-content;
-    max-width: min(96vw, 720px);
+    max-width: min(96vw, 560px);
     transform: translateX(-50%) translateY(calc(-100% - 30px));
     z-index: 99999;
     opacity: 0;
@@ -202,10 +202,13 @@ body {
 }
 
 #disconnectBannerMsg {
+    display: block;
+    max-inline-size: 50ch;
     font-size: 11.5px;
     font-weight: 500;
     color: rgba(220, 220, 230, 0.75);
     letter-spacing: 0.01em;
+    white-space: pre-line;
     overflow-wrap: anywhere;
     word-break: break-word;
 }
