@@ -16,9 +16,12 @@ const ScreenCameraLayout = (() => {
     const OVERLAY_CLASS = 'screen-cam-overlay';
     const DRAGGING_CLASS = 'screen-cam-dragging';
     const CAMERA_CLASS = 'Camera';
+    const SNAPPING_CLASS = 'screen-cam-snapping';
     const DRAG_THRESHOLD = 4;
+    const SNAP_MARGIN = 8;
 
     let mode = 'separate';
+    let snapToCorners = false;
 
     function normalizeMode(value) {
         return MODES.includes(value) ? value : 'separate';
@@ -31,6 +34,24 @@ const ScreenCameraLayout = (() => {
     function setMode(value) {
         mode = normalizeMode(value);
         return mode;
+    }
+
+    // After a drag the overlay glides to the nearest corner of the screen tile (mobile)
+    function setSnapToCorners(value) {
+        snapToCorners = !!value;
+    }
+
+    function snap(cameraWrap) {
+        const host = cameraWrap.parentElement;
+        if (!host || !host.clientWidth || !host.clientHeight) return;
+        const maxLeft = Math.max(0, host.clientWidth - cameraWrap.offsetWidth - SNAP_MARGIN);
+        const maxTop = Math.max(0, host.clientHeight - cameraWrap.offsetHeight - SNAP_MARGIN);
+        const left = cameraWrap.offsetLeft + cameraWrap.offsetWidth / 2 < host.clientWidth / 2 ? SNAP_MARGIN : maxLeft;
+        const top = cameraWrap.offsetTop + cameraWrap.offsetHeight / 2 < host.clientHeight / 2 ? SNAP_MARGIN : maxTop;
+        cameraWrap.classList.add(SNAPPING_CLASS);
+        cameraWrap.style.left = (left * 100) / host.clientWidth + '%';
+        cameraWrap.style.top = (top * 100) / host.clientHeight + '%';
+        setTimeout(() => cameraWrap.classList.remove(SNAPPING_CLASS), 250);
     }
 
     function nextMode(current = mode) {
@@ -190,6 +211,7 @@ const ScreenCameraLayout = (() => {
                 try {
                     cameraWrap.releasePointerCapture(drag.pointerId);
                 } catch (_) {}
+                if (snapToCorners) snap(cameraWrap);
                 // A drag must not trigger the video click action (full screen)
                 if (e.type === 'pointerup') suppressNextClick();
             }
@@ -207,6 +229,7 @@ const ScreenCameraLayout = (() => {
         getMode,
         setMode,
         nextMode,
+        setSnapToCorners,
         isOverlaid,
         sync,
         release,

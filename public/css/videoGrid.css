@@ -1140,6 +1140,12 @@ video:fullscreen {
     cursor: grabbing;
 }
 
+.screen-cam-overlay.screen-cam-snapping {
+    transition:
+        left 0.2s ease,
+        top 0.2s ease;
+}
+
 .screen-cam-overlay > .navbar {
     display: none !important;
 }
@@ -1162,6 +1168,45 @@ video:fullscreen {
     box-sizing: border-box;
     overflow: hidden;
     white-space: nowrap;
+}
+
+/*--------------------------------------------------------------
+# Mobile: screen share on stage, other tiles in a strip (layoutScreenStage in videoGrid.js)
+--------------------------------------------------------------*/
+
+#videoMediaContainer.screen-stage {
+    align-content: flex-start;
+}
+
+#videoMediaContainer.screen-stage > [data-screen-stage='main'] {
+    order: -1;
+}
+
+#videoMediaContainer.screen-stage-landscape
+    > :is(.Camera, .Screen):not([data-screen-stage='main'], :has(> [focus-mode])) {
+    display: none !important;
+}
+
+/* Focus mode (resizeVideoMedia is skipped): the focused tile owns the whole container */
+#videoMediaContainer.screen-stage > :has(> [focus-mode]) {
+    margin: 0 !important;
+}
+
+/* Presentation marker in front of the presenter name */
+#videoMediaContainer.screen-stage > [data-screen-stage='main'] > .videoPeerName:not(.isPresenter)::before {
+    content: '\f108';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    margin-right: 6px;
+    color: var(--hover-color, #4caf50);
+}
+
+.screen-stage .screen-cam-overlay {
+    left: 8px;
+    bottom: 8px;
+    width: 32% !important;
+    min-width: 88px;
+    max-width: 150px;
 }
 
 [data-cam-layout='split'] > video {

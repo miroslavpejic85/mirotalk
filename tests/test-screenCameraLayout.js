@@ -219,7 +219,7 @@ describe('screen share camera layout', () => {
         assert.match(client, /function setScreenCameraLayout[\s\S]*?updateScreenCameraLayoutUI\(mode\);/);
         assert.match(
             client,
-            /updateScreenCameraLayoutUI\(ScreenCameraLayout\.setMode\(lsSettings\.screen_cam_layout\)\);/
+            /updateScreenCameraLayoutUI\(ScreenCameraLayout\.setMode\(mobileScreenCameraLayout\(lsSettings\.screen_cam_layout\)\)\);/
         );
         assert.match(client, /setScreenCameraLayout\(camLayoutButton\.dataset\.screenCamLayout\);/);
         assert.match(client, /function adaptAspectRatio\(\) \{\n\s+syncScreenCameraLayout\(\);/);

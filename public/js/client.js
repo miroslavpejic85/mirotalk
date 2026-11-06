@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.65
+ * @version 2.2.70
  *
  */
 
@@ -6885,6 +6885,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenDrawing = VideoDrawingOverlay.getOrCreate(peer_id, remoteScreenWrap, remoteScreenMedia);
             remoteScreenDrawing.bindControls(remoteScreenDrawingBtn);
             handleScreenCameraLayoutBtn(remoteScreenCamLayoutBtn);
+            isMobileDevice && ScreenTouchZoom.attach(remoteScreenWrap);
             // Explicitly play – required on mobile Safari where autoplay alone is not enough
             remoteScreenMedia.play().catch(() => {});
             adaptAspectRatio();
@@ -7331,13 +7332,22 @@ function updateScreenCameraLayoutUI(mode) {
 }
 
 /**
+ * Split screen needs a wide tile: mobile viewers get picture in picture instead
+ * @param {string} mode separate | pip | split
+ * @returns {string}
+ */
+function mobileScreenCameraLayout(mode) {
+    return isMobileDevice && mode === 'split' ? 'pip' : mode;
+}
+
+/**
  * Set the screen share + camera layout
  * @param {string} requestedMode separate | pip | split
  * @param {boolean} persist save to local storage
  * @returns {string} applied mode
  */
 function setScreenCameraLayout(requestedMode, persist = true) {
-    const mode = ScreenCameraLayout.setMode(requestedMode);
+    const mode = ScreenCameraLayout.setMode(mobileScreenCameraLayout(requestedMode));
     updateScreenCameraLayoutUI(mode);
     if (persist) {
         lsSettings.screen_cam_layout = mode;
@@ -7354,7 +7364,10 @@ function setScreenCameraLayout(requestedMode, persist = true) {
 function handleScreenCameraLayoutBtn(button) {
     button.addEventListener('click', () => {
         playSound('click');
-        switch (setScreenCameraLayout(ScreenCameraLayout.nextMode())) {
+        let next = ScreenCameraLayout.nextMode();
+        // Split is not offered on mobile: skip it so the button still cycles back to separate tiles
+        if (isMobileDevice && next === 'split') next = ScreenCameraLayout.nextMode(next);
+        switch (setScreenCameraLayout(next)) {
             case 'pip':
                 userLog('toast', 'Camera layout: Picture in Picture');
                 break;
@@ -8036,7 +8049,6 @@ function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap, remoteMedia)
                 remoteVideoWrap.style.height = '100%';
                 remoteMedia.setAttribute('focus-mode', 'true');
             } else {
-                resizeVideoMedia();
                 remoteMedia.removeAttribute('focus-mode');
             }
             const children = videoMediaContainer.children;
@@ -8045,6 +8057,8 @@ function handleVideoFocusMode(remoteVideoFocusBtn, remoteVideoWrap, remoteMedia)
                     child.style.display = isHideALLVideosActive ? 'none' : 'block';
                 }
             }
+            // Resize after the hidden tiles are shown again, so the screen stage layout sees them
+            if (!isHideALLVideosActive) resizeVideoMedia();
         });
     }
 }
@@ -11491,7 +11505,9 @@ function loadSettingsFromLocalStorage() {
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
     participantViewMode.value = lsSettings.participant_view || 'grid';
     BtnAspectRatio.value = String(lsSettings.video_aspect_ratio || 0);
-    updateScreenCameraLayoutUI(ScreenCameraLayout.setMode(lsSettings.screen_cam_layout));
+    if (isMobileDevice) screenCamLayoutSelect.querySelector('option[value="split"]')?.remove();
+    ScreenCameraLayout.setSnapToCorners(isMobileDevice);
+    updateScreenCameraLayoutUI(ScreenCameraLayout.setMode(mobileScreenCameraLayout(lsSettings.screen_cam_layout)));
     setSP('--video-object-fit', videoObjFitSelect.value);
     setButtonsBarPosition(btnsBarSelect.value);
     setParticipantViewMode(participantViewMode.value, false, false);
@@ -21143,7 +21159,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.65',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.70',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

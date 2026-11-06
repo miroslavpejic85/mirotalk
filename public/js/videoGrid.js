@@ -84,6 +84,11 @@ function resizeVideoMedia() {
 
     resetZoom(); //...
 
+    if (layoutScreenStage(videoMediaContainer, Margin)) {
+        if (typeof VideoDrawingOverlay !== 'undefined') VideoDrawingOverlay.overlays.forEach((o) => o.resize());
+        return;
+    }
+
     let bigWidth = Width * 4;
     if (expandSingleVideo) {
         Width = Width - bigWidth;
@@ -117,6 +122,60 @@ function resizeVideoMedia() {
 }
 
 let layoutAnimationRaf = null;
+
+/**
+ * Mobile viewers: a screen share fills the stage and the other tiles become a small strip below it
+ * (hidden in landscape, so the presentation gets the whole screen).
+ * @param {HTMLElement} container videoMediaContainer
+ * @param {integer} Margin tile margin
+ * @returns {boolean} true if the stage layout was applied
+ */
+function layoutScreenStage(container, Margin) {
+    const isMobile = typeof isMobileDevice !== 'undefined' && isMobileDevice;
+    const Tiles = [...container.children].filter((c) => c.matches('.Camera, .Screen') && c.style.display !== 'none');
+    const stage = isMobile ? Tiles.find((c) => c.classList.contains('Screen')) : null;
+
+    if (!stage) {
+        if (container.classList.contains('screen-stage')) {
+            container.classList.remove('screen-stage', 'screen-stage-landscape');
+            [...container.children].forEach((c) => c.removeAttribute('data-screen-stage'));
+        }
+        return false;
+    }
+
+    const Width = container.offsetWidth - Margin * 2;
+    const Height = container.offsetHeight - Margin * 2;
+    const others = Tiles.filter((c) => c !== stage);
+    const landscape = Width > Height;
+    const showStrip = !landscape && others.length > 0;
+
+    container.classList.add('screen-stage');
+    container.classList.toggle('screen-stage-landscape', landscape);
+    [...container.children].forEach((c) => c.removeAttribute('data-screen-stage'));
+    stage.dataset.screenStage = 'main';
+
+    let thumbW = 0;
+    let stripHeight = 0;
+    if (showStrip) {
+        const perRow = Math.max(1, Math.floor(Width / (90 + Margin * 2)));
+        const rows = Math.min(2, Math.ceil(others.length / perRow));
+        thumbW = Math.min(120, Math.floor(Width / Math.min(perRow, others.length)) - Margin * 2);
+        const thumbH = Math.round(thumbW * 0.75);
+        stripHeight = rows * (thumbH + Margin * 2);
+        others.forEach((c) => {
+            c.style.width = thumbW + 'px';
+            c.style.height = thumbH + 'px';
+            c.style.margin = Margin + 'px';
+        });
+    }
+
+    stage.style.width = Width + 'px';
+    stage.style.height = Math.max(0, Height - stripHeight) + 'px';
+    stage.style.margin = Margin + 'px';
+
+    setSP('--vmi-wh', Math.max(32, thumbW / 3) + 'px');
+    return true;
+}
 
 /**
  * Check if the user asked the system to reduce motion
@@ -157,6 +216,8 @@ function animateVideoLayout(duration = 240) {
 function resetZoom() {
     const videoElements = getSlALL('video');
     videoElements.forEach((video) => {
+        // Touch-zoomed screen share (screenTouchZoom.js) keeps its own transform
+        if (video.dataset.touchZoomed) return;
         video.style.transform = '';
         video.style.transformOrigin = 'center';
     });
