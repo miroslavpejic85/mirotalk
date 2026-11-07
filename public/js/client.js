@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.71
+ * @version 2.2.72
  *
  */
 
@@ -4963,12 +4963,13 @@ function setButtonsBarPosition(position) {
     refreshMainButtonsToolTipPlacement();
 }
 
-// Reserve room under the video grid while the bottom bar is shown, so tiles never sit behind the buttons
+// Reserve room under the video grid only while the bottom bar is kept visible ("Buttons always visible"),
+// so tiles never sit behind it. When the bar auto-hides on mouse move, the grid stays still.
 let buttonsBarReserve = 0;
 
 function syncButtonsBarReserve() {
     const isBottomBar = bottomButtons.dataset.position !== 'horizontal';
-    const barHeight = isBottomBar ? bottomButtons.offsetHeight : 0;
+    const barHeight = isBottomBar && lsSettings.keep_buttons_visible ? bottomButtons.offsetHeight : 0;
     const reserve = barHeight ? Math.ceil(barHeight + parseFloat(getComputedStyle(bottomButtons).marginBottom) + 6) : 0;
     if (reserve === buttonsBarReserve) return;
     buttonsBarReserve = reserve;
@@ -10677,6 +10678,7 @@ function setMySettingsBtn() {
         isButtonsBarOver = isKeepButtonsVisible = e.currentTarget.checked;
         lsSettings.keep_buttons_visible = isButtonsBarOver;
         lS.setSettings(lsSettings);
+        syncButtonsBarReserve();
         const status = isButtonsBarOver ? 'enabled' : 'disabled';
         userLog('switch', `Buttons always visible ${status}`, undefined, undefined, isKeepButtonsVisible);
         playSound('switch');
@@ -21184,7 +21186,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.71',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.72',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
