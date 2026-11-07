@@ -4,7 +4,8 @@
  * Touch gestures for a screen share tile (mobile viewers): pinch to zoom, drag to pan, double tap to zoom in/out.
  *
  * The transform is applied to the screen <video> only, the tile (overflow hidden) clips it.
- * The zoom resets whenever the tile is resized (rotation, participants joining/leaving).
+ * The zoom resets whenever the tile width changes (rotation, participants joining/leaving); a height-only change
+ * (buttons bar shown/hidden) keeps it.
  */
 const ScreenTouchZoom = (() => {
     const MAX_SCALE = 6;
@@ -196,9 +197,14 @@ const ScreenTouchZoom = (() => {
 
         if (typeof ResizeObserver !== 'undefined') {
             new ResizeObserver(() => {
-                const next = `${wrap.clientWidth}x${wrap.clientHeight}`;
-                if (size && size !== next && state.scale !== 1) reset();
-                size = next;
+                const width = wrap.clientWidth;
+                const height = wrap.clientHeight;
+                if (size && state.scale !== 1 && (size.width !== width || size.height !== height)) {
+                    // Height-only change (buttons bar shown/hidden): keep the zoom, just keep it inside the tile
+                    if (size.width === width) update(state);
+                    else reset();
+                }
+                size = { width, height };
             }).observe(wrap);
         }
     }
