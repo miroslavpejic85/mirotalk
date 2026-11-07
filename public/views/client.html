@@ -1055,139 +1055,157 @@
                             <h3>Room settings</h3>
                             <p>Manage access, invitations, and your in-room preferences.</p>
                         </div>
-                        <table class="mySettingsTable">
-                            <tr class="room-id-row">
-                                <td>
-                                    <div class="title">
-                                        <i class="fa-solid fa-person-shelter"></i>
-                                        <p id="myRoomId">xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</p>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button
-                                        id="copyRoomUrlBtn"
-                                        class="settings-icon-btn"
-                                        type="button"
-                                        aria-label="Share room link"
-                                    >
-                                        <i class="fas fa-share-alt" aria-hidden="true"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </table>
-                        <button id="activeRoomsBtn">
-                            <i class="fa-solid fa-circle-dot"></i>
-                            <p>Active rooms</p>
-                        </button>
-                        <div id="tabRoomSecurity">
-                            <button id="joinLockBtn" class="orange">
-                                <i class="fas fa-door-closed orange"></i>&nbsp;Lock room
-                            </button>
-                            <button id="joinUnlockBtn" class="red">
-                                <i class="fas fa-door-open red"></i>&nbsp;Unlock room
-                            </button>
-                            <button id="lobbyOnBtn" class="orange">
-                                <i class="fas fa-user-clock orange"></i>&nbsp;Enable lobby
-                            </button>
-                            <button id="lobbyOffBtn" class="red">
-                                <i class="fas fa-user-check red"></i>&nbsp;Disable lobby
-                            </button>
-                            <button id="lockRoomBtn" class="orange">
-                                <i class="fas fa-lock-open orange"></i>&nbsp;Set room password
-                            </button>
-                            <button id="unlockRoomBtn" class="red">
-                                <i class="fas fa-lock red"></i>&nbsp;Remove room password
+                        <div class="settings-subsection">
+                            <h4 class="settings-subsection-title">
+                                <i class="fas fa-door-open"></i>
+                                Room
+                            </h4>
+                            <table class="mySettingsTable">
+                                <tr class="room-id-row">
+                                    <td>
+                                        <div class="title">
+                                            <i class="fa-solid fa-person-shelter"></i>
+                                            <p id="myRoomId">xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button
+                                            id="copyRoomUrlBtn"
+                                            class="settings-icon-btn"
+                                            type="button"
+                                            aria-label="Share room link"
+                                        >
+                                            <i class="fas fa-share-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                            <button id="activeRoomsBtn">
+                                <i class="fa-solid fa-circle-dot"></i>
+                                <p>Active rooms</p>
                             </button>
                         </div>
-                        <div id="tabEmailInvitation">
-                            <button id="roomSendEmailBtn">
-                                <i class="fas fa-envelope-circle-check"></i>&nbsp;Send email invitation
-                            </button>
+                        <div id="roomAccessSection" class="settings-subsection">
+                            <h4 class="settings-subsection-title">
+                                <i class="fas fa-shield-halved"></i>
+                                Access &amp; invitations
+                            </h4>
+                            <div id="tabRoomSecurity">
+                                <button id="joinLockBtn" class="orange">
+                                    <i class="fas fa-door-closed orange"></i>&nbsp;Lock room
+                                </button>
+                                <button id="joinUnlockBtn" class="red">
+                                    <i class="fas fa-door-open red"></i>&nbsp;Unlock room
+                                </button>
+                                <button id="lobbyOnBtn" class="orange">
+                                    <i class="fas fa-user-clock orange"></i>&nbsp;Enable lobby
+                                </button>
+                                <button id="lobbyOffBtn" class="red">
+                                    <i class="fas fa-user-check red"></i>&nbsp;Disable lobby
+                                </button>
+                                <button id="lockRoomBtn" class="orange">
+                                    <i class="fas fa-lock-open orange"></i>&nbsp;Set room password
+                                </button>
+                                <button id="unlockRoomBtn" class="red">
+                                    <i class="fas fa-lock red"></i>&nbsp;Remove room password
+                                </button>
+                            </div>
+                            <div id="tabEmailInvitation">
+                                <button id="roomSendEmailBtn">
+                                    <i class="fas fa-envelope-circle-check"></i>&nbsp;Send email invitation
+                                </button>
+                            </div>
                         </div>
-                        <table id="mySettingsTable">
-                            <tr>
-                                <td class="w-80">
-                                    <div class="title">
-                                        <i class="fas fa-microphone-lines"></i>
-                                        <span class="settings-option-copy">
-                                            <strong>Microphone level</strong>
-                                            <small>Show your input volume</small>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
-                            </tr>
-                            <tr>
-                                <td class="w-80">
-                                    <div class="title">
-                                        <i class="fas fa-music"></i>
-                                        <span class="settings-option-copy">
-                                            <strong>Meeting sounds</strong>
-                                            <small>Play audio alerts for room events</small>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td><input id="switchSounds" class="toggle" type="checkbox" checked /></td>
-                            </tr>
-                            <tr id="shareOnJoinButton">
-                                <td class="w-80">
-                                    <div class="title">
-                                        <i class="fas fa-share-alt"></i>
-                                        <span class="settings-option-copy">
-                                            <strong>Room link on join</strong>
-                                            <small>Show the sharing prompt when you enter</small>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td><input id="switchShare" class="toggle" type="checkbox" checked /></td>
-                            </tr>
-                            <tr id="keepButtonsVisibleButton">
-                                <td class="w-80">
-                                    <div class="title">
-                                        <i class="fas fa-eye"></i>
-                                        <span class="settings-option-copy">
-                                            <strong>Keep controls visible</strong>
-                                            <small>Do not auto-hide the meeting toolbar</small>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td><input id="switchKeepButtonsVisible" class="toggle" type="checkbox" /></td>
-                            </tr>
-                            <tr id="keepAwakeButton">
-                                <td class="w-80">
-                                    <div class="title">
-                                        <i class="fa-solid fa-mobile-screen"></i>
-                                        <span class="settings-option-copy">
-                                            <strong>Keep device awake</strong>
-                                            <small>Prevent sleep while the meeting is open</small>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td><input id="switchKeepAwake" class="toggle" type="checkbox" /></td>
-                            </tr>
-                            <tr id="pinChatByDefaultRow">
-                                <td class="w-80">
-                                    <div class="title">
-                                        <i class="fas fa-comments"></i>
-                                        <span class="settings-option-copy">
-                                            <strong>Pin chat when opened</strong>
-                                            <small>Keep chat beside the meeting view</small>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td><input id="switchPinChatByDefault" class="toggle" type="checkbox" /></td>
-                            </tr>
-                        </table>
-                        <table id="mySettingsTable" class="settings-block">
-                            <tr>
-                                <td>
-                                    <div class="title">
-                                        <i class="fas fa-clock"></i>
-                                        <span id="mySessionTime">0s</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
+                        <div class="settings-subsection">
+                            <h4 class="settings-subsection-title">
+                                <i class="fas fa-sliders"></i>
+                                Preferences
+                            </h4>
+                            <table id="mySettingsTable">
+                                <tr>
+                                    <td class="w-80">
+                                        <div class="title">
+                                            <i class="fas fa-microphone-lines"></i>
+                                            <span class="settings-option-copy">
+                                                <strong>Microphone level</strong>
+                                                <small>Show your input volume</small>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
+                                </tr>
+                                <tr>
+                                    <td class="w-80">
+                                        <div class="title">
+                                            <i class="fas fa-music"></i>
+                                            <span class="settings-option-copy">
+                                                <strong>Meeting sounds</strong>
+                                                <small>Play audio alerts for room events</small>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><input id="switchSounds" class="toggle" type="checkbox" checked /></td>
+                                </tr>
+                                <tr id="shareOnJoinButton">
+                                    <td class="w-80">
+                                        <div class="title">
+                                            <i class="fas fa-share-alt"></i>
+                                            <span class="settings-option-copy">
+                                                <strong>Room link on join</strong>
+                                                <small>Show the sharing prompt when you enter</small>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><input id="switchShare" class="toggle" type="checkbox" checked /></td>
+                                </tr>
+                                <tr id="keepButtonsVisibleButton">
+                                    <td class="w-80">
+                                        <div class="title">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="settings-option-copy">
+                                                <strong>Keep controls visible</strong>
+                                                <small>Do not auto-hide the meeting toolbar</small>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><input id="switchKeepButtonsVisible" class="toggle" type="checkbox" /></td>
+                                </tr>
+                                <tr id="keepAwakeButton">
+                                    <td class="w-80">
+                                        <div class="title">
+                                            <i class="fa-solid fa-mobile-screen"></i>
+                                            <span class="settings-option-copy">
+                                                <strong>Keep device awake</strong>
+                                                <small>Prevent sleep while the meeting is open</small>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><input id="switchKeepAwake" class="toggle" type="checkbox" /></td>
+                                </tr>
+                                <tr id="pinChatByDefaultRow">
+                                    <td class="w-80">
+                                        <div class="title">
+                                            <i class="fas fa-comments"></i>
+                                            <span class="settings-option-copy">
+                                                <strong>Pin chat when opened</strong>
+                                                <small>Keep chat beside the meeting view</small>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><input id="switchPinChatByDefault" class="toggle" type="checkbox" /></td>
+                                </tr>
+                            </table>
+                            <table id="mySettingsTable" class="settings-block">
+                                <tr>
+                                    <td>
+                                        <div class="title">
+                                            <i class="fas fa-clock"></i>
+                                            <span id="mySessionTime">0s</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
 
                     <div id="tabVideo" class="tabcontent">
@@ -1482,26 +1500,29 @@
                             <h3>Keyboard shortcuts</h3>
                             <p>Enable quick keyboard controls and review the available keys.</p>
                         </div>
-                        <table class="mySettingsTable">
-                            <tr>
-                                <td class="w-80">
-                                    <div class="title">
-                                        <i class="fa-solid fa-keyboard"></i>
-                                        <p>Keyboard shortcuts</p>
-                                    </div>
-                                </td>
-                                <td><input class="toggle" id="switchShortcuts" type="checkbox" /></td>
-                            </tr>
-                        </table>
-                        <div>
-                            <table id="shortcutsTable">
-                                <thead>
-                                    <tr>
-                                        <th>Shortcut</th>
-                                        <th>Icon</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
+                        <div class="settings-subsection">
+                            <h4 class="settings-subsection-title">
+                                <i class="fa-solid fa-keyboard"></i>
+                                Shortcuts
+                            </h4>
+                            <table class="mySettingsTable">
+                                <tr>
+                                    <td class="w-80">
+                                        <div class="title">
+                                            <i class="fa-solid fa-keyboard"></i>
+                                            <p>Keyboard shortcuts</p>
+                                        </div>
+                                    </td>
+                                    <td><input class="toggle" id="switchShortcuts" type="checkbox" /></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="settings-subsection">
+                            <h4 class="settings-subsection-title">
+                                <i class="fas fa-video"></i>
+                                Media and screen
+                            </h4>
+                            <table class="shortcutsTable">
                                 <tbody>
                                     <tr>
                                         <td><i class="fa-solid fa-a"></i></td>
@@ -1519,6 +1540,26 @@
                                         <td><strong>Toggle</strong> screen</td>
                                     </tr>
                                     <tr>
+                                        <td><i class="fa-solid fa-r"></i></td>
+                                        <td><i class="fas fa-record-vinyl"></i></td>
+                                        <td><strong>Toggle</strong> recording</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fa-solid fa-t"></i></td>
+                                        <td><i class="fas fas fa-camera-retro"></i></td>
+                                        <td><strong>Snapshot</strong> screen/window/tab</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="settings-subsection">
+                            <h4 class="settings-subsection-title">
+                                <i class="fas fa-comments"></i>
+                                Collaboration
+                            </h4>
+                            <table class="shortcutsTable">
+                                <tbody>
+                                    <tr>
                                         <td><i class="fa-solid fa-h"></i></td>
                                         <td><i class="fas fa-hand-paper"></i></td>
                                         <td><strong>Toggle</strong> raise hand</td>
@@ -1527,21 +1568,6 @@
                                         <td><i class="fa-solid fa-c"></i></td>
                                         <td><i class="fas fa-comments"></i></td>
                                         <td><strong>Toggle</strong> chat</td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fa-solid fa-o"></i></td>
-                                        <td><i class="fas fa-cogs"></i></td>
-                                        <td><strong>Toggle</strong> settings</td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fa-solid fa-x"></i></td>
-                                        <td><i class="fas fa-user"></i></td>
-                                        <td><strong>Toggle</strong> hide myself</td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="fa-solid fa-r"></i></td>
-                                        <td><i class="fas fa-record-vinyl"></i></td>
-                                        <td><strong>Toggle</strong> recording</td>
                                     </tr>
                                     <tr>
                                         <td><i class="fa-solid fa-e"></i></td>
@@ -1564,14 +1590,29 @@
                                         <td><strong>Toggle</strong> document PIP</td>
                                     </tr>
                                     <tr>
-                                        <td><i class="fa-solid fa-t"></i></td>
-                                        <td><i class="fas fas fa-camera-retro"></i></td>
-                                        <td><strong>Snapshot</strong> screen/window/tab</td>
-                                    </tr>
-                                    <tr>
                                         <td><i class="fa-solid fa-f"></i></td>
                                         <td><i class="fas fa-folder-open"></i></td>
                                         <td><strong>Share</strong> the file</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="settings-subsection">
+                            <h4 class="settings-subsection-title">
+                                <i class="fas fa-sliders"></i>
+                                Interface
+                            </h4>
+                            <table class="shortcutsTable">
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fa-solid fa-o"></i></td>
+                                        <td><i class="fas fa-cogs"></i></td>
+                                        <td><strong>Toggle</strong> settings</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fa-solid fa-x"></i></td>
+                                        <td><i class="fas fa-user"></i></td>
+                                        <td><strong>Toggle</strong> hide myself</td>
                                     </tr>
                                 </tbody>
                             </table>

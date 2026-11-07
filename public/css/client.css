@@ -5274,6 +5274,37 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     padding-bottom: 0;
 }
 
+/* Room tab: tables and buttons sit directly inside the cards */
+.settings-subsection > table {
+    margin: 0;
+}
+
+.settings-subsection > table + table {
+    margin-top: 8px;
+}
+
+.settings-subsection > #activeRoomsBtn {
+    width: 100%;
+    margin: 12px 0 0;
+}
+
+.settings-subsection > .settings-block {
+    margin-top: 8px;
+    padding: 0;
+}
+
+#roomAccessSection > #tabRoomSecurity {
+    margin-top: 0;
+}
+
+#roomAccessSection > #tabRoomSecurity:not([style*='none']) + #tabEmailInvitation {
+    margin-top: 10px;
+}
+
+#roomAccessSection > #tabEmailInvitation {
+    margin: 0;
+}
+
 /* Toggle-only rows: tighter, since the table cells already add their own padding */
 .settings-subsection > .settings-field:has(> table) {
     padding-block: 2px;
@@ -5703,30 +5734,26 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 # Shortcut Table
 --------------------------------------------------------------*/
 
-#shortcutsTable {
+.shortcutsTable {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
     font-size: 16px;
     text-align: start;
     color: #fff;
-    border-radius: 10px;
-    background: var(--body-bg);
 }
-#shortcutsTable th,
-#shortcutsTable td {
-    padding: 5px;
-    /* border: var(--border); */
+.shortcutsTable td {
+    padding: 8px 10px;
 }
-#shortcutsTable th {
-    background: var(--body-bg);
-    font-weight: bold;
+.shortcutsTable tr + tr {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
-#shortcutsTable td i {
+.shortcutsTable td:first-child,
+.shortcutsTable td:nth-child(2) {
+    width: 48px;
+    text-align: center;
+}
+.shortcutsTable td i {
     color: #007bff;
-}
-#shortcutsTable tr:nth-child(even) {
-    background: var(--body-bg);
 }
 
 /*--------------------------------------------------------------

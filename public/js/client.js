@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.73
+ * @version 2.2.74
  *
  */
 
@@ -487,6 +487,7 @@ const pinUnpinGridDiv = getId('pinUnpinGridDiv');
 const pinVideoPositionSelect = getId('pinVideoPositionSelect');
 const tabRoomPeerName = getId('tabRoomPeerName');
 const tabRoomParticipants = getId('tabRoomParticipants');
+const roomAccessSection = getId('roomAccessSection');
 const tabRoomSecurity = getId('tabRoomSecurity');
 const tabEmailInvitation = getId('tabEmailInvitation');
 const noiseSuppressionBtn = getId('noiseSuppressionBtn');
@@ -2280,6 +2281,11 @@ function handleButtonsRule() {
         { element: tabRoomParticipants, display: buttons.settings.showTabRoomParticipants },
         { element: tabRoomSecurity, display: buttons.settings.showTabRoomSecurity, mode: 'grid' },
         { element: tabEmailInvitation, display: buttons.settings.showTabEmailInvitation, mode: 'block' },
+        {
+            element: roomAccessSection,
+            display: buttons.settings.showTabRoomSecurity || buttons.settings.showTabEmailInvitation,
+            mode: 'block',
+        },
         {
             element: noiseSuppressionBtn,
             display: buttons.settings.customNoiseSuppression && isRNNoiseSupported,
@@ -21186,7 +21192,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.73',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.74',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
