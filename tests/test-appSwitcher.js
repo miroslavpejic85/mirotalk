@@ -56,6 +56,12 @@ describe('MiroTalk app switcher', () => {
         assert.equal(panel.hidden, true);
     });
 
+    it('labels the app switcher on desktop and hides the label on mobile', () => {
+        assert.equal(root.querySelector('.trigger-label').textContent, 'Apps');
+        assert.match(source, /@media \(max-width: 640px\)\s*\{\s*button\s*\{[^}]*width: 44px;/);
+        assert.match(source, /\.trigger-label\s*\{\s*display: none;/);
+    });
+
     it('highlights only the current app, including on self-hosted deployments', () => {
         dom.reconfigure({ url: 'https://meet.example.org/' });
         assert.equal(root.querySelectorAll('[aria-current]').length, 1);
@@ -188,6 +194,15 @@ describe('MiroTalk app switcher', () => {
         const landing = new JSDOM(html);
         const nav = landing.window.document.querySelector('.landing-nav');
         assert.equal(nav.querySelector('mirotalk-app-switcher').getAttribute('active-app'), 'p2p');
+        const navItems = [...nav.children];
+        assert.ok(
+            navItems.indexOf(nav.querySelector('mirotalk-app-switcher')) <
+                navItems.indexOf(nav.querySelector('#navGithubLink'))
+        );
+        assert.ok(
+            navItems.indexOf(nav.querySelector('#navGithubLink')) <
+                navItems.indexOf(nav.querySelector('#startMeetingLink'))
+        );
         assert.equal(nav.querySelector('#navAboutLink').getAttribute('href'), '#about');
         assert.equal(nav.querySelector('#startMeetingLink').getAttribute('href'), '#roomName');
         assert.equal(landing.window.document.querySelectorAll('script[src="../js/appSwitcher.js"]').length, 1);

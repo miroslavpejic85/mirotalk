@@ -32,16 +32,23 @@
 
         /* Trigger */
         button {
-            display: grid;
-            place-items: center;
-            width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 44px;
             height: 44px;
-            padding: 10px;
+            padding: 0 10px;
             border: 1px solid transparent;
             border-radius: 10px;
             background: transparent;
             color: var(--switcher-muted);
             cursor: pointer;
+        }
+
+        .trigger-label {
+            font-size: 14px;
+            font-weight: 600;
         }
 
         button:hover,
@@ -213,6 +220,17 @@
             height: 14px;
         }
 
+        @media (max-width: 640px) {
+            button {
+                width: 44px;
+                padding: 10px;
+            }
+
+            .trigger-label {
+                display: none;
+            }
+        }
+
         .sr-only {
             position: absolute;
             width: 1px;
@@ -298,6 +316,7 @@
         <style>${styles}</style>
         <button type="button" aria-label="MiroTalk apps" title="MiroTalk apps" aria-expanded="false" aria-controls="apps">
             ${icon('M3 3h4v4H3z M10 3h4v4h-4z M17 3h4v4h-4z M3 10h4v4H3z M10 10h4v4h-4z M17 10h4v4h-4z M3 17h4v4H3z M10 17h4v4h-4z M17 17h4v4h-4z')}
+            <span class="trigger-label">Apps</span>
         </button>
         <section id="apps" class="panel" popover="auto" aria-labelledby="apps-title" hidden>
             <h2 id="apps-title">MiroTalk apps</h2>
