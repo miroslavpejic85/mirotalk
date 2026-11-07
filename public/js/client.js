@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.72
+ * @version 2.2.73
  *
  */
 
@@ -494,6 +494,7 @@ const isPeerPresenter = getId('isPeerPresenter');
 const peersCount = getId('peersCount');
 const screenFpsDiv = getId('screenFpsDiv');
 const screenQualityDiv = getId('screenQualityDiv');
+const screenSharingSection = getId('screenSharingSection');
 const screenSharingTitle = getId('screenSharingTitle');
 const switchShortcuts = getId('switchShortcuts');
 
@@ -3776,10 +3777,7 @@ function setNoiseSuppressionForAllPeers(enabled) {
         return toastMessage('info', 'No participants detected');
     }
     emitPeersAction(enabled ? 'noiseSuppressionOn' : 'noiseSuppressionOff');
-    userLog(
-        'toast',
-        enabled ? 'Noise suppression enabled for everyone 👍' : 'Noise suppression disabled for everyone 👍'
-    );
+    userLog('toast', enabled ? 'Noise suppression enabled for everyone' : 'Noise suppression disabled for everyone');
 }
 
 /**
@@ -5208,13 +5206,13 @@ async function addChild(device, els) {
         option.value = deviceId;
         switch (kind) {
             case 'videoinput':
-                option.innerText = `📹 ` + (label || `camera ${el.length + 1}`);
+                option.innerText = label || `camera ${el.length + 1}`;
                 break;
             case 'audioinput':
-                option.innerText = `🎤 ` + (label || `microphone ${el.length + 1}`);
+                option.innerText = label || `microphone ${el.length + 1}`;
                 break;
             case 'audiooutput':
-                option.innerText = `🔈 ` + (label || `speaker ${el.length + 1}`);
+                option.innerText = label || `speaker ${el.length + 1}`;
                 break;
             default:
                 break;
@@ -6452,7 +6450,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
                 setTippy(remoteHandStatusIcon, 'Participant hand is raised', 'bottom');
                 setTippy(remoteVideoStatusIcon, 'Participant video is on', 'bottom');
                 setTippy(remoteAudioStatusIcon, 'Participant audio is on', 'bottom');
-                setTippy(remoteAudioVolume, '🔊 Volume', 'top');
+                setTippy(remoteAudioVolume, 'Volume', 'top');
                 setTippy(remoteVideoToImgBtn, 'Take a snapshot', 'bottom');
                 setTippy(remoteVideoPiPBtn, 'Toggle picture in picture', 'bottom');
                 setTippy(remoteVideoPinBtn, 'Toggle Pin video', 'bottom');
@@ -6483,6 +6481,15 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteDropdownContent.className = 'navbar-dropdown-content';
 
             // Build dropdown items
+            // Also added when the peer has no mic yet: it can get one later (retry after a blocked permission)
+            if (!isMobileDevice && buttons.remote.showAudioVolume) {
+                const volumeItem = createResponsiveDropdownRangeItem(remoteAudioVolume, 'Volume', 'fa-volume-high');
+                if (!peer_audio) {
+                    volumeItem.style.display = 'none';
+                    remoteAudioVolume._dropdownItem = volumeItem;
+                }
+                remoteDropdownContent.appendChild(volumeItem);
+            }
             !isMobileDevice &&
                 remoteDropdownContent.appendChild(
                     createResponsiveDropdownItem(remoteVideoPinBtn, 'Pin Video', 'compact')
@@ -6496,15 +6503,6 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             }
             buttons.remote.showSnapShotBtn &&
                 remoteDropdownContent.appendChild(createResponsiveDropdownItem(remoteVideoToImgBtn, 'Take Snapshot'));
-            // Also added when the peer has no mic yet: it can get one later (retry after a blocked permission)
-            if (!isMobileDevice && buttons.remote.showAudioVolume) {
-                const volumeItem = createResponsiveDropdownRangeItem(remoteAudioVolume, 'Volume', 'fa-volume-high');
-                if (!peer_audio) {
-                    volumeItem.style.display = 'none';
-                    remoteAudioVolume._dropdownItem = volumeItem;
-                }
-                remoteDropdownContent.appendChild(volumeItem);
-            }
             remoteDropdownContent.appendChild(
                 createDropdownItem(remoteVideoMirrorBtn, 'Mirror', remoteDropdownContent)
             );
@@ -8587,6 +8585,7 @@ function setScreenShareBtn() {
         displayElements([
             { element: initScreenShareBtn, display: false },
             { element: screenShareBtn, display: false },
+            { element: screenSharingSection, display: false },
             { element: screenSharingTitle, display: false },
             { element: screenFpsDiv, display: false },
             { element: screenQualityDiv, display: false },
@@ -12141,7 +12140,7 @@ function copyRoomURL() {
     navigator.clipboard.writeText(tmpInput.value);
     console.log('Copied to clipboard Join Link ', roomURL);
     document.body.removeChild(tmpInput);
-    userLog('toast', 'Meeting URL copied to clipboard 👍');
+    userLog('toast', 'Meeting URL copied to clipboard');
 }
 
 /**
@@ -17794,15 +17793,15 @@ function disableAllPeers(element) {
         if (result.isConfirmed) {
             switch (element) {
                 case 'audio':
-                    userLog('toast', 'Mute everyone 👍');
+                    userLog('toast', 'Mute everyone');
                     emitPeersAction('muteAudio');
                     break;
                 case 'video':
-                    userLog('toast', 'Hide everyone 👍');
+                    userLog('toast', 'Hide everyone');
                     emitPeersAction('hideVideo');
                     break;
                 case 'screen':
-                    userLog('toast', 'Stop screen 👍');
+                    userLog('toast', 'Stop screen');
                     emitPeersAction('stopScreen');
                     break;
                 default:
@@ -17895,15 +17894,15 @@ function disablePeer(peer_id, element) {
         if (result.isConfirmed) {
             switch (element) {
                 case 'audio':
-                    userLog('toast', 'Mute audio 👍');
+                    userLog('toast', 'Mute audio');
                     emitPeerAction(peer_id, 'muteAudio');
                     break;
                 case 'video':
-                    userLog('toast', 'Hide video 👍');
+                    userLog('toast', 'Hide video');
                     emitPeerAction(peer_id, 'hideVideo');
                     break;
                 case 'screen':
-                    userLog('toast', 'Stop screen 👍');
+                    userLog('toast', 'Stop screen');
                     emitPeerAction(peer_id, 'stopScreen');
                     break;
                 default:
@@ -21187,7 +21186,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.72',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.73',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

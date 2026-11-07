@@ -516,7 +516,6 @@ body {
 }
 
 #initBackgroundEffectsSection select {
-    padding-left: 36px;
     padding-right: 44px;
 }
 
@@ -524,17 +523,12 @@ body {
     position: relative;
 }
 
-.init-background-select > i,
 #initBackgroundEffectLoading {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     color: var(--dd-color, #fff);
     pointer-events: none;
-}
-
-.init-background-select > i {
-    left: 12px;
 }
 
 #initBackgroundEffectLoading {
@@ -593,8 +587,49 @@ body {
 }
 
 .init-user select:disabled {
-    opacity: 0.55;
+    opacity: 0.45;
     cursor: not-allowed;
+    border-style: dashed;
+    filter: grayscale(1);
+    box-shadow: none;
+}
+
+/* Selects with a leading icon (replaces emoji prefixes); the icon and chevron are background layers */
+:root {
+    --select-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --select-icon-video: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolygon points='23 7 16 12 23 17 23 7'/%3e%3crect x='1' y='5' width='15' height='14' rx='2' ry='2'/%3e%3c/svg%3e");
+    --select-icon-mic: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z'/%3e%3cpath d='M19 10v2a7 7 0 0 1-14 0v-2'/%3e%3cline x1='12' y1='19' x2='12' y2='23'/%3e%3cline x1='8' y1='23' x2='16' y2='23'/%3e%3c/svg%3e");
+    --select-icon-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3crect x='3' y='3' width='18' height='18' rx='2' ry='2'/%3e%3ccircle cx='8.5' cy='8.5' r='1.5'/%3e%3cpolyline points='21 15 16 10 5 21'/%3e%3c/svg%3e");
+    --select-icon-speaker: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/%3e%3cpath d='M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3e%3c/svg%3e");
+}
+
+.init-user select.select-with-icon,
+.init-user select.select-with-icon:hover,
+.init-user select.select-with-icon:focus {
+    padding-left: 42px;
+    background-repeat: no-repeat, no-repeat;
+    background-position:
+        14px center,
+        right 12px center;
+    background-size:
+        18px 18px,
+        16px 16px;
+}
+
+.init-user select.select-icon-video {
+    background-image: var(--select-icon-video), var(--select-icon-chevron);
+}
+
+.init-user select.select-icon-mic {
+    background-image: var(--select-icon-mic), var(--select-icon-chevron);
+}
+
+.init-user select.select-icon-image {
+    background-image: var(--select-icon-image), var(--select-icon-chevron);
+}
+
+.init-user select.select-icon-speaker {
+    background-image: var(--select-icon-speaker), var(--select-icon-chevron);
 }
 
 .init-user button {
@@ -5215,6 +5250,39 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     margin-top: 24px;
 }
 
+/* One card per group (camera, screen sharing); the fields inside become flat rows */
+.settings-subsection {
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--select-bg) 25%, transparent);
+}
+
+.settings-subsection > .settings-field {
+    padding: 12px 0;
+    margin-bottom: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.settings-subsection > .settings-field + .settings-field {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-subsection > .settings-field:last-child {
+    padding-bottom: 0;
+}
+
+/* Toggle-only rows: tighter, since the table cells already add their own padding */
+.settings-subsection > .settings-field:has(> table) {
+    padding-block: 2px;
+}
+
+#mySettings .settings-subsection > .settings-field:has(> table) td {
+    padding-block: 8px;
+}
+
 .settings-subsection-title {
     display: flex;
     align-items: center;
@@ -5436,7 +5504,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     margin-top: 16px;
 }
 
-#tabAudio > .settings-section-intro + .settings-field .volume-container {
+#microphoneSettingsSection > .settings-field:first-of-type .volume-container {
     margin-top: 16px;
 }
 

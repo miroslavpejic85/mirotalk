@@ -214,13 +214,16 @@
                     type="button"
                     aria-label="Leave meeting"
                 ></button>
-                <select id="initVideoSelect" class="form-select text-light bg-dark" aria-label="Select camera"></select>
+                <select
+                    id="initVideoSelect"
+                    class="form-select text-light bg-dark select-with-icon select-icon-video"
+                    aria-label="Select camera"
+                ></select>
                 <div id="initBackgroundEffectsSection" hidden>
                     <div class="init-background-select">
-                        <i class="fas fa-image" aria-hidden="true"></i>
                         <select
                             id="initBackgroundEffectSelect"
-                            class="form-select text-light bg-dark"
+                            class="form-select text-light bg-dark select-with-icon select-icon-image"
                             aria-label="Background"
                             title="Background"
                         >
@@ -255,10 +258,14 @@
                 </div>
                 <select
                     id="initMicrophoneSelect"
-                    class="form-select text-light bg-dark"
+                    class="form-select text-light bg-dark select-with-icon select-icon-mic"
                     aria-label="Select microphone"
                 ></select>
-                <select id="initSpeakerSelect" class="form-select text-light bg-dark" aria-label="Speakers"></select>
+                <select
+                    id="initSpeakerSelect"
+                    class="form-select text-light bg-dark select-with-icon select-icon-speaker"
+                    aria-label="Speakers"
+                ></select>
             </div>
         </div>
 
@@ -1206,15 +1213,15 @@
                                     <p>Video Quality</p>
                                 </div>
                                 <select id="videoQuality">
-                                    <option value="default">🎥 Default</option>
-                                    <option value="qvga">🎥 Low (320×240)</option>
-                                    <option value="vga">🎥 Standard (640×480)</option>
-                                    <option value="hd">🎥 HD (720p)</option>
-                                    <option value="fhd">🎥 Full HD (1080p)</option>
-                                    <option value="2k">🎥 2k</option>
-                                    <option value="4k">🎥 4K</option>
-                                    <option value="6k">🎥 6K</option>
-                                    <option value="8k">🎥 8K</option>
+                                    <option value="default">Default</option>
+                                    <option value="qvga">Low (320×240)</option>
+                                    <option value="vga">Standard (640×480)</option>
+                                    <option value="hd">HD (720p)</option>
+                                    <option value="fhd">Full HD (1080p)</option>
+                                    <option value="2k">2k</option>
+                                    <option value="4k">4K</option>
+                                    <option value="6k">6K</option>
+                                    <option value="8k">8K</option>
                                 </select>
                             </div>
                             <div id="backgroundEffectsSection" class="settings-field" hidden>
@@ -1276,7 +1283,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="settings-subsection">
+                        <div id="screenSharingSection" class="settings-subsection">
                             <h4 id="screenSharingTitle" class="settings-subsection-title">
                                 <i class="fa-solid fa-desktop"></i>
                                 Screen sharing
@@ -1287,11 +1294,11 @@
                                     <p>Screen Quality</p>
                                 </div>
                                 <select id="screenQuality">
-                                    <option value="native">🖥️ Native</option>
-                                    <option value="hd">🖥️ HD (720p)</option>
-                                    <option value="fhd">🖥️ Full HD (1080p)</option>
-                                    <option value="2k">🖥️ 2K (1440p)</option>
-                                    <option value="4k">🖥️ 4K</option>
+                                    <option value="native">Native</option>
+                                    <option value="hd">HD (720p)</option>
+                                    <option value="fhd">Full HD (1080p)</option>
+                                    <option value="2k">2K (1440p)</option>
+                                    <option value="4k">4K</option>
                                 </select>
                             </div>
                             <div id="screenFpsDiv" class="settings-field">
@@ -1314,81 +1321,93 @@
                             <h3>Audio</h3>
                             <p>Select your microphone and speakers, then adjust call audio behavior.</p>
                         </div>
-                        <div class="settings-field">
-                            <div class="title">
+                        <div id="microphoneSettingsSection" class="settings-subsection">
+                            <h4 class="settings-subsection-title">
                                 <i class="fas fa-microphone"></i>
-                                <p>Microphone</p>
+                                Microphone
+                            </h4>
+                            <div class="settings-field">
+                                <div class="title">
+                                    <i class="fas fa-microphone"></i>
+                                    <p>Input device</p>
+                                </div>
+                                <select id="audioSource"></select>
+                                <div class="volume-container">
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                    <div class="volume-bar"></div>
+                                </div>
                             </div>
-                            <select id="audioSource"></select>
-                            <div class="volume-container">
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
-                                <div class="volume-bar"></div>
+                            <div id="micOptionsDiv" class="settings-field">
+                                <table id="mySettingsTable">
+                                    <tr id="noiseSuppressionBtn">
+                                        <td class="w-80">
+                                            <div class="title">
+                                                <i class="fas fa-ear-listen"></i>
+                                                <p id="labelNoiseSuppression">Noise Suppression</p>
+                                            </div>
+                                        </td>
+                                        <td><input id="switchNoiseSuppression" class="toggle" type="checkbox" /></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="pushToTalkDiv" class="settings-field">
+                                <table id="mySettingsTable">
+                                    <tr>
+                                        <td class="w-80">
+                                            <div class="title">
+                                                <i class="fa-solid fa-hand-pointer"></i>
+                                                <p>Push to talk</p>
+                                            </div>
+                                        </td>
+                                        <td><input id="switchPushToTalk" class="toggle" type="checkbox" /></td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
-                        <div id="micOptionsDiv" class="settings-field">
-                            <table id="mySettingsTable">
-                                <tr id="noiseSuppressionBtn">
-                                    <td class="w-80">
-                                        <div class="title">
-                                            <i class="fas fa-ear-listen"></i>
-                                            <p id="labelNoiseSuppression">Noise Suppression</p>
-                                        </div>
-                                    </td>
-                                    <td><input id="switchNoiseSuppression" class="toggle" type="checkbox" /></td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div id="audioOutputDiv" class="settings-field">
-                            <div class="title">
+                        <div id="speakerSettingsSection" class="settings-subsection">
+                            <h4 class="settings-subsection-title">
                                 <i class="fas fa-headphones"></i>
-                                <p>Speaker</p>
+                                Speaker
+                            </h4>
+                            <div id="audioOutputDiv" class="settings-field">
+                                <div class="title">
+                                    <i class="fas fa-headphones"></i>
+                                    <p>Output device</p>
+                                </div>
+                                <div class="speaker-select-row">
+                                    <select id="audioOutput"></select>
+                                    <button id="speakerTestBtn" class="buttons">
+                                        <i class="fa-solid fa-circle-play"></i>
+                                        <p>Test</p>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="speaker-select-row">
-                                <select id="audioOutput"></select>
-                                <button id="speakerTestBtn" class="buttons">
-                                    <i class="fa-solid fa-circle-play"></i>
-                                    <p>Test</p>
-                                </button>
+                            <div id="speakerVolumeDiv" class="settings-field">
+                                <div class="title">
+                                    <i class="fas fa-volume-high"></i>
+                                    <p>Output volume:</p>
+                                </div>
+                                <div class="output-volume-row">
+                                    <input
+                                        id="speakerVolume"
+                                        class="output-volume-slider"
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        step="1"
+                                        value="100"
+                                    />
+                                    <span id="speakerVolumeValue" class="output-volume-value">100%</span>
+                                </div>
                             </div>
-                        </div>
-                        <div id="speakerVolumeDiv" class="settings-field">
-                            <div class="title">
-                                <i class="fas fa-volume-high"></i>
-                                <p>Output volume:</p>
-                            </div>
-                            <div class="output-volume-row">
-                                <input
-                                    id="speakerVolume"
-                                    class="output-volume-slider"
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    step="1"
-                                    value="100"
-                                />
-                                <span id="speakerVolumeValue" class="output-volume-value">100%</span>
-                            </div>
-                        </div>
-                        <div id="pushToTalkDiv" class="settings-field">
-                            <table id="mySettingsTable">
-                                <tr>
-                                    <td class="w-80">
-                                        <div class="title">
-                                            <i class="fa-solid fa-hand-pointer"></i>
-                                            <p>Push to talk</p>
-                                        </div>
-                                    </td>
-                                    <td><input id="switchPushToTalk" class="toggle" type="checkbox" /></td>
-                                </tr>
-                            </table>
                         </div>
                     </div>
 

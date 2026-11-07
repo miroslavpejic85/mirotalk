@@ -212,7 +212,7 @@ describe('busy or broken default media devices', () => {
         await context.addChild({ kind: 'audiooutput', deviceId: 'c', label: 'Speakers' }, [el]);
         assert.deepEqual(
             el.options.map((o) => o.innerText),
-            ['🎤 microphone 1', '📹 camera 2', '🔈 Speakers']
+            ['microphone 1', 'camera 2', 'Speakers']
         );
     });
 });
