@@ -154,6 +154,8 @@ const thisInfo = getInfo();
 const lS = new LocalStorage();
 const localStorageSettings = lS.getObjectLocalStorage('P2P_SETTINGS');
 const lsSettings = { ...lS.P2P_SETTINGS, ...(localStorageSettings || {}) };
+// On mobile the buttons bar is visible by default (no mouse to reveal it), unless the user chose otherwise
+if (isMobileDevice && localStorageSettings?.keep_buttons_visible === undefined) lsSettings.keep_buttons_visible = true;
 console.log('LOCAL_STORAGE_SETTINGS', lsSettings);
 
 // Check if embedded inside an iFrame
