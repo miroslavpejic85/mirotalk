@@ -18,6 +18,7 @@ let buttons = {
         showChatRoomBtn: true,
         showParticipantsBtn: true,
         showCaptionRoomBtn: true,
+        showVoiceCommandsBtn: true,
         showRoomEmojiPickerBtn: true,
         showMyHandBtn: true,
         showWhiteboardBtn: true,

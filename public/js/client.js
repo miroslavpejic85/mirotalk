@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.74
+ * @version 2.2.80
  *
  */
 
@@ -2198,6 +2198,7 @@ function handleButtonsRule() {
             element: captionBtn,
             display: buttons.main.showCaptionRoomBtn && (speechRecognition || isWhisperAvailable()),
         }, // auto-detected
+        { element: getId('voiceCommandsBtn'), display: buttons.main.showVoiceCommandsBtn && !!speechRecognition }, // auto-detected
         { element: roomEmojiPickerBtn, display: buttons.main.showRoomEmojiPickerBtn },
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
         { element: whiteboardBtn, display: buttons.main.showWhiteboardBtn },
@@ -21192,7 +21193,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.74',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.80',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

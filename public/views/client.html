@@ -483,10 +483,13 @@
                         <!-- TOOLS -->
                         <div
                             class="device-menu-header extra-menu-group"
-                            data-buttons="captionBtn,whiteboardBtn,editorBtn,pollBtn,breakoutBtn,documentPiPBtn,roomEmojiPickerBtn"
+                            data-buttons="voiceCommandsBtn,captionBtn,whiteboardBtn,editorBtn,pollBtn,breakoutBtn,documentPiPBtn,roomEmojiPickerBtn"
                         >
                             TOOLS
                         </div>
+                        <button id="voiceCommandsBtn" class="app-dropdown-action" aria-pressed="false">
+                            <i id="voiceCommandsIcon" class="fas fa-microphone-slash"></i> Voice Commands
+                        </button>
                         <button id="captionBtn" class="app-dropdown-action">
                             <i class="fas fa-closed-captioning"></i> Transcription
                         </button>
@@ -2931,6 +2934,7 @@ Note</textarea>
         <script defer src="../js/client.js"></script>
         <script defer src="../js/networkStats.js"></script>
         <script defer src="../js/speechRecognition.js"></script>
+        <script defer src="../js/voiceCommands.js"></script>
         <script defer src="../js/whisperTranscription.js"></script>
         <script defer src="../js/nodeProcessor.js"></script>
 

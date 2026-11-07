@@ -78,7 +78,7 @@
 
 - 🎥 Video up to **8K @ 60fps** · Screen sharing · Recording · Picture-in-Picture
 - 💬 Chat with Markdown, emoji & optional GIF search ([KLIPY](https://partner.klipy.com/)) · Collaborative whiteboard · Shared P2P editor · Live polls · Breakout rooms · File sharing
-- 🤖 ChatGPT (OpenAI) integration · Speech recognition
+- 🤖 ChatGPT (OpenAI) integration · Speech recognition · Voice commands
 - 🔒 OIDC auth · [Host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) · JWT credentials · Room passwords · Lobby · Peer-to-peer encryption
 - 🔌 REST API · Slack & Mattermost · Embeddable [iframe](https://docs.mirotalk.com/mirotalk-p2p/integration/#iframe) & [widget](https://docs.mirotalk.com/mirotalk-p2p/integration/#widgets-integration) · 133 languages
 

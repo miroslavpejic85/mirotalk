@@ -8356,6 +8356,78 @@ body {
     }
 }
 
+/* Live voice command caption (public/js/voiceCommands.js) */
+.voice-caption {
+    position: fixed;
+    left: 50%;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+    z-index: 1002;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100vw - 32px);
+    padding: 12px 22px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    background: rgba(15, 15, 25, 0.92);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, 16px);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        visibility 0.2s;
+}
+.voice-caption.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+.voice-caption.is-matched {
+    border-color: #2ecc71;
+}
+.voice-caption-dot {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #2ecc71;
+    animation: voiceCaptionPulse 1.2s ease-out infinite;
+}
+.voice-caption-label {
+    flex: none;
+    color: #9aa4b2;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.voice-caption-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+@keyframes voiceCaptionPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 0 14px rgba(46, 204, 113, 0);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .voice-caption {
+        transition: none;
+    }
+    .voice-caption-dot {
+        animation: none;
+    }
+}
+
 /*
 z-index
 6 theme custom picker
@@ -8375,4 +8447,5 @@ z-index
 18 room Emoji reaction
 1000 room time limit countdown
 1001 audio unlock prompt
+1002 voice command caption
 */

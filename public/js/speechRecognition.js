@@ -74,18 +74,29 @@ const langs = [
     ['日本語', ['ja-JP']],
     ['Lingua latīna', ['la']],
     ['Tiếng Việt', ['vi-VN']],
+    ['বাংলা', ['bn-BD', 'বাংলাদেশ'], ['bn-IN', 'ভারত']],
+    ['العربية', ['ar-SA', 'السعودية'], ['ar-EG', 'مصر'], ['ar-AE', 'الإمارات']],
 ];
 
 const speechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognitionLanguage = getId('recognitionLanguage');
 const recognitionDialect = getId('recognitionDialect');
 
+// Errors that will not recover by restarting the recognition
+const recognitionFatalErrors = ['not-allowed', 'service-not-allowed', 'audio-capture', 'language-not-supported'];
+
 let isWebkitSpeechRecognitionSupported = false;
-let recognitionRunning = false;
-let isPersistentMode = false;
-let isPersistent = false;
+let recognitionRunning = false; // Captions on
+let isVoiceCommandsActive = false; // Voice commands on (see voiceCommands.js)
+let isRecognitionEngineActive = false;
+let recognitionRestartTimer = null;
+let recognitionRestartDelay = null;
 let recognition;
 
+/*
+ * A single SpeechRecognition instance is shared by captions and voice commands:
+ * browsers abort a session when another one starts on the same page.
+ */
 if (speechRecognition) {
     handleRecognitionLanguages();
     // init webkitSpeechRecognition...
@@ -95,33 +106,30 @@ if (speechRecognition) {
     recognition.lang = recognitionDialect.value;
 
     recognition.onstart = function () {
-        console.log('Speech recognition started');
-        elemDisplay(speechRecognitionStart, false);
-        elemDisplay(speechRecognitionStop, true, 'block');
-        setColor(speechRecognitionIcon, 'lime');
-        !isPersistentMode ? userLog('toast', 'Speech recognition started') : (isPersistent = true);
+        console.log('Speech recognition started', { lang: recognition.lang });
     };
 
     // Detect the said words
     recognition.onresult = (e) => {
-        // Skip capturing while the microphone is off.
-        if (!myAudioStatus) return;
         let current = e.resultIndex;
         // Get a transcript of what was said.
         let transcript = e.results[current][0].transcript;
-        if (transcript) {
-            let config = {
-                type: 'speech',
-                room_id: roomId,
-                peer_name: myPeerName,
-                peer_avatar: myPeerAvatar,
-                text_data: transcript,
-                time_stamp: new Date(),
-            };
-            // save also my speech to text
-            handleSpeechTranscript(config);
-            if (transcriptSendToAll) sendToDataChannel(config);
-        }
+        if (!transcript) return;
+        // Voice commands are executed locally and never shared as captions.
+        if (isVoiceCommandsActive && handleVoiceCommandTranscript(transcript)) return;
+        // Skip capturing while the microphone is off.
+        if (!recognitionRunning || !myAudioStatus) return;
+        let config = {
+            type: 'speech',
+            room_id: roomId,
+            peer_name: myPeerName,
+            peer_avatar: myPeerAvatar,
+            text_data: transcript,
+            time_stamp: new Date(),
+        };
+        // save also my speech to text
+        handleSpeechTranscript(config);
+        if (transcriptSendToAll) sendToDataChannel(config);
     };
 
     recognition.onaudiostart = () => {
@@ -134,23 +142,19 @@ if (speechRecognition) {
 
     recognition.onerror = function (event) {
         console.error('Speech recognition error', event.error);
-        if (!isPersistent || !isPersistentMode) userLog('toast', `Transcription error ${event.error}`, 6000);
+        if (!recognitionFatalErrors.includes(event.error)) return;
+        userLog('toast', `Transcription error ${event.error}`, 6000);
+        stopAllRecognition();
     };
 
     recognition.onend = function () {
         console.log('Speech recognition stopped');
-        // if (recognitionRunning) recognition.start();
-        elemDisplay(speechRecognitionStop, false);
-        elemDisplay(speechRecognitionStart, true, 'block');
-        setColor(speechRecognitionIcon, 'white');
+        isRecognitionEngineActive = false;
         // Prevent stopping in the absence of speech...
-        if (isPersistentMode && isPersistent && recognitionRunning) {
-            setTimeout(() => {
-                startSpeech();
-            }, 2000);
-        } else {
-            isPersistent = false;
-            userLog('toast', 'Speech recognition stopped');
+        if (isRecognitionNeeded()) {
+            const delay = recognitionRestartDelay ?? 1000;
+            recognitionRestartDelay = null;
+            recognitionRestartTimer = setTimeout(startRecognitionEngine, delay);
         }
     };
 
@@ -188,34 +192,120 @@ function handleRecognitionLanguages() {
     recognitionDialect.selectedIndex = 6;
     recognitionLanguage.addEventListener('change', () => {
         updateCountry();
+        handleRecognitionDialectChange();
     });
+    recognitionDialect.addEventListener('change', handleRecognitionDialectChange);
 }
 
 /**
- * Start speech recognition
+ * Select the recognition language and dialect by its code (e.g. it-IT)
+ * @param {string} code dialect code
+ * @returns {boolean} true if the dialect exists
+ */
+function setRecognitionDialect(code) {
+    const index = langs.findIndex((lang) => lang.slice(1).some(([dialect]) => dialect === code));
+    if (index < 0) return false;
+    recognitionLanguage.selectedIndex = index;
+    updateCountry();
+    recognitionDialect.value = code;
+    return true;
+}
+
+/**
+ * Apply a new dialect while only the voice commands are listening (the selects are locked during captions)
+ */
+function handleRecognitionDialectChange() {
+    if (isRecognitionEngineActive && !recognitionRunning && recognition.lang !== recognitionDialect.value) {
+        restartRecognitionEngine();
+    }
+}
+
+/**
+ * Start speech recognition (captions)
  */
 function startSpeech() {
+    recognitionRunning = true;
+    recognitionSelectDisabled(true);
+    setCaptionRecognitionUI(true);
+    if (isRecognitionEngineActive && recognition.lang !== recognitionDialect.value) {
+        return restartRecognitionEngine();
+    }
+    startRecognitionEngine();
+}
+
+/**
+ * Stop speech recognition (captions)
+ */
+function stopSpeech() {
+    recognitionRunning = false;
+    recognitionSelectDisabled(false);
+    setCaptionRecognitionUI(false);
+    stopRecognitionEngine();
+    userLog('toast', 'Speech recognition stopped');
+}
+
+/**
+ * Is the recognition needed by captions or voice commands
+ * @returns {boolean}
+ */
+function isRecognitionNeeded() {
+    return recognitionRunning || isVoiceCommandsActive;
+}
+
+/**
+ * Start the shared recognition engine if needed and not already running
+ */
+function startRecognitionEngine() {
+    clearTimeout(recognitionRestartTimer);
+    if (!recognition || isRecognitionEngineActive || !isRecognitionNeeded()) return;
     try {
-        isPersistent = true;
-        isPersistentMode = true;
-        recognitionRunning = true;
         recognition.lang = recognitionDialect.value;
-        recognitionSelectDisabled(true);
         recognition.start();
+        isRecognitionEngineActive = true;
     } catch (error) {
         console.error('Speech recognition start error', error);
     }
 }
 
 /**
- * Stop speech recognition
+ * Stop the shared recognition engine when nobody needs it anymore
  */
-function stopSpeech() {
-    isPersistent = false;
-    isPersistentMode = false;
+function stopRecognitionEngine() {
+    if (isRecognitionNeeded()) return;
+    clearTimeout(recognitionRestartTimer);
+    if (isRecognitionEngineActive) recognition.stop();
+}
+
+/**
+ * Restart the shared recognition engine (e.g. to apply a new language)
+ */
+function restartRecognitionEngine() {
+    if (!isRecognitionEngineActive) return startRecognitionEngine();
+    recognitionRestartDelay = 300;
+    recognition.stop();
+}
+
+/**
+ * Stop captions and voice commands
+ */
+function stopAllRecognition() {
     recognitionRunning = false;
     recognitionSelectDisabled(false);
-    recognition.stop();
+    setCaptionRecognitionUI(false);
+    if (isVoiceCommandsActive && typeof resetVoiceCommands === 'function') resetVoiceCommands();
+    isVoiceCommandsActive = false;
+    clearTimeout(recognitionRestartTimer);
+    if (isRecognitionEngineActive) recognition.abort();
+}
+
+/**
+ * Update the caption start/stop buttons
+ * @param {boolean} active
+ */
+function setCaptionRecognitionUI(active) {
+    elemDisplay(speechRecognitionStart, !active, 'block');
+    elemDisplay(speechRecognitionStop, active, 'block');
+    setColor(speechRecognitionIcon, active ? 'lime' : 'white');
 }
 
 /**

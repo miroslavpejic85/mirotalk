@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.2.74 - Configuration File
+ * MiroTalk P2P v.2.2.80 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -731,6 +731,7 @@ module.exports = {
             showFullScreenBtn: getEnvBoolean(process.env.SHOW_FULLSCREEN_BUTTON, true),
             showRoomEmojiPickerBtn: getEnvBoolean(process.env.SHOW_EMOJI, true),
             showCaptionRoomBtn: getEnvBoolean(process.env.SHOW_CAPTION_BUTTON, true),
+            showVoiceCommandsBtn: getEnvBoolean(process.env.SHOW_VOICE_COMMANDS_BUTTON, true), // Shown only if the browser supports the Web Speech API
             showWhiteboardBtn: getEnvBoolean(process.env.SHOW_WHITEBOARD, true),
             showEditorBtn: getEnvBoolean(process.env.SHOW_EDITOR_BUTTON, true),
             showPollBtn: getEnvBoolean(process.env.SHOW_POLL_BUTTON, true),
