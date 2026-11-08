@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.80
+ * @version 2.2.81
  *
  */
 
@@ -431,6 +431,7 @@ const myProfileAvatarResetBtn = getId('myProfileAvatarResetBtn');
 const switchSounds = getId('switchSounds');
 const switchShare = getId('switchShare');
 const switchKeepButtonsVisible = getId('switchKeepButtonsVisible');
+const keepButtonsVisibleBtn = getId('keepButtonsVisibleBtn');
 const pinChatByDefaultRow = getId('pinChatByDefaultRow');
 const switchPinChatByDefault = getId('switchPinChatByDefault');
 const keepAwakeButton = getId('keepAwakeButton');
@@ -10686,10 +10687,15 @@ function setMySettingsBtn() {
         isButtonsBarOver = isKeepButtonsVisible = e.currentTarget.checked;
         lsSettings.keep_buttons_visible = isButtonsBarOver;
         lS.setSettings(lsSettings);
+        syncKeepButtonsVisibleBtn();
         syncButtonsBarReserve();
         const status = isButtonsBarOver ? 'enabled' : 'disabled';
         userLog('switch', `Buttons always visible ${status}`, undefined, undefined, isKeepButtonsVisible);
         playSound('switch');
+    });
+    keepButtonsVisibleBtn.addEventListener('click', () => {
+        switchKeepButtonsVisible.checked = !switchKeepButtonsVisible.checked;
+        switchKeepButtonsVisible.dispatchEvent(new Event('change'));
     });
 
     if (!isDesktopDevice) {
@@ -11523,6 +11529,7 @@ function loadSettingsFromLocalStorage() {
     switchSounds.checked = notifyBySound;
     switchShare.checked = notify;
     switchKeepButtonsVisible.checked = isKeepButtonsVisible;
+    syncKeepButtonsVisibleBtn();
     switchPinChatByDefault.checked = pinChatByDefault;
     switchAudioPitchBar.checked = isAudioPitchBar;
     switchShortcuts.checked = isShortcutsEnabled;
@@ -16788,6 +16795,17 @@ async function emitPeerStatus(element, status, extras = {}) {
 }
 
 /**
+ * Sync the extra menu "Keep controls visible" button with the settings switch
+ */
+function syncKeepButtonsVisibleBtn() {
+    const active = switchKeepButtonsVisible.checked;
+    keepButtonsVisibleBtn.setAttribute('aria-pressed', String(active));
+    const icon = keepButtonsVisibleBtn.querySelector('i');
+    icon.className = 'fas fa-eye';
+    setColor(icon, active ? 'red' : 'var(--btn-bar-bg-color)');
+}
+
+/**
  * Handle hide myself from room view
  * @param {boolean} isHideMeActive
  */
@@ -21193,7 +21211,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.80',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.81',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
