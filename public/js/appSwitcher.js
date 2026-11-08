@@ -36,9 +36,9 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            min-width: 44px;
-            height: 44px;
-            padding: 0 10px;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 12px;
             border: 1px solid transparent;
             border-radius: 10px;
             background: transparent;
@@ -47,7 +47,7 @@
         }
 
         .trigger-label {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
         }
 
@@ -56,6 +56,11 @@
             background: rgba(70, 120, 249, .12);
             border-color: var(--switcher-border);
             color: var(--switcher-text);
+        }
+
+        button > svg {
+            width: 18px;
+            height: 18px;
         }
 
         svg {
@@ -315,7 +320,7 @@
     template.innerHTML = `
         <style>${styles}</style>
         <button type="button" aria-label="MiroTalk apps" title="MiroTalk apps" aria-expanded="false" aria-controls="apps">
-            ${icon('M3 3h4v4H3z M10 3h4v4h-4z M17 3h4v4h-4z M3 10h4v4H3z M10 10h4v4h-4z M17 10h4v4h-4z M3 17h4v4H3z M10 17h4v4h-4z M17 17h4v4h-4z')}
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${[5, 12, 19].flatMap((y) => [5, 12, 19].map((x) => `<circle cx="${x}" cy="${y}" r="2.2"/>`)).join('')}</svg>
             <span class="trigger-label">Apps</span>
         </button>
         <section id="apps" class="panel" popover="auto" aria-labelledby="apps-title" hidden>
