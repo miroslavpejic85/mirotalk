@@ -323,7 +323,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${[5, 12, 19].flatMap((y) => [5, 12, 19].map((x) => `<circle cx="${x}" cy="${y}" r="2.2"/>`)).join('')}</svg>
             <span class="trigger-label">Apps</span>
         </button>
-        <section id="apps" class="panel" popover="auto" aria-labelledby="apps-title" hidden>
+        <section id="apps" class="panel" popover="manual" aria-labelledby="apps-title" hidden>
             <h2 id="apps-title">MiroTalk apps</h2>
             <p>One ecosystem. More ways to connect.</p>
             <nav aria-label="MiroTalk applications">
