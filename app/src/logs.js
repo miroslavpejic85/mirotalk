@@ -2,6 +2,7 @@
 
 const util = require('util');
 const colors = require('colors');
+const { redact } = require('./logRedactor');
 
 const LOGS_DEBUG = process.env.LOGS_DEBUG ? process.env.LOGS_DEBUG === 'true' : true;
 const LOGS_COLORS = process.env.LOGS_COLORS ? process.env.LOGS_COLORS === 'true' : true;
@@ -37,7 +38,7 @@ module.exports = class Logs {
             ...extra,
         };
         if (op && typeof op === 'object' && Object.keys(op).length > 0) {
-            logObj.data = op;
+            logObj.data = redact(op);
         }
 
         // Output pretty JSON if LOGS_JSON_PRETTY is set, else compact one line JSON
@@ -53,7 +54,7 @@ module.exports = class Logs {
         } else {
             console.debug(
                 '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + msg,
-                util.inspect(op, options),
+                util.inspect(redact(op), options),
                 colors.magenta(this.timeElapsedMs)
             );
         }
@@ -62,11 +63,11 @@ module.exports = class Logs {
 
     log(msg, op = '') {
         if (LOGS_JSON) {
-            jsonLog('log', this.appName, msg, op);
+            this.jsonLog('log', this.appName, msg, op);
         } else {
             console.log(
                 '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + msg,
-                util.inspect(op, options)
+                util.inspect(redact(op), options)
             );
         }
     }
@@ -77,7 +78,7 @@ module.exports = class Logs {
         } else {
             console.info(
                 '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + colors.green(msg),
-                util.inspect(op, options)
+                util.inspect(redact(op), options)
             );
         }
     }
@@ -88,7 +89,7 @@ module.exports = class Logs {
         } else {
             console.warn(
                 '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + colors.yellow(msg),
-                util.inspect(op, options)
+                util.inspect(redact(op), options)
             );
         }
     }
@@ -99,7 +100,7 @@ module.exports = class Logs {
         } else {
             console.error(
                 '[' + this.getDateTime() + '] [' + colors.yellow(this.appName) + '] ' + colors.red(msg),
-                util.inspect(op, options)
+                util.inspect(redact(op), options)
             );
         }
     }
