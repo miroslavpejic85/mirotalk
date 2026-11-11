@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.84
+ * @version 2.2.85
  *
  */
 
@@ -1643,7 +1643,10 @@ io.sockets.on('connect', async (socket) => {
     /**
      * Handle incoming data, res with a callback
      */
-    socket.on('data', async (dataObj, cb) => {
+    socket.on('data', async (dataObj, ack) => {
+        // Socket.IO passes no callback when the client omits the ack id
+        const cb = typeof ack === 'function' ? ack : () => {};
+
         const data = checkXSS(dataObj);
 
         log.debug('Socket Promise', data);
@@ -2949,8 +2952,11 @@ io.sockets.on('connect', async (socket) => {
      * The Whisper API key lives only in server config and is NEVER sent to the browser.
      * https://platform.openai.com/docs/api-reference/audio/createTranscription
      */
-    socket.on('getWhisperTranscription', async ({ room_id, audio, mimeType, language } = {}, cb) => {
+    socket.on('getWhisperTranscription', async (payload, cb) => {
         if (typeof cb !== 'function') return;
+
+        // Destructuring defaults don't apply to null, guard to avoid crashing the process
+        const { room_id, audio, mimeType, language } = payload && typeof payload === 'object' ? payload : {};
 
         // Security: only a joined peer of the room may use the transcription proxy.
         if (!isPeerInRoom(room_id, socket.id)) {
@@ -3035,8 +3041,10 @@ io.sockets.on('connect', async (socket) => {
      * Translate an outgoing chat message into the language picked by the sender.
      * Only a joined peer of the room may use it; the API key stays on the server.
      */
-    socket.on('translateChatMessage', async ({ room_id, text, language } = {}, cb) => {
+    socket.on('translateChatMessage', async (payload, cb) => {
         if (typeof cb !== 'function') return;
+
+        const { room_id, text, language } = payload && typeof payload === 'object' ? payload : {};
 
         if (!isPeerInRoom(room_id, socket.id)) return cb({ error: 'Room not found' });
         if (!chatTranslationClient) return cb({ error: 'Chat translation is disabled' });
