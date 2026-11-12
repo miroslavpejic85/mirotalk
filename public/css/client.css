@@ -266,7 +266,7 @@ body {
     color: #fff;
     padding: 30px;
     width: max-content;
-    max-width: min(420px, calc(100vw - 64px));
+    max-width: min(520px, calc(100vw - 64px));
     box-sizing: border-box;
     text-align: center;
     border-radius: 10px;
