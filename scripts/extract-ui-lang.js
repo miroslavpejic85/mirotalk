@@ -3,7 +3,8 @@
 /**
  * Dev helper: generate the in-room UI translation template (public/lang/en.json).
  *
- * Scans the in-room source for user-facing English strings and groups them by
+ * Scans the source of every page that loads i18n.js (in-room, login, waiting room) for
+ * user-facing English strings and groups them by
  * namespace (tooltips / buttons / labels / dialogs / toasts). Values are the English
  * source itself so translators can copy en.json -> <lang>.json and fill in.
  *
@@ -16,7 +17,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const HTML_FILE = path.join(ROOT, 'public/views/client.html');
+const VIEWS_DIR = path.join(ROOT, 'public/views');
 const LANG_DIR = path.join(ROOT, 'public/lang');
 const OUT_FILE = path.join(LANG_DIR, 'en.json');
 
@@ -86,7 +87,7 @@ function isTranslatable(str) {
     if (/:\/\//.test(str)) return false; // any URL/scheme
     if (/^[A-Za-z]$/.test(str)) return false; // single letter (shortcut keys)
     if (/x{4,}/.test(str)) return false; // placeholder patterns
-    if (/^MiroTalk\b/.test(str)) return false; // brand-managed titles
+    if (/^(?:©\s*\d{4}\s+)?MiroTalk\b/.test(str)) return false; // brand-managed titles / copyright
     if (STOPLIST.has(str)) return false;
     if (str.length > 220) return false;
     return true;
@@ -101,12 +102,26 @@ function unescapeJs(str) {
     return str.replace(/\\(['"\\])/g, '$1').replace(/\\n/g, ' ');
 }
 
-function getRoomJsFiles() {
-    const html = fs.readFileSync(HTML_FILE, 'utf8');
+// Pages that load i18n.js (in-room, login, waiting room) share the same dictionary.
+function getI18nPages() {
+    const i18nScriptRe = /<script[^>]+src\s*=\s*['"]\.\.\/js\/i18n\.js['"]/i;
+    return fs
+        .readdirSync(VIEWS_DIR)
+        .filter((file) => file.endsWith('.html'))
+        .sort()
+        .map((file) => path.join(VIEWS_DIR, file))
+        .filter((file) => i18nScriptRe.test(fs.readFileSync(file, 'utf8')));
+}
+
+// Local scripts loaded by every i18n page (runtime strings share the same dictionary).
+function getI18nJsFiles() {
     const files = new Set();
     const scriptRe = /<script[^>]+src\s*=\s*['"]\.\.\/js\/([^'"?#]+\.js)['"]/gi;
-    let match;
-    while ((match = scriptRe.exec(html))) files.add(path.join(ROOT, 'public/js', match[1]));
+    for (const page of getI18nPages()) {
+        const html = fs.readFileSync(page, 'utf8');
+        let match;
+        while ((match = scriptRe.exec(html))) files.add(path.join(ROOT, 'public/js', match[1]));
+    }
     return [...files];
 }
 
@@ -219,8 +234,22 @@ function scanJs(file) {
 
     // Dynamic attributes translated through the local setTranslatedAttribute helper.
     const translatedAttributeRe =
-        /setTranslatedAttribute\(\s*[^,]+,\s*(['"])[^'"]+\1,\s*(['"])((?:\\.|(?!\2).)*)\2,\s*(['"])(tooltips|buttons|labels|dialogs|toasts)\4\s*\)/g;
-    while ((m = translatedAttributeRe.exec(src))) add(m[5], unescapeJs(m[3]));
+        /setTranslatedAttribute\(\s*[^,]+,\s*(['"])[^'"]+\1,\s*(?:[^,?()]+\?\s*)?(['"])((?:\\.|(?!\2).)*)\2(?:\s*:\s*(['"])((?:\\.|(?!\4).)*)\4)?,\s*(['"])(tooltips|buttons|labels|dialogs|toasts)\6\s*\)/g;
+    while ((m = translatedAttributeRe.exec(src))) {
+        add(m[7], unescapeJs(m[3]));
+        if (m[5]) add(m[7], unescapeJs(m[5]));
+    }
+
+    // Login / waiting room texts translated at runtime through local helpers (labels namespace).
+    const pageTextRe =
+        /\b(?:showLoginError|translateLoginText|translateWaitingText)\(\s*(?:[^,?()'"]+\?\s*)?(['"])((?:\\.|(?!\1).)*)\1(?:\s*:\s*(['"])((?:\\.|(?!\3).)*)\3)?/g;
+    while ((m = pageTextRe.exec(src))) {
+        add('labels', unescapeJs(m[2]));
+        if (m[4]) add('labels', unescapeJs(m[4]));
+    }
+    // Waiting room BRAND texts: the English fallback is translated at runtime.
+    const waitingRoomTextRe = /\bgetWaitingRoomBrand\(\s*[^,]+,\s*(['"])((?:\\.|(?!\1).)*)\1/g;
+    while ((m = waitingRoomTextRe.exec(src))) add('labels', unescapeJs(m[2]));
 
     // Declarative tooltip keys used by dynamically-built controls.
     const tooltipListRe = /\bconst\s+\w*TooltipLabels\s*=\s*\[([\s\S]*?)\];/g;
@@ -313,8 +342,8 @@ function scanHtml(file) {
 // ####################################################
 
 seedCuratedKeys();
-getRoomJsFiles().forEach(scanJs);
-scanHtml(HTML_FILE);
+getI18nJsFiles().forEach(scanJs);
+getI18nPages().forEach(scanHtml);
 
 const output = {};
 for (const [ns, set] of Object.entries(buckets)) {

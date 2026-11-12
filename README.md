@@ -208,7 +208,7 @@ Contributions are welcome and greatly appreciated! Whether it's bug fixes, featu
 
 1. Fork the repository
 2. Create your feature branch
-3. Run `npm run lint` before committing
+3. Run `npm run lint` & `npm run test` before committing
 4. Submit a pull request
 
 Have questions? Join our [Discord community](https://discord.gg/rgGYfeYW3N)!

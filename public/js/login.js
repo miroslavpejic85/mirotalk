@@ -232,10 +232,13 @@ function showJoinRoomForm() {
                 navigator.clipboard
                     .writeText(shareUrl)
                     .then(() => {
-                        popup('success', 'Room link copied to clipboard');
+                        popup(
+                            'success',
+                            window.i18n?.t('Room link copied to clipboard', 'toasts') || 'Room link copied to clipboard'
+                        );
                     })
                     .catch(() => {
-                        popup('error', 'Failed to copy link');
+                        popup('error', window.i18n?.t('Failed to copy link', 'toasts') || 'Failed to copy link');
                     });
             }
         };

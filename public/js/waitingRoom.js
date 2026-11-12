@@ -68,6 +68,16 @@ function translateWaitingText(text) {
     }
 }
 
+// Keeps the English source so i18n.js can re-translate the attribute on a live language switch.
+function setTranslatedAttribute(element, attribute, source, namespace) {
+    element[`__i18nAttr_${attribute}`] = source;
+    let value = source;
+    try {
+        value = (window.i18n && typeof window.i18n.t === 'function' && window.i18n.t(source, namespace)) || source;
+    } catch (e) {}
+    element.setAttribute(attribute, value);
+}
+
 // Brand text (overridden by Brand.js if configured)
 function getWaitingRoomBrand(key, fallback) {
     try {
@@ -174,11 +184,11 @@ function initAudioPlayer() {
         if (audioPlaying) {
             waitingAudio.pause();
             audioIcon.className = 'fa-solid fa-play';
-            audioBtn.title = translateWaitingText('Play music');
+            setTranslatedAttribute(audioBtn, 'title', 'Play music', 'buttons');
         } else {
             waitingAudio.play().catch(function () {});
             audioIcon.className = 'fa-solid fa-pause';
-            audioBtn.title = translateWaitingText('Pause music');
+            setTranslatedAttribute(audioBtn, 'title', 'Pause music', 'buttons');
         }
         audioPlaying = !audioPlaying;
     };
@@ -186,7 +196,7 @@ function initAudioPlayer() {
     audioMuteBtn.onclick = function () {
         waitingAudio.muted = !waitingAudio.muted;
         audioMuteIcon.className = waitingAudio.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
-        audioMuteBtn.title = translateWaitingText(waitingAudio.muted ? 'Unmute' : 'Mute');
+        setTranslatedAttribute(audioMuteBtn, 'title', waitingAudio.muted ? 'Unmute' : 'Mute', 'buttons');
     };
 }
 
