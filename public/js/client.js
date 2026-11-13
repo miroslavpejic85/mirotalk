@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.87
+ * @version 2.2.88
  *
  */
 
@@ -5335,8 +5335,24 @@ async function refreshMyAudioVideoDevices() {
     }
 }
 
+const bluetoothWarnedMics = new Set();
+
 /**
- * Detect low quality bluetooth devices
+ * Check if a microphone label indicates a low quality Bluetooth hands-free (HFP/HSP/SCO) audio profile.
+ * Generic words like "headset" are intentionally ignored: OSes label wired/USB/dongle headsets
+ * (e.g. "Headset Microphone (Jabra Evolve2 30)") that way too.
+ * @param {string} micName
+ * @returns {boolean}
+ */
+function isLowQualityBluetoothMic(micName) {
+    if (!micName) return false;
+    const lowQualityBT = /(bluetooth|bluez|hands[- ]?free|\bhfp\b|\bhsp\b|\bsco\b|airpods)/i;
+    const wired = /\b(usb|wired)\b/i;
+    return lowQualityBT.test(micName) && !wired.test(micName);
+}
+
+/**
+ * Detect low quality bluetooth devices (warns once per device)
  * @param {boolean} init indicates if it's during inizialization before join room
  */
 function detectBluetoothHeadset(init = false) {
@@ -5346,12 +5362,12 @@ function detectBluetoothHeadset(init = false) {
     const micName = getSelectedOptionText(selectEl);
     console.log('Selected microphone:', micName);
 
-    const lowQualityBT = /(bluetooth|headset|hands[- ]?free|hsp|hfp|sco|airpods)/i;
-    if (micName && lowQualityBT.test(micName)) {
-        alert(
-            "⚠️ You're using a Bluetooth headset with limited audio quality. For best results, use your device's built-in microphone or a wired headset."
-        );
-    }
+    if (!isLowQualityBluetoothMic(micName) || bluetoothWarnedMics.has(micName)) return;
+    bluetoothWarnedMics.add(micName);
+    // Native alert: a Swal popup would replace the pre-join dialog
+    alert(
+        "⚠️ You're using a Bluetooth headset with limited audio quality. For best results, use your device's built-in microphone or a wired headset."
+    );
 }
 
 /**
@@ -21211,7 +21227,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.87',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.88',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
