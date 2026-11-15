@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.90
+ * @version 2.2.91
  *
  */
 
@@ -671,10 +671,15 @@ app.get('/sitemap.xml', (req, res) => {
 });
 
 // Use all static files from the public folder
+const soundsDir = path.join(dir.public, 'sounds') + path.sep;
 const staticOptions = {
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.js')) {
             res.setHeader('Content-Type', 'application/javascript');
+        }
+        // Let browsers reuse notification sounds without revalidating on every play (1 day)
+        if (filePath.startsWith(soundsDir) && filePath.endsWith('.mp3')) {
+            res.setHeader('Cache-Control', 'public, max-age=86400');
         }
         // Add other headers if needed...
     },

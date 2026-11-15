@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.90
+ * @version 2.2.91
  *
  */
 
@@ -801,6 +801,27 @@ let outputAudioContext = null; // used to control the output volume where volume
 const blockedAudioElements = new Set(); // remote <audio> blocked by the browser autoplay policy (e.g. Safari)
 let audioUnlockPrompt = null;
 let audioUnlockListening = false;
+const SOUND_VOLUME = 0.5; // notification sounds volume
+const SOUND_PRELOAD = [
+    'addPeer',
+    'alert',
+    'click',
+    'delete',
+    'eject',
+    'locked',
+    'newMessage',
+    'notify',
+    'off',
+    'on',
+    'raiseHand',
+    'removePeer',
+    'switch',
+]; // frequent notification sounds decoded on the first user gesture, the others on first use
+const SOUND_UNLOCK_EVENTS = ['click', 'touchend', 'pointerup', 'keydown'];
+const soundBuffers = new Map(); // sound url -> decoded AudioBuffer
+const soundBuffersLoading = new Map(); // sound url -> Promise<AudioBuffer|null>
+let soundContext = null; // AudioContext used to play notification sounds with low latency
+let soundGain = null;
 
 // main and bottom buttons
 let mainButtonsBarPosition = 'vertical'; // vertical - horizontal
@@ -10056,7 +10077,8 @@ function handlePoll(data) {
  */
 function handlePollCreated(poll, isMine) {
     if (isMine) return;
-    playSound('newMessage');
+    // togglePoll plays the open sound
+    pollIsOpen ? playSound('newMessage') : togglePoll();
     userLog(
         'info',
         (window.i18n?.t('{name} started a poll', 'toasts') || '{name} started a poll').replace(
@@ -10066,7 +10088,6 @@ function handlePollCreated(poll, isMine) {
         'top-end',
         4000
     );
-    if (!pollIsOpen) togglePoll();
 }
 
 /**
@@ -10075,6 +10096,7 @@ function handlePollCreated(poll, isMine) {
 function togglePoll() {
     pollIsOpen = !pollIsOpen;
     if (pollIsOpen) {
+        playSound('newMessage');
         if (isMobileDevice && settingsExtraMenu) {
             settingsExtraMenu.classList.remove('show');
             settingsExtraMenu.classList.add('hidden');
@@ -10191,6 +10213,7 @@ function handleBreakout(data) {
 function toggleBreakout() {
     breakoutIsOpen = !breakoutIsOpen;
     if (breakoutIsOpen) {
+        playSound('newMessage');
         if (isMobileDevice && settingsExtraMenu) {
             settingsExtraMenu.classList.remove('show');
             settingsExtraMenu.classList.add('hidden');
@@ -21260,7 +21283,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.90',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.91',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -21834,9 +21857,10 @@ function msgPopup(icon, message, position = 'top-end', timer) {
 async function playSound(name, force = false, path = '../sounds/') {
     if (!notifyBySound && !force) return;
     const sound = path + name + '.mp3';
+    if (playSoundBuffer(sound)) return;
     const audioToPlay = new Audio(sound);
     try {
-        audioToPlay.volume = 0.5;
+        audioToPlay.volume = SOUND_VOLUME;
         await audioToPlay.play();
     } catch (err) {
         // console.error("Cannot play sound", err);
@@ -21844,6 +21868,113 @@ async function playSound(name, force = false, path = '../sounds/') {
         return;
     }
 }
+
+/**
+ * Low-latency notification sounds: decode once into AudioBuffers and play them through Web Audio,
+ * avoiding the fetch/decode delay of creating a new HTMLAudioElement on every notification.
+ * The AudioContext is resumed on a user gesture (autoplay policy); until a buffer is ready,
+ * playSound falls back to HTMLAudioElement.
+ */
+function getSoundContext() {
+    if (soundContext && soundContext.state !== 'closed') return soundContext;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    try {
+        soundContext = new AudioContextClass({ latencyHint: 'interactive' });
+        soundGain = soundContext.createGain();
+        soundGain.gain.value = SOUND_VOLUME;
+        soundGain.connect(soundContext.destination);
+    } catch (err) {
+        console.warn('Sound AudioContext unavailable', err);
+        soundContext = null;
+        soundGain = null;
+    }
+    return soundContext;
+}
+
+function loadSoundBuffer(url) {
+    if (soundBuffers.has(url)) return Promise.resolve(soundBuffers.get(url));
+    if (soundBuffersLoading.has(url)) return soundBuffersLoading.get(url);
+    const ctx = getSoundContext();
+    if (!ctx) return Promise.resolve(null);
+    const loading = fetch(url)
+        .then((res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.arrayBuffer();
+        })
+        .then(
+            (data) =>
+                // Callback form keeps older Safari (webkitAudioContext) working
+                new Promise((resolve, reject) => {
+                    const decoding = ctx.decodeAudioData(data, resolve, reject);
+                    if (decoding && typeof decoding.then === 'function') decoding.then(resolve, reject);
+                })
+        )
+        .then((buffer) => {
+            soundBuffers.set(url, buffer);
+            return buffer;
+        })
+        .catch((err) => {
+            console.warn('Sound preload failed', { url, err });
+            return null;
+        })
+        .finally(() => soundBuffersLoading.delete(url));
+    soundBuffersLoading.set(url, loading);
+    return loading;
+}
+
+function playSoundBuffer(url) {
+    const ctx = soundContext;
+    if (!ctx || ctx.state === 'closed' || !soundGain) return false;
+    const buffer = soundBuffers.get(url);
+    if (!buffer) {
+        loadSoundBuffer(url); // ready for the next time
+        return false;
+    }
+    if (ctx.state !== 'running') {
+        // Suspended/interrupted (e.g. Safari after backgrounding): start() would be queued and play late
+        ctx.resume().catch(() => {});
+        setSoundUnlockListeners(true);
+        return false;
+    }
+    try {
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(soundGain);
+        source.onended = () => source.disconnect();
+        source.start(0);
+        return true;
+    } catch (err) {
+        console.warn('Sound buffer playback failed', err);
+        return false;
+    }
+}
+
+function unlockSounds() {
+    const ctx = getSoundContext();
+    if (!ctx) return setSoundUnlockListeners(false);
+    if (!soundBuffers.size && !soundBuffersLoading.size) {
+        SOUND_PRELOAD.forEach((name) => loadSoundBuffer('../sounds/' + name + '.mp3'));
+    }
+    if (ctx.state === 'running') return setSoundUnlockListeners(false);
+    // resume() must be invoked inside the user gesture handler
+    ctx.resume()
+        .then(() => {
+            if (ctx.state === 'running') setSoundUnlockListeners(false);
+        })
+        .catch(() => {});
+}
+
+/**
+ * Add or remove the user gesture listeners used to unlock the notification sounds AudioContext
+ * @param {boolean} enabled
+ */
+function setSoundUnlockListeners(enabled) {
+    const method = enabled ? 'addEventListener' : 'removeEventListener';
+    SOUND_UNLOCK_EVENTS.forEach((type) => window[method](type, unlockSounds, true));
+}
+
+setSoundUnlockListeners(true);
 
 /**
  * Test speaker by playing a sound through the selected audio output device

@@ -28,6 +28,8 @@
     box-shadow: var(--box-shadow);
     overflow: hidden;
     resize: both;
+    /* fade in on open (shared by polls and breakout rooms), same as the whiteboard */
+    animation: fadeIn 1s ease-in 1 forwards;
 }
 
 .poll-room.hidden,
