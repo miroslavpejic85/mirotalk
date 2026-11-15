@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.89
+ * @version 2.2.90
  *
  */
 
@@ -78,6 +78,7 @@ const HtmlInjector = require('./htmlInjector');
 const { buildRobotsTxt, buildSitemapXml } = require('./seo');
 const Host = require('./host');
 const Logs = require('./logs');
+const { isSensitiveKey } = require('./logRedactor');
 const { applyEmbedHeaders, embedAllowedOrigins, embedCsp } = require('./middleware/embedHeaders');
 const log = new Logs('server');
 
@@ -2160,10 +2161,12 @@ io.sockets.on('connect', async (socket) => {
 
         // Handle WebHook
         if (webhook.enabled) {
+            // Security: never forward the peer's bearer credentials (peer_token, identity/presenter/breakout tokens, room password)
+            const data = Object.fromEntries(Object.entries(config).filter(([key]) => !isSensitiveKey(key)));
+            data.timestamp = log.getDateTime(false);
             // Trigger a POST request when a user joins
-            config.timestamp = log.getDateTime(false);
             axios
-                .post(webhook.url, { event: 'join', data: config }, { timeout: 5000 }) // 5 second timeout
+                .post(webhook.url, { event: 'join', data }, { timeout: 5000 }) // 5 second timeout
                 .then((response) => log.debug('Join event tracked:', response.data))
                 .catch((error) => log.error('Error tracking join event:', error.message));
         }
