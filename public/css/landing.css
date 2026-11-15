@@ -5763,9 +5763,17 @@ a.skip-link:hover {
     transition: color 0.2s ease;
 }
 
-.landing-page .faq-item summary:hover,
-.landing-page .faq-item[open] summary {
+.landing-page .faq-item[open] summary,
+.landing-page .faq-item[open] summary::after {
     color: var(--landing-primary-bright);
+}
+
+/* Hover only on real pointer devices: avoids sticky :hover after tap on touch screens */
+@media (hover: hover) {
+    .landing-page .faq-item summary:hover,
+    .landing-page .faq-item summary:hover::after {
+        color: var(--landing-primary-bright);
+    }
 }
 
 .landing-page .faq-item summary::-webkit-details-marker {
@@ -5780,11 +5788,6 @@ a.skip-link:hover {
     line-height: 1;
     color: var(--landing-text-muted);
     transition: color 0.2s ease;
-}
-
-.landing-page .faq-item summary:hover::after,
-.landing-page .faq-item[open] summary::after {
-    color: var(--landing-primary-bright);
 }
 
 .landing-page .faq-item[open] summary {
