@@ -1,10 +1,11 @@
 /*
- * Show the leave-room tooltip only while the participant is alone.
- * @param {number} participantsCount number of participants in the room
-██      ██      ██ ██      ████   ██    ██    
-██      ██      ██ █████   ██ ██  ██    ██    
-██      ██      ██ ██      ██  ██ ██    ██    
- ██████ ███████ ██ ███████ ██   ████    ██   
+http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
+
+ ██████ ██      ██ ███████ ███    ██ ████████ 
+██      ██      ██ ██      ████   ██    ██    
+██      ██      ██ █████   ██ ██  ██    ██    
+██      ██      ██ ██      ██  ██ ██    ██    
+ ██████ ███████ ██ ███████ ██   ████    ██                                                
 */
 
 /**
@@ -1239,6 +1240,7 @@ function syncTooltipAriaLabel(element, content) {
 
 /**
  * Update the leave room tooltip based on the user's role and number of participants.
+ * The presenter sees it only while alone in the room.
  * @param {number} participantsCount the number of participants in the room
  */
 function updateLeaveRoomTooltip(participantsCount) {
