@@ -5760,6 +5760,12 @@ a.skip-link:hover {
     font-weight: 600;
     color: var(--landing-text);
     list-style: none;
+    transition: color 0.2s ease;
+}
+
+.landing-page .faq-item summary:hover,
+.landing-page .faq-item[open] summary {
+    color: var(--landing-primary-bright);
 }
 
 .landing-page .faq-item summary::-webkit-details-marker {
@@ -5776,8 +5782,9 @@ a.skip-link:hover {
     transition: color 0.2s ease;
 }
 
-.landing-page .faq-item summary:hover::after {
-    color: var(--landing-text);
+.landing-page .faq-item summary:hover::after,
+.landing-page .faq-item[open] summary::after {
+    color: var(--landing-primary-bright);
 }
 
 .landing-page .faq-item[open] summary {
