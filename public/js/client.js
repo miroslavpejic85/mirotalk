@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.88
+ * @version 2.2.89
  *
  */
 
@@ -3505,6 +3505,7 @@ async function changeLocalMicrophone(deviceId) {
         });
         myAudio.srcObject = micStream;
         localAudioMediaStream = micStream;
+        syncRecordingAudio();
         logStreamSettingsInfo('Success attached local microphone stream', micStream);
         getMicrophoneVolumeIndicator(micStream);
 
@@ -4535,6 +4536,7 @@ function handleDisconnect(reason) {
 
     adaptAspectRatio();
     updateAudioUnlockPrompt();
+    syncRecordingAudio();
 
     chatDataChannels = {};
     fileDataChannels = {};
@@ -4619,6 +4621,7 @@ function handleRemovePeer(config) {
     if (peerAudioId in peerAudioMediaElements) {
         peerAudioMediaElements[peerAudioId].remove();
         updateAudioUnlockPrompt();
+        syncRecordingAudio();
     }
 
     if (peer_id in peerConnections) peerConnections[peer_id].close();
@@ -11962,6 +11965,7 @@ function attachMediaStream(element, stream) {
     //console.log("DEPRECATED, attachMediaStream will soon be removed.");
     element.srcObject = stream;
     console.log('Success, media stream attached', stream.getTracks());
+    if (element.tagName === 'AUDIO') syncRecordingAudio();
 }
 
 /**
@@ -13295,6 +13299,7 @@ function startStreamRecording() {
             ? startDesktopRecording(options, audioMixerTracks)
             : startMobileRecording(options, audioMixerTracks);
     } catch (err) {
+        releaseRecordingAudioMixer();
         handleRecordingError('Exception while creating MediaRecorder: ' + err);
     }
 }
@@ -13337,6 +13342,7 @@ function startMobileRecording(options, audioMixerTracks) {
         handleMediaRecorder(mediaRecorder);
     } catch (err) {
         // Handle any errors that occur during the recording setup
+        releaseRecordingAudioMixer();
         handleRecordingError('Unable to record the camera + audio: ' + err, false);
     }
 }
@@ -13410,6 +13416,7 @@ function startDesktopRecording(options, audioMixerTracks) {
         })
         .catch((err) => {
             // Handle any errors that occur during screen recording setup
+            releaseRecordingAudioMixer();
             handleRecordingError('Unable to record the screen + audio: ' + err, false);
         });
 }
@@ -13582,9 +13589,35 @@ async function handleMediaRecorderStop(event) {
 function stopStreamRecording() {
     if (mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
-        audioRecorder.stopMixedAudioStream();
+        releaseRecordingAudioMixer();
     }
     return recordingSavePromise;
+}
+
+/**
+ * The recording mix is built at start: keep it in sync with participants who join/leave later
+ * and with local microphone replacements.
+ */
+function syncRecordingAudio() {
+    if (!audioRecorder?.audioDestination) return;
+    try {
+        audioRecorder.syncTracks(getAudioStreamFromAudioElements().getAudioTracks());
+    } catch (err) {
+        console.warn('Recording audio sync failed', err);
+    }
+}
+
+/**
+ * Release the participants audio mixer used for recording
+ */
+function releaseRecordingAudioMixer() {
+    if (!audioRecorder) return;
+    try {
+        audioRecorder.stopMixedAudioStream();
+    } catch (err) {
+        console.warn('Recording audio mixer release failed', err);
+    }
+    audioRecorder = null;
 }
 
 /**
@@ -21227,7 +21260,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.88',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.89',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

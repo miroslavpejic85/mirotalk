@@ -50,6 +50,7 @@ describe('handleRemovePeer', () => {
             const screenReaderAccessibility = { announceMessage() {} };
             function adaptAspectRatio() {}
             function updateAudioUnlockPrompt() {}
+            function syncRecordingAudio() {}
             function msgerRemovePeer() {}
             function removeVideoPinMediaContainer() {}
             function playSound() {}

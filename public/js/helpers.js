@@ -4,7 +4,7 @@ class MixedAudioRecorder {
     constructor(useGainNode = true) {
         this.useGainNode = useGainNode;
         this.gainNode = null;
-        this.audioSources = [];
+        this.audioSources = new Map(); // track.id -> { track, source }
         this.audioDestination = null;
         this.audioContext = this.createAudioContext();
     }
@@ -22,7 +22,8 @@ class MixedAudioRecorder {
     }
 
     getMixedAudioStream(audioStreams) {
-        this.audioSources = [];
+        this.audioSources.forEach(({ source }) => source.disconnect());
+        this.audioSources.clear();
 
         if (this.useGainNode) {
             this.gainNode = this.audioContext.createGain();
@@ -30,39 +31,64 @@ class MixedAudioRecorder {
             this.gainNode.gain.value = 0;
         }
 
-        audioStreams.forEach((stream) => {
-            if (!stream || !stream.getTracks().filter((t) => t.kind === 'audio').length) {
-                return;
-            }
-
-            console.log('Mixed audio tracks to add on MediaStreamAudioDestinationNode --->', stream.getTracks());
-
-            let audioSource = this.audioContext.createMediaStreamSource(stream);
-
-            if (this.useGainNode) {
-                audioSource.connect(this.gainNode);
-            }
-            this.audioSources.push(audioSource);
-        });
-
+        // Created once: the output track stays the same while sources are added/removed during recording
         this.audioDestination = this.audioContext.createMediaStreamDestination();
-        this.audioSources.forEach((audioSource) => {
-            audioSource.connect(this.audioDestination);
+
+        audioStreams.forEach((stream) => {
+            if (!stream) return;
+            stream.getAudioTracks().forEach((track) => this.addTrack(track));
         });
 
         return this.audioDestination.stream;
     }
 
+    addTrack(track) {
+        if (!this.audioContext || !this.audioDestination) return false;
+        if (!track || track.kind !== 'audio' || track.readyState !== 'live') return false;
+        if (this.audioSources.has(track.id)) return false;
+
+        console.log('Mixed audio track to add on MediaStreamAudioDestinationNode --->', track);
+
+        const source = this.audioContext.createMediaStreamSource(new MediaStream([track]));
+        if (this.gainNode) source.connect(this.gainNode);
+        source.connect(this.audioDestination);
+        this.audioSources.set(track.id, { track, source });
+        return true;
+    }
+
+    removeTrack(trackId) {
+        const entry = this.audioSources.get(trackId);
+        if (!entry) return false;
+        entry.source.disconnect();
+        this.audioSources.delete(trackId);
+        return true;
+    }
+
+    // Mix exactly the given live tracks: add new ones (late joiners, new mic) and drop stale ones
+    syncTracks(tracks) {
+        if (!this.audioContext || !this.audioDestination) return;
+        const liveIds = new Set();
+        (tracks || []).forEach((track) => {
+            if (track && track.kind === 'audio' && track.readyState === 'live') {
+                liveIds.add(track.id);
+                this.addTrack(track);
+            }
+        });
+        [...this.audioSources.entries()].forEach(([trackId, { track }]) => {
+            if (!liveIds.has(trackId) || track.readyState !== 'live') this.removeTrack(trackId);
+        });
+    }
+
     stopMixedAudioStream() {
-        if (this.useGainNode) {
+        if (this.gainNode) {
             this.gainNode.disconnect();
             this.gainNode = null;
         }
-        if (this.audioSources.length) {
-            this.audioSources.forEach((source) => {
+        if (this.audioSources.size) {
+            this.audioSources.forEach(({ source }) => {
                 source.disconnect();
             });
-            this.audioSources = [];
+            this.audioSources.clear();
         }
         if (this.audioDestination) {
             this.audioDestination.disconnect();

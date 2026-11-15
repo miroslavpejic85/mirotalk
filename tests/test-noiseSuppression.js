@@ -348,6 +348,7 @@ describe('RNNoise client lifecycle', () => {
             myAudio: {},
             logStreamSettingsInfo() {},
             getMicrophoneVolumeIndicator() {},
+            syncRecordingAudio() {},
             userLog: sinon.spy(),
         });
         for (const name of [
