@@ -14,7 +14,7 @@
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.91
+ * @version 2.2.92
  *
  */
 
@@ -646,6 +646,7 @@ const title = getId('disconnectBannerTitle');
 const msg = getId('disconnectBannerMsg');
 const spinner = getId('disconnectBannerSpinner');
 let disconnectBannerRafId = null;
+let disconnectBannerHideTimer = null;
 let isServerRestarting = false; // Set when the server announces a planned shutdown (e.g. update/redeploy)
 const defaultServerRestartBannerMessage =
     'MiroTalk is updating.\nYou may be briefly disconnected while the server restarts.\nPlease reconnect in a moment.';
@@ -21283,7 +21284,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.91',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.92',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -21641,20 +21642,54 @@ function applyBoxShadowEffect(element, color, delay = 200) {
 }
 
 /**
- * Show a persistent banner indicating the signaling server connection was lost.
+ * Cancel any pending show/hide steps of the disconnect banner.
  */
-function showDisconnectBanner() {
-    if (!banner) return;
-    banner.classList.remove('reconnected');
-    icon.className = 'fa-solid fa-wifi-exclamation';
-    title.textContent = 'Connection lost';
-    msg.innerHTML = 'Reconnecting to signaling server\u2026';
-    spinner.style.opacity = '1';
-    if (disconnectBannerRafId) cancelAnimationFrame(disconnectBannerRafId);
+function clearDisconnectBannerTimers() {
+    if (disconnectBannerRafId) {
+        cancelAnimationFrame(disconnectBannerRafId);
+        disconnectBannerRafId = null;
+    }
+    if (disconnectBannerHideTimer) {
+        clearTimeout(disconnectBannerHideTimer);
+        disconnectBannerHideTimer = null;
+    }
+}
+
+/**
+ * Switch the disconnect banner state (null = lost, 'planned', 'reconnected').
+ * Transitions are suspended so the previous state's colors/position don't visibly morph into the new one.
+ * @param {string|null} mode
+ */
+function setDisconnectBannerMode(mode) {
+    banner.classList.add('no-transition');
+    banner.classList.toggle('planned', mode === 'planned');
+    banner.classList.toggle('reconnected', mode === 'reconnected');
+    void banner.offsetWidth; // flush styles before re-enabling transitions
+    banner.classList.remove('no-transition');
+}
+
+/**
+ * Reveal the disconnect banner on the next frame so its enter animation runs.
+ */
+function revealDisconnectBanner() {
     disconnectBannerRafId = requestAnimationFrame(() => {
         disconnectBannerRafId = null;
         banner.classList.add('visible');
     });
+}
+
+/**
+ * Show a persistent banner indicating the signaling server connection was lost.
+ */
+function showDisconnectBanner() {
+    if (!banner) return;
+    clearDisconnectBannerTimers();
+    setDisconnectBannerMode(null);
+    icon.className = 'fa-solid fa-wifi-exclamation';
+    title.textContent = 'Connection lost';
+    msg.innerHTML = 'Reconnecting to signaling server\u2026';
+    spinner.style.opacity = '1';
+    revealDisconnectBanner();
 }
 
 /**
@@ -21662,16 +21697,13 @@ function showDisconnectBanner() {
  */
 function showServerRestartBanner(message) {
     if (!banner) return;
-    banner.classList.remove('reconnected');
-    icon.className = 'fa-solid fa-screwdriver-wrench';
+    clearDisconnectBannerTimers();
+    setDisconnectBannerMode('planned');
+    icon.className = 'fa-solid fa-server';
     title.textContent = 'Server restarting';
     msg.textContent = message || defaultServerRestartBannerMessage;
     spinner.style.opacity = '1';
-    if (disconnectBannerRafId) cancelAnimationFrame(disconnectBannerRafId);
-    disconnectBannerRafId = requestAnimationFrame(() => {
-        disconnectBannerRafId = null;
-        banner.classList.add('visible');
-    });
+    revealDisconnectBanner();
 }
 
 /**
@@ -21679,18 +21711,21 @@ function showServerRestartBanner(message) {
  */
 function hideDisconnectBanner() {
     if (!banner) return;
-    if (disconnectBannerRafId) {
-        cancelAnimationFrame(disconnectBannerRafId);
-        disconnectBannerRafId = null;
+    clearDisconnectBannerTimers();
+    if (!banner.classList.contains('visible')) {
+        setDisconnectBannerMode(null);
+        return;
     }
-    if (!banner.classList.contains('visible')) return;
-    banner.classList.add('reconnected');
+    setDisconnectBannerMode('reconnected');
     icon.className = 'fa-solid fa-circle-check';
     title.textContent = 'Back online';
     msg.textContent = 'Connection restored successfully';
-    setTimeout(() => {
+    disconnectBannerHideTimer = setTimeout(() => {
         banner.classList.remove('visible');
-        setTimeout(() => banner.classList.remove('reconnected'), 420);
+        disconnectBannerHideTimer = setTimeout(() => {
+            disconnectBannerHideTimer = null;
+            setDisconnectBannerMode(null);
+        }, 420);
     }, 2800);
 }
 

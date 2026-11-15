@@ -126,6 +126,11 @@ body {
     pointer-events: auto;
 }
 
+.disconnect-banner.no-transition,
+.disconnect-banner.no-transition * {
+    transition: none !important;
+}
+
 .disconnect-banner-inner {
     display: flex;
     align-items: center;
@@ -222,6 +227,81 @@ body {
 
 .disconnect-banner.reconnected .disconnect-banner-spinner {
     opacity: 0;
+}
+
+.disconnect-banner.planned {
+    top: 50%;
+    width: min(calc(100% - 32px), 460px);
+    max-width: none;
+    transform: translate(-50%, calc(-50% - 24px)) scale(0.96);
+}
+
+.disconnect-banner.planned.visible {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.disconnect-banner.planned .disconnect-banner-inner {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    grid-template-areas:
+        'icon title spinner'
+        'message message message';
+    align-items: center;
+    gap: 0 16px;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    padding: 24px;
+    overflow-y: auto;
+    border-color: rgba(106, 179, 255, 0.35);
+    background:
+        radial-gradient(circle at top left, rgba(106, 179, 255, 0.18), transparent 45%),
+        linear-gradient(135deg, #10243b, #12131a);
+    box-shadow:
+        0 24px 70px rgba(0, 0, 0, 0.55),
+        0 0 0 100vmax rgba(4, 9, 18, 0.64);
+}
+
+.disconnect-banner.planned .disconnect-banner-text {
+    display: contents;
+}
+
+.disconnect-banner.planned .disconnect-banner-icon-wrap {
+    grid-area: icon;
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+    color: #6ab3ff;
+    border-color: rgba(106, 179, 255, 0.3);
+    background: linear-gradient(145deg, rgba(106, 179, 255, 0.34), rgba(106, 179, 255, 0.12));
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 10px 24px rgba(106, 179, 255, 0.16);
+    animation: none;
+}
+
+.disconnect-banner.planned #disconnectBannerTitle {
+    grid-area: title;
+    align-self: center;
+    font-size: 1.12rem;
+    color: #8cc8ff;
+}
+
+.disconnect-banner.planned #disconnectBannerMsg {
+    grid-area: message;
+    max-inline-size: none;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(220, 220, 230, 0.85);
+}
+
+.disconnect-banner.planned .disconnect-banner-spinner {
+    grid-area: spinner;
+    font-size: 18px;
 }
 
 @keyframes bannerIconPulse {
