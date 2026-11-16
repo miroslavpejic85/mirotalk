@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.92
+ * @version 2.2.93
  *
  */
 
@@ -9980,13 +9980,12 @@ function updateEditorLockUI() {
 /**
  * Copy the editor plain text to clipboard
  */
-function copyEditorText() {
+async function copyEditorText() {
     const text = roomEditor.getText().trim();
     if (!text) return userLog('info', 'The editor is empty');
-    navigator.clipboard
-        .writeText(text)
-        .then(() => msgPopup('success', 'Editor text copied!', 'top-end', 1000))
-        .catch((err) => msgPopup('error', err.message || String(err), 'top-end', 6000));
+    (await copyTextToClipboard(text))
+        ? msgPopup('success', 'Editor text copied!', 'top-end', 1000)
+        : msgPopup('error', 'Unable to copy to clipboard', 'top-end', 6000);
 }
 
 /**
@@ -12105,15 +12104,16 @@ async function shareRoomUrl() {
     // navigator share
     if (navigator.share) {
         try {
-            // not add title and description to load metadata from url
+            // url is passed separately so share targets can still load its preview metadata
             const roomURL = getRoomURL();
-            await navigator.share({ url: roomURL });
+            await navigator.share({ text: getInviteText(false), url: roomURL });
             userLog('toast', 'Room Shared successfully!');
         } catch (err) {
+            // User closed the share sheet: nothing to do
+            if (err?.name === 'AbortError') return;
             /*
             This feature is available only in secure contexts (HTTPS),
             in some or all supporting browsers and mobile devices
-            console.error("navigator.share", err); 
             */
             console.error('Navigator share error', err);
 
@@ -12143,14 +12143,15 @@ function shareRoomMeetingURL(checkScreen = false) {
         showDenyButton: true,
         showCancelButton: true,
         reverseButtons: true,
-        confirmButtonText: `Copy URL`,
+        confirmButtonText: `Copy invite`,
         denyButtonText: `Email invite`,
         cancelButtonText: `Close`,
+        focusConfirm: true,
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
         if (result.isConfirmed) {
-            copyRoomURL();
+            copyRoomInvite();
         } else if (result.isDenied) {
             shareRoomByEmail();
         }
@@ -12188,19 +12189,71 @@ function makeRoomPopupQR() {
 }
 
 /**
+ * Build a ready-to-paste invite message
+ * @param {boolean} includeUrl append the room URL to the message
+ * @returns {string} invite text
+ */
+function getInviteText(includeUrl = true) {
+    const lines = [`Join my MiroTalk P2P meeting: ${roomId}`];
+    if (includeUrl) lines.push(getRoomURL());
+    if (isRoomLocked && thisRoomPassword) lines.push(`Password: ${thisRoomPassword}`);
+    return lines.join('\n');
+}
+
+/**
+ * Copy text to clipboard, falling back to execCommand where the Clipboard API is unavailable
+ * @param {string} text
+ * @returns {Promise<boolean>} true if copied
+ */
+async function copyTextToClipboard(text) {
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch (err) {
+        console.warn('Clipboard API error', err);
+    }
+    const tmpInput = document.createElement('textarea');
+    tmpInput.value = text;
+    tmpInput.setAttribute('readonly', '');
+    tmpInput.style.position = 'fixed';
+    tmpInput.style.opacity = '0';
+    document.body.appendChild(tmpInput);
+    tmpInput.select();
+    tmpInput.setSelectionRange(0, text.length); // For mobile devices
+    let copied = false;
+    try {
+        copied = document.execCommand('copy');
+    } catch (err) {
+        console.warn('execCommand copy error', err);
+    }
+    document.body.removeChild(tmpInput);
+    return copied;
+}
+
+/**
  * Copy Room URL to clipboard
  */
-function copyRoomURL() {
+async function copyRoomURL() {
     const roomURL = getRoomURL();
-    const tmpInput = document.createElement('input');
-    document.body.appendChild(tmpInput);
-    tmpInput.value = roomURL;
-    tmpInput.select();
-    tmpInput.setSelectionRange(0, 99999); // For mobile devices
-    navigator.clipboard.writeText(tmpInput.value);
-    console.log('Copied to clipboard Join Link ', roomURL);
-    document.body.removeChild(tmpInput);
-    userLog('toast', 'Meeting URL copied to clipboard');
+    if (await copyTextToClipboard(roomURL)) {
+        console.log('Copied to clipboard Join Link ', roomURL);
+        userLog('toast', 'Meeting URL copied to clipboard');
+    } else {
+        shareRoomMeetingURL();
+    }
+}
+
+/**
+ * Copy the full invite message (room, URL and password if locked) to clipboard
+ */
+async function copyRoomInvite() {
+    if (await copyTextToClipboard(getInviteText())) {
+        userLog('toast', 'Invite copied to clipboard');
+    } else {
+        userLog('warning', 'Unable to copy the invite, please copy the URL manually');
+    }
 }
 
 /**
@@ -15624,15 +15677,11 @@ function handleDataChannelChatEdit(dataMessage, peer_id) {
  * @param {string} id
  */
 function copyToClipboard(id) {
-    const text = getId(id).innerText;
-    navigator.clipboard
-        .writeText(text)
-        .then(() => {
-            msgPopup('success', 'Message copied!', 'top-end', 1000);
-        })
-        .catch((err) => {
-            msgPopup('error', err.message || String(err), 'top-end', 6000);
-        });
+    copyTextToClipboard(getId(id).innerText).then((copied) =>
+        copied
+            ? msgPopup('success', 'Message copied!', 'top-end', 1000)
+            : msgPopup('error', 'Unable to copy to clipboard', 'top-end', 6000)
+    );
 }
 
 function closeAllMsgerParticipantDropdownMenus() {
@@ -21286,7 +21335,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.92',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.93',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
