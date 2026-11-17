@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.10
+ * @version 2.3.11
  *
  */
 
@@ -21489,7 +21489,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.10',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.11',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -22777,6 +22777,27 @@ function setupQuickDeviceSwitchDropdowns() {
         closeMenu(toggleEl, menuEl);
     }
 
+    // Quick "for all" moderation shortcut, same action and permission as the participants list
+    function appendMenuModerationAction(menuEl, toggleEl, element, iconClass, label) {
+        if (!menuEl || (isRulesActive && !isPresenter)) return;
+
+        appendMenuDivider(menuEl);
+        appendMenuHeader(menuEl, 'fas fa-user-shield', 'Moderation');
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'app-dropdown-action device-menu-action-btn';
+        const icon = document.createElement('i');
+        icon.className = iconClass;
+        btn.appendChild(icon);
+        btn.appendChild(document.createTextNode(` ${label}`));
+        btn.addEventListener('click', () => {
+            hideDeviceMenu(toggleEl, menuEl);
+            disableAllPeers(element);
+        });
+        menuEl.appendChild(btn);
+    }
+
     function appendSelectOptions(menuEl, selectEl, emptyLabel, rebuildFn, meterCollector) {
         if (!menuEl || !selectEl) {
             const btn = document.createElement('button');
@@ -22893,6 +22914,16 @@ function setupQuickDeviceSwitchDropdowns() {
             }, 100);
         });
         videoMenu.appendChild(settingsBtn);
+
+        if (buttons.settings.showHideEveryoneBtn) {
+            appendMenuModerationAction(
+                videoMenu,
+                videoToggle,
+                'video',
+                'fas fa-video-slash',
+                window.i18n?.t('Hide all participants', 'labels') || 'Hide all participants'
+            );
+        }
     }
 
     function rebuildAudioMenu() {
@@ -22998,6 +23029,16 @@ function setupQuickDeviceSwitchDropdowns() {
             }, 100);
         });
         audioMenu.appendChild(settingsBtn);
+
+        if (buttons.settings.showMuteEveryoneBtn) {
+            appendMenuModerationAction(
+                audioMenu,
+                audioToggle,
+                'audio',
+                'fas fa-microphone-slash',
+                window.i18n?.t('Mute all participants', 'labels') || 'Mute all participants'
+            );
+        }
     }
 
     // Hover behavior (desktop only). Note: rebuilding alone is invisible if the menu isn't opened.
