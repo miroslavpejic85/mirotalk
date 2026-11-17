@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.2.93
+ * @version 2.3.10
  *
  */
 
@@ -792,6 +792,7 @@ let localAudioMediaStream; // my microphone
 let noiseProcessor = null; // RNNoise audio processing
 let noiseSuppressionRequest = 0;
 let noiseSuppressionConstraints = Promise.resolve();
+let noiseSuppressionSwitchRequest = 0;
 let microphoneRequest = 0;
 let peerScreenMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_screen
 let peerVideoMediaElements = {}; // keep track of our peer <video> tags, indexed by peer_id_video
@@ -3533,7 +3534,7 @@ async function changeLocalMicrophone(deviceId) {
         logStreamSettingsInfo('Success attached local microphone stream', micStream);
         getMicrophoneVolumeIndicator(micStream);
 
-        if (lsSettings.mic_noise_suppression && buttons.settings.customNoiseSuppression) {
+        if (isRNNoiseSupported && buttons.settings.customNoiseSuppression) {
             await enableNoiseSuppression();
         } else {
             await refreshMyStreamToPeers(micStream, true);
@@ -3610,13 +3611,17 @@ function handleRNNoiseNotSupported() {
 }
 
 /**
- * Enable RNNoise audio processing for noise suppression.
- * Returns true on success, false on failure.
+ * Start the RNNoise audio processing pipeline and publish its output.
+ * RNNoise suppresses only when selected by the user, otherwise it passes the audio through,
+ * so later toggles are instant. Returns true on success, false on failure.
  */
 async function enableNoiseSuppression() {
     const originalStream = noiseProcessor?.originalStream || localAudioMediaStream;
     stopNoiseSuppressionPipeline();
     const request = noiseSuppressionRequest;
+    // A pending browser noise suppression switch may be re-capturing the raw microphone: let it settle
+    await noiseSuppressionConstraints.catch(() => {});
+    if (request !== noiseSuppressionRequest) return false;
     if (!originalStream || !originalStream.getAudioTracks().some((track) => track.readyState !== 'ended')) {
         console.warn('enableNoiseSuppression: no local audio stream available.');
         return false;
@@ -3625,8 +3630,9 @@ async function enableNoiseSuppression() {
     // Guard: processor class must exist and be supported
     if (typeof RNNoiseProcessor === 'undefined' || !RNNoiseProcessor.isSupported()) {
         console.warn('RNNoise: not available or not supported on this device, skipping.');
+        const wasSelected = !!lsSettings.mic_noise_suppression;
         handleRNNoiseNotSupported();
-        return fallbackNoiseSuppression(null, request);
+        return fallbackNoiseSuppression(null, request, wasSelected);
     }
 
     let processor;
@@ -3639,8 +3645,7 @@ async function enableNoiseSuppression() {
                 console.error('RNNoise fallback error:', error)
             );
         };
-        const audioTrack = originalStream.getAudioTracks()[0];
-        await setMicrophoneNoiseSuppression(audioTrack, false, () => request === noiseSuppressionRequest);
+        await setMicrophoneNoiseSuppression(!isRNNoiseSuppressionSelected(), () => request === noiseSuppressionRequest);
         if (request !== noiseSuppressionRequest || noiseProcessor !== processor) return false;
 
         const processedStream = await processor.startProcessing(originalStream);
@@ -3661,52 +3666,166 @@ async function enableNoiseSuppression() {
             track.enabled = true;
         });
         processor.processedStream = processedStream;
-        processor.toggleNoiseSuppression();
+        processor.setNoiseSuppression(isRNNoiseSuppressionSelected());
         localAudioMediaStream = processedStream;
         await refreshMyStreamToPeers(processedStream, true, () => request === noiseSuppressionRequest);
-        return request === noiseSuppressionRequest && noiseProcessor === processor;
+        if (request !== noiseSuppressionRequest || noiseProcessor !== processor) return false;
+        logNoiseSuppressionState();
+        return true;
     } catch (err) {
         console.error('enableNoiseSuppression error:', err);
         return fallbackNoiseSuppression(processor || null, request);
     }
 }
 
-function setMicrophoneNoiseSuppression(track, enabled, isCurrent) {
+/**
+ * True when RNNoise is available and selected by the user.
+ */
+function isRNNoiseSuppressionSelected() {
+    return !!(buttons.settings.customNoiseSuppression && isRNNoiseSupported && lsSettings.mic_noise_suppression);
+}
+
+/**
+ * Raw microphone stream (before RNNoise).
+ */
+function getRawMicrophoneStream() {
+    return noiseProcessor?.originalStream || localAudioMediaStream;
+}
+
+/**
+ * True while a local microphone is captured, including while it is muted or being re-captured.
+ */
+function hasLocalMicrophone() {
+    return !!(useAudio && getRawMicrophoneStream()?.getAudioTracks?.().length);
+}
+
+/**
+ * Live raw microphone track (before RNNoise), so other consumers never need to open the device a second time.
+ */
+function getMicrophoneInputTrack() {
+    const track = getRawMicrophoneStream()?.getAudioTracks?.()[0];
+    return track?.readyState === 'live' ? track : null;
+}
+
+/**
+ * Log the effective RNNoise and browser (native) noise suppression state.
+ */
+function logNoiseSuppressionState() {
+    console.log('Noise suppression state', {
+        rnnoise: !!noiseProcessor?.noiseSuppressionEnabled,
+        native: getRawMicrophoneStream()?.getAudioTracks?.()[0]?.getSettings?.().noiseSuppression ?? 'not reported',
+    });
+}
+
+/**
+ * RNNoise and browser noise suppression are mutually exclusive on the raw microphone track:
+ * native suppression is turned off while RNNoise runs, and back on when RNNoise is switched off.
+ * Updates are chained so rapid toggles always settle on the latest state.
+ * Resolves true when the raw microphone reports the wanted native suppression state.
+ */
+function setMicrophoneNoiseSuppression(enabled, isCurrent) {
     const operation = noiseSuppressionConstraints
         .catch(() => {})
         .then(async () => {
-            if (!isCurrent() || !track?.applyConstraints) return false;
-            if (!enabled && !track.getSettings?.().noiseSuppression) return false;
-            await track.applyConstraints({ ...track.getConstraints?.(), noiseSuppression: enabled });
-            return track.getSettings?.().noiseSuppression === enabled;
+            if (!isCurrent()) return false;
+            const stream = getRawMicrophoneStream();
+            const track = stream?.getAudioTracks?.()[0];
+            if (!track || track.readyState === 'ended' || typeof track.applyConstraints !== 'function') return false;
+            if (track.getSettings?.().noiseSuppression === enabled) return true;
+            const supported = track.getCapabilities?.().noiseSuppression;
+            if (Array.isArray(supported) && !supported.includes(enabled)) {
+                console.warn('Browser noise suppression cannot be changed on this device', { enabled, supported });
+                return false;
+            }
+            try {
+                await track.applyConstraints({ ...track.getConstraints?.(), noiseSuppression: enabled });
+            } catch (err) {
+                console.warn('Browser noise suppression could not be updated live:', err);
+            }
+            const applied = track.getSettings?.().noiseSuppression;
+            if (applied === enabled) return true;
+            if (applied === undefined || !isCurrent()) return false;
+            // Chromium ignores audio processing changes via applyConstraints (crbug.com/390804131): re-capture the mic
+            return recaptureMicrophoneNoiseSuppression(stream, track, enabled);
         });
     noiseSuppressionConstraints = operation;
     return operation;
 }
 
-async function fallbackNoiseSuppression(processor, request) {
+/**
+ * Re-capture the raw microphone with the wanted browser noise suppression and
+ * swap the new track into the existing stream(s) in place.
+ * Resolves true when the new track reports the wanted state.
+ */
+async function recaptureMicrophoneNoiseSuppression(stream, track, enabled) {
+    const request = microphoneRequest;
+    const deviceId = track.getSettings?.().deviceId;
+    const getMic = (id) => {
+        const { audio } = getAudioConstraints(id);
+        return navigator.mediaDevices.getUserMedia({ audio: { ...audio, noiseSuppression: enabled } });
+    };
+    // Chromium hands back the already open source (and its processing) while the old track is live: release it first
+    track.stop();
+    let newStream;
+    try {
+        newStream = await getMic(deviceId);
+    } catch (err) {
+        console.warn('Microphone re-capture failed, retrying without device id:', err);
+        try {
+            newStream = await getMic();
+        } catch (retryErr) {
+            console.warn('Browser noise suppression could not be updated:', retryErr);
+            return false;
+        }
+    }
+    const newTrack = newStream?.getAudioTracks?.()[0];
+    // Drop it if the microphone was replaced meanwhile
+    if (!newTrack || request !== microphoneRequest || stream.getAudioTracks()[0] !== track) {
+        newStream?.getTracks?.().forEach((t) => t.stop());
+        return false;
+    }
+    newTrack.enabled = track.enabled;
+    for (const holder of new Set([stream, localAudioMediaStream])) {
+        if (holder?.getAudioTracks?.()[0] !== track) continue;
+        holder.removeTrack(track);
+        holder.addTrack(newTrack);
+    }
+    // A running RNNoise worklet is still bound to the old track: feed it the new one
+    if (noiseProcessor?.isProcessing && noiseProcessor.originalStream === stream) noiseProcessor.replaceInput(stream);
+    getMicrophoneVolumeIndicator(stream);
+    syncRecordingAudio();
+    logStreamSettingsInfo('Re-captured microphone to switch browser noise suppression', stream);
+    const applied = newTrack.getSettings?.().noiseSuppression;
+    if (applied !== undefined && applied !== enabled) {
+        console.warn('Browser noise suppression did not change', { wanted: enabled, applied });
+    }
+    return applied === enabled;
+}
+
+async function fallbackNoiseSuppression(processor, request, wasSelected = !!lsSettings.mic_noise_suppression) {
     if (request !== noiseSuppressionRequest || noiseProcessor !== processor) return false;
     stopNoiseSuppressionPipeline();
     const fallbackRequest = noiseSuppressionRequest;
+    const isCurrent = () => fallbackRequest === noiseSuppressionRequest;
     const stream = localAudioMediaStream;
-    const track = stream?.getAudioTracks()[0];
     lsSettings.mic_noise_suppression = false;
     lS.setSettings(lsSettings);
     syncNoiseSuppressionUI();
     let nativeSuppressionEnabled = false;
     try {
-        nativeSuppressionEnabled = await setMicrophoneNoiseSuppression(
-            track,
-            true,
-            () => fallbackRequest === noiseSuppressionRequest
-        );
+        nativeSuppressionEnabled = await setMicrophoneNoiseSuppression(true, isCurrent);
     } catch (error) {
         console.warn('Native noise suppression fallback failed:', error);
     }
-    if (fallbackRequest !== noiseSuppressionRequest || stream !== localAudioMediaStream) return false;
+    if (!isCurrent() || stream !== localAudioMediaStream) return false;
+    // The raw mic track may have been re-captured to switch browser noise suppression on
+    const track = stream?.getAudioTracks()[0];
     if (track) track.enabled = myAudioStatus;
-    await refreshMyStreamToPeers(stream, true, () => fallbackRequest === noiseSuppressionRequest);
+    await refreshMyStreamToPeers(stream, true, isCurrent);
     if (fallbackRequest !== noiseSuppressionRequest) return false;
+    logNoiseSuppressionState();
+    // The pipeline also runs (bypassed) when the user has RNNoise off: only warn if they asked for it
+    if (!wasSelected) return false;
     toastMessage(
         'warning',
         nativeSuppressionEnabled
@@ -3723,7 +3842,12 @@ async function disableNoiseSuppression(restoreOriginalStream = true) {
     stopNoiseSuppressionPipeline();
     const request = noiseSuppressionRequest;
     if (restoreOriginalStream) {
-        await refreshMyStreamToPeers(localAudioMediaStream, true, () => request === noiseSuppressionRequest);
+        const isCurrent = () => request === noiseSuppressionRequest;
+        // RNNoise is off: switch the browser noise suppression back on for the raw microphone
+        await setMicrophoneNoiseSuppression(!isRNNoiseSuppressionSelected(), isCurrent);
+        if (!isCurrent()) return;
+        await refreshMyStreamToPeers(localAudioMediaStream, true, isCurrent);
+        if (isCurrent()) logNoiseSuppressionState();
     }
 }
 
@@ -3765,12 +3889,42 @@ async function restartNoiseSuppression() {
 }
 
 /**
+ * Switch a running RNNoise pipeline on/off without rebuilding it: the worklet just bypasses,
+ * so peers keep the same processed track. Browser noise suppression follows in the background.
+ */
+function switchRNNoiseSuppression(processor, enabled) {
+    processor.setNoiseSuppression(enabled);
+    const request = ++noiseSuppressionSwitchRequest;
+    const isCurrent = () => request === noiseSuppressionSwitchRequest && noiseProcessor === processor;
+    return setMicrophoneNoiseSuppression(!enabled, isCurrent)
+        .then(() => {
+            if (isCurrent()) logNoiseSuppressionState();
+        })
+        .catch((err) => console.warn('Browser noise suppression sync failed:', err));
+}
+
+/**
  * Apply the noise suppression state and keep all UI toggles in sync.
  * Shared by the audio settings switch and the audio dropdown menu switch.
  * Returns the final effective state.
  */
 async function applyNoiseSuppression(enabled) {
     if (!buttons.settings.customNoiseSuppression) return false;
+
+    if (noiseProcessor?.isProcessing && noiseProcessor.processedStream) {
+        lsSettings.mic_noise_suppression = enabled;
+        lS.setSettings(lsSettings);
+        switchRNNoiseSuppression(noiseProcessor, enabled);
+        userLog(
+            'switch',
+            enabled ? 'Noise suppression enabled' : 'Noise suppression disabled',
+            undefined,
+            undefined,
+            enabled
+        );
+        syncNoiseSuppressionUI();
+        return enabled;
+    }
 
     if (enabled) {
         lsSettings.mic_noise_suppression = true;
@@ -5502,11 +5656,11 @@ async function setupLocalAudioMedia() {
                 localAudioMediaStream = activeStream;
                 console.log('10. Access granted to audio device');
 
-                // Auto-enable noise suppression if the user had it active in a previous session.
-                if (lsSettings.mic_noise_suppression && isRNNoiseSupported && buttons.settings.customNoiseSuppression) {
+                // Start the RNNoise pipeline up front (bypassed when the user has it off) so toggling is instant
+                if (isRNNoiseSupported && buttons.settings.customNoiseSuppression) {
                     const ok = await enableNoiseSuppression();
                     if (!ok) {
-                        console.warn('Auto noise-suppression failed on startup, continuing with raw mic.');
+                        console.warn('Noise suppression pipeline failed on startup, continuing with raw mic.');
                     }
                 }
             }
@@ -11768,8 +11922,8 @@ function getVideoConstraints(videoQuality) {
  * @returns {object} audio constraints
  */
 function getAudioConstraints(deviceId = null) {
-    // If custom RNNoise is enabled but not supported, fall back to built-in WebRTC noise suppression
-    const useBuiltInNoiseSuppression = !buttons.settings.customNoiseSuppression || !isRNNoiseSupported;
+    // Use built-in WebRTC noise suppression unless RNNoise is available and selected by the user
+    const useBuiltInNoiseSuppression = !isRNNoiseSuppressionSelected();
 
     // Enhanced audio constraints for better quality and volume on all devices
     // On mobile, use { ideal: true } so getUserMedia succeeds even if the
@@ -21335,7 +21489,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.2.93',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.10',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -22296,12 +22450,20 @@ function setupQuickDeviceSwitchDropdowns() {
 
     // Live audio input level meters shown next to each microphone in the audio device menu.
     // Uses a single AudioContext and one analyser per device; runs only while the menu is open.
+    // The selected microphone is metered from the live mic track: Chrome (macOS) can't open a device
+    // that is already capturing with different audio processing (NotReadableError), and a second open
+    // capture would also pin the processing of the next mic re-capture.
     const audioMeterManager = {
         active: false,
         rafId: null,
         audioContext: null,
-        meters: new Map(), // deviceId -> { stream, source, analyser, dataArray }
+        meters: new Map(), // deviceId -> { stream, track, shared, source, analyser, dataArray }
         barTargets: new Map(), // deviceId -> [barEl, ...]
+        failed: new Set(), // devices that could not be opened, not retried until the menu reopens
+        pending: new Set(),
+        groupIds: new Map(),
+        holdSelected: false, // a mic switch is in progress: never open the selected device
+        lastRefresh: 0,
 
         async ensureContext() {
             const AC = window.AudioContext || window.webkitAudioContext;
@@ -22326,23 +22488,82 @@ function setupQuickDeviceSwitchDropdowns() {
             });
         },
 
+        async loadGroupIds() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                this.groupIds.clear();
+                devices
+                    .filter((d) => d.kind === 'audioinput' && d.deviceId)
+                    .forEach((d) => this.groupIds.set(d.deviceId, d.groupId));
+            } catch (err) {
+                /* ignore */
+            }
+        },
+
+        // The selected microphone, or the default/communications alias pointing to the same device
+        isSelectedMicrophone(deviceId) {
+            const selected = audioInputSelect?.value;
+            if (!selected) return false;
+            if (deviceId === selected) return true;
+            const aliases = ['default', 'communications'];
+            if (!aliases.includes(deviceId) && !aliases.includes(selected)) return false;
+            const groupId = this.groupIds.get(deviceId);
+            return !!groupId && groupId === this.groupIds.get(selected);
+        },
+
+        // The local mic stays captured (even while muted or being re-captured) whenever it is in use
+        isMicrophoneOpen() {
+            return this.holdSelected || hasLocalMicrophone();
+        },
+
         async start(entries) {
-            if (!(window.AudioContext || window.webkitAudioContext)) return;
+            if (!isAudioContextSupported()) return;
             this.active = true;
             this.setBarTargets(entries);
-            for (const { deviceId } of entries) {
-                if (deviceId && !this.meters.has(deviceId)) {
-                    await this.createMeter(deviceId);
-                }
-            }
+            await this.loadGroupIds();
+            await this.refresh();
             if (this.active && !this.rafId) {
                 this.rafId = requestAnimationFrame(() => this.tick());
             }
         },
 
-        async createMeter(deviceId) {
+        async refresh() {
+            this.lastRefresh = Date.now();
+            for (const deviceId of Array.from(this.barTargets.keys())) {
+                if (!this.active) return;
+                await this.syncMeter(deviceId);
+            }
+        },
+
+        async syncMeter(deviceId) {
+            if (this.pending.has(deviceId)) return;
+            const selected = this.isSelectedMicrophone(deviceId);
+            const liveTrack = selected ? getMicrophoneInputTrack() : null;
+            const meter = this.meters.get(deviceId);
+            if (meter) {
+                const stale =
+                    meter.track.readyState === 'ended' ||
+                    (meter.shared ? meter.track !== liveTrack : selected && this.isMicrophoneOpen());
+                if (!stale) return;
+                this.release(deviceId);
+            }
+            if (selected && this.isMicrophoneOpen()) {
+                if (liveTrack) await this.addMeter(deviceId, new MediaStream([liveTrack]), liveTrack, true);
+                return;
+            }
+            if (this.failed.has(deviceId)) return;
+            this.pending.add(deviceId);
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
+                await this.createMeter(deviceId);
+            } finally {
+                this.pending.delete(deviceId);
+            }
+        },
+
+        async createMeter(deviceId) {
+            let stream;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         deviceId: { exact: deviceId },
                         echoCancellation: false,
@@ -22350,29 +22571,65 @@ function setupQuickDeviceSwitchDropdowns() {
                         autoGainControl: false,
                     },
                 });
-                if (!this.active) {
-                    stream.getTracks().forEach((t) => t.stop());
-                    return;
-                }
-                const ctx = await this.ensureContext();
-                if (!ctx) {
-                    stream.getTracks().forEach((t) => t.stop());
-                    return;
-                }
-                const source = ctx.createMediaStreamSource(stream);
-                const analyser = ctx.createAnalyser();
-                analyser.fftSize = 256;
-                analyser.smoothingTimeConstant = 0.6;
-                source.connect(analyser);
-                const dataArray = new Uint8Array(analyser.fftSize);
-                this.meters.set(deviceId, { stream, source, analyser, dataArray });
             } catch (err) {
+                this.failed.add(deviceId);
                 console.warn('Audio meter init failed for device', deviceId, err);
+                return;
             }
+            // The menu closed, or this device became the open microphone, while the capture was starting
+            if (!this.active || (this.isSelectedMicrophone(deviceId) && this.isMicrophoneOpen())) {
+                stream.getTracks().forEach((t) => t.stop());
+                return;
+            }
+            const added = await this.addMeter(deviceId, stream, stream.getAudioTracks()[0], false);
+            if (!added) stream.getTracks().forEach((t) => t.stop());
+        },
+
+        async addMeter(deviceId, stream, track, shared) {
+            const ctx = await this.ensureContext();
+            if (!ctx || !this.active || !track || this.meters.has(deviceId)) return false;
+            const source = ctx.createMediaStreamSource(stream);
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = 0.6;
+            source.connect(analyser);
+            const dataArray = new Uint8Array(analyser.fftSize);
+            this.meters.set(deviceId, { stream, track, shared, source, analyser, dataArray });
+            return true;
+        },
+
+        // Shared meters only tap the live mic track: never stop it
+        release(deviceId) {
+            const meter = this.meters.get(deviceId);
+            if (!meter) return;
+            this.meters.delete(deviceId);
+            try {
+                meter.source.disconnect();
+            } catch (err) {
+                /* ignore */
+            }
+            if (!meter.shared) {
+                try {
+                    meter.stream.getTracks().forEach((t) => t.stop());
+                } catch (err) {
+                    /* ignore */
+                }
+            }
+        },
+
+        // Called before switching microphone from the menu, so the new mic is never already open for the meter
+        prepareMicrophoneSwitch(deviceId) {
+            if (hasLocalMicrophone()) this.holdSelected = true;
+            this.release(deviceId);
         },
 
         tick() {
             if (!this.active) return;
+            // The live mic track changes on device switches and noise suppression re-captures
+            if (Date.now() - this.lastRefresh > 500) this.refresh();
+            this.barTargets.forEach((barEls, deviceId) => {
+                if (!this.meters.has(deviceId)) barEls.forEach((bar) => bar.classList.remove('active'));
+            });
             this.meters.forEach((meter, deviceId) => {
                 const barEls = this.barTargets.get(deviceId);
                 if (!barEls || !barEls.length) return;
@@ -22396,20 +22653,10 @@ function setupQuickDeviceSwitchDropdowns() {
                 cancelAnimationFrame(this.rafId);
                 this.rafId = null;
             }
-            this.meters.forEach((meter) => {
-                try {
-                    meter.source.disconnect();
-                } catch (err) {
-                    /* ignore */
-                }
-                try {
-                    meter.stream.getTracks().forEach((t) => t.stop());
-                } catch (err) {
-                    /* ignore */
-                }
-            });
-            this.meters.clear();
+            Array.from(this.meters.keys()).forEach((deviceId) => this.release(deviceId));
             this.barTargets.clear();
+            this.failed.clear();
+            this.holdSelected = false;
             if (this.audioContext && this.audioContext.state !== 'closed') {
                 try {
                     this.audioContext.close();
@@ -22589,6 +22836,7 @@ function setupQuickDeviceSwitchDropdowns() {
 
             btn.addEventListener('click', () => {
                 if (selectEl.value === opt.value) return;
+                if (meterCollector) audioMeterManager.prepareMicrophoneSwitch(opt.value);
                 selectEl.value = opt.value;
                 selectEl.dispatchEvent(new Event('change'));
                 if (typeof rebuildFn === 'function') rebuildFn();

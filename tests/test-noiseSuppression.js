@@ -280,7 +280,41 @@ describe('RNNoise client lifecycle', () => {
     const source = fs.readFileSync(path.join(__dirname, '../public/js/client.js'), 'utf8');
 
     function stream(track = { enabled: true, readyState: 'live', kind: 'audio', stop: sinon.spy() }) {
-        return { getAudioTracks: () => [track], getTracks: () => [track] };
+        let tracks = [track];
+        return {
+            getAudioTracks: () => tracks,
+            getTracks: () => tracks,
+            removeTrack: (t) => {
+                tracks = tracks.filter((item) => item !== t);
+            },
+            addTrack: (t) => {
+                tracks = [...tracks, t];
+            },
+        };
+    }
+
+    function micTrack(noiseSuppression) {
+        const track = {
+            enabled: true,
+            readyState: 'live',
+            kind: 'audio',
+            getConstraints: () => ({}),
+            getSettings: () => ({ noiseSuppression, deviceId: 'microphone' }),
+            applyConstraints: sinon.stub().resolves(),
+        };
+        track.stop = sinon.spy(() => {
+            track.readyState = 'ended';
+        });
+        return track;
+    }
+
+    // Chromium: applyConstraints resolves but the audio processing does not change
+    function ignoreLiveConstraints() {
+        rawTrack.getSettings = () => ({ noiseSuppression: nativeSuppression, deviceId: 'microphone' });
+        rawTrack.applyConstraints = sinon.stub().resolves();
+        rawTrack.stop = sinon.spy(() => {
+            rawTrack.readyState = 'ended';
+        });
     }
 
     function loadFunction(name) {
@@ -310,12 +344,26 @@ describe('RNNoise client lifecycle', () => {
                 return true;
             }
             constructor() {
+                this.isProcessing = false;
+                this.noiseSuppressionEnabled = false;
                 this.stopProcessing = sinon.spy();
-                this.toggleNoiseSuppression = sinon.spy();
+                this.replaceInput = sinon.spy(() => true);
+                this.setNoiseSuppression = sinon.spy((enabled) => {
+                    this.noiseSuppressionEnabled = enabled;
+                });
             }
             startProcessing(input) {
                 this.mediaStream = input;
-                return new Promise((resolve) => pending.push({ processor: this, resolve, input }));
+                return new Promise((resolve) =>
+                    pending.push({
+                        processor: this,
+                        input,
+                        resolve: (output) => {
+                            this.isProcessing = !!output;
+                            resolve(output);
+                        },
+                    })
+                );
             }
         }
         context = vm.createContext({
@@ -323,7 +371,9 @@ describe('RNNoise client lifecycle', () => {
             noiseProcessor: null,
             noiseSuppressionRequest: 0,
             noiseSuppressionConstraints: Promise.resolve(),
+            noiseSuppressionSwitchRequest: 0,
             microphoneRequest: 0,
+            isRNNoiseSupported: true,
             localAudioMediaStream: rawStream,
             myAudioStatus: false,
             useAudio: true,
@@ -354,6 +404,11 @@ describe('RNNoise client lifecycle', () => {
         for (const name of [
             'enableNoiseSuppression',
             'setMicrophoneNoiseSuppression',
+            'recaptureMicrophoneNoiseSuppression',
+            'isRNNoiseSuppressionSelected',
+            'getRawMicrophoneStream',
+            'logNoiseSuppressionState',
+            'switchRNNoiseSuppression',
             'fallbackNoiseSuppression',
             'disableNoiseSuppression',
             'stopNoiseSuppressionPipeline',
@@ -382,7 +437,7 @@ describe('RNNoise client lifecycle', () => {
         context.handleAudio({}, false, true, false);
         assert.equal(rawTrack.enabled, true);
         assert.equal(output.getAudioTracks()[0].enabled, true);
-        assert.equal(context.noiseProcessor.toggleNoiseSuppression.callCount, 1);
+        sinon.assert.calledOnceWithExactly(context.noiseProcessor.setNoiseSuppression, true);
     });
 
     it('restores a correctly muted raw microphone on disable', async () => {
@@ -409,8 +464,8 @@ describe('RNNoise client lifecycle', () => {
         assert.equal(await first, false);
         assert.equal(context.localAudioMediaStream, currentOutput);
         assert.equal(context.noiseProcessor, pending[1].processor);
-        assert.equal(pending[0].processor.toggleNoiseSuppression.callCount, 0);
-        assert.equal(pending[1].processor.toggleNoiseSuppression.callCount, 1);
+        sinon.assert.notCalled(pending[0].processor.setNoiseSuppression);
+        sinon.assert.calledOnceWithExactly(pending[1].processor.setNoiseSuppression, true);
         assert.equal(context.refreshMyStreamToPeers.callCount, 1);
     });
 
@@ -556,17 +611,24 @@ describe('RNNoise client lifecycle', () => {
         const newMicrophone = stream();
         context.navigator.mediaDevices.getUserMedia.resolves(newMicrophone);
         context.lsSettings.mic_noise_suppression = false;
-        await context.changeLocalMicrophone('new-microphone');
+        const changing = context.changeLocalMicrophone('new-microphone');
+        await new Promise((resolve) => setImmediate(resolve));
         pending[0].resolve(stream());
         assert.equal(await operation, false);
-        assert.equal(context.localAudioMediaStream, newMicrophone);
-        assert.equal(newMicrophone.getAudioTracks()[0].enabled, false);
         assert.equal(rawTrack.stop.callCount, 1);
+        // The new microphone gets its own pipeline, bypassed because RNNoise is off
+        assert.equal(pending[1].input, newMicrophone);
+        const processed = stream();
+        pending[1].resolve(processed);
+        assert.equal(await changing, undefined);
+        assert.equal(context.localAudioMediaStream, processed);
+        assert.equal(processed.getAudioTracks()[0].enabled, false);
+        sinon.assert.calledOnceWithExactly(pending[1].processor.setNoiseSuppression, false);
     });
 
     it('stops a late microphone acquisition without replacing the newer microphone', async () => {
         let finishFirst;
-        context.lsSettings.mic_noise_suppression = false;
+        context.buttons.settings.customNoiseSuppression = false;
         context.navigator.mediaDevices.getUserMedia.onFirstCall().callsFake(
             () =>
                 new Promise((resolve) => {
@@ -638,5 +700,193 @@ describe('RNNoise client lifecycle', () => {
         context.lsSettings.mic_noise_suppression_user_set = true;
         context.applyNoiseSuppressionDefault();
         assert.equal(context.lsSettings.mic_noise_suppression, true);
+    });
+
+    it('captures with browser noise suppression only when RNNoise is not selected', () => {
+        Object.assign(context, { isMobileDevice: false, isMobileSafari: false });
+        loadFunction('getAudioConstraints');
+        context.lsSettings.mic_noise_suppression = true;
+        assert.equal(context.getAudioConstraints('microphone').audio.noiseSuppression, false);
+        context.lsSettings.mic_noise_suppression = false;
+        assert.equal(context.getAudioConstraints('microphone').audio.noiseSuppression, true);
+        context.lsSettings.mic_noise_suppression = true;
+        context.isRNNoiseSupported = false;
+        assert.equal(context.getAudioConstraints('microphone').audio.noiseSuppression, true);
+        context.isRNNoiseSupported = true;
+        context.buttons.settings.customNoiseSuppression = false;
+        assert.equal(context.getAudioConstraints('microphone').audio.noiseSuppression, true);
+    });
+
+    async function startPipeline() {
+        const operation = context.applyNoiseSuppression(true);
+        await new Promise((resolve) => setImmediate(resolve));
+        const processed = stream();
+        pending[0].resolve(processed);
+        assert.equal(await operation, true);
+        return processed;
+    }
+
+    it('logs the effective RNNoise and browser noise suppression state', async () => {
+        context.console.log = sinon.spy();
+        await startPipeline();
+        sinon.assert.calledWithMatch(context.console.log, 'Noise suppression state', { rnnoise: true, native: false });
+        await context.applyNoiseSuppression(false);
+        await context.noiseSuppressionConstraints;
+        assert.ok(
+            context.console.log.lastCall.calledWithMatch('Noise suppression state', { rnnoise: false, native: true })
+        );
+    });
+
+    it('starts the pipeline bypassed when RNNoise is off so the first toggle is instant', async () => {
+        context.lsSettings.mic_noise_suppression = false;
+        nativeSuppression = true;
+        const operation = context.enableNoiseSuppression();
+        await new Promise((resolve) => setImmediate(resolve));
+        pending[0].resolve(stream());
+        assert.equal(await operation, true);
+        const processor = context.noiseProcessor;
+        sinon.assert.calledOnceWithExactly(processor.setNoiseSuppression, false);
+        assert.equal(nativeSuppression, true);
+        sinon.assert.notCalled(rawTrack.applyConstraints);
+        assert.equal(await context.applyNoiseSuppression(true), true);
+        sinon.assert.calledWith(processor.setNoiseSuppression.lastCall, true);
+        await context.noiseSuppressionConstraints;
+        assert.equal(nativeSuppression, false);
+        assert.equal(pending.length, 1);
+    });
+
+    it('does not warn when the bypassed pipeline fails while RNNoise is off', async () => {
+        context.lsSettings.mic_noise_suppression = false;
+        nativeSuppression = true;
+        const operation = context.enableNoiseSuppression();
+        await new Promise((resolve) => setImmediate(resolve));
+        pending[0].resolve(null);
+        assert.equal(await operation, false);
+        assert.equal(nativeSuppression, true);
+        assert.equal(context.localAudioMediaStream, rawStream);
+        sinon.assert.notCalled(context.toastMessage);
+    });
+
+    it('switches a running pipeline instantly without rebuilding it or swapping peer tracks', async () => {
+        const processed = await startPipeline();
+        const processor = context.noiseProcessor;
+        const published = context.refreshMyStreamToPeers.callCount;
+        assert.equal(await context.applyNoiseSuppression(false), false);
+        sinon.assert.calledWith(processor.setNoiseSuppression.lastCall, false);
+        assert.equal(context.switchNoiseSuppression.checked, false);
+        assert.equal(await context.applyNoiseSuppression(true), true);
+        sinon.assert.calledWith(processor.setNoiseSuppression.lastCall, true);
+        await context.noiseSuppressionConstraints;
+        assert.equal(pending.length, 1);
+        assert.equal(context.noiseProcessor, processor);
+        sinon.assert.notCalled(processor.stopProcessing);
+        assert.equal(context.localAudioMediaStream, processed);
+        assert.equal(context.refreshMyStreamToPeers.callCount, published);
+        assert.equal(context.lsSettings.mic_noise_suppression, true);
+    });
+
+    it('switches browser noise suppression back on when RNNoise is switched off', async () => {
+        await startPipeline();
+        assert.equal(nativeSuppression, false);
+        await context.applyNoiseSuppression(false);
+        await context.noiseSuppressionConstraints;
+        assert.equal(nativeSuppression, true);
+        const constraints = rawTrack.applyConstraints.lastCall.args[0];
+        assert.equal(constraints.noiseSuppression, true);
+        assert.equal(constraints.autoGainControl, true);
+        assert.equal(context.noiseProcessor.originalStream, rawStream);
+    });
+
+    it('switches browser noise suppression back on when RNNoise is stopped', async () => {
+        const operation = context.enableNoiseSuppression();
+        await new Promise((resolve) => setImmediate(resolve));
+        pending[0].resolve(stream());
+        await operation;
+        context.lsSettings.mic_noise_suppression = false;
+        await context.disableNoiseSuppression(true);
+        assert.equal(nativeSuppression, true);
+        assert.equal(context.localAudioMediaStream, rawStream);
+        sinon.assert.calledWith(context.refreshMyStreamToPeers, rawStream, true);
+    });
+
+    it('re-captures the microphone into the running worklet when the browser ignores live changes', async () => {
+        ignoreLiveConstraints();
+        const processed = await startPipeline();
+        const newTrack = micTrack(true);
+        context.navigator.mediaDevices.getUserMedia.resolves(stream(newTrack));
+        context.getAudioConstraints = sinon.stub().returns({ audio: { echoCancellation: true } });
+        await context.applyNoiseSuppression(false);
+        await context.noiseSuppressionConstraints;
+        sinon.assert.calledOnce(rawTrack.stop);
+        sinon.assert.calledWith(context.getAudioConstraints, 'microphone');
+        sinon.assert.calledWithMatch(context.navigator.mediaDevices.getUserMedia, {
+            audio: { echoCancellation: true, noiseSuppression: true },
+        });
+        assert.equal(rawStream.getAudioTracks()[0], newTrack);
+        assert.equal(newTrack.enabled, true);
+        sinon.assert.calledOnceWithExactly(context.noiseProcessor.replaceInput, rawStream);
+        assert.equal(context.localAudioMediaStream, processed);
+    });
+
+    it('re-captures without browser noise suppression before starting RNNoise', async () => {
+        nativeSuppression = true;
+        ignoreLiveConstraints();
+        const newTrack = micTrack(false);
+        context.navigator.mediaDevices.getUserMedia.resolves(stream(newTrack));
+        const operation = context.enableNoiseSuppression();
+        await new Promise((resolve) => setImmediate(resolve));
+        sinon.assert.calledWithMatch(context.navigator.mediaDevices.getUserMedia, {
+            audio: { noiseSuppression: false },
+        });
+        assert.equal(pending[0].input.getAudioTracks()[0], newTrack);
+        pending[0].resolve(stream());
+        assert.equal(await operation, true);
+        sinon.assert.notCalled(context.noiseProcessor.replaceInput);
+    });
+
+    it('settles rapid toggles on the latest state', async () => {
+        ignoreLiveConstraints();
+        await startPipeline();
+        let finishCapture;
+        const newTrack = micTrack(true);
+        const finalTrack = micTrack(false);
+        context.navigator.mediaDevices.getUserMedia.onFirstCall().callsFake(
+            () =>
+                new Promise((resolve) => {
+                    finishCapture = () => resolve(stream(newTrack));
+                })
+        );
+        context.navigator.mediaDevices.getUserMedia.onSecondCall().resolves(stream(finalTrack));
+        await context.applyNoiseSuppression(false);
+        await new Promise((resolve) => setImmediate(resolve));
+        await context.applyNoiseSuppression(true);
+        assert.equal(context.noiseProcessor.noiseSuppressionEnabled, true);
+        finishCapture();
+        await context.noiseSuppressionConstraints;
+        sinon.assert.calledOnce(newTrack.stop);
+        assert.equal(rawStream.getAudioTracks()[0], finalTrack);
+        assert.equal(context.noiseProcessor.replaceInput.callCount, 2);
+        assert.equal(pending.length, 1);
+        assert.equal(context.lsSettings.mic_noise_suppression, true);
+    });
+
+    it('drops a re-captured microphone when another microphone was selected meanwhile', async () => {
+        ignoreLiveConstraints();
+        nativeSuppression = true;
+        let finishCapture;
+        const staleTrack = micTrack(false);
+        context.navigator.mediaDevices.getUserMedia.callsFake(
+            () =>
+                new Promise((resolve) => {
+                    finishCapture = () => resolve(stream(staleTrack));
+                })
+        );
+        const switching = context.setMicrophoneNoiseSuppression(false, () => true);
+        await new Promise((resolve) => setImmediate(resolve));
+        context.microphoneRequest++;
+        finishCapture();
+        assert.equal(await switching, false);
+        sinon.assert.calledOnce(staleTrack.stop);
+        assert.equal(rawStream.getAudioTracks()[0], rawTrack);
     });
 });
