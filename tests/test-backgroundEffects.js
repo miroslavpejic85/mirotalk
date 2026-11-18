@@ -7,6 +7,38 @@ const vm = require('vm');
 const sinon = require('sinon');
 const { JSDOM } = require('jsdom');
 
+// Small blur canvas for the shared compositor: no canvas filter, records what was drawn
+function fallbackBlurCanvas() {
+    const canvas = { width: 0, height: 0, contextOptions: null };
+    const filters = [];
+    canvas.context = {
+        filters,
+        set filter(value) {
+            filters.push(value);
+            this.currentFilter = value;
+        },
+        get filter() {
+            return this.currentFilter;
+        },
+        clearRect() {},
+        drawImage: sinon.spy(),
+        putImageData: sinon.spy(),
+        getImageData: sinon.spy((x, y, width, height) => {
+            const data = new Uint8ClampedArray(width * height * 4);
+            for (let i = 0; i < width * height; i++) {
+                const value = i % width < width / 2 ? 0 : 255;
+                data.set([value, value, value, 255], i * 4);
+            }
+            return { data, width, height };
+        }),
+    };
+    canvas.getContext = (type, options) => {
+        canvas.contextOptions = options;
+        return canvas.context;
+    };
+    return canvas;
+}
+
 describe('camera background effects', () => {
     let effects;
     let camera;
@@ -14,6 +46,7 @@ describe('camera background effects', () => {
     let audio;
     let clock;
     let onError;
+    let compositor;
 
     beforeEach(() => {
         clock = sinon.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
@@ -62,7 +95,12 @@ describe('camera background effects', () => {
                           },
             },
         });
+        vm.runInContext(
+            fs.readFileSync(path.join(__dirname, '../public/js/background-effects-compositor.js'), 'utf8'),
+            context
+        );
         vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/js/background-effects.js'), 'utf8'), context);
+        compositor = context.BackgroundCompositor;
         onError = sinon.spy();
         effects = vm.runInContext('new BackgroundEffects(() => {})', context);
         effects.onError = onError;
@@ -90,20 +128,8 @@ describe('camera background effects', () => {
         await effects.start(effects.input);
         effects.loadModel = async () => {};
         effects.backgroundContext = { drawImage: sinon.spy(), clearRect() {} };
-        effects.blurCanvas = { width: 0, height: 0 };
-        effects.blurContext = {
-            clearRect() {},
-            drawImage: sinon.spy(),
-            putImageData: sinon.spy(),
-            getImageData: (x, y, width, height) => {
-                const data = new Uint8ClampedArray(width * height * 4);
-                for (let i = 0; i < width * height; i++) {
-                    const value = i % width < width / 2 ? 0 : 255;
-                    data.set([value, value, value, 255], i * 4);
-                }
-                return { data, width, height };
-            },
-        };
+        const small = fallbackBlurCanvas();
+        effects.blur = compositor.createBlur(() => small);
         effects.drawing = { drawConfidenceMask() {}, close() {} };
         effects.segmenter = { segmentForVideo() {}, close() {} };
 
@@ -112,12 +138,14 @@ describe('camera background effects', () => {
 
         assert.equal(onError.callCount, 0);
         assert.equal(effects.mode, 'blur');
-        assert.equal(effects.blurCanvas.width, 160);
-        assert.equal(effects.blurCanvas.height, 90);
-        const pixels = effects.blurContext.putImageData.firstCall.args[0].data;
+        assert.equal(small.width, 160);
+        assert.equal(small.height, 90);
+        assert.equal(small.contextOptions.willReadFrequently, true);
+        const pixels = small.context.putImageData.firstCall.args[0].data;
         const center = (45 * 160 + 80) * 4;
         assert.ok(pixels[center] > 0 && pixels[center] < 255);
         assert.equal(effects.backgroundContext.drawImage.calledOnce, true);
+        assert.equal(effects.backgroundContext.drawImage.firstCall.args[0], small);
     });
 
     it('requires an image and rejects unknown modes', async () => {
@@ -169,35 +197,79 @@ describe('camera background effects', () => {
         assert.equal(effects.mode, 'blur');
     });
 
-    it('reuses the fallback blur buffer across frames', async () => {
+    it('reuses the fallback blur canvas and buffer across frames', async () => {
         await effects.start(effects.input);
         effects.loadModel = async () => {};
         effects.backgroundContext = { drawImage() {}, clearRect() {} };
-        effects.blurCanvas = { width: 0, height: 0 };
-        effects.blurContext = {
-            clearRect() {},
-            drawImage() {},
-            putImageData() {},
-            getImageData: (x, y, width, height) => ({ data: new Uint8ClampedArray(width * height * 4), width, height }),
-        };
+        const newCanvas = sinon.spy(() => fallbackBlurCanvas());
+        effects.blur = compositor.createBlur(newCanvas);
         effects.drawing = { drawConfidenceMask() {}, close() {} };
         effects.segmenter = { segmentForVideo() {}, close() {} };
         await effects.setMode('blur');
 
         effects.render((effects.lastFrame || 0) + 1000);
-        const buffer = effects.blurBuffer;
+        const buffer = effects.blur.scratch();
         effects.render(effects.lastFrame + 1000);
         assert.equal(onError.callCount, 0);
+        assert.equal(newCanvas.callCount, 1);
         assert.equal(buffer?.constructor.name, 'Uint8ClampedArray');
         assert.equal(buffer.length, 160 * 90 * 4);
-        assert.equal(effects.blurBuffer, buffer);
+        assert.equal(effects.blur.scratch(), buffer);
+    });
+
+    it('blurs a quarter-size copy when canvas filters are supported', async () => {
+        await effects.start(effects.input);
+        effects.loadModel = async () => {};
+        effects.backgroundContext = { drawImage: sinon.spy(), clearRect() {}, filter: 'none' };
+        const small = fallbackBlurCanvas();
+        small.context.filter = 'none';
+        small.context.filters.length = 0;
+        effects.blur = compositor.createBlur(() => small);
+        effects.drawing = { drawConfidenceMask() {}, close() {} };
+        effects.segmenter = { segmentForVideo() {}, close() {} };
+        await effects.setMode('blur');
+        effects.render((effects.lastFrame || 0) + 1000);
+
+        assert.equal(onError.callCount, 0);
+        assert.equal(small.width, 320);
+        assert.equal(small.height, 180);
+        assert.equal(small.contextOptions, undefined);
+        assert.equal(small.context.getImageData.callCount, 0);
+        assert.equal(small.context.filters[0], 'blur(3px)');
+        assert.equal(small.context.filter, 'none');
+        assert.deepEqual(effects.backgroundContext.drawImage.firstCall.args.slice(1), [0, 0, 1280, 720]);
+    });
+
+    it('scales and centre-crops image backgrounds to fill the frame', async () => {
+        await effects.start(effects.input);
+        effects.loadModel = async () => {};
+        effects.backgroundContext = { drawImage: sinon.spy(), clearRect() {} };
+        effects.drawing = { drawConfidenceMask() {}, close() {} };
+        effects.segmenter = { segmentForVideo() {}, close() {} };
+        const image = { naturalWidth: 1000, naturalHeight: 1000 };
+        await effects.setMode('image', image);
+        effects.render((effects.lastFrame || 0) + 1000);
+
+        assert.equal(onError.callCount, 0);
+        assert.deepEqual(effects.backgroundContext.drawImage.firstCall.args, [
+            image,
+            0,
+            218.75,
+            1000,
+            562.5,
+            0,
+            0,
+            1280,
+            720,
+        ]);
     });
 
     it('uses the general (square) selfie segmenter model', () => {
         const source = fs.readFileSync(path.join(__dirname, '../public/js/background-effects.js'), 'utf8');
         assert.match(source, /image_segmenter\/selfie_segmenter\/float16\/1\/selfie_segmenter\.tflite/);
         assert.doesNotMatch(source, /selfie_segmenter_landscape/);
-        assert.match(source, /tasks-vision@\d+\.\d+\.\d+/);
+        assert.match(source, /BG_TASKS_VISION_VERSION = '\d+\.\d+\.\d+'/);
+        assert.match(source, /tasks-vision@\$\{BG_TASKS_VISION_VERSION\}\/vision_bundle\.mjs/);
     });
 
     it('falls back to camera frames on segmentation failure', async () => {
