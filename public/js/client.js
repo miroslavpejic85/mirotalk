@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.11
+ * @version 2.3.12
  *
  */
 
@@ -213,6 +213,7 @@ const participantsActionsButton = getId('participantsActionsButton');
 const participantsActionsMenu = getId('participantsActionsMenu');
 const participantsInviteBtn = getId('participantsInviteBtn');
 const participantsCopyInviteLinkBtn = getId('participantsCopyInviteLinkBtn');
+const participantsEmailInviteBtn = getId('participantsEmailInviteBtn');
 const captionBtn = getId('captionBtn');
 const roomEmojiPickerBtn = getId('roomEmojiPickerBtn');
 const whiteboardBtn = getId('whiteboardBtn');
@@ -9153,6 +9154,9 @@ function setParticipantsBtn() {
     participantsCopyInviteLinkBtn.addEventListener('click', () => {
         copyRoomURL();
     });
+    participantsEmailInviteBtn.addEventListener('click', () => {
+        shareRoomByEmail();
+    });
     participantsBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         const openedChatForParticipants = !isChatRoomVisible;
@@ -12417,6 +12421,103 @@ function translateDialogText(text) {
     return window.i18n && typeof window.i18n.t === 'function' ? window.i18n.t(text, 'dialogs') : text;
 }
 
+function getEmailInvitationDetails() {
+    const popup = Swal.getPopup();
+    const dateTime = popup?.querySelector('#datetimePicker')?.value?.trim() || '';
+    const start = CalendarInvite.parseLocalDateTime(dateTime);
+    if (!start) {
+        Swal.showValidationMessage(translateDialogText('Choose a meeting date and time'));
+        return null;
+    }
+    const duration = CalendarInvite.parseDuration(popup?.querySelector('#meetingDurationInput')?.value);
+    if (!duration) {
+        Swal.showValidationMessage(translateDialogText('Choose a duration between 1 and 1440 minutes'));
+        return null;
+    }
+    const roomPassword = isRoomLocked && thisRoomPassword ? thisRoomPassword : '';
+    Swal.resetValidationMessage();
+    return { start, duration, roomPassword };
+}
+
+function downloadMeetingIcs({ start, duration, roomPassword }) {
+    const roomURL = getRoomURL();
+    const description = [`Click to join: ${roomURL}`];
+    if (roomPassword) description.push(`Password: ${roomPassword}`);
+    const ics = CalendarInvite.buildIcs({
+        title: `MiroTalk P2P meeting: ${roomId}`,
+        description: description.join('\n'),
+        url: roomURL,
+        start,
+        durationMinutes: duration,
+        uid: `${crypto.randomUUID?.() || Date.now().toString(36)}@${location.hostname || 'mirotalk'}`,
+        productName: 'MiroTalk P2P',
+    });
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    saveDataToFile(URL.createObjectURL(blob), CalendarInvite.toFileName(roomId));
+    userLog('toast', 'Calendar event downloaded');
+}
+
+function setupMeetingDurationPicker(popup) {
+    const output = popup?.querySelector('#meetingDurationInput');
+    const custom = popup?.querySelector('#meetingDurationCustom');
+    const hours = popup?.querySelector('#meetingDurationHours');
+    const minutes = popup?.querySelector('#meetingDurationMinutes');
+    if (!output || !custom || !hours || !minutes) return;
+
+    for (let h = 0; h <= 24; h++) hours.add(new Option(String(h), String(h)));
+    for (let m = 0; m < 60; m += 5) minutes.add(new Option(String(m).padStart(2, '0'), String(m)));
+
+    // Disable combinations outside 5 min – 24 h so the custom value is always valid.
+    const syncCustom = () => {
+        const isMax = hours.value === '24';
+        if (isMax) minutes.value = '0';
+        if (hours.value === '0' && minutes.value === '0') minutes.value = '5';
+        [...minutes.options].forEach((option) => {
+            option.disabled = (isMax && option.value !== '0') || (hours.value === '0' && option.value === '0');
+        });
+        output.value = String(Number(hours.value) * 60 + Number(minutes.value));
+    };
+
+    popup.querySelectorAll('input[name="meetingDuration"]').forEach((radio) => {
+        radio.addEventListener('change', () => {
+            if (!radio.checked) return;
+            const isCustom = radio.value === 'custom';
+            custom.hidden = !isCustom;
+            if (!isCustom) {
+                output.value = radio.value;
+                return;
+            }
+            const current = Number(output.value) || 60;
+            hours.value = String(Math.floor(current / 60));
+            minutes.value = String(Math.floor((current % 60) / 5) * 5);
+            syncCustom();
+        });
+    });
+    hours.addEventListener('change', syncCustom);
+    minutes.addEventListener('change', syncCustom);
+}
+
+function getMeetingDurationChipsHtml() {
+    const presets = [
+        { value: '15', label: translateDialogText('15 min') },
+        { value: '30', label: translateDialogText('30 min') },
+        { value: '45', label: translateDialogText('45 min') },
+        { value: '60', label: translateDialogText('1 h'), checked: true },
+        { value: '90', label: translateDialogText('1 h 30 min') },
+        { value: '120', label: translateDialogText('2 h') },
+        { value: 'custom', label: translateDialogText('Custom') },
+    ];
+    return presets
+        .map(
+            ({ value, label, checked }) => `
+                <label class="email-invitation-duration-chip">
+                    <input type="radio" name="meetingDuration" value="${value}"${checked ? ' checked' : ''} />
+                    <span>${label}</span>
+                </label>`
+        )
+        .join('');
+}
+
 function shareRoomByEmail() {
     Swal.fire({
         allowOutsideClick: false,
@@ -12439,30 +12540,66 @@ function shareRoomByEmail() {
                     />
                 </div>
             </div>
+            <div class="email-invitation-date-field">
+                <span id="meetingDurationLabel" class="email-invitation-field-title">${translateDialogText('Duration')}</span>
+                <div class="email-invitation-duration-presets" role="radiogroup" aria-labelledby="meetingDurationLabel">
+                    ${getMeetingDurationChipsHtml()}
+                </div>
+                <div id="meetingDurationCustom" class="email-invitation-duration-custom" hidden>
+                    <label class="email-invitation-duration-select">
+                        <select id="meetingDurationHours" aria-label="${translateDialogText('hours')}"></select>
+                        <span>${translateDialogText('hours')}</span>
+                    </label>
+                    <label class="email-invitation-duration-select">
+                        <select id="meetingDurationMinutes" aria-label="${translateDialogText('minutes')}"></select>
+                        <span>${translateDialogText('minutes')}</span>
+                    </label>
+                </div>
+                <input type="hidden" id="meetingDurationInput" value="60" />
+            </div>
         `,
+        showDenyButton: true,
         showCancelButton: true,
         confirmButtonText: translateDialogText('Open email'),
+        denyButtonText: translateDialogText('Download .ics'),
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
-        preConfirm: () => {
-            const roomURL = getRoomURL();
-            const newLine = '%0D%0A%0D%0A';
-            const selectedDateTime = document.getElementById('datetimePicker').value;
-            if (!selectedDateTime) {
-                Swal.showValidationMessage(translateDialogText('Choose a meeting date and time'));
-                return false;
-            }
-            const roomPassword = isRoomLocked && thisRoomPassword ? 'Password: ' + thisRoomPassword + newLine : '';
-            const email = '';
-            const emailSubject = `Please join our MiroTalk P2P Video Chat Meeting`;
-            const emailBody = `The meeting is scheduled at: ${newLine} DateTime: ${selectedDateTime} ${newLine}${roomPassword}Click to join: ${roomURL} ${newLine}`;
-            document.location = 'mailto:' + email + '?subject=' + emailSubject + '&body=' + emailBody;
+        didOpen: () => {
+            flatpickr('#datetimePicker', {
+                enableTime: true,
+                dateFormat: 'Y-m-d H:i',
+                time_24hr: true,
+            });
+            setupMeetingDurationPicker(Swal.getPopup());
         },
-    });
-    flatpickr('#datetimePicker', {
-        enableTime: true,
-        dateFormat: 'Y-m-d H:i',
-        time_24hr: true,
+        preDeny: () => {
+            const details = getEmailInvitationDetails();
+            if (details) downloadMeetingIcs(details);
+            // Keep the popup open so the invitation email can still be sent.
+            return false;
+        },
+        preConfirm: () => {
+            const details = getEmailInvitationDetails();
+            if (!details) return false;
+
+            const when = CalendarInvite.formatMeetingTime({
+                start: details.start,
+                durationMinutes: details.duration,
+                hour12: new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions().hour12,
+            });
+            const lines = [
+                `You're invited to a MiroTalk P2P meeting.`,
+                '',
+                `Date: ${when.date}`,
+                `Time: ${when.time} (${when.timeZone})`,
+                `Duration: ${when.duration}`,
+            ];
+            if (details.roomPassword) lines.push(`Password: ${details.roomPassword}`);
+            lines.push('', 'Join the meeting:', getRoomURL(), '');
+            const emailSubject = `Please join our MiroTalk P2P Video Chat Meeting`;
+            const emailBody = lines.join('\r\n');
+            document.location = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        },
     });
 }
 
@@ -21489,7 +21626,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.11',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.12',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
