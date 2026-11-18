@@ -130,6 +130,22 @@ function isSafeImageSrc(src) {
 }
 
 /**
+ * Avatar URLs are rendered by every room member: keep only normalized http(s) URLs. The WHATWG
+ * serializer percent-encodes quotes and angle brackets, so the value can't break out of an attribute.
+ * @param {string} url
+ * @returns {string|false} normalized URL or false if not a valid http(s) URL
+ */
+function sanitizeAvatarURL(url) {
+    if (!url || typeof url !== 'string') return false;
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : false;
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Sanitize a fabric.js canvas JSON payload broadcast via `wbCanvasToJson`.
  *
  * The whiteboard accepts `image` objects whose `src` is loaded by every
@@ -195,6 +211,7 @@ module.exports = {
     hasPathTraversal,
     isValidData,
     isSafeImageSrc,
+    sanitizeAvatarURL,
     isPrivateOrLoopbackHost,
     sanitizeWbCanvasJson,
 };

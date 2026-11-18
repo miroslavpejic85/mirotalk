@@ -156,7 +156,8 @@ describe('server-bound sender identity', function () {
             })
         );
         data.peer_name.should.equal('impostor-user');
-        data.peer_avatar.should.equal('');
+        // The impostor joined without an avatar: the server stores the sanitized (false) value, never the spoofed one
+        data.peer_avatar.should.be.false();
     });
 
     it('binds the videoPlayer, caption and cmd identity to the sending connection', async () => {

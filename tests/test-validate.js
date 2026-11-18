@@ -318,4 +318,35 @@ describe('test-Validator', () => {
             parsed.objects[0].src.should.equal(safeImg);
         });
     });
+
+    describe('6. sanitizeAvatarURL', () => {
+        it('should keep normalized http(s) avatar URLs, including extensionless ones', () => {
+            checkValidator
+                .sanitizeAvatarURL('https://example.com/avatar.png')
+                .should.equal('https://example.com/avatar.png');
+            checkValidator
+                .sanitizeAvatarURL('https://avatars.githubusercontent.com/u/1?v=4')
+                .should.equal('https://avatars.githubusercontent.com/u/1?v=4');
+            checkValidator.sanitizeAvatarURL('HTTP://Example.com').should.equal('http://example.com/');
+        });
+
+        it('should percent-encode quotes and angle brackets so the value cannot break out of an attribute', () => {
+            const out = checkValidator.sanitizeAvatarURL('https://evil.com/x.png" onerror="alert(1)"<script>');
+            out.should.be.a.String();
+            out.should.not.containEql('"');
+            out.should.not.containEql('<');
+            out.should.not.containEql('>');
+        });
+
+        it('should reject non-http(s) schemes, invalid URLs and non-strings', () => {
+            checkValidator.sanitizeAvatarURL('javascript:alert(1)').should.be.false();
+            checkValidator.sanitizeAvatarURL('data:image/svg+xml,<svg onload=alert(1)>').should.be.false();
+            checkValidator.sanitizeAvatarURL('file:///etc/passwd').should.be.false();
+            checkValidator.sanitizeAvatarURL('" onerror="alert(1)').should.be.false();
+            checkValidator.sanitizeAvatarURL('').should.be.false();
+            checkValidator.sanitizeAvatarURL(false).should.be.false();
+            checkValidator.sanitizeAvatarURL(null).should.be.false();
+            checkValidator.sanitizeAvatarURL({}).should.be.false();
+        });
+    });
 });

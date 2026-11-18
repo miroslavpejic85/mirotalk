@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.12
+ * @version 2.3.13
  *
  */
 
@@ -1791,7 +1791,7 @@ io.sockets.on('connect', async (socket) => {
             channel_password,
             peer_uuid,
             peer_name: requested_peer_name,
-            peer_avatar,
+            peer_avatar: requested_peer_avatar,
             peer_token,
             create_room_token,
             identity_token,
@@ -1808,6 +1808,9 @@ io.sockets.on('connect', async (socket) => {
             room_duration,
             breakout_token,
         } = config;
+
+        // Security: the avatar is rendered by every room member, keep only normalized http(s) URLs
+        const peer_avatar = Validate.sanitizeAvatarURL(requested_peer_avatar);
 
         if (!Validate.isValidRoomName(channel)) {
             log.warn('[' + socket.id + '] - Invalid room name', channel);
@@ -2661,7 +2664,9 @@ io.sockets.on('connect', async (socket) => {
         if (!Validate.isValidData(config)) return;
 
         // log.debug('Peer name', config);
-        const { room_id, peer_name_old, peer_name_new, peer_avatar } = config;
+        const { room_id, peer_name_old, peer_name_new } = config;
+        // Security: normalize so the value stored and relayed to other peers is the sanitized one
+        const peer_avatar = Validate.sanitizeAvatarURL(config.peer_avatar);
 
         if (socket.verifiedPeerName) {
             return log.debug('[' + socket.id + '] peerName change blocked: name is verified (OIDC or HOST_USERS)');
