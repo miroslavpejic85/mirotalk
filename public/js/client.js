@@ -12510,7 +12510,7 @@ function getMeetingDurationChipsHtml() {
     return presets
         .map(
             ({ value, label, checked }) => `
-                <label class="email-invitation-duration-chip">
+                <label class="email-invitation-duration-chip${value === 'custom' ? ' is-custom' : ''}">
                     <input type="radio" name="meetingDuration" value="${value}"${checked ? ' checked' : ''} />
                     <span>${label}</span>
                 </label>`

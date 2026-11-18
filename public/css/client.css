@@ -6484,17 +6484,22 @@ html body.swal2-toast-shown .swal2-container.swal2-top-end > .swal2-popup {
 }
 
 .email-invitation-duration-presets {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
     gap: 8px;
 }
 
 .email-invitation-date-field .email-invitation-duration-chip {
     position: relative;
-    display: inline-flex;
+    display: flex;
+    min-width: 0;
     margin: 0;
     font-weight: 500;
     cursor: pointer;
+}
+
+.email-invitation-duration-chip.is-custom {
+    grid-column: 1 / -1;
 }
 
 .email-invitation-duration-chip input {
@@ -6506,16 +6511,20 @@ html body.swal2-toast-shown .swal2-container.swal2-top-end > .swal2-popup {
 }
 
 .email-invitation-duration-chip span {
-    display: inline-flex;
+    display: flex;
+    flex: 1;
     align-items: center;
+    justify-content: center;
     min-height: 38px;
-    padding: 0 14px;
+    padding: 4px 10px;
     border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 999px;
     color: #fff;
     background: rgba(255, 255, 255, 0.08);
     font-size: 0.88rem;
-    white-space: nowrap;
+    line-height: 1.2;
+    text-align: center;
+    box-sizing: border-box;
     transition:
         background 0.15s ease,
         border-color 0.15s ease;
