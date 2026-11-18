@@ -130,6 +130,30 @@ function isSafeImageSrc(src) {
 }
 
 /**
+ * Peer names are shown to every room member, sometimes as HTML (toasts, dialogs): keep plain text only.
+ * checkXSS already strips scripts/handlers but keeps tags like <a href> / <img src> (phishing, tracking).
+ * Idempotent, so a name sent back by the client normalizes to the stored one.
+ * @param {string} name
+ * @returns {string} name without any HTML tag or angle bracket
+ */
+function sanitizePeerName(name) {
+    if (typeof name !== 'string') return '';
+    // checkXSS decodes one entity level per pass: repeat until stable (bounded) so nested encodings are stripped too
+    let clean = name;
+    for (let i = 0; i < 5; i++) {
+        const sanitized = checkXSS(clean);
+        if (typeof sanitized !== 'string') return '';
+        const next = sanitized
+            .replace(/<[^>]*>/g, '')
+            .replace(/[<>]/g, '')
+            .trim();
+        if (next === clean) break;
+        clean = next;
+    }
+    return clean;
+}
+
+/**
  * Avatar URLs are rendered by every room member: keep only normalized http(s) URLs. The WHATWG
  * serializer percent-encodes quotes and angle brackets, so the value can't break out of an attribute.
  * @param {string} url
@@ -212,6 +236,7 @@ module.exports = {
     isValidData,
     isSafeImageSrc,
     sanitizeAvatarURL,
+    sanitizePeerName,
     isPrivateOrLoopbackHost,
     sanitizeWbCanvasJson,
 };

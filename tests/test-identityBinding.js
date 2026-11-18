@@ -47,7 +47,7 @@ function connectSocket() {
     });
 }
 
-async function joinRoom(peer_name) {
+async function joinRoom(peer_name, channel = ROOM) {
     const socket = await connectSocket();
     socket.peer_name = peer_name;
     socket.peer_uuid = 'uuid-' + Math.random().toString(36).slice(2);
@@ -59,7 +59,7 @@ async function joinRoom(peer_name) {
         });
     });
     socket.emit('join', {
-        channel: ROOM,
+        channel,
         channel_password: '',
         peer_uuid: socket.peer_uuid,
         peer_name,
@@ -199,6 +199,53 @@ describe('server-bound sender identity', function () {
         );
         data.peer_id.should.equal(impostor.id);
         data.peer_name.should.equal('impostor-user');
+    });
+
+    it('relays peer names as plain text, without HTML tags', async () => {
+        const mallory = await joinRoom(
+            '<img src=https://attacker.example/t.png width=1>Mallory<a href=https://evil.example>!</a>'
+        );
+        const status = await received(observer, 'peerStatus', () =>
+            mallory.emit('peerStatus', {
+                room_id: ROOM,
+                peer_id: mallory.id,
+                peer_name: mallory.peer_name,
+                element: 'hand',
+                status: true,
+            })
+        );
+        status.peer_name.should.equal('Mallory!');
+
+        const renamed = await received(observer, 'peerName', () =>
+            mallory.emit('peerName', {
+                room_id: ROOM,
+                peer_name_old: mallory.peer_name,
+                peer_name_new: '<a href=https://evil.example>Click to verify</a><img src=x>',
+                peer_avatar: '',
+            })
+        );
+        renamed.peer_name.should.equal('Click to verify');
+        mallory.close();
+    });
+
+    it('keeps presenter rights when the requested name contained HTML, relaying the plain text name', async () => {
+        const room = 'identity-room-html-name';
+        const host = await joinRoom('<b>Host</b><img src=https://attacker.example/t.png>', room);
+        const guest = await joinRoom('guest-user', room);
+
+        const data = await received(guest, 'roomAction', () =>
+            // The client keeps sending the name as typed: the server normalizes it before the presenter check
+            host.emit('roomAction', {
+                room_id: room,
+                peer_name: host.peer_name,
+                peer_uuid: host.peer_uuid,
+                action: 'joinLockOn',
+            })
+        );
+        data.action.should.equal('joinLockOn');
+        data.peer_name.should.equal('Host');
+        host.close();
+        guest.close();
     });
 
     it('drops a kicked peer that ignores the kickOut notification', async () => {

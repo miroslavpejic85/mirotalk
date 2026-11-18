@@ -349,4 +349,51 @@ describe('test-Validator', () => {
             checkValidator.sanitizeAvatarURL({}).should.be.false();
         });
     });
+
+    describe('7. sanitizePeerName', () => {
+        it('should keep ordinary names unchanged', () => {
+            ['Tom & Jerry', "O'Brien", 'Ana "Ace" Lee', 'José 😀', 'miro@gmail.com', '50% off'].forEach((name) =>
+                checkValidator.sanitizePeerName(name).should.equal(name)
+            );
+            checkValidator.sanitizePeerName('  spaced  ').should.equal('spaced');
+        });
+
+        it('should strip every HTML tag, keeping only the text', () => {
+            checkValidator.sanitizePeerName('<b>Bob</b>').should.equal('Bob');
+            checkValidator
+                .sanitizePeerName('<a href=https://evil.example>Click to verify</a>')
+                .should.equal('Click to verify');
+            checkValidator.sanitizePeerName('<img src=https://attacker.example/t.png width=1>').should.equal('');
+            checkValidator.sanitizePeerName('<img src=x onerror=alert(1)>Eve').should.equal('Eve');
+        });
+
+        it('should strip encoded and nested-encoded tags', () => {
+            checkValidator.sanitizePeerName('x&lt;img src=y&gt;').should.equal('x');
+            checkValidator.sanitizePeerName('%3Cimg%20src%3Dx%3EZed').should.equal('Zed');
+            checkValidator.sanitizePeerName('&amp;lt;img&amp;gt;').should.equal('');
+            checkValidator.sanitizePeerName('&amp;amp;lt;img src=x&amp;amp;gt;Q').should.equal('Q');
+        });
+
+        it('should never return a raw angle bracket', () => {
+            ['a < b', '<<b>>x<</b>>', '<script>alert(1)</script>', '<svg><g onload=alert(1)>'].forEach((name) =>
+                checkValidator.sanitizePeerName(name).should.not.match(/[<>]/)
+            );
+        });
+
+        it('should be idempotent and match the value sanitized at join (checkXSS first)', () => {
+            const checkXSS = require('../app/src/xss');
+            ['Tom &amp; Jerry', 'a &lt; b', '&amp;lt;img&amp;gt;', '<b>Bob</b>', 'O&#39;Brien'].forEach((name) => {
+                const stored = checkValidator.sanitizePeerName(checkXSS(name));
+                checkValidator.sanitizePeerName(stored).should.equal(stored);
+                checkValidator.sanitizePeerName(name).should.equal(stored);
+            });
+        });
+
+        it('should return an empty string for non-strings', () => {
+            checkValidator.sanitizePeerName(null).should.equal('');
+            checkValidator.sanitizePeerName(undefined).should.equal('');
+            checkValidator.sanitizePeerName(42).should.equal('');
+            checkValidator.sanitizePeerName({}).should.equal('');
+        });
+    });
 });
