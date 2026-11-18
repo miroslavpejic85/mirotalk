@@ -73,6 +73,8 @@ describe('camera background worker script', () => {
             performance: { now: () => now },
             TransformStream,
             AbortController,
+            setTimeout,
+            clearTimeout,
         });
         vm.runInContext(read('background-effects-compositor.js'), context);
         vm.runInContext(read('background-effects-worker.js'), context);
@@ -111,7 +113,7 @@ describe('camera background worker script', () => {
         assert.deepEqual(plain(lastReply()), { type: 'ack', id: 2 });
     }
 
-    it('returns composited frames with the person mask as alpha, segmenting a 256 px wide copy', async () => {
+    it('returns composited frames with the person mask as alpha, segmenting a 256 px short side copy', async () => {
         createWorker({ masks: [{ width: 2, height: 1, values: [0, 0.5] }] });
         await startFrames();
 
@@ -121,8 +123,9 @@ describe('camera background worker script', () => {
         assert.equal(reply.bitmap.composited, true);
         assert.equal(first.close.calledOnce, true);
         assert.deepEqual([...state().maskImage.data], [255, 255, 255, 0, 255, 255, 255, 128]);
-        assert.equal(segmentCalls[0].input.width, 256);
-        assert.equal(segmentCalls[0].input.height, 144);
+        // Short side 256: every row and column of the 256x256 model output is kept
+        assert.equal(segmentCalls[0].input.width, 455);
+        assert.equal(segmentCalls[0].input.height, 256);
         assert.equal(segmentCalls[0].input.close.calledOnce, true);
     });
 
@@ -258,12 +261,367 @@ describe('camera background worker script', () => {
             labels: ['background', 'person'],
             masks: [
                 { width: 1, height: 1, values: [1] },
-                { width: 1, height: 1, values: [0.25] },
+                { width: 1, height: 1, values: [0.5] },
             ],
         });
         await startFrames();
         await send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(1, 1), timestamp: 1 });
-        assert.equal(state().maskImage.data[3], 64);
+        assert.equal(state().maskImage.data[3], 128);
+    });
+
+    it('uses the inverted background of multiclass models without a person label', async () => {
+        createWorker({
+            labels: ['background', 'hair', 'body-skin'],
+            masks: [
+                { width: 2, height: 1, values: [1, 0] },
+                { width: 2, height: 1, values: [0, 1] },
+                { width: 2, height: 1, values: [0, 0] },
+            ],
+        });
+        await startFrames();
+        await send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(2, 1), timestamp: 1 });
+        const alpha = [...state().maskImage.data].filter((_, index) => index % 4 === 3);
+        assert.deepEqual(alpha, [0, 255]);
+    });
+
+    function useFakeGl() {
+        const canvas = { transferToImageBitmap: () => ({ close: sinon.spy(), fromGl: true }) };
+        const gl = {
+            canvas,
+            lost: false,
+            setMask: sinon.spy(),
+            render: sinon.stub().returns(true),
+            destroy: sinon.spy(),
+        };
+        context.fakeGl = gl;
+        vm.runInContext('state.gl = fakeGl;', context);
+        return gl;
+    }
+
+    it('composites with the WebGL compositor, feeding it the soft (not edge-tightened) mask', async () => {
+        createWorker({ masks: [{ width: 2, height: 1, values: [0.25, 1] }] });
+        const gl = useFakeGl();
+        const image = bitmap(1920, 1080);
+        await startFrames({ mode: 'image', bitmap: image });
+        await send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(1920, 1080), timestamp: 1 });
+
+        assert.equal(lastReply().bitmap.fromGl, true);
+        assert.equal(gl.setMask.calledOnceWith(state().maskImage), true);
+        // 0.25 stays 64: the Canvas2D edge curve would make it 14
+        assert.deepEqual(
+            [...state().maskImage.data].filter((_, index) => index % 4 === 3),
+            [64, 255]
+        );
+        assert.equal(state().maskCanvas, null, 'no Canvas2D mask work while WebGL composites');
+        const [, width, height, view] = gl.render.firstCall.args;
+        assert.deepEqual([width, height], [1280, 720], 'the output stays capped at 1280x720');
+        assert.equal(view.kind, 'image');
+        assert.equal(view.source, image);
+
+        await send({ type: 'background', id: 4, background: { mode: 'blur' } });
+        await send({ type: 'frame', id: 5, session: 7, bitmap: bitmap(2, 1), timestamp: 40 });
+        assert.deepEqual(plain(gl.render.lastCall.args[3]), { kind: 'blur', blurRadius: 12 });
+    });
+
+    it('falls back to Canvas2D with the edge-tightened mask when WebGL fails', async () => {
+        createWorker({ masks: [{ width: 2, height: 1, values: [0.25, 1] }] });
+        const gl = useFakeGl();
+        gl.render.throws(new Error('texImage2D failed'));
+        await startFrames();
+        await send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(2, 1), timestamp: 1 });
+
+        assert.equal(lastReply().bitmap.composited, true, 'the same frame is composited by Canvas2D');
+        assert.equal(gl.destroy.calledOnce, true);
+        assert.equal(state().gl, null);
+        assert.ok(state().maskCanvas, 'mask canvases are drawn for Canvas2D');
+
+        await send({ type: 'frame', id: 4, session: 7, bitmap: bitmap(2, 1), timestamp: 40 });
+        assert.equal(state().maskImage.data[3], 14);
+
+        // A lost context is detected before rendering
+        const lost = useFakeGl();
+        lost.lost = true;
+        await send({ type: 'frame', id: 5, session: 7, bitmap: bitmap(2, 1), timestamp: 80 });
+        assert.equal(lost.render.called, false);
+        assert.equal(lastReply().bitmap.composited, true);
+    });
+
+    function useFakeVision(failures = []) {
+        const created = [];
+        context.fakeVision = {
+            ImageSegmenter: {
+                createFromOptions: async (fileset, options) => {
+                    const { modelAssetPath, delegate } = options.baseOptions;
+                    if (failures.some((failure) => failure(modelAssetPath, delegate))) throw new Error('unsupported');
+                    const segmenter = { ...context.fakeSegmenter, close: sinon.spy(), modelAssetPath, delegate };
+                    created.push(segmenter);
+                    return segmenter;
+                },
+            },
+        };
+        vm.runInContext('vision = fakeVision; fileset = {};', context);
+        return created;
+    }
+
+    const modelConfig = { modelUrl: 'selfie.tflite', multiclassModelUrl: 'multiclass.tflite', delegate: 'CPU' };
+
+    it('runs the multiclass model on the GPU, or the selfie model on the CPU without it', async () => {
+        createWorker();
+        let created = useFakeVision();
+        context.config = modelConfig;
+        await vm.runInContext('loadModel(config)', context);
+        assert.deepEqual(plain(vm.runInContext('model', context)), {
+            name: 'multiclass',
+            url: 'multiclass.tflite',
+            delegate: 'GPU',
+        });
+
+        createWorker();
+        created = useFakeVision([(url, delegate) => delegate === 'GPU']);
+        context.config = modelConfig;
+        await vm.runInContext('loadModel(config)', context);
+        assert.equal(vm.runInContext('model.name', context), 'selfie');
+        assert.equal(created.length, 1);
+        assert.equal(created[0].delegate, 'CPU');
+    });
+
+    it('warms each model up while loading and drops a GPU model that cannot run', async () => {
+        createWorker();
+        let created = useFakeVision();
+        context.config = modelConfig;
+        await vm.runInContext('loadModel(config)', context);
+        assert.equal(segmentCalls.length, 1, 'the first (slow) GPU run happens before any frame');
+        assert.equal(segmentCalls[0].input.width, 256);
+
+        createWorker();
+        created = useFakeVision();
+        const createFromOptions = context.fakeVision.ImageSegmenter.createFromOptions;
+        context.fakeVision.ImageSegmenter.createFromOptions = async (fileset, options) => {
+            const segmenter = await createFromOptions(fileset, options);
+            if (options.baseOptions.delegate === 'GPU') {
+                segmenter.segmentForVideo = () => {
+                    throw new Error('GPU graph failed');
+                };
+            }
+            return segmenter;
+        };
+        context.config = modelConfig;
+        await vm.runInContext('loadModel(config)', context);
+        assert.equal(vm.runInContext('model.name', context), 'selfie');
+        assert.equal(created[0].close.calledOnce, true, 'the broken GPU model is released');
+        assert.equal(vm.runInContext('segmenter', context), created[1]);
+    });
+
+    it('gives the multiclass model up for the selfie model when it is too slow', async () => {
+        createWorker({ segmentCost: 60 });
+        const created = useFakeVision();
+        context.config = modelConfig;
+        await vm.runInContext('workerConfig = config; loadModel(config)', context);
+        const multiclass = created[0];
+        await startFrames();
+        vm.runInContext('segmentCount = 20;', context);
+        await send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(), timestamp: 1 });
+        await flush();
+
+        assert.equal(vm.runInContext('model.name', context), 'selfie');
+        assert.equal(created[1].modelAssetPath, 'selfie.tflite');
+        assert.equal(created[1].delegate, 'CPU');
+        assert.equal(multiclass.close.calledOnce, true);
+    });
+
+    it('stabilizes the mask between segmentations and starts fresh for a new session', async () => {
+        const values = [0.5, 0];
+        createWorker({ masks: [{ width: 2, height: 1, values }], segmentCost: 0 });
+        await startFrames();
+        const alpha = () => [...state().maskImage.data].filter((_, index) => index % 4 === 3);
+        await send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(2, 1), timestamp: 0 });
+        assert.deepEqual(alpha(), [128, 0]);
+
+        // A small flicker of an edge pixel is damped (100 unstabilized), a large change is followed at once
+        values[0] = 0.45;
+        values[1] = 1;
+        await send({ type: 'frame', id: 4, session: 7, bitmap: bitmap(2, 1), timestamp: 33 });
+        const [flicker, moved] = alpha();
+        assert.ok(flicker > 110 && flicker < 128, `flicker damped (${flicker})`);
+        assert.equal(moved, 255);
+
+        // Without the reset the previous session's mask would pull this pixel up (114)
+        await send({ type: 'start', id: 5, session: 8, mode: 'frames' });
+        await send({ type: 'background', id: 6, background: { mode: 'blur' } });
+        await send({ type: 'frame', id: 7, session: 8, bitmap: bitmap(2, 1), timestamp: 66 });
+        assert.deepEqual(alpha(), [100, 255]);
+    });
+
+    class FakeNestedWorker {
+        constructor(url, options) {
+            this.url = url;
+            this.options = options;
+            this.sent = [];
+            this.terminate = sinon.spy();
+            FakeNestedWorker.instances.push(this);
+        }
+        postMessage(message, transfer) {
+            this.sent.push({ message, transfer });
+            if (message.type === 'init' && FakeNestedWorker.autoReady) {
+                Promise.resolve().then(() =>
+                    this.onmessage({ data: { type: 'ready', model: 'multiclass', delegate: 'GPU' } })
+                );
+            }
+        }
+        requests() {
+            return this.sent.filter(({ message }) => message.type === 'segment').map(({ message }) => message);
+        }
+        reply(request, values = [0, 1], extra = {}) {
+            this.onmessage({
+                data: {
+                    type: 'mask',
+                    generation: request.generation,
+                    values: Float32Array.from(values),
+                    width: values.length,
+                    height: 1,
+                    model: 'multiclass',
+                    delegate: 'GPU',
+                    ...extra,
+                },
+            });
+        }
+    }
+
+    async function startNestedSegmenter() {
+        FakeNestedWorker.instances = [];
+        FakeNestedWorker.autoReady = true;
+        context.Worker = FakeNestedWorker;
+        context.config = { segmenterUrl: 'https://host/js/background-effects-worker.js' };
+        assert.equal(await vm.runInContext('workerConfig = config; startRemoteSegmenter(config)', context), true);
+        return FakeNestedWorker.instances[0];
+    }
+
+    it('starts this script again as a named nested worker to segment in parallel', async () => {
+        createWorker();
+        const nested = await startNestedSegmenter();
+        assert.equal(nested.url, 'https://host/js/background-effects-worker.js');
+        assert.deepEqual(plain(nested.options), { type: 'module', name: 'mirotalk-bg-segmenter' });
+        assert.equal(nested.sent[0].message.type, 'init');
+        assert.equal(vm.runInContext('model.name', context), 'multiclass');
+
+        createWorker();
+        FakeNestedWorker.instances = [];
+        FakeNestedWorker.autoReady = false;
+        context.Worker = FakeNestedWorker;
+        context.config = { segmenterUrl: 'https://host/js/background-effects-worker.js' };
+        const started = vm.runInContext('startRemoteSegmenter(config)', context);
+        FakeNestedWorker.instances[0].onmessage({ data: { type: 'error', stage: 'init', message: 'no wasm' } });
+        assert.equal(await started, false, 'the caller segments in this worker instead');
+        assert.equal(FakeNestedWorker.instances[0].terminate.calledOnce, true);
+    });
+
+    it('composites every frame with the latest mask without waiting for the segmenter', async () => {
+        createWorker();
+        const nested = await startNestedSegmenter();
+        await startFrames();
+
+        // The first frame waits for its mask: no room is sent before there is a mask
+        const firstFrame = send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(512, 288), timestamp: 0 });
+        await flush();
+        const [first] = nested.requests();
+        assert.deepEqual([first.bitmap.width, first.bitmap.height], [455, 256]);
+        assert.equal(posted.length, 2, 'not answered before the first mask');
+        nested.reply(first, [0, 1]);
+        await firstFrame;
+        await flush();
+        assert.equal(lastReply().bitmap.composited, true);
+        assert.equal(segmentCalls.length, 0, 'nothing segmented in the compositor worker');
+
+        // Later frames are composited at once, one segmentation in flight at most
+        now += 100;
+        await send({ type: 'frame', id: 4, session: 7, bitmap: bitmap(512, 288), timestamp: 33 });
+        await send({ type: 'frame', id: 5, session: 7, bitmap: bitmap(512, 288), timestamp: 66 });
+        assert.equal(lastReply().bitmap.composited, true);
+        assert.equal(nested.requests().length, 2);
+
+        // A mask of the previous camera is dropped after a new session started
+        const stale = nested.requests()[1];
+        await send({ type: 'start', id: 6, session: 8, mode: 'frames' });
+        nested.reply(stale, [1, 1]);
+        assert.equal(state().hasMask, false);
+    });
+
+    it('does not segment in the nested worker while the background is off', async () => {
+        createWorker();
+        const nested = await startNestedSegmenter();
+        await send({ type: 'start', id: 1, session: 7, mode: 'frames' });
+        const frame = bitmap();
+        await send({ type: 'frame', id: 2, session: 7, bitmap: frame, timestamp: 1 });
+        assert.equal(lastReply().bitmap, frame);
+        assert.equal(nested.requests().length, 0);
+    });
+
+    it('lets the segmenter rest between masks so the GPU is not saturated', async () => {
+        createWorker();
+        const nested = await startNestedSegmenter();
+        await startFrames();
+        const firstFrame = send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(2, 1), timestamp: 0 });
+        await flush();
+        now += 40;
+        nested.reply(nested.requests()[0]);
+        await firstFrame;
+        await flush();
+
+        // Took 40 ms: the next request waits 20 ms
+        now += 10;
+        await send({ type: 'frame', id: 4, session: 7, bitmap: bitmap(2, 1), timestamp: 33 });
+        assert.equal(nested.requests().length, 1);
+        now += 15;
+        await send({ type: 'frame', id: 5, session: 7, bitmap: bitmap(2, 1), timestamp: 66 });
+        assert.equal(nested.requests().length, 2);
+    });
+
+    it('segments in this worker when the nested segmenter crashes or stalls', async () => {
+        for (const breakIt of ['crash', 'stall']) {
+            createWorker();
+            const nested = await startNestedSegmenter();
+            vm.runInContext('loadSegmenter = async () => { segmenter = fakeSegmenter; };', context);
+            await startFrames();
+            const firstFrame = send({ type: 'frame', id: 3, session: 7, bitmap: bitmap(2, 1), timestamp: 0 });
+            await flush();
+            nested.reply(nested.requests()[0]);
+            await firstFrame;
+            await flush();
+            now += 100;
+            await send({ type: 'frame', id: 4, session: 7, bitmap: bitmap(2, 1), timestamp: 33 });
+
+            if (breakIt === 'crash') nested.onerror({ message: 'out of memory', preventDefault() {} });
+            else now += 5000;
+            await send({ type: 'frame', id: 5, session: 7, bitmap: bitmap(2, 1), timestamp: 66 });
+            await flush();
+            assert.equal(nested.terminate.calledOnce, true, breakIt);
+            assert.equal(vm.runInContext('remote.worker', context), null);
+
+            await send({ type: 'frame', id: 6, session: 7, bitmap: bitmap(2, 1), timestamp: 99 });
+            assert.ok(segmentCalls.length >= 1, `${breakIt}: segmented here`);
+            assert.equal(lastReply().bitmap.composited, true);
+        }
+    });
+
+    it('answers every segment request of the compositor in the segmenter role', async () => {
+        createWorker({ masks: [{ width: 2, height: 1, values: [0.25, 1] }] });
+        const input = bitmap(455, 256);
+        vm.runInContext('segmentForCompositor', context)({ bitmap: input, timestamp: 5, generation: 3 });
+        const { message, transfer } = posted[posted.length - 1];
+        assert.equal(message.type, 'mask');
+        assert.equal(message.generation, 3);
+        assert.deepEqual([...message.values], [0.25, 1]);
+        assert.deepEqual([message.width, message.height], [2, 1]);
+        assert.equal(transfer[0], message.values.buffer, 'the mask is transferred, not copied');
+        assert.equal(input.close.calledOnce, true);
+
+        context.fakeSegmenter.segmentForVideo = () => {
+            throw new Error('graph failed');
+        };
+        const broken = bitmap(455, 256);
+        vm.runInContext('segmentForCompositor', context)({ bitmap: broken, timestamp: 6, generation: 3 });
+        assert.equal(posted[posted.length - 1].message.values, null, 'the compositor is never left waiting');
+        assert.equal(broken.close.calledOnce, true);
     });
 
     it('reports control errors to the page and stops a transferred track it could not use', async () => {
@@ -335,6 +693,108 @@ describe('camera background worker script', () => {
             assert.equal(frames[0].close.called, false);
             assert.equal(segmentCalls.length, 0);
         });
+    });
+});
+
+describe('camera background mask stabilizer', () => {
+    let compositor;
+
+    before(() => {
+        const context = vm.createContext({});
+        vm.runInContext(read('background-effects-compositor.js'), context);
+        compositor = context.BackgroundCompositor;
+    });
+
+    // edgeLow 0 / edgeHigh 1: plain smoothstep, so expectations are given before the curve
+    const noEdgeCurve = { edgeLow: 0, edgeHigh: 1 };
+    const curve = (value) => value * value * (3 - 2 * value);
+    const linear = (stabilize) => (values) => [...stabilize(Float32Array.from(values))];
+    const close = (actual, expected) =>
+        actual.forEach((value, index) =>
+            assert.ok(Math.abs(value - curve(expected[index])) < 1e-5, `${actual} ≈ ${expected.map(curve)}`)
+        );
+
+    it('damps model jitter on static edges but never lags behind real motion', () => {
+        const run = linear(compositor.createMaskStabilizer({ ...noEdgeCurve, leak: 0.3 }));
+        run([0.5, 0]);
+        // 0.02 is below tLo: only the leak share of the change gets through
+        close(run([0.52, 1]), [0.506, 1]);
+        let jitter = 0;
+        for (let frame = 0; frame < 20; frame++) {
+            const [value] = run([frame % 2 ? 0.45 : 0.55, 1]);
+            if (frame > 4) jitter = Math.max(jitter, Math.abs(value - 0.5));
+        }
+        assert.ok(jitter < 0.03, `±0.05 raw jitter is reduced to ±${jitter.toFixed(3)}`);
+    });
+
+    it('keeps following an edge for a few masks after it moved (peak-hold envelope)', () => {
+        const run = linear(compositor.createMaskStabilizer({ ...noEdgeCurve, leak: 0.1, release: 0.8 }));
+        run([0]);
+        close(run([1]), [1]);
+        // envelope 0.8: still above tHi, the small correction is taken in full
+        close(run([0.9]), [0.9]);
+    });
+
+    it('smoothsteps the edge band and restarts when the mask size changes or on reset', () => {
+        const stabilize = compositor.createMaskStabilizer();
+        const run = linear(stabilize);
+        const { edgeLow, edgeHigh } = compositor.MASK_STABILIZER_DEFAULTS;
+        close(run([0, edgeLow, 0.5, edgeHigh, 1]), [0, 0, 0.5, 1, 1]);
+        assert.equal(run([0.3]).length, 1, 'a new mask size starts a new state');
+        run([0.6]);
+        run([0.6]);
+        stabilize.reset();
+        // Without the reset 0.5 would be blended with the previous 0.6
+        close(run([0.5]), [0.5]);
+    });
+
+    it('returns the raw stabilized confidence without the edge curve (WebGL)', () => {
+        const run = linear(compositor.createMaskStabilizer({ edgeCurve: false }));
+        assert.deepEqual(run([0.25, 1]), [0.25, 1]);
+    });
+});
+
+describe('camera background WebGL compositor', () => {
+    let gl;
+
+    before(() => {
+        const context = vm.createContext({});
+        vm.runInContext(read('background-effects-gl.js'), context);
+        gl = context.BackgroundEffectsGL;
+    });
+
+    it('fits backgrounds like CSS object-fit: cover', () => {
+        // 4:3 image in a 16:9 frame: full width, the middle 75% of the height
+        assert.deepEqual(plain(gl.coverTransform(1600, 1200, 1280, 720)), [1, 0.75, 0, 0.125]);
+        // portrait image: full width, the middle band of the height
+        const [scaleX, scaleY, offsetX, offsetY] = gl.coverTransform(720, 1280, 1280, 720);
+        assert.equal(scaleX, 1);
+        assert.equal(offsetX, 0);
+        assert.ok(Math.abs(scaleY - 0.31640625) < 1e-9);
+        assert.ok(Math.abs(offsetY - (1 - scaleY) / 2) < 1e-9);
+        assert.deepEqual(plain(gl.coverTransform(0, 0, 1280, 720)), [1, 1, 0, 0]);
+    });
+
+    it('sizes the refined mask and the blur targets', () => {
+        assert.deepEqual(plain(gl.scaledSize(1280, 720, 1, 640)), [640, 360]);
+        assert.deepEqual(plain(gl.scaledSize(320, 180, 1, 640)), [320, 180]);
+        assert.deepEqual(plain(gl.scaledSize(1280, 720, 0.25)), [320, 180]);
+        // The Canvas2D blur radius (12 px) keeps the same look on the GPU
+        assert.deepEqual(plain(gl.blurKernel(12, 0.25)), { sigma: 3, radius: 9 });
+        assert.deepEqual(plain(gl.blurKernel(400, 0.25)), { sigma: 100, radius: 32 });
+        assert.deepEqual(plain(gl.blurKernel(0, 0.25)), { sigma: 0.5, radius: 2 });
+    });
+
+    it('reports no compositor without WebGL2, so the worker keeps Canvas2D', () => {
+        assert.equal(gl.createCompositor({ getContext: () => null }), null);
+        assert.equal(
+            gl.createCompositor({
+                getContext: () => {
+                    throw new Error('blocked');
+                },
+            }),
+            null
+        );
     });
 });
 
@@ -464,7 +924,28 @@ describe('camera background worker transports', () => {
         assert.match(config.visionBundleUrl, /tasks-vision@1\.2\.0\/vision_bundle\.mjs$/);
         assert.match(config.wasmBaseUrl, /tasks-vision@1\.2\.0\/wasm$/);
         assert.match(config.modelUrl, /selfie_segmenter\/float16\/1\/selfie_segmenter\.tflite$/);
+        assert.match(config.multiclassModelUrl, /selfie_multiclass_256x256\.tflite$/);
+        assert.equal(config.glUrl, 'https://host/js/background-effects-gl.js');
+        assert.equal(config.segmenterUrl, 'https://host/js/background-effects-worker.js');
         assert.equal(config.delegate, 'CPU');
+    });
+
+    it('captures the ImageBitmap transport output without a frame rate cap (Firefox)', async () => {
+        const { engine, context } = createEngine({ transferableStreams: false });
+        await engine.init();
+        const createElement = context.document.createElement;
+        const captureStream = sinon.stub().returns({ getVideoTracks: () => [{ kind: 'canvas', stop: sinon.spy() }] });
+        context.document.createElement = (type) => {
+            const element = createElement(type);
+            if (type === 'canvas') element.captureStream = captureStream;
+            return element;
+        };
+        const track = { ...camera(), getSettings: () => ({ frameRate: 30 }) };
+        const session = await engine.start(track);
+        assert.equal(session.mode, 'frames');
+        assert.equal(captureStream.calledOnce, true);
+        assert.deepEqual(captureStream.firstCall.args, []);
+        await engine.stopSession(session);
     });
 
     it('transfers a clone of the camera when the worker has track processing (Safari)', async () => {

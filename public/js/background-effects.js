@@ -8,6 +8,9 @@ const BG_TASKS_VISION = Object.freeze({
     // General (256x256) model: more accurate edges than the landscape one
     modelUrl:
         'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite',
+    // Person = not background, with a hair class: cleaner edges, used by the worker on the GPU delegate
+    multiclassModelUrl:
+        'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite',
 });
 
 // The worker and the shared compositor are resolved from this script location
@@ -142,7 +145,11 @@ class BackgroundEffectsWorker {
                 config: {
                     ...BG_TASKS_VISION,
                     compositorUrl: new URL('background-effects-compositor.js', this.baseUrl).href,
-                    // CPU (XNNPACK, WASM SIMD) is reliable everywhere and keeps the GPU for encoding
+                    glUrl: new URL('background-effects-gl.js', this.baseUrl).href,
+                    // The same script, started again by the worker to segment in parallel
+                    segmenterUrl: new URL('background-effects-worker.js', this.baseUrl).href,
+                    // The selfie model: CPU (XNNPACK, WASM SIMD) is reliable everywhere and keeps the GPU
+                    // for encoding. The multiclass model is only used on the GPU, where it is fast enough.
                     delegate: 'CPU',
                 },
             });
@@ -326,7 +333,8 @@ class BackgroundEffectsWorker {
             session.pump = pump();
             await session.pump;
             if (session.stopped) throw new Error('Camera processing stopped');
-            return Object.assign(session, { outputTrack: canvas.captureStream(fps).getVideoTracks()[0] });
+            // No frame rate: a frame per drawn bitmap, as paced above. Firefox caps captureStream(30) near 18 fps
+            return Object.assign(session, { outputTrack: canvas.captureStream().getVideoTracks()[0] });
         } catch (error) {
             await this.stopSession(session);
             throw error;
@@ -427,7 +435,11 @@ class BackgroundEffects {
         this.worker = engine;
         this.session = session;
         this.outputTrack = session.outputTrack;
-        console.log(`Background effects running in a worker (${session.mode})`);
+        const { model, delegate, gl, segmenter } = engine.capabilities || {};
+        console.log(
+            `Background effects running in a worker (${session.mode}, ${model || 'selfie'} model on ${delegate || 'CPU'}, ` +
+                `${gl ? 'WebGL2' : 'Canvas2D'} compositing, ${segmenter || 'inline'} segmentation)`
+        );
         return this.outputTrack;
     }
 

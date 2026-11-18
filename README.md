@@ -113,9 +113,7 @@ In **Settings > Video > Background**, select **Off**, **Blur**, or **Image**. Lo
 
 Background controls are also available in prejoin and the quick video menu. Select **Image**, then use the file picker (or **Choose image** in the quick video menu) to choose or replace an image. The selected filename stays synchronized between prejoin and Video settings.
 
-Effects require WebGL2 and canvas stream capture; blur also requires canvas filter support. MediaPipe Tasks Vision 0.10.21 and its WASM files are lazy-loaded from jsDelivr, and the selfie segmentation model (version 1) is loaded from Google Storage. These hosts must be reachable and permitted by any custom CSP (including WASM execution). Failures fall back to the camera without effects.
-
-Effect output is capped at 1280 x 720 and 15 FPS. Off uses the original camera track without processing. Performance varies by device; background tabs may throttle rendering.
+Effect output is capped at 1280 x 720 and follows the camera frame rate (up to 30 FPS), or 15 FPS when effects fall back to the main thread. Off uses the original camera track without processing. Performance varies by device; background tabs may throttle rendering.
 
 </details>
 

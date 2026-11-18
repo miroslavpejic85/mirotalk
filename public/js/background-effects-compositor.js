@@ -50,6 +50,71 @@
         );
     }
 
+    // Defaults for createMaskStabilizer, in person-confidence units [0, 1]
+    const MASK_STABILIZER_DEFAULTS = Object.freeze({
+        // Change below tLo counts as model jitter, above tHi as real motion
+        tLo: 0.03,
+        tHi: 0.15,
+        // Minimum weight of the new mask, bounds the lag of static regions
+        leak: 0.3,
+        // Decay of the per-pixel motion envelope: keeps following a moving edge for a few masks
+        release: 0.8,
+        // Smoothstep remap that narrows the soft band MediaPipe leaves around the person. Off for the
+        // WebGL compositor, whose bilateral filter needs the soft band and applies its own coverage.
+        edgeCurve: true,
+        edgeLow: 0.15,
+        edgeHigh: 0.85,
+    });
+
+    // Temporal stabilizer for segmentation masks (after Longpipe's flow-gated stabilizer, MIT, with the
+    // per-pixel mask change as the motion signal since there is no optical flow here):
+    //   env = max(|mask - prev|, release * envPrev)
+    //   g   = max(clamp((env - tLo) / (tHi - tLo), 0, 1), leak)
+    //   out = prev + g * (mask - prev)
+    // Static edges are averaged over a few masks (no flicker), moving edges follow the new mask at once.
+    // With edgeCurve, the result is then remapped with smoothstep(edgeLow, edgeHigh) for a tighter edge.
+    function createMaskStabilizer(options = {}) {
+        const { tLo, tHi, leak, release, edgeCurve, edgeLow, edgeHigh } = {
+            ...MASK_STABILIZER_DEFAULTS,
+            ...options,
+        };
+        const gateRange = Math.max(tHi - tLo, 1e-3);
+        const edgeRange = Math.max(edgeHigh - edgeLow, 1e-3);
+        let state = null;
+        let envelope = null;
+        let output = null;
+
+        const stabilize = (confidence) => {
+            const length = confidence.length;
+            if (!state || state.length !== length) {
+                state = Float32Array.from(confidence);
+                envelope = new Float32Array(length);
+                output = new Float32Array(length);
+            } else {
+                for (let i = 0; i < length; i++) {
+                    const previous = state[i];
+                    const delta = confidence[i] - previous;
+                    const env = Math.max(Math.abs(delta), release * envelope[i]);
+                    envelope[i] = env;
+                    const gate = Math.max(Math.min(Math.max((env - tLo) / gateRange, 0), 1), leak);
+                    state[i] = previous + gate * delta;
+                }
+            }
+            if (!edgeCurve) return state;
+            for (let i = 0; i < length; i++) {
+                const t = Math.min(Math.max((state[i] - edgeLow) / edgeRange, 0), 1);
+                output[i] = t * t * (3 - 2 * t);
+            }
+            return output;
+        };
+        stabilize.reset = () => {
+            state = null;
+            envelope = null;
+            output = null;
+        };
+        return stabilize;
+    }
+
     // Three box blur passes approximate a Gaussian blur without canvas filters (Safari).
     // Blurs pixels in place; scratch (same length) is reused across frames by the caller.
     function boxBlurPixels(pixels, width, height, radius, scratch = new Uint8ClampedArray(pixels.length)) {
@@ -147,6 +212,8 @@
         createCanvas,
         fitSize,
         drawCover,
+        MASK_STABILIZER_DEFAULTS,
+        createMaskStabilizer,
         boxBlurPixels,
         createBlur,
     });
