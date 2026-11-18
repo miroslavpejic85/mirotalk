@@ -209,3 +209,82 @@ describe('GifSearch (KLIPY chat picker)', () => {
         }
     });
 });
+
+describe('sendGif (client chat pipeline)', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const vm = require('vm');
+
+    const client = fs.readFileSync(path.join(__dirname, '../public/js/client.js'), 'utf8');
+
+    function extractFunction(name) {
+        const start = client.search(new RegExp(`^(async )?function ${name}\\(`, 'm'));
+        assert.notEqual(start, -1, `${name} not found`);
+        const end = client.indexOf('\n}\n', start);
+        return client.slice(start, end + 3);
+    }
+
+    const gifUrl = 'https://static.klipy.com/ii/abc/84/09/XSLEN7Sb.webp';
+    let context;
+
+    beforeEach(() => {
+        context = vm.createContext({
+            msgerInput: { value: '' },
+            sent: [],
+            raw: new Map(),
+        });
+        vm.runInContext(
+            `let isChatTranslating = false;
+            let isChatPasteTxt = false;
+            const CHAT_GPT_PEER_ID = 'chatgpt';
+            const myPeerName = 'me';
+            const myPeerAvatar = false;
+            const myPeerId = 'me-id';
+            const rightChatAvatar = '';
+            const activeConversation = { type: 'public', peerName: '', peerId: '' };
+            const chatMessageRaw = raw;
+            const thereArePeerConnections = () => true;
+            const isChatGPTConversationActive = () => false;
+            const userLog = () => {};
+            const filterXSS = (s) => s;
+            const isImageURL = (s) => /\\.(webp|gif)$/.test(s);
+            const checkMsg = (s) => (s ? '<img src="' + s + '">' : undefined);
+            const createChatMessageId = () => 'm-1';
+            const cleanMessageInput = () => { msgerInput.value = ''; };
+            // Real translateChatInput is async: it yields before sendChatMessage reads the input
+            const translateChatInput = async () => true;
+            const emitMsg = (from, avatar, to, msg) => sent.push({ to, msg });
+            const appendMessage = () => {};
+            ${extractFunction('sendChatMessage')}
+            ${extractFunction('sendGif')}`,
+            context
+        );
+    });
+
+    it('should send the selected GIF and keep the typed draft untouched', async () => {
+        context.msgerInput.value = 'my draft';
+        context.sendGif(gifUrl);
+        await new Promise((resolve) => setImmediate(resolve));
+
+        assert.equal(context.sent.length, 1);
+        assert.equal(context.sent[0].to, 'toAll');
+        assert.ok(context.sent[0].msg.includes(gifUrl));
+        assert.equal(context.raw.get('m-1'), gifUrl);
+        assert.equal(context.msgerInput.value, 'my draft');
+    });
+
+    it('should still send and clear the typed input on a normal send', async () => {
+        context.msgerInput.value = '  hello  ';
+        await context.sendChatMessage();
+
+        assert.equal(context.sent.length, 1);
+        assert.equal(context.raw.get('m-1'), 'hello');
+        assert.equal(context.msgerInput.value, '');
+    });
+
+    it('should ignore non-image urls', async () => {
+        context.sendGif('https://example.com/page');
+        await new Promise((resolve) => setImmediate(resolve));
+        assert.equal(context.sent.length, 0);
+    });
+});

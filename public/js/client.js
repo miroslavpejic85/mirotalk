@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.13
+ * @version 2.3.14
  *
  */
 
@@ -9853,13 +9853,10 @@ function sendGif(url) {
     if (isChatGPTConversationActive()) {
         return userLog('info', 'GIFs cannot be sent to ChatGPT', 'top-end');
     }
-    const draft = msgerInput.value;
-    msgerInput.value = url;
-    isChatPasteTxt = false;
-    // Not awaited: the input is consumed synchronously, and the call may resolve only when an alert is dismissed.
-    sendChatMessage();
-    msgerInput.value = draft;
-    checkLineBreaks();
+    // Passed directly (not via the input): sendChatMessage awaits before reading the input, so a
+    // temporary input swap would be restored to the draft before being sent. Not awaited: the call
+    // may resolve only when an alert is dismissed.
+    sendChatMessage(url);
 }
 
 /**
@@ -14809,24 +14806,32 @@ function hideCaptionBox() {
 
 /**
  * Send Chat messages to peers in the room
+ * @param {string} [text] message to send as-is (e.g. a GIF url), leaving the input draft untouched;
+ * when omitted, the input content is sent (translated if enabled) and cleared
  */
-async function sendChatMessage() {
+async function sendChatMessage(text) {
+    const fromInput = typeof text !== 'string';
+
     if (!thereArePeerConnections() && !isChatGPTConversationActive()) {
-        cleanMessageInput();
-        isChatPasteTxt = false;
+        if (fromInput) {
+            cleanMessageInput();
+            isChatPasteTxt = false;
+        }
         return userLog('info', "Can't send message, no participants in the room");
     }
 
     if (isChatTranslating) return;
 
     // Translate my outgoing message (not for the ChatGPT conversation)
-    if (!isChatGPTConversationActive() && !(await translateChatInput())) return;
+    if (fromInput && !isChatGPTConversationActive() && !(await translateChatInput())) return;
 
-    msgerInput.value = filterXSS(msgerInput.value.trim());
-    const msg = checkMsg(msgerInput.value);
+    const rawMsg = filterXSS((fromInput ? msgerInput.value : text).trim());
+    if (fromInput) msgerInput.value = rawMsg;
+    const msg = checkMsg(rawMsg);
 
     // empty msg or
     if (!msg) {
+        if (!fromInput) return;
         isChatPasteTxt = false;
         return cleanMessageInput();
     }
@@ -14839,13 +14844,13 @@ async function sendChatMessage() {
     } else if (activeConversation.type === 'private' && activeConversation.peerName) {
         emitMsg(myPeerName, myPeerAvatar, activeConversation.peerName, msg, true, myPeerId, msgId);
         appendMessage(myPeerName, rightChatAvatar, 'right', msg, true, msgId, activeConversation.peerName, myPeerId);
-        chatMessageRaw.set(msgId, msgerInput.value);
+        chatMessageRaw.set(msgId, rawMsg);
     } else {
         emitMsg(myPeerName, myPeerAvatar, 'toAll', msg, false, myPeerId, msgId);
         appendMessage(myPeerName, rightChatAvatar, 'right', msg, false, msgId, '', myPeerId);
-        chatMessageRaw.set(msgId, msgerInput.value);
+        chatMessageRaw.set(msgId, rawMsg);
     }
-    cleanMessageInput();
+    if (fromInput) cleanMessageInput();
 }
 
 /**
@@ -15630,14 +15635,17 @@ function toggleMsgerParticipantsEmptyNotice() {
  * allows a stored XSS where a crafted name like `X', alert(1), '` would close
  * the string argument and inject an arbitrary JS expression as a new argument.
  *
+ * Quotes are emitted as \x27 / \x22 (not \' / \"): the HTML parser ignores backslashes,
+ * so a \" would still close a double-quoted attribute and allow attribute injection.
+ *
  * @param {*} value
  * @returns {string}
  */
 function escapeJsString(value) {
     return String(value == null ? '' : value)
         .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'")
-        .replace(/"/g, '\\"')
+        .replace(/'/g, '\\x27')
+        .replace(/"/g, '\\x22')
         .replace(/\n/g, '\\n')
         .replace(/\r/g, '\\r')
         .replace(/\u2028/g, '\\u2028')
@@ -21626,7 +21634,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.13',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.14',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
