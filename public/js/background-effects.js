@@ -161,9 +161,11 @@ class BackgroundEffectsWorker {
         }
         if (message.type === 'pipeline-ended' || message.type === 'pipeline-error') {
             const session = this.sessions.get(message.session);
+            // Stopping a session closes its pipeline: only a running session has anything to report
+            if (!session || session.stopped || session.ended) return;
             const error = message.type === 'pipeline-error' ? new Error(message.message) : null;
             if (error) console.error('Background worker pipeline error', message.message);
-            session?.onEnded(error);
+            session.onEnded(error);
             return;
         }
         const request = this.pending.get(message.id);

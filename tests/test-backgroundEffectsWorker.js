@@ -449,7 +449,7 @@ describe('camera background worker transports', () => {
             'new BackgroundEffectsWorker({ baseUrl: "https://host/js/", trackTransfer })',
             context
         );
-        return { engine, workers, generators };
+        return { engine, workers, generators, context };
     }
 
     const camera = () => ({ clone: sinon.stub().returns({ stop: sinon.spy() }), stop: sinon.spy() });
@@ -570,6 +570,26 @@ describe('camera background worker transports', () => {
         assert.match(onEnded.firstCall.args[1].message, /decode failed/);
         await engine.stopSession(session);
         workers[0].onmessage({ data: { type: 'pipeline-ended', session: session.id } });
+        assert.equal(onEnded.calledOnce, true);
+    });
+
+    it('does not log the pipeline closing while the page stops its session', async () => {
+        const { engine, workers, context } = createEngine();
+        context.console.error = sinon.spy();
+        await engine.init();
+        const onEnded = sinon.spy();
+        const session = await engine.start(camera(), { onEnded });
+        // The output track is stopped first, so the worker reports the closed stream before the stop ack
+        const stopping = engine.stopSession(session);
+        workers[0].onmessage({ data: { type: 'pipeline-error', session: session.id, message: 'Stream closed' } });
+        workers[0].onmessage({ data: { type: 'pipeline-ended', session: session.id } });
+        await stopping;
+        assert.equal(context.console.error.called, false);
+        assert.equal(onEnded.called, false);
+
+        const running = await engine.start(camera(), { onEnded });
+        workers[0].onmessage({ data: { type: 'pipeline-error', session: running.id, message: 'decode failed' } });
+        assert.equal(context.console.error.calledOnce, true);
         assert.equal(onEnded.calledOnce, true);
     });
 
