@@ -19,9 +19,26 @@ const ROOM_BG_DEFAULT_DIM = 35;
 const ROOM_BG_MAX_DIM = 80;
 const ROOM_BG_PRESET_PATTERN = /^\.\.\/images\/room-background\/[A-Za-z0-9._-]+\.(?:jpe?g|png|webp)$/i;
 const ROOM_BG_CUSTOM_ID_PATTERN = /^custom-[A-Za-z0-9-]+$/;
-const ROOM_BG_PRESETS = ['forest', 'beach', 'mountains', 'lake', 'aurora', 'abstract'].map(
-    (name) => `../images/room-background/${name}.webp`
-);
+const ROOM_BG_PRESETS = [
+    'forest',
+    'beach',
+    'mountains',
+    'lake',
+    'aurora',
+    'abstract',
+    'white-room',
+    'living-room',
+    'bookshelf',
+    'lounge',
+    'loft',
+    'space-office',
+    'savanna',
+    'autumn',
+    'cabin',
+    'pier',
+    'gradient',
+    'mirotalk',
+].map((name) => `../images/room-background/${name}.webp`);
 
 // Minimal IndexedDB blob store (room background uploads, camera background upload)
 function createImageStore(dbName, storeName = 'images') {
