@@ -125,6 +125,81 @@ describe('camera background effects', () => {
         await assert.rejects(effects.setMode('invalid'), /Invalid background mode/);
     });
 
+    it('swaps the background on the running pipeline without a new output track', async () => {
+        const stream = await effects.start(effects.input);
+        effects.loadModel = async () => {};
+        await effects.setMode('blur');
+        const image = { naturalWidth: 640, naturalHeight: 480 };
+
+        assert.equal(await effects.setBackground('image', image), true);
+        assert.equal(effects.mode, 'image');
+        assert.equal(effects.image, image);
+        assert.equal(effects.outputTrack, output);
+        assert.equal(stream.getVideoTracks()[0], output);
+        assert.equal(await effects.setBackground('blur'), true);
+        assert.equal(effects.mode, 'blur');
+        assert.equal(output.stop.callCount, 0);
+        assert.equal(camera.stop.callCount, 0);
+    });
+
+    it('does not swap when turning the effect off or when nothing is running', async () => {
+        effects.loadModel = async () => {};
+        assert.equal(await effects.setBackground('blur'), false);
+        await effects.start(effects.input);
+        assert.equal(await effects.setBackground('blur'), false, 'effect still off');
+        await effects.setMode('blur');
+        assert.equal(await effects.setBackground('off'), false);
+        assert.equal(effects.mode, 'blur');
+        output.readyState = 'ended';
+        assert.equal(await effects.setBackground('blur'), false);
+        output.readyState = 'live';
+        camera.readyState = 'ended';
+        assert.equal(await effects.setBackground('blur'), false);
+        camera.readyState = 'live';
+        effects.stop(false);
+        assert.equal(await effects.setBackground('blur'), false);
+    });
+
+    it('keeps the current background when a swap is invalid', async () => {
+        await effects.start(effects.input);
+        effects.loadModel = async () => {};
+        await effects.setMode('blur');
+        effects.image = null;
+        await assert.rejects(effects.setBackground('image'), /Choose a background image/);
+        assert.equal(effects.mode, 'blur');
+    });
+
+    it('reuses the fallback blur buffer across frames', async () => {
+        await effects.start(effects.input);
+        effects.loadModel = async () => {};
+        effects.backgroundContext = { drawImage() {}, clearRect() {} };
+        effects.blurCanvas = { width: 0, height: 0 };
+        effects.blurContext = {
+            clearRect() {},
+            drawImage() {},
+            putImageData() {},
+            getImageData: (x, y, width, height) => ({ data: new Uint8ClampedArray(width * height * 4), width, height }),
+        };
+        effects.drawing = { drawConfidenceMask() {}, close() {} };
+        effects.segmenter = { segmentForVideo() {}, close() {} };
+        await effects.setMode('blur');
+
+        effects.render((effects.lastFrame || 0) + 1000);
+        const buffer = effects.blurBuffer;
+        effects.render(effects.lastFrame + 1000);
+        assert.equal(onError.callCount, 0);
+        assert.equal(buffer?.constructor.name, 'Uint8ClampedArray');
+        assert.equal(buffer.length, 160 * 90 * 4);
+        assert.equal(effects.blurBuffer, buffer);
+    });
+
+    it('uses the general (square) selfie segmenter model', () => {
+        const source = fs.readFileSync(path.join(__dirname, '../public/js/background-effects.js'), 'utf8');
+        assert.match(source, /image_segmenter\/selfie_segmenter\/float16\/1\/selfie_segmenter\.tflite/);
+        assert.doesNotMatch(source, /selfie_segmenter_landscape/);
+        assert.match(source, /tasks-vision@\d+\.\d+\.\d+/);
+    });
+
     it('falls back to camera frames on segmentation failure', async () => {
         await effects.start(effects.input);
         effects.mode = 'blur';
@@ -208,6 +283,11 @@ describe('client camera background integration', () => {
                     if (stopCamera) this.cameraTrack?.stop();
                 });
                 this.setMode = sinon.stub().resolves();
+                this.setBackground = sinon.spy(async (mode, image) => {
+                    if (this.stopped || !this.outputTrack) return false;
+                    await this.setMode(mode, image);
+                    return true;
+                });
                 processors.push(this);
             }
             async start(stream) {
@@ -275,6 +355,7 @@ describe('client camera background integration', () => {
             'setBackgroundError',
             'attachCameraBackgroundStream',
             'prepareCameraBackground',
+            'swapCameraBackground',
             'applyCameraBackground',
             'changeCameraBackground',
             'loadCameraBackgroundImageElement',
@@ -878,6 +959,131 @@ describe('client camera background integration', () => {
         assert.equal(processors[0].stop.firstCall.args[0], false);
         assert.equal(camera.stop.callCount, 0);
         assert.equal(context.cameraEffects, null);
+    });
+
+    describe('swapping on the running pipeline', () => {
+        let assignments;
+
+        beforeEach(async () => {
+            assignments = { myVideo: 0, initVideo: 0 };
+            for (const name of ['myVideo', 'initVideo']) {
+                let srcObject;
+                context[name] = {
+                    get srcObject() {
+                        return srcObject;
+                    },
+                    set srcObject(value) {
+                        assignments[name]++;
+                        srcObject = value;
+                    },
+                };
+            }
+            context.backgroundEffectSelect.value = 'blur';
+            await context.applyCameraBackground();
+            context.refreshMyStreamToPeers.resetHistory();
+            assignments.myVideo = assignments.initVideo = 0;
+        });
+
+        it('swaps blur and image without restarting the camera, previews or peer tracks', async () => {
+            const stream = context.localVideoMediaStream;
+            const image = { naturalWidth: 640, naturalHeight: 480 };
+            context.backgroundImage = image;
+            context.backgroundEffectSelect.value = 'image';
+            await context.applyCameraBackground();
+            context.backgroundEffectSelect.value = 'blur';
+            await context.applyCameraBackground();
+
+            assert.equal(processors.length, 1);
+            assert.deepEqual(
+                processors[0].setBackground.args.map(([mode, bg]) => [mode, bg]),
+                [
+                    ['image', image],
+                    ['blur', image],
+                ]
+            );
+            assert.equal(processors[0].stop.callCount, 0);
+            assert.equal(context.cameraEffects, processors[0]);
+            assert.equal(context.localVideoMediaStream, stream);
+            assert.equal(context.initStream, stream);
+            assert.equal(context.refreshMyStreamToPeers.callCount, 0);
+            assert.deepEqual(assignments, { myVideo: 0, initVideo: 0 });
+            assert.equal(camera.stop.callCount, 0);
+        });
+
+        it('swaps from a preset tile while blur is running', async () => {
+            context.Image = class {
+                set src(value) {
+                    this.url = value;
+                    this.onload();
+                }
+            };
+            await context.selectCameraBackgroundImage({ type: 'preset', url: '/images/bg.jpg' });
+            assert.equal(processors.length, 1);
+            assert.equal(processors[0].setBackground.lastCall.args[0], 'image');
+            assert.equal(processors[0].setBackground.lastCall.args[1].url, '/images/bg.jpg');
+            assert.equal(context.refreshMyStreamToPeers.callCount, 0);
+            assert.equal(context.backgroundEffectsBusy, false);
+        });
+
+        it('restarts when turning the effect off and back on', async () => {
+            context.backgroundEffectSelect.value = 'off';
+            await context.applyCameraBackground();
+            assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
+            context.backgroundEffectSelect.value = 'blur';
+            await context.applyCameraBackground();
+            assert.equal(processors.length, 2);
+            assert.equal(processors[0].setBackground.callCount, 0);
+            assert.equal(context.refreshMyStreamToPeers.callCount, 2);
+        });
+
+        it('restarts on the plain camera when Image is chosen without an image', async () => {
+            context.backgroundImage = null;
+            context.backgroundEffectSelect.value = 'image';
+            await context.applyCameraBackground();
+            assert.equal(processors[0].setBackground.callCount, 0);
+            assert.equal(context.localVideoMediaStream.getVideoTracks()[0], camera);
+            assert.equal(context.cameraEffects, null);
+        });
+
+        it('falls back to a restart when the swap fails', async () => {
+            processors[0].setMode.rejects(new Error('Model unavailable'));
+            context.backgroundImage = { naturalWidth: 640, naturalHeight: 480 };
+            context.backgroundEffectSelect.value = 'image';
+            await context.applyCameraBackground();
+            assert.equal(processors.length, 2);
+            assert.equal(processors[0].stop.firstCall.args[0], false);
+            assert.equal(context.cameraEffects, processors[1]);
+            assert.equal(processors[1].setMode.firstCall.args[0], 'image');
+            assert.equal(context.refreshMyStreamToPeers.callCount, 1);
+            assert.equal(camera.stop.callCount, 0);
+        });
+
+        it('falls back to a restart when the processor is no longer attached', async () => {
+            processors[0].setBackground.resetHistory();
+            context.localVideoMediaStream = new context.MediaStream([camera]);
+            context.backgroundImage = { naturalWidth: 640, naturalHeight: 480 };
+            context.backgroundEffectSelect.value = 'image';
+            await context.applyCameraBackground();
+            assert.equal(processors[0].setBackground.callCount, 0);
+            assert.equal(processors.length, 2);
+        });
+    });
+
+    it('does not reload previews when the stream is unchanged', () => {
+        let assigned = 0;
+        const video = {
+            srcObject: originalStream,
+        };
+        context.myVideo = new Proxy(video, {
+            set(target, key, value) {
+                if (key === 'srcObject') assigned++;
+                target[key] = value;
+                return true;
+            },
+        });
+        context.initVideo = context.myVideo;
+        context.attachCameraBackgroundStream(originalStream, originalStream);
+        assert.equal(assigned, 0);
     });
 
     it('restores the raw camera to peers on processing failure', async () => {

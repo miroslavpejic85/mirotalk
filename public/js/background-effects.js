@@ -49,6 +49,24 @@ class BackgroundEffects {
         this.mode = mode;
     }
 
+    canSwapBackground() {
+        return Boolean(
+            !this.stopped &&
+            this.mode !== 'off' &&
+            this.outputTrack &&
+            this.cameraTrack?.readyState !== 'ended' &&
+            this.outputTrack.readyState !== 'ended'
+        );
+    }
+
+    // Swap the effect on the running pipeline: same output track, so previews and peers keep their stream.
+    // Resolves false when no effect is running (the caller must start one).
+    async setBackground(mode, image) {
+        if (mode === 'off' || !this.canSwapBackground()) return false;
+        await this.setMode(mode, image);
+        return this.canSwapBackground();
+    }
+
     loadModel() {
         if (!this.modelPromise) {
             this.modelPromise = (async () => {
@@ -57,8 +75,9 @@ class BackgroundEffects {
                 const files = await FilesetResolver.forVisionTasks(`${base}/wasm`);
                 const segmenter = await ImageSegmenter.createFromOptions(files, {
                     baseOptions: {
+                        // General (256x256) model: more accurate edges than the landscape one
                         modelAssetPath:
-                            'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/1/selfie_segmenter_landscape.tflite',
+                            'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite',
                         delegate: 'GPU',
                     },
                     canvas: this.maskCanvas,
@@ -110,10 +129,13 @@ class BackgroundEffects {
         blur.imageSmoothingEnabled = true;
         blur.drawImage(this.video, 0, 0, smallWidth, smallHeight);
         const imageData = blur.getImageData(0, 0, smallWidth, smallHeight);
+        const pixels = imageData.data;
+        // Reuse one scratch buffer across frames instead of allocating per pass
+        if (this.blurBuffer?.length !== pixels.length) this.blurBuffer = new Uint8ClampedArray(pixels.length);
+        const scratch = this.blurBuffer;
         const radius = Math.max(1, Math.round(12 / scale));
         const divisor = radius * 2 + 1;
-        const boxBlur = (source, horizontal) => {
-            const blurred = new Uint8ClampedArray(source.length);
+        const boxBlur = (source, blurred, horizontal) => {
             const outerLength = horizontal ? smallHeight : smallWidth;
             const innerLength = horizontal ? smallWidth : smallHeight;
             const indexOf = (outer, inner) =>
@@ -141,11 +163,11 @@ class BackgroundEffects {
                     blue += source[addIndex + 2] - source[removeIndex + 2];
                 }
             }
-            return blurred;
         };
-        let pixels = imageData.data;
-        for (let pass = 0; pass < 3; pass++) pixels = boxBlur(boxBlur(pixels, true), false);
-        imageData.data.set(pixels);
+        for (let pass = 0; pass < 3; pass++) {
+            boxBlur(pixels, scratch, true);
+            boxBlur(scratch, pixels, false);
+        }
         blur.putImageData(imageData, 0, 0);
         this.backgroundContext.imageSmoothingEnabled = true;
         this.backgroundContext.drawImage(this.blurCanvas, 0, 0, width, height);

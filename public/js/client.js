@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.15
+ * @version 2.3.16
  *
  */
 
@@ -3068,10 +3068,11 @@ function setBackgroundError(message = '') {
 function attachCameraBackgroundStream(stream, previousStream) {
     if (localVideoMediaStream !== previousStream) return;
     localVideoMediaStream = stream;
-    myVideo.srcObject = stream;
+    // Re-assigning the same stream would reload the element
+    if (myVideo.srcObject !== stream) myVideo.srcObject = stream;
     if (initStream === previousStream) {
         initStream = stream;
-        initVideo.srcObject = stream;
+        if (initVideo.srcObject !== stream) initVideo.srcObject = stream;
     }
 }
 
@@ -3117,7 +3118,23 @@ async function prepareCameraBackground(stream) {
     }
 }
 
+// Switch between backgrounds on the running pipeline, keeping the camera, previews and peer tracks.
+// Resolves false when the effect must be (re)started instead, e.g. when turning it on or off.
+async function swapCameraBackground() {
+    const effects = cameraEffects;
+    const mode = backgroundEffectSelect.value;
+    if (!effects || mode === 'off' || (mode === 'image' && !backgroundImage)) return false;
+    if (getVideoTrack(localVideoMediaStream) !== effects.outputTrack) return false;
+    try {
+        return (await effects.setBackground(mode, backgroundImage)) && cameraEffects === effects;
+    } catch (error) {
+        console.warn('Background swap failed, restarting the camera background', error);
+        return false;
+    }
+}
+
 async function applyCameraBackground() {
+    if (await swapCameraBackground()) return;
     const previousStream = localVideoMediaStream;
     const cameraTrack = cameraEffects?.cameraTrack || getVideoTrack(previousStream);
     if (!cameraTrack || cameraTrack.readyState === 'ended') return;
@@ -21634,7 +21651,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.15',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.16',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
