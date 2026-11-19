@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.34
+ * @version 2.3.35
  *
  */
 
@@ -450,7 +450,6 @@ const speakerVolumeValue = getId('speakerVolumeValue');
 const videoSelect = getId('videoSource');
 const settingsVideoPreview = getId('settingsVideoPreview');
 const settingsVideoPreviewVideo = getId('settingsVideoPreviewVideo');
-const settingsFullScreenQuery = window.matchMedia('(max-width: 768px)');
 const videoQualitySelect = getId('videoQuality');
 const backgroundEffectSelect = getId('backgroundEffectSelect');
 const backgroundImageInput = getId('backgroundImageInput');
@@ -11056,7 +11055,6 @@ function setMySettingsBtn() {
     mySettingsCloseBtn.addEventListener('click', (e) => {
         hideShowMySettings();
     });
-    settingsFullScreenQuery.addEventListener('change', syncSettingsVideoPreview);
     if (mySettingsNavToggleBtn) {
         mySettingsNavToggleBtn.addEventListener('click', () => {
             toggleMobileSettingsNav();
@@ -17125,13 +17123,12 @@ function hideShowMySettings() {
 }
 
 /**
- * Mirror my camera (with background effects) above the video source select when settings covers the screen
+ * Mirror my camera (with background effects) above the video source select while settings is open
  */
 function syncSettingsVideoPreview() {
     const stream = myVideo?.srcObject;
     const videoTrack = stream?.getVideoTracks?.()[0];
-    const fullScreen = isMobileDevice || settingsFullScreenQuery.matches;
-    const show = !!videoTrack && fullScreen && isMySettingsVisible;
+    const show = !!videoTrack && isMySettingsVisible;
     settingsVideoPreview.hidden = !show;
     if (!show) {
         if (settingsVideoPreviewVideo.srcObject) settingsVideoPreviewVideo.srcObject = null;
@@ -21890,7 +21887,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.34',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.35',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
