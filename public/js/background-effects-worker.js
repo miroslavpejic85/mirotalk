@@ -674,7 +674,8 @@ function runPipeline(readable, writable, id) {
         });
 }
 
-// background: { mode: 'off' } (frames pass through), { mode: 'blur' } or { mode: 'image', bitmap }
+// background: { mode: 'off' } (frames pass through), { mode: 'blur' } or { mode: 'image', bitmap, animated? }.
+// Animated (video) backgrounds get their next frames through 'background-frame' messages.
 function setBackground(background) {
     const previous = state.background;
     if (!['off', 'blur', 'image'].includes(background?.mode)) {
@@ -683,6 +684,18 @@ function setBackground(background) {
     if (background.mode === 'image' && !background.bitmap) throw new Error('Background image missing');
     state.background = background.mode === 'off' ? null : background;
     if (previous?.bitmap && previous.bitmap !== background.bitmap) closeBitmap(previous.bitmap);
+}
+
+// The page keeps sending the current frame of a video background: composite with the latest one
+function setBackgroundFrame({ session: sessionId, bitmap }) {
+    const background = state.background;
+    if (sessionId !== session.id || !background?.animated) {
+        closeBitmap(bitmap);
+        return;
+    }
+    const previous = background.bitmap;
+    background.bitmap = bitmap;
+    if (previous !== bitmap) closeBitmap(previous);
 }
 
 async function stopSession() {
@@ -777,6 +790,9 @@ function runCompositorRole() {
             case 'frame':
                 // The page sends the next frame only after receiving the previous one
                 void processBitmap(message);
+                break;
+            case 'background-frame':
+                setBackgroundFrame(message);
                 break;
             case 'close':
                 controlQueue = controlQueue.then(async () => {

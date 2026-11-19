@@ -380,6 +380,8 @@ describe('client camera background integration', () => {
             backgroundImage: {},
             backgroundImageSource: null,
             backgroundCustomImageUrl: null,
+            backgroundCustomIsVideo: false,
+            backgroundCustomPosterUrl: null,
             backgroundEffectsBusy: false,
             lsSettings: { camera_background: { mode: 'off', image: null } },
             lS: { setSettings: sinon.spy() },
@@ -416,11 +418,16 @@ describe('client camera background integration', () => {
             videoFpsSelect: { selectedIndex: 0 },
             screenFpsSelect: { selectedIndex: 0 },
             logStreamSettingsInfo() {},
+            setTimeout,
+            clearTimeout,
         });
         const source = fs.readFileSync(path.join(__dirname, '../public/js/client.js'), 'utf8');
         for (const name of [
             'setupBackgroundControls',
             'getCameraBackgroundPresets',
+            'getCameraBackgroundVideoPresets',
+            'isCameraBackgroundVideoPreset',
+            'isCameraBackgroundVideoFile',
             'createCameraBackgroundGrid',
             'updateCameraBackgroundGrid',
             'updateBackgroundControls',
@@ -431,6 +438,12 @@ describe('client camera background integration', () => {
             'applyCameraBackground',
             'changeCameraBackground',
             'loadCameraBackgroundImageElement',
+            'createCameraBackgroundVideoElement',
+            'loadCameraBackgroundVideoElement',
+            'loadCameraBackgroundMedia',
+            'releaseCameraBackgroundMedia',
+            'createCameraBackgroundPoster',
+            'setCameraBackgroundCustom',
             'selectCameraBackgroundImage',
             'useCameraBackgroundFile',
             'saveCameraBackground',
@@ -726,6 +739,161 @@ describe('client camera background integration', () => {
             assert.equal(drop.defaultPrevented, true);
             assert.equal(context.backgroundImage.url, 'blob:dropped');
             assert.equal(context.backgroundImageSource.type, 'custom');
+        });
+    });
+
+    describe('video backgrounds', () => {
+        const images = ['../images/room-background/forest.webp'];
+        const videos = [
+            { src: '../images/camera-background/aquarium.mp4', poster: '../images/camera-background/aquarium.jpg' },
+            { src: '../images/camera-background/milky-way.mp4', poster: '../images/camera-background/milky-way.jpg' },
+        ];
+        const cards = (grid, type) => [...grid.querySelectorAll(`.camera-bg-card[data-bg-type="${type}"]`)];
+        const hiddenVideos = () => [...context.document.body.querySelectorAll('video')];
+        let db;
+
+        beforeEach(() => {
+            const { HTMLMediaElement, Event: DomEvent } = context.document.defaultView;
+            // jsdom does not play media: playing decodes the first frame at once
+            HTMLMediaElement.prototype.play = function () {
+                setImmediate(() => this.dispatchEvent(new DomEvent(this.failLoad ? 'error' : 'loadeddata')));
+                return Promise.resolve();
+            };
+            HTMLMediaElement.prototype.pause = sinon.spy();
+            HTMLMediaElement.prototype.load = sinon.spy();
+            db = { get: sinon.stub().resolves(undefined), put: sinon.stub().resolves() };
+            context.cameraBackgroundDB = db;
+            context.ROOM_BG_PRESETS = images;
+            context.CAMERA_BG_VIDEO_PRESETS = videos;
+            context.backgroundImage = null;
+            context.URL = { createObjectURL: () => 'blob:clip', revokeObjectURL: sinon.spy() };
+            context.createCameraBackgroundPoster = sinon.stub().resolves('data:image/jpeg;base64,poster');
+            context.Image = class {
+                set src(value) {
+                    this.url = value;
+                    this.onload();
+                }
+            };
+            context.setupBackgroundControls();
+        });
+
+        it('lists the video presets after the images, as posters with a play mark', () => {
+            for (const grid of [context.backgroundImageGrid, context.initBackgroundImageGrid]) {
+                const presets = cards(grid, 'preset');
+                assert.deepEqual(
+                    presets.map((card) => card.dataset.bgValue),
+                    [images[0], ...videos.map((video) => video.src)]
+                );
+                assert.equal(presets[0].querySelector('.camera-bg-play'), null);
+                assert.equal(presets[1].getAttribute('aria-label'), 'Background video');
+                assert.equal(presets[1].querySelector('img').getAttribute('src'), videos[0].poster);
+                assert.ok(presets[1].querySelector('.camera-bg-play'));
+            }
+        });
+
+        it('applies a video preset as a hidden muted looping video and remembers it', async () => {
+            cards(context.backgroundImageGrid, 'preset')[1].click();
+            await new Promise((resolve) => setTimeout(resolve, 10));
+
+            const video = context.backgroundImage;
+            assert.equal(video.nodeName, 'VIDEO');
+            assert.equal(video.getAttribute('src'), videos[0].src);
+            assert.equal(video.muted, true);
+            assert.equal(video.loop, true);
+            assert.equal(video.parentNode, context.document.body);
+            assert.deepEqual(processors.at(-1).setMode.firstCall.args, ['image', video]);
+            assert.equal(context.localVideoMediaStream.getVideoTracks()[0], output);
+            assert.deepEqual(JSON.parse(JSON.stringify(context.lsSettings.camera_background)), {
+                mode: 'image',
+                image: { type: 'preset', url: videos[0].src },
+            });
+            assert.equal(cards(context.initBackgroundImageGrid, 'preset')[1].getAttribute('aria-pressed'), 'true');
+        });
+
+        it('keeps the playing video when it is picked again and frees it once replaced', async () => {
+            const source = { type: 'preset', url: videos[0].src, video: true };
+            await context.selectCameraBackgroundImage(source);
+            const video = context.backgroundImage;
+            await context.selectCameraBackgroundImage(source);
+            assert.equal(context.backgroundImage, video);
+            assert.deepEqual(hiddenVideos(), [video]);
+
+            await context.selectCameraBackgroundImage({ type: 'preset', url: images[0] });
+            assert.equal(context.backgroundImage.url, images[0]);
+            assert.deepEqual(hiddenVideos(), []);
+            assert.equal(video.hasAttribute('src'), false);
+        });
+
+        it('frees the video when Image is chosen again, and keeps it while blurring', async () => {
+            await context.selectCameraBackgroundImage({ type: 'preset', url: videos[1].src, video: true });
+            context.backgroundEffectSelect.value = 'blur';
+            await context.changeCameraBackground();
+            assert.equal(hiddenVideos().length, 1);
+
+            context.backgroundEffectSelect.value = 'image';
+            await context.changeCameraBackground();
+            assert.equal(context.backgroundImage, null);
+            assert.deepEqual(hiddenVideos(), []);
+        });
+
+        it('keeps the current background when a video cannot load', async () => {
+            await context.selectCameraBackgroundImage({ type: 'preset', url: images[0] });
+            const image = context.backgroundImage;
+            context.document.defaultView.HTMLMediaElement.prototype.failLoad = true;
+            assert.equal(
+                await context.selectCameraBackgroundImage({ type: 'preset', url: videos[0].src, video: true }),
+                false
+            );
+            assert.equal(context.backgroundImage, image);
+            assert.deepEqual(hiddenVideos(), []);
+            assert.match(context.userLog.lastCall.args[1], /Unable to load background video/);
+        });
+
+        it('uploads an MP4 or WebM video, stores it and shows its poster in the custom tile', async () => {
+            const file = { name: 'clip.mp4', type: 'video/mp4', size: 40 * 1024 * 1024 };
+            context.backgroundImageInput.files = [file];
+            await context.loadCameraBackgroundImage({ target: context.backgroundImageInput });
+            await new Promise((resolve) => setImmediate(resolve));
+
+            assert.equal(context.backgroundImage.nodeName, 'VIDEO');
+            assert.deepEqual({ ...context.backgroundImageSource }, { type: 'custom', url: 'blob:clip', video: true });
+            assert.equal(context.backgroundCustomIsVideo, true);
+            assert.deepEqual(db.put.firstCall.args, ['custom', file]);
+            const [custom] = cards(context.initBackgroundImageGrid, 'custom');
+            assert.equal(custom.hidden, false);
+            assert.equal(custom.getAttribute('aria-label'), 'Background video');
+            assert.equal(custom.querySelector('img').getAttribute('src'), 'data:image/jpeg;base64,poster');
+            assert.equal(custom.querySelector('.camera-bg-play').hidden, false);
+        });
+
+        it('rejects videos over 50 MB and other video formats', async () => {
+            for (const file of [
+                { name: 'big.mp4', type: 'video/mp4', size: 51 * 1024 * 1024 },
+                { name: 'clip.mov', type: 'video/quicktime', size: 100 },
+            ]) {
+                context.backgroundImageInput.files = [file];
+                await context.loadCameraBackgroundImage({ target: context.backgroundImageInput });
+            }
+            assert.equal(context.backgroundImage, null);
+            assert.equal(context.userLog.callCount, 2);
+            assert.match(context.userLog.firstCall.args[1], /MP4 or WebM video up to 50 MB/);
+        });
+
+        it('restores a saved video preset and a saved uploaded video', async () => {
+            context.lsSettings.camera_background = { mode: 'image', image: { type: 'preset', url: videos[1].src } };
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundEffectSelect.value, 'image');
+            assert.equal(context.backgroundImage.getAttribute('src'), videos[1].src);
+            assert.equal(context.backgroundImageSource.video, true);
+
+            context.backgroundImage = null;
+            context.backgroundImageSource = null;
+            db.get.withArgs('custom').resolves({ type: 'video/webm' });
+            context.lsSettings.camera_background = { mode: 'image', image: { type: 'custom' } };
+            await context.restoreCameraBackground();
+            assert.equal(context.backgroundCustomIsVideo, true);
+            assert.equal(context.backgroundImage.getAttribute('src'), 'blob:clip');
+            assert.deepEqual({ ...context.backgroundImageSource }, { type: 'custom', url: 'blob:clip', video: true });
         });
     });
 

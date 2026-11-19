@@ -205,10 +205,23 @@ class BackgroundEffectsWorker {
         });
     }
 
-    // background: { mode: 'off' }, { mode: 'blur' } or { mode: 'image', bitmap } (the bitmap is transferred)
+    // background: { mode: 'off' }, { mode: 'blur' } or { mode: 'image', bitmap, animated? } (the bitmap is transferred)
     setBackground(background) {
         const transfer = background.bitmap ? [background.bitmap] : [];
         return this.request({ type: 'background', background }, transfer);
+    }
+
+    // Current frame of an animated (video) background: fire and forget, the worker keeps the latest one
+    sendBackgroundFrame(session, bitmap) {
+        if (!this.worker || session.stopped) {
+            bitmap.close();
+            return;
+        }
+        try {
+            this.worker.postMessage({ type: 'background-frame', session: session.id, bitmap }, [bitmap]);
+        } catch (error) {
+            bitmap.close();
+        }
     }
 
     canTransferStreams() {
@@ -381,15 +394,37 @@ class BackgroundEffectsWorker {
 }
 
 class BackgroundEffects {
+    // Background clips are shared by the pickers: each one plays only while a running pipeline shows it
+    static videoOwners = new WeakMap();
+
     static supported() {
         const canvas = document.createElement('canvas');
         return typeof canvas.captureStream === 'function' && !!canvas.getContext('webgl2');
+    }
+
+    static isVideo(source) {
+        return source?.nodeName === 'VIDEO';
+    }
+
+    // A video frame for the worker, capped like the effect output: it is drawn behind a camera frame of at most 720p
+    static videoFrame(video) {
+        const width = video.videoWidth || 1;
+        const height = video.videoHeight || 1;
+        const size = BackgroundCompositor.fitSize(width, height);
+        if (size.width >= width) return createImageBitmap(video);
+        return createImageBitmap(video, {
+            resizeWidth: size.width,
+            resizeHeight: size.height,
+            resizeQuality: 'medium',
+        }).catch(() => createImageBitmap(video));
     }
 
     constructor(onError) {
         this.onError = onError;
         this.mode = 'off';
         this.stopped = false;
+        this.backgroundVideo = null;
+        this.backgroundPump = null;
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext('2d');
         this.background = document.createElement('canvas');
@@ -468,6 +503,10 @@ class BackgroundEffects {
     async setMode(mode, image = this.image) {
         if (!['off', 'blur', 'image'].includes(mode)) throw new Error('Invalid background mode');
         if (mode === 'image' && !image) throw new Error('Choose a background image first');
+        const video = mode === 'image' && BackgroundEffects.isVideo(image) ? image : null;
+        // The previous clip stops feeding the worker before its background is replaced
+        this.stopBackgroundPump();
+        await this.useBackgroundVideo(video);
         if (this.session) {
             await this.worker.setBackground(await this.createWorkerBackground(mode, image));
         } else if (mode !== 'off') {
@@ -476,11 +515,66 @@ class BackgroundEffects {
         if (this.stopped) return;
         this.image = image;
         this.mode = mode;
+        if (video && this.session) this.startBackgroundPump(video);
     }
 
-    // The worker gets a serializable background: the image as a transferable ImageBitmap
+    // Plays the chosen background clip and pauses the one it replaces (if this pipeline was playing it)
+    async useBackgroundVideo(video) {
+        const previous = this.backgroundVideo;
+        if (previous && previous !== video) this.releaseBackgroundVideo();
+        if (!video || this.stopped) return;
+        this.backgroundVideo = video;
+        BackgroundEffects.videoOwners.set(video, this);
+        if (!video.paused) return;
+        try {
+            await video.play();
+        } catch (error) {
+            console.warn('Background video playback failed', error);
+        }
+    }
+
+    releaseBackgroundVideo() {
+        const video = this.backgroundVideo;
+        this.backgroundVideo = null;
+        if (!video || BackgroundEffects.videoOwners.get(video) !== this) return;
+        BackgroundEffects.videoOwners.delete(video);
+        video.pause();
+    }
+
+    // The worker composites a bitmap: keep sending the clip's new frames (at most 30 fps)
+    startBackgroundPump(video) {
+        this.stopBackgroundPump();
+        const session = this.session;
+        const pump = { timer: null, lastTime: -1 };
+        const tick = async () => {
+            if (this.backgroundPump !== pump) return;
+            if (video.readyState >= 2 && video.currentTime !== pump.lastTime) {
+                pump.lastTime = video.currentTime;
+                try {
+                    const bitmap = await BackgroundEffects.videoFrame(video);
+                    if (this.backgroundPump !== pump) bitmap.close();
+                    else this.worker.sendBackgroundFrame(session, bitmap);
+                } catch (error) {
+                    console.warn('Background video frame failed', error);
+                }
+            }
+            if (this.backgroundPump === pump) pump.timer = setTimeout(tick, 1000 / 30);
+        };
+        this.backgroundPump = pump;
+        pump.timer = setTimeout(tick, 1000 / 30);
+    }
+
+    stopBackgroundPump() {
+        clearTimeout(this.backgroundPump?.timer);
+        this.backgroundPump = null;
+    }
+
+    // The worker gets a serializable background: the image (or the clip's current frame) as a transferable ImageBitmap
     async createWorkerBackground(mode, image) {
         if (mode !== 'image') return { mode };
+        if (BackgroundEffects.isVideo(image)) {
+            return { mode, animated: true, bitmap: await BackgroundEffects.videoFrame(image) };
+        }
         // Rasterize through a canvas: works for any decoded image and caps huge pictures
         const width = image.naturalWidth || image.width;
         const height = image.naturalHeight || image.height;
@@ -590,6 +684,8 @@ class BackgroundEffects {
         if (this.stopped) return;
         this.stopped = true;
         clearTimeout(this.frame);
+        this.stopBackgroundPump();
+        this.releaseBackgroundVideo();
         this.cameraTrack?.removeEventListener('ended', this.cameraEnded);
         // Stop the output before the worker ends its pipeline, so it never fires 'ended' on its own
         this.outputTrack?.stop();

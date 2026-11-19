@@ -5524,6 +5524,24 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     pointer-events: none;
 }
 
+/* Video backgrounds: a poster with a play mark */
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card .camera-bg-play {
+    position: absolute;
+    left: 4px;
+    bottom: 4px;
+    z-index: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 0.5rem;
+    pointer-events: none;
+}
+
+:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card .camera-bg-play[hidden] {
+    display: none;
+}
+
 :is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card span {
     max-width: 100%;
     padding: 0 4px;

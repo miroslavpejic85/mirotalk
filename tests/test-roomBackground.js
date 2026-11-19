@@ -4,7 +4,7 @@ const assert = require('assert/strict');
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
-const { RoomBackground, ROOM_BG_PRESETS } = require('../public/js/roomBackground.js');
+const { RoomBackground, ROOM_BG_PRESETS, CAMERA_BG_VIDEO_PRESETS } = require('../public/js/roomBackground.js');
 
 const root = path.join(__dirname, '..');
 const PRESET_A = '../images/room-background/forest.webp';
@@ -171,6 +171,31 @@ describe('Room background (browser-only)', () => {
             ROOM_BG_PRESETS
         );
         assert.equal(cards[0].querySelector('img').getAttribute('loading'), 'lazy');
+    });
+
+    it('ships the camera video presets, with their posters and credits, on disk', () => {
+        assert.equal(CAMERA_BG_VIDEO_PRESETS.length, 17);
+        const readme = fs.readFileSync(path.join(root, 'public/images/camera-background/README.md'), 'utf8');
+        const pattern = /^\.\.\/images\/camera-background\/[a-z0-9-]+\.(mp4|jpg)$/;
+        for (const { src, poster } of CAMERA_BG_VIDEO_PRESETS) {
+            assert.match(src, pattern);
+            assert.equal(poster, src.replace(/\.mp4$/, '.jpg'));
+            const video = path.join(root, 'public/images', src.replace('../images/', ''));
+            const image = path.join(root, 'public/images', poster.replace('../images/', ''));
+            assert.ok(fs.statSync(video).size < 6 * 1024 * 1024, `${src} stays small`);
+            assert.ok(fs.statSync(image).size < 40 * 1024, `${poster} stays small`);
+            assert.ok(readme.includes(`\`${path.basename(src)}\``), `${src} is credited`);
+            // Camera only: never offered as a room background
+            assert.equal(create().isValidPreset(src), false);
+        }
+        const files = fs.readdirSync(path.join(root, 'public/images/camera-background'));
+        assert.equal(files.filter((file) => file.endsWith('.mp4')).length, CAMERA_BG_VIDEO_PRESETS.length);
+    });
+
+    it('lets browsers cache the camera background clips for 30 days', () => {
+        const server = fs.readFileSync(path.join(root, 'app/src/server.js'), 'utf8');
+        assert.match(server, /path\.join\(dir\.public, 'images', 'camera-background'\)/);
+        assert.match(server, /'public, max-age=2592000, immutable'/);
     });
 
     it('applies the selected preset for this room only', async () => {

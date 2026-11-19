@@ -40,6 +40,35 @@ const ROOM_BG_PRESETS = [
     'mirotalk',
 ].map((name) => `../images/room-background/${name}.webp`);
 
+// Animated loops, for the camera background only (the room background stays a still image).
+// Never replace a clip in place: the server lets browsers cache them for 30 days (see public/images/camera-background/README.md)
+const CAMERA_BG_VIDEO_PRESETS = Object.freeze(
+    [
+        'cozy-fireplace',
+        'christmas-fireplace',
+        'christmas-tree',
+        'modern-living-room',
+        'rainy-city-window',
+        'beach-paradise',
+        'tropical-island',
+        'tropical-sunset',
+        'swiss-alps',
+        'mountain-clouds',
+        'winter-moon',
+        'countryside-meadow',
+        'aquarium',
+        'space-stars',
+        'milky-way',
+        'starry-lake',
+        'northern-lights',
+    ].map((name) =>
+        Object.freeze({
+            src: `../images/camera-background/${name}.mp4`,
+            poster: `../images/camera-background/${name}.jpg`,
+        })
+    )
+);
+
 // Minimal IndexedDB blob store (room background uploads, camera background upload)
 function createImageStore(dbName, storeName = 'images') {
     return {
@@ -484,5 +513,5 @@ class RoomBackground {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { RoomBackground, roomBackgroundDB, createImageStore, ROOM_BG_PRESETS };
+    module.exports = { RoomBackground, roomBackgroundDB, createImageStore, ROOM_BG_PRESETS, CAMERA_BG_VIDEO_PRESETS };
 }

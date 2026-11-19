@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.22
+ * @version 2.3.30
  *
  */
 
@@ -672,6 +672,15 @@ app.get('/sitemap.xml', (req, res) => {
 
 // Use all static files from the public folder
 const soundsDir = path.join(dir.public, 'sounds') + path.sep;
+// Camera background clips and posters never change in place (a changed clip gets a new file name):
+// browsers keep them for 30 days without revalidating, so selecting one again costs no request
+const cameraBackgroundDir = path.join(dir.public, 'images', 'camera-background') + path.sep;
+const cameraBackgroundCacheControl = 'public, max-age=2592000, immutable';
+
+function isCameraBackgroundAsset(filePath) {
+    return filePath.startsWith(cameraBackgroundDir) && /\.(?:mp4|webm|jpe?g|png|webp)$/i.test(filePath);
+}
+
 const staticOptions = {
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.js')) {
@@ -680,6 +689,11 @@ const staticOptions = {
         // Let browsers reuse notification sounds without revalidating on every play (1 day)
         if (filePath.startsWith(soundsDir) && filePath.endsWith('.mp3')) {
             res.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+        if (isCameraBackgroundAsset(filePath)) {
+            res.setHeader('Cache-Control', cameraBackgroundCacheControl);
+            // Express serves .mp4 as application/mp4
+            if (filePath.endsWith('.mp4')) res.setHeader('Content-Type', 'video/mp4');
         }
         // Add other headers if needed...
     },
