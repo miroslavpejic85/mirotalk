@@ -693,6 +693,10 @@ body {
     display: block;
 }
 
+.init-user:has(#initBackgroundPicker:not(.is-collapsed) > #initBackgroundImageGrid:not([hidden])) #initVideoMirrorBtn {
+    display: none !important;
+}
+
 /* Fixed-height rows so the cap always ends mid-row: the cut tile shows there is more to scroll */
 #initBackgroundImageGrid {
     --init-bg-row: 56px;
