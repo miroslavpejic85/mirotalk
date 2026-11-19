@@ -707,9 +707,10 @@ body {
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    scrollbar-color: #4678f9 transparent;
 }
 
+/* Landing page scrollbar colors, kept thin for the compact picker */
 #initBackgroundImageGrid::-webkit-scrollbar {
     width: 6px;
 }
@@ -719,8 +720,13 @@ body {
 }
 
 #initBackgroundImageGrid::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.25);
+    background: #4678f9;
     border-radius: 6px;
+    cursor: pointer;
+}
+
+#initBackgroundImageGrid::-webkit-scrollbar-thumb:hover {
+    background-color: #376df9;
 }
 
 .init-background-picker #initBackgroundImageGrid .camera-bg-card {
