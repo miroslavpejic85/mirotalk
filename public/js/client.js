@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.31
+ * @version 2.3.32
  *
  */
 
@@ -448,6 +448,9 @@ const speakerTestBtn = getId('speakerTestBtn');
 const speakerVolume = getId('speakerVolume');
 const speakerVolumeValue = getId('speakerVolumeValue');
 const videoSelect = getId('videoSource');
+const settingsVideoPreview = getId('settingsVideoPreview');
+const settingsVideoPreviewVideo = getId('settingsVideoPreviewVideo');
+const settingsFullScreenQuery = window.matchMedia('(max-width: 768px)');
 const videoQualitySelect = getId('videoQuality');
 const backgroundEffectSelect = getId('backgroundEffectSelect');
 const backgroundImageInput = getId('backgroundImageInput');
@@ -6387,6 +6390,7 @@ async function loadLocalMedia(stream, kind) {
 
             logStreamSettingsInfo('localVideoMediaStream', stream);
             attachMediaStream(myLocalMedia, stream);
+            watchSettingsVideoPreview(myLocalMedia);
 
             adaptAspectRatio();
 
@@ -11027,6 +11031,7 @@ function setMySettingsBtn() {
     mySettingsCloseBtn.addEventListener('click', (e) => {
         hideShowMySettings();
     });
+    settingsFullScreenQuery.addEventListener('change', syncSettingsVideoPreview);
     if (mySettingsNavToggleBtn) {
         mySettingsNavToggleBtn.addEventListener('click', () => {
             toggleMobileSettingsNav();
@@ -17080,6 +17085,7 @@ function hideShowMySettings() {
         elemDisplay(mySettings, true, 'block');
         setTippy(mySettingsBtn, 'Close the settings', bottomButtonsPlacement);
         isMySettingsVisible = true;
+        syncSettingsVideoPreview();
         videoMediaContainer.style.opacity = 0.3;
         screenReaderAccessibility.announceMessage('Settings opened');
         return;
@@ -17088,8 +17094,44 @@ function hideShowMySettings() {
     closeMobileSettingsNav();
     setTippy(mySettingsBtn, 'Open the settings', bottomButtonsPlacement);
     isMySettingsVisible = false;
+    syncSettingsVideoPreview();
     videoMediaContainer.style.opacity = 1;
     screenReaderAccessibility.announceMessage('Settings closed');
+}
+
+/**
+ * Mirror my camera (with background effects) above the video source select when settings covers the screen
+ */
+function syncSettingsVideoPreview() {
+    const stream = myVideo?.srcObject;
+    const videoTrack = stream?.getVideoTracks?.()[0];
+    const fullScreen = isMobileDevice || settingsFullScreenQuery.matches;
+    const show = !!videoTrack && fullScreen && isMySettingsVisible;
+    settingsVideoPreview.hidden = !show;
+    if (!show) {
+        if (settingsVideoPreviewVideo.srcObject) settingsVideoPreviewVideo.srcObject = null;
+        return;
+    }
+    if (settingsVideoPreviewVideo.srcObject !== stream) {
+        settingsVideoPreviewVideo.srcObject = stream;
+        settingsVideoPreviewVideo.play().catch(() => {});
+    }
+    settingsVideoPreviewVideo.classList.toggle('mirror', myVideo.classList.contains('mirror'));
+    const isOff = !videoTrack.enabled || videoTrack.readyState === 'ended' || myVideo.style.display === 'none';
+    settingsVideoPreview.classList.toggle('is-off', isOff);
+}
+
+/**
+ * Keep the settings preview in sync with my video element
+ * @param {HTMLVideoElement} video my local video element
+ */
+function watchSettingsVideoPreview(video) {
+    // Assigning srcObject (camera change, background effect) fires loadstart; mirror and on/off change class/style
+    video.addEventListener('loadstart', syncSettingsVideoPreview);
+    new MutationObserver(syncSettingsVideoPreview).observe(video, {
+        attributes: true,
+        attributeFilter: ['class', 'style'],
+    });
 }
 
 /**
@@ -21823,7 +21865,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.31',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.32',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
