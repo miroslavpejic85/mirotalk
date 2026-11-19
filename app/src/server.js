@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.30
+ * @version 2.3.31
  *
  */
 
@@ -138,6 +138,14 @@ const io = new Server({
     maxHttpBufferSize: 1e7,
     transports: ['websocket'],
     cors: corsOptions,
+    // Enforce the IP allow-list on every Engine.IO handshake (all namespaces), before any socket event is handled
+    allowRequest: (req, callback) => {
+        if (!ipWhitelist.enabled) return callback(null, true);
+        const clientIP = getRequestIP(req);
+        if (isIPWhitelisted(clientIP)) return callback(null, true);
+        log.info('Forbidden: Socket access denied from this IP address', { clientIP: clientIP });
+        callback('Access denied from this IP address.', false);
+    },
 }).listen(server);
 
 // console.log(io);
@@ -653,6 +661,19 @@ if (ipWhitelist.enabled && !trustProxy) {
     );
 }
 
+// Restrict access to specified IP: must be the first middleware so it also covers static files (incl. /views/*.html)
+app.use((req, res, next) => {
+    if (!ipWhitelist.enabled) return next();
+    const clientIP = getIP(req);
+    log.debug('Check IP', clientIP);
+    if (isIPWhitelisted(clientIP)) {
+        next();
+    } else {
+        log.info('Forbidden: Access denied from this IP address', { clientIP: clientIP });
+        res.status(403).json({ error: 'Forbidden', message: 'Access denied from this IP address.' });
+    }
+});
+
 app.use(helmet.noSniff()); // Enable content type sniffing prevention
 app.use(applyEmbedHeaders); // Apply iframe embedding restrictions (CSP frame-ancestors / X-Frame-Options)
 
@@ -709,19 +730,6 @@ app.use(cors(corsOptions)); // Enable CORS with options
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: false })); // Parse URL-encoded bodies
 app.use(apiBasePath + '/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // api docs
-
-// Restrict access to specified IP
-app.use((req, res, next) => {
-    if (!ipWhitelist.enabled) return next();
-    const clientIP = getIP(req);
-    log.debug('Check IP', clientIP);
-    if (ipWhitelist.allowed.includes(clientIP)) {
-        next();
-    } else {
-        log.info('Forbidden: Access denied from this IP address', { clientIP: clientIP });
-        res.status(403).json({ error: 'Forbidden', message: 'Access denied from this IP address.' });
-    }
-});
 
 app.use((req, res, next) => {
     const ipAddress = getIP(req);
@@ -4728,6 +4736,34 @@ function getSocketIP(socket) {
         }
     }
     return socket.handshake.address;
+}
+
+/**
+ * Get IP from a raw HTTP request (e.g. the Engine.IO handshake)
+ * Resolves the address exactly like getSocketIP() does for an established socket.
+ * @param {object} req http.IncomingMessage
+ * @returns string
+ */
+function getRequestIP(req) {
+    if (trustProxy) {
+        const forwarded = req.headers?.['x-forwarded-for'];
+        if (forwarded) {
+            return String(forwarded).split(',')[0].trim();
+        }
+    }
+    return req.socket?.remoteAddress;
+}
+
+/**
+ * Check if ip is in the IP_WHITELIST_ALLOWED list
+ * IPv4-mapped IPv6 addresses (::ffff:1.2.3.4) also match their plain IPv4 entry.
+ * @param {string} ip
+ * @returns boolean
+ */
+function isIPWhitelisted(ip) {
+    if (!ip) return false;
+    const allowed = Array.isArray(ipWhitelist.allowed) ? ipWhitelist.allowed : [];
+    return allowed.includes(ip) || allowed.includes(ip.replace(/^::ffff:/i, ''));
 }
 
 function isHostRequesterAuthenticated(req) {
