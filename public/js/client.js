@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.32
+ * @version 2.3.33
  *
  */
 
@@ -463,6 +463,9 @@ const initBackgroundImageGrid = getId('initBackgroundImageGrid');
 const initBackgroundEffectsSection = getId('initBackgroundEffectsSection');
 const initBackgroundEffectLoading = getId('initBackgroundEffectLoading');
 const initBackgroundError = getId('initBackgroundError');
+const initBackgroundPicker = getId('initBackgroundPicker');
+const initBackgroundPickerOpenBtn = getId('initBackgroundPickerOpenBtn');
+const initBackgroundPickerCloseBtn = getId('initBackgroundPickerCloseBtn');
 let cameraEffects = null;
 let backgroundImage = null; // decoded <img>, or a hidden looping <video> for video backgrounds
 let backgroundImageSource = null; // { type: 'preset' | 'custom', url, video? }
@@ -2601,6 +2604,8 @@ async function whoAreYou() {
         initExitMeeting();
     };
     initMediaRetryBtn.onclick = () => retryMediaAccess(getUnavailableMediaKinds());
+    initBackgroundPickerOpenBtn.onclick = () => setInitBackgroundPickerOpen(true);
+    initBackgroundPickerCloseBtn.onclick = () => setInitBackgroundPickerOpen(false);
     initVideoOff.onclick = handleInitVideoOffClick;
     initVideoOff.onkeydown = (e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -3096,6 +3101,25 @@ function updateBackgroundControls() {
     backgroundEffectSelect.dispatchEvent(new Event('background-effects-change'));
 }
 
+/**
+ * Pre-join background picker panel. On desktop the open panel replaces the device column, so focus moves
+ * into it (or back to the reopen button) instead of being lost on a hidden control.
+ */
+function setInitBackgroundPickerOpen(open) {
+    if (!initBackgroundPicker) return;
+    const hadFocus = initBackgroundPicker.contains(document.activeElement);
+    initBackgroundPicker.classList.toggle('is-collapsed', !open);
+    initBackgroundPickerOpenBtn?.setAttribute('aria-expanded', String(open));
+    if (open) {
+        initBackgroundImageGrid?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' });
+        if (document.activeElement && document.activeElement.offsetParent === null) {
+            initBackgroundPickerCloseBtn?.focus({ preventScroll: true });
+        }
+    } else if (hadFocus) {
+        initBackgroundPickerOpenBtn?.focus({ preventScroll: true });
+    }
+}
+
 function setBackgroundError(message = '') {
     initBackgroundError.textContent = '';
     initBackgroundError.hidden = true;
@@ -3197,6 +3221,7 @@ async function changeCameraBackground(event) {
     if (requestedMode === 'image') backgroundImage = null;
     backgroundEffectsBusy = true;
     updateBackgroundControls();
+    if (event?.target === initBackgroundEffectSelect) setInitBackgroundPickerOpen(requestedMode === 'image');
     try {
         await applyCameraBackground();
     } catch (error) {
@@ -21865,7 +21890,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.32',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.33',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

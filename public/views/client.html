@@ -221,32 +221,35 @@
                 ></select>
                 <div id="initBackgroundEffectsSection" hidden>
                     <div class="init-background-select">
-                        <select
-                            id="initBackgroundEffectSelect"
-                            class="form-select text-light bg-dark select-with-icon select-icon-image"
-                            aria-label="Background"
-                            title="Background"
-                        >
-                            <option value="off">Background: Off</option>
-                            <option value="blur">Background: Blur</option>
-                            <option value="image">Background: Image</option>
-                        </select>
-                        <span
-                            id="initBackgroundEffectLoading"
-                            role="status"
-                            aria-label="Loading background effect"
-                            hidden
-                        >
-                            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
-                        </span>
+                        <div class="init-background-select-field">
+                            <select
+                                id="initBackgroundEffectSelect"
+                                class="form-select text-light bg-dark select-with-icon select-icon-image"
+                                aria-label="Background"
+                                title="Background"
+                            >
+                                <option value="off">Background: Off</option>
+                                <option value="blur">Background: Blur</option>
+                                <option value="image">Background: Image</option>
+                            </select>
+                            <span
+                                id="initBackgroundEffectLoading"
+                                role="status"
+                                aria-label="Loading background effect"
+                                hidden
+                            >
+                                <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        <button
+                            id="initBackgroundPickerOpenBtn"
+                            class="fas fa-images"
+                            type="button"
+                            aria-label="Background image"
+                            aria-controls="initBackgroundPicker"
+                            aria-expanded="false"
+                        ></button>
                     </div>
-                    <div
-                        id="initBackgroundImageGrid"
-                        class="camera-bg-grid"
-                        role="group"
-                        aria-label="Background image"
-                        hidden
-                    ></div>
                     <input
                         id="initBackgroundImageInput"
                         type="file"
@@ -254,7 +257,6 @@
                         aria-label="Background image"
                         hidden
                     />
-                    <p id="initBackgroundError" role="alert" hidden></p>
                 </div>
                 <select
                     id="initMicrophoneSelect"
@@ -266,6 +268,28 @@
                     class="form-select text-light bg-dark select-with-icon select-icon-speaker"
                     aria-label="Speakers"
                 ></select>
+                <div id="initBackgroundPicker" class="init-background-picker is-collapsed">
+                    <div class="init-background-picker-header">
+                        <p class="init-background-picker-title">
+                            <i class="fas fa-image" aria-hidden="true"></i>
+                            <span>Background image</span>
+                        </p>
+                        <button
+                            id="initBackgroundPickerCloseBtn"
+                            class="fas fa-xmark"
+                            type="button"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div
+                        id="initBackgroundImageGrid"
+                        class="camera-bg-grid"
+                        role="group"
+                        aria-label="Background image"
+                        hidden
+                    ></div>
+                    <p id="initBackgroundError" role="alert" hidden></p>
+                </div>
             </div>
         </div>
 

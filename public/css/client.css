@@ -600,7 +600,15 @@ body {
 }
 
 .init-background-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.init-background-select-field {
     position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 #initBackgroundEffectLoading {
@@ -613,6 +621,143 @@ body {
 
 #initBackgroundEffectLoading {
     right: 30px;
+}
+
+/* Pre-join picker: last item of the device column, so on phones it sits under the controls */
+.init-background-picker {
+    flex: 1 1 100%;
+    min-width: 0;
+    text-align: left;
+}
+
+/* Nothing to show (no image mode or collapsed, and no error) or no background support: drop it entirely */
+.init-background-picker:is(.is-collapsed, :has(> #initBackgroundImageGrid[hidden])):has(> #initBackgroundError[hidden]),
+.init-user:has(#initBackgroundEffectsSection[hidden]) .init-background-picker {
+    display: none;
+}
+
+/* Collapsed (or not in image mode): only an error may remain visible */
+.init-background-picker:is(.is-collapsed, :has(> #initBackgroundImageGrid[hidden]))
+    > :is(.init-background-picker-header, #initBackgroundImageGrid) {
+    display: none;
+}
+
+.init-background-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 0 6px;
+}
+
+.init-background-picker-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.init-user #initBackgroundPickerCloseBtn {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    font-size: 1rem;
+    border-color: transparent;
+    background-color: transparent;
+}
+
+.init-user #initBackgroundPickerCloseBtn:hover,
+.init-user #initBackgroundPickerCloseBtn:focus-visible {
+    border-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Reopens a collapsed picker while Image is selected */
+.init-user #initBackgroundPickerOpenBtn {
+    display: none;
+    flex: 0 0 auto;
+    width: var(--ds-touch-min, 44px);
+    height: var(--ds-touch-min, 44px);
+    margin: 0;
+}
+
+.init-user:has(#initBackgroundPicker.is-collapsed > #initBackgroundImageGrid:not([hidden]))
+    #initBackgroundPickerOpenBtn {
+    display: block;
+}
+
+/* Fixed-height rows so the cap always ends mid-row: the cut tile shows there is more to scroll */
+#initBackgroundImageGrid {
+    --init-bg-row: 56px;
+    --init-bg-gap: 8px;
+    --init-bg-rows: 3;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    grid-auto-rows: var(--init-bg-row);
+    gap: var(--init-bg-gap);
+    max-height: calc(var(--init-bg-rows) * (var(--init-bg-row) + var(--init-bg-gap)) + var(--init-bg-row) / 2 + 4px);
+    margin: 0;
+    padding: 4px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+#initBackgroundImageGrid::-webkit-scrollbar {
+    width: 6px;
+}
+
+#initBackgroundImageGrid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#initBackgroundImageGrid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+}
+
+.init-background-picker #initBackgroundImageGrid .camera-bg-card {
+    height: 100%;
+    aspect-ratio: auto;
+}
+
+/* Short screens and phones: keep the Join button in reach */
+@media screen and (max-height: 860px), screen and (max-width: 768px) {
+    #initBackgroundImageGrid {
+        --init-bg-rows: 2;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #initBackgroundImageGrid {
+        --init-bg-row: 48px;
+        grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    }
+}
+
+/* Desktop: the open picker takes over the device column next to the preview (close it to get the devices back) */
+@media screen and (min-width: 769px) {
+    .init-user:not(.is-stacked)
+        .initComands:has(> #initBackgroundPicker:not(.is-collapsed) > #initBackgroundImageGrid:not([hidden]))
+        > :not(#initBackgroundPicker) {
+        display: none;
+    }
+    .init-user:not(.is-stacked) #initBackgroundPicker:not(.is-collapsed) #initBackgroundImageGrid {
+        --init-bg-rows: 4;
+    }
+}
+
+@media screen and (min-width: 769px) and (max-height: 860px) {
+    .init-user:not(.is-stacked) #initBackgroundPicker:not(.is-collapsed) #initBackgroundImageGrid {
+        --init-bg-rows: 3;
+    }
 }
 
 #initBackgroundError {
@@ -5489,7 +5634,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 }
 
 /* ID prefixes beat the generic `.init-user button`, `.tabcontent button` and `#videoMenu button` styles */
-#initBackgroundEffectsSection .camera-bg-card,
+#initBackgroundImageGrid .camera-bg-card,
 #mySettings #backgroundEffectsSection .camera-bg-card,
 #bottomButtons #videoMenu .camera-bg-card {
     position: relative;
@@ -5523,7 +5668,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 }
 
 /* Frame and check badge are overlays: they paint above the thumbnail and ignore `border: none !important` menus */
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card::after {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -5533,15 +5678,15 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     transition: border-color 0.2s ease;
 }
 
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card:hover:not(:disabled)::after {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card:hover:not(:disabled)::after {
     border-color: rgba(255, 255, 255, 0.4);
 }
 
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card.active::after {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card.active::after {
     border-color: var(--dd-color, #66beff);
 }
 
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card.active::before {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card.active::before {
     content: '\f00c';
     position: absolute;
     top: 4px;
@@ -5560,7 +5705,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     pointer-events: none;
 }
 
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card img {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -5568,7 +5713,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 }
 
 /* Video backgrounds: a poster with a play mark */
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card .camera-bg-play {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card .camera-bg-play {
     position: absolute;
     left: 4px;
     bottom: 4px;
@@ -5581,11 +5726,11 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     pointer-events: none;
 }
 
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card .camera-bg-play[hidden] {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card .camera-bg-play[hidden] {
     display: none;
 }
 
-:is(#initBackgroundEffectsSection, #backgroundEffectsSection, #videoMenu) .camera-bg-card span {
+:is(#initBackgroundImageGrid, #backgroundEffectsSection, #videoMenu) .camera-bg-card span {
     max-width: 100%;
     padding: 0 4px;
     overflow: hidden;
@@ -5593,21 +5738,21 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     text-overflow: ellipsis;
 }
 
-#initBackgroundEffectsSection .camera-bg-card:hover:not(:disabled),
+#initBackgroundImageGrid .camera-bg-card:hover:not(:disabled),
 #mySettings #backgroundEffectsSection .camera-bg-card:hover:not(:disabled),
 #bottomButtons #videoMenu .camera-bg-card:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.1);
     transform: none;
 }
 
-#initBackgroundEffectsSection .camera-bg-card.active,
+#initBackgroundImageGrid .camera-bg-card.active,
 #mySettings #backgroundEffectsSection .camera-bg-card.active,
 #bottomButtons #videoMenu .camera-bg-card.active {
     color: var(--dd-color, #66beff);
     box-shadow: 0 0 10px rgba(102, 190, 255, 0.3);
 }
 
-#initBackgroundEffectsSection .camera-bg-card:disabled,
+#initBackgroundImageGrid .camera-bg-card:disabled,
 #mySettings #backgroundEffectsSection .camera-bg-card:disabled,
 #bottomButtons #videoMenu .camera-bg-card:disabled {
     opacity: 0.55;
@@ -5615,7 +5760,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     transform: none;
 }
 
-#initBackgroundEffectsSection .camera-bg-card:focus-visible,
+#initBackgroundImageGrid .camera-bg-card:focus-visible,
 #mySettings #backgroundEffectsSection .camera-bg-card:focus-visible,
 #bottomButtons #videoMenu .camera-bg-card:focus-visible {
     outline: 2px solid var(--dd-color, #fff);

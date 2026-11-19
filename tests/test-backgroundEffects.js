@@ -398,6 +398,9 @@ describe('client camera background integration', () => {
             initBackgroundEffectLoading: {},
             initBackgroundEffectsSection: { setAttribute() {} },
             initBackgroundError: { textContent: '', hidden: true, firstChild: {} },
+            initBackgroundPicker: Object.assign(document.createElement('div'), { className: 'is-collapsed' }),
+            initBackgroundPickerOpenBtn: document.createElement('button'),
+            initBackgroundPickerCloseBtn: document.createElement('button'),
             window: {},
             initUser: {},
             Swal: { getPopup: sinon.stub().returns(null) },
@@ -432,6 +435,7 @@ describe('client camera background integration', () => {
             'updateCameraBackgroundGrid',
             'updateBackgroundControls',
             'setBackgroundError',
+            'setInitBackgroundPickerOpen',
             'attachCameraBackgroundStream',
             'prepareCameraBackground',
             'swapCameraBackground',
@@ -540,6 +544,42 @@ describe('client camera background integration', () => {
             assert.equal(processors.length, 0);
         });
     }
+
+    describe('pre-join picker panel', () => {
+        const isOpen = () => !context.initBackgroundPicker.classList.contains('is-collapsed');
+
+        it('opens when Image is picked in the pre-join select and collapses for other modes', async () => {
+            assert.equal(isOpen(), false);
+            context.initBackgroundEffectSelect.value = 'image';
+            await context.changeCameraBackground({ target: context.initBackgroundEffectSelect });
+            assert.equal(isOpen(), true);
+            assert.equal(context.initBackgroundPickerOpenBtn.getAttribute('aria-expanded'), 'true');
+
+            context.initBackgroundEffectSelect.value = 'blur';
+            await context.changeCameraBackground({ target: context.initBackgroundEffectSelect });
+            assert.equal(isOpen(), false);
+            assert.equal(context.initBackgroundPickerOpenBtn.getAttribute('aria-expanded'), 'false');
+        });
+
+        it('leaves the panel alone when the mode changes from the room controls', async () => {
+            context.backgroundEffectSelect.value = 'image';
+            await context.changeCameraBackground({ target: context.backgroundEffectSelect });
+            assert.equal(isOpen(), false);
+        });
+
+        it('closes without changing the background and hands focus back to the reopen button', () => {
+            context.document.body.append(context.initBackgroundPickerOpenBtn, context.initBackgroundPicker);
+            context.initBackgroundPicker.append(context.initBackgroundPickerCloseBtn);
+            context.setInitBackgroundPickerOpen(true);
+            context.initBackgroundPickerCloseBtn.focus();
+            context.backgroundEffectSelect.value = 'image';
+
+            context.setInitBackgroundPickerOpen(false);
+            assert.equal(isOpen(), false);
+            assert.equal(context.backgroundEffectSelect.value, 'image');
+            assert.equal(context.document.activeElement, context.initBackgroundPickerOpenBtn);
+        });
+    });
 
     describe('preset and uploaded image picker', () => {
         const presets = ['../images/room-background/forest.webp', '../images/room-background/beach.webp'];
