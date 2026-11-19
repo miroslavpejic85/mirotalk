@@ -458,6 +458,61 @@ describe('camera background worker script', () => {
         assert.equal(multiclass.close.calledOnce, true);
     });
 
+    it('tries the selfie downgrade once and keeps the multiclass model when it cannot load', async () => {
+        createWorker({ segmentCost: 60 });
+        let attempts = 0;
+        const created = useFakeVision([
+            (url) => {
+                if (url !== 'selfie.tflite') return false;
+                attempts++;
+                return true;
+            },
+        ]);
+        context.config = modelConfig;
+        await vm.runInContext('workerConfig = config; loadModel(config)', context);
+        await startFrames();
+        vm.runInContext('segmentCount = 20;', context);
+        for (let id = 3; id < 8; id++) {
+            await send({ type: 'frame', id, session: 7, bitmap: bitmap(), timestamp: id * 40 });
+            await flush();
+        }
+
+        assert.equal(attempts, 1);
+        assert.equal(vm.runInContext('model.name', context), 'multiclass');
+        assert.equal(vm.runInContext('segmenter', context), created[0]);
+        assert.equal(created[0].close.called, false);
+    });
+
+    it('restores the WASM factory each time MediaPipe imports its (cached) loader module', async () => {
+        const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'mp-loader-'));
+        const loaderFile = path.join(dir, 'loader.mjs');
+        // Like vision_wasm_module_internal.js: sets the global once (first evaluation) and exports the factory
+        fs.writeFileSync(
+            loaderFile,
+            'export default async function ModuleFactory() {}\nglobalThis.loaderRuns = (globalThis.loaderRuns || 0) + 1;\n'
+        );
+        try {
+            const self = {};
+            const workerContext = vm.createContext({ self, console });
+            vm.runInContext(read('background-effects-worker.js'), workerContext, {
+                importModuleDynamically: vm.constants.USE_MAIN_CONTEXT_DEFAULT_LOADER,
+            });
+            vm.runInContext('installWasmLoaderImport()', workerContext);
+            const url = require('url').pathToFileURL(loaderFile).href;
+            const { default: factory } = await import(url);
+            for (let load = 0; load < 3; load++) {
+                // MediaPipe clears the factory after creating each segmenter
+                self.ModuleFactory = undefined;
+                await self.import(url);
+                assert.equal(self.ModuleFactory, factory, `factory available for model ${load + 1}`);
+            }
+            assert.equal(globalThis.loaderRuns, 1, 'the loader module itself runs only once');
+        } finally {
+            delete globalThis.loaderRuns;
+            fs.rmSync(dir, { recursive: true, force: true });
+        }
+    });
+
     it('stabilizes the mask between segmentations and starts fresh for a new session', async () => {
         const values = [0.5, 0];
         createWorker({ masks: [{ width: 2, height: 1, values }], segmentCost: 0 });
