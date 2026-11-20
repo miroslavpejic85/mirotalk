@@ -1146,9 +1146,24 @@ body {
     justify-content: center;
     gap: 0.5rem;
     margin-bottom: var(--bottom-btns-margin-bottom);
-    border-radius: 10px;
+    border-radius: 18px;
     border: none !important;
-    box-shadow: var(--box-shadow);
+}
+
+/* Subtle panel behind the buttons. Drawn on a pseudo-element: backdrop-filter on #bottomButtons itself
+   would become the backdrop root of its dropdown menus and break their own blur. */
+#bottomButtons::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--btns-bg-color) 35%, transparent);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    pointer-events: none;
 }
 
 /* Split button (main action + device arrow) */
@@ -4603,6 +4618,7 @@ button {
     #bottomButtons {
         gap: 0.3rem;
         padding: 3px;
+        border-radius: 14px;
     }
     /* Wrap onto a second row instead of squeezing buttons or pushing Leave off-screen. */
     #bottomButtons:not([data-position='vertical']) {
