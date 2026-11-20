@@ -128,6 +128,60 @@
     background: rgba(0, 0, 0, 0.25);
 }
 
+/* Tabs (polls / quizzes) */
+
+.poll-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: var(--poll-surface);
+}
+
+.poll-tab {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.65);
+    background: transparent;
+    border: none !important;
+    border-radius: 6px;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease;
+}
+
+.poll-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.poll-tab.active {
+    color: #fff;
+    background: color-mix(in srgb, var(--poll-accent) 24%, transparent);
+}
+
+.poll-pane {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+}
+
+.poll-room .poll-tab:focus-visible {
+    outline: 2px solid var(--poll-accent);
+    outline-offset: 2px;
+}
+
 .poll-room button:focus-visible,
 .poll-room input:focus-visible {
     outline: 2px solid var(--poll-accent);

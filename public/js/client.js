@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.37
+ * @version 2.3.40
  *
  */
 
@@ -582,6 +582,12 @@ const pollCount = getId('pollCount');
 const pollNewBtn = getId('pollNewBtn');
 const pollCloseBtn = getId('pollCloseBtn');
 const pollEmptyNewBtn = getId('pollEmptyNewBtn');
+const pollTabPolls = getId('pollTabPolls');
+const pollTabQuiz = getId('pollTabQuiz');
+const pollPanePolls = getId('pollPanePolls');
+const pollPaneQuiz = getId('pollPaneQuiz');
+const quizCount = getId('quizCount');
+const quizEmptyNewBtn = getId('quizEmptyNewBtn');
 
 // Breakout rooms
 const breakoutRoom = getId('breakoutRoom');
@@ -982,6 +988,9 @@ let editorIsOpen = false;
 // room polls (state kept by the signaling server)
 let roomPolls = null;
 let pollIsOpen = false;
+// room quizzes (same panel as the polls, state kept by the signaling server)
+let roomQuizzes = null;
+let pollActiveTab = 'polls'; // 'polls' | 'quiz'
 let roomBreakouts = null;
 let breakoutIsOpen = false;
 let wbIsApplyingRemote = false;
@@ -1910,6 +1919,7 @@ async function initClientPeer() {
     signalingSocket.on('roomTimeLimit', handleRoomTimeLimit);
     signalingSocket.on('roomAction', handleRoomAction);
     signalingSocket.on('poll', handlePoll);
+    signalingSocket.on('quiz', handleQuiz);
     signalingSocket.on('breakout', handleBreakout);
     signalingSocket.on('addPeer', handleAddPeer);
     signalingSocket.on('serverInfo', handleServerInfo);
@@ -10431,8 +10441,160 @@ function setPollBtn() {
 
     pollBtn.addEventListener('click', togglePoll);
     pollCloseBtn.addEventListener('click', togglePoll);
-    pollNewBtn.addEventListener('click', () => roomPolls.showForm());
+    pollNewBtn.addEventListener('click', () =>
+        pollActiveTab === 'quiz' ? roomQuizzes.showForm() : roomPolls.showForm()
+    );
     pollEmptyNewBtn.addEventListener('click', () => roomPolls.showForm());
+
+    setQuizzes();
+    setPollTab('polls');
+    pollTabPolls.addEventListener('click', () => setPollTab('polls'));
+    pollTabQuiz.addEventListener('click', () => setPollTab('quiz'));
+    [pollTabPolls, pollTabQuiz].forEach((tab) =>
+        tab.addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            setPollTab(pollActiveTab === 'quiz' ? 'polls' : 'quiz');
+            (pollActiveTab === 'quiz' ? pollTabQuiz : pollTabPolls).focus();
+        })
+    );
+}
+
+/**
+ * Room quizzes: the signaling server keeps the questions, the correct answers and the scores,
+ * and only sends to the participants what was revealed. They share the polls panel (Quiz tab).
+ */
+function setQuizzes() {
+    roomQuizzes = new RoomQuizzes({
+        elements: {
+            list: getId('quizList'),
+            empty: getId('quizEmpty'),
+            form: getId('quizForm'),
+            title: getId('quizTitle'),
+            modeStep: getId('quizModeStep'),
+            modeAll: getId('quizModeAll'),
+            anonymous: getId('quizAnonymous'),
+            questions: getId('quizQuestions'),
+            addQuestionBtn: getId('quizAddQuestionBtn'),
+            cancelBtn: getId('quizCancelBtn'),
+            count: quizCount,
+            loadBtn: getId('quizLoadBtn'),
+            saveBtn: getId('quizSaveBtn'),
+            fileInput: getId('quizFileInput'),
+        },
+        send: (action, data) =>
+            sendToServer('quiz', {
+                room_id: roomId,
+                peer_name: myPeerName,
+                peer_uuid: myPeerUUID,
+                action,
+                ...data,
+            }),
+        getMyPeerId: () => myPeerId,
+        onQuizEvent: handleQuizEvent,
+        onError: (message) => userLog('warning', message),
+        onLoaded: () => userLog('success', 'Quiz loaded: review it, then create it', 'top-end', 4000),
+        confirmDelete: confirmDeleteQuiz,
+        download: saveBlobToFile,
+    });
+    quizEmptyNewBtn.addEventListener('click', () => roomQuizzes.showForm());
+}
+
+/**
+ * Switch the polls panel between the polls and the quizzes
+ * @param {string} tab 'polls' | 'quiz'
+ */
+function setPollTab(tab) {
+    pollActiveTab = tab === 'quiz' ? 'quiz' : 'polls';
+    const isQuiz = pollActiveTab === 'quiz';
+    pollTabPolls.classList.toggle('active', !isQuiz);
+    pollTabQuiz.classList.toggle('active', isQuiz);
+    pollTabPolls.setAttribute('aria-selected', String(!isQuiz));
+    pollTabQuiz.setAttribute('aria-selected', String(isQuiz));
+    pollTabPolls.tabIndex = isQuiz ? -1 : 0;
+    pollTabQuiz.tabIndex = isQuiz ? 0 : -1;
+    pollPanePolls.classList.toggle('hidden', isQuiz);
+    pollPaneQuiz.classList.toggle('hidden', !isQuiz);
+    setTippy(pollNewBtn, isQuiz ? 'New quiz' : 'New poll', 'bottom');
+    const newLabel = isQuiz ? 'New quiz' : 'New poll';
+    // pollNewBtn keeps a static aria-label, so setTippy does not sync it
+    pollNewBtn.setAttribute('aria-label', window.i18n?.t?.(newLabel, 'tooltips') || newLabel);
+}
+
+/**
+ * Open the polls panel on a tab
+ * @param {string} tab 'polls' | 'quiz'
+ */
+function showPollPanel(tab) {
+    // togglePoll plays the open sound
+    pollIsOpen ? playSound('newMessage') : togglePoll();
+    setPollTab(tab);
+}
+
+/**
+ * Quiz message from the signaling server
+ * @param {object} data
+ */
+function handleQuiz(data) {
+    roomQuizzes?.handle(data);
+}
+
+/**
+ * A quiz moved on: bring it to the participants' attention
+ * @param {object} quiz public quiz
+ * @param {string} event 'created' | 'start' | 'reveal' | 'next' | 'finish'
+ * @param {boolean} isMine action performed by me
+ */
+function handleQuizEvent(quiz, event, isMine) {
+    if (isMine) return;
+    switch (event) {
+        case 'start':
+            showPollPanel('quiz');
+            userLog(
+                'info',
+                (window.i18n?.t('{name} started a quiz', 'toasts') || '{name} started a quiz').replace(
+                    '{name}',
+                    quiz.creator_name
+                ),
+                'top-end',
+                4000
+            );
+            break;
+        case 'next':
+        case 'finish':
+            showPollPanel('quiz');
+            break;
+        case 'reveal':
+            playSound('newMessage');
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+ * Confirm the deletion of a quiz for everyone
+ * @returns {Promise<boolean>} confirmed
+ */
+function confirmDeleteQuiz() {
+    playSound('newMessage');
+    return Swal.fire({
+        background: swBg,
+        imageUrl: images.delete,
+        position: 'center',
+        title: 'Delete quiz',
+        text: 'Are you sure you want to delete this quiz for everyone?',
+        showCancelButton: true,
+        focusCancel: true,
+        customClass: { confirmButton: 'mirotalk-swal-destructive' },
+        confirmButtonText: 'Delete quiz',
+        cancelButtonText: 'Cancel',
+        showClass: { popup: 'animate__animated animate__fadeInDown' },
+        hideClass: { popup: 'animate__animated animate__fadeOutUp' },
+    }).then((result) => {
+        if (result.isConfirmed) playSound('delete');
+        return result.isConfirmed;
+    });
 }
 
 /**
@@ -10450,8 +10612,13 @@ function handlePoll(data) {
  */
 function handlePollCreated(poll, isMine) {
     if (isMine) return;
-    // togglePoll plays the open sound
-    pollIsOpen ? playSound('newMessage') : togglePoll();
+    // togglePoll plays the open sound; an open panel keeps its tab (e.g. a running quiz)
+    if (pollIsOpen) {
+        playSound('newMessage');
+    } else {
+        togglePoll();
+        setPollTab('polls');
+    }
     userLog(
         'info',
         (window.i18n?.t('{name} started a poll', 'toasts') || '{name} started a poll').replace(
@@ -21939,7 +22106,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.37',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.40',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

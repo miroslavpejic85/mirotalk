@@ -35,7 +35,9 @@ const UNSAFE_CHARS = /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028-\u202E\u206
  */
 function cleanText(value, max) {
     if (typeof value !== 'string') return '';
-    return value.replace(UNSAFE_CHARS, ' ').replace(/\s+/g, ' ').trim().slice(0, max).trim();
+    // Bound the regex work on oversized input: collapsing whitespace can shorten the text, so keep some margin
+    const bounded = value.length > max * 4 ? value.slice(0, max * 4) : value;
+    return bounded.replace(UNSAFE_CHARS, ' ').replace(/\s+/g, ' ').trim().slice(0, max).trim();
 }
 
 /**
