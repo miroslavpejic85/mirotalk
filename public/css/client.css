@@ -1291,7 +1291,7 @@ body {
     display: block;
 }
 
-#bottomButtons[data-position='horizontal'] #participantViewMenu {
+#bottomButtons[data-position='vertical'] #participantViewMenu {
     top: 50%;
     right: auto;
     bottom: auto;
@@ -1409,7 +1409,7 @@ body {
     background: var(--ds-danger, #e74c3c);
 }
 
-#bottomButtons:not([data-position='horizontal']) #leaveRoomBtn {
+#bottomButtons:not([data-position='vertical']) #leaveRoomBtn {
     width: 64px;
 }
 
@@ -1472,11 +1472,11 @@ body {
     bottom: calc(100% + 8px);
 }
 
-#bottomButtons[data-position='horizontal'] .split-btn {
+#bottomButtons[data-position='vertical'] .split-btn {
     position: static;
 }
 
-#bottomButtons[data-position='horizontal'] .split-btn .dropdown-menu {
+#bottomButtons[data-position='vertical'] .split-btn .dropdown-menu {
     top: 50% !important;
     right: auto !important;
     bottom: auto !important;
@@ -1485,7 +1485,7 @@ body {
     max-height: calc(100vh - 24px);
 }
 
-#bottomButtons[data-position='horizontal'] .device-dropdown-toggle i {
+#bottomButtons[data-position='vertical'] .device-dropdown-toggle i {
     transform: rotate(90deg);
 }
 
@@ -4591,7 +4591,7 @@ button {
     #bottomButtons .device-dropdown-toggle i {
         font-size: 0.8rem;
     }
-    #bottomButtons:not([data-position='horizontal']) #leaveRoomBtn {
+    #bottomButtons:not([data-position='vertical']) #leaveRoomBtn {
         width: 54px;
     }
 }
@@ -4605,7 +4605,7 @@ button {
         padding: 3px;
     }
     /* Wrap onto a second row instead of squeezing buttons or pushing Leave off-screen. */
-    #bottomButtons:not([data-position='horizontal']) {
+    #bottomButtons:not([data-position='vertical']) {
         flex-wrap: wrap;
         width: max-content;
         max-width: calc(100vw - 16px);
@@ -4629,7 +4629,7 @@ button {
     #bottomButtons .device-dropdown-toggle i {
         font-size: 0.8rem;
     }
-    #bottomButtons:not([data-position='horizontal']) #leaveRoomBtn {
+    #bottomButtons:not([data-position='vertical']) #leaveRoomBtn {
         width: 48px;
     }
 }

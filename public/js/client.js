@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.35
+ * @version 2.3.36
  *
  */
 
@@ -835,7 +835,7 @@ let soundContext = null; // AudioContext used to play notification sounds with l
 let soundGain = null;
 
 // main and bottom buttons
-let mainButtonsBarPosition = 'vertical'; // vertical - horizontal
+let mainButtonsBarPosition = 'horizontal'; // horizontal (bottom row) - vertical (side column)
 let placement = 'right'; // https://atomiks.github.io/tippyjs/#placements
 let bottomButtonsPlacement = 'right';
 let isButtonsVisible = false;
@@ -1185,10 +1185,10 @@ function refreshMainButtonsToolTipPlacement() {
     if (isMobileDevice) return;
 
     // ButtonsBar
-    placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'right' : 'top';
+    placement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'horizontal' ? 'right' : 'top';
 
     // BottomButtons
-    bottomButtonsPlacement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'vertical' ? 'top' : 'right';
+    bottomButtonsPlacement = btnsBarSelect.options[btnsBarSelect.selectedIndex].value == 'horizontal' ? 'top' : 'right';
 
     updateLeaveRoomTooltip(videoMediaContainer.childElementCount);
 
@@ -5320,17 +5320,6 @@ function updateThemeCardsDisabled() {
  */
 const buttonsBarPositionMap = {
     vertical: {
-        // bottomButtons horizontally
-        '--bottom-btns-top': 'auto',
-        '--bottom-btns-left': '50%',
-        '--bottom-btns-bottom': '0',
-        '--bottom-btns-translate-X': '-50%',
-        '--bottom-btns-translate-Y': '0%',
-        '--bottom-btns-margin-bottom': '16px',
-        '--bottom-btns-flex-direction': 'row',
-    },
-    horizontal: {
-        // bottomButtons vertically
         '--bottom-btns-top': '50%',
         '--bottom-btns-left': '15px',
         '--bottom-btns-bottom': 'auto',
@@ -5338,6 +5327,15 @@ const buttonsBarPositionMap = {
         '--bottom-btns-translate-Y': '-50%',
         '--bottom-btns-margin-bottom': '0',
         '--bottom-btns-flex-direction': 'column',
+    },
+    horizontal: {
+        '--bottom-btns-top': 'auto',
+        '--bottom-btns-left': '50%',
+        '--bottom-btns-bottom': '0',
+        '--bottom-btns-translate-X': '-50%',
+        '--bottom-btns-translate-Y': '0%',
+        '--bottom-btns-margin-bottom': '16px',
+        '--bottom-btns-flex-direction': 'row',
     },
 };
 
@@ -5360,8 +5358,8 @@ function setButtonsBarPosition(position) {
         setSP(prop, value);
     }
     bottomButtons.querySelectorAll('.split-btn .dropdown').forEach((dropdown) => {
-        dropdown.classList.toggle('dropup', position === 'vertical');
-        dropdown.classList.toggle('dropend', position === 'horizontal');
+        dropdown.classList.toggle('dropup', position === 'horizontal');
+        dropdown.classList.toggle('dropend', position === 'vertical');
     });
     bottomButtons.dataset.position = position;
     updateButtonsBarPinnedOffset();
@@ -5374,7 +5372,7 @@ function setButtonsBarPosition(position) {
 let buttonsBarReserve = 0;
 
 function syncButtonsBarReserve() {
-    const isBottomBar = bottomButtons.dataset.position !== 'horizontal';
+    const isBottomBar = bottomButtons.dataset.position !== 'vertical';
     const barHeight = isBottomBar && lsSettings.keep_buttons_visible ? bottomButtons.offsetHeight : 0;
     const reserve = barHeight ? Math.ceil(barHeight + parseFloat(getComputedStyle(bottomButtons).marginBottom) + 6) : 0;
     if (reserve === buttonsBarReserve) return;
@@ -5388,9 +5386,9 @@ function syncButtonsBarReserve() {
  * Center the horizontal buttons bar over the video area (75% wide) when chat/caption is pinned
  */
 function updateButtonsBarPinnedOffset() {
-    if (isMobileDevice || mainButtonsBarPosition !== 'vertical') return;
+    if (isMobileDevice || mainButtonsBarPosition !== 'horizontal') return;
     const isPanelPinned = isChatPinned || isCaptionPinned;
-    setSP('--bottom-btns-left', isPanelPinned ? '37.5%' : buttonsBarPositionMap.vertical['--bottom-btns-left']);
+    setSP('--bottom-btns-left', isPanelPinned ? '37.5%' : buttonsBarPositionMap.horizontal['--bottom-btns-left']);
 }
 
 /**
@@ -11617,7 +11615,7 @@ function setupMySettings() {
         lS.setSettings(lsSettings);
         setSP('--video-object-fit', videoObjFitSelect.value);
     });
-    // Mobile not support buttons bar position horizontal
+    // Mobile only supports the horizontal (bottom row) buttons bar
     if (isMobileDevice) {
         btnsBarSelect.disabled = true;
     } else {
@@ -21887,7 +21885,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.35',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.36',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

@@ -34,7 +34,7 @@ class LocalStorage {
             theme: 0, // dark
             theme_color: '#000000', // custom theme color
             theme_custom: false, // keep custom theme
-            buttons_bar: 0, // vertical
+            buttons_bar: 0, // horizontal (bottom row)
             pin_grid: 0, // speaker left
             participant_view: 'grid',
             video_aspect_ratio: 0, // automatic based on participant count
