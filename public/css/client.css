@@ -5533,14 +5533,87 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     position: absolute;
     inset: 0;
     display: none;
-    place-items: center;
-    font-size: 1.6rem;
-    color: rgba(255, 255, 255, 0.58);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
     background: #000;
 }
 
 #mySettings .settings-video-preview.is-off .settings-video-preview-off {
-    display: grid;
+    display: flex;
+}
+
+#mySettings .settings-video-preview-off.clickable {
+    cursor: pointer;
+}
+
+#mySettings .settings-video-preview-off.clickable:hover,
+#mySettings .settings-video-preview-off.clickable:focus-visible {
+    background: #0a0a0a;
+    outline: none;
+}
+
+#mySettings .settings-video-preview-off.clickable:focus-visible {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.24);
+}
+
+/* My avatar while the camera is off, like the pre-join (the icon until the picture loads) */
+#mySettings .settings-video-preview-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: clamp(48px, 22%, 88px);
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.58);
+    background: rgba(255, 255, 255, 0.08);
+    transition: transform 0.15s ease;
+}
+
+#mySettings .settings-video-preview-off.clickable:hover .settings-video-preview-avatar {
+    transform: scale(1.04);
+}
+
+#mySettings .settings-video-preview-avatar i {
+    color: inherit !important;
+}
+
+#mySettings .settings-video-preview-avatar img {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+#mySettings .settings-video-preview-avatar.loaded img {
+    display: block;
+}
+
+#mySettings .settings-video-preview-avatar.loaded i {
+    display: none;
+}
+
+#mySettings .settings-video-preview-off-text {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+#mySettings .settings-video-preview-off-hint {
+    display: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+#mySettings .settings-video-preview-off.clickable .settings-video-preview-off-hint {
+    display: block;
 }
 
 /* One card per group (camera, screen sharing); the fields inside become flat rows */

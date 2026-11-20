@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.36
+ * @version 2.3.37
  *
  */
 
@@ -8011,6 +8011,7 @@ function setPeerAvatarImgName(videoAvatarImageId, peerName, peerAvatar) {
     else {
         videoAvatarImageElement.setAttribute('src', images.avatar);
     }
+    if (videoAvatarImageId === 'myVideoAvatarImage') syncSettingsVideoPreview();
 }
 
 /**
@@ -17121,24 +17122,77 @@ function hideShowMySettings() {
 }
 
 /**
- * Mirror my camera (with background effects) above the video source select while settings is open
+ * Mirror my camera (with background effects) above the video source select while settings is open,
+ * and my avatar while the camera is off (click to turn it on, like the pre-join)
  */
 function syncSettingsVideoPreview() {
     const stream = myVideo?.srcObject;
     const videoTrack = stream?.getVideoTracks?.()[0];
-    const show = !!videoTrack && isMySettingsVisible;
+    const show = isMySettingsVisible && useVideo && !!buttons.main.showVideoBtn;
     settingsVideoPreview.hidden = !show;
-    if (!show) {
+    const isOff =
+        !videoTrack || !videoTrack.enabled || videoTrack.readyState === 'ended' || myVideo.style.display === 'none';
+    if (!show || isOff) {
         if (settingsVideoPreviewVideo.srcObject) settingsVideoPreviewVideo.srcObject = null;
-        return;
-    }
-    if (settingsVideoPreviewVideo.srcObject !== stream) {
+    } else if (settingsVideoPreviewVideo.srcObject !== stream) {
         settingsVideoPreviewVideo.srcObject = stream;
         settingsVideoPreviewVideo.play().catch(() => {});
     }
-    settingsVideoPreviewVideo.classList.toggle('mirror', myVideo.classList.contains('mirror'));
-    const isOff = !videoTrack.enabled || videoTrack.readyState === 'ended' || myVideo.style.display === 'none';
+    if (!show) return;
+    settingsVideoPreviewVideo.classList.toggle('mirror', !!myVideo?.classList.contains('mirror'));
     settingsVideoPreview.classList.toggle('is-off', isOff);
+    if (isOff) updateSettingsVideoPreviewOff();
+}
+
+/**
+ * Camera-off placeholder of the settings preview: my avatar and click to turn the camera on
+ */
+function updateSettingsVideoPreviewOff() {
+    const off = getId('settingsVideoPreviewOff');
+    const img = getId('settingsVideoPreviewAvatar');
+    if (!off || !img) return;
+
+    const src = getMyAvatarUrl(176);
+    // Same URL: keep the loaded image (a Gravatar may have been swapped to its initials fallback)
+    if (img.dataset.src !== src) {
+        img.dataset.src = src;
+        img.parentElement.classList.remove('loaded');
+        img.onload = () => img.parentElement.classList.add('loaded');
+        img.onerror = () => img.parentElement.classList.remove('loaded');
+        img.setAttribute('src', src);
+    }
+
+    const canTurnOn = !myVideoStatus && useVideo;
+    off.classList.toggle('clickable', canTurnOn);
+    if (canTurnOn) {
+        off.setAttribute('role', 'button');
+        off.setAttribute('tabindex', '0');
+    } else {
+        off.removeAttribute('role');
+        off.removeAttribute('tabindex');
+    }
+    if (off.onclick) return;
+    const turnOn = () => {
+        if (!off.classList.contains('clickable') || myVideoStatus || videoBtn.disabled) return;
+        videoBtn.click();
+    };
+    off.onclick = turnOn;
+    off.onkeydown = (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        turnOn();
+    };
+}
+
+/**
+ * My avatar, same priority as my camera-off tile: custom avatar, Gravatar for emails, initials
+ * @param {number} size avatar size in px
+ * @returns {string} image URL
+ */
+function getMyAvatarUrl(size = 256) {
+    if (myPeerAvatar && isValidAvatarURL(myPeerAvatar)) return myPeerAvatar;
+    if (!useAvatarSvg) return images.avatar;
+    return isValidEmail(myPeerName) ? genGravatar(myPeerName, size) : genAvatarSvg(myPeerName, size);
 }
 
 /**
@@ -21885,7 +21939,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.36',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.37',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

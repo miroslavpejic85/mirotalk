@@ -1260,7 +1260,18 @@
                                     disablepictureinpicture
                                     aria-label="Camera preview"
                                 ></video>
-                                <i class="fas fa-video-slash settings-video-preview-off" aria-hidden="true"></i>
+                                <div
+                                    id="settingsVideoPreviewOff"
+                                    class="settings-video-preview-off"
+                                    aria-label="Turn on camera"
+                                >
+                                    <div class="settings-video-preview-avatar" aria-hidden="true">
+                                        <i class="fas fa-video-slash"></i>
+                                        <img id="settingsVideoPreviewAvatar" alt="" />
+                                    </div>
+                                    <span class="settings-video-preview-off-text">Camera is off</span>
+                                    <span class="settings-video-preview-off-hint">Click to turn on camera</span>
+                                </div>
                             </div>
                             <div id="videoSourceDiv" class="settings-field">
                                 <div class="title">
