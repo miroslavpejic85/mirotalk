@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.50
+ * @version 2.3.51
  *
  */
 
@@ -11235,12 +11235,12 @@ async function documentPictureInPictureOpen() {
                 // No video stream detected or is video share from URL...
                 if (!video.srcObject || video.id === 'videoAudioUrlElement') return;
 
-                // get video element
-                const videoPlayer = getId(video.id);
+                // Skip hidden helper videos (background effects / auto framing sources) that have no id
+                if (!video.id || video.getAttribute('aria-hidden') === 'true') return;
 
                 const isLocalVideo = video.id === 'myVideo';
 
-                const isPIPAllowed = !videoPlayer.classList.contains('videoCircle'); // not in privacy mode
+                const isPIPAllowed = !video.classList.contains('videoCircle'); // not in privacy mode
 
                 // Check if video can be add on pipVideo
                 isLocalVideo
@@ -22224,7 +22224,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.50',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.51',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
