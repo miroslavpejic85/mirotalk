@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.51
+ * @version 2.3.52
  *
  */
 
@@ -1808,6 +1808,8 @@ io.sockets.on('connect', async (socket) => {
      * @param {boolean} [lobbyAdmitted] admitted from the lobby by a presenter
      */
     async function joinRoom(cfg, lobbyAdmitted = false) {
+        if (!Validate.isValidData(cfg) || Array.isArray(cfg)) return;
+
         // Get peer IPv4 (::1 Its the loopback address in ipv6, equal to 127.0.0.1 in ipv4)
         const peer_ip = getSocketIP(socket);
 
