@@ -693,7 +693,8 @@ body {
     display: block;
 }
 
-.init-user:has(#initBackgroundPicker:not(.is-collapsed) > #initBackgroundImageGrid:not([hidden])) #initVideoMirrorBtn {
+.init-user:has(#initBackgroundPicker:not(.is-collapsed) > #initBackgroundImageGrid:not([hidden]))
+    :is(#initVideoMirrorBtn, #initAutoFramingBtn) {
     display: none !important;
 }
 
@@ -903,8 +904,9 @@ body {
     background-color: rgba(255, 69, 58, 0.14);
 }
 
-/* Screen sharing active */
-.init-user button.fa-stop-circle {
+/* Screen sharing active, auto framing on */
+.init-user button.fa-stop-circle,
+.init-user #initAutoFramingBtn[aria-pressed='true'] {
     border-color: rgba(70, 120, 249, 0.55);
     background-color: rgba(70, 120, 249, 0.18);
 }
@@ -5483,6 +5485,14 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 #mySettings .tabcontent .title > p {
     margin: 0;
     padding: 0;
+}
+
+/* One-line explanation under a setting name, aligned with the name (after the 24px icon and gap) */
+#mySettings .settings-field-hint {
+    margin: 4px 0 0 29px;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
 }
 
 .settings-field {

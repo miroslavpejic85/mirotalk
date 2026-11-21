@@ -717,6 +717,144 @@ describe('camera background worker script', () => {
         assert.equal(track.stop.calledOnce, true);
     });
 
+    describe('auto framing', () => {
+        // Face Detector boxes in the 455x256 copy of a 1280x720 frame: one face on the right
+        const rightFace = {
+            detections: [
+                { boundingBox: { originX: 300, originY: 60, width: 60, height: 60 }, categories: [{ score: 0.9 }] },
+            ],
+        };
+
+        function withFaceDetector(detect = () => rightFace, { fail = false } = {}) {
+            vm.runInContext(read('background-effects-framer.js'), context);
+            context.detectCalls = [];
+            context.detectorOptions = null;
+            context.fakeDetect = detect;
+            context.failDetector = fail;
+            vm.runInContext(
+                `framingLib = BackgroundFraming;
+                workerConfig = { faceDetectorModelUrl: 'blaze_face_full_range.tflite' };
+                fileset = {};
+                vision = { FaceDetector: { createFromOptions: async (files, options) => {
+                    if (failDetector) throw new Error('model download failed');
+                    detectorOptions = options;
+                    return { detect: (image) => { detectCalls.push(image); return fakeDetect(image); }, close() {} };
+                } } };`,
+                context
+            );
+        }
+
+        async function enableFraming(session = 7) {
+            await send({ type: 'framing', id: 50, session, enabled: true });
+            assert.deepEqual(plain(lastReply()), { type: 'ack', id: 50 });
+        }
+
+        async function sendFrames(from, to, size = [1280, 720]) {
+            for (let timestamp = from; timestamp <= to; timestamp += 33) {
+                await send({ type: 'frame', id: 100 + timestamp, session: 7, bitmap: bitmap(...size), timestamp });
+                await flush();
+            }
+        }
+
+        const framingState = () => vm.runInContext('framing', context);
+        const lastCrop = () => framingState().canvas.context.drawImage.lastCall.args;
+
+        it('crops frames around the face before sending them, without a background', async () => {
+            createWorker();
+            withFaceDetector();
+            await send({ type: 'start', id: 1, session: 7, mode: 'frames' });
+            await enableFraming();
+            const first = bitmap(1280, 720);
+            await send({ type: 'frame', id: 2, session: 7, bitmap: first, timestamp: 0 });
+            await flush();
+            assert.equal(first.close.calledOnce, true, 'the camera frame is drawn, not forwarded');
+            await sendFrames(33, 3000);
+
+            const reply = lastReply();
+            assert.equal(reply.bitmap.composited, true);
+            assert.deepEqual([reply.bitmap.width, reply.bitmap.height], [1280, 720], 'same output size');
+            const [, sx, sy, sw, sh, dx, dy, dw, dh] = lastCrop();
+            assert.ok(sw < 1280 && Math.abs(sw / sh - 16 / 9) < 1e-6, `zoomed in, same aspect ratio (${sw}x${sh})`);
+            assert.ok(sx > 0, 'moved towards the face on the right');
+            assert.deepEqual([dx, dy, dw, dh], [0, 0, 1280, 720]);
+            assert.equal(segmentCalls.length, 0, 'nothing to segment without a background');
+            assert.deepEqual(plain(context.detectorOptions), {
+                baseOptions: { modelAssetPath: 'blaze_face_full_range.tflite', delegate: 'CPU' },
+                runningMode: 'IMAGE',
+                minDetectionConfidence: 0.5,
+            });
+            // At most 10 detections per second (every 4th frame at 30 fps), on a 256 px short side copy
+            const detections = context.detectCalls.length;
+            assert.ok(detections >= 20 && detections <= 31, `${detections} detections`);
+            assert.deepEqual([context.detectCalls[0].width, context.detectCalls[0].height], [455, 256]);
+            assert.equal(context.detectCalls[0].close.calledOnce, true);
+        });
+
+        it('segments and composites the framed picture when a background is on', async () => {
+            createWorker();
+            withFaceDetector();
+            await startFrames({ mode: 'blur' });
+            await enableFraming();
+            await sendFrames(0, 1000);
+            const framedCanvas = framingState().canvas;
+            assert.equal(segmentCalls.at(-1).input.resizedFrom, framedCanvas, 'the mask matches the framed picture');
+            assert.equal(lastReply().bitmap.composited, true);
+            assert.ok(state().canvas.context.drawImage.args.some((args) => args[0] === framedCanvas));
+        });
+
+        it('shows the whole camera and tells the page once when the face detector cannot load', async () => {
+            createWorker();
+            withFaceDetector(undefined, { fail: true });
+            await send({ type: 'start', id: 1, session: 7, mode: 'frames' });
+            await enableFraming();
+            await sendFrames(0, 1000);
+            const errors = posted.filter(({ message }) => message.type === 'framing-error');
+            assert.equal(errors.length, 1);
+            assert.equal(errors[0].message.session, 7);
+            assert.deepEqual(lastCrop().slice(1), [0, 0, 1280, 720, 0, 0, 1280, 720]);
+            assert.equal(lastReply().bitmap.composited, true, 'frames keep flowing');
+        });
+
+        it('only frames the running session and forgets it when the session stops', async () => {
+            createWorker();
+            withFaceDetector();
+            await send({ type: 'start', id: 1, session: 7, mode: 'frames' });
+            await send({ type: 'framing', id: 2, session: 6, enabled: true });
+            assert.equal(framingState().enabled, false, 'another session is ignored');
+            await enableFraming();
+            assert.equal(framingState().enabled, true);
+            await send({ type: 'stop', id: 3, session: 7 });
+            assert.equal(framingState().enabled, false);
+            await send({ type: 'start', id: 4, session: 8, mode: 'frames' });
+            const frame = bitmap();
+            await send({ type: 'frame', id: 5, session: 8, bitmap: frame, timestamp: 1 });
+            assert.equal(lastReply().bitmap, frame, 'a new session starts unframed');
+        });
+
+        it('asks the nested segmenter for faces, which answers with the faces it found', async () => {
+            createWorker();
+            const nested = await startNestedSegmenter();
+            withFaceDetector();
+            await send({ type: 'start', id: 1, session: 7, mode: 'frames' });
+            await enableFraming();
+            await send({ type: 'frame', id: 2, session: 7, bitmap: bitmap(1280, 720), timestamp: 0 });
+            const detect = nested.sent.find(({ message }) => message.type === 'detect');
+            assert.ok(detect, 'sent to the nested worker');
+            assert.equal(detect.transfer[0], detect.message.bitmap);
+            assert.equal(context.detectCalls.length, 0, 'not detected in the compositor');
+
+            // Segmenter role: detects and replies; the compositor then frames the face
+            const posts = posted.length;
+            await vm.runInContext('detectForCompositor', context)(detect.message);
+            const { message } = posted[posts];
+            assert.equal(message.type, 'faces');
+            assert.equal(message.faces.length, 1);
+            nested.onmessage({ data: message });
+            assert.equal(framingState().framer.faces.length, 1);
+            assert.equal(framingState().busy, false);
+        });
+    });
+
     describe('streams transport', () => {
         class FakeVideoFrame {
             constructor(source, { timestamp } = {}) {
@@ -930,6 +1068,7 @@ function createPageContext(overrides = {}) {
         ...overrides,
     });
     vm.runInContext(read('background-effects-compositor.js'), context);
+    vm.runInContext(read('background-effects-framer.js'), context);
     vm.runInContext(read('background-effects.js'), context);
     // Top-level classes are not properties of the context global
     context.BackgroundEffectsWorker = vm.runInContext('BackgroundEffectsWorker', context);
@@ -1012,6 +1151,29 @@ describe('camera background worker transports', () => {
         assert.equal(config.glUrl, 'https://host/js/background-effects-gl.js');
         assert.equal(config.segmenterUrl, 'https://host/js/background-effects-worker.js');
         assert.equal(config.delegate, 'CPU');
+    });
+
+    it('sends the framing switch and the face detector model, and routes framing errors to their session', async () => {
+        const { engine, workers } = createEngine();
+        await engine.init();
+        const { config } = workers[0].messages[0].message;
+        assert.equal(config.framerUrl, 'https://host/js/background-effects-framer.js');
+        assert.match(config.faceDetectorModelUrl, /face_detector\/blaze_face_full_range\/float16\/1\/.*\.tflite$/);
+
+        const onFramingError = sinon.spy();
+        const session = await engine.start(camera(), { onFramingError });
+        await engine.setFraming(session, true);
+        const framing = workers[0].messages.find(({ message }) => message.type === 'framing').message;
+        assert.equal(framing.session, session.id);
+        assert.equal(framing.enabled, true);
+
+        workers[0].onmessage({ data: { type: 'framing-error', session: session.id + 1, message: 'other' } });
+        workers[0].onmessage({ data: { type: 'framing-error', session: session.id, message: 'no model' } });
+        assert.equal(onFramingError.calledOnce, true);
+        assert.equal(onFramingError.firstCall.args[1].message, 'no model');
+        await engine.stopSession(session);
+        workers[0].onmessage({ data: { type: 'framing-error', session: session.id, message: 'late' } });
+        assert.equal(onFramingError.calledOnce, true, 'nothing after the session stopped');
     });
 
     it('captures the ImageBitmap transport output without a frame rate cap (Firefox)', async () => {
@@ -1227,11 +1389,14 @@ describe('camera background engine selection', () => {
         engine = {
             failed: false,
             setBackground: sinon.stub().resolves(),
-            start: sinon.stub().callsFake(async (track, { onEnded }) => {
+            start: sinon.stub().callsFake(async (track, { onEnded, onFramingError }) => {
                 const session = { id: 1, mode: 'streams', outputTrack };
                 engine.end = (error) => onEnded(session, error);
+                engine.framingError = (error) => onFramingError(session, error);
                 return session;
             }),
+            capabilities: { framing: true },
+            setFraming: sinon.stub().resolves(),
             stopSession: sinon.stub().resolves(),
         };
         context = createPageContext();
@@ -1239,7 +1404,8 @@ describe('camera background engine selection', () => {
         context.BackgroundEffectsWorker.disable = sinon.spy();
         onError = sinon.spy();
         context.onError = onError;
-        return vm.runInContext('new BackgroundEffects(onError)', context);
+        context.onFramingError = sinon.spy();
+        return vm.runInContext('new BackgroundEffects(onError, { onFramingError })', context);
     }
 
     const input = () => new context.MediaStream([camera, audio]);
@@ -1350,6 +1516,72 @@ describe('camera background engine selection', () => {
         assert.equal(video.pause.called, false);
         second.stop(false);
         assert.equal(video.pause.calledOnce, true);
+    });
+
+    it('turns auto framing on and off on the running worker pipeline, which it keeps with the background off', async () => {
+        const effects = createEffects();
+        await effects.start(input());
+        await effects.setMode('off');
+        assert.equal(effects.canSwapBackground(), false, 'nothing to process');
+
+        await effects.setFraming(true);
+        assert.equal(engine.setFraming.firstCall.args[0].id, 1);
+        assert.equal(engine.setFraming.firstCall.args[1], true);
+        assert.equal(effects.framer, null, 'the worker frames, not the page');
+        assert.equal(effects.canSwapBackground(), true, 'auto framing alone keeps the pipeline');
+        assert.equal(await effects.setBackground('blur'), true);
+        assert.equal(await effects.setBackground('off'), true, 'Off keeps the framing pipeline running');
+        assert.equal(engine.start.calledOnce, true);
+
+        await effects.setFraming(false);
+        assert.equal(engine.setFraming.secondCall.args[1], false);
+        assert.equal(await effects.setBackground('off'), false, 'now Off ends it');
+    });
+
+    it('rejects auto framing without a face detector in the worker, and reports a detector failure once', async () => {
+        const effects = createEffects();
+        await effects.start(input());
+        engine.capabilities = { framing: false };
+        await assert.rejects(effects.setFraming(true), /not available/);
+        assert.equal(effects.framing, false);
+
+        engine.capabilities = { framing: true };
+        await effects.setFraming(true);
+        engine.framingError(new Error('model download failed'));
+        engine.framingError(new Error('model download failed'));
+        assert.equal(effects.framing, false);
+        assert.equal(context.onFramingError.calledOnce, true);
+        assert.equal(onError.called, false, 'the camera and its background keep going');
+    });
+
+    it('crops the output around the faces on the main thread', async () => {
+        const effects = createEffects({ worker: false });
+        const detector = {
+            detect: sinon.stub().returns({
+                detections: [
+                    {
+                        boundingBox: { originX: 900, originY: 150, width: 160, height: 160 },
+                        categories: [{ score: 1 }],
+                    },
+                ],
+            }),
+            close: sinon.spy(),
+        };
+        effects.loadFaceDetector = sinon.stub().callsFake(async () => (effects.faceDetector = detector));
+        await effects.start(input());
+        await effects.setFraming(true);
+        assert.ok(effects.framer, 'the page frames');
+        // After the first frame drawn by start() at the current time
+        const from = performance.now() + 1000;
+        for (let t = from; t <= from + 4000; t += 34) effects.render(t);
+        const [source, sx, sy, sw, sh, dx, dy, dw, dh] = effects.context.drawImage.lastCall.args;
+        assert.equal(source, effects.video);
+        assert.ok(sw < 1280 && sx > 0, `zoomed towards the face (${sx}, ${sw})`);
+        assert.ok(Math.abs(sw / sh - 16 / 9) < 1e-6);
+        assert.deepEqual([dx, dy, dw, dh], [0, 0, 1280, 720]);
+        assert.ok(detector.detect.callCount <= 41, 'about 10 detections per second');
+        effects.stop(false);
+        assert.equal(detector.close.calledOnce, true);
     });
 
     it('draws a video background live on the main thread', async () => {

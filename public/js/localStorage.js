@@ -41,6 +41,7 @@ class LocalStorage {
             screen_cam_layout: 'separate', // camera while screen sharing: separate | pip | split
             peer_avatar: '', // persisted avatar URL
             camera_background: { mode: 'off', image: null }, // last camera background (custom upload lives in IndexedDB)
+            camera_auto_framing: false, // keep me centered: crop the camera around the faces
         };
 
         this.DEVICES_COUNT = {

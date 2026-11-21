@@ -11,7 +11,14 @@ const BG_TASKS_VISION = Object.freeze({
     // Person = not background, with a hair class: cleaner edges, used by the worker on the GPU delegate
     multiclassModelUrl:
         'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite',
+    // Auto framing: BlazeFace full range (~1 MB). The short range model misses faces further than about a
+    // meter on a whole 16:9 frame, exactly when auto framing is needed most
+    faceDetectorModelUrl:
+        'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite',
 });
+
+// Auto framing looks for faces at most this often (the framer smooths in between)
+const BG_FACE_DETECT_INTERVAL_MS = 100;
 
 // The worker and the shared compositor are resolved from this script location
 const BG_BASE_URL =
@@ -145,6 +152,7 @@ class BackgroundEffectsWorker {
                 config: {
                     ...BG_TASKS_VISION,
                     compositorUrl: new URL('background-effects-compositor.js', this.baseUrl).href,
+                    framerUrl: new URL('background-effects-framer.js', this.baseUrl).href,
                     glUrl: new URL('background-effects-gl.js', this.baseUrl).href,
                     // The same script, started again by the worker to segment in parallel
                     segmenterUrl: new URL('background-effects-worker.js', this.baseUrl).href,
@@ -164,6 +172,11 @@ class BackgroundEffectsWorker {
         }
         if (message.type === 'error' && message.stage === 'init') {
             this.initHandlers?.(new Error(message.message));
+            return;
+        }
+        if (message.type === 'framing-error') {
+            const session = this.sessions.get(message.session);
+            if (session && !session.stopped && !session.ended) session.onFramingError?.(new Error(message.message));
             return;
         }
         if (message.type === 'pipeline-ended' || message.type === 'pipeline-error') {
@@ -211,6 +224,11 @@ class BackgroundEffectsWorker {
         return this.request({ type: 'background', background }, transfer);
     }
 
+    // Auto framing on or off for a running session
+    setFraming(session, enabled) {
+        return this.request({ type: 'framing', session: session.id, enabled: Boolean(enabled) });
+    }
+
     // Current frame of an animated (video) background: fire and forget, the worker keeps the latest one
     sendBackgroundFrame(session, bitmap) {
         if (!this.worker || session.stopped) {
@@ -237,9 +255,11 @@ class BackgroundEffectsWorker {
         }
     }
 
-    // Resolves the session ({ id, mode, outputTrack }); onEnded(error) fires when the pipeline ends on its own
-    async start(videoTrack, { onEnded } = {}) {
+    // Resolves the session ({ id, mode, outputTrack }); onEnded(error) fires when the pipeline ends on its own,
+    // onFramingError(error) when auto framing cannot run (the camera keeps going, unframed)
+    async start(videoTrack, { onEnded, onFramingError } = {}) {
         const session = { id: ++this.sequence, stopped: false, ended: false };
+        session.onFramingError = (error) => onFramingError?.(session, error);
         // Reported once: a crash ends the session and fails its pending frame request
         session.onEnded = (error) => {
             if (session.stopped || session.ended) return;
@@ -419,9 +439,14 @@ class BackgroundEffects {
         }).catch(() => createImageBitmap(video));
     }
 
-    constructor(onError) {
+    // onFramingError(error): auto framing is unavailable, the camera keeps going with the background only
+    constructor(onError, { onFramingError = null } = {}) {
         this.onError = onError;
+        this.onFramingError = onFramingError;
         this.mode = 'off';
+        // Auto framing: crops the camera around the faces, with or without a background
+        this.framing = false;
+        this.framer = null;
         this.stopped = false;
         this.backgroundVideo = null;
         this.backgroundPump = null;
@@ -456,6 +481,9 @@ class BackgroundEffects {
         try {
             session = await engine.start(this.cameraTrack, {
                 onEnded: (ended, error) => this.workerEnded(ended, error),
+                onFramingError: (failed, error) => {
+                    if (this.session === failed) this.framingFailed(error);
+                },
             });
         } catch (error) {
             if (this.stopped) throw error;
@@ -587,10 +615,79 @@ class BackgroundEffects {
         return { mode, bitmap: await createImageBitmap(canvas) };
     }
 
+    /**
+     * Auto framing on or off on the running pipeline (same output track). In the worker the faces are
+     * detected and the frame cropped before the background; on the main thread the output is cropped.
+     */
+    async setFraming(enabled) {
+        const next = Boolean(enabled);
+        if (this.session) {
+            if (next && !this.worker.capabilities?.framing) throw new Error('Auto framing is not available');
+            await this.worker.setFraming(this.session, next);
+        } else if (next) {
+            await this.loadFaceDetector();
+        }
+        if (this.stopped) return;
+        this.framing = next;
+        this.framer = next && !this.session ? new BackgroundFraming.AutoFramer() : null;
+        this.lastFaceDetect = -Infinity;
+    }
+
+    framingFailed(error) {
+        if (this.stopped || !this.framing) return;
+        console.warn('Camera auto framing unavailable', error);
+        this.framing = false;
+        this.framer = null;
+        this.onFramingError?.(error);
+    }
+
+    // Main-thread auto framing: the same face detector as the worker
+    loadFaceDetector() {
+        if (!this.faceDetectorPromise) {
+            this.faceDetectorPromise = (async () => {
+                const { visionBundleUrl, wasmBaseUrl, faceDetectorModelUrl } = BG_TASKS_VISION;
+                const { FilesetResolver, FaceDetector } = await import(visionBundleUrl);
+                const files = await FilesetResolver.forVisionTasks(wasmBaseUrl);
+                const detector = await FaceDetector.createFromOptions(files, {
+                    baseOptions: { modelAssetPath: faceDetectorModelUrl, delegate: 'CPU' },
+                    runningMode: 'IMAGE',
+                    minDetectionConfidence: 0.5,
+                });
+                if (this.stopped) {
+                    detector.close();
+                    return;
+                }
+                this.faceDetector = detector;
+            })().catch((error) => {
+                this.faceDetectorPromise = null;
+                throw error;
+            });
+        }
+        return this.faceDetectorPromise;
+    }
+
+    // The part of the frame to show while auto framing on the main thread (the whole frame otherwise)
+    framingCrop(timestamp) {
+        if (!this.framer || !this.faceDetector) return BackgroundFraming.FULL_FRAME;
+        const width = this.video.videoWidth;
+        const height = this.video.videoHeight;
+        if (timestamp - this.lastFaceDetect >= BG_FACE_DETECT_INTERVAL_MS) {
+            this.lastFaceDetect = timestamp;
+            try {
+                const result = this.faceDetector.detect(this.video);
+                this.framer.observe(BackgroundFraming.normalizeDetections(result, width, height), timestamp);
+            } catch (error) {
+                this.framingFailed(error);
+                return BackgroundFraming.FULL_FRAME;
+            }
+        }
+        return this.framer.update(width, height, timestamp);
+    }
+
     canSwapBackground() {
         return Boolean(
             !this.stopped &&
-            this.mode !== 'off' &&
+            (this.mode !== 'off' || this.framing) &&
             this.outputTrack &&
             this.cameraTrack?.readyState !== 'ended' &&
             this.outputTrack.readyState !== 'ended'
@@ -598,9 +695,9 @@ class BackgroundEffects {
     }
 
     // Swap the effect on the running pipeline: same output track, so previews and peers keep their stream.
-    // Resolves false when no effect is running (the caller must start one).
+    // Resolves false when no effect is running (the caller must start one). Off keeps a running auto framing.
     async setBackground(mode, image) {
-        if (mode === 'off' || !this.canSwapBackground()) return false;
+        if ((mode === 'off' && !this.framing) || !this.canSwapBackground()) return false;
         await this.setMode(mode, image);
         return this.canSwapBackground();
     }
@@ -657,9 +754,24 @@ class BackgroundEffects {
             this.lastFrame = timestamp;
             this.resize();
             const { width, height } = this.canvas;
+            // Auto framing: the part of the frame to show, null while it is off
+            const crop = this.framer ? this.framingCrop(timestamp) : null;
             try {
                 if (this.mode === 'off') {
-                    this.context.drawImage(this.video, 0, 0, width, height);
+                    if (crop) {
+                        const { videoWidth, videoHeight } = this.video;
+                        BackgroundFraming.drawCrop(
+                            this.context,
+                            this.video,
+                            videoWidth,
+                            videoHeight,
+                            crop,
+                            width,
+                            height
+                        );
+                    } else {
+                        this.context.drawImage(this.video, 0, 0, width, height);
+                    }
                 } else {
                     const background = this.backgroundContext;
                     background.clearRect(0, 0, width, height);
@@ -667,7 +779,18 @@ class BackgroundEffects {
                     else BackgroundCompositor.drawCover(background, this.image, width, height);
                     this.segmenter.segmentForVideo(this.video, timestamp, (result) => {
                         this.drawing.drawConfidenceMask(result.confidenceMasks[0], this.background, this.video);
-                        this.context.drawImage(this.maskCanvas, 0, 0, width, height);
+                        const mask = this.maskCanvas;
+                        if (crop)
+                            BackgroundFraming.drawCrop(
+                                this.context,
+                                mask,
+                                mask.width,
+                                mask.height,
+                                crop,
+                                width,
+                                height
+                            );
+                        else this.context.drawImage(mask, 0, 0, width, height);
                     });
                 }
             } catch (error) {
@@ -696,5 +819,6 @@ class BackgroundEffects {
         this.video.remove();
         this.drawing?.close();
         this.segmenter?.close();
+        this.faceDetector?.close();
     }
 }

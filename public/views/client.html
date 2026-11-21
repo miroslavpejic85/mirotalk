@@ -204,6 +204,14 @@
                     aria-label="Toggle video mirror"
                 ></button>
                 <button
+                    id="initAutoFramingBtn"
+                    class="fas fa-expand"
+                    type="button"
+                    aria-label="Auto framing"
+                    aria-pressed="false"
+                    hidden
+                ></button>
+                <button
                     id="initUsernameEmojiButton"
                     class="fas fa-smile"
                     type="button"
@@ -1297,6 +1305,22 @@
                                     <option value="6k">6K</option>
                                     <option value="8k">8K</option>
                                 </select>
+                            </div>
+                            <div id="autoFramingDiv" class="settings-field" hidden>
+                                <table id="mySettingsTable">
+                                    <tr>
+                                        <td class="w-80">
+                                            <div class="title">
+                                                <i class="fas fa-expand"></i>
+                                                <label for="switchAutoFraming">Auto framing</label>
+                                            </div>
+                                            <p class="settings-field-hint">
+                                                Keeps you centered in the frame as you move.
+                                            </p>
+                                        </td>
+                                        <td><input id="switchAutoFraming" class="toggle" type="checkbox" /></td>
+                                    </tr>
+                                </table>
                             </div>
                             <div id="backgroundEffectsSection" class="settings-field" hidden>
                                 <div class="title">
@@ -3073,6 +3097,7 @@ Note</textarea>
         <script defer src="../js/roomTemplate.js"></script>
         <script defer src="../js/calendarInvite.js"></script>
         <script defer src="../js/background-effects-compositor.js"></script>
+        <script defer src="../js/background-effects-framer.js"></script>
         <script defer src="../js/background-effects.js"></script>
         <script defer src="../js/roomBackground.js"></script>
         <script defer src="../js/gifSearch.js"></script>

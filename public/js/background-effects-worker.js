@@ -6,6 +6,9 @@
  *            works and is fast enough, otherwise the selfie model on the CPU
  *   - compositing: background-effects-gl.js (WebGL2: bilateral edge refinement, light wrapping), or
  *                  Canvas2D with the shared background-effects-compositor.js helpers without WebGL2
+ * Auto framing (optional, with or without a background): faces are found with the MediaPipe Face Detector
+ * on a small copy of the whole frame, then the frame is cropped around them (background-effects-framer.js)
+ * before anything else, so segmentation and compositing work on the framed picture unchanged.
  * Segmentation runs in a nested worker (this script again, named SEGMENTER_NAME) so frames never wait
  * for it: each frame is composited at once with the latest mask, while the next mask is computed in
  * parallel. Without nested workers the segmentation runs here, on every few frames.
@@ -33,6 +36,10 @@ const FIRST_MASK_TIMEOUT_MS = 1000;
 const SEGMENTER_REST_RATIO = 0.5;
 // Soft edge for image backgrounds, in frame pixels
 const SOFT_EDGE_PX = 5;
+// Auto framing: faces are looked for at most this often (the framer smooths in between)
+const FACE_DETECT_INTERVAL_MS = 100;
+// No faces back in this time: the request is considered lost and sent again
+const FACE_DETECT_STALL_MS = 3000;
 
 let segmenter = null;
 let compositor = null;
@@ -47,6 +54,9 @@ let stabilizeMask = null;
 let maskSource = null;
 let lastSegmentTimestamp = -1;
 let controlQueue = Promise.resolve();
+let framingLib = null;
+let faceDetector = null;
+let faceDetectorPromise = null;
 
 const session = {
     id: 0,
@@ -65,6 +75,19 @@ const remote = {
     segmentMs: 0,
     generation: 0,
     firstMask: null,
+};
+
+// Auto framing, compositor side: the framer, the pending face request and the canvas holding the crop
+const framing = {
+    enabled: false,
+    failed: false,
+    framer: null,
+    busy: false,
+    sentAt: 0,
+    lastDetectAt: -Infinity,
+    generation: 0,
+    canvas: null,
+    ctx: null,
 };
 
 const state = {
@@ -206,6 +229,42 @@ async function loadSegmenter(config) {
     await loadModel(config);
 }
 
+async function loadFramingLib(config) {
+    if (framingLib || !config?.framerUrl) return;
+    await import(config.framerUrl);
+    framingLib = globalThis.BackgroundFraming;
+}
+
+// ####################################################
+// FACE DETECTION (auto framing, shared by both roles)
+// ####################################################
+
+// Loaded on the first auto framing request, next to the segmenter (same MediaPipe WASM)
+function loadFaceDetector() {
+    if (!faceDetectorPromise) {
+        faceDetectorPromise = (async () => {
+            if (!vision || !fileset) throw new Error('MediaPipe is not loaded');
+            if (!workerConfig?.faceDetectorModelUrl) throw new Error('No face detector model');
+            await loadFramingLib(workerConfig);
+            faceDetector = await vision.FaceDetector.createFromOptions(fileset, {
+                baseOptions: { modelAssetPath: workerConfig.faceDetectorModelUrl, delegate: 'CPU' },
+                runningMode: 'IMAGE',
+                minDetectionConfidence: 0.5,
+            });
+        })().catch((error) => {
+            faceDetectorPromise = null;
+            throw error;
+        });
+    }
+    return faceDetectorPromise;
+}
+
+// Normalized face boxes ([{ x, y, width, height }]) found in a small copy of the whole frame
+async function detectFaces(bitmap) {
+    await loadFaceDetector();
+    return framingLib.normalizeDetections(faceDetector.detect(bitmap), bitmap.width, bitmap.height);
+}
+
 // Person confidence: the person / foreground mask, or the inverted background of multiclass models
 function pickMaskSource(masks) {
     if (masks.length < 2) return { index: 0, invert: false };
@@ -316,6 +375,10 @@ function startRemoteSegmenter(config) {
 }
 
 function onRemoteMessage(message) {
+    if (message.type === 'faces') {
+        onFaces(message);
+        return;
+    }
     if (message.type !== 'mask') return;
     remote.busy = false;
     remote.doneAt = performance.now();
@@ -338,6 +401,8 @@ async function failRemote(error) {
     remote.busy = false;
     remote.firstMask?.resolve();
     remote.firstMask = null;
+    // A face request sent to the dead worker never comes back
+    framing.busy = false;
     try {
         await loadSegmenter(workerConfig);
     } catch (loadError) {
@@ -419,6 +484,18 @@ function segmentForCompositor({ bitmap, timestamp, generation }) {
     self.postMessage(reply, reply.values ? [reply.values.buffer] : []);
 }
 
+async function detectForCompositor({ bitmap, generation }) {
+    const reply = { type: 'faces', generation, faces: null };
+    try {
+        reply.faces = await detectFaces(bitmap);
+    } catch (error) {
+        reply.error = errorMessage(error);
+    } finally {
+        closeBitmap(bitmap);
+    }
+    self.postMessage(reply);
+}
+
 function runSegmenterRole() {
     self.onmessage = (event) => {
         const message = event.data || {};
@@ -432,6 +509,9 @@ function runSegmenterRole() {
                 break;
             case 'segment':
                 segmentForCompositor(message);
+                break;
+            case 'detect':
+                void detectForCompositor(message);
                 break;
             default:
                 break;
@@ -470,6 +550,7 @@ async function init(config) {
     await import(config.compositorUrl);
     compositor = globalThis.BackgroundCompositor;
     state.blur = compositor.createBlur();
+    await loadFramingLib(config);
     if (config.glUrl) await loadGl(config.glUrl);
     if (!(await startRemoteSegmenter(config))) await loadSegmenter(config);
     return {
@@ -477,6 +558,7 @@ async function init(config) {
         delegate: model.delegate,
         gl: Boolean(state.gl),
         segmenter: remote.worker ? 'worker' : 'inline',
+        framing: Boolean(framingLib && config.faceDetectorModelUrl),
         trackProcessor: typeof MediaStreamTrackProcessor === 'function' && typeof VideoTrackGenerator === 'function',
     };
 }
@@ -616,6 +698,97 @@ function composite(frame, frameWidth, frameHeight) {
     return state.canvas;
 }
 
+// ####################################################
+// AUTO FRAMING (compositor side)
+// ####################################################
+
+function onFaces({ generation, faces, error }, timeMs = framing.lastDetectAt) {
+    if (generation !== framing.generation) return;
+    framing.busy = false;
+    if (error) {
+        failFraming(error);
+        return;
+    }
+    framing.framer?.observe(faces || [], timeMs);
+}
+
+// No face detector on this device: keep the whole camera and tell the page once
+function failFraming(message) {
+    if (framing.failed) return;
+    framing.failed = true;
+    console.warn('Camera auto framing unavailable', message);
+    self.postMessage({ type: 'framing-error', session: session.id, message: String(message) });
+}
+
+// Sends a small copy of the whole frame to the face detector when due; never waits for the faces
+async function requestFaces(source, width, height, timeMs) {
+    if (framing.failed) return;
+    if (framing.busy) {
+        if (performance.now() - framing.sentAt > FACE_DETECT_STALL_MS) framing.busy = false;
+        return;
+    }
+    if (timeMs >= framing.lastDetectAt && timeMs - framing.lastDetectAt < FACE_DETECT_INTERVAL_MS) return;
+    framing.busy = true;
+    framing.sentAt = performance.now();
+    framing.lastDetectAt = timeMs;
+    const generation = framing.generation;
+    let bitmap;
+    try {
+        bitmap = await resizeForSegmentation(source, width, height);
+    } catch (error) {
+        framing.busy = false;
+        return;
+    }
+    if (remote.worker) {
+        remote.worker.postMessage({ type: 'detect', bitmap, generation }, [bitmap]);
+        return;
+    }
+    detectFaces(bitmap)
+        .then(
+            (faces) => onFaces({ generation, faces }, timeMs),
+            (error) => onFaces({ generation, error: errorMessage(error) }, timeMs)
+        )
+        .finally(() => closeBitmap(bitmap));
+}
+
+/**
+ * While auto framing, the frame to process is its framed part, drawn at the effect output size (capped at
+ * 1280x720, also when the whole frame is shown, so the output size never changes). Null otherwise.
+ */
+async function frameInput(source, width, height, timeMs) {
+    if (!framing.enabled || !framing.framer) return null;
+    await requestFaces(source, width, height, timeMs);
+    const crop = framing.framer.update(width, height, timeMs);
+    const size = compositor.fitSize(width, height);
+    if (!framing.canvas) {
+        framing.canvas = new OffscreenCanvas(size.width, size.height);
+        framing.ctx = framing.canvas.getContext('2d');
+    } else if (framing.canvas.width !== size.width || framing.canvas.height !== size.height) {
+        framing.canvas.width = size.width;
+        framing.canvas.height = size.height;
+    }
+    framingLib.drawCrop(framing.ctx, source, width, height, crop, size.width, size.height);
+    return { source: framing.canvas, width: size.width, height: size.height };
+}
+
+function setFraming(enabled) {
+    const next = Boolean(enabled);
+    if (next && !framingLib) throw new Error('Auto framing is not available');
+    if (next === framing.enabled) return;
+    framing.enabled = next;
+    // Turned on again: try the face detector again (e.g. after a network failure)
+    if (next) framing.failed = false;
+    resetFraming();
+}
+
+function resetFraming() {
+    // Faces still on their way belong to the previous camera or setting
+    framing.generation++;
+    framing.busy = false;
+    framing.lastDetectAt = -Infinity;
+    framing.framer = framing.enabled ? new framingLib.AutoFramer() : null;
+}
+
 // Output timestamps must increase: some sources (WebKit canvas capture) stamp every frame 0, and a
 // generator fed equal timestamps shows the first frame forever
 function outputTimestamp(frame) {
@@ -634,9 +807,15 @@ async function transformFrame(frame, controller) {
         const height = frame.displayHeight;
         const timestamp = outputTimestamp(frame);
         const timeMs = timestamp / 1000;
-        await updateMask(frame, width, height, timeMs);
+        const framed = await frameInput(frame, width, height, timeMs);
+        const input = framed?.source || frame;
+        const inputWidth = framed?.width || width;
+        const inputHeight = framed?.height || height;
+        await updateMask(input, inputWidth, inputHeight, timeMs);
         if (!ready()) {
-            if (timestamp === frame.timestamp) {
+            if (framed) {
+                controller.enqueue(new VideoFrame(framed.source, { timestamp }));
+            } else if (timestamp === frame.timestamp) {
                 controller.enqueue(frame);
                 enqueued = true;
             } else {
@@ -644,7 +823,7 @@ async function transformFrame(frame, controller) {
             }
             return;
         }
-        const output = composite(frame, width, height);
+        const output = composite(input, inputWidth, inputHeight);
         controller.enqueue(new VideoFrame(output, { timestamp }));
     } finally {
         if (!enqueued) frame.close();
@@ -659,12 +838,16 @@ async function processBitmap({ id, session: sessionId, bitmap, timestamp }) {
     }
     try {
         const { width, height } = bitmap;
-        await updateMask(bitmap, width, height, timestamp);
-        if (!ready()) {
+        const framed = await frameInput(bitmap, width, height, timestamp);
+        const input = framed?.source || bitmap;
+        const inputWidth = framed?.width || width;
+        const inputHeight = framed?.height || height;
+        await updateMask(input, inputWidth, inputHeight, timestamp);
+        if (!ready() && !framed) {
             self.postMessage({ type: 'frame', id, bitmap }, [bitmap]);
             return;
         }
-        const canvas = composite(bitmap, width, height);
+        const canvas = ready() ? composite(input, inputWidth, inputHeight) : framed.source;
         bitmap.close();
         const output = canvas.transferToImageBitmap();
         self.postMessage({ type: 'frame', id, bitmap: output }, [output]);
@@ -736,8 +919,11 @@ async function startSession(message) {
     await stopSession();
     session.id = message.session;
     session.lastTimestamp = -1;
-    // Frames pass through until the page sends this session's background
+    // Frames pass through until the page sends this session's background and framing
     setBackground({ mode: 'off' });
+    framing.enabled = false;
+    framing.failed = false;
+    resetFraming();
     state.hasMask = false;
     stabilizeMask?.reset();
     // Masks still on their way belong to the previous camera
@@ -773,11 +959,17 @@ async function handleControl(message) {
                 setBackground(message.background);
                 self.postMessage({ type: 'ack', id });
                 break;
+            case 'framing':
+                if (message.session === session.id) setFraming(message.enabled);
+                self.postMessage({ type: 'ack', id });
+                break;
             case 'stop':
                 if (message.session === session.id) {
                     await stopSession();
                     session.id = 0;
                     setBackground({ mode: 'off' });
+                    framing.enabled = false;
+                    resetFraming();
                 }
                 self.postMessage({ type: 'ack', id });
                 break;

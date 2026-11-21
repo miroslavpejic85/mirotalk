@@ -348,18 +348,29 @@ describe('client camera background integration', () => {
             static supported() {
                 return true;
             }
-            constructor(onError) {
+            constructor(onError, { onFramingError } = {}) {
                 this.onError = onError;
+                this.onFramingError = onFramingError;
                 this.stop = sinon.spy((stopCamera = true) => {
                     this.stopped = true;
                     if (stopCamera) this.cameraTrack?.stop();
                 });
-                this.setMode = sinon.stub().resolves();
+                this.mode = 'off';
+                this.framing = false;
+                this.setMode = sinon.stub().callsFake(async (mode) => {
+                    this.mode = mode;
+                });
                 this.setBackground = sinon.spy(async (mode, image) => {
-                    if (this.stopped || !this.outputTrack) return false;
+                    if (this.stopped || !this.outputTrack || (mode === 'off' && !this.framing)) return false;
                     await this.setMode(mode, image);
                     return true;
                 });
+                this.setFraming = sinon.spy(async (enabled) => {
+                    if (enabled && BackgroundEffects.framingUnavailable) throw new Error('No face detector');
+                    this.framing = enabled;
+                });
+                this.canSwapBackground = () =>
+                    !this.stopped && !!this.outputTrack && (this.mode !== 'off' || this.framing);
                 processors.push(this);
             }
             async start(stream) {
@@ -401,6 +412,11 @@ describe('client camera background integration', () => {
             initBackgroundPicker: Object.assign(document.createElement('div'), { className: 'is-collapsed' }),
             initBackgroundPickerOpenBtn: document.createElement('button'),
             initBackgroundPickerCloseBtn: document.createElement('button'),
+            autoFramingDiv: { hidden: true },
+            switchAutoFraming: { checked: false, disabled: false },
+            initAutoFramingBtn: Object.assign(document.createElement('button'), { hidden: true }),
+            cameraAutoFraming: false,
+            autoFramingSupported: null,
             window: {},
             initUser: {},
             Swal: { getPopup: sinon.stub().returns(null) },
@@ -456,6 +472,12 @@ describe('client camera background integration', () => {
             'loadCameraBackgroundImage',
             'stopVideoTracks',
             'setLocalMaxFps',
+            'isAutoFramingAvailable',
+            'updateAutoFramingControls',
+            'getCameraBackgroundMode',
+            'setCameraAutoFraming',
+            'autoFramingUnavailable',
+            'handleAutoFramingError',
         ]) {
             const declaration = source.indexOf(`function ${name}(`);
             const start = source.slice(declaration - 6, declaration) === 'async ' ? declaration - 6 : declaration;
@@ -1390,5 +1412,87 @@ describe('client camera background integration', () => {
         await context.applyCameraBackground();
         await context.setLocalMaxFps(30);
         assert.equal(camera.applyConstraints.firstCall.args[0].frameRate, 30);
+    });
+
+    describe('auto framing', () => {
+        const sentToPeers = () => context.refreshMyStreamToPeers.lastCall?.args[0].getVideoTracks()[0];
+
+        it('starts the pipeline for auto framing alone and remembers the choice', async () => {
+            await context.setCameraAutoFraming(true);
+            assert.equal(processors.length, 1);
+            assert.equal(processors[0].setMode.firstCall.args[0], 'off', 'no background');
+            assert.equal(processors[0].setFraming.firstCall.args[0], true);
+            assert.equal(sentToPeers(), output);
+            assert.equal(context.lsSettings.camera_auto_framing, true);
+            assert.equal(context.switchAutoFraming.checked, true);
+            assert.equal(context.initAutoFramingBtn.getAttribute('aria-pressed'), 'true');
+            assert.equal(context.initAutoFramingBtn.hidden, false, 'shown with the camera on');
+            assert.equal(context.backgroundEffectsBusy, false);
+        });
+
+        it('switches it on the running background pipeline without a new track', async () => {
+            context.backgroundEffectSelect.value = 'blur';
+            await context.applyCameraBackground();
+            const peerUpdates = context.refreshMyStreamToPeers.callCount;
+            await context.setCameraAutoFraming(true);
+            await context.setCameraAutoFraming(false);
+            assert.equal(processors.length, 1);
+            assert.deepEqual(
+                processors[0].setFraming.args.map((args) => args[0]),
+                [true, false]
+            );
+            assert.equal(context.refreshMyStreamToPeers.callCount, peerUpdates, 'peers keep the same track');
+        });
+
+        it('keeps the pipeline when the background goes Off while framing, and ends it when framing goes off', async () => {
+            context.backgroundEffectSelect.value = 'blur';
+            await context.applyCameraBackground();
+            await context.setCameraAutoFraming(true);
+            context.backgroundEffectSelect.value = 'off';
+            await context.changeCameraBackground();
+            assert.equal(processors.length, 1, 'Off is swapped on the same pipeline');
+            assert.equal(processors[0].setMode.lastCall.args[0], 'off');
+
+            await context.setCameraAutoFraming(false);
+            assert.equal(processors[0].stop.calledWith(false), true);
+            assert.equal(sentToPeers(), camera, 'back to the unprocessed camera');
+            assert.equal(context.cameraEffects, null);
+        });
+
+        it('applies the saved choice to the next camera', async () => {
+            context.lsSettings.camera_auto_framing = true;
+            await context.restoreCameraBackground();
+            assert.equal(context.cameraAutoFraming, true);
+            const stream = await context.prepareCameraBackground(originalStream);
+            assert.equal(stream.getVideoTracks()[0], output);
+            assert.equal(processors[0].setFraming.firstCall.args[0], true);
+        });
+
+        it('warns and sends the plain camera when this device cannot frame', async () => {
+            vm.runInContext('BackgroundEffects.framingUnavailable = true', context);
+            context.cameraAutoFraming = true;
+            const stream = await context.prepareCameraBackground(originalStream);
+            assert.equal(stream, originalStream);
+            assert.equal(processors[0].stop.calledWith(false), true);
+            assert.equal(context.cameraAutoFraming, false, 'off for this meeting');
+            assert.equal(context.userLog.lastCall.args[1], 'Auto framing is not available on this device.');
+        });
+
+        it('keeps the choice when the camera update fails for another reason', async () => {
+            context.refreshMyStreamToPeers.rejects(new Error('peer connection closed'));
+            await context.setCameraAutoFraming(true);
+            assert.equal(context.cameraAutoFraming, true);
+            assert.equal(context.userLog.lastCall.args[1], 'Unable to change camera background.');
+            assert.equal(context.backgroundEffectsBusy, false);
+        });
+
+        it('drops a framing-only pipeline when the worker reports the face detector failed', async () => {
+            await context.setCameraAutoFraming(true);
+            await processors[0].onFramingError(new Error('model download failed'));
+            assert.equal(context.cameraAutoFraming, false);
+            assert.equal(context.lsSettings.camera_auto_framing, true, 'the saved choice is kept for next time');
+            assert.equal(sentToPeers(), camera);
+            assert.equal(context.userLog.callCount, 1);
+        });
     });
 });

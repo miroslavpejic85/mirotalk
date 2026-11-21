@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.42
+ * @version 2.3.50
  *
  */
 
@@ -465,7 +465,11 @@ const initBackgroundError = getId('initBackgroundError');
 const initBackgroundPicker = getId('initBackgroundPicker');
 const initBackgroundPickerOpenBtn = getId('initBackgroundPickerOpenBtn');
 const initBackgroundPickerCloseBtn = getId('initBackgroundPickerCloseBtn');
+const autoFramingDiv = getId('autoFramingDiv');
+const switchAutoFraming = getId('switchAutoFraming');
+const initAutoFramingBtn = getId('initAutoFramingBtn');
 let cameraEffects = null;
+let cameraAutoFraming = false; // keep me centered: crops the camera around the faces (with or without a background)
 let backgroundImage = null; // decoded <img>, or a hidden looping <video> for video backgrounds
 let backgroundImageSource = null; // { type: 'preset' | 'custom', url, video? }
 let backgroundCustomImageUrl = null;
@@ -1091,6 +1095,7 @@ function setButtonsToolTip() {
     // Init buttons
     setTippy(initScreenShareBtn, 'Toggle screen sharing', 'top');
     setTippy(initVideoMirrorBtn, 'Toggle video mirror', 'top');
+    setTippy(initAutoFramingBtn, 'Auto framing', 'top');
     setTippy(initUsernameEmojiButton, 'Toggle username emoji', 'top');
     setTippy(initExitBtn, 'Leave meeting', 'top');
 
@@ -2932,6 +2937,9 @@ function setupBackgroundControls() {
     const supported = BackgroundEffects.supported();
     backgroundEffectsSection.hidden = !supported;
     initBackgroundEffectsSection.hidden = !supported || !useVideo || !buttons.main.showVideoBtn;
+    autoFramingDiv.hidden = !isAutoFramingAvailable();
+    switchAutoFraming.onchange = () => setCameraAutoFraming(switchAutoFraming.checked);
+    initAutoFramingBtn.onclick = () => setCameraAutoFraming(!cameraAutoFraming);
     backgroundEffectSelect.onchange = changeCameraBackground;
     initBackgroundEffectSelect.onchange = changeCameraBackground;
     backgroundImageInput.onchange = loadCameraBackgroundImage;
@@ -3107,7 +3115,90 @@ function updateBackgroundControls() {
     for (const section of [backgroundEffectsSection, initBackgroundEffectsSection]) {
         section.setAttribute('aria-busy', String(backgroundEffectsBusy));
     }
+    updateAutoFramingControls();
     backgroundEffectSelect.dispatchEvent(new Event('background-effects-change'));
+}
+
+let autoFramingSupported = null;
+
+// Same requirements as the camera background (it runs on its pipeline); the check creates a WebGL context, once
+function isAutoFramingAvailable() {
+    autoFramingSupported ??= BackgroundEffects.supported();
+    return autoFramingSupported && !!useVideo && !!buttons.main.showVideoBtn;
+}
+
+// Settings switch and pre-join button (shown with the camera on, like the mirror button)
+function updateAutoFramingControls() {
+    const disabled = backgroundEffectsBusy || !useVideo;
+    switchAutoFraming.checked = cameraAutoFraming;
+    switchAutoFraming.disabled = disabled;
+    initAutoFramingBtn.hidden = !isAutoFramingAvailable() || !myVideoStatus;
+    initAutoFramingBtn.disabled = disabled;
+    initAutoFramingBtn.setAttribute('aria-pressed', String(cameraAutoFraming));
+}
+
+// Image mode without a picked image is the same as Off
+function getCameraBackgroundMode() {
+    const mode = backgroundEffectSelect.value;
+    return mode === 'image' && !backgroundImage ? 'off' : mode;
+}
+
+/**
+ * Auto framing on or off. Remembered for the next meetings; applied to the running camera on the same
+ * pipeline when one runs (no new track), otherwise the camera is (re)started with or without the pipeline.
+ */
+async function setCameraAutoFraming(enabled) {
+    if (backgroundEffectsBusy) {
+        updateBackgroundControls();
+        return;
+    }
+    setBackgroundError();
+    cameraAutoFraming = Boolean(enabled) && isAutoFramingAvailable();
+    lsSettings.camera_auto_framing = cameraAutoFraming;
+    lS.setSettings(lsSettings);
+    backgroundEffectsBusy = true;
+    updateBackgroundControls();
+    try {
+        const effects = cameraEffects;
+        const running = effects?.canSwapBackground() && getVideoTrack(localVideoMediaStream) === effects.outputTrack;
+        // Turning it off without a background ends the pipeline: the camera goes back to the peers unprocessed
+        if (running && (cameraAutoFraming || getCameraBackgroundMode() !== 'off')) {
+            try {
+                await effects.setFraming(cameraAutoFraming);
+            } catch (error) {
+                autoFramingUnavailable(error);
+            }
+        } else {
+            await applyCameraBackground();
+        }
+    } catch (error) {
+        // Not a framing problem (e.g. the camera preview): keep the choice, like a background change does
+        console.error('Unable to change auto framing', error);
+        setBackgroundError('Unable to change camera background.');
+    } finally {
+        backgroundEffectsBusy = false;
+        updateBackgroundControls();
+    }
+}
+
+// Off for this meeting only: the saved choice is kept, so the next join tries again
+function autoFramingUnavailable(error) {
+    console.warn('Auto framing unavailable', error);
+    cameraAutoFraming = false;
+    updateBackgroundControls();
+    userLog('warning', 'Auto framing is not available on this device.', 'top-end', 6000);
+}
+
+// The running pipeline cannot frame (no face detector): drop it if it only served the framing
+async function handleAutoFramingError(effects, error) {
+    if (cameraEffects !== effects) return;
+    autoFramingUnavailable(error);
+    if (getCameraBackgroundMode() !== 'off' || backgroundEffectsBusy) return;
+    try {
+        await applyCameraBackground();
+    } catch (err) {
+        console.error('Unable to restore camera after auto framing failed', err);
+    }
 }
 
 /**
@@ -3157,9 +3248,10 @@ async function prepareCameraBackground(stream) {
     setBackgroundError();
     cameraEffects?.stop(false);
     cameraEffects = null;
-    const mode = backgroundEffectSelect.value;
-    if (mode === 'off' || (mode === 'image' && !backgroundImage)) return stream;
-    const effects = new BackgroundEffects(async (error) => {
+    const mode = getCameraBackgroundMode();
+    const framing = cameraAutoFraming && isAutoFramingAvailable();
+    if (mode === 'off' && !framing) return stream;
+    const onError = async (error) => {
         if (cameraEffects !== effects) return;
         console.error('Background effects error', error);
         const previousStream = localVideoMediaStream;
@@ -3167,6 +3259,7 @@ async function prepareCameraBackground(stream) {
         effects.stop(false);
         cameraEffects = null;
         backgroundEffectSelect.value = 'off';
+        cameraAutoFraming = false;
         attachCameraBackgroundStream(rawStream, previousStream);
         updateBackgroundControls();
         setBackgroundError('Background effects unavailable. Continuing without effects.');
@@ -3175,11 +3268,27 @@ async function prepareCameraBackground(stream) {
         } catch (err) {
             console.error('Unable to restore camera to peers', err);
         }
+    };
+    const effects = new BackgroundEffects(onError, {
+        onFramingError: (error) => handleAutoFramingError(effects, error),
     });
     cameraEffects = effects;
     try {
         const processedStream = await effects.start(stream);
         await effects.setMode(mode, backgroundImage);
+        if (framing) {
+            try {
+                await effects.setFraming(true);
+            } catch (error) {
+                autoFramingUnavailable(error);
+                // Nothing else to do for this camera: send it unprocessed
+                if (mode === 'off') {
+                    effects.stop(false);
+                    if (cameraEffects === effects) cameraEffects = null;
+                    return stream;
+                }
+            }
+        }
         if (effects.stopped) return stream;
         return processedStream;
     } catch (error) {
@@ -3187,6 +3296,7 @@ async function prepareCameraBackground(stream) {
         if (cameraEffects === effects) {
             cameraEffects = null;
             backgroundEffectSelect.value = 'off';
+            cameraAutoFraming = false;
             updateBackgroundControls();
             setBackgroundError('Background effects unavailable. Continuing without effects.');
             console.error('Background effects error', error);
@@ -3199,8 +3309,9 @@ async function prepareCameraBackground(stream) {
 // Resolves false when the effect must be (re)started instead, e.g. when turning it on or off.
 async function swapCameraBackground() {
     const effects = cameraEffects;
-    const mode = backgroundEffectSelect.value;
-    if (!effects || mode === 'off' || (mode === 'image' && !backgroundImage)) return false;
+    const mode = getCameraBackgroundMode();
+    // Off keeps a running auto framing pipeline
+    if (!effects || (mode === 'off' && !(cameraAutoFraming && effects.framing))) return false;
     if (getVideoTrack(localVideoMediaStream) !== effects.outputTrack) return false;
     try {
         return (await effects.setBackground(mode, backgroundImage)) && cameraEffects === effects;
@@ -3263,6 +3374,8 @@ function saveCameraBackground(mode = backgroundEffectSelect.value) {
  * comes up with it. The user can still pick Off in the pre-join (or anytime), which is remembered too.
  */
 async function restoreCameraBackground() {
+    cameraAutoFraming = Boolean(lsSettings.camera_auto_framing) && isAutoFramingAvailable();
+    updateBackgroundControls();
     const saved = lsSettings.camera_background;
     if (!saved || !useVideo || !buttons.main.showVideoBtn || !BackgroundEffects.supported()) return;
 
@@ -22111,7 +22224,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.42',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.50',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -23394,6 +23507,41 @@ function setupQuickDeviceSwitchDropdowns() {
         menuEl.appendChild(row);
     }
 
+    function appendAutoFramingToggle(menuEl) {
+        if (!menuEl) return;
+
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'app-dropdown-action device-menu-toggle-btn';
+        row.disabled = backgroundEffectsBusy || !useVideo;
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-expand';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'device-menu-label';
+        labelSpan.textContent = ` ${window.i18n?.t('Auto framing', 'labels') || 'Auto framing'}`;
+
+        const toggle = document.createElement('input');
+        toggle.id = 'videoMenuAutoFraming';
+        toggle.className = 'toggle';
+        toggle.type = 'checkbox';
+        toggle.checked = cameraAutoFraming;
+        toggle.style.pointerEvents = 'none';
+
+        row.appendChild(icon);
+        row.appendChild(labelSpan);
+        row.appendChild(toggle);
+
+        // The menu is rebuilt by updateBackgroundControls() ('background-effects-change')
+        row.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setCameraAutoFraming(!cameraAutoFraming);
+        });
+
+        menuEl.appendChild(row);
+    }
+
     // The menus stay open after picking a device; actions that open another panel close them explicitly
     function hideDeviceMenu(toggleEl, menuEl) {
         closeMenu(toggleEl, menuEl);
@@ -23495,6 +23643,11 @@ function setupQuickDeviceSwitchDropdowns() {
 
         appendMenuHeader(videoMenu, 'fas fa-video', 'Cameras');
         appendSelectOptions(videoMenu, videoSelect, 'No cameras found', rebuildVideoMenu);
+
+        if (!autoFramingDiv.hidden) {
+            appendMenuDivider(videoMenu);
+            appendAutoFramingToggle(videoMenu);
+        }
 
         if (!backgroundEffectsSection.hidden) {
             appendMenuDivider(videoMenu);

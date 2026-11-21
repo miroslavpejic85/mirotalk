@@ -107,17 +107,6 @@ Open [http://localhost:3000](http://localhost:3000) - done!
 </details>
 
 <details>
-<summary>🖼️ Camera backgrounds</summary>
-
-In **Settings > Video > Background**, select **Off**, **Blur**, or **Image**. Local PNG, JPEG, and WebP images up to 10 MB are processed in your browser and are not uploaded. Effects appear in your camera preview, outgoing camera video, and camera recordings. Screen sharing remains unaffected, including when sharing your camera and screen together.
-
-Background controls are also available in prejoin and the quick video menu. Select **Image**, then use the file picker (or **Choose image** in the quick video menu) to choose or replace an image. The selected filename stays synchronized between prejoin and Video settings.
-
-Effect output is capped at 1280 x 720 and follows the camera frame rate (up to 30 FPS), or 15 FPS when effects fall back to the main thread. Off uses the original camera track without processing. Performance varies by device; background tabs may throttle rendering.
-
-</details>
-
-<details>
 <summary>🐳 Docker</summary>
 
 <br/>
@@ -140,6 +129,26 @@ Open [http://localhost:3000](http://localhost:3000) - done!
 
 > **Note:**
 > Edit `app/src/config.js`, `.env`, and `docker-compose.yml` to customize your setup.
+
+</details>
+
+<details>
+<summary>🖼️ Camera backgrounds</summary>
+
+In **Settings > Video > Background**, select **Off**, **Blur**, or **Image**. Local PNG, JPEG, and WebP images up to 10 MB are processed in your browser and are not uploaded. Effects appear in your camera preview, outgoing camera video, and camera recordings. Screen sharing remains unaffected, including when sharing your camera and screen together.
+
+Background controls are also available in prejoin and the quick video menu. Select **Image**, then use the file picker (or **Choose image** in the quick video menu) to choose or replace an image. The selected filename stays synchronized between prejoin and Video settings.
+
+Effect output is capped at 1280 x 720 and follows the camera frame rate (up to 30 FPS), or 15 FPS when effects fall back to the main thread. Off uses the original camera track without processing. Performance varies by device; background tabs may throttle rendering.
+
+</details>
+
+<details>
+<summary>🎯 Auto framing</summary>
+
+Turn on **Settings > Video > Auto framing** (also in prejoin and the quick video menu) to keep you centered in the frame as you move, with or without a camera background. Faces are found in your browser with the MediaPipe Face Detector (about 1 MB, downloaded on first use); no video leaves your device for processing.
+
+The camera is cropped with a head-and-shoulders zoom (at most 2x, 1.6x on phones), in the same aspect ratio. When several people are in view, everyone is kept in the frame. Small moves don't move the frame, bigger ones are eased smoothly, and when nobody is in view the frame zooms back out after a moment. The choice is remembered for your next meetings and only applies to your own camera.
 
 </details>
 
