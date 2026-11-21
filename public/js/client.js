@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.52
+ * @version 2.3.53
  *
  */
 
@@ -21893,8 +21893,51 @@ function openVideoUrlPlayer(config) {
     console.log('Open video Player', config);
     const videoSrc = config.video_src;
     const videoType = getVideoType(videoSrc);
+    const isAudioShare = videoType === 'audio/mpeg';
     const videoEmbed = getYoutubeEmbed(videoSrc);
     console.log('Video embed', videoEmbed);
+    let videoAudioUrlPosterElement = getId('videoAudioUrlPosterElement');
+    if (!videoAudioUrlPosterElement) {
+        videoAudioUrlPosterElement = document.createElement('img');
+        videoAudioUrlPosterElement.id = 'videoAudioUrlPosterElement';
+        videoAudioUrlPosterElement.alt = 'Shared audio';
+        videoAudioUrlPosterElement.style.width = '100%';
+        videoAudioUrlPosterElement.style.height = '100%';
+        videoAudioUrlElement.parentNode.insertBefore(videoAudioUrlPosterElement, videoAudioUrlElement);
+    }
+    let audioUrlElement = getId('videoAudioUrlAudioElement');
+    if (!audioUrlElement) {
+        audioUrlElement = document.createElement('audio');
+        audioUrlElement.id = 'videoAudioUrlAudioElement';
+        audioUrlElement.controls = true;
+        audioUrlElement.autoplay = true;
+        audioUrlElement.preload = 'metadata';
+        videoAudioUrlElement.parentNode.appendChild(audioUrlElement);
+    }
+    const tryPlaySharedMedia = (mediaElement) => {
+        const tryPlay = mediaElement.play?.();
+        if (tryPlay && typeof tryPlay.catch === 'function') {
+            tryPlay.catch((err) => {
+                console.warn('[openVideoUrlPlayer] Media autoplay blocked, waiting for user interaction', err);
+                Swal.fire({
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    background: swalBackground,
+                    position: 'center',
+                    imageUrl: images.share,
+                    title: 'Play shared media',
+                    text: 'Autoplay is blocked on this device/browser. Tap Play to start the shared audio/video.',
+                    confirmButtonText: 'Play',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        mediaElement.play().catch((playErr) => {
+                            console.warn('[openVideoUrlPlayer] User-triggered media play failed', playErr);
+                        });
+                    }
+                });
+            });
+        }
+    };
     //
     if (!isVideoUrlPlayerOpen) {
         if (videoEmbed) {
@@ -21907,10 +21950,27 @@ function openVideoUrlPlayer(config) {
             playSound('newMessage');
             console.log('Load element type: Video');
             elemDisplay(videoAudioUrlCont, true, 'flex');
-            videoAudioUrlElement.setAttribute('src', videoSrc);
-            videoAudioUrlElement.type = videoType;
-            if (videoAudioUrlElement.type == 'video/mp3') {
-                videoAudioUrlElement.poster = images.audioGif;
+            if (isAudioShare) {
+                videoAudioUrlElement.pause();
+                videoAudioUrlElement.removeAttribute('src');
+                videoAudioUrlElement.load();
+                elemDisplay(videoAudioUrlElement, false);
+                audioUrlElement.setAttribute('src', videoSrc);
+                audioUrlElement.type = videoType;
+                elemDisplay(audioUrlElement, true);
+                videoAudioUrlPosterElement.src = images.audioGif;
+                elemDisplay(videoAudioUrlPosterElement, true);
+                tryPlaySharedMedia(audioUrlElement);
+            } else {
+                audioUrlElement.pause();
+                audioUrlElement.removeAttribute('src');
+                audioUrlElement.load();
+                elemDisplay(audioUrlElement, false);
+                elemDisplay(videoAudioUrlPosterElement, false);
+                elemDisplay(videoAudioUrlElement, true);
+                videoAudioUrlElement.setAttribute('src', videoSrc);
+                videoAudioUrlElement.type = videoType;
+                tryPlaySharedMedia(videoAudioUrlElement);
             }
             isVideoUrlPlayerOpen = true;
         }
@@ -21919,7 +21979,28 @@ function openVideoUrlPlayer(config) {
         if (videoEmbed) {
             videoUrlIframe.src = videoEmbed;
         } else {
-            videoAudioUrlElement.src = videoSrc;
+            if (isAudioShare) {
+                videoAudioUrlElement.pause();
+                videoAudioUrlElement.removeAttribute('src');
+                videoAudioUrlElement.load();
+                elemDisplay(videoAudioUrlElement, false);
+                audioUrlElement.setAttribute('src', videoSrc);
+                audioUrlElement.type = videoType;
+                elemDisplay(audioUrlElement, true);
+                videoAudioUrlPosterElement.src = images.audioGif;
+                elemDisplay(videoAudioUrlPosterElement, true);
+                tryPlaySharedMedia(audioUrlElement);
+            } else {
+                audioUrlElement.pause();
+                audioUrlElement.removeAttribute('src');
+                audioUrlElement.load();
+                elemDisplay(audioUrlElement, false);
+                elemDisplay(videoAudioUrlPosterElement, false);
+                elemDisplay(videoAudioUrlElement, true);
+                videoAudioUrlElement.src = videoSrc;
+                videoAudioUrlElement.type = videoType;
+                tryPlaySharedMedia(videoAudioUrlElement);
+            }
         }
     }
 }
@@ -21931,7 +22012,7 @@ function openVideoUrlPlayer(config) {
  */
 function getVideoType(url) {
     if (url.endsWith('.mp4')) return 'video/mp4';
-    if (url.endsWith('.mp3')) return 'video/mp3';
+    if (url.endsWith('.mp3')) return 'audio/mpeg';
     if (url.endsWith('.webm')) return 'video/webm';
     if (url.endsWith('.ogg')) return 'video/ogg';
     return 'na';
@@ -21973,8 +22054,21 @@ function closeVideoUrlPlayer() {
         videoUrlIframe: videoUrlIframe.src,
         videoAudioUrlElement: videoAudioUrlElement.src,
     });
+    const audioUrlElement = getId('videoAudioUrlAudioElement');
+    const videoAudioUrlPosterElement = getId('videoAudioUrlPosterElement');
     if (videoUrlIframe.src != '') videoUrlIframe.setAttribute('src', '');
-    if (videoAudioUrlElement.src != '') videoAudioUrlElement.setAttribute('src', '');
+    if (videoAudioUrlElement.src != '') {
+        videoAudioUrlElement.setAttribute('src', '');
+        videoAudioUrlElement.load();
+    }
+    if (audioUrlElement?.src) {
+        audioUrlElement.pause();
+        audioUrlElement.setAttribute('src', '');
+        audioUrlElement.load();
+        elemDisplay(audioUrlElement, false);
+    }
+    if (videoAudioUrlPosterElement) elemDisplay(videoAudioUrlPosterElement, false);
+    elemDisplay(videoAudioUrlElement, true);
     elemDisplay(videoUrlCont, false);
     elemDisplay(videoAudioUrlCont, false);
     isVideoUrlPlayerOpen = false;
@@ -22224,7 +22318,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.52',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.53',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
