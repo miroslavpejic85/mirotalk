@@ -5690,6 +5690,15 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     padding-block: 8px;
 }
 
+/* Align toggle-row icons/labels with the select rows and keep the switch flush to the trailing edge */
+#mySettings .settings-subsection > .settings-field:has(> table) td:first-child {
+    padding-inline-start: 0;
+}
+
+#mySettings .settings-subsection > .settings-field:has(> table) td:last-child {
+    padding-inline-end: 0;
+}
+
 .settings-subsection-title {
     display: flex;
     align-items: center;
