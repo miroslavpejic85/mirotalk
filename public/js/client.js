@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.40
+ * @version 2.3.41
  *
  */
 
@@ -10496,6 +10496,11 @@ function setQuizzes() {
         onLoaded: () => userLog('success', 'Quiz loaded: review it, then create it', 'top-end', 4000),
         confirmDelete: confirmDeleteQuiz,
         download: saveBlobToFile,
+        // Same picture as the video tile: custom avatar, else the Gravatar of an e-mail name, else initials
+        resolveAvatar: (name, avatarUrl) => {
+            if (avatarUrl && isValidAvatarURL(avatarUrl)) return avatarUrl;
+            return useAvatarSvg && isValidEmail(name) ? genGravatar(name, 64) : null;
+        },
     });
     quizEmptyNewBtn.addEventListener('click', () => roomQuizzes.showForm());
 }
@@ -22106,7 +22111,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.40',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.41',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

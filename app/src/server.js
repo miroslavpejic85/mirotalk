@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.40
+ * @version 2.3.41
  *
  */
 
@@ -2591,6 +2591,8 @@ io.sockets.on('connect', async (socket) => {
         const voter = {
             key: socket.pollVoterKey || 's:' + socket.id,
             name: peers[room_id][socket.id].peer_name,
+            // Sanitized at join / profile update, already shared with the room
+            avatar: peers[room_id][socket.id].peer_avatar,
         };
         const replyError = (message) => sendToPeer(socket.id, sockets, 'quiz', { action: 'error', message });
         const canManage = (quiz) =>
