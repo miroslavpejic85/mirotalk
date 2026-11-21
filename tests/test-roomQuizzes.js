@@ -646,6 +646,12 @@ describe('room quizzes', () => {
     // ####################################################
 
     describe('client UI', () => {
+        // Text buttons by their text, icon buttons by their accessible label
+        const buttonLabels = (doc) =>
+            [...doc.querySelectorAll('.poll-card-actions button')].map(
+                (b) => b.textContent.trim() || b.getAttribute('aria-label')
+            );
+
         function setup() {
             const dom = new JSDOM(
                 `<form id="quizForm" class="hidden">
@@ -817,9 +823,21 @@ describe('room quizzes', () => {
             );
             assert.equal(doc.querySelector('.quiz-leaderboard'), null, 'no ranking before the first reveal');
 
-            const labels = () =>
-                [...doc.querySelectorAll('.poll-card-actions button')].map((b) => b.textContent.trim());
+            const labels = () => buttonLabels(doc);
             assert.deepEqual(labels(), ['Reveal answer', 'Finish quiz', 'Save to file', 'Delete']);
+            // Flow actions on the left, icon tools (labelled, with a tooltip) on the right
+            assert.deepEqual(
+                [...doc.querySelectorAll('.quiz-actions-main button')].map((b) => b.textContent.trim()),
+                ['Reveal answer', 'Finish quiz']
+            );
+            const tools = [...doc.querySelectorAll('.quiz-actions-tools .quiz-icon-btn')];
+            assert.deepEqual(
+                tools.map((b) => [b.getAttribute('aria-label'), b.title, b.textContent]),
+                [
+                    ['Save to file', 'Save to file', ''],
+                    ['Delete', 'Delete', ''],
+                ]
+            );
             doc.querySelector('.poll-card-actions button').click();
             assert.deepEqual(sent, [{ action: 'reveal', quiz_id: 'q1' }]);
 
@@ -901,10 +919,7 @@ describe('room quizzes', () => {
             assert.equal(doc.querySelector('.quiz-leaderboard-wrap'), null);
             quizzes.handle({ action: 'list', quizzes: [{ ...base, status: 'finished' }] });
             assert.equal(doc.querySelector('.quiz-leaderboard-wrap'), null);
-            assert.deepEqual(
-                [...doc.querySelectorAll('.poll-card-actions button')].map((b) => b.textContent.trim()),
-                ['Save to file', 'Delete']
-            );
+            assert.deepEqual(buttonLabels(doc), ['Save to file', 'Delete']);
         });
 
         it('lets the managers download the results of a finished quiz as CSV', async () => {
@@ -942,8 +957,7 @@ describe('room quizzes', () => {
 
             // Running quiz: no export yet
             quizzes.handle({ action: 'list', quizzes: [{ ...finished, status: 'running' }] });
-            const labels = () =>
-                [...doc.querySelectorAll('.poll-card-actions button')].map((b) => b.textContent.trim());
+            const labels = () => buttonLabels(doc);
             assert.ok(!labels().includes('Download results'));
 
             quizzes.handle({ action: 'list', quizzes: [finished] });
@@ -1114,9 +1128,7 @@ describe('room quizzes', () => {
                 ],
             });
             quizzes.handle({ action: 'list', quizzes: [managed] });
-            [...doc.querySelectorAll('.poll-card-actions button')]
-                .find((btn) => btn.textContent.trim() === 'Save to file')
-                .click();
+            doc.querySelector('.poll-card-actions button[aria-label="Save to file"]').click();
             assert.equal(downloads[0].fileName, 'Quiz-Geo.json');
             assert.deepEqual((await readDownload(window, downloads[0])).questions, [
                 { question: 'First', options: ['a', 'b'], correct: 1 },

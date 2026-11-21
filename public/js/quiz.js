@@ -459,6 +459,22 @@ class RoomQuizzes {
         return btn;
     }
 
+    /**
+     * Compact icon button, labelled for screen readers and with a native tooltip
+     */
+    iconButton(label, icon, className, onClick) {
+        const btn = RoomQuizzes.createEl(
+            'button',
+            'poll-btn poll-btn-small quiz-icon-btn' + (className ? ' ' + className : '')
+        );
+        btn.type = 'button';
+        btn.title = label;
+        btn.setAttribute('aria-label', label);
+        btn.appendChild(RoomQuizzes.createEl('i', icon));
+        btn.addEventListener('click', onClick);
+        return btn;
+    }
+
     render() {
         const quizzes = this.getQuizzes();
         const cards = quizzes.map((quiz) => this.renderQuiz(quiz));
@@ -779,9 +795,13 @@ class RoomQuizzes {
     }
 
     renderActions(quiz) {
-        const actions = RoomQuizzes.createEl('div', 'poll-card-actions');
+        const { createEl } = RoomQuizzes;
+        // Quiz flow on the left (wraps on narrow panels), file and delete tools always on the right
+        const actions = createEl('div', 'poll-card-actions quiz-card-actions');
+        const main = createEl('div', 'quiz-actions-main');
+        const tools = createEl('div', 'quiz-actions-tools');
         const add = (label, icon, className, action) =>
-            actions.appendChild(this.button(label, icon, className, () => this.manage(quiz.id, action)));
+            main.appendChild(this.button(label, icon, className, () => this.manage(quiz.id, action)));
 
         if (quiz.status === 'ready') {
             add(this.t('Start quiz'), 'fas fa-play', 'poll-btn-primary', 'start');
@@ -796,18 +816,17 @@ class RoomQuizzes {
             const finishPrimary = quiz.mode === 'all' || (isLast && current?.state === 'revealed');
             add(this.t('Finish quiz'), 'fas fa-flag-checkered', finishPrimary ? 'poll-btn-primary' : '', 'finish');
         } else if (quiz.status === 'finished' && Array.isArray(quiz.leaderboard)) {
-            actions.appendChild(
+            main.appendChild(
                 this.button(this.t('Download results'), 'fas fa-download', 'poll-btn-primary', () =>
                     this.downloadResults(quiz.id)
                 )
             );
         }
-        actions.appendChild(
-            this.button(this.t('Save to file'), 'fas fa-floppy-disk', '', () => this.saveQuiz(quiz.id))
+        tools.append(
+            this.iconButton(this.t('Save to file'), 'fas fa-floppy-disk', '', () => this.saveQuiz(quiz.id)),
+            this.iconButton(this.t('Delete'), 'fas fa-trash', 'poll-btn-danger', () => this.remove(quiz.id))
         );
-        actions.appendChild(
-            this.button(this.t('Delete'), 'fas fa-trash', 'poll-btn-danger', () => this.remove(quiz.id))
-        );
+        actions.append(main, tools);
         return actions;
     }
 

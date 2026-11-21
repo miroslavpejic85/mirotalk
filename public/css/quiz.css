@@ -342,6 +342,39 @@
     gap: 6px;
 }
 
-.quiz-card .poll-card-actions {
+/* Quiz flow on the left (wraps on narrow panels), file and delete icon tools pinned top right */
+.quiz-card .quiz-card-actions {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.quiz-actions-main,
+.quiz-actions-tools {
+    display: flex;
+    gap: 6px;
+}
+
+.quiz-actions-main {
+    flex: 1 1 auto;
     flex-wrap: wrap;
+    min-width: 0;
+}
+
+.quiz-actions-tools {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.quiz-card-actions .poll-btn {
+    height: 28px;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.poll-btn.quiz-icon-btn {
+    width: 30px;
+    padding-right: 0;
+    padding-left: 0;
 }
