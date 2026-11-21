@@ -7,6 +7,7 @@ const { v4: uuidV4 } = require('uuid');
 
 const config = require('./config');
 const { getJwtKeys } = require('./jwtSecret');
+const RoomBreakouts = require('./roomBreakouts');
 const JWT_EXP = config.jwt.exp;
 module.exports = class ServerApi {
     constructor(host = null, authorization = null, api_key_secret = null) {
@@ -41,11 +42,18 @@ module.exports = class ServerApi {
 
     getActiveRooms(roomList) {
         const metaKeys = new Set(['lock', 'password', 'joinLock']);
-        return Object.entries(roomList).map(([roomId, room]) => ({
-            id: roomId,
-            peers: room && typeof room === 'object' ? Object.keys(room).filter((k) => !metaKeys.has(k)).length : 0,
-            join: this.getProtocol() + this._host + '/' + roomId,
-        }));
+        return Object.entries(roomList).map(([roomId, room]) => {
+            // Breakout room display name given by the presenter
+            const name = RoomBreakouts.isBreakoutRoom(roomId)
+                ? RoomBreakouts.getRoom(RoomBreakouts.getByRoom(roomId), roomId)?.name
+                : null;
+            return {
+                id: roomId,
+                ...(name ? { name } : {}),
+                peers: room && typeof room === 'object' ? Object.keys(room).filter((k) => !metaKeys.has(k)).length : 0,
+                join: this.getProtocol() + this._host + '/' + roomId,
+            };
+        });
     }
 
     getMeetings(peers) {

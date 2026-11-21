@@ -118,6 +118,33 @@ describe('test-api', () => {
         });
     });
 
+    describe('getActiveRooms', () => {
+        const RoomBreakouts = require('../app/src/roomBreakouts');
+
+        afterEach(() => RoomBreakouts.reset());
+
+        it('returns the breakout room name given by the presenter', () => {
+            const { session } = RoomBreakouts.create('main', { rooms: ['Living Room'] });
+            const breakoutId = session.rooms[0].id;
+            const peers = {
+                main: { lock: false, s1: {} },
+                [breakoutId]: { s2: {}, s3: {} },
+            };
+
+            const result = serverApi.getActiveRooms(peers);
+
+            result.should.deepEqual([
+                { id: 'main', peers: 1, join: `${serverApi.getProtocol()}${host}/main` },
+                {
+                    id: breakoutId,
+                    name: 'Living Room',
+                    peers: 2,
+                    join: `${serverApi.getProtocol()}${host}/${breakoutId}`,
+                },
+            ]);
+        });
+    });
+
     describe('getMeetingURL', () => {
         it('should return a meeting URL with a generated UUID', () => {
             const uuidV4Stub = sinon.stub().returns('12345');

@@ -93,13 +93,15 @@ function renderRooms(rooms) {
         rooms
             .map((room) => {
                 const id = escapeHtml(room.id);
+                const name = room.name ? escapeHtml(room.name) : '';
                 const peers = Number(room.peers) || 0;
                 const join = escapeHtml(room.join);
                 return `
             <div class="room-card">
                 <div class="room-card-header">
                     <div class="room-title">
-                        <i class="fa-solid fa-door-open"></i>${id}
+                        <i class="fa-solid fa-door-open"></i>${name || id}
+                        ${name ? `<span class="room-subtitle">${id}</span>` : ''}
                     </div>
                     <div class="peer-badge">
                         <i class="fa-solid fa-users"></i>
@@ -124,7 +126,13 @@ function renderRooms(rooms) {
 
 function handleSearch() {
     const value = searchInput.value.trim().toLowerCase();
-    const filtered = !value ? allRooms : allRooms.filter((room) => room.id.toLowerCase().includes(value));
+    const filtered = !value
+        ? allRooms
+        : allRooms.filter(
+              (room) =>
+                  room.id.toLowerCase().includes(value) ||
+                  (typeof room.name === 'string' && room.name.toLowerCase().includes(value))
+          );
     renderRooms(filtered);
 }
 

@@ -236,6 +236,14 @@ body {
     margin-right: 6px;
 }
 
+.room-subtitle {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.85em;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
 .peer-badge {
     display: flex;
     align-items: center;
