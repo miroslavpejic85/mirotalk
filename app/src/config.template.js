@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.3.53 - Configuration File
+ * MiroTalk P2P v.2.3.54 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -752,6 +752,7 @@ module.exports = {
             showFileShareBtn: getEnvBoolean(process.env.SHOW_CHAT_FILE_SHARE, true),
             showShareVideoAudioBtn: getEnvBoolean(process.env.SHOW_CHAT_SHARE_VIDEO_AUDIO, true),
             showParticipantsBtn: getEnvBoolean(process.env.SHOW_CHAT_PARTICIPANTS, true),
+            chatTimeFormat: process.env.CHAT_TIME_FORMAT === '12h' ? '12h' : '24h', // Default, users can override it
         },
         caption: {
             showTogglePinBtn: getEnvBoolean(process.env.SHOW_CAPTION_PIN, true),

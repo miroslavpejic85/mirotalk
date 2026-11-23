@@ -43,6 +43,7 @@ let buttons = {
         showFileShareBtn: true,
         showShareVideoAudioBtn: true,
         showParticipantsBtn: true,
+        chatTimeFormat: '24h', // 12h | 24h
     },
     caption: {
         showTogglePinBtn: true,

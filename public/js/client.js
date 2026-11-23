@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.53
+ * @version 2.3.54
  *
  */
 
@@ -294,6 +294,7 @@ const msgerShowChatOnMsgDiv = getId('msgerShowChatOnMsgDiv');
 const msgerShowChatOnMsg = getId('msgerShowChatOnMsg');
 const msgerSpeechMsgDiv = getId('msgerSpeechMsgDiv');
 const msgerSpeechMsg = getId('msgerSpeechMsg');
+const msgerTime12h = getId('msgerTime12h');
 const msgerSendBtn = getId('msgerSendBtn');
 
 const chatInputEmoji = {
@@ -910,6 +911,7 @@ let isChatMarkdownOn = false;
 let isChatPasteTxt = false;
 let pinChatByDefault = false;
 let speechInMessages = false;
+let chatTime12h = false; // chat time in 12-hour AM/PM format
 let isSpeechSynthesisSupported = 'speechSynthesis' in window;
 let transcripts = []; // collect all the transcripts to save it later if you need
 let chatMessages = []; // collect chat messages to save it later if want
@@ -9433,6 +9435,14 @@ function setChatRoomBtn() {
         elemDisplay(msgerSpeechMsgDiv, false);
     }
 
+    // chat time format
+    msgerTime12h.addEventListener('change', (e) => {
+        playSound('switch');
+        setChatTime12h(e.currentTarget.checked);
+        lsSettings.chat_time_12h = chatTime12h;
+        lS.setSettings(lsSettings);
+    });
+
     // chat send msg
     msgerSendBtn.addEventListener('click', async (e) => {
         // prevent refresh page
@@ -12209,9 +12219,15 @@ function loadSettingsFromLocalStorage() {
     transcriptShowOnMsg = lsSettings.transcript_show_on_msg !== undefined ? lsSettings.transcript_show_on_msg : true;
     transcriptSendToAll = lsSettings.transcript_send_to_all !== undefined ? lsSettings.transcript_send_to_all : true;
     speechInMessages = lsSettings.speech_in_msg;
+    setChatTime12h(
+        typeof lsSettings.chat_time_12h === 'boolean'
+            ? lsSettings.chat_time_12h
+            : buttons?.chat?.chatTimeFormat === '12h'
+    );
     pinChatByDefault = lsSettings.pin_chat_by_default;
     msgerShowChatOnMsg.checked = showChatOnMessage;
     msgerSpeechMsg.checked = speechInMessages;
+    msgerTime12h.checked = chatTime12h;
     transcriptShowOnMsgEl.checked = transcriptShowOnMsg;
     transcriptSendToAllEl.checked = transcriptSendToAll;
     screenFpsSelect.selectedIndex = lsSettings.screen_fps;
@@ -15743,7 +15759,8 @@ function escapeSpecialChars(regex) {
  * @param {string} fromId author peer id (set only for messages shared with peers)
  */
 function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '', fromId = '') {
-    let time = getFormatDate(new Date());
+    const now = new Date();
+    let time = getFormatDate(now);
 
     // sanitize all params
     const getFrom = filterXSS(from);
@@ -15837,6 +15854,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '', 
             messageId: normalizedMsgId,
             messageFromId: getFromId || null,
             messageAvatarTmpId: msgAvatarTmpId,
+            messageTs: now.getTime(),
             messageBubbleClass: msgBubble,
             messageTextId: `message-${chatMessagesId}`,
         },
@@ -17146,11 +17164,31 @@ function checkLineBreaks() {
 /**
  * Format date
  * @param {object} date
- * @returns {string} date format h:m:s
+ * @returns {string} time as HH:MM:SS, or h:MM:SS AM/PM when chatTime12h is enabled
  */
 function getFormatDate(date) {
+    if (chatTime12h) {
+        return date.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+        });
+    }
     const time = date.toTimeString().split(' ')[0];
     return `${time}`;
+}
+
+/**
+ * Set the chat time format and re-render the existing message times
+ * @param {boolean} enabled true = 12-hour AM/PM, false = 24-hour
+ */
+function setChatTime12h(enabled) {
+    chatTime12h = !!enabled;
+    document.querySelectorAll('.msg-time[data-ts]').forEach((el) => {
+        const ts = Number(el.dataset.ts);
+        if (Number.isFinite(ts)) el.textContent = getFormatDate(new Date(ts));
+    });
 }
 
 /**
@@ -22318,7 +22356,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.53',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.54',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

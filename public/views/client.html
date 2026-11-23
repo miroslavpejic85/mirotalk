@@ -646,6 +646,13 @@
                                         <span class="transcription-switch-label">Speech msg</span>
                                         <input id="msgerSpeechMsg" class="toggle" type="checkbox" />
                                     </div>
+                                </li>
+                                <li>
+                                    <div class="transcription-switch-row">
+                                        <i class="fas fa-clock"></i>
+                                        <span class="transcription-switch-label">12-hour time</span>
+                                        <input id="msgerTime12h" class="toggle" type="checkbox" />
+                                    </div>
                                     <hr />
                                 </li>
                                 <li class="msger-menu-action-row">
@@ -2831,7 +2838,13 @@
                 <div data-template-attr-class="messageBubbleClass">
                     <div class="msg-info">
                         <div class="msg-info-name" data-template-text="senderName"></div>
-                        <div class="msg-info-time" data-template-text="messageTime"></div>
+                        <div class="msg-info-time">
+                            <span
+                                class="msg-time"
+                                data-template-text="messageTime"
+                                data-template-attr-data-ts="messageTs"
+                            ></span>
+                        </div>
                     </div>
                     <div class="msg-text">
                         <span data-template-attr-id="messageTextId"></span>

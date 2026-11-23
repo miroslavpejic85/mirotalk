@@ -19,6 +19,7 @@ class LocalStorage {
             transcript_show_on_msg: true,
             transcript_send_to_all: true,
             speech_in_msg: false,
+            chat_time_12h: null, // null = server default (CHAT_TIME_FORMAT), true = 12-hour AM/PM, false = 24-hour
             pin_chat_by_default: false,
             mic_noise_suppression: true, // Noise suppression using RNNoise
             mic_noise_suppression_user_set: false, // user explicitly toggled it, so the server default no longer applies
