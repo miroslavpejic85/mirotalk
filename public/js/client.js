@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.54
+ * @version 2.3.55
  *
  */
 
@@ -15805,7 +15805,9 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '', 
                     style="color:#fff; border:none; background:transparent;"
                     onclick="deleteMessage('msg-${chatMessagesId}')"
                 ></button>`;
-    if (isOwnSharedChatMessage(getFromId, normalizedMsgId)) {
+    // Image/GIF-only messages have no text to read or edit; Copy copies the image URL instead.
+    const isImageOnly = !!getChatImageOnlyUrl(getMsg);
+    if (!isImageOnly && isOwnSharedChatMessage(getFromId, normalizedMsgId)) {
         messageActionsHTML += `
                 <button
                     id="msg-edit-${chatMessagesId}"
@@ -15828,7 +15830,7 @@ function appendMessage(from, img, side, msg, privateMsg, msgId = null, to = '', 
                     style="color:#fff; border:none; background:transparent;"
                     onclick="toggleReactionPicker('${normalizedMsgId}', this)"
                 >😊</button>`;
-    if (isSpeechSynthesisSupported) {
+    if (isSpeechSynthesisSupported && !isImageOnly) {
         messageActionsHTML += `
                 <button
                     id="msg-speech-${chatMessagesId}"
@@ -16262,7 +16264,9 @@ function speechMessage(newMsg = true, from, msg) {
  */
 function speechElementText(newMsg = true, from, elemId) {
     const element = getId(elemId);
-    speechMessage(newMsg, from, element.innerText);
+    const text = element ? element.innerText.trim() : '';
+    if (!text) return;
+    speechMessage(newMsg, from, text);
 }
 
 /**
@@ -16440,6 +16444,10 @@ function applyChatMessageEdit(msgEl, msg) {
     textEl.innerHTML = processMessage(getMsg);
     hljs.highlightAll();
 
+    // An edit can turn text into an image URL (or back): keep Speech in sync with the content.
+    const speechBtn = msgEl.querySelector('button[id^="msg-speech-"]');
+    if (speechBtn) speechBtn.style.display = getChatImageOnlyUrl(textEl) ? 'none' : '';
+
     const msgId = msgEl.dataset.msgId || '';
     const entry = msgId ? chatMessages.find((m) => m.msgId === msgId) : null;
     if (entry) {
@@ -16491,15 +16499,38 @@ function handleDataChannelChatEdit(dataMessage, peer_id) {
 }
 
 /**
- * Copy the element innerText on clipboard
+ * Copy the element innerText (or the image URL for image/GIF messages) on clipboard
  * @param {string} id
  */
 function copyToClipboard(id) {
-    copyTextToClipboard(getId(id).innerText).then((copied) =>
+    const el = getId(id);
+    if (!el) return;
+    const text = getChatImageOnlyUrl(el) || el.innerText;
+    copyTextToClipboard(text).then((copied) =>
         copied
             ? msgPopup('success', 'Message copied!', 'top-end', 1000)
             : msgPopup('error', 'Unable to copy to clipboard', 'top-end', 6000)
     );
+}
+
+/**
+ * Get the image URL when a chat message is just an image/GIF
+ * @param {string|Node} source message HTML string or rendered element
+ * @returns {string} image URL, or '' if the message has text or no single image
+ */
+function getChatImageOnlyUrl(source) {
+    let root = source;
+    if (typeof source === 'string') {
+        // <template> content is inert, so images are not fetched while inspecting.
+        root = document.createElement('template');
+        root.innerHTML = source;
+        root = root.content;
+    }
+    if (!root || (root.textContent || '').trim()) return '';
+    const images = root.querySelectorAll('img');
+    if (images.length !== 1) return '';
+    const src = images[0].getAttribute('src') || '';
+    return isValidHttpURL(src) ? src : '';
 }
 
 function closeAllMsgerParticipantDropdownMenus() {
@@ -22356,7 +22387,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.54',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.55',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
