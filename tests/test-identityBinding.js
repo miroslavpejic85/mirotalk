@@ -108,6 +108,8 @@ describe('server-bound sender identity', function () {
                 SENTRY_ENABLED: 'false',
                 IP_LOOKUP_ENABLED: 'false',
                 OIDC_ENABLED: 'false',
+                KLIPY_API_ENABLED: 'true',
+                KLIPY_API_KEY: 'test-klipy-key',
             },
             stdio: ['ignore', 'ignore', 'ignore'],
         });
@@ -128,6 +130,27 @@ describe('server-bound sender identity', function () {
             impostor.emit('message', { type: 'roomEmoji', room_id: ROOM, peer_name: 'presenter-user', emoji: 'x' })
         );
         data.peer_name.should.equal('impostor-user');
+    });
+
+    it('binds the roomGif sender tile to the sending connection and drops unsafe GIF URLs', async () => {
+        const gif = 'https://static.klipy.com/ii/abc/md.webp';
+        const data = await received(observer, 'message', () =>
+            impostor.emit('message', {
+                type: 'roomGif',
+                room_id: ROOM,
+                peer_id: presenter.id,
+                peer_name: 'presenter-user',
+                gif,
+            })
+        );
+        data.peer_id.should.equal(impostor.id);
+        data.peer_name.should.equal('impostor-user');
+        data.gif.should.equal(gif);
+
+        const unsafe = await received(observer, 'message', () =>
+            impostor.emit('message', { type: 'roomGif', room_id: ROOM, gif: 'http://static.klipy.com/a.gif' })
+        );
+        (unsafe === null).should.be.true();
     });
 
     it('binds the peerStatus owner to the sending connection', async () => {

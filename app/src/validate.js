@@ -129,6 +129,24 @@ function isSafeImageSrc(src) {
     return true;
 }
 
+const ROOM_GIF_URL_MAX_LENGTH = 2048;
+
+/**
+ * Validate a Room Reactions GIF URL before it is relayed to the room.
+ * Only bounded https URLs without whitespace, quotes or angle brackets are accepted.
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isValidRoomGifUrl(url) {
+    if (typeof url !== 'string' || !url || url.length > ROOM_GIF_URL_MAX_LENGTH) return false;
+    if (/[\s"'<>`]/.test(url)) return false;
+    try {
+        return new URL(url).protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
 /**
  * Peer names are shown to every room member, sometimes as HTML (toasts, dialogs): keep plain text only.
  * checkXSS already strips scripts/handlers but keeps tags like <a href> / <img src> (phishing, tracking).
@@ -235,6 +253,7 @@ module.exports = {
     hasPathTraversal,
     isValidData,
     isSafeImageSrc,
+    isValidRoomGifUrl,
     sanitizeAvatarURL,
     sanitizePeerName,
     isPrivateOrLoopbackHost,

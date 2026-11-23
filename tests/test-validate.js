@@ -396,4 +396,25 @@ describe('test-Validator', () => {
             checkValidator.sanitizePeerName({}).should.equal('');
         });
     });
+
+    describe('8. Room reactions GIF URL validation', () => {
+        it('should accept https GIF URLs', () => {
+            checkValidator.isValidRoomGifUrl('https://static.klipy.com/ii/abc/md.webp').should.be.true();
+        });
+
+        it('should reject non-https, malformed, oversized and non-string URLs', () => {
+            [
+                'http://static.klipy.com/ii/abc/md.webp',
+                'javascript:alert(1)',
+                'data:image/gif;base64,AAAA',
+                'https://example.com/a.gif" onerror="alert(1)',
+                'https://example.com/a b.gif',
+                `https://example.com/${'a'.repeat(2048)}.gif`,
+                'not a url',
+                '',
+                null,
+                { url: 'https://example.com/a.gif' },
+            ].forEach((url) => checkValidator.isValidRoomGifUrl(url).should.be.false());
+        });
+    });
 });

@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.55
+ * @version 2.3.56
  *
  */
 
@@ -903,6 +903,7 @@ let isChatEmojiVisible = false;
 let isChatGifVisible = false;
 let gifSearchConfig = null; // KLIPY client config from serverInfo
 let chatGifSearch = null; // GifSearch instance
+let roomGifSearch = null; // GifSearch instance for the Room Reactions GIF tab
 let chatTranslationConfig = null; // chat translation config from serverInfo
 let chatTranslateLang = ''; // language picked by me for my outgoing messages ('' = off)
 let isChatTranslating = false;
@@ -2068,6 +2069,7 @@ function handleServerInfo(config) {
     // GIF search (KLIPY) is only delivered to joined peers.
     gifSearchConfig = config.gifSearch?.enabled && config.gifSearch?.apiKey ? config.gifSearch : null;
     initChatGif();
+    initRoomGif();
 
     // Chat translation is only delivered as a capability flag, limits and the language list.
     chatTranslationConfig = config.chatTranslation?.enabled ? config.chatTranslation : null;
@@ -9824,7 +9826,7 @@ function setRoomEmojiButton() {
 
     const titleText = document.createElement('span');
     titleText.className = 'room-emoji-title-text';
-    titleText.textContent = 'Room Emoji';
+    titleText.textContent = 'Room Reactions';
 
     title.appendChild(titleMark);
     title.appendChild(titleText);
@@ -9832,7 +9834,7 @@ function setRoomEmojiButton() {
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'room-emoji-close-btn';
-    closeBtn.setAttribute('aria-label', 'Close room emoji');
+    closeBtn.setAttribute('aria-label', 'Close room reactions');
     closeBtn.innerHTML = icons.close;
 
     header.appendChild(title);
@@ -9841,26 +9843,25 @@ function setRoomEmojiButton() {
     const tabContainer = document.createElement('div');
     tabContainer.className = 'room-emoji-tab-container';
     tabContainer.setAttribute('role', 'tablist');
-    tabContainer.setAttribute('aria-label', 'Room emoji categories');
+    tabContainer.setAttribute('aria-label', 'Room reactions categories');
 
-    const allTab = document.createElement('button');
-    allTab.type = 'button';
-    allTab.innerHTML = '<i class="fas fa-face-smile" aria-hidden="true"></i><span>All</span>';
-    allTab.className = 'room-emoji-tab active';
-    allTab.setAttribute('role', 'tab');
-    allTab.setAttribute('aria-selected', 'true');
-    allTab.setAttribute('aria-controls', 'roomEmojiMart');
+    function createRoomEmojiTab(id, iconClass, label, panelId) {
+        const tab = document.createElement('button');
+        tab.type = 'button';
+        tab.id = id;
+        tab.innerHTML = `<i class="${iconClass}" aria-hidden="true"></i><span>${label}</span>`;
+        tab.className = 'room-emoji-tab';
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-selected', 'false');
+        tab.setAttribute('aria-controls', panelId);
+        tabContainer.appendChild(tab);
+        return tab;
+    }
 
-    const soundTab = document.createElement('button');
-    soundTab.type = 'button';
-    soundTab.innerHTML = '<i class="fas fa-volume-high" aria-hidden="true"></i><span>Sounds</span>';
-    soundTab.className = 'room-emoji-tab';
-    soundTab.setAttribute('role', 'tab');
-    soundTab.setAttribute('aria-selected', 'false');
-    soundTab.setAttribute('aria-controls', 'roomEmojiSounds');
-
-    tabContainer.appendChild(allTab);
-    tabContainer.appendChild(soundTab);
+    const allTab = createRoomEmojiTab('roomEmojiAllTab', 'fas fa-face-smile', 'All', 'roomEmojiMart');
+    const soundTab = createRoomEmojiTab('roomEmojiSoundsTab', 'fas fa-volume-high', 'Sounds', 'roomEmojiSounds');
+    const gifTab = createRoomEmojiTab('roomEmojiGifTab', 'fas fa-film', 'GIF', 'roomEmojiGif');
+    elemDisplay(gifTab, false); // shown by initRoomGif() once KLIPY GIF search is available
 
     // EmojiMart picker (default)
     const emojiMartDiv = document.createElement('div');
@@ -9880,14 +9881,6 @@ function setRoomEmojiButton() {
     emojiGrid.className = 'room-emoji-grid';
     emojiGrid.setAttribute('role', 'tabpanel');
 
-    // Set grid layout only when visible
-    function showEmojiGrid() {
-        emojiGrid.classList.add('visible');
-    }
-    function hideEmojiGrid() {
-        emojiGrid.classList.remove('visible');
-    }
-
     soundEmojis.forEach(({ emoji, shortcodes }) => {
         const btn = document.createElement('button');
         btn.textContent = emoji;
@@ -9896,24 +9889,69 @@ function setRoomEmojiButton() {
         emojiGrid.appendChild(btn);
     });
 
+    // GIF tab: same KLIPY picker used in chat (GifSearch), wired up by initRoomGif()
+    const gifPanel = document.createElement('div');
+    gifPanel.id = 'roomEmojiGif';
+    gifPanel.className = 'room-emoji-gif';
+    gifPanel.setAttribute('role', 'tabpanel');
+
+    const gifSearchInput = document.createElement('input');
+    gifSearchInput.id = 'roomGifSearchInput';
+    gifSearchInput.className = 'chat-gif-search';
+    gifSearchInput.type = 'search';
+    gifSearchInput.autocomplete = 'off';
+    gifSearchInput.setAttribute('aria-label', 'Search GIFs');
+
+    const gifResults = document.createElement('div');
+    gifResults.id = 'roomGifResults';
+    gifResults.className = 'chat-gif-results';
+
+    const gifStatus = document.createElement('div');
+    gifStatus.id = 'roomGifStatus';
+    gifStatus.className = 'chat-gif-status hidden';
+    gifStatus.setAttribute('aria-live', 'polite');
+
+    const gifAttribution = document.createElement('a');
+    gifAttribution.className = 'chat-gif-attribution';
+    gifAttribution.href = 'https://klipy.com';
+    gifAttribution.target = '_blank';
+    gifAttribution.rel = 'noopener noreferrer';
+    gifAttribution.setAttribute('translate', 'no');
+    gifAttribution.textContent = 'Powered by KLIPY';
+
+    gifPanel.appendChild(gifSearchInput);
+    gifPanel.appendChild(gifResults);
+    gifPanel.appendChild(gifStatus);
+    gifPanel.appendChild(gifAttribution);
+
+    gifSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.stopPropagation();
+            toggleEmojiPicker();
+            roomEmojiPickerBtn.focus();
+        }
+    });
+
+    const roomEmojiTabs = [
+        { tab: allTab, panel: emojiMartDiv },
+        { tab: soundTab, panel: emojiGrid },
+        { tab: gifTab, panel: gifPanel },
+    ];
+
     function setActiveRoomEmojiTab(activeTab) {
-        const isAllActive = activeTab === allTab;
-        allTab.classList.toggle('active', isAllActive);
-        soundTab.classList.toggle('active', !isAllActive);
-        allTab.setAttribute('aria-selected', String(isAllActive));
-        soundTab.setAttribute('aria-selected', String(!isAllActive));
+        roomEmojiTabs.forEach(({ tab, panel }) => {
+            const isActive = tab === activeTab;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', String(isActive));
+            panel.classList.toggle('visible', isActive);
+        });
+        if (activeTab === gifTab) openRoomGif();
     }
 
-    allTab.onclick = () => {
-        setActiveRoomEmojiTab(allTab);
-        emojiMartDiv.style.display = 'block';
-        hideEmojiGrid();
-    };
-    soundTab.onclick = () => {
-        setActiveRoomEmojiTab(soundTab);
-        emojiMartDiv.style.display = 'none';
-        showEmojiGrid();
-    };
+    roomEmojiTabs.forEach(({ tab }) => {
+        tab.onclick = () => setActiveRoomEmojiTab(tab);
+    });
+    setActiveRoomEmojiTab(allTab);
 
     // Picker container
     emojiPickerContainer.innerHTML = '';
@@ -9921,7 +9959,10 @@ function setRoomEmojiButton() {
     emojiPickerContainer.appendChild(tabContainer);
     emojiPickerContainer.appendChild(emojiMartDiv);
     emojiPickerContainer.appendChild(emojiGrid);
+    emojiPickerContainer.appendChild(gifPanel);
     elemDisplay(emojiPickerContainer, false);
+
+    initRoomGif();
 
     if (!isMobileDevice) {
         dragElement(emojiPickerContainer, header);
@@ -10050,6 +10091,58 @@ function initChatGif() {
         console.warn('GIF search init failed', err?.message || err);
         elemDisplay(msgerGifBtn, false);
     }
+}
+
+/**
+ * Init the Room Reactions GIF tab. Idempotent: called when the picker is built and again once serverInfo arrives.
+ */
+function initRoomGif() {
+    const gifTab = getId('roomEmojiGifTab');
+    if (!gifTab || roomGifSearch) return;
+    if (!gifSearchConfig || typeof GifSearch === 'undefined') {
+        elemDisplay(gifTab, false);
+        return;
+    }
+    try {
+        roomGifSearch = new GifSearch({
+            apiKey: gifSearchConfig.apiKey,
+            contentFilter: gifSearchConfig.contentFilter,
+            container: getId('roomEmojiGif'),
+            input: getId('roomGifSearchInput'),
+            results: getId('roomGifResults'),
+            status: getId('roomGifStatus'),
+            onSelect: (url) => sendRoomGif(url),
+        });
+        elemDisplay(gifTab, true, 'inline-flex');
+    } catch (err) {
+        console.warn('Room GIF search init failed', err?.message || err);
+        elemDisplay(gifTab, false);
+    }
+}
+
+function openRoomGif() {
+    if (!roomGifSearch) return;
+    roomGifSearch.open();
+    if (!isMobileDevice) getId('roomGifSearchInput')?.focus();
+}
+
+/**
+ * Send a GIF reaction to the room, shown over my video tile
+ * @param {string} url KLIPY media URL
+ */
+function sendRoomGif(url) {
+    if (!isValidRoomGifUrl(url)) return;
+    const message = {
+        type: 'roomGif',
+        room_id: roomId,
+        peer_id: myPeerId,
+        peer_name: myPeerName,
+        gif: url,
+    };
+    if (thereArePeerConnections()) {
+        sendToServer('message', message);
+    }
+    handleRoomGif(message);
 }
 
 /**
@@ -12147,7 +12240,7 @@ function handleShortcuts() {
                     break;
                 case 'e':
                     if (notPresenter && !buttons.main.showRoomEmojiPickerBtn) {
-                        toastMessage('warning', 'The presenter has disabled your ability to open the room emoji');
+                        toastMessage('warning', 'The presenter has disabled your ability to open the room reactions');
                         break;
                     }
                     roomEmojiPickerBtn.click();
@@ -18508,6 +18601,9 @@ function handleMessage(message) {
         case 'roomEmoji':
             handleEmoji(message);
             break;
+        case 'roomGif':
+            handleRoomGif(message);
+            break;
         //....
         default:
             break;
@@ -18624,6 +18720,82 @@ function handleEmoji(message, duration = 5000) {
 
         handleEmojiSound(message);
     }
+}
+
+/**
+ * Check a Room Reactions GIF URL: bounded https only
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isValidRoomGifUrl(url) {
+    if (typeof url !== 'string' || !url || url.length > 2048 || /[\s"'<>`]/.test(url)) return false;
+    try {
+        return new URL(url).protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Get the visible tile of a peer to overlay a GIF reaction on: camera first, then screen share
+ * @param {string} peerId
+ * @returns {HTMLElement|null}
+ */
+function getRoomGifTile(peerId) {
+    if (!peerId) return null;
+    const ids = peerId === myPeerId ? ['myVideoWrap', 'myScreenWrap'] : [`${peerId}_videoWrap`, `${peerId}_screenWrap`];
+    for (const id of ids) {
+        const tile = getId(id);
+        if (tile && tile.style.display !== 'none' && !tile.classList.contains('hidden')) return tile;
+    }
+    return null;
+}
+
+/**
+ * Handle room GIF reaction: overlay it on the sender tile, or float it when the tile is not visible
+ * @param {object} message
+ * @param {integer} duration time in ms
+ */
+function handleRoomGif(message, duration = 5000) {
+    const url = message?.gif;
+    if (!isValidRoomGifUrl(url)) return;
+
+    const overlay = document.createElement('div');
+    const img = document.createElement('img');
+
+    img.className = 'room-gif-reaction__img';
+    img.alt = 'GIF';
+    img.decoding = 'async';
+    img.draggable = false;
+    img.referrerPolicy = 'no-referrer';
+    img.addEventListener('error', () => overlay.remove());
+    img.src = url;
+
+    overlay.appendChild(img);
+
+    const tile = getRoomGifTile(message.peer_id);
+    if (tile) {
+        // One GIF per tile: a new reaction replaces the previous one
+        tile.querySelectorAll('.room-gif-reaction').forEach((el) => el.remove());
+        overlay.className = 'room-gif-reaction room-gif-reaction--tile';
+        tile.appendChild(overlay);
+    } else {
+        if (!userEmoji) return;
+        const placement = getRoomEmojiPlacement();
+        const name = document.createElement('span');
+        name.className = 'room-gif-reaction__name';
+        name.textContent = message.peer_name || 'Guest';
+        overlay.appendChild(name);
+        overlay.className = 'room-gif-reaction room-gif-reaction--floating';
+        overlay.style.left = `${placement.left}px`;
+        overlay.style.top = `${placement.top}px`;
+        overlay.style.setProperty('--emoji-drift', placement.drift);
+        overlay.style.setProperty('--emoji-rise', placement.rise);
+        overlay.style.setProperty('--emoji-rotation', placement.rotation);
+        userEmoji.appendChild(overlay);
+    }
+
+    setTimeout(() => overlay.remove(), duration);
 }
 
 /**
@@ -22387,7 +22559,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.55',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.56',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

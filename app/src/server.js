@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.55
+ * @version 2.3.56
  *
  */
 
@@ -2914,6 +2914,12 @@ io.sockets.on('connect', async (socket) => {
 
         // Bind the sender identity to the sending connection: never trust client supplied identity
         data.peer_name = peers[data.room_id][socket.id].peer_name;
+
+        if (data.type === 'roomGif') {
+            // GIF reaction overlaid on the sender tile: only KLIPY-enabled servers, https media, real sender
+            if (!gifSearchClientConfig || !Validate.isValidRoomGifUrl(data.gif)) return;
+            data.peer_id = socket.id;
+        }
 
         await sendToRoom(data.room_id, socket.id, 'message', data);
     });
