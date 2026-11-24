@@ -29,7 +29,7 @@ class LocalStorage {
             screen_quality: 0, // default native
             pitch_bar: true,
             sounds: true,
-            keep_buttons_visible: false,
+            keep_buttons_visible: true,
             keyboard_shortcuts: false,
             video_obj_fit: 2, // cover
             theme: 0, // dark
