@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.60
+ * @version 2.3.61
  *
  */
 
@@ -220,6 +220,7 @@ const pollBtn = getId('pollBtn');
 const breakoutBtn = getId('breakoutBtn');
 const snapshotRoomBtn = getId('snapshotRoomBtn');
 const fileShareBtn = getId('fileShareBtn');
+const shareMediaBtn = getId('shareMediaBtn');
 const documentPiPBtn = getId('documentPiPBtn');
 const openConnectivitySettingsBtn = getId('openConnectivitySettingsBtn');
 const openNetworkSettingsBtn = getId('openNetworkSettingsBtn');
@@ -2255,6 +2256,7 @@ function handleButtonsRule() {
         { element: breakoutBtn, display: isBreakoutBtnVisible() },
         { element: snapshotRoomBtn, display: buttons.main.showSnapshotRoomBtn && !isMobileDevice },
         { element: fileShareBtn, display: buttons.main.showFileShareBtn },
+        { element: shareMediaBtn, display: buttons.main.showShareMediaBtn },
         { element: documentPiPBtn, display: showDocumentPipBtn && buttons.main.showDocumentPipBtn },
         { element: mySettingsBtn, display: buttons.main.showMySettingsBtn },
         { element: aboutBtn, display: buttons.main.showAboutBtn },
@@ -9374,11 +9376,13 @@ function setChatRoomBtn() {
     });
 
     // open Video Url Player
-    msgerVideoUrlBtn.addEventListener('click', (e) => {
+    const openVideoUrlShare = () => {
         const shareTarget = getConversationShareTarget('video or audio');
         if (!shareTarget) return;
         sendVideoUrl(shareTarget.videoPeerId, shareTarget.peerName, shareTarget.broadcast);
-    });
+    };
+    msgerVideoUrlBtn.addEventListener('click', openVideoUrlShare);
+    shareMediaBtn.addEventListener('click', openVideoUrlShare);
 
     // Execute a function when the user releases a key on the keyboard
     msgerInput.addEventListener('keyup', (e) => {
@@ -22679,7 +22683,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.60',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.61',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

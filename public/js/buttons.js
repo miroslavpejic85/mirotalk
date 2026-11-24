@@ -27,6 +27,7 @@ let buttons = {
         showBreakoutBtn: true, // Presenters only, shown when the server enables breakout rooms (BREAKOUT_ROOMS_ENABLED)
         showSnapshotRoomBtn: true,
         showFileShareBtn: true,
+        showShareMediaBtn: true,
         showDocumentPipBtn: true,
         showMySettingsBtn: true,
         showAboutBtn: true, // Please keep me always true, Thank you!
