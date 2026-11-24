@@ -372,13 +372,25 @@
                 aria-label="Toggle screen sharing"
                 aria-pressed="false"
             ></button>
-            <button
-                id="myHandBtn"
-                class="fas fa-hand-paper"
-                type="button"
-                aria-label="Raise hand"
-                aria-pressed="false"
-            ></button>
+            <div id="myHandSplit" class="split-btn no-toggle">
+                <button
+                    id="myHandBtn"
+                    class="fas fa-hand-paper"
+                    type="button"
+                    aria-label="Raise hand"
+                    aria-pressed="false"
+                ></button>
+                <button
+                    id="myHandReactionsBtn"
+                    class="device-dropdown-toggle"
+                    type="button"
+                    aria-label="Room Reactions"
+                    aria-pressed="false"
+                    style="display: none"
+                >
+                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                </button>
+            </div>
             <button
                 id="chatRoomBtn"
                 class="fas fa-comment"

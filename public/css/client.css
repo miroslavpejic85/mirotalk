@@ -1367,6 +1367,11 @@ body {
     border-bottom-left-radius: 10px;
 }
 
+/* Split button whose chevron is hidden (e.g. Raise Hand on mobile or with Room Reactions disabled). */
+#bottomButtons .split-btn.no-toggle > button:first-of-type {
+    border-radius: 10px;
+}
+
 #bottomButtons .split-btn .device-dropdown-toggle {
     border-radius: 0;
     border-top-right-radius: 10px;
@@ -1396,13 +1401,15 @@ body {
 
 /* Active state for chat / participants toolbar buttons (theme-aware) */
 #bottomButtons #chatRoomBtn.is-active,
-#bottomButtons #participantsBtn.is-active {
+#bottomButtons #participantsBtn.is-active,
+#bottomButtons #myHandReactionsBtn.is-active {
     background: color-mix(in srgb, var(--dd-color, #4678f9) 18%, var(--btns-bg-color)) !important;
     box-shadow: inset 0 0 0 1px var(--dd-color, #4678f9);
     color: var(--dd-color, #4678f9) !important;
 }
 #bottomButtons #chatRoomBtn.is-active:hover,
-#bottomButtons #participantsBtn.is-active:hover {
+#bottomButtons #participantsBtn.is-active:hover,
+#bottomButtons #myHandReactionsBtn.is-active:hover {
     background: color-mix(in srgb, var(--dd-color, #4678f9) 28%, var(--btns-bg-color)) !important;
 }
 

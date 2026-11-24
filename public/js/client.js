@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.57
+ * @version 2.3.58
  *
  */
 
@@ -241,6 +241,8 @@ const swapCameraBtn = getId('swapCameraBtn');
 const hideMeBtn = getId('hideMeBtn');
 const screenShareBtn = getId('screenShareBtn');
 const myHandBtn = getId('myHandBtn');
+const myHandSplit = getId('myHandSplit');
+const myHandReactionsBtn = getId('myHandReactionsBtn');
 const mySettingsBtn = getId('mySettingsBtn');
 const settingsSplit = getId('settingsSplit');
 const settingsExtraDropdown = getId('settingsExtraDropdown');
@@ -1214,6 +1216,7 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(videoBtn, useVideo ? 'Stop the video (V)' : 'My video is disabled', bottomButtonsPlacement);
     setTippy(screenShareBtn, 'Start screen sharing (S)', bottomButtonsPlacement);
     setTippy(myHandBtn, 'Raise your hand (H)', bottomButtonsPlacement);
+    setTippy(myHandReactionsBtn, 'Room Reactions', bottomButtonsPlacement);
     setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
     setTippy(participantsBtn, 'Show participants', bottomButtonsPlacement);
     setTippy(participantViewButton, 'Change participant view', bottomButtonsPlacement);
@@ -2232,6 +2235,8 @@ function handleButtonsRule() {
     // Camera/microphone stay visible when blocked/unavailable (shown as unavailable); only the config hides them
     const showAudio = buttons.main.showAudioBtn;
     const showVideo = buttons.main.showVideoBtn;
+    const showHandReactions = isDesktopDevice && buttons.main.showMyHandBtn && buttons.main.showRoomEmojiPickerBtn;
+    myHandSplit.classList.toggle('no-toggle', !showHandReactions);
 
     // Main buttons
     displayElements([
@@ -2254,7 +2259,10 @@ function handleButtonsRule() {
         }, // auto-detected
         { element: getId('voiceCommandsBtn'), display: buttons.main.showVoiceCommandsBtn && !!speechRecognition }, // auto-detected
         { element: roomEmojiPickerBtn, display: buttons.main.showRoomEmojiPickerBtn },
+        { element: myHandSplit, display: buttons.main.showMyHandBtn, mode: 'inline-flex' },
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
+        // Desktop only: on mobile the chevron is too small to tap and the picker covers the screen
+        { element: myHandReactionsBtn, display: showHandReactions, mode: 'inline-flex' },
         { element: whiteboardBtn, display: buttons.main.showWhiteboardBtn },
         { element: editorBtn, display: buttons.main.showEditorBtn && RoomEditor.isSupported() },
         { element: pollBtn, display: buttons.main.showPollBtn },
@@ -9976,6 +9984,9 @@ function setRoomEmojiButton() {
     roomEmojiPickerBtn.addEventListener('click', (e) => {
         toggleEmojiPicker();
     });
+    myHandReactionsBtn.addEventListener('click', (e) => {
+        toggleEmojiPicker();
+    });
     closeBtn.addEventListener('click', (e) => {
         toggleEmojiPicker();
     });
@@ -10000,6 +10011,8 @@ function setRoomEmojiButton() {
         emojiPickerContainer.style.display = isOpen ? 'block' : 'none';
         roomEmojiPickerBtn.classList.toggle('is-active', isOpen);
         roomEmojiPickerBtn.setAttribute('aria-pressed', String(isOpen));
+        myHandReactionsBtn.classList.toggle('is-active', isOpen);
+        myHandReactionsBtn.setAttribute('aria-pressed', String(isOpen));
         setColor(roomEmojiPickerIcon, isOpen ? '#ffd600' : 'var(--btn-bar-bg-color)');
     }
 }
@@ -22564,7 +22577,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.57',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.58',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
