@@ -893,6 +893,7 @@ let isChatOpenedByParticipantsBtn = false;
 let isOpeningParticipants = false;
 let isCaptionBoxVisible = false;
 let isChatEmojiVisible = false;
+let isChatEmojiLocked = false; // a mouse click keeps the hover emoji picker open
 let isChatGifVisible = false;
 let gifSearchConfig = null; // KLIPY client config from serverInfo
 let chatGifSearch = null; // GifSearch instance
@@ -10026,11 +10027,21 @@ function setChatEmojiBtn() {
         e.preventDefault();
         if (isMobileDevice || e.detail === 0) {
             hideShowEmojiPicker();
+            return;
+        }
+        // Mouse: hover already opens the picker, the click locks it open (click again to close)
+        if (isChatEmojiLocked) {
+            hideChatEmojiPicker();
+        } else {
+            showChatEmojiPicker();
+            setChatEmojiLocked(true);
         }
     });
     if (!isMobileDevice) {
-        msgerEmojiBtn.addEventListener('mouseenter', showChatEmojiPicker);
-        msgerEmojiBtn.closest('.msger-composer')?.addEventListener('mouseleave', hideChatEmojiPicker);
+        msgerEmojiBtn.addEventListener('mouseenter', () => !isChatEmojiVisible && showChatEmojiPicker());
+        msgerEmojiBtn.closest('.msger-composer')?.addEventListener('mouseleave', () => {
+            if (!isChatEmojiLocked) hideChatEmojiPicker();
+        });
     }
     // Add emoji picker
     const pickerOptions = {
@@ -10053,7 +10064,7 @@ function setChatEmojiBtn() {
 function addEmojiToMsg(data) {
     //console.log(data);
     msgerInput.value += data.native;
-    hideShowEmojiPicker();
+    if (!isChatEmojiLocked) hideChatEmojiPicker();
 }
 
 /**
@@ -15395,6 +15406,7 @@ function hideChatRoomAndEmojiPicker() {
     isParticipantsVisible = false;
     isChatOpenedByParticipantsBtn = false;
     isChatEmojiVisible = false;
+    isChatEmojiLocked = false;
     isOpeningParticipants = false;
     msgerDraggable.classList.remove('msger-pinned-sidebar-open');
     msgerCPBtn.classList.remove('active');
@@ -17438,7 +17450,7 @@ function showChatEmojiPicker() {
     if (isChatGifVisible) setChatGifOpen(false);
     if (isChatTranslateVisible) setChatTranslateOpen(false);
     elemDisplay(msgerEmojiPicker, true, 'block');
-    setColor(msgerEmojiBtn, '#FFFF00');
+    setColor(msgerEmojiBtn, isChatEmojiLocked ? 'lime' : '#FFFF00');
     isChatEmojiVisible = true;
 }
 
@@ -17446,6 +17458,16 @@ function hideChatEmojiPicker() {
     elemDisplay(msgerEmojiPicker, false);
     setColor(msgerEmojiBtn, '#FFFFFF');
     isChatEmojiVisible = false;
+    isChatEmojiLocked = false;
+}
+
+/**
+ * Lock the open emoji picker (lime, like Markdown on) so it stays open when the mouse leaves
+ * @param {boolean} isLocked
+ */
+function setChatEmojiLocked(isLocked) {
+    isChatEmojiLocked = isLocked;
+    if (isChatEmojiVisible) setColor(msgerEmojiBtn, isLocked ? 'lime' : '#FFFF00');
 }
 
 /**
