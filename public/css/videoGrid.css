@@ -79,6 +79,22 @@
     animation: show 0.24s var(--ds-ease-out) backwards;
 }
 
+/* Shared video/audio URL player tile */
+#__shareVideo {
+    background: #000;
+}
+
+#__videoShare {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 10px;
+    /* inline object-fit is reset by pin/unpin: keep the whole media visible */
+    object-fit: contain !important;
+    cursor: default;
+}
+
 .video-loading-spinner {
     position: absolute;
     inset: 0;

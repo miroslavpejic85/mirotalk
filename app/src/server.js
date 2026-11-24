@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.58
+ * @version 2.3.59
  *
  */
 
@@ -3454,6 +3454,19 @@ io.sockets.on('connect', async (socket) => {
             return;
         }
 
+        // Play/pause/seek sync: only a boolean state and a sane position in seconds
+        const { paused, time } = config;
+        if (
+            video_action == 'sync' &&
+            (typeof paused !== 'boolean' ||
+                typeof time !== 'number' ||
+                !Number.isFinite(time) ||
+                time < 0 ||
+                time > 86400)
+        ) {
+            return;
+        }
+
         const data = {
             peer_id: socket.id,
             peer_name: peer_name,
@@ -3461,6 +3474,11 @@ io.sockets.on('connect', async (socket) => {
             video_src: video_src,
             broadcast: broadcast,
         };
+
+        if (video_action == 'sync') {
+            data.paused = paused;
+            data.time = time;
+        }
 
         if (peer_id) {
             if (!isPeerInRoom(room_id, peer_id)) return;

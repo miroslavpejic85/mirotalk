@@ -271,6 +271,33 @@ describe('server-bound sender identity', function () {
         guest.close();
     });
 
+    it('relays videoPlayer play/pause/seek sync and drops invalid sync state', async () => {
+        const sync = await received(observer, 'videoPlayer', () =>
+            presenter.emit('videoPlayer', {
+                room_id: ROOM,
+                video_action: 'sync',
+                broadcast: true,
+                paused: true,
+                time: 12.5,
+            })
+        );
+        sync.should.containEql({ peer_id: presenter.id, video_action: 'sync', paused: true, time: 12.5 });
+
+        for (const bad of [
+            { paused: 'yes', time: 1 },
+            { paused: false, time: -1 },
+            { paused: false, time: '5' },
+        ]) {
+            const dropped = await received(
+                observer,
+                'videoPlayer',
+                () => presenter.emit('videoPlayer', { room_id: ROOM, video_action: 'sync', broadcast: true, ...bad }),
+                300
+            );
+            (dropped === null).should.be.true();
+        }
+    });
+
     it('drops a kicked peer that ignores the kickOut notification', async () => {
         const kicked = await received(impostor, 'kickOut', () =>
             presenter.emit('kickOut', {
