@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.56
+ * @version 2.3.57
  *
  */
 
@@ -873,6 +873,7 @@ let isVideoPrivacyActive = false; // Video circle for privacy
 let isVideoPinned = false;
 let isApplyingParticipantViewMode = false;
 let pinnedVideoPinButtonId = null;
+let restorePinnedVideoToGrid = null;
 let participantViewRestoreTimer = null;
 let isVideoFullScreenSupported = true;
 let isVideoOnFullScreen = false;
@@ -8429,9 +8430,22 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
     const btnPn = getId(pnId);
     const cam = getId(camId);
     if (btnPn && videoPlayer && cam) {
+        const restoreToGrid = () => {
+            if (!isScreenStreaming) videoPlayer.style.objectFit = 'var(--video-object-fit)';
+            if (isScreen || videoPlayer.style.name == peerId + '_typeScreen') videoPlayer.style.objectFit = 'contain';
+            if (cam.parentNode === videoPinMediaContainer) videoPinMediaContainer.removeChild(cam);
+            cam.className = isScreen ? 'Screen' : 'Camera';
+            videoMediaContainer.appendChild(cam);
+            setColor(btnPn, 'white');
+        };
         btnPn.addEventListener('click', () => {
             if (isMobileDevice) return;
             playSound('click');
+            // Switch pin: move the currently pinned tile back to the grid and pin this one instead
+            if (isVideoPinned && pinnedVideoPlayerId && pinnedVideoPlayerId !== videoPlayer.id) {
+                if (typeof restorePinnedVideoToGrid === 'function') restorePinnedVideoToGrid();
+                isVideoPinned = false;
+            }
             isVideoPinned = !isVideoPinned;
             if (isVideoPinned) {
                 if (!videoPlayer.classList.contains('videoCircle')) {
@@ -8445,21 +8459,11 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
                 elemDisplay(videoPinMediaContainer, true, 'block');
                 pinnedVideoPlayerId = elemId;
                 pinnedVideoPinButtonId = pnId;
+                restorePinnedVideoToGrid = restoreToGrid;
                 setColor(btnPn, 'lime');
             } else {
-                if (pinnedVideoPlayerId != videoPlayer.id) {
-                    isVideoPinned = true;
-                    if (isScreenEnabled) return;
-                    return userLog('toast', 'Another video seems pinned, unpin it before to pin this one', 5000);
-                }
-                if (!isScreenStreaming) videoPlayer.style.objectFit = 'var(--video-object-fit)';
-                if (isScreen || videoPlayer.style.name == peerId + '_typeScreen')
-                    videoPlayer.style.objectFit = 'contain';
-                videoPinMediaContainer.removeChild(cam);
-                cam.className = isScreen ? 'Screen' : 'Camera';
-                videoMediaContainer.appendChild(cam);
+                restoreToGrid();
                 removeVideoPinMediaContainer(peerId, true);
-                setColor(btnPn, 'white');
                 if (!isApplyingParticipantViewMode) setParticipantViewMode('grid', true, false);
             }
             adaptAspectRatio();
@@ -8805,6 +8809,7 @@ function removeVideoPinMediaContainer(peer_id, force_remove = false) {
         isVideoPinned = false;
         pinnedVideoPlayerId = null;
         pinnedVideoPinButtonId = null;
+        restorePinnedVideoToGrid = null;
         videoMediaContainerUnpin();
         if (isChatPinned) {
             chatPin();
@@ -22559,7 +22564,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.56',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.57',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
