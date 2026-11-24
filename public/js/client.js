@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.61
+ * @version 2.3.62
  *
  */
 
@@ -10233,7 +10233,18 @@ function setChatTranslateOpen(isOpen) {
     isChatTranslateVisible = isOpen;
     msgerTranslatePicker.classList.toggle('show', isOpen);
     msgerTranslateBtn.setAttribute('aria-expanded', String(isOpen));
+    syncChatTranslateBtn();
     if (isOpen) msgerTranslatePicker.querySelector('.chat-translate-item.active')?.scrollIntoView({ block: 'nearest' });
+}
+
+/**
+ * Color the translate button like the other chat buttons: yellow while the picker is open (Emoji/GIF),
+ * lime while a language is set (Markdown on)
+ */
+function syncChatTranslateBtn() {
+    if (!msgerTranslateBtn) return;
+    msgerTranslateBtn.classList.toggle('active', !!chatTranslateLang);
+    setColor(msgerTranslateBtn, isChatTranslateVisible ? '#FFFF00' : chatTranslateLang ? 'lime' : '#FFFFFF');
 }
 
 /**
@@ -10242,7 +10253,7 @@ function setChatTranslateOpen(isOpen) {
  */
 function selectChatTranslateLang(code) {
     chatTranslateLang = code || '';
-    msgerTranslateBtn?.classList.toggle('active', !!chatTranslateLang);
+    syncChatTranslateBtn();
     if (msgerTranslateBadge) msgerTranslateBadge.textContent = chatTranslateLang.split('-')[0].toUpperCase();
     msgerTranslateList?.querySelectorAll('.chat-translate-item').forEach((item) => {
         item.classList.toggle('active', (item.dataset.lang || '') === chatTranslateLang);
@@ -22683,7 +22694,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.61',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.62',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
