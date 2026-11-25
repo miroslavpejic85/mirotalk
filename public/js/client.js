@@ -10093,7 +10093,7 @@ function setChatEmojiBtn() {
             hideShowEmojiPicker();
             return;
         }
-        // Mouse: hover already opens the picker, the click locks it open (click again to close)
+        // Mouse: hover already opens the picker, the click pins it against mouseleave (click again to close)
         if (isChatEmojiLocked) {
             hideChatEmojiPicker();
         } else {
@@ -10120,15 +10120,27 @@ function setChatEmojiBtn() {
             hideChatEmojiPicker();
         }
     });
+
+    const closeOnEscape = (e) => {
+        if (e.key !== 'Escape' || !isChatEmojiVisible) return;
+        e.stopPropagation();
+        hideChatEmojiPicker();
+        msgerEmojiBtn.focus();
+    };
+    msgerEmojiPicker.addEventListener('keydown', closeOnEscape);
+    msgerInput.addEventListener('keydown', closeOnEscape);
 }
 
 /**
- * Add emoji to chat message
+ * Add emoji to chat message: one pick closes the picker (Zoom/Teams style), Shift+click keeps it open to add several
+ * @param {object} data emoji-mart emoji data
+ * @param {Event} event click/keyboard event
  */
-function addEmojiToMsg(data) {
-    //console.log(data);
+function addEmojiToMsg(data, event) {
     msgerInput.value += data.native;
-    if (!isChatEmojiLocked) hideChatEmojiPicker();
+    if (event?.shiftKey) return;
+    hideChatEmojiPicker();
+    if (!isMobileDevice) msgerInput.focus();
 }
 
 /**
