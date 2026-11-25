@@ -7864,10 +7864,6 @@ html body.swal2-toast-shown .swal2-container.swal2-top-end > .swal2-popup {
     /*box-shadow: var(--box-shadow);*/
 }
 
-.speaking {
-    box-shadow: 0 0 1px 1px rgb(255 255 255 / 32%); /* lightblue */
-}
-
 /*--------------------------------------------------------------
 # speech recognition languages
 --------------------------------------------------------------*/

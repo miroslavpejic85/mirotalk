@@ -28,6 +28,7 @@ class LocalStorage {
             screen_fps: 1, // default 30fps
             screen_quality: 0, // default native
             pitch_bar: true,
+            speaking_highlight: true, // border around the active speaker's tile
             sounds: true,
             keep_buttons_visible: true,
             keyboard_shortcuts: false,

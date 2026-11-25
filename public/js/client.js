@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.67
+ * @version 2.3.68
  *
  */
 
@@ -105,6 +105,7 @@ const icons = {
     lock: '<i class="fas fa-lock"></i>',
     unlock: '<i class="fas fa-lock-open"></i>',
     pitchBar: '<i class="fas fa-microphone-lines"></i>',
+    speakingHighlight: '<i class="fas fa-user-check"></i>',
     sounds: '<i class="fas fa-music"></i>',
     share: '<i class="fas fa-share-alt"></i>',
     user: '<i class="fas fa-user"></i>',
@@ -443,6 +444,7 @@ const switchKeepAwake = getId('switchKeepAwake');
 
 const switchPushToTalk = getId('switchPushToTalk');
 const switchAudioPitchBar = getId('switchAudioPitchBar');
+const switchSpeakingHighlight = getId('switchSpeakingHighlight');
 const audioInputSelect = getId('audioSource');
 const audioOutputSelect = getId('audioOutput');
 const audioOutputDiv = getId('audioOutputDiv');
@@ -944,6 +946,8 @@ let isWaitingInLobby = false;
 let roomLobby = null;
 let isKeepButtonsVisible = false;
 let isAudioPitchBar = true;
+let isSpeakingHighlight = true;
+const speakingTileTimers = new Map();
 let isPushToTalkActive = false;
 let isPushToTalkPressed = false;
 let pushToTalkAudioContext = null;
@@ -11666,6 +11670,21 @@ function setMySettingsBtn() {
         playSound('switch');
     });
 
+    switchSpeakingHighlight.addEventListener('change', (e) => {
+        isSpeakingHighlight = e.currentTarget.checked;
+        if (!isSpeakingHighlight) clearSpeakingTiles();
+        lsSettings.speaking_highlight = isSpeakingHighlight;
+        lS.setSettings(lsSettings);
+        userLog(
+            'switch',
+            `${icons.speakingHighlight} Active speaker highlight ` + (isSpeakingHighlight ? 'ON' : 'OFF'),
+            undefined,
+            undefined,
+            isSpeakingHighlight
+        );
+        playSound('switch');
+    });
+
     // make chat room draggable for desktop
     if (!isMobileDevice) dragElement(mySettings, mySettingsHeader);
 
@@ -12435,6 +12454,7 @@ function loadSettingsFromLocalStorage() {
     notifyBySound = lsSettings.sounds;
     isKeepButtonsVisible = lsSettings.keep_buttons_visible;
     isAudioPitchBar = lsSettings.pitch_bar;
+    isSpeakingHighlight = lsSettings.speaking_highlight !== false;
     isShortcutsEnabled = lsSettings.keyboard_shortcuts;
     switchSounds.checked = notifyBySound;
     switchShare.checked = notify;
@@ -12442,6 +12462,7 @@ function loadSettingsFromLocalStorage() {
     syncKeepButtonsVisibleBtn();
     switchPinChatByDefault.checked = pinChatByDefault;
     switchAudioPitchBar.checked = isAudioPitchBar;
+    switchSpeakingHighlight.checked = isSpeakingHighlight;
     switchShortcuts.checked = isShortcutsEnabled;
     keepCustomTheme.checked = themeCustom.keep;
     themeSelect.disabled = themeCustom.keep;
@@ -22785,7 +22806,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.67',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.68',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -23069,6 +23090,8 @@ function handlePeerVolume(data) {
 
     const audioColorTmp = getVolumeColor(volume);
 
+    if (isSpeakingHighlight) handleSpeakingTile(peer_id + '_videoWrap');
+
     if (!isAudioPitchBar) {
         const remotePeerAvatarImg = getId(peer_id + '_avatar');
         if (remotePeerAvatarImg) {
@@ -23082,16 +23105,13 @@ function handlePeerVolume(data) {
     }
 
     const remotePitchBar = getId(peer_id + '_pitch_bar');
-    //let remoteVideoWrap = getId(peer_id + '_videoWrap');
     if (!remotePitchBar) return;
     remotePitchBar.style.backgroundColor = audioColorTmp;
     remotePitchBar.style.height = volume + '%';
-    //remoteVideoWrap.classList.toggle('speaking');
     clearTimeout(peerVolumeTimers[peer_id]);
     peerVolumeTimers[peer_id] = setTimeout(function () {
         remotePitchBar.style.backgroundColor = '#19bb5c';
         remotePitchBar.style.height = '0%';
-        //remoteVideoWrap.classList.toggle('speaking');
     }, 100);
 }
 
@@ -23106,6 +23126,8 @@ function handleMyVolume(data) {
 
     const audioColorTmp = getVolumeColor(volume);
 
+    if (isSpeakingHighlight) handleSpeakingTile('myVideoWrap');
+
     if (!isAudioPitchBar || !myPitchBar) {
         const localPeerAvatarImg = getId('myVideoAvatarImage');
         if (localPeerAvatarImg) {
@@ -23118,13 +23140,35 @@ function handleMyVolume(data) {
     }
     myPitchBar.style.backgroundColor = audioColorTmp;
     myPitchBar.style.height = volume + '%';
-    //myVideoWrap.classList.toggle('speaking');
     clearTimeout(myVolumeTimer);
     myVolumeTimer = setTimeout(function () {
         myPitchBar.style.backgroundColor = '#19bb5c';
         myPitchBar.style.height = '0%';
-        //myVideoWrap.classList.toggle('speaking');
     }, 100);
+}
+
+/**
+ * Show the speaking border on a camera tile (grid, pinned or screen-share overlay).
+ * Volume updates keep arriving while someone talks: hold the border briefly so short pauses don't flicker it.
+ * @param {string} tileId myVideoWrap or <peer_id>_videoWrap
+ * @param {number} holdMs
+ */
+function handleSpeakingTile(tileId, holdMs = 600) {
+    getId(tileId)?.classList.add('speaking');
+    clearTimeout(speakingTileTimers.get(tileId));
+    speakingTileTimers.set(
+        tileId,
+        setTimeout(() => {
+            getId(tileId)?.classList.remove('speaking');
+            speakingTileTimers.delete(tileId);
+        }, holdMs)
+    );
+}
+
+function clearSpeakingTiles() {
+    speakingTileTimers.forEach((timer) => clearTimeout(timer));
+    speakingTileTimers.clear();
+    document.querySelectorAll('.speaking').forEach((tile) => tile.classList.remove('speaking'));
 }
 
 /**
