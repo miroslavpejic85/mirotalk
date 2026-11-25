@@ -2111,25 +2111,31 @@
                                 <i class="fa-solid fa-table-cells-large"></i>
                                 <p>Participant view</p>
                             </div>
-                            <select id="participantViewMode">
-                                <option value="grid">Grid</option>
-                                <option value="speaker-top">Speaker top</option>
-                                <option value="speaker-bottom">Speaker bottom</option>
-                                <option value="speaker-left">Speaker left</option>
-                                <option value="speaker-right">Speaker right</option>
-                                <option value="speaker-1:1">Speaker 1:1</option>
-                            </select>
+                            <div class="select-with-icon">
+                                <i class="pv-icon select-value-icon" aria-hidden="true"></i>
+                                <select id="participantViewMode">
+                                    <option value="grid" data-icon="grid">Grid</option>
+                                    <option value="speaker-top" data-icon="speaker-top">Speaker top</option>
+                                    <option value="speaker-bottom" data-icon="speaker-bottom">Speaker bottom</option>
+                                    <option value="speaker-left" data-icon="speaker-left">Speaker left</option>
+                                    <option value="speaker-right" data-icon="speaker-right">Speaker right</option>
+                                    <option value="speaker-1:1" data-icon="speaker-1-1">Speaker 1:1</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="settings-field">
                             <div class="title">
                                 <i class="fa-solid fa-clone"></i>
                                 <p>Camera while screen sharing</p>
                             </div>
-                            <select id="screenCamLayoutSelect">
-                                <option value="separate">Separate tiles</option>
-                                <option value="pip">Picture in Picture</option>
-                                <option value="split">Split screen</option>
-                            </select>
+                            <div class="select-with-icon">
+                                <i class="pv-icon select-value-icon" aria-hidden="true"></i>
+                                <select id="screenCamLayoutSelect">
+                                    <option value="separate" data-icon="separate">Separate tiles</option>
+                                    <option value="pip" data-icon="pip">Picture in Picture</option>
+                                    <option value="split" data-icon="split">Split screen</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="settings-field">
                             <div class="title">
@@ -2159,13 +2165,16 @@
                                 <i class="fa-solid fa-map-pin"></i>
                                 <p>Pin video position</p>
                             </div>
-                            <select id="pinVideoPositionSelect">
-                                <option value="speaker-left">Left</option>
-                                <option value="speaker-top">Top</option>
-                                <option value="speaker-bottom">Bottom</option>
-                                <option value="speaker-right">Right</option>
-                                <option value="speaker-1:1">Full screen</option>
-                            </select>
+                            <div class="select-with-icon">
+                                <i class="pv-icon select-value-icon" aria-hidden="true"></i>
+                                <select id="pinVideoPositionSelect">
+                                    <option value="speaker-left" data-icon="speaker-left">Left</option>
+                                    <option value="speaker-top" data-icon="speaker-top">Top</option>
+                                    <option value="speaker-bottom" data-icon="speaker-bottom">Bottom</option>
+                                    <option value="speaker-right" data-icon="speaker-right">Right</option>
+                                    <option value="speaker-1:1" data-icon="speaker-1-1">Full screen</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 

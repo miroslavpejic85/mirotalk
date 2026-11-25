@@ -25,7 +25,9 @@ function extractConst(src, name) {
 }
 
 function setup(isMobile) {
-    const select = html.match(/<select id="participantViewMode"[\s\S]*?<\/select>/)[0];
+    const select = html.match(
+        /<div class="select-with-icon">\s*<i class="pv-icon select-value-icon"[^>]*><\/i>\s*<select id="participantViewMode"[\s\S]*?<\/select>\s*<\/div>/
+    )[0];
     const dom = new JSDOM(
         `${select}<select id="pinVideoPositionSelect"><option value="speaker-left"></option>
         <option value="speaker-top"></option><option value="speaker-bottom"></option><option value="speaker-1:1"></option></select>
@@ -56,6 +58,7 @@ function setup(isMobile) {
         var userLog = () => {};
         var autoPinVideoForLayout = () => { isVideoPinned = true; return true; };
         ${extractConst(clientSource, 'MOBILE_PARTICIPANT_VIEW_MODES')}
+        ${extractFunction(clientSource, 'updateSelectValueIcon')}
         ${extractFunction(clientSource, 'removeUnsupportedMobileParticipantViews')}
         ${extractFunction(clientSource, 'appendPinButton')}
         ${extractFunction(clientSource, 'toggleVideoPin')}
@@ -107,6 +110,17 @@ describe('Participant view on mobile (P2P)', () => {
         api.setParticipantViewMode('speaker-left', false, false);
         assert.equal(select.value, 'speaker-left');
         assert.equal(select.options.length, 6);
+    });
+
+    it('shows the layout icon of the selected participant view in the settings select', () => {
+        const { api, select } = setup(false);
+        const icon = select.parentElement.querySelector('.select-value-icon');
+
+        api.setParticipantViewMode('speaker-1:1', false, false);
+        assert.equal(icon.className, 'pv-icon select-value-icon pv-icon-speaker-1-1');
+
+        api.setParticipantViewMode('unknown', false, false);
+        assert.equal(icon.className, 'pv-icon select-value-icon pv-icon-grid', 'falls back with the grid icon');
     });
 
     it('keeps a hidden pin button in the nav bar on mobile so layouts can pin tiles', () => {

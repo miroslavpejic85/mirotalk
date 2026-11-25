@@ -4874,6 +4874,34 @@ button {
     box-shadow: 0 0 0 2px rgba(70, 120, 249, 0.15);
 }
 
+/* Layout selects: the selected option's layout icon sits inside the select, on its leading edge */
+#mySettings .select-with-icon {
+    position: relative;
+    width: min(100%, 340px);
+    margin-top: 12px;
+}
+
+#mySettings .select-with-icon > select {
+    width: 100%;
+    margin-top: 0;
+    padding-inline-start: 40px;
+}
+
+#mySettings .select-with-icon > .select-value-icon {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 12px;
+    display: block;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+    /* `#mySettings i` clears icon backgrounds; the mask needs it painted */
+    background-color: currentColor;
+    opacity: 0.9;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
 #mySettings :is(button, select, input, .toggle):focus-visible {
     outline: 2px solid rgba(95, 152, 255, 0.9);
     outline-offset: 2px;

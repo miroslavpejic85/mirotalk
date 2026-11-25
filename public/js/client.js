@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.65
+ * @version 2.3.66
  *
  */
 
@@ -7888,6 +7888,7 @@ function syncScreenCameraLayout() {
  */
 function updateScreenCameraLayoutUI(mode) {
     if (screenCamLayoutSelect) screenCamLayoutSelect.value = mode;
+    updateSelectValueIcon(screenCamLayoutSelect);
     document.querySelectorAll('#participantViewMenu [data-screen-cam-layout]').forEach((button) => {
         const active = button.dataset.screenCamLayout === mode;
         button.classList.toggle('active', active);
@@ -8588,6 +8589,17 @@ function refreshPinnedVideoLayout() {
 // Phones only get the stacked layouts: side-by-side views don't fit a portrait screen
 const MOBILE_PARTICIPANT_VIEW_MODES = ['grid', 'speaker-top', 'speaker-bottom', 'speaker-1:1'];
 
+/**
+ * Show the selected option's layout icon (option data-icon -> pv-icon-<name>) next to a .select-with-icon select
+ * @param {HTMLSelectElement} select
+ */
+function updateSelectValueIcon(select) {
+    const icon = select?.parentElement?.querySelector(':scope > .select-value-icon');
+    if (!icon) return;
+    const name = select.selectedOptions[0]?.dataset.icon;
+    icon.className = `pv-icon select-value-icon${name ? ` pv-icon-${name}` : ''}`;
+}
+
 function removeUnsupportedMobileParticipantViews() {
     participantViewMode.querySelectorAll('option').forEach((option) => {
         if (!MOBILE_PARTICIPANT_VIEW_MODES.includes(option.value)) option.remove();
@@ -8633,6 +8645,8 @@ function setParticipantViewMode(requestedMode, persist = true, notify = true) {
             }
         }
     }
+    updateSelectValueIcon(participantViewMode);
+    updateSelectValueIcon(pinVideoPositionSelect);
 
     if (persist) {
         lsSettings.participant_view = mode;
@@ -22755,7 +22769,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.65',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.66',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
