@@ -480,6 +480,8 @@ describe('client camera background integration', () => {
             'setCameraAutoFraming',
             'autoFramingUnavailable',
             'handleAutoFramingError',
+            'setGestureHandRaise',
+            'refreshGestureHandRaiseSwitches',
         ]) {
             const declaration = source.indexOf(`function ${name}(`);
             const start = source.slice(declaration - 6, declaration) === 'async ' ? declaration - 6 : declaration;
