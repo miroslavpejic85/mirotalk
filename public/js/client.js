@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.68
+ * @version 2.3.69
  *
  */
 
@@ -948,6 +948,7 @@ let isKeepButtonsVisible = false;
 let isAudioPitchBar = true;
 let isSpeakingHighlight = true;
 const speakingTileTimers = new Map();
+const speakingParticipantTimers = new Map();
 let isPushToTalkActive = false;
 let isPushToTalkPressed = false;
 let pushToTalkAudioContext = null;
@@ -22806,7 +22807,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.68',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.69',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -23091,6 +23092,7 @@ function handlePeerVolume(data) {
     const audioColorTmp = getVolumeColor(volume);
 
     if (isSpeakingHighlight) handleSpeakingTile(peer_id + '_videoWrap');
+    handleSpeakingParticipant(peer_id);
 
     if (!isAudioPitchBar) {
         const remotePeerAvatarImg = getId(peer_id + '_avatar');
@@ -23169,6 +23171,24 @@ function clearSpeakingTiles() {
     speakingTileTimers.forEach((timer) => clearTimeout(timer));
     speakingTileTimers.clear();
     document.querySelectorAll('.speaking').forEach((tile) => tile.classList.remove('speaking'));
+}
+
+/**
+ * Participants list: ring around the avatar and mixer bars while the peer speaks, held like the tile border.
+ * @param {string} peerId
+ * @param {number} holdMs
+ */
+function handleSpeakingParticipant(peerId, holdMs = 600) {
+    const itemId = peerId + '_pMsgBtn';
+    getId(itemId)?.classList.add('speaking');
+    clearTimeout(speakingParticipantTimers.get(itemId));
+    speakingParticipantTimers.set(
+        itemId,
+        setTimeout(() => {
+            getId(itemId)?.classList.remove('speaking');
+            speakingParticipantTimers.delete(itemId);
+        }, holdMs)
+    );
 }
 
 /**

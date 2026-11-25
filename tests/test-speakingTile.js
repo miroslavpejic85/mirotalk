@@ -24,7 +24,8 @@ function setup(highlight = true) {
             <div class="Screen" id="bob_screenWrap">
                 <div class="screen-cam-overlay" id="bob_videoWrap"><div id="bob_pitch_bar"></div></div>
             </div>
-        </div>`,
+        </div>
+        <div class="msger-chat-item" id="bob_pMsgBtn"><img class="msger-chat-avatar" /></div>`,
         { runScripts: 'outside-only' }
     );
     dom.window.eval(`
@@ -32,6 +33,7 @@ function setup(highlight = true) {
         var isAudioPitchBar = true;
         var isSpeakingHighlight = ${highlight};
         var speakingTileTimers = new Map();
+        var speakingParticipantTimers = new Map();
         var peerVolumeTimers = {};
         var myVolumeTimer = null;
         var myPitchBar = getId('myPitchBar');
@@ -40,7 +42,8 @@ function setup(highlight = true) {
         ${extractFunction(clientSource, 'handleMyVolume')}
         ${extractFunction(clientSource, 'handleSpeakingTile')}
         ${extractFunction(clientSource, 'clearSpeakingTiles')}
-        window.api = { handlePeerVolume, handleMyVolume, handleSpeakingTile, clearSpeakingTiles };
+        ${extractFunction(clientSource, 'handleSpeakingParticipant')}
+        window.api = { handlePeerVolume, handleMyVolume, handleSpeakingTile, clearSpeakingTiles, handleSpeakingParticipant };
     `);
     const speaking = () => [...dom.window.document.querySelectorAll('.speaking')].map((el) => el.id);
     return { dom, api: dom.window.api, speaking };
@@ -51,15 +54,15 @@ describe('Speaking tile border (P2P)', () => {
         const { dom, api, speaking } = setup();
         api.handleMyVolume({ volume: 40 });
         api.handlePeerVolume({ peer_id: 'bob', volume: 40 });
-        assert.deepEqual(speaking(), ['myVideoWrap', 'bob_videoWrap']);
+        assert.deepEqual(speaking(), ['myVideoWrap', 'bob_videoWrap', 'bob_pMsgBtn']);
         dom.window.close();
     });
 
-    it('does nothing when the setting is off or the volume is zero', () => {
+    it('skips the tiles when the setting is off and does nothing when the volume is zero', () => {
         const { dom, api, speaking } = setup(false);
         api.handleMyVolume({ volume: 40 });
         api.handlePeerVolume({ peer_id: 'bob', volume: 40 });
-        assert.deepEqual(speaking(), []);
+        assert.deepEqual(speaking(), ['bob_pMsgBtn'], 'the participants list indicator is independent of the setting');
         dom.window.close();
 
         const on = setup();
@@ -81,6 +84,18 @@ describe('Speaking tile border (P2P)', () => {
         api.handleSpeakingTile('myVideoWrap', 60);
         api.handleSpeakingTile('bob_videoWrap', 60);
         api.clearSpeakingTiles();
+        assert.deepEqual(speaking(), []);
+        dom.window.close();
+    });
+
+    it('keeps the participants list indicator during short pauses and clears it after the hold time', async () => {
+        const { dom, api, speaking } = setup();
+        api.handleSpeakingParticipant('bob', 60);
+        await sleep(40);
+        api.handleSpeakingParticipant('bob', 60);
+        await sleep(40);
+        assert.deepEqual(speaking(), ['bob_pMsgBtn']);
+        await sleep(40);
         assert.deepEqual(speaking(), []);
         dom.window.close();
     });

@@ -2532,6 +2532,68 @@ body {
 
 .msger-chat-avatar {
     object-fit: cover;
+    transition: box-shadow 0.18s ease;
+}
+
+/* Active speaker (handleSpeakingParticipant in client.js): same green as the speaking tile border */
+.msger-chat-item.speaking .msger-chat-avatar {
+    box-shadow:
+        0 0 0 2px #3ddc84,
+        0 0 10px 2px rgb(61 220 132 / 55%);
+}
+
+.msger-chat-speaking-bars {
+    display: none;
+    flex-shrink: 0;
+    align-items: flex-end;
+    justify-content: space-between;
+    width: 14px;
+    height: 14px;
+}
+
+.msger-chat-item.speaking .msger-chat-speaking-bars {
+    display: inline-flex;
+}
+
+.msger-chat-speaking-bars > span {
+    width: 2.5px;
+    height: 100%;
+    border-radius: 1px;
+    background: #3ddc84;
+    transform-origin: bottom;
+    animation: msger-speaking-bar 0.9s ease-in-out infinite;
+}
+
+.msger-chat-speaking-bars > span:nth-child(2) {
+    animation-duration: 0.7s;
+    animation-delay: -0.3s;
+}
+
+.msger-chat-speaking-bars > span:nth-child(3) {
+    animation-duration: 1s;
+    animation-delay: -0.5s;
+}
+
+.msger-chat-speaking-bars > span:nth-child(4) {
+    animation-duration: 0.8s;
+    animation-delay: -0.15s;
+}
+
+@keyframes msger-speaking-bar {
+    0%,
+    100% {
+        transform: scaleY(0.3);
+    }
+    50% {
+        transform: scaleY(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .msger-chat-speaking-bars > span {
+        animation: none;
+        transform: scaleY(0.7);
+    }
 }
 
 .msger-chat-item-copy {
