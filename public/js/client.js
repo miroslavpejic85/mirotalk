@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.69
+ * @version 2.3.71
  *
  */
 
@@ -242,7 +242,10 @@ const hideMeBtn = getId('hideMeBtn');
 const screenShareBtn = getId('screenShareBtn');
 const myHandBtn = getId('myHandBtn');
 const myHandSplit = getId('myHandSplit');
+const myHandReactionsDropdown = getId('myHandReactionsDropdown');
 const myHandReactionsBtn = getId('myHandReactionsBtn');
+const myHandReactionsMenu = getId('myHandReactionsMenu');
+const myHandRoomReactionsBtn = getId('myHandRoomReactionsBtn');
 const mySettingsBtn = getId('mySettingsBtn');
 const settingsSplit = getId('settingsSplit');
 const settingsExtraDropdown = getId('settingsExtraDropdown');
@@ -1214,7 +1217,6 @@ function refreshMainButtonsToolTipPlacement() {
     setTippy(videoBtn, useVideo ? 'Stop the video (V)' : 'My video is disabled', bottomButtonsPlacement);
     setTippy(screenShareBtn, 'Start screen sharing (S)', bottomButtonsPlacement);
     setTippy(myHandBtn, 'Raise your hand (H)', bottomButtonsPlacement);
-    setTippy(myHandReactionsBtn, 'Room Reactions', bottomButtonsPlacement);
     setTippy(chatRoomBtn, 'Open the chat (C)', bottomButtonsPlacement);
     setTippy(participantsBtn, 'Show participants', bottomButtonsPlacement);
     setTippy(participantViewButton, 'Change participant view', bottomButtonsPlacement);
@@ -2259,7 +2261,7 @@ function handleButtonsRule() {
         { element: myHandSplit, display: buttons.main.showMyHandBtn, mode: 'inline-flex' },
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
         // Desktop only: on mobile the chevron is too small to tap and the picker covers the screen
-        { element: myHandReactionsBtn, display: showHandReactions, mode: 'inline-flex' },
+        { element: myHandReactionsDropdown, display: showHandReactions, mode: 'inline-flex' },
         { element: whiteboardBtn, display: buttons.main.showWhiteboardBtn },
         { element: editorBtn, display: buttons.main.showEditorBtn && RoomEditor.isSupported() },
         { element: pollBtn, display: buttons.main.showPollBtn },
@@ -10165,7 +10167,8 @@ function setRoomEmojiButton() {
     roomEmojiPickerBtn.addEventListener('click', (e) => {
         toggleEmojiPicker();
     });
-    myHandReactionsBtn.addEventListener('click', (e) => {
+    setMyHandReactionsDropdown();
+    myHandRoomReactionsBtn.addEventListener('click', (e) => {
         toggleEmojiPicker();
     });
     closeBtn.addEventListener('click', (e) => {
@@ -10192,10 +10195,53 @@ function setRoomEmojiButton() {
         emojiPickerContainer.style.display = isOpen ? 'block' : 'none';
         roomEmojiPickerBtn.classList.toggle('is-active', isOpen);
         roomEmojiPickerBtn.setAttribute('aria-pressed', String(isOpen));
-        myHandReactionsBtn.classList.toggle('is-active', isOpen);
-        myHandReactionsBtn.setAttribute('aria-pressed', String(isOpen));
+        myHandRoomReactionsBtn.classList.toggle('is-active', isOpen);
+        myHandRoomReactionsBtn.setAttribute('aria-pressed', String(isOpen));
         setColor(roomEmojiPickerIcon, isOpen ? '#ffd600' : 'var(--btn-bar-bg-color)');
+        setColor(myHandRoomReactionsBtn.querySelector('i'), isOpen ? '#ffd600' : '');
     }
+}
+
+/**
+ * Raise Hand chevron: dropup with the Room Reactions entry, opened on hover or click like the other toolbar chevrons
+ */
+function setMyHandReactionsDropdown() {
+    let closeTimeout;
+    const openMenu = () => {
+        clearTimeout(closeTimeout);
+        myHandReactionsMenu.classList.add('show');
+        myHandReactionsBtn.setAttribute('aria-expanded', 'true');
+    };
+    const closeMenu = () => {
+        clearTimeout(closeTimeout);
+        myHandReactionsMenu.classList.remove('show');
+        myHandReactionsBtn.setAttribute('aria-expanded', 'false');
+    };
+    const scheduleClose = () => {
+        clearTimeout(closeTimeout);
+        closeTimeout = setTimeout(closeMenu, 180);
+    };
+
+    myHandReactionsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        myHandReactionsMenu.classList.contains('show') ? closeMenu() : openMenu();
+    });
+
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        myHandReactionsBtn.addEventListener('mouseenter', openMenu);
+        myHandReactionsBtn.addEventListener('mouseleave', scheduleClose);
+        myHandReactionsMenu.addEventListener('mouseenter', openMenu);
+        myHandReactionsMenu.addEventListener('mouseleave', scheduleClose);
+    }
+
+    myHandReactionsMenu.addEventListener('click', closeMenu);
+    document.addEventListener('click', (e) => {
+        if (!myHandReactionsDropdown.contains(e.target)) closeMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+    });
 }
 
 /**
@@ -10209,7 +10255,7 @@ function setChatEmojiBtn() {
             hideShowEmojiPicker();
             return;
         }
-        // Mouse: hover already opens the picker, the click locks it open (click again to close)
+        // Mouse: hover already opens the picker, the click pins it against mouseleave (click again to close)
         if (isChatEmojiLocked) {
             hideChatEmojiPicker();
         } else {
@@ -10236,15 +10282,27 @@ function setChatEmojiBtn() {
             hideChatEmojiPicker();
         }
     });
+
+    const closeOnEscape = (e) => {
+        if (e.key !== 'Escape' || !isChatEmojiVisible) return;
+        e.stopPropagation();
+        hideChatEmojiPicker();
+        msgerEmojiBtn.focus();
+    };
+    msgerEmojiPicker.addEventListener('keydown', closeOnEscape);
+    msgerInput.addEventListener('keydown', closeOnEscape);
 }
 
 /**
- * Add emoji to chat message
+ * Add emoji to chat message: one pick closes the picker (Zoom/Teams style), Shift+click keeps it open to add several
+ * @param {object} data emoji-mart emoji data
+ * @param {Event} event click/keyboard event
  */
-function addEmojiToMsg(data) {
-    //console.log(data);
+function addEmojiToMsg(data, event) {
     msgerInput.value += data.native;
-    if (!isChatEmojiLocked) hideChatEmojiPicker();
+    if (event?.shiftKey) return;
+    hideChatEmojiPicker();
+    if (!isMobileDevice) msgerInput.focus();
 }
 
 /**
@@ -22388,7 +22446,52 @@ function openVideoUrlPlayer(config, isRemote = false) {
 }
 
 /**
- * Create the shared media tile: YouTube iframe or <video> (audio files too, with the poster)
+ * Shared audio waveform layer. Chromium ignores clicks on an audio-only <video> and a GIF can't be paused,
+ * so clicking it toggles playback like a shared video, and while paused the GIF is swapped for a canvas
+ * snapshot of its current frame.
+ * @param {HTMLVideoElement} video shared audio element
+ * @returns {HTMLElement} waveform layer
+ */
+function createShareAudioVisual(video) {
+    const visual = document.createElement('div');
+    visual.className = 'shareAudioVisual';
+    const gif = document.createElement('img');
+    gif.src = images.audioGif;
+    gif.alt = '';
+    gif.draggable = false;
+    const frame = document.createElement('canvas');
+    visual.append(gif, frame);
+
+    let frozen = false;
+    const update = () => {
+        const playing = !video.paused && !video.ended;
+        if (playing) {
+            frozen = false;
+        } else if (!frozen && gif.complete && gif.naturalWidth) {
+            frame.width = gif.naturalWidth;
+            frame.height = gif.naturalHeight;
+            frame.getContext('2d').drawImage(gif, 0, 0);
+            frozen = true;
+        }
+        visual.classList.toggle('paused', frozen);
+    };
+    ['play', 'pause', 'ended'].forEach((event) => video.addEventListener(event, update));
+    gif.addEventListener('load', update);
+    update();
+
+    visual.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (video.paused || video.ended) {
+            video.play().catch((err) => console.warn('[shareAudioVisual] Play failed', err));
+        } else {
+            video.pause();
+        }
+    });
+    return visual;
+}
+
+/**
+ * Create the shared media tile: YouTube iframe or <video> (audio files too, with the waveform layer)
  * @param {string|boolean} videoEmbed YouTube embed url
  * @param {string} videoSrc media url
  * @param {string} videoType media type
@@ -22434,10 +22537,7 @@ function createVideoUrlPlayerTile(videoEmbed, videoSrc, videoType, isAudioShare)
         media.setAttribute('playsinline', 'true');
         if (isAudioShare) {
             media.preload = 'metadata';
-            media.setAttribute('poster', images.audioGif);
             media.setAttribute('aria-label', 'Shared audio');
-            // WebKit (Safari/iOS) hides the poster once audio-only playback starts, the background keeps the gif visible
-            media.style.background = `#000 url('${images.audioGif}') center / contain no-repeat`;
         }
         media.src = videoSrc;
     }
@@ -22448,6 +22548,7 @@ function createVideoUrlPlayerTile(videoEmbed, videoSrc, videoType, isAudioShare)
     navBar.appendChild(closeBtn);
     tile.appendChild(navBar);
     tile.appendChild(media);
+    if (isAudioShare) tile.appendChild(createShareAudioVisual(media));
     videoMediaContainer.appendChild(tile);
 
     closeBtn.addEventListener('click', (e) => {
@@ -22926,7 +23027,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.69',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.71',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

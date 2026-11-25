@@ -380,16 +380,31 @@
                     aria-label="Raise hand"
                     aria-pressed="false"
                 ></button>
-                <button
-                    id="myHandReactionsBtn"
-                    class="device-dropdown-toggle"
-                    type="button"
-                    aria-label="Room Reactions"
-                    aria-pressed="false"
-                    style="display: none"
-                >
-                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
-                </button>
+                <div id="myHandReactionsDropdown" class="dropdown dropup" style="display: none">
+                    <button
+                        id="myHandReactionsBtn"
+                        class="dropdown-toggle device-dropdown-toggle"
+                        type="button"
+                        aria-expanded="false"
+                        aria-label="Room Reactions"
+                    >
+                        <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                    </button>
+                    <div
+                        id="myHandReactionsMenu"
+                        class="dropdown-menu text-start app-dropdown-menu"
+                        aria-labelledby="myHandReactionsBtn"
+                    >
+                        <button
+                            id="myHandRoomReactionsBtn"
+                            class="app-dropdown-action"
+                            type="button"
+                            aria-pressed="false"
+                        >
+                            <i class="fas fa-face-smile" aria-hidden="true"></i> Room Reactions
+                        </button>
+                    </div>
+                </div>
             </div>
             <button
                 id="chatRoomBtn"

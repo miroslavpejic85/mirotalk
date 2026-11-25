@@ -112,6 +112,8 @@
 
 /* Shared video/audio URL player tile */
 #__shareVideo {
+    /* stays the containing block when pinned (its .Camera class is removed) */
+    position: relative;
     background: #000;
 }
 
@@ -124,6 +126,33 @@
     /* inline object-fit is reset by pin/unpin: keep the whole media visible */
     object-fit: contain !important;
     cursor: default;
+}
+
+/* Shared audio waveform: covers the tile above the native controls bar, so those stay clickable */
+.shareAudioVisual {
+    position: absolute;
+    inset: 0 0 56px 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.shareAudioVisual img,
+.shareAudioVisual canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.shareAudioVisual canvas,
+.shareAudioVisual.paused img {
+    display: none;
+}
+
+.shareAudioVisual.paused canvas {
+    display: block;
 }
 
 .video-loading-spinner {
