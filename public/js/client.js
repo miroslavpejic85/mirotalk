@@ -472,6 +472,10 @@ const initBackgroundPickerCloseBtn = getId('initBackgroundPickerCloseBtn');
 const autoFramingDiv = getId('autoFramingDiv');
 const switchAutoFraming = getId('switchAutoFraming');
 const initAutoFramingBtn = getId('initAutoFramingBtn');
+const gestureHandRaiseDiv = getId('gestureHandRaiseDiv');
+const switchGestureHandRaise = getId('switchGestureHandRaise');
+let gestureHandRaiseEnabled = false;
+let handGestureManager = null;
 let cameraEffects = null;
 let cameraAutoFraming = false; // keep me centered: crops the camera around the faces (with or without a background)
 let backgroundImage = null; // decoded <img>, or a hidden looping <video> for video backgrounds
@@ -2945,6 +2949,14 @@ function setupBackgroundControls() {
     backgroundEffectsSection.hidden = !supported;
     initBackgroundEffectsSection.hidden = !supported || !useVideo || !buttons.main.showVideoBtn;
     autoFramingDiv.hidden = !isAutoFramingAvailable();
+    if (typeof gestureHandRaiseDiv !== 'undefined' && gestureHandRaiseDiv) {
+        gestureHandRaiseDiv.hidden = !useVideo || !buttons.main.showVideoBtn;
+    }
+    if (typeof switchGestureHandRaise !== 'undefined' && switchGestureHandRaise) {
+        gestureHandRaiseEnabled = Boolean(typeof lsSettings !== 'undefined' && lsSettings?.gesture_hand_raise);
+        switchGestureHandRaise.checked = gestureHandRaiseEnabled;
+        switchGestureHandRaise.onchange = () => setGestureHandRaise(switchGestureHandRaise.checked);
+    }
     switchAutoFraming.onchange = () => setCameraAutoFraming(switchAutoFraming.checked);
     initAutoFramingBtn.onclick = () => setCameraAutoFraming(!cameraAutoFraming);
     backgroundEffectSelect.onchange = changeCameraBackground;
@@ -3206,6 +3218,105 @@ async function handleAutoFramingError(effects, error) {
     } catch (err) {
         console.error('Unable to restore camera after auto framing failed', err);
     }
+}
+
+/**
+ * Hand Gesture Detection (Open palm held for 2s triggers raise/lower hand)
+ */
+function createGestureHandProgress(parentWrap) {
+    if (!parentWrap || parentWrap.querySelector('.gesture-hand-progress')) return null;
+    const container = document.createElement('div');
+    container.className = 'gesture-hand-progress';
+    container.setAttribute('hidden', '');
+    container.setAttribute('aria-hidden', 'true');
+
+    const icon = document.createElement('div');
+    icon.className = 'gesture-hand-icon';
+    icon.innerText = '✋';
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'gesture-hand-svg');
+    svg.setAttribute('viewBox', '0 0 36 36');
+
+    const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    bgCircle.setAttribute('class', 'gesture-hand-circle-bg');
+    bgCircle.setAttribute('cx', '18');
+    bgCircle.setAttribute('cy', '18');
+    bgCircle.setAttribute('r', '15.9155');
+
+    const fillCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    fillCircle.setAttribute('class', 'gesture-hand-circle-fill');
+    fillCircle.setAttribute('cx', '18');
+    fillCircle.setAttribute('cy', '18');
+    fillCircle.setAttribute('r', '15.9155');
+
+    svg.appendChild(bgCircle);
+    svg.appendChild(fillCircle);
+    container.appendChild(icon);
+    container.appendChild(svg);
+    parentWrap.appendChild(container);
+
+    return { container, fillCircle };
+}
+
+function setGestureHandRaise(enabled) {
+    gestureHandRaiseEnabled = Boolean(enabled);
+    if (typeof lsSettings !== 'undefined' && lsSettings) {
+        lsSettings.gesture_hand_raise = gestureHandRaiseEnabled;
+        lS.setSettings(lsSettings);
+    }
+    if (typeof switchGestureHandRaise !== 'undefined' && switchGestureHandRaise) {
+        switchGestureHandRaise.checked = gestureHandRaiseEnabled;
+    }
+    if (typeof syncGestureHandRaise === 'function') {
+        syncGestureHandRaise();
+    }
+}
+
+function syncGestureHandRaise() {
+    if (typeof HandGesture === 'undefined') return;
+    const isPreJoin = Boolean(typeof Swal !== 'undefined' && Swal.getPopup?.()?.contains(initUser));
+    const myVideoEl = getId('myVideo');
+    const myVideoWrapEl = getId('myVideoWrap');
+
+    if (!gestureHandRaiseEnabled || !myVideoStatus || !myVideoEl || isPreJoin) {
+        if (handGestureManager) {
+            handGestureManager.stop();
+        }
+        return;
+    }
+
+    if (!handGestureManager) {
+        handGestureManager = new HandGesture.HandGestureManager();
+    }
+
+    let progressUI = myVideoWrapEl?.querySelector('.gesture-hand-progress');
+    let fillCircle = progressUI?.querySelector('.gesture-hand-circle-fill');
+    if (!progressUI && myVideoWrapEl) {
+        const created = createGestureHandProgress(myVideoWrapEl);
+        if (created) {
+            progressUI = created.container;
+            fillCircle = created.fillCircle;
+        }
+    }
+
+    handGestureManager.attachElements({
+        video: myVideoEl,
+        progressContainer: progressUI,
+        progressFill: fillCircle,
+        onTrigger: () => {
+            if (typeof Swal !== 'undefined' && Swal.getPopup?.()?.contains(initUser)) {
+                return;
+            }
+            if (notPresenter && !buttons.main.showMyHandBtn) {
+                toastMessage('warning', 'The presenter has disabled your ability to raise your hand');
+                return;
+            }
+            setMyHandStatus();
+        },
+    });
+
+    handGestureManager.start();
 }
 
 /**
@@ -4359,6 +4470,9 @@ async function whoAreYouJoin() {
     }
     if (useAudio && localAudioMediaStream) {
         getMicrophoneVolumeIndicator(localAudioMediaStream);
+    }
+    if (typeof syncGestureHandRaise === 'function') {
+        syncGestureHandRaise();
     }
 }
 
@@ -6538,6 +6652,7 @@ async function loadLocalMedia(stream, kind) {
             myVideoWrap.appendChild(myVideoPeerName);
 
             createVideoLoadingSpinner(myVideoWrap, myLocalMedia);
+            createGestureHandProgress(myVideoWrap);
 
             videoMediaContainer.appendChild(myVideoWrap);
             elemDisplay(myVideoWrap, false);
@@ -6545,6 +6660,7 @@ async function loadLocalMedia(stream, kind) {
             logStreamSettingsInfo('localVideoMediaStream', stream);
             attachMediaStream(myLocalMedia, stream);
             watchSettingsVideoPreview(myLocalMedia);
+            syncGestureHandRaise();
 
             adaptAspectRatio();
 
@@ -18168,6 +18284,9 @@ function setMyAudioStatus(status, playStatusSound = true) {
  */
 function setMyVideoStatus(status) {
     syncWakeLockDebounced();
+    if (typeof syncGestureHandRaise === 'function') {
+        syncGestureHandRaise();
+    }
     console.log('My video status', status);
 
     // Camera-on tiles come first in the mobile pinned strip (see .pinned-strip in videoGrid.css)
