@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.62
+ * @version 2.3.63
  *
  */
 
@@ -1101,7 +1101,6 @@ function setButtonsToolTip() {
     // Chat room buttons
     setTippy(msgerClose, 'Close', 'bottom');
     setTippy(msgerTogglePin, 'Toggle chat pin', 'bottom');
-    setTippy(msgerTheme, 'Ghost theme', 'bottom');
     setTippy(msgerMaxBtn, 'Maximize', 'bottom');
     setTippy(msgerMinBtn, 'Minimize', 'bottom');
     setTippy(msgerEmojiBtn, 'Emoji', 'top');
@@ -9281,12 +9280,13 @@ function setChatRoomBtn() {
     });
 
     // ghost theme + undo
-    msgerTheme.addEventListener('click', (e) => {
-        if (e.target.className == className.ghost) {
-            e.target.className = className.undo;
+    msgerTheme.addEventListener('click', () => {
+        const icon = msgerTheme.querySelector('i');
+        if (icon.className == className.ghost) {
+            icon.className = className.undo;
             setSP('--msger-bg', 'rgba(0, 0, 0, 0.100)');
         } else {
-            e.target.className = className.ghost;
+            icon.className = className.ghost;
             setTheme();
         }
     });
@@ -22716,7 +22716,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.62',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.63',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
