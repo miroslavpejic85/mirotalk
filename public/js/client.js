@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.63
+ * @version 2.3.64
  *
  */
 
@@ -5051,6 +5051,7 @@ function handleDisconnect(reason) {
         peerConnections[peer_id].close();
         msgerRemovePeer(peer_id);
         removeVideoPinMediaContainer(peer_id);
+        scheduleParticipantViewRestore();
     }
 
     adaptAspectRatio();
@@ -5153,6 +5154,7 @@ function handleRemovePeer(config) {
 
     msgerRemovePeer(peer_id);
     removeVideoPinMediaContainer(peer_id);
+    scheduleParticipantViewRestore();
 
     roomEditor?.removePeer(peer_id);
 
@@ -6457,7 +6459,7 @@ async function loadLocalMedia(stream, kind) {
 
             myVideoNavBar.appendChild(myCurrentSessionTime);
 
-            !isMobileDevice && myVideoNavBar.appendChild(myVideoPinBtn);
+            appendPinButton(myVideoNavBar, myVideoPinBtn);
 
             buttons.local.showVideoFocusBtn && myVideoNavBar.appendChild(myVideoFocusBtn);
 
@@ -6707,7 +6709,7 @@ async function loadLocalMedia(stream, kind) {
             handleDropdownEvents(myScreenDropdownDiv, myScreenDropdownBtn, myScreenDropdownContent);
 
             // attach to screen nav bar
-            !isMobileDevice && myScreenNavBar.appendChild(myScreenPinBtn);
+            appendPinButton(myScreenNavBar, myScreenPinBtn);
 
             buttons.local.showVideoFocusBtn && myScreenNavBar.appendChild(myScreenFocusBtn);
 
@@ -6770,7 +6772,8 @@ async function loadLocalMedia(stream, kind) {
 
             handleVideoPinUnpin(myScreenMedia.id, myScreenPinBtn.id, myScreenWrap.id, myScreenMedia.id, true);
 
-            myScreenPinBtn.click();
+            // Mobile uses the screen-stage layout instead of pinning the screen
+            !isMobileDevice && myScreenPinBtn.click();
 
             if (showVideoPipBtn && buttons.local.showVideoPipBtn)
                 handlePictureInPicture(myScreenPiPBtn.id, myScreenMedia.id, myPeerId);
@@ -7098,7 +7101,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             handleDropdownEvents(remoteDropdownDiv, remoteDropdownBtn, remoteDropdownContent);
 
             // attach to remote video nav bar
-            !isMobileDevice && remoteVideoNavBar.appendChild(remoteVideoPinBtn);
+            appendPinButton(remoteVideoNavBar, remoteVideoPinBtn);
 
             buttons.remote.showVideoFocusBtn && remoteVideoNavBar.appendChild(remoteVideoFocusBtn);
 
@@ -7396,7 +7399,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenDropdownBtn._dropdownContent = remoteScreenDropdownContent;
             handleDropdownEvents(remoteScreenDropdownDiv, remoteScreenDropdownBtn, remoteScreenDropdownContent);
 
-            !isMobileDevice && remoteScreenNavBar.appendChild(remoteScreenPinBtn);
+            appendPinButton(remoteScreenNavBar, remoteScreenPinBtn);
 
             buttons.remote.showVideoFocusBtn && remoteScreenNavBar.appendChild(remoteScreenFocusBtn);
 
@@ -7468,8 +7471,8 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             // handle video focus mode
             handleVideoFocusMode(remoteScreenFocusBtn, remoteScreenWrap, remoteScreenMedia);
 
-            // pin video on screen share
-            remoteScreenPinBtn.click();
+            // pin video on screen share (mobile uses the screen-stage layout instead)
+            !isMobileDevice && remoteScreenPinBtn.click();
 
             if (showVideoPipBtn && buttons.remote.showVideoPipBtn)
                 handlePictureInPicture(remoteScreenPiPBtn.id, remoteScreenMedia.id, peer_id);
@@ -8424,6 +8427,17 @@ function setVideoPrivacyStatus(peerVideoId, peerPrivacyActive) {
 }
 
 /**
+ * Mobile has no per-tile pin UI, but the hidden button lets the participant view (speaker top/bottom/1:1) pin tiles
+ * @param {HTMLElement} navBar video nav bar
+ * @param {HTMLElement} pinBtn pin/unpin button
+ */
+function appendPinButton(navBar, pinBtn) {
+    // Inline style: .navbar button { display } would override the .hidden class
+    if (isMobileDevice) pinBtn.style.display = 'none';
+    navBar.appendChild(pinBtn);
+}
+
+/**
  * Handle video pin/unpin
  * @param {string} elemId video id
  * @param {string} pnId button pin id
@@ -8445,7 +8459,6 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
             setColor(btnPn, 'white');
         };
         btnPn.addEventListener('click', () => {
-            if (isMobileDevice) return;
             playSound('click');
             // Switch pin: move the currently pinned tile back to the grid and pin this one instead
             if (isVideoPinned && pinnedVideoPlayerId && pinnedVideoPlayerId !== videoPlayer.id) {
@@ -8480,7 +8493,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
 
 function scheduleParticipantViewRestore() {
     const mode = lsSettings.participant_view;
-    if (isMobileDevice || isVideoPinned || !mode?.startsWith('speaker-')) return;
+    if (isVideoPinned || !mode?.startsWith('speaker-')) return;
     clearTimeout(participantViewRestoreTimer);
     participantViewRestoreTimer = setTimeout(() => {
         participantViewRestoreTimer = null;
@@ -8506,9 +8519,17 @@ function autoPinVideoForLayout() {
 
 function toggleVideoPin(position) {
     if (!isVideoPinned) return;
+    // Side-by-side layouts are too narrow on phones
+    if (isMobileDevice && ['speaker-left', 'speaker-right', 'vertical'].includes(position)) {
+        position = 'speaker-top';
+    }
     const participantAreaWidth = isChatPinned || isCaptionPinned ? 75 : 100;
     const speakerWidth = participantAreaWidth * 0.75;
     const thumbnailWidth = participantAreaWidth - speakerWidth;
+    // Fixed-size thumbnail strip: consistent tiles for any participant count on all devices,
+    // growing by the buttons bar reserve when the strip touches the bottom of the screen
+    const stripSize = 'var(--pinned-strip-size, 20vh)';
+    const stripWithBar = `calc(${stripSize} + var(--buttons-bar-reserve, 0px))`;
     videoPinMediaContainer.style.top = 0;
     videoPinMediaContainer.style.left = 0;
     videoPinMediaContainer.style.width = participantAreaWidth + '%';
@@ -8525,9 +8546,9 @@ function toggleVideoPin(position) {
     switch (position) {
         case 'speaker-bottom':
         case 'top':
-            videoPinMediaContainer.style.top = '25%';
-            videoPinMediaContainer.style.height = '75%';
-            videoMediaContainer.style.height = '25%';
+            videoPinMediaContainer.style.top = stripSize;
+            videoPinMediaContainer.style.height = `calc(100% - ${stripSize})`;
+            videoMediaContainer.style.height = stripSize;
             videoMediaContainer.classList.add('no-bar-reserve');
             break;
         case 'speaker-left':
@@ -8538,9 +8559,9 @@ function toggleVideoPin(position) {
             break;
         case 'speaker-top':
         case 'horizontal':
-            videoPinMediaContainer.style.height = '75%';
-            videoMediaContainer.style.top = '75%';
-            videoMediaContainer.style.height = '25%';
+            videoPinMediaContainer.style.height = `calc(100% - ${stripWithBar})`;
+            videoMediaContainer.style.top = `calc(100% - ${stripWithBar})`;
+            videoMediaContainer.style.height = stripWithBar;
             videoPinMediaContainer.classList.add('no-bar-reserve');
             break;
         case 'speaker-right':
@@ -8564,6 +8585,15 @@ function refreshPinnedVideoLayout() {
     toggleVideoPin(participantMode.startsWith('speaker-') ? participantMode : pinVideoPositionSelect.value);
 }
 
+// Phones only get the stacked layouts: side-by-side views don't fit a portrait screen
+const MOBILE_PARTICIPANT_VIEW_MODES = ['grid', 'speaker-top', 'speaker-bottom', 'speaker-1:1'];
+
+function removeUnsupportedMobileParticipantViews() {
+    participantViewMode.querySelectorAll('option').forEach((option) => {
+        if (!MOBILE_PARTICIPANT_VIEW_MODES.includes(option.value)) option.remove();
+    });
+}
+
 function setParticipantViewMode(requestedMode, persist = true, notify = true) {
     const legacyModes = { default: 'grid', vertical: 'speaker-left', horizontal: 'speaker-top', top: 'speaker-bottom' };
     const supportedModes = new Set([
@@ -8575,7 +8605,8 @@ function setParticipantViewMode(requestedMode, persist = true, notify = true) {
         'speaker-1:1',
     ]);
     const migratedMode = legacyModes[requestedMode] || requestedMode;
-    const mode = supportedModes.has(migratedMode) ? migratedMode : 'grid';
+    let mode = supportedModes.has(migratedMode) ? migratedMode : 'grid';
+    if (isMobileDevice && !MOBILE_PARTICIPANT_VIEW_MODES.includes(mode)) mode = 'grid';
     const isSpeakerView = mode.startsWith('speaker-');
 
     participantViewMode.value = mode;
@@ -12123,7 +12154,7 @@ function setupMySettings() {
         setScreenCameraLayout(screenCamLayoutSelect.value);
     });
 
-    // Mobile not support pin/unpin video
+    // Mobile has no manual pin/unpin and no bottom-bar layout dropdown, but keeps the Layout tab
     if (!isMobileDevice) {
         pinVideoPositionSelect.addEventListener('change', (e) => {
             setParticipantViewMode(pinVideoPositionSelect.value);
@@ -12131,7 +12162,7 @@ function setupMySettings() {
         elemDisplay(participantViewDropdown, true, 'block');
     } else {
         elemDisplay(pinUnpinGridDiv, false);
-        elemDisplay(tabLayoutBtn, false);
+        elemDisplay(btnsBarSelect.closest('.settings-field'), false);
     }
     // room actions
     captionEveryoneBtn.addEventListener('click', (e) => {
@@ -12394,6 +12425,7 @@ function loadSettingsFromLocalStorage() {
     videoObjFitSelect.selectedIndex = lsSettings.video_obj_fit;
     btnsBarSelect.selectedIndex = lsSettings.buttons_bar;
     pinVideoPositionSelect.selectedIndex = lsSettings.pin_grid;
+    if (isMobileDevice) removeUnsupportedMobileParticipantViews();
     participantViewMode.value = lsSettings.participant_view || 'grid';
     BtnAspectRatio.value = String(lsSettings.video_aspect_ratio || 0);
     if (isMobileDevice) screenCamLayoutSelect.querySelector('option[value="split"]')?.remove();
@@ -18086,6 +18118,10 @@ function setMyVideoStatus(status) {
     syncWakeLockDebounced();
     console.log('My video status', status);
 
+    // Camera-on tiles come first in the mobile pinned strip (see .pinned-strip in videoGrid.css)
+    const myWrap = getId('myVideoWrap');
+    if (myWrap) myWrap.dataset.cameraOff = status ? 'false' : 'true';
+
     // On video OFF display my video avatar name
     if (myVideoAvatarImage) {
         elemDisplay(myVideoAvatarImage, status ? false : true, status ? undefined : 'block');
@@ -18464,6 +18500,9 @@ function setPeerVideoStatus(peer_id, status) {
     const peerVideoAvatarImage = getId(peer_id + '_avatar');
     const peerVideoStatus = getId(peer_id + '_videoStatus');
     const peerVideoWrap = getId(peer_id + '_videoWrap');
+
+    // Camera-on tiles come first in the mobile pinned strip (see .pinned-strip in videoGrid.css)
+    if (peerVideoWrap) peerVideoWrap.dataset.cameraOff = status ? 'false' : 'true';
 
     if (status) {
         displayElements([
@@ -22233,7 +22272,7 @@ function createVideoUrlPlayerTile(videoEmbed, videoSrc, videoType, isAudioShare)
     }
     media.id = '__videoShare';
 
-    !isMobileDevice && navBar.appendChild(pinBtn);
+    appendPinButton(navBar, pinBtn);
     !isAudioShare && isVideoFullScreenSupported && navBar.appendChild(fsBtn);
     navBar.appendChild(closeBtn);
     tile.appendChild(navBar);
@@ -22716,7 +22755,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.63',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.64',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

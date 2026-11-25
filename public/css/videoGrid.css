@@ -1198,6 +1198,60 @@ video:fullscreen {
 }
 
 /*--------------------------------------------------------------
+# Speaker view: other tiles in one swipeable row (layoutPinnedStrip in videoGrid.js)
+--------------------------------------------------------------*/
+
+:root {
+    /* Height of the speaker view thumbnails strip (tiles + margins), consistent for any participant count */
+    --pinned-strip-size: clamp(130px, 22vh, 220px);
+}
+
+#videoMediaContainer.pinned-strip {
+    flex-wrap: nowrap;
+    align-content: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+}
+
+#videoMediaContainer.pinned-strip::-webkit-scrollbar {
+    display: none;
+}
+
+/* Centered while the row fits; start-aligned once it scrolls, so the first tiles are not cut off */
+#videoMediaContainer.pinned-strip-overflow {
+    justify-content: flex-start;
+}
+
+#videoMediaContainer.pinned-strip > :is(.Camera, .Screen) {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+#videoMediaContainer.pinned-strip > .Camera[data-camera-off='true'] {
+    order: 1;
+}
+
+/* Desktop: keep a thin scrollbar so the overflow is discoverable with a mouse */
+@media (hover: hover) and (pointer: fine) {
+    #videoMediaContainer.pinned-strip-overflow {
+        scrollbar-width: thin;
+    }
+
+    #videoMediaContainer.pinned-strip-overflow::-webkit-scrollbar {
+        display: block;
+        height: 6px;
+    }
+
+    #videoMediaContainer.pinned-strip-overflow::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 3px;
+    }
+}
+
+/*--------------------------------------------------------------
 # Mobile: screen share on stage, other tiles in a strip (layoutScreenStage in videoGrid.js)
 --------------------------------------------------------------*/
 

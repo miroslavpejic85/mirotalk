@@ -86,7 +86,7 @@ function resizeVideoMedia() {
 
     resetZoom(); //...
 
-    if (layoutScreenStage(videoMediaContainer, Margin)) {
+    if (layoutPinnedStrip(videoMediaContainer, Margin) || layoutScreenStage(videoMediaContainer, Margin)) {
         if (typeof VideoDrawingOverlay !== 'undefined') VideoDrawingOverlay.overlays.forEach((o) => o.resize());
         return;
     }
@@ -124,6 +124,74 @@ function resizeVideoMedia() {
 }
 
 let layoutAnimationRaf = null;
+
+/**
+ * Speaker view: the tiles next to the pinned speaker stay in one swipeable fixed-height row
+ * (camera-on tiles first, see .pinned-strip in videoGrid.css) instead of shrinking with the
+ * participant count. Applies on every device when the thumbnails area is a horizontal strip
+ * (speaker top/bottom); the speaker left/right columns keep the grid packing.
+ * @param {HTMLElement} container videoMediaContainer
+ * @param {integer} Margin tile margin
+ * @returns {boolean} true if the strip layout was applied
+ */
+function layoutPinnedStrip(container, Margin) {
+    const pinned = typeof isVideoPinned !== 'undefined' && isVideoPinned;
+    const Tiles = [...container.children].filter((c) => c.matches('.Camera, .Screen') && c.style.display !== 'none');
+
+    const Width = container.offsetWidth - Margin * 2;
+    const reservedHeight = parseFloat(getComputedStyle(container).paddingBottom) || 0;
+    const Height = container.offsetHeight - reservedHeight - Margin * 2;
+    const active = pinned && Tiles.length > 0 && Width > Height;
+
+    if (!active) {
+        container.classList.remove('pinned-strip', 'pinned-strip-overflow');
+        return false;
+    }
+
+    // The screen stage would turn a strip tile into a full-size stage
+    container.classList.remove('screen-stage', 'screen-stage-landscape');
+    [...container.children].forEach((c) => c.removeAttribute('data-screen-stage'));
+    container.classList.add('pinned-strip');
+
+    // Fixed 4:3 thumbnails: the adaptive aspect ratio depends on the participant count,
+    // and the strip tiles must keep the same size no matter how many people join
+    const tileRatio = 0.75;
+    // Keep part of the next tile in view so it is clear the row scrolls
+    const maxTileW = Math.floor(Width / 2.4) - Margin * 2;
+    let tileH = Math.max(40, Height - Margin * 2);
+    let tileW = Math.round(tileH / tileRatio);
+    if (tileW > maxTileW) {
+        tileW = Math.max(40, maxTileW);
+        tileH = Math.round(tileW * tileRatio);
+    }
+
+    Tiles.forEach((c) => {
+        c.style.width = tileW + 'px';
+        c.style.height = tileH + 'px';
+        c.style.margin = Margin + 'px';
+    });
+
+    const rowWidth = Tiles.length * (tileW + Margin * 2);
+    container.classList.toggle('pinned-strip-overflow', rowWidth > Width + Margin * 2);
+
+    if (!container.dataset.pinnedStripWheel) {
+        container.dataset.pinnedStripWheel = '1';
+        container.addEventListener(
+            'wheel',
+            (e) => {
+                // Vertical wheel scrolls the strip; over a video the wheel can keep zooming the tile
+                if (!container.classList.contains('pinned-strip-overflow')) return;
+                if (e.target.closest('video') || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+                container.scrollLeft += e.deltaY;
+                e.preventDefault();
+            },
+            { passive: false }
+        );
+    }
+
+    setSP('--vmi-wh', Math.max(32, tileW / 3) + 'px');
+    return true;
+}
 
 /**
  * Mobile viewers: a screen share fills the stage and the other tiles become a small strip below it

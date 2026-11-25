@@ -53,6 +53,7 @@ describe('handleRemovePeer', () => {
             function syncRecordingAudio() {}
             function msgerRemovePeer() {}
             function removeVideoPinMediaContainer() {}
+            function scheduleParticipantViewRestore() {}
             function playSound() {}
             ${source}
             globalThis.api = {
