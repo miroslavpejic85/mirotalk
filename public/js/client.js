@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.69
+ * @version 2.3.70
  *
  */
 
@@ -22281,7 +22281,52 @@ function openVideoUrlPlayer(config, isRemote = false) {
 }
 
 /**
- * Create the shared media tile: YouTube iframe or <video> (audio files too, with the poster)
+ * Shared audio waveform layer. Chromium ignores clicks on an audio-only <video> and a GIF can't be paused,
+ * so clicking it toggles playback like a shared video, and while paused the GIF is swapped for a canvas
+ * snapshot of its current frame.
+ * @param {HTMLVideoElement} video shared audio element
+ * @returns {HTMLElement} waveform layer
+ */
+function createShareAudioVisual(video) {
+    const visual = document.createElement('div');
+    visual.className = 'shareAudioVisual';
+    const gif = document.createElement('img');
+    gif.src = images.audioGif;
+    gif.alt = '';
+    gif.draggable = false;
+    const frame = document.createElement('canvas');
+    visual.append(gif, frame);
+
+    let frozen = false;
+    const update = () => {
+        const playing = !video.paused && !video.ended;
+        if (playing) {
+            frozen = false;
+        } else if (!frozen && gif.complete && gif.naturalWidth) {
+            frame.width = gif.naturalWidth;
+            frame.height = gif.naturalHeight;
+            frame.getContext('2d').drawImage(gif, 0, 0);
+            frozen = true;
+        }
+        visual.classList.toggle('paused', frozen);
+    };
+    ['play', 'pause', 'ended'].forEach((event) => video.addEventListener(event, update));
+    gif.addEventListener('load', update);
+    update();
+
+    visual.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (video.paused || video.ended) {
+            video.play().catch((err) => console.warn('[shareAudioVisual] Play failed', err));
+        } else {
+            video.pause();
+        }
+    });
+    return visual;
+}
+
+/**
+ * Create the shared media tile: YouTube iframe or <video> (audio files too, with the waveform layer)
  * @param {string|boolean} videoEmbed YouTube embed url
  * @param {string} videoSrc media url
  * @param {string} videoType media type
@@ -22327,10 +22372,7 @@ function createVideoUrlPlayerTile(videoEmbed, videoSrc, videoType, isAudioShare)
         media.setAttribute('playsinline', 'true');
         if (isAudioShare) {
             media.preload = 'metadata';
-            media.setAttribute('poster', images.audioGif);
             media.setAttribute('aria-label', 'Shared audio');
-            // WebKit (Safari/iOS) hides the poster once audio-only playback starts, the background keeps the gif visible
-            media.style.background = `#000 url('${images.audioGif}') center / contain no-repeat`;
         }
         media.src = videoSrc;
     }
@@ -22341,6 +22383,7 @@ function createVideoUrlPlayerTile(videoEmbed, videoSrc, videoType, isAudioShare)
     navBar.appendChild(closeBtn);
     tile.appendChild(navBar);
     tile.appendChild(media);
+    if (isAudioShare) tile.appendChild(createShareAudioVisual(media));
     videoMediaContainer.appendChild(tile);
 
     closeBtn.addEventListener('click', (e) => {
@@ -22819,7 +22862,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.69',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.70',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
