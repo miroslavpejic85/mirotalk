@@ -4,13 +4,27 @@
     box-sizing: border-box;
 }
 
+html,
 body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     background: var(--body-bg);
 }
 
 .pipVideoContainer {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     display: grid;
+    align-content: start;
     gap: 10px;
+    padding: 8px;
 }
 
 .pipVideo {
@@ -20,8 +34,91 @@ body {
     aspect-ratio: 16 / 9;
 }
 
+.pipNoVideo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 2rem;
+}
+
 .mirror {
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);
     transform: rotateY(180deg);
+}
+
+.pipControls {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 8px;
+    background: rgba(0, 0, 0, 0.35);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pipControlButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 1.05rem;
+    cursor: pointer;
+    touch-action: none;
+    transition:
+        background 0.15s ease,
+        transform 0.1s ease;
+}
+
+.pipControlButton[hidden] {
+    display: none;
+}
+
+.pipControlButton:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.pipControlButton:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.pipControlButton:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.pipControlButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pipControlButton i {
+    color: inherit;
+    pointer-events: none;
+}
+
+.pipControlButton.muted,
+.pipControlButton.leave {
+    background: #d93025;
+}
+
+.pipControlButton.muted:hover:not(:disabled),
+.pipControlButton.leave:hover:not(:disabled) {
+    background: #e8453c;
+}
+
+.pipControlButton.raised {
+    color: #ffd700;
 }

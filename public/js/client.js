@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.74
+ * @version 2.3.75
  *
  */
 
@@ -11631,11 +11631,30 @@ async function documentPictureInPictureOpen() {
         pipVideoContainer.className = 'pipVideoContainer';
 
         pipWindow.document.head.append(pipStylesheet);
-        pipWindow.document.body.append(pipVideoContainer);
+
+        const fontAwesome = document.querySelector('link[href*="font-awesome"]');
+        if (fontAwesome) {
+            const pipFontAwesome = document.createElement('link');
+            pipFontAwesome.rel = 'stylesheet';
+            pipFontAwesome.href = fontAwesome.href;
+            pipWindow.document.head.append(pipFontAwesome);
+        }
+
+        const pipControls = createDocumentPipControls(pipWindow);
+
+        pipWindow.document.body.append(pipVideoContainer, pipControls.element);
+
+        let elementObservers = [];
+
+        function disconnectElementObservers() {
+            elementObservers.forEach((observer) => observer.disconnect());
+            elementObservers = [];
+        }
 
         function cloneVideoElements() {
             let foundVideo = false;
 
+            disconnectElementObservers();
             pipVideoContainer.innerHTML = '';
 
             [...getSlALL('video')].forEach((video) => {
@@ -11686,6 +11705,7 @@ async function documentPictureInPictureOpen() {
                     });
 
                     observer.observe(element, { attributes: true, attributeFilter: ['class'] });
+                    elementObservers.push(observer);
                     return observer;
                 }
 
@@ -11701,13 +11721,18 @@ async function documentPictureInPictureOpen() {
                 if (videoStatus) observeElementClassChanges(videoStatus, 'VideoStatus');
             });
 
+            // Keep the window open (the controls stay usable) and show a camera-off placeholder
+            if (!foundVideo) {
+                const noVideo = document.createElement('div');
+                noVideo.className = 'pipNoVideo';
+                noVideo.innerHTML = '<i class="fas fa-video-slash" aria-hidden="true"></i>';
+                pipVideoContainer.append(noVideo);
+            }
+
             return foundVideo;
         }
 
-        if (!cloneVideoElements()) {
-            documentPictureInPictureClose();
-            return userLog('toast', 'No video allowed for Document PIP');
-        }
+        cloneVideoElements();
 
         const videoObserver = new MutationObserver(() => {
             cloneVideoElements();
@@ -11728,10 +11753,133 @@ async function documentPictureInPictureOpen() {
         pipWindow.addEventListener('unload', () => {
             videoObserver.disconnect();
             documentObserver.disconnect();
+            disconnectElementObservers();
+            pipControls.destroy();
         });
     } catch (err) {
         userLog('warning', err.message, 6000);
     }
+}
+
+/**
+ * Create the Document PiP footer controls (mic, cam, raise hand, leave).
+ * Each PiP button proxies the matching bottom button, so all checks
+ * (media availability, push-to-talk, exit flow) stay in one place.
+ * @param {Window} pipWindow
+ * @returns {{ element: HTMLElement, destroy: Function }}
+ */
+function createDocumentPipControls(pipWindow) {
+    const pipDocument = pipWindow.document;
+
+    // Visible in the main toolbar (ignores the toolbar auto-hide on #bottomButtons itself)
+    const isShown = (el) => {
+        if (!el) return false;
+        for (let node = el; node && node !== bottomButtons; node = node.parentElement) {
+            if (getComputedStyle(node).display === 'none') return false;
+        }
+        return true;
+    };
+
+    const controls = [
+        {
+            id: 'pipAudioBtn',
+            target: audioBtn,
+            isOn: () => myAudioStatus,
+            onTitle: () => window.i18n?.t('Stop the audio', 'tooltips') ?? 'Stop the audio',
+            offTitle: () => window.i18n?.t('Start the audio', 'tooltips') ?? 'Start the audio',
+            offClass: 'muted',
+            pushToTalk: true,
+        },
+        {
+            id: 'pipVideoBtn',
+            target: videoBtn,
+            isOn: () => myVideoStatus,
+            onTitle: () => window.i18n?.t('Stop the video', 'tooltips') ?? 'Stop the video',
+            offTitle: () => window.i18n?.t('Start the video', 'tooltips') ?? 'Start the video',
+            offClass: 'muted',
+        },
+        {
+            id: 'pipHandBtn',
+            target: myHandBtn,
+            isOn: () => myHandStatus,
+            onTitle: () => window.i18n?.t('Lower your hand', 'tooltips') ?? 'Lower your hand',
+            offTitle: () => window.i18n?.t('Raise your hand', 'tooltips') ?? 'Raise your hand',
+            onClass: 'raised',
+        },
+        {
+            id: 'pipLeaveBtn',
+            target: leaveRoomBtn,
+            isOn: () => true,
+            onTitle: () => window.i18n?.t('Leave room', 'tooltips') ?? 'Leave room',
+            onClass: 'leave',
+            leave: true,
+        },
+    ];
+
+    const element = pipDocument.createElement('div');
+    element.className = 'pipControls';
+
+    controls.forEach((control) => {
+        const button = pipDocument.createElement('button');
+        button.id = control.id;
+        button.type = 'button';
+        button.className = 'pipControlButton';
+        button.append(pipDocument.createElement('i'));
+
+        button.addEventListener('click', () => {
+            if (control.leave) {
+                pipWindow.close();
+                window.focus();
+                return leaveRoom();
+            }
+            if (isShown(control.target) && !control.target.disabled) control.target.click();
+        });
+
+        if (control.pushToTalk) {
+            button.addEventListener('pointerdown', (e) => {
+                if (!isPushToTalkActive) return;
+                button.setPointerCapture(e.pointerId);
+                setPushToTalkPressed(true);
+            });
+            button.addEventListener('pointerup', () => setPushToTalkPressed(false));
+            button.addEventListener('pointercancel', () => setPushToTalkPressed(false));
+        }
+
+        control.button = button;
+        element.append(button);
+    });
+
+    const sync = () => {
+        controls.forEach((control) => {
+            const { button, target } = control;
+            button.hidden = !isShown(target);
+            if (button.hidden) return;
+
+            const isOn = !!control.isOn();
+            const title = isOn ? control.onTitle() : control.offTitle();
+
+            // Bottom buttons carry their Font Awesome icon classes directly
+            button.firstChild.className = [...target.classList].filter((name) => name.startsWith('fa')).join(' ');
+            button.disabled = !!target.disabled;
+            button.title = title;
+            button.setAttribute('aria-label', title);
+            if (control.onClass) button.classList.toggle(control.onClass, isOn);
+            if (control.offClass) button.classList.toggle(control.offClass, !isOn);
+        });
+    };
+
+    sync();
+
+    const observer = new MutationObserver(sync);
+    if (bottomButtons) {
+        observer.observe(bottomButtons, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style', 'disabled'],
+        });
+    }
+
+    return { element, destroy: () => observer.disconnect() };
 }
 
 /**
@@ -23055,7 +23203,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.74',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.75',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
