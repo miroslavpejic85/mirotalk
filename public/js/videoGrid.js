@@ -126,10 +126,9 @@ function resizeVideoMedia() {
 let layoutAnimationRaf = null;
 
 /**
- * Speaker view: the tiles next to the pinned speaker stay in one swipeable fixed-height row
+ * Speaker view: the tiles next to the pinned speaker stay in one swipeable fixed-size strip
  * (camera-on tiles first, see .pinned-strip in videoGrid.css) instead of shrinking with the
- * participant count. Applies on every device when the thumbnails area is a horizontal strip
- * (speaker top/bottom); the speaker left/right columns keep the grid packing.
+ * participant count: a row for speaker top/bottom, a column for desktop speaker left/right.
  * @param {HTMLElement} container videoMediaContainer
  * @param {integer} Margin tile margin
  * @returns {boolean} true if the strip layout was applied
@@ -141,27 +140,36 @@ function layoutPinnedStrip(container, Margin) {
     const Width = container.offsetWidth - Margin * 2;
     const reservedHeight = parseFloat(getComputedStyle(container).paddingBottom) || 0;
     const Height = container.offsetHeight - reservedHeight - Margin * 2;
-    const active = pinned && Tiles.length > 0 && Width > Height;
+    const active = pinned && Tiles.length > 0 && Width > 0;
 
     if (!active) {
-        container.classList.remove('pinned-strip', 'pinned-strip-overflow');
+        container.classList.remove('pinned-strip', 'pinned-strip-vertical', 'pinned-strip-overflow');
         return false;
     }
 
     // The screen stage would turn a strip tile into a full-size stage
     container.classList.remove('screen-stage', 'screen-stage-landscape');
     [...container.children].forEach((c) => c.removeAttribute('data-screen-stage'));
+    const horizontal = Width > Height;
     container.classList.add('pinned-strip');
+    container.classList.toggle('pinned-strip-vertical', !horizontal);
 
     // Fixed 4:3 thumbnails: the adaptive aspect ratio depends on the participant count,
     // and the strip tiles must keep the same size no matter how many people join
     const tileRatio = 0.75;
-    // Keep part of the next tile in view so it is clear the row scrolls
-    const maxTileW = Math.floor(Width / 2.4) - Margin * 2;
-    let tileH = Math.max(40, Height - Margin * 2);
-    let tileW = Math.round(tileH / tileRatio);
-    if (tileW > maxTileW) {
-        tileW = Math.max(40, maxTileW);
+    let tileW, tileH;
+    if (horizontal) {
+        // Keep part of the next tile in view so it is clear the row scrolls
+        const maxTileW = Math.floor(Width / 2.4) - Margin * 2;
+        tileH = Math.max(40, Height - Margin * 2);
+        tileW = Math.round(tileH / tileRatio);
+        if (tileW > maxTileW) {
+            tileW = Math.max(40, maxTileW);
+            tileH = Math.round(tileW * tileRatio);
+        }
+    } else {
+        // Vertical column: tiles take the full column width
+        tileW = Math.max(40, Width - Margin * 2);
         tileH = Math.round(tileW * tileRatio);
     }
 
@@ -171,16 +179,18 @@ function layoutPinnedStrip(container, Margin) {
         c.style.margin = Margin + 'px';
     });
 
-    const rowWidth = Tiles.length * (tileW + Margin * 2);
-    container.classList.toggle('pinned-strip-overflow', rowWidth > Width + Margin * 2);
+    const stripLength = Tiles.length * ((horizontal ? tileW : tileH) + Margin * 2);
+    container.classList.toggle('pinned-strip-overflow', stripLength > (horizontal ? Width : Height) + Margin * 2);
 
     if (!container.dataset.pinnedStripWheel) {
         container.dataset.pinnedStripWheel = '1';
         container.addEventListener(
             'wheel',
             (e) => {
-                // Vertical wheel scrolls the strip; over a video the wheel can keep zooming the tile
+                // Vertical wheel scrolls the row (the vertical column scrolls natively);
+                // over a video the wheel can keep zooming the tile
                 if (!container.classList.contains('pinned-strip-overflow')) return;
+                if (container.classList.contains('pinned-strip-vertical')) return;
                 if (e.target.closest('video') || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
                 container.scrollLeft += e.deltaY;
                 e.preventDefault();

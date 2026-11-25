@@ -191,11 +191,19 @@ describe('Participant view on mobile (P2P)', () => {
 
         window.eval('isMobileDevice = false;');
         assert.equal(window.layoutPinnedStrip(grid, 5), true, 'desktop strips are supported too');
+        assert.ok(!grid.classList.contains('pinned-strip-vertical'));
+
         window.eval(`
             Object.defineProperty(grid, 'offsetWidth', { value: 300, configurable: true });
             Object.defineProperty(grid, 'offsetHeight', { value: 800, configurable: true });
         `);
-        assert.equal(window.layoutPinnedStrip(grid, 5), false, 'packed columns keep the grid');
+        assert.equal(window.layoutPinnedStrip(grid, 5), true, 'speaker left/right column');
+        assert.ok(grid.classList.contains('pinned-strip-vertical'));
+        assert.ok(grid.classList.contains('pinned-strip-overflow'), '5 column tiles do not fit, so it scrolls');
+        assert.ok(
+            cameras.every((c) => c.style.width === '280px' && c.style.height === '210px'),
+            'full column width'
+        );
 
         window.eval(`
             Object.defineProperty(grid, 'offsetWidth', { value: 410, configurable: true });

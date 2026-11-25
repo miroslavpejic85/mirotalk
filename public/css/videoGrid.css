@@ -1212,8 +1212,9 @@ video:fullscreen {
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
     scrollbar-width: none;
+    /* No scroll snap/anchoring: tiles reorder on camera on/off and the scroller must not follow them */
+    overflow-anchor: none;
 }
 
 #videoMediaContainer.pinned-strip::-webkit-scrollbar {
@@ -1227,7 +1228,14 @@ video:fullscreen {
 
 #videoMediaContainer.pinned-strip > :is(.Camera, .Screen) {
     flex: 0 0 auto;
-    scroll-snap-align: start;
+}
+
+/* Desktop speaker left/right: same fixed-size tiles in a scrollable column */
+#videoMediaContainer.pinned-strip-vertical {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
 }
 
 #videoMediaContainer.pinned-strip > .Camera[data-camera-off='true'] {
@@ -1243,6 +1251,7 @@ video:fullscreen {
     #videoMediaContainer.pinned-strip-overflow::-webkit-scrollbar {
         display: block;
         height: 6px;
+        width: 6px;
     }
 
     #videoMediaContainer.pinned-strip-overflow::-webkit-scrollbar-thumb {
