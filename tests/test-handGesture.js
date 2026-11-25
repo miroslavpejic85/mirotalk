@@ -192,11 +192,122 @@ describe('Hand Gesture Raise-Hand Detection', () => {
         });
     });
 
+    describe('HandGestureManager worker lifecycle', () => {
+        const savedGlobals = {};
+        let workers;
+
+        class FakeWorker {
+            constructor() {
+                this.listeners = {};
+                this.terminated = false;
+                this.posted = [];
+                this.onmessage = null;
+                this.onerror = null;
+                workers.push(this);
+            }
+            addEventListener(type, fn) {
+                (this.listeners[type] ||= []).push(fn);
+            }
+            postMessage(msg) {
+                this.posted.push(msg);
+            }
+            terminate() {
+                this.terminated = true;
+            }
+            emit(type, data) {
+                const listeners = this.listeners[type] || [];
+                this.listeners[type] = [];
+                listeners.forEach((fn) => fn(type === 'message' ? { data } : data));
+            }
+        }
+
+        const newManager = () => new HandGesture.HandGestureManager({ baseUrl: 'https://example.test/js/' });
+
+        beforeEach(() => {
+            workers = [];
+            for (const name of ['Worker', 'OffscreenCanvas', 'createImageBitmap']) savedGlobals[name] = global[name];
+            global.Worker = FakeWorker;
+            global.OffscreenCanvas = class {};
+            global.createImageBitmap = async () => ({ close() {} });
+        });
+
+        afterEach(() => {
+            for (const [name, value] of Object.entries(savedGlobals)) {
+                if (value === undefined) delete global[name];
+                else global[name] = value;
+            }
+            sinon.restore();
+        });
+
+        it('dispose() terminates the worker so it is reloaded on the next start', async () => {
+            const manager = newManager();
+            const ready = manager.initRecognizer();
+            workers[0].emit('message', { type: 'init_done' });
+            assert.equal(await ready, true);
+            assert.equal(manager.workerReady, true);
+
+            manager.dispose();
+            assert.equal(workers[0].terminated, true);
+            assert.equal(manager.worker, null);
+            assert.equal(manager.workerReady, false);
+
+            const again = manager.initRecognizer();
+            assert.equal(workers.length, 2);
+            workers[1].emit('message', { type: 'init_done' });
+            assert.equal(await again, true);
+        });
+
+        it('dispose() during loading does not install the stale worker or fall back to the main thread', async () => {
+            const manager = newManager();
+            const loading = manager.initRecognizer();
+            manager.dispose();
+
+            assert.equal(await loading, false);
+            assert.equal(workers[0].terminated, true);
+            assert.equal(manager.worker, null);
+            assert.equal(manager.workerReady, false);
+            assert.equal(manager.recognizer, null);
+        });
+
+        it('a worker crash after init unblocks sampling and reloads on the main thread', async () => {
+            sinon.stub(console, 'warn');
+            const manager = newManager();
+            const ready = manager.initRecognizer();
+            workers[0].emit('message', { type: 'init_done' });
+            await ready;
+
+            manager.running = true;
+            manager.enabled = true;
+            manager.busy = true;
+            manager.pendingRequests = { 1: () => {} };
+            const reinit = sinon.stub(manager, 'initRecognizer').resolves(true);
+
+            workers[0].onerror(new Error('boom'));
+
+            assert.equal(workers[0].terminated, true);
+            assert.equal(manager.worker, null);
+            assert.equal(manager.workerReady, false);
+            assert.equal(manager.workerFailed, true);
+            assert.equal(manager.busy, false);
+            assert.deepEqual(manager.pendingRequests, {});
+            assert.equal(reinit.calledOnce, true);
+
+            // The reload skips the worker and goes straight to the main thread
+            reinit.restore();
+            manager.config.visionBundleUrl = 'data:text/javascript,throw new Error("no main-thread model in tests")';
+            assert.equal(await manager.initRecognizer(), false);
+            assert.equal(workers.length, 1);
+        });
+    });
+
     describe('Presenter permissions and pre-join guard in client.js', () => {
         const clientSource = fs.readFileSync(path.join(ROOT, 'public/js/client.js'), 'utf8');
 
         it('checks presenter permissions in onTrigger before calling setMyHandStatus', () => {
-            assert.match(clientSource, /if\s*\(notPresenter\s*&&\s*!buttons\.main\.showMyHandBtn\)/);
+            assert.match(
+                clientSource,
+                /if\s*\(isRulesActive\s*&&\s*!isPresenter\s*&&\s*!buttons\.main\.showMyHandBtn\)/
+            );
             assert.match(clientSource, /The presenter has disabled your ability to raise your hand/);
         });
 
@@ -205,7 +316,10 @@ describe('Hand Gesture Raise-Hand Detection', () => {
         });
 
         it('hides the gesture setting when the room has no video', () => {
-            assert.match(clientSource, /gestureHandRaiseDiv\.hidden\s*=\s*!useVideo\s*\|\|\s*!buttons\.main\.showVideoBtn/);
+            assert.match(
+                clientSource,
+                /gestureHandRaiseDiv\.hidden\s*=\s*!useVideo\s*\|\|\s*!buttons\.main\.showVideoBtn/
+            );
         });
     });
 
@@ -220,7 +334,10 @@ describe('Hand Gesture Raise-Hand Detection', () => {
             const gesturePos = clientHtml.indexOf('handGesture.js');
             const bgEffectsPos = clientHtml.indexOf('background-effects.js');
             const clientPos = clientHtml.indexOf('client.js');
-            assert.ok(gesturePos > bgEffectsPos, 'handGesture.js must load after background-effects.js to share version');
+            assert.ok(
+                gesturePos > bgEffectsPos,
+                'handGesture.js must load after background-effects.js to share version'
+            );
             assert.ok(clientPos > gesturePos, 'handGesture.js must load before client.js');
         });
 

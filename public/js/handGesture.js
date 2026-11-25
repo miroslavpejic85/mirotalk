@@ -19,9 +19,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
     // Reuse BG_TASKS_VISION_VERSION from background-effects.js when available
     const tasksVisionVersion =
-        typeof BG_TASKS_VISION_VERSION !== 'undefined' && BG_TASKS_VISION_VERSION
-            ? BG_TASKS_VISION_VERSION
-            : '1.2.0';
+        typeof BG_TASKS_VISION_VERSION !== 'undefined' && BG_TASKS_VISION_VERSION ? BG_TASKS_VISION_VERSION : '1.2.0';
 
     const GESTURE_BASE_URL =
         typeof document !== 'undefined' && document.currentScript?.src
@@ -124,34 +122,47 @@
             this.onTrigger = null;
             this.requestId = 0;
             this.pendingRequests = {};
+            this.workerFailed = false;
+            this.initGeneration = 0;
+            this.cancelWorkerInit = null;
         }
 
         async initRecognizer() {
             if (this.workerReady || this.recognizer) return true;
             if (this.recognizerPromise) return this.recognizerPromise;
 
-            this.recognizerPromise = (async () => {
-                // Try initializing in worker first if supported
-                if (HandGestureManager.isWorkerSupported(this.config.baseUrl)) {
+            // Bumped by dispose(): a load still in flight from before must not install its result
+            const generation = this.initGeneration;
+            const isStale = () => generation !== this.initGeneration;
+
+            const promise = (async () => {
+                if (!this.workerFailed && HandGestureManager.isWorkerSupported(this.config.baseUrl)) {
+                    const workerUrl = new URL('handGesture-worker.js', this.config.baseUrl);
+                    const worker = new Worker(workerUrl, { type: 'module' });
+                    this.worker = worker;
                     try {
-                        const workerUrl = new URL('handGesture-worker.js', this.config.baseUrl);
-                        this.worker = new Worker(workerUrl, { type: 'module' });
                         await new Promise((resolve, reject) => {
+                            this.cancelWorkerInit = () => reject(new Error('disposed'));
                             const onInit = (e) => {
                                 const data = e.data || {};
                                 if (data.type === 'init_done') {
-                                    this.workerReady = true;
                                     resolve();
                                 } else if (data.type === 'init_error') {
                                     reject(new Error(data.error));
                                 }
                             };
-                            this.worker.addEventListener('message', onInit, { once: true });
-                            this.worker.addEventListener('error', (err) => reject(err), { once: true });
-                            this.worker.postMessage({ type: 'init', config: this.config });
+                            worker.addEventListener('message', onInit, { once: true });
+                            worker.addEventListener('error', (err) => reject(err), { once: true });
+                            worker.postMessage({ type: 'init', config: this.config });
                         });
+                        this.cancelWorkerInit = null;
+                        if (isStale()) {
+                            worker.terminate();
+                            return false;
+                        }
 
-                        this.worker.onmessage = (event) => {
+                        this.workerReady = true;
+                        worker.onmessage = (event) => {
                             const { type, id, isOpenPalm } = event.data || {};
                             if (type === 'recognize_result' && this.pendingRequests[id]) {
                                 const callback = this.pendingRequests[id];
@@ -159,23 +170,24 @@
                                 callback(isOpenPalm);
                             }
                         };
+                        worker.onerror = (err) => this.handleWorkerCrash(worker, err);
                         return true;
                     } catch (workerErr) {
-                        console.warn('[HandGesture] Worker init failed, falling back to main thread:', workerErr);
-                        if (this.worker) {
-                            try {
-                                this.worker.terminate();
-                            } catch (_) {}
-                            this.worker = null;
-                        }
+                        this.cancelWorkerInit = null;
+                        try {
+                            worker.terminate();
+                        } catch (_) {}
+                        if (this.worker === worker) this.worker = null;
                         this.workerReady = false;
+                        if (isStale()) return false;
+                        console.warn('[HandGesture] Worker init failed, falling back to main thread:', workerErr);
                     }
                 }
 
                 // Main thread fallback
                 const { FilesetResolver, GestureRecognizer } = await import(this.config.visionBundleUrl);
                 const fileset = await FilesetResolver.forVisionTasks(this.config.wasmBaseUrl);
-                this.recognizer = await GestureRecognizer.createFromOptions(fileset, {
+                const recognizer = await GestureRecognizer.createFromOptions(fileset, {
                     baseOptions: {
                         modelAssetPath: this.config.modelUrl,
                         delegate: 'GPU',
@@ -183,6 +195,11 @@
                     runningMode: 'IMAGE',
                     numHands: 1,
                 });
+                if (isStale()) {
+                    recognizer.close?.();
+                    return false;
+                }
+                this.recognizer = recognizer;
 
                 // Warm up off the critical rendering path
                 try {
@@ -201,12 +218,58 @@
 
                 return true;
             })().catch((err) => {
-                this.recognizerPromise = null;
+                if (isStale()) return false;
+                if (this.recognizerPromise === promise) this.recognizerPromise = null;
                 console.warn('[HandGesture] Could not load MediaPipe GestureRecognizer:', err.message || err);
                 return false;
             });
 
-            return this.recognizerPromise;
+            this.recognizerPromise = promise;
+            return promise;
+        }
+
+        /**
+         * The worker died after it was ready: drop it, unblock sampling, and reload on the main thread
+         */
+        handleWorkerCrash(worker, err) {
+            if (this.worker !== worker) return;
+            console.warn('[HandGesture] Worker crashed, falling back to main thread:', err?.message || err);
+            try {
+                worker.terminate();
+            } catch (_) {}
+            this.worker = null;
+            this.workerReady = false;
+            this.workerFailed = true;
+            this.busy = false;
+            this.pendingRequests = {};
+            this.recognizerPromise = null;
+            if (this.running && this.enabled) this.initRecognizer();
+        }
+
+        /**
+         * Stop detection and release the worker / recognizer (and its model). start() loads it again.
+         */
+        dispose() {
+            this.stop();
+            this.initGeneration++;
+            if (this.cancelWorkerInit) {
+                this.cancelWorkerInit();
+                this.cancelWorkerInit = null;
+            }
+            if (this.worker) {
+                try {
+                    this.worker.terminate();
+                } catch (_) {}
+                this.worker = null;
+            }
+            this.workerReady = false;
+            if (this.recognizer) {
+                try {
+                    this.recognizer.close?.();
+                } catch (_) {}
+                this.recognizer = null;
+            }
+            this.recognizerPromise = null;
         }
 
         attachElements({ video, progressContainer, progressFill, onTrigger }) {
@@ -285,10 +348,16 @@
 
             if (this.worker && this.workerReady) {
                 if (!this.busy && this.videoElement && this.videoElement.readyState >= 2) {
+                    const worker = this.worker;
                     this.busy = true;
                     createImageBitmap(this.videoElement)
                         .then((bitmap) => {
-                            if (this.runToken !== currentToken || !this.running || !this.enabled) {
+                            if (
+                                this.runToken !== currentToken ||
+                                !this.running ||
+                                !this.enabled ||
+                                this.worker !== worker
+                            ) {
                                 bitmap.close();
                                 this.busy = false;
                                 return;
@@ -298,10 +367,7 @@
                                 this.busy = false;
                                 handleResult(isOpenPalm, Date.now());
                             };
-                            this.worker.postMessage(
-                                { type: 'recognize', id: reqId, bitmap, config: this.config },
-                                [bitmap]
-                            );
+                            worker.postMessage({ type: 'recognize', id: reqId, bitmap, config: this.config }, [bitmap]);
                         })
                         .catch(() => {
                             this.busy = false;

@@ -3281,7 +3281,12 @@ function syncGestureHandRaise() {
     const myVideoEl = getId('myVideo');
     const myVideoWrapEl = getId('myVideoWrap');
 
-    if (!gestureHandRaiseEnabled || !myVideoStatus || !myVideoEl || isPreJoin) {
+    if (!gestureHandRaiseEnabled) {
+        // Setting turned off: also free the worker and the model
+        handGestureManager?.dispose();
+        return;
+    }
+    if (!myVideoStatus || !myVideoEl || isPreJoin) {
         if (handGestureManager) {
             handGestureManager.stop();
         }
@@ -3310,7 +3315,7 @@ function syncGestureHandRaise() {
             if (typeof Swal !== 'undefined' && Swal.getPopup?.()?.contains(initUser)) {
                 return;
             }
-            if (notPresenter && !buttons.main.showMyHandBtn) {
+            if (isRulesActive && !isPresenter && !buttons.main.showMyHandBtn) {
                 toastMessage('warning', 'The presenter has disabled your ability to raise your hand');
                 return;
             }
