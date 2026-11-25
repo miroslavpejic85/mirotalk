@@ -1275,6 +1275,7 @@ body {
 #bottomButtons #audioDropdown,
 #bottomButtons #videoDropdown,
 #bottomButtons #participantsActionsDropdown,
+#bottomButtons #myHandReactionsDropdown,
 #bottomButtons #settingsExtraDropdown {
     position: static;
 }
@@ -1446,15 +1447,13 @@ body {
 
 /* Active state for chat / participants toolbar buttons (theme-aware) */
 #bottomButtons #chatRoomBtn.is-active,
-#bottomButtons #participantsBtn.is-active,
-#bottomButtons #myHandReactionsBtn.is-active {
+#bottomButtons #participantsBtn.is-active {
     background: color-mix(in srgb, var(--dd-color, #4678f9) 18%, var(--btns-bg-color)) !important;
     box-shadow: inset 0 0 0 1px var(--dd-color, #4678f9);
     color: var(--dd-color, #4678f9) !important;
 }
 #bottomButtons #chatRoomBtn.is-active:hover,
-#bottomButtons #participantsBtn.is-active:hover,
-#bottomButtons #myHandReactionsBtn.is-active:hover {
+#bottomButtons #participantsBtn.is-active:hover {
     background: color-mix(in srgb, var(--dd-color, #4678f9) 28%, var(--btns-bg-color)) !important;
 }
 
@@ -1572,7 +1571,8 @@ body {
     text-align: left;
 }
 
-#bottomButtons #participantsActionsMenu {
+#bottomButtons #participantsActionsMenu,
+#bottomButtons #myHandReactionsMenu {
     width: max-content;
     min-width: 210px;
     max-width: calc(100vw - 24px);
@@ -1580,7 +1580,8 @@ body {
     padding: 8px 6px;
 }
 
-#bottomButtons #participantsActionsMenu button {
+#bottomButtons #participantsActionsMenu button,
+#bottomButtons #myHandReactionsMenu button {
     display: flex;
     width: 100%;
     height: 35px;
@@ -1590,7 +1591,8 @@ body {
     white-space: nowrap;
 }
 
-#bottomButtons #participantsActionsMenu button i {
+#bottomButtons #participantsActionsMenu button i,
+#bottomButtons #myHandReactionsMenu button i {
     width: 18px;
     text-align: center;
 }
