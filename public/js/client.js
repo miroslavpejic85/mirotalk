@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.66
+ * @version 2.3.67
  *
  */
 
@@ -864,6 +864,7 @@ let myAudioStatusIcon;
 let isVideoPrivacyActive = false; // Video circle for privacy
 let isVideoPinned = false;
 let isApplyingParticipantViewMode = false;
+let isPinSoundMuted = false;
 let pinnedVideoPinButtonId = null;
 let restorePinnedVideoToGrid = null;
 let participantViewRestoreTimer = null;
@@ -8460,7 +8461,7 @@ function handleVideoPinUnpin(elemId, pnId, camId, peerId, isScreen = false) {
             setColor(btnPn, 'white');
         };
         btnPn.addEventListener('click', () => {
-            playSound('click');
+            if (!isPinSoundMuted) playSound('click');
             // Switch pin: move the currently pinned tile back to the grid and pin this one instead
             if (isVideoPinned && pinnedVideoPlayerId && pinnedVideoPlayerId !== videoPlayer.id) {
                 if (typeof restorePinnedVideoToGrid === 'function') restorePinnedVideoToGrid();
@@ -8607,6 +8608,19 @@ function removeUnsupportedMobileParticipantViews() {
 }
 
 function setParticipantViewMode(requestedMode, persist = true, notify = true) {
+    // User-initiated change: play one click for every view, silencing the incidental pin/unpin clicks
+    if (!notify) return applyParticipantViewMode(requestedMode, persist, notify);
+    playSound('click');
+    const wasPinSoundMuted = isPinSoundMuted;
+    isPinSoundMuted = true;
+    try {
+        applyParticipantViewMode(requestedMode, persist, notify);
+    } finally {
+        isPinSoundMuted = wasPinSoundMuted;
+    }
+}
+
+function applyParticipantViewMode(requestedMode, persist, notify) {
     const legacyModes = { default: 'grid', vertical: 'speaker-left', horizontal: 'speaker-top', top: 'speaker-bottom' };
     const supportedModes = new Set([
         'grid',
@@ -12123,6 +12137,7 @@ function setupMySettings() {
         e.stopPropagation();
         const camLayoutButton = e.target.closest('[data-screen-cam-layout]');
         if (camLayoutButton) {
+            playSound('click');
             setScreenCameraLayout(camLayoutButton.dataset.screenCamLayout);
             return;
         }
@@ -12165,6 +12180,7 @@ function setupMySettings() {
         adaptAspectRatio();
     });
     screenCamLayoutSelect.addEventListener('change', () => {
+        playSound('click');
         setScreenCameraLayout(screenCamLayoutSelect.value);
     });
 
@@ -22769,7 +22785,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.66',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.67',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
