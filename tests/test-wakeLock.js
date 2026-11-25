@@ -361,6 +361,7 @@ describe('mobile screen wake lock', () => {
             playSound() {},
             displayElements() {},
             screenReaderAccessibility: { announceMessage() {} },
+            syncGestureHandRaise: () => {},
         });
         for (const name of [
             'handleAudio',
