@@ -1741,17 +1741,21 @@ body {
     text-align: center;
 }
 
-/* Noise suppression toggle row inside the audio device menu */
-#bottomButtons #audioMenu .device-menu-toggle-btn {
+/* Toggle rows (noise suppression, auto framing, raise hand by gesture) in the device and Raise Hand menus */
+#bottomButtons #audioMenu .device-menu-toggle-btn,
+#bottomButtons #videoMenu .device-menu-toggle-btn {
     gap: 8px;
 }
 
-#bottomButtons #audioMenu .device-menu-toggle-btn i {
+#bottomButtons #audioMenu .device-menu-toggle-btn i,
+#bottomButtons #videoMenu .device-menu-toggle-btn i {
     width: 18px;
     text-align: center;
 }
 
-#bottomButtons #audioMenu .device-menu-toggle-btn .toggle {
+#bottomButtons #audioMenu .device-menu-toggle-btn .toggle,
+#bottomButtons #videoMenu .device-menu-toggle-btn .toggle,
+#bottomButtons #myHandReactionsMenu .device-menu-toggle-btn .toggle {
     flex: 0 0 auto;
     margin-left: auto;
 }

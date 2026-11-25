@@ -5,6 +5,7 @@
 const assert = require('assert/strict');
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 const sinon = require('sinon');
 const { JSDOM } = require('jsdom');
 
@@ -321,12 +322,41 @@ describe('Hand Gesture Raise-Hand Detection', () => {
                 /gestureHandRaiseDiv\.hidden\s*=\s*!useVideo\s*\|\|\s*!buttons\.main\.showVideoBtn/
             );
         });
+
+        it('syncs the Raise Hand and camera menu quick switches with the setting', () => {
+            const start = clientSource.indexOf('function refreshGestureHandRaiseSwitches(');
+            assert.ok(start !== -1);
+            const dom = new JSDOM(
+                '<button><input id="a" class="gesture-hand-raise-switch" type="checkbox"></button>' +
+                    '<input id="b" class="gesture-hand-raise-switch" type="checkbox">'
+            );
+            const context = vm.createContext({
+                document: dom.window.document,
+                switchGestureHandRaise: { checked: false },
+                gestureHandRaiseEnabled: true,
+            });
+            const end = clientSource.indexOf('\n}\n', start) + 2;
+            vm.runInContext(clientSource.slice(start, end), context);
+            context.refreshGestureHandRaiseSwitches();
+
+            assert.equal(context.switchGestureHandRaise.checked, true);
+            assert.equal(dom.window.document.getElementById('a').checked, true);
+            assert.equal(dom.window.document.getElementById('b').checked, true);
+            assert.equal(dom.window.document.querySelector('button').getAttribute('aria-pressed'), 'true');
+            assert.match(clientSource, /appendGestureHandRaiseToggle\(videoMenu\)/);
+        });
     });
 
     describe('Settings and markup wiring', () => {
         it('includes the gesture raise hand toggle in client.html settings', () => {
             assert.match(clientHtml, /id="switchGestureHandRaise"/);
             assert.match(clientHtml, /Raise hand by gesture/);
+
+            const handMenu = clientHtml.slice(
+                clientHtml.indexOf('id="myHandReactionsMenu"'),
+                clientHtml.indexOf('id="chatRoomBtn"')
+            );
+            assert.match(handMenu, /id="myHandGestureSwitch"\s+class="[^"]*gesture-hand-raise-switch/);
         });
 
         it('loads handGesture.js after background-effects.js and before client.js in client.html', () => {

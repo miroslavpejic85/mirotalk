@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.72
+ * @version 2.3.73
  *
  */
 
@@ -246,6 +246,7 @@ const myHandReactionsDropdown = getId('myHandReactionsDropdown');
 const myHandReactionsBtn = getId('myHandReactionsBtn');
 const myHandReactionsMenu = getId('myHandReactionsMenu');
 const myHandRoomReactionsBtn = getId('myHandRoomReactionsBtn');
+const myHandGestureBtn = getId('myHandGestureBtn');
 const mySettingsBtn = getId('mySettingsBtn');
 const settingsSplit = getId('settingsSplit');
 const settingsExtraDropdown = getId('settingsExtraDropdown');
@@ -2234,7 +2235,9 @@ function handleButtonsRule() {
     // Camera/microphone stay visible when blocked/unavailable (shown as unavailable); only the config hides them
     const showAudio = buttons.main.showAudioBtn;
     const showVideo = buttons.main.showVideoBtn;
-    const showHandReactions = isDesktopDevice && buttons.main.showMyHandBtn && buttons.main.showRoomEmojiPickerBtn;
+    const showRoomReactions = buttons.main.showMyHandBtn && buttons.main.showRoomEmojiPickerBtn;
+    const showGestureHandRaise = isGestureHandRaiseAvailable();
+    const showHandReactions = isDesktopDevice && (showRoomReactions || showGestureHandRaise);
     myHandSplit.classList.toggle('no-toggle', !showHandReactions);
 
     // Main buttons
@@ -2262,6 +2265,8 @@ function handleButtonsRule() {
         { element: myHandBtn, display: buttons.main.showMyHandBtn },
         // Desktop only: on mobile the chevron is too small to tap and the picker covers the screen
         { element: myHandReactionsDropdown, display: showHandReactions, mode: 'inline-flex' },
+        { element: myHandRoomReactionsBtn, display: showRoomReactions, mode: 'flex' },
+        { element: myHandGestureBtn, display: showGestureHandRaise, mode: 'flex' },
         { element: whiteboardBtn, display: buttons.main.showWhiteboardBtn },
         { element: editorBtn, display: buttons.main.showEditorBtn && RoomEditor.isSupported() },
         { element: pollBtn, display: buttons.main.showPollBtn },
@@ -2956,7 +2961,7 @@ function setupBackgroundControls() {
     }
     if (typeof switchGestureHandRaise !== 'undefined' && switchGestureHandRaise) {
         gestureHandRaiseEnabled = Boolean(typeof lsSettings !== 'undefined' && lsSettings?.gesture_hand_raise);
-        switchGestureHandRaise.checked = gestureHandRaiseEnabled;
+        refreshGestureHandRaiseSwitches();
         switchGestureHandRaise.onchange = () => setGestureHandRaise(switchGestureHandRaise.checked);
     }
     switchAutoFraming.onchange = () => setCameraAutoFraming(switchAutoFraming.checked);
@@ -3267,12 +3272,25 @@ function setGestureHandRaise(enabled) {
         lsSettings.gesture_hand_raise = gestureHandRaiseEnabled;
         lS.setSettings(lsSettings);
     }
-    if (typeof switchGestureHandRaise !== 'undefined' && switchGestureHandRaise) {
-        switchGestureHandRaise.checked = gestureHandRaiseEnabled;
-    }
+    refreshGestureHandRaiseSwitches();
     if (typeof syncGestureHandRaise === 'function') {
         syncGestureHandRaise();
     }
+}
+
+// Quick switches in the Raise Hand and camera menus (desktop), the setting itself lives in Settings > Video
+function isGestureHandRaiseAvailable() {
+    return typeof HandGesture !== 'undefined' && !!useVideo && buttons.main.showVideoBtn && buttons.main.showMyHandBtn;
+}
+
+function refreshGestureHandRaiseSwitches() {
+    if (typeof switchGestureHandRaise !== 'undefined' && switchGestureHandRaise) {
+        switchGestureHandRaise.checked = gestureHandRaiseEnabled;
+    }
+    document.querySelectorAll('.gesture-hand-raise-switch').forEach((el) => {
+        el.checked = gestureHandRaiseEnabled;
+        el.closest('button')?.setAttribute('aria-pressed', String(gestureHandRaiseEnabled));
+    });
 }
 
 function syncGestureHandRaise() {
@@ -10241,6 +10259,11 @@ function setMyHandReactionsDropdown() {
     }
 
     myHandReactionsMenu.addEventListener('click', closeMenu);
+    // Keep the menu open while flipping the switch (stopPropagation skips the close above)
+    myHandGestureBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setGestureHandRaise(!gestureHandRaiseEnabled);
+    });
     document.addEventListener('click', (e) => {
         if (!myHandReactionsDropdown.contains(e.target)) closeMenu();
     });
@@ -23032,7 +23055,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.72',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.73',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
@@ -24392,6 +24415,41 @@ function setupQuickDeviceSwitchDropdowns() {
         menuEl.appendChild(row);
     }
 
+    function appendGestureHandRaiseToggle(menuEl) {
+        if (!menuEl) return;
+
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'app-dropdown-action device-menu-toggle-btn';
+        row.setAttribute('aria-pressed', String(gestureHandRaiseEnabled));
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-hand';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'device-menu-label';
+        labelSpan.textContent = ` ${window.i18n?.t('Raise hand by gesture', 'labels') || 'Raise hand by gesture'}`;
+
+        const toggle = document.createElement('input');
+        toggle.id = 'videoMenuGestureHandRaise';
+        toggle.className = 'toggle gesture-hand-raise-switch';
+        toggle.type = 'checkbox';
+        toggle.checked = gestureHandRaiseEnabled;
+        toggle.style.pointerEvents = 'none';
+
+        row.appendChild(icon);
+        row.appendChild(labelSpan);
+        row.appendChild(toggle);
+
+        // Not rebuilt on change: setGestureHandRaise() syncs every .gesture-hand-raise-switch
+        row.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setGestureHandRaise(!gestureHandRaiseEnabled);
+        });
+
+        menuEl.appendChild(row);
+    }
+
     // The menus stay open after picking a device; actions that open another panel close them explicitly
     function hideDeviceMenu(toggleEl, menuEl) {
         closeMenu(toggleEl, menuEl);
@@ -24494,10 +24552,10 @@ function setupQuickDeviceSwitchDropdowns() {
         appendMenuHeader(videoMenu, 'fas fa-video', 'Cameras');
         appendSelectOptions(videoMenu, videoSelect, 'No cameras found', rebuildVideoMenu);
 
-        if (!autoFramingDiv.hidden) {
-            appendMenuDivider(videoMenu);
-            appendAutoFramingToggle(videoMenu);
-        }
+        const showGestureHandRaise = isGestureHandRaiseAvailable();
+        if (!autoFramingDiv.hidden || showGestureHandRaise) appendMenuDivider(videoMenu);
+        if (!autoFramingDiv.hidden) appendAutoFramingToggle(videoMenu);
+        if (showGestureHandRaise) appendGestureHandRaiseToggle(videoMenu);
 
         if (!backgroundEffectsSection.hidden) {
             appendMenuDivider(videoMenu);

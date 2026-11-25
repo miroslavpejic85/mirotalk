@@ -386,7 +386,7 @@
                         class="dropdown-toggle device-dropdown-toggle"
                         type="button"
                         aria-expanded="false"
-                        aria-label="Room Reactions"
+                        aria-label="Raise hand options"
                     >
                         <i class="fas fa-chevron-up" aria-hidden="true"></i>
                     </button>
@@ -402,6 +402,22 @@
                             aria-pressed="false"
                         >
                             <i class="fas fa-face-smile" aria-hidden="true"></i> Room Reactions
+                        </button>
+                        <button
+                            id="myHandGestureBtn"
+                            class="app-dropdown-action device-menu-toggle-btn"
+                            type="button"
+                            style="display: none"
+                        >
+                            <i class="fas fa-hand" aria-hidden="true"></i>
+                            <span class="device-menu-label">Raise hand by gesture</span>
+                            <input
+                                id="myHandGestureSwitch"
+                                class="toggle gesture-hand-raise-switch"
+                                type="checkbox"
+                                tabindex="-1"
+                                aria-hidden="true"
+                            />
                         </button>
                     </div>
                 </div>
