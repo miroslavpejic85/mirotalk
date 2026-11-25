@@ -69,23 +69,37 @@
     margin: 0 !important;
 }
 
-/* Speaking indicator (handleSpeakingTile in client.js): a ring drawn inside the tile edge, so it is never clipped */
+/* Speaking indicator (handleSpeakingTile in client.js): a thin gradient ring drawn inside the tile edge, so it is never
+   clipped. Calm by design: no glow, fades in fast and out slowly so it does not flicker between words. */
+:root {
+    --speaking-accent: #3fd8a4;
+    --speaking-gradient: linear-gradient(135deg, #5b8cff 0%, var(--speaking-accent) 50%, #a77bff 100%);
+}
+
 :is(#myVideoWrap, [id$='_videoWrap'])::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: 8; /* Over the tile navbar edge (8, earlier in the DOM), below the spinner and drawing toolbar (9) */
+    padding: 2px; /* ring width */
     border-radius: inherit;
-    box-shadow:
-        inset 0 0 0 3px #3ddc84,
-        inset 0 0 16px rgb(61 220 132 / 45%);
+    background: var(--speaking-gradient);
+    /* Keep only the padding area of the gradient: a ring with rounded corners */
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#000 0 0) content-box exclude,
+        linear-gradient(#000 0 0);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.18s ease;
+    transition: opacity 0.45s ease;
 }
 
 :is(#myVideoWrap, [id$='_videoWrap']).speaking::after {
-    opacity: 1;
+    opacity: 0.9;
+    transition-duration: 0.2s;
 }
 
 /* Pinned tiles lose the .Camera radius: follow the #videoPinMediaContainer corners */

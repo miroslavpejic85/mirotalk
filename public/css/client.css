@@ -2541,11 +2541,9 @@ body {
     transition: box-shadow 0.18s ease;
 }
 
-/* Active speaker (handleSpeakingParticipant in client.js): same green as the speaking tile border */
+/* Active speaker (handleSpeakingParticipant in client.js): same palette as the speaking tile ring (videoGrid.css) */
 .msger-chat-item.speaking .msger-chat-avatar {
-    box-shadow:
-        0 0 0 2px #3ddc84,
-        0 0 10px 2px rgb(61 220 132 / 55%);
+    box-shadow: 0 0 0 2px var(--speaking-accent);
 }
 
 .msger-chat-speaking-bars {
@@ -2565,7 +2563,7 @@ body {
     width: 2.5px;
     height: 100%;
     border-radius: 1px;
-    background: #3ddc84;
+    background: linear-gradient(to top, var(--speaking-accent), #5b8cff);
     transform-origin: bottom;
     animation: msger-speaking-bar 0.9s ease-in-out infinite;
 }
