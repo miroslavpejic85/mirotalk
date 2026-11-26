@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.75
+ * @version 2.3.76
  *
  */
 
@@ -10197,6 +10197,12 @@ function setRoomEmojiButton() {
     closeBtn.addEventListener('click', (e) => {
         toggleEmojiPicker();
     });
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' || emojiPickerContainer.style.display !== 'block') return;
+        e.stopPropagation();
+        toggleEmojiPicker();
+        roomEmojiPickerBtn.focus();
+    });
 
     function sendEmojiToRoom(data) {
         const message = {
@@ -10317,8 +10323,8 @@ function setChatEmojiBtn() {
         hideChatEmojiPicker();
         msgerEmojiBtn.focus();
     };
-    msgerEmojiPicker.addEventListener('keydown', closeOnEscape);
-    msgerInput.addEventListener('keydown', closeOnEscape);
+    // Document level so Esc works even when focus is not inside the picker (e.g. opened by hover)
+    document.addEventListener('keydown', closeOnEscape);
 }
 
 /**
@@ -23203,7 +23209,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.75',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.76',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
