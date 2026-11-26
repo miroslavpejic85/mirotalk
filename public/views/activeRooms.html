@@ -3,7 +3,12 @@
     <head>
         <title id="title">MiroTalk - Active Rooms.</title>
         <link id="icon" rel="shortcut icon" href="../images/logo.svg" />
-        <link id="appleTouchIcon" rel="apple-touch-icon" href="../images/logo.svg" />
+        <link id="appleTouchIcon" rel="apple-touch-icon" href="../images/pwa/apple-touch-icon.png" />
+        <!-- PWA_START -->
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <script defer src="../js/pwa.js"></script>
+        <!-- PWA_END -->
 
         <meta charset="utf-8" />
         <meta name="robots" content="noindex, nofollow" />

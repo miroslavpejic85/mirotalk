@@ -43,7 +43,7 @@ dependencies: {
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.77
+ * @version 2.3.78
  *
  */
 
@@ -77,6 +77,7 @@ const RoomLobby = require('./roomLobby');
 const RoomBans = require('./roomBans');
 const HtmlInjector = require('./htmlInjector');
 const { buildRobotsTxt, buildSitemapXml } = require('./seo');
+const { isPwaEnabled, buildWebManifest, buildServiceWorker } = require('./pwa');
 const Host = require('./host');
 const Logs = require('./logs');
 const { isSensitiveKey } = require('./logRedactor');
@@ -704,6 +705,17 @@ app.get('/robots.txt', (req, res) => {
 app.get('/sitemap.xml', (req, res) => {
     if (OIDC.enabled || hostCfg.protected) return res.status(404).sendFile(views.notFound);
     res.type('application/xml').send(buildSitemapXml(seoBaseUrl));
+});
+
+// Installable app (PWA): public like other static assets, browsers fetch the manifest without credentials
+app.get('/manifest.webmanifest', (req, res) => {
+    if (!isPwaEnabled(config.brand)) return res.status(404).sendFile(views.notFound);
+    res.setHeader('Cache-Control', 'no-cache');
+    res.type('application/manifest+json').send(JSON.stringify(buildWebManifest(config.brand)));
+});
+app.get('/sw.js', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.type('application/javascript').send(buildServiceWorker(config.brand));
 });
 
 // Use all static files from the public folder

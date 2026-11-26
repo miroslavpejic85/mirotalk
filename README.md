@@ -77,6 +77,7 @@
 <br/>
 
 - 🎥 Video up to **8K @ 60fps** · Screen sharing · Recording · Picture-in-Picture
+- 📲 Installable app (PWA) on desktop and phones: own window, dock / home screen icon, no app stores
 - 💬 Chat with Markdown, emoji & optional GIF search ([KLIPY](https://partner.klipy.com/)) · Collaborative whiteboard · Shared P2P editor · Live polls & quizzes · Breakout rooms · File sharing
 - 🤖 ChatGPT (OpenAI) integration · Speech recognition · Voice commands
 - 🔒 OIDC auth · [Host protection](https://docs.mirotalk.com/mirotalk-p2p/host-protection/) · JWT credentials · Room passwords · Lobby · Peer-to-peer encryption

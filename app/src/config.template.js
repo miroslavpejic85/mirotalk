@@ -2,7 +2,7 @@
 
 /**
  * ==============================================
- * MiroTalk P2P v.2.3.77 - Configuration File
+ * MiroTalk P2P v.2.3.78 - Configuration File
  * ==============================================
  *
  * This file is the central configuration source.
@@ -506,7 +506,7 @@ module.exports = {
         },
         site: {
             shortcutIcon: process.env.SITE_ICON_PATH || '../images/logo.svg',
-            appleTouchIcon: process.env.APPLE_TOUCH_ICON_PATH || '../images/logo.svg',
+            appleTouchIcon: process.env.APPLE_TOUCH_ICON_PATH || '../images/pwa/apple-touch-icon.png',
             landingTitle: process.env.SITE_TITLE || 'MiroTalk P2P - Open Source WebRTC Video Calls & Meetings',
             newCallTitle: process.env.NEW_CALL_TITLE || 'MiroTalk a Free Secure Video Calls, Chat & Screen Sharing.',
             newCallRoomTitle: process.env.NEW_ROOM_TITLE || 'Pick name. <br />Share URL. <br />Start conference.',
@@ -537,6 +537,18 @@ module.exports = {
             waitingRoomElapsedJust: process.env.WHO_ARE_YOU_WAITING_ROOM_ELAPSED_JUST || 'Just started waiting',
             waitingRoomElapsedMinutes: process.env.WHO_ARE_YOU_WAITING_ROOM_ELAPSED_MINUTES || 'Waiting for {minutes}',
             waitingRoomSongUrl: process.env.WHO_ARE_YOU_WAITING_ROOM_SONG_URL || '../sounds/waiting-music.mp3',
+        },
+        // Installable app (PWA): web app manifest (/manifest.webmanifest) + small service worker (/sw.js),
+        // so the app can be installed on desktop and phones (own window, dock / home screen icon), without app stores.
+        // Name and description come from app.name / app.description. Maskable icon = full-bleed, logo inside the center 80%.
+        pwa: {
+            enabled: getEnvBoolean(process.env.PWA_ENABLED, true),
+            shortName: process.env.PWA_SHORT_NAME || '', // Home screen label (empty = app.name)
+            themeColor: process.env.PWA_THEME_COLOR || '#0d0e12', // App window title bar color
+            backgroundColor: process.env.PWA_BACKGROUND_COLOR || '#0d0e12', // Splash screen color
+            icon192: process.env.PWA_ICON_192_PATH || '/images/pwa/icon-192.png',
+            icon512: process.env.PWA_ICON_512_PATH || '/images/pwa/icon-512.png',
+            iconMaskable: process.env.PWA_ICON_MASKABLE_PATH || '/images/pwa/icon-maskable-512.png',
         },
         html: {
             topSponsors: getEnvBoolean(process.env.SHOW_TOP_SPONSORS, true),

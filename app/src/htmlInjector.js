@@ -4,6 +4,7 @@ const chokidar = require('chokidar');
 const packageJson = require('../../package.json');
 const Logger = require('./logs');
 const { buildJsonLd, normalizeBaseUrl } = require('./seo');
+const { isPwaEnabled } = require('./pwa');
 const log = new Logger('HtmlInjector');
 
 class HtmlInjector {
@@ -63,11 +64,18 @@ class HtmlInjector {
         return String(value).replace(/[&<>"']/g, (character) => entities[character]);
     }
 
+    // Installable app (manifest link + service worker registration), independent of brand htmlInjection
+    replacePwaSection(html) {
+        return html.replace(/<!-- PWA_START -->([\s\S]*?)<!-- PWA_END -->/g, (_, content) =>
+            isPwaEnabled(this.config) ? content : ''
+        );
+    }
+
     // Function to load a file into the cache
     loadFileToCache(filePath) {
         try {
             const content = fs.readFileSync(filePath, 'utf-8');
-            this.cache[filePath] = content; // Store the content in cache
+            this.cache[filePath] = this.replacePwaSection(content); // Store the content in cache
         } catch (err) {
             log.error(`Error reading file: ${filePath}`, err);
         }
