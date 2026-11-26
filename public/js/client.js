@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.79
+ * @version 2.3.85
  *
  */
 
@@ -533,6 +533,8 @@ const labelNoiseSuppression = getId('labelNoiseSuppression');
 // Tab Media
 const shareMediaAudioVideoBtn = getId('shareMediaAudioVideoBtn');
 const shareMediaUrlInput = getId('shareMediaUrlInput');
+const shareMediaFileField = getId('shareMediaFileField');
+const shareMediaFileBtn = getId('shareMediaFileBtn');
 
 // My whiteboard
 const whiteboard = getId('whiteboard');
@@ -881,6 +883,7 @@ let isVideoFullScreenSupported = true;
 let isVideoOnFullScreen = false;
 let isScreenSharingSupported = false;
 let isScreenStreaming = false;
+let localFileShare = null;
 let isHideMeActive = getHideMeActive();
 let remoteMediaControls = false; // enable - disable peers video player controls (default false)
 let camera = 'user'; // user = front-facing camera on a smartphone. | environment = the back camera on a smartphone.
@@ -12518,6 +12521,10 @@ function setupMySettings() {
             shareMediaFromSettings();
         }
     });
+    shareMediaFileBtn.addEventListener('click', () => {
+        selectLocalMediaFile();
+    });
+    if (!isLocalFileShareSupported()) elemDisplay(shareMediaFileField, false);
     // select audio input
     audioInputSelect.addEventListener('change', async () => {
         detectBluetoothHeadset();
@@ -14157,15 +14164,18 @@ async function loadScreenMedia() {
 /**
  * Toggle screen sharing and handle related actions
  * @param {boolean} init - Indicates if it's the initial screen share state
+ * @param {MediaStream} providedStream - Stream to share instead of the display capture (local file share)
  */
-async function toggleScreenSharing(init = false) {
+async function toggleScreenSharing(init = false, providedStream = null) {
     try {
         screenMaxFrameRate = parseInt(screenFpsSelect.value, 10);
         const constraints = getScreenShareConstraints();
         isVideoPrivacyActive = false;
         if (!init) emitPeerStatus('privacy', isVideoPrivacyActive);
 
-        !isScreenStreaming ? await startScreenSharing(constraints, init) : await stopScreenSharing(init);
+        !isScreenStreaming
+            ? await startScreenSharing(constraints, init, providedStream)
+            : await stopScreenSharing(init);
 
         updateScreenSharingUI(isScreenStreaming, init);
     } catch (err) {
@@ -14215,9 +14225,10 @@ function getScreenShareConstraints() {
  * Start screen sharing with given constraints
  * @param {object} constraints - MediaStreamConstraints for screen sharing
  * @param {boolean} init - Indicates if it's the initial screen share
+ * @param {MediaStream} providedStream - Stream to share instead of the display capture (local file share)
  */
-async function startScreenSharing(constraints, init) {
-    const displayStream = await navigator.mediaDevices.getDisplayMedia(constraints);
+async function startScreenSharing(constraints, init, providedStream = null) {
+    const displayStream = providedStream || (await navigator.mediaDevices.getDisplayMedia(constraints));
     if (!displayStream) return;
     localScreenDisplayStream = displayStream;
     const screenVideoTrack = getVideoTrack(displayStream);
@@ -14246,7 +14257,8 @@ async function startScreenSharing(constraints, init) {
         await refreshMyStreamToPeers(undefined, true);
     }
     screenVideoTrack.onended = () => {
-        if (isScreenStreaming) toggleScreenSharing(init);
+        // A shared file ends its tracks when it finishes; replaying swaps in new ones
+        if (isScreenStreaming && !localFileShare) toggleScreenSharing(init);
     };
     if (init) {
         if (initStream) await stopTracks(initStream);
@@ -14300,6 +14312,7 @@ async function stopScreenSharing(init) {
     }
     localScreenDisplayStream = null;
     localScreenMediaStream = null;
+    cleanupLocalFileShare();
     if (!init) adaptAspectRatio();
     isScreenStreaming = false;
     myScreenStatus = false;
@@ -22718,6 +22731,7 @@ function sendVideoUrl(peer_id = null, peer_name = '', broadcast = !peer_id) {
 
     const targetPeerName = !broadcast ? filterXSS(peer_name || resolvePeerNameById(peer_id) || 'Participant') : '';
     const targetLabel = !broadcast && targetPeerName ? ` with ${targetPeerName}` : '';
+    const canShareFile = broadcast && isLocalFileShareSupported();
 
     Swal.fire({
         background: swBg,
@@ -22727,10 +22741,13 @@ function sendVideoUrl(peer_id = null, peer_name = '', broadcast = !peer_id) {
         text: `Paste a Video or audio URL${targetLabel}`,
         input: 'text',
         showCancelButton: true,
+        showDenyButton: canShareFile,
         confirmButtonText: `Share`,
+        denyButtonText: 'Local file',
         showClass: { popup: 'animate__animated animate__fadeInDown' },
         hideClass: { popup: 'animate__animated animate__fadeOutUp' },
     }).then((result) => {
+        if (result.isDenied) return selectLocalMediaFile();
         if (result.value) {
             shareMediaUrl(result.value, peer_id, peer_name, broadcast);
         }
@@ -22753,6 +22770,303 @@ function sendVideoUrl(peer_id = null, peer_name = '', broadcast = !peer_id) {
         .catch(() => {
             return false;
         });
+}
+
+/**
+ * Sharing a file from the device: the file plays in a detached <video> owned by the sharer and its
+ * captured stream is sent as the sharer's screen share (video + screen audio), so nobody else needs the file
+ * @returns {boolean}
+ */
+function isLocalFileShareSupported() {
+    const proto = window.HTMLMediaElement?.prototype;
+    return !!(buttons.main.showScreenBtn && proto && (proto.captureStream || proto.mozCaptureStream));
+}
+
+/**
+ * Check if a local file can be shared now
+ * @returns {boolean}
+ */
+function canShareLocalMediaFile() {
+    if (!isLocalFileShareSupported()) {
+        userLog('warning', 'Sharing a file from your device is not supported by this browser');
+        return false;
+    }
+    if (isScreenStreaming && !localFileShare) {
+        userLog('warning', 'Stop sharing your screen before sharing a file');
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Pick a video or audio file from the device and share it
+ */
+function selectLocalMediaFile() {
+    if (!canShareLocalMediaFile()) return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*,audio/*';
+    input.addEventListener('change', () => {
+        const file = input.files?.[0];
+        if (file) shareLocalMediaFile(file);
+    });
+    input.click();
+}
+
+/**
+ * Share a video or audio file from the device as the screen share
+ * @param {File} file video or audio file
+ * @returns {Promise<boolean>} true if shared
+ */
+async function shareLocalMediaFile(file) {
+    if (!canShareLocalMediaFile()) return false;
+    if (file.type && !/^(video|audio)\//.test(file.type)) {
+        userLog('warning', 'Please select a video or audio file');
+        return false;
+    }
+
+    if (localFileShare) await stopLocalFileShare();
+
+    const url = URL.createObjectURL(file);
+    const source = document.createElement('video');
+    source.playsInline = true;
+    source.preload = 'auto';
+    source.src = url;
+    const share = { file, url, source, captured: null, canvasTrack: null, drawTimer: null, ui: null };
+    localFileShare = share;
+
+    try {
+        await source.play();
+        if (localFileShare !== share) return false;
+
+        const captured = source.captureStream ? source.captureStream() : source.mozCaptureStream();
+        share.captured = captured;
+        // Tracks end when the file finishes and new ones appear when it plays again
+        captured.addEventListener('addtrack', ({ track }) => replaceLocalFileShareTrack(track));
+
+        let videoTrack = getVideoTrack(captured);
+        const audioTrack = getAudioTrack(captured);
+        if (!videoTrack) {
+            if (!audioTrack) throw new Error('No playable tracks');
+            // Audio-only file: peers get an animated waveform as the video track
+            videoTrack = share.canvasTrack = createLocalFileAudioVisual(share);
+        } else if ('contentHint' in videoTrack) {
+            videoTrack.contentHint = 'motion';
+        }
+        const stream = new MediaStream(audioTrack ? [videoTrack, audioTrack] : [videoTrack]);
+
+        share.syncControls = () => updateLocalFileShareControls();
+        ['play', 'pause', 'ended', 'timeupdate', 'durationchange', 'volumechange'].forEach((event) =>
+            source.addEventListener(event, share.syncControls)
+        );
+        source.addEventListener('error', () => {
+            if (localFileShare !== share) return;
+            userLog('error', 'Unable to play this file');
+            stopLocalFileShare();
+        });
+
+        await toggleScreenSharing(false, stream);
+        if (localFileShare !== share) return false;
+        if (!isScreenStreaming) {
+            cleanupLocalFileShare();
+            return false;
+        }
+        attachLocalFileShareControls(getId('myScreenWrap'));
+        console.log('[shareLocalMediaFile] Sharing file', { name: file.name, type: file.type, size: file.size });
+        return true;
+    } catch (err) {
+        console.error('[shareLocalMediaFile] Unable to share file', err);
+        if (localFileShare === share) cleanupLocalFileShare();
+        userLog('error', 'This file format is not supported by your browser');
+        return false;
+    }
+}
+
+/**
+ * Draw the audio waveform + file name as the video track of an audio-only file
+ * @param {object} share local file share state
+ * @returns {MediaStreamTrack} canvas video track
+ */
+function createLocalFileAudioVisual(share) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 640;
+    canvas.height = 360;
+    const ctx = canvas.getContext('2d');
+    const gif = new Image();
+    gif.src = images.audioGif;
+    const name = share.file.name;
+    const draw = () => {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (gif.complete && gif.naturalWidth) {
+            const scale = Math.min(canvas.width / gif.naturalWidth, (canvas.height - 60) / gif.naturalHeight);
+            const w = gif.naturalWidth * scale;
+            const h = gif.naturalHeight * scale;
+            ctx.drawImage(gif, (canvas.width - w) / 2, (canvas.height - 60 - h) / 2, w, h);
+        }
+        ctx.fillStyle = '#fff';
+        ctx.font = '20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(name.length > 50 ? name.slice(0, 47) + '...' : name, canvas.width / 2, canvas.height - 25);
+    };
+    draw();
+    share.drawTimer = setInterval(draw, 100);
+    return canvas.captureStream(10).getVideoTracks()[0];
+}
+
+/**
+ * Replace the ended file track (in the local screen stream and every peer sender) with the new one
+ * @param {MediaStreamTrack} track new captured track
+ */
+function replaceLocalFileShareTrack(track) {
+    const share = localFileShare;
+    if (!share || !localScreenMediaStream) return;
+    if (track.kind === 'video' && share.canvasTrack) return;
+    if (track.kind === 'video' && 'contentHint' in track) track.contentHint = 'motion';
+
+    // Same stream object (same id): peers keep routing it as the screen, the local preview follows it
+    const oldTrack = localScreenMediaStream.getTracks().find((t) => t.kind === track.kind);
+    if (oldTrack) localScreenMediaStream.removeTrack(oldTrack);
+    localScreenMediaStream.addTrack(track);
+
+    for (const peer_id in peerConnections) {
+        const pc = peerConnections[peer_id];
+        const sender = pc.getSenders().find((s) => oldTrack && s.track === oldTrack);
+        if (sender) {
+            sender.replaceTrack(track).catch((err) => console.warn('[localFileShare] replaceTrack failed', err));
+        } else if (track.kind === 'audio' && !pc._screenAudioSender) {
+            // The file audio was not sent yet (e.g. peer joined while the file had ended)
+            pc._screenAudioSender = pc.addTrack(track, localScreenMediaStream);
+            handleRtcOffer(peer_id);
+        }
+    }
+}
+
+/**
+ * Player controls for the sharer, on the local screen tile
+ * @param {HTMLElement} tile myScreenWrap
+ */
+function attachLocalFileShareControls(tile) {
+    const share = localFileShare;
+    if (!share || !tile) return;
+    removeLocalFileShareControls(share);
+
+    const bar = document.createElement('div');
+    bar.className = 'fileShareControls';
+    const play = document.createElement('button');
+    const seek = document.createElement('input');
+    seek.type = 'range';
+    seek.min = 0;
+    seek.step = 0.1;
+    seek.value = 0;
+    seek.setAttribute('aria-label', 'Seek');
+    const time = document.createElement('span');
+    time.className = 'fileShareTime notranslate';
+    const mute = document.createElement('button');
+    const stop = document.createElement('button');
+    stop.className = 'fas fa-stop';
+    bar.append(play, seek, time, mute, stop);
+
+    const { source } = share;
+    play.addEventListener('click', () => {
+        if (source.paused || source.ended) {
+            source.play().catch((err) => console.warn('[localFileShare] Play failed', err));
+        } else {
+            source.pause();
+        }
+    });
+    seek.addEventListener('input', () => {
+        share.seeking = true;
+        source.currentTime = Number(seek.value);
+    });
+    seek.addEventListener('change', () => (share.seeking = false));
+    mute.addEventListener('click', () => (source.muted = !source.muted));
+    stop.addEventListener('click', () => stopLocalFileShare());
+    // Keep tile gestures (zoom, pin, menus) away from the player controls
+    ['click', 'dblclick', 'wheel', 'pointerdown', 'mousedown', 'touchstart'].forEach((event) =>
+        bar.addEventListener(event, (e) => e.stopPropagation(), { passive: true })
+    );
+
+    tile.appendChild(bar);
+    share.ui = { bar, play, seek, time, mute };
+    updateLocalFileShareControls();
+
+    if (!isMobileDevice) {
+        setTippy(play, 'Play / Pause', 'top');
+        setTippy(mute, 'Mute local playback (viewers still hear it)', 'top');
+        setTippy(stop, 'Stop sharing file', 'top');
+    }
+}
+
+/**
+ * Remove the sharer player controls (and their tooltips, or they would linger after the tile is gone)
+ * @param {object} share local file share state
+ */
+function removeLocalFileShareControls(share) {
+    if (!share?.ui) return;
+    share.ui.bar.querySelectorAll('button').forEach((btn) => btn._tippy?.destroy());
+    share.ui.bar.remove();
+    share.ui = null;
+}
+
+/**
+ * Sync the sharer player controls with the file playback
+ */
+function updateLocalFileShareControls() {
+    const share = localFileShare;
+    const ui = share?.ui;
+    if (!ui) return;
+    const { source } = share;
+    const playing = !source.paused && !source.ended;
+    ui.play.className = playing ? 'fas fa-pause' : 'fas fa-play';
+    ui.mute.className = source.muted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
+    const duration = Number.isFinite(source.duration) ? source.duration : 0;
+    ui.seek.max = duration;
+    if (!share.seeking) ui.seek.value = source.currentTime;
+    ui.time.textContent = `${formatMediaTime(source.currentTime)} / ${formatMediaTime(duration)}`;
+}
+
+/**
+ * Format seconds as m:ss or h:mm:ss
+ * @param {number} seconds
+ * @returns {string}
+ */
+function formatMediaTime(seconds) {
+    const total = Math.max(0, Math.floor(seconds || 0));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = String(total % 60).padStart(2, '0');
+    return h ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
+}
+
+/**
+ * Stop sharing the local file (stops the screen share it is sent with)
+ */
+async function stopLocalFileShare() {
+    if (!localFileShare) return;
+    if (isScreenStreaming) {
+        // stopScreenSharing() releases the file share too
+        await toggleScreenSharing();
+    } else {
+        cleanupLocalFileShare();
+    }
+}
+
+/**
+ * Release the shared file: stop playback, tracks and the object URL
+ */
+function cleanupLocalFileShare() {
+    const share = localFileShare;
+    if (!share) return;
+    localFileShare = null;
+    clearInterval(share.drawTimer);
+    removeLocalFileShareControls(share);
+    share.canvasTrack?.stop();
+    share.captured?.getTracks().forEach((track) => track.stop());
+    share.source.pause();
+    share.source.removeAttribute('src');
+    share.source.load();
+    URL.revokeObjectURL(share.url);
 }
 
 /**
@@ -23360,7 +23674,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.79',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.85',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {

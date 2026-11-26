@@ -5496,6 +5496,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 #activeRoomsBtn,
 #myPeerNameSetBtn,
 #shareMediaAudioVideoBtn,
+#shareMediaFileBtn,
 #myProfileAvatarUploadBtn,
 #myProfileAvatarResetBtn,
 #captionEveryoneBtn,
@@ -5537,6 +5538,7 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 
 #myPeerNameSetBtn:hover,
 #shareMediaAudioVideoBtn:hover,
+#shareMediaFileBtn:hover,
 #myProfileAvatarUploadBtn:hover,
 #myProfileAvatarResetBtn:hover,
 #roomSendEmailBtn:hover,
@@ -5581,7 +5583,8 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 }
 
 #myPeerNameSetBtn,
-#shareMediaAudioVideoBtn {
+#shareMediaAudioVideoBtn,
+#shareMediaFileBtn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -5595,11 +5598,13 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 }
 
 #myPeerNameSetBtn:hover,
-#shareMediaAudioVideoBtn:hover {
+#shareMediaAudioVideoBtn:hover,
+#shareMediaFileBtn:hover {
     transform: none;
 }
 
-#mySettings #shareMediaAudioVideoBtn i {
+#mySettings #shareMediaAudioVideoBtn i,
+#mySettings #shareMediaFileBtn i {
     margin: 0;
     padding: 0;
 }
@@ -5635,7 +5640,8 @@ body.room-bg-active #videoMediaContainer.mouse-light {
     color: rgba(255, 255, 255, 0.45);
 }
 
-#mySettings #shareMediaUrlHint {
+#mySettings #shareMediaUrlHint,
+#mySettings #shareMediaFileHint {
     display: block;
     margin: 8px 0 0;
     padding: 0;
@@ -6183,7 +6189,15 @@ body.room-bg-active #videoMediaContainer.mouse-light {
 
 .settings-field
     > .title
-    + :is(select, input, .speaker-select-row, .output-volume-row, #myPeerNameSetContainer, #shareMediaUrlContainer) {
+    + :is(
+        select,
+        input,
+        .speaker-select-row,
+        .output-volume-row,
+        #myPeerNameSetContainer,
+        #shareMediaUrlContainer,
+        #shareMediaFileBtn
+    ) {
     margin-top: 16px;
 }
 

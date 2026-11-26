@@ -1504,3 +1504,55 @@ video:fullscreen {
     stroke-linecap: round;
     transition: stroke-dashoffset 0.15s linear;
 }
+
+/*--------------------------------------------------------------
+# Local file share player controls (sharer's screen tile, above the name label)
+--------------------------------------------------------------*/
+
+.fileShareControls {
+    z-index: 9;
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 60px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: var(--navbar-bg);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    cursor: default;
+}
+
+.fileShareControls button {
+    flex: 0 0 auto;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    background: transparent;
+    cursor: pointer;
+}
+
+.fileShareControls button:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.fileShareControls input[type='range'] {
+    flex: 1 1 auto;
+    min-width: 40px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.fileShareTime {
+    flex: 0 0 auto;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}

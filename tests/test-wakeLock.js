@@ -425,6 +425,8 @@ describe('mobile screen wake lock', () => {
             refreshMyStreamToPeers: async () => {},
             getId: () => null,
             adaptAspectRatio() {},
+            localFileShare: null,
+            cleanupLocalFileShare() {},
             peerInfo: {},
             screenReaderAccessibility: { announceMessage() {} },
             MediaStream: function () {
