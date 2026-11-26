@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.76
+ * @version 2.3.77
  *
  */
 
@@ -917,6 +917,8 @@ let isChatMarkdownOn = false;
 let isChatPasteTxt = false;
 let pinChatByDefault = false;
 let speechInMessages = false;
+let speechUtterances = new Set(); // queued TTS, the mic stays silenced while not empty
+let speechWatchdog = null;
 let chatTime12h = false; // chat time in 12-hour AM/PM format
 let isSpeechSynthesisSupported = 'speechSynthesis' in window;
 let transcripts = []; // collect all the transcripts to save it later if you need
@@ -16800,10 +16802,44 @@ function streamMessage(element, message, speed = 100) {
  * @param {string} msg message
  */
 function speechMessage(newMsg = true, from, msg) {
-    const speech = new SpeechSynthesisUtterance();
-    speech.text = (newMsg ? 'New' : '') + ' message from:' + from + '. The message is:' + msg;
+    speak((newMsg ? 'New' : '') + ' message from:' + from + '. The message is:' + msg);
+}
+
+/**
+ * Speak text locally with the outgoing mic silenced, so speakers never leak it (e.g. private messages) into the call
+ * @param {string} text
+ */
+function speak(text) {
+    const speech = new SpeechSynthesisUtterance(text);
     speech.rate = 0.9;
+    speech.onend = speech.onerror = () => onSpeechDone(speech);
+    // Strong reference: Chrome may garbage-collect queued utterances and never fire onend
+    speechUtterances.add(speech);
+    setMicSilenced(true);
     window.speechSynthesis.speak(speech);
+}
+
+function onSpeechDone(speech) {
+    speechUtterances.delete(speech);
+    if (!speechUtterances.size) setMicSilenced(false);
+}
+
+/**
+ * Local only: peers see no mute state change, the sent track just carries silence
+ * @param {boolean} silenced
+ */
+function setMicSilenced(silenced) {
+    clearInterval(speechWatchdog);
+    if (silenced) {
+        // onend is unreliable on some browsers; don't leave the mic silenced once the queue is empty
+        speechWatchdog = setInterval(() => {
+            if (window.speechSynthesis.speaking || window.speechSynthesis.pending) return;
+            speechUtterances.clear();
+            setMicSilenced(false);
+        }, 1000);
+    }
+    const audioTrack = getAudioTrack(localAudioMediaStream);
+    if (audioTrack) audioTrack.enabled = !silenced && myAudioStatus;
 }
 
 /**
@@ -23209,7 +23245,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.76',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.77',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
