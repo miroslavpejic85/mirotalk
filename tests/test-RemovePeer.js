@@ -17,6 +17,7 @@ function extractFunction(name) {
 }
 
 const source = extractFunction('handleRemovePeer');
+const screenAudioSource = ['removeRemoteScreenAudio', 'syncRemoteScreenAudioVolume'].map(extractFunction).join('\n');
 
 describe('handleRemovePeer', () => {
     const peerId = 'peer1';
@@ -55,6 +56,9 @@ describe('handleRemovePeer', () => {
             function removeVideoPinMediaContainer() {}
             function scheduleParticipantViewRestore() {}
             function playSound() {}
+            function applyOutputVolume() {}
+            const blockedAudioElements = new Set();
+            ${screenAudioSource}
             ${source}
             globalThis.api = {
                 handleRemovePeer,
@@ -121,5 +125,18 @@ describe('handleRemovePeer', () => {
         context.api.handleRemovePeer({ peer_id: peerId });
 
         assertForgotten();
+    });
+
+    it('stops the shared screen audio of a peer that leaves', () => {
+        const wrap = document.createElement('div');
+        const audio = document.createElement('audio');
+        audio.id = `${peerId}___screenAudio`;
+        wrap.appendChild(audio);
+        document.body.appendChild(wrap);
+
+        context.api.handleRemovePeer({ peer_id: peerId });
+
+        assert.equal(document.getElementById(audio.id), null);
+        assert.equal(audio.srcObject, null);
     });
 });

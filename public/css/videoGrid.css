@@ -240,6 +240,16 @@
     display: inline;
 }
 
+/* Screen share audio volume: desktop icon + slider, kept apart from the participant mic volume */
+.navbar .screen-audio-volume {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    margin: 0 3px;
+    color: #fff;
+}
+
 .video-drawing-canvas {
     position: absolute;
     z-index: 7;

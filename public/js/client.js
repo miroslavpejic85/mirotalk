@@ -15,7 +15,7 @@ http://patorjk.com/software/taag/#p=display&f=ANSI%20Regular&t=Client
  * @link    Official Live demo: https://p2p.mirotalk.com
  * @license Open source: AGPLv3 | Commercial/closed source (official channel): https://docs.mirotalk.com/sites/p2p/
  * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 2.3.78
+ * @version 2.3.79
  *
  */
 
@@ -808,7 +808,6 @@ let initGravatarToken = 0;
 let localVideoMediaStream; // my webcam
 let localScreenMediaStream; // my screen share
 let localScreenDisplayStream; // raw getDisplayMedia stream (may include audio)
-let screenShareAudioContext; // AudioContext used to mix screen audio + microphone
 let localAudioMediaStream; // my microphone
 let noiseProcessor = null; // RNNoise audio processing
 let noiseSuppressionRequest = 0;
@@ -4803,6 +4802,11 @@ async function handleOnTrack(peer_id, peers) {
         };
 
         if (kind === 'audio') {
+            if (isRemoteScreenAudio(peer_id, peerInfo, inbound)) {
+                loadRemoteScreenAudio(inbound, peer_id, peer_name);
+                return;
+            }
+
             const audioElement = getId(`${peer_id}___audio`);
 
             if (audioElement) {
@@ -4851,11 +4855,11 @@ async function handleAddTracks(peer_id) {
 
     const videoTrack = getVideoTrack(localVideoMediaStream);
     const screenTrack = getVideoTrack(localScreenMediaStream);
+    // The shared screen audio gets its own sender: peers control its volume apart from the mic
     const screenAudioTrack =
         isScreenStreaming && hasAudioTrack(localScreenMediaStream) ? getAudioTrack(localScreenMediaStream) : null;
-    const micAudioTrack = getAudioTrack(localAudioMediaStream);
-    const audioTrack = screenAudioTrack || micAudioTrack;
-    const audioStream = screenAudioTrack ? localScreenMediaStream : localAudioMediaStream;
+    const audioTrack = getAudioTrack(localAudioMediaStream);
+    const audioStream = localAudioMediaStream;
 
     console.log('handleAddTracks', {
         videoTrack: videoTrack,
@@ -4877,6 +4881,11 @@ async function handleAddTracks(peer_id) {
     if (audioTrack && audioStream) {
         console.log('[ADD AUDIO TRACK] to Peer Name [' + peer_name + ']');
         await pc.addTrack(audioTrack, audioStream);
+    }
+
+    if (screenAudioTrack) {
+        console.log('[ADD SCREEN AUDIO TRACK] to Peer Name [' + peer_name + ']');
+        pc._screenAudioSender = pc.addTrack(screenAudioTrack, localScreenMediaStream);
     }
 }
 
@@ -5194,6 +5203,7 @@ function handleDisconnect(reason) {
         if (peerAudioMediaElements[peerAudioId] && peerAudioMediaElements[peerAudioId].parentNode) {
             peerAudioMediaElements[peerAudioId].parentNode.removeChild(peerAudioMediaElements[peerAudioId]);
         }
+        removeRemoteScreenAudio(peer_id);
 
         peerConnections[peer_id].close();
         msgerRemovePeer(peer_id);
@@ -5290,6 +5300,7 @@ function handleRemovePeer(config) {
         updateAudioUnlockPrompt();
         syncRecordingAudio();
     }
+    removeRemoteScreenAudio(peer_id);
 
     if (peer_id in peerConnections) peerConnections[peer_id].close();
 
@@ -7427,6 +7438,16 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenDropdownBtn = document.createElement('button');
             const remoteScreenDropdownContent = document.createElement('div');
             const remoteScreenAvatarImage = document.createElement('img');
+            // Shared tab/system audio volume (desktop only, like the mic volume): shown once that audio arrives
+            const remoteScreenAudioVolume =
+                !isMobileDevice && buttons.remote.showAudioVolume ? document.createElement('input') : null;
+            if (remoteScreenAudioVolume) {
+                remoteScreenAudioVolume.setAttribute('id', peer_id + '_screenAudioVolume');
+                remoteScreenAudioVolume.type = 'range';
+                remoteScreenAudioVolume.min = 0;
+                remoteScreenAudioVolume.max = 100;
+                remoteScreenAudioVolume.value = 100;
+            }
 
             // IDs and classes
             remoteScreenPeerName.setAttribute('id', peer_id + '_screen_name');
@@ -7499,6 +7520,11 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             remoteScreenDropdownBtn.setAttribute('aria-label', 'More options');
             remoteScreenDropdownContent.className = 'navbar-dropdown-content';
 
+            if (remoteScreenAudioVolume) {
+                remoteScreenAudioVolume._dropdownItem = remoteScreenDropdownContent.appendChild(
+                    createResponsiveDropdownRangeItem(remoteScreenAudioVolume, 'Screen audio volume', 'fa-desktop')
+                );
+            }
             !isMobileDevice &&
                 remoteScreenDropdownContent.appendChild(
                     createResponsiveDropdownItem(remoteScreenPinBtn, 'Pin Screen', 'compact')
@@ -7569,6 +7595,17 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             buttons.remote.showFileShareBtn && remoteScreenNavBar.appendChild(remoteScreenFileShareBtn);
             buttons.remote.showShareVideoAudioBtn && remoteScreenNavBar.appendChild(remoteScreenVideoAudioUrlBtn);
 
+            if (remoteScreenAudioVolume) {
+                // Desktop icon tells it apart from the participant mic volume on the camera tile
+                const screenAudioIcon = document.createElement('i');
+                screenAudioIcon.className = 'fas fa-desktop';
+                remoteScreenAudioVolume._barItem = document.createElement('span');
+                remoteScreenAudioVolume._barItem.className = 'screen-audio-volume navbar-secondary-action';
+                remoteScreenAudioVolume._barItem.append(screenAudioIcon, remoteScreenAudioVolume);
+                remoteScreenNavBar.appendChild(remoteScreenAudioVolume._barItem);
+                setTippy(remoteScreenAudioVolume._barItem, 'Screen audio volume', 'top');
+            }
+
             remoteScreenNavBar.appendChild(remoteScreenDropdownDiv);
 
             remoteScreenMedia.setAttribute('id', peer_id + '___screen');
@@ -7598,6 +7635,7 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             const remoteScreenDrawing = VideoDrawingOverlay.getOrCreate(peer_id, remoteScreenWrap, remoteScreenMedia);
             remoteScreenDrawing.bindControls(remoteScreenDrawingBtn);
             handleScreenCameraLayoutBtn(remoteScreenCamLayoutBtn);
+            handleRemoteScreenAudioVolume(peer_id);
             isMobileDevice && ScreenTouchZoom.attach(remoteScreenWrap);
             // Explicitly play – required on mobile Safari where autoplay alone is not enough
             remoteScreenMedia.play().catch(() => {});
@@ -7696,6 +7734,109 @@ async function loadRemoteMediaStream(stream, peers, peer_id, kind) {
             break;
         default:
             break;
+    }
+}
+
+/**
+ * Check if an incoming audio stream is the peer shared screen audio (sent apart from the mic)
+ * @param {string} peer_id socket.id
+ * @param {object} peerInfo peer info (extras carry the screen stream id)
+ * @param {MediaStream} stream inbound stream
+ * @returns {boolean}
+ */
+function isRemoteScreenAudio(peer_id, peerInfo, stream) {
+    if (!stream) return false;
+    const screenStreamId = peerInfo?.extras?.screen_stream_id;
+    if (screenStreamId && screenStreamId === stream.id) return true;
+    // Fallback: the screen video of the same stream already arrived
+    const remoteScreen = getId(peer_id + '___screen');
+    return !!remoteScreen?.srcObject && remoteScreen.srcObject.id === stream.id;
+}
+
+/**
+ * Play the peer shared screen audio on its own element, so it has its own volume
+ * @param {MediaStream} stream inbound stream
+ * @param {string} peer_id socket.id
+ * @param {string} peer_name peer name
+ */
+async function loadRemoteScreenAudio(stream, peer_id, peer_name) {
+    let audio = getId(peer_id + '___screenAudio');
+    if (!audio) {
+        const wrap = document.createElement('div');
+        audio = document.createElement('audio');
+        audio.id = peer_id + '___screenAudio';
+        audio.autoplay = true;
+        audio.controls = false;
+        audio.dataset.peerVolume = 1;
+        wrap.appendChild(audio);
+        audioMediaContainer.appendChild(wrap);
+        // Same recovery as the mic audio: a pause is always the browser interrupting it
+        audio.addEventListener('pause', () => {
+            if (!audio.isConnected || document.hidden || blockedAudioElements.has(audio)) return;
+            playRemoteAudio(audio);
+        });
+        if (sinkId && audioOutputSelect && audioOutputSelect.value) {
+            try {
+                await changeAudioDestination(audio, false);
+            } catch (e) {
+                console.warn('[AUDIO] changeAudioDestination failed for screen audio of ' + peer_name, e);
+            }
+        }
+    }
+    audio._peerName = peer_name;
+    attachMediaStream(audio, new MediaStream(stream.getAudioTracks()));
+    syncRemoteScreenAudioVolume(peer_id);
+    playRemoteAudio(audio);
+}
+
+/**
+ * Remove the peer shared screen audio element
+ * @param {string} peer_id socket.id
+ */
+function removeRemoteScreenAudio(peer_id) {
+    const audio = getId(peer_id + '___screenAudio');
+    if (audio) {
+        audio.parentNode.remove();
+        audio.srcObject = null;
+        blockedAudioElements.delete(audio);
+        updateAudioUnlockPrompt();
+        syncRecordingAudio();
+    }
+    syncRemoteScreenAudioVolume(peer_id);
+}
+
+/**
+ * Wire the screen audio volume slider of a remote screen tile
+ * @param {string} peer_id socket.id
+ */
+function handleRemoteScreenAudioVolume(peer_id) {
+    const volume = getId(peer_id + '_screenAudioVolume');
+    if (!volume) return;
+    volume.style.maxWidth = '40px';
+    volume.style.cursor = 'pointer';
+    volume.addEventListener('input', () => syncRemoteScreenAudioVolume(peer_id));
+    syncRemoteScreenAudioVolume(peer_id);
+}
+
+/**
+ * Show the screen audio volume only while that audio plays, and apply its level.
+ * The screen tile and its audio arrive and leave independently, in any order.
+ * @param {string} peer_id socket.id
+ */
+function syncRemoteScreenAudioVolume(peer_id) {
+    const volume = getId(peer_id + '_screenAudioVolume');
+    if (!volume) return;
+    const audio = getId(peer_id + '___screenAudio');
+    if (volume._barItem) volume._barItem.style.display = audio ? '' : 'none';
+    if (volume._dropdownItem) {
+        // .navbar-dropdown-item forces display with !important
+        audio
+            ? volume._dropdownItem.style.removeProperty('display')
+            : volume._dropdownItem.style.setProperty('display', 'none', 'important');
+    }
+    if (audio) {
+        audio.dataset.peerVolume = volume.value / 100;
+        applyOutputVolume(audio);
     }
 }
 
@@ -14084,18 +14225,10 @@ async function startScreenSharing(constraints, init) {
         console.error('[ScreenShare] No video track in display stream');
         return;
     }
+    // Screen audio travels as its own track (the mic keeps its sender), so peers can set its volume apart
     const screenAudioTrack = getAudioTrack(displayStream);
-    const micAudioTrack =
-        myAudioStatus && hasAudioTrack(localAudioMediaStream) ? getAudioTrack(localAudioMediaStream) : null;
-    if (screenShareAudioContext) {
-        try {
-            await screenShareAudioContext.close();
-        } catch (_) {}
-        screenShareAudioContext = null;
-    }
-    const outgoingAudioTrack = await mixScreenAndMicAudio(screenAudioTrack, micAudioTrack);
-    localScreenMediaStream = outgoingAudioTrack
-        ? new MediaStream([screenVideoTrack, outgoingAudioTrack])
+    localScreenMediaStream = screenAudioTrack
+        ? new MediaStream([screenVideoTrack, screenAudioTrack])
         : new MediaStream([screenVideoTrack]);
     isScreenStreaming = true;
     myScreenStatus = true;
@@ -14166,12 +14299,6 @@ async function stopScreenSharing(init) {
         localScreenDisplayStream.getTracks().forEach((t) => t.stop());
     }
     localScreenDisplayStream = null;
-    if (screenShareAudioContext) {
-        try {
-            await screenShareAudioContext.close();
-        } catch (_) {}
-        screenShareAudioContext = null;
-    }
     localScreenMediaStream = null;
     if (!init) adaptAspectRatio();
     isScreenStreaming = false;
@@ -14196,6 +14323,9 @@ async function stopScreenSharing(init) {
                 micTrack.enabled = true;
                 await refreshMyStreamToPeers(localAudioMediaStream, true);
                 console.log('[ScreenShare] Refreshing mic audio after screen share stop');
+            } else {
+                // No mic to refresh: still drop the screen senders, so a later share renegotiates fresh tracks
+                await refreshMyStreamToPeers();
             }
         }
         screenReaderAccessibility.announceMessage('Screen sharing stopped');
@@ -14220,37 +14350,6 @@ async function stopScreenSharing(init) {
         disable(initVideoBtn, false);
         if (!restartCamera) initVideoOffShow();
     }
-}
-
-/**
- * Mix screen and microphone audio tracks into a single audio track
- * @param {MediaStreamTrack} screenAudioTrack - The audio track from the screen share
- * @param {MediaStreamTrack} micAudioTrack - The audio track from the microphone
- * @returns {Promise<MediaStreamTrack|null>} - The mixed audio track or null if none available
- */
-async function mixScreenAndMicAudio(screenAudioTrack, micAudioTrack) {
-    if (screenAudioTrack && micAudioTrack) {
-        try {
-            screenShareAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const destination = screenShareAudioContext.createMediaStreamDestination();
-            const screenSource = screenShareAudioContext.createMediaStreamSource(new MediaStream([screenAudioTrack]));
-            screenSource.connect(destination);
-            const micSource = screenShareAudioContext.createMediaStreamSource(new MediaStream([micAudioTrack]));
-            micSource.connect(destination);
-            try {
-                await screenShareAudioContext.resume();
-            } catch (_) {}
-            return destination.stream.getAudioTracks()[0] || null;
-        } catch (err) {
-            console.warn('[ScreenShare] Unable to mix screen+mic audio, falling back to screen audio only:', err);
-            return screenAudioTrack;
-        }
-    } else if (screenAudioTrack) {
-        return screenAudioTrack;
-    } else if (micAudioTrack) {
-        return micAudioTrack;
-    }
-    return null;
 }
 
 /**
@@ -14430,17 +14529,11 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false, isC
     const cameraTrack = getVideoTrack(localVideoMediaStream);
     const screenTrack = getVideoTrack(localScreenMediaStream);
 
-    // Determine which audio track to use.
-    // While screen sharing, prefer the screen-share audio track (which may be mixed screen+mic).
-    // Always prefer mic audio when not screen sharing
-    let audioTrack, audioStream;
-    if (isScreenStreaming && hasAudioTrack(localScreenMediaStream)) {
-        audioTrack = getAudioTrack(localScreenMediaStream);
-        audioStream = localScreenMediaStream;
-    } else {
-        audioTrack = getAudioTrack(localAudioMediaStream);
-        audioStream = localAudioMediaStream;
-    }
+    // The mic and the shared screen audio are sent as separate tracks, so peers can set their volume apart
+    const audioTrack = getAudioTrack(localAudioMediaStream);
+    const audioStream = localAudioMediaStream;
+    const screenAudioTrack =
+        isScreenStreaming && hasAudioTrack(localScreenMediaStream) ? getAudioTrack(localScreenMediaStream) : null;
 
     // Push tracks to every peer
     for (const peer_id in peerConnections) {
@@ -14449,7 +14542,7 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false, isC
 
         const senders = pc.getSenders();
         const videoSenders = senders.filter((s) => s.track && s.track.kind === 'video');
-        const audioSender = senders.find((s) => s.track && s.track.kind === 'audio');
+        const audioSender = senders.find((s) => s.track && s.track.kind === 'audio' && s !== pc._screenAudioSender);
 
         // Camera track management (sender index 0)
         if (cameraTrack) {
@@ -14492,6 +14585,27 @@ async function refreshMyStreamToPeers(stream, localAudioTrackChange = false, isC
                     console.warn('REMOVE SCREEN SENDER FAILED', e);
                 }
             }
+        }
+
+        // Screen audio track management (its own sender, never the mic one)
+        if (screenAudioTrack) {
+            if (pc._screenAudioSender?.track) {
+                await pc._screenAudioSender.replaceTrack(screenAudioTrack);
+                console.log('REPLACE SCREEN AUDIO TRACK TO', { peer_id, peer_name, screenAudioTrack });
+            } else {
+                pc._screenAudioSender = pc.addTrack(screenAudioTrack, localScreenMediaStream);
+                await handleRtcOffer(peer_id);
+                console.log('ADD SCREEN AUDIO TRACK TO', { peer_id, peer_name, screenAudioTrack });
+            }
+        } else if (pc._screenAudioSender) {
+            try {
+                pc.removeTrack(pc._screenAudioSender);
+                await handleRtcOffer(peer_id);
+                console.log('REMOVE SCREEN AUDIO SENDER FROM', { peer_id, peer_name });
+            } catch (e) {
+                console.warn('REMOVE SCREEN AUDIO SENDER FAILED', e);
+            }
+            pc._screenAudioSender = null;
         }
 
         // Audio track management
@@ -19435,6 +19549,7 @@ function handleScreenStop(peer_id, peer_use_video) {
         remoteScreenWrap.remove();
         adaptAspectRatio();
     }
+    removeRemoteScreenAudio(peer_id);
     if (remoteScreenAvatarImage && remoteScreenStream && !peer_use_video) {
         elemDisplay(remoteScreenAvatarImage, true, 'block');
         remoteScreenStream.srcObject.getVideoTracks().forEach((track) => {
@@ -23245,7 +23360,7 @@ function showAbout() {
     Swal.fire({
         background: swBg,
         position: 'center',
-        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.78',
+        title: brand.about?.title && brand.about.title.trim() !== '' ? brand.about.title : 'WebRTC P2P v2.3.79',
         imageUrl: brand.about?.imageUrl && brand.about.imageUrl.trim() !== '' ? brand.about.imageUrl : images.about,
         customClass: { image: 'img-about' },
         html: renderRoomTemplate('tpl-about-modal', {
